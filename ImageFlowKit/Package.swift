@@ -24,6 +24,7 @@ let package = Package(
         .library(name: "Logging"),
         .library(name: "MacApp"),
         .library(name: "Models"),
+        .library(name: "NodeControls"),
         .library(name: "NodeView"),
         .library(name: "SwiftUIUtils"),
         .library(name: "Values"),
@@ -90,6 +91,16 @@ let package = Package(
                 "Logging",
                 "Values",
                 "Backend",
+            ],
+        ),
+        .target(
+            name: "NodeControls",
+            dependencies: [
+                "CommonUtils",
+                "SwiftUIUtils",
+                "Logging",
+                "Models",
+                "Design",
             ],
         ),
         .target(
