@@ -1,0 +1,591 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEE87D4E2E21EA5C00BFC36F /* NodeView */; };
+		AEE87D512E21EB0500BFC36F /* IPadApp in Frameworks */ = {isa = PBXBuildFile; productRef = AEE87D502E21EB0500BFC36F /* IPadApp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AE596D432E21C2D3005F49B2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AE596D2D2E21C2D2005F49B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AE596D342E21C2D2005F49B2;
+			remoteInfo = ImageFlowIPad;
+		};
+		AE596D4D2E21C2D3005F49B2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AE596D2D2E21C2D2005F49B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AE596D342E21C2D2005F49B2;
+			remoteInfo = ImageFlowIPad;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFlowIPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowIPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowIPadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE596D372E21C2D2005F49B2 /* ImageFlowIPad */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ImageFlowIPad;
+			sourceTree = "<group>";
+		};
+		AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ImageFlowIPadTests;
+			sourceTree = "<group>";
+		};
+		AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ImageFlowIPadUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AE596D322E21C2D2005F49B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEE87D512E21EB0500BFC36F /* IPadApp in Frameworks */,
+				AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D3F2E21C2D3005F49B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D492E21C2D3005F49B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AE5800B62E21C70400C21EEC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AE596D2C2E21C2D2005F49B2 = {
+			isa = PBXGroup;
+			children = (
+				AE596D372E21C2D2005F49B2 /* ImageFlowIPad */,
+				AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */,
+				AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
+				AE5800B62E21C70400C21EEC /* Frameworks */,
+				AE596D362E21C2D2005F49B2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AE596D362E21C2D2005F49B2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */,
+				AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */,
+				AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AE596D342E21C2D2005F49B2 /* ImageFlowIPad */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE596D562E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPad" */;
+			buildPhases = (
+				AE596D312E21C2D2005F49B2 /* Sources */,
+				AE596D322E21C2D2005F49B2 /* Frameworks */,
+				AE596D332E21C2D2005F49B2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE596D372E21C2D2005F49B2 /* ImageFlowIPad */,
+			);
+			name = ImageFlowIPad;
+			packageProductDependencies = (
+				AEE87D4E2E21EA5C00BFC36F /* NodeView */,
+				AEE87D502E21EB0500BFC36F /* IPadApp */,
+			);
+			productName = ImageFlowIPad;
+			productReference = AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AE596D412E21C2D3005F49B2 /* ImageFlowIPadTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE596D592E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadTests" */;
+			buildPhases = (
+				AE596D3E2E21C2D3005F49B2 /* Sources */,
+				AE596D3F2E21C2D3005F49B2 /* Frameworks */,
+				AE596D402E21C2D3005F49B2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AE596D442E21C2D3005F49B2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */,
+			);
+			name = ImageFlowIPadTests;
+			packageProductDependencies = (
+			);
+			productName = ImageFlowIPadTests;
+			productReference = AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AE596D4B2E21C2D3005F49B2 /* ImageFlowIPadUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE596D5C2E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadUITests" */;
+			buildPhases = (
+				AE596D482E21C2D3005F49B2 /* Sources */,
+				AE596D492E21C2D3005F49B2 /* Frameworks */,
+				AE596D4A2E21C2D3005F49B2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AE596D4E2E21C2D3005F49B2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
+			);
+			name = ImageFlowIPadUITests;
+			packageProductDependencies = (
+			);
+			productName = ImageFlowIPadUITests;
+			productReference = AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AE596D2D2E21C2D2005F49B2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					AE596D342E21C2D2005F49B2 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					AE596D412E21C2D3005F49B2 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AE596D342E21C2D2005F49B2;
+					};
+					AE596D4B2E21C2D3005F49B2 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AE596D342E21C2D2005F49B2;
+					};
+				};
+			};
+			buildConfigurationList = AE596D302E21C2D2005F49B2 /* Build configuration list for PBXProject "ImageFlowIPad" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AE596D2C2E21C2D2005F49B2;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AE596D362E21C2D2005F49B2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AE596D342E21C2D2005F49B2 /* ImageFlowIPad */,
+				AE596D412E21C2D3005F49B2 /* ImageFlowIPadTests */,
+				AE596D4B2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AE596D332E21C2D2005F49B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D402E21C2D3005F49B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D4A2E21C2D3005F49B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AE596D312E21C2D2005F49B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D3E2E21C2D3005F49B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE596D482E21C2D3005F49B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AE596D442E21C2D3005F49B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
+			targetProxy = AE596D432E21C2D3005F49B2 /* PBXContainerItemProxy */;
+		};
+		AE596D4E2E21C2D3005F49B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
+			targetProxy = AE596D4D2E21C2D3005F49B2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AE596D542E21C2D3005F49B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AE596D552E21C2D3005F49B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AE596D572E21C2D3005F49B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AE596D582E21C2D3005F49B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AE596D5A2E21C2D3005F49B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowIPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowIPad";
+			};
+			name = Debug;
+		};
+		AE596D5B2E21C2D3005F49B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowIPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowIPad";
+			};
+			name = Release;
+		};
+		AE596D5D2E21C2D3005F49B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ImageFlowIPad;
+			};
+			name = Debug;
+		};
+		AE596D5E2E21C2D3005F49B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ImageFlowIPad;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AE596D302E21C2D2005F49B2 /* Build configuration list for PBXProject "ImageFlowIPad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE596D542E21C2D3005F49B2 /* Debug */,
+				AE596D552E21C2D3005F49B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AE596D562E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE596D572E21C2D3005F49B2 /* Debug */,
+				AE596D582E21C2D3005F49B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AE596D592E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE596D5A2E21C2D3005F49B2 /* Debug */,
+				AE596D5B2E21C2D3005F49B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AE596D5C2E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE596D5D2E21C2D3005F49B2 /* Debug */,
+				AE596D5E2E21C2D3005F49B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AEE87D4E2E21EA5C00BFC36F /* NodeView */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NodeView;
+		};
+		AEE87D502E21EB0500BFC36F /* IPadApp */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = IPadApp;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = AE596D2D2E21C2D2005F49B2 /* Project object */;
+}
