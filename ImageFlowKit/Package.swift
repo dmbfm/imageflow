@@ -62,7 +62,7 @@ let package = Package(
         .target(
             name: "Design",
             dependencies: [
-                "ColorUtils",
+                "ColorUtils"
             ]
         ),
         .target(
@@ -123,9 +123,17 @@ let package = Package(
         .target(
             name: "Values",
         ),
+
+        // MARK: - Executable Targets
+
         .executableTarget(
             name: "NodeViewSample",
             path: "Samples/NodeView"
+        ),
+        .executableTarget(
+            name: "NodeControlsSample",
+            dependencies: ["NodeControls"],
+            path: "Samples/NodeControls"
         ),
     ]
 )
