@@ -1,33 +1,41 @@
+import CommonUtils
 import Design
 import Logging
 import SwiftUI
 import SwiftUIUtils
 
-fileprivate struct Background: View, Equatable {
-    let focused: Bool
-
-    var body: some View {
-        ZStack {
-            Color.purple
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .opacity(self.focused ? 1 : 0)
-                .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
-
-            Colors.numberInputBackground.color
-                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                .padding(3)
-        }
+public struct NodeNumberInput: View, @preconcurrency Equatable {
+    public static func == (lhs: NodeNumberInput, rhs: NodeNumberInput) -> Bool {
+        lhs.value == rhs.value && lhs.focused == rhs.focused && lhs.valueAtDragStart == rhs.valueAtDragStart
     }
-}
-
-public struct NodeNumberInput: View {
 
     @Binding var value: Double
-    @State var valueAtDragStart: Double?
     @FocusState var focused: Bool
+    @State var valueAtDragStart: Double?
 
-    public init(value: Binding<Double>) {
+    public struct Settings {
+        public var dragSensitivity: DragSensitivity = .init()
+        public var dragMaxFractionDigits: Int = 2
+        public init(dragSensitivity: NodeNumberInput.DragSensitivity = .init(), dragMaxFractionDigits: Int = 2) {
+            self.dragSensitivity = dragSensitivity
+            self.dragMaxFractionDigits = dragMaxFractionDigits
+        }
+    }
+
+    public struct DragSensitivity: Sendable, Equatable {
+        public var normal: CGFloat
+        public var slow: CGFloat
+        public init(normal: CGFloat = 0.01, slow: CGFloat = 0.001) {
+            self.normal = normal
+            self.slow = slow
+        }
+    }
+
+    let settings: Settings
+
+    public init(value: Binding<Double>, settings: Settings = .init()) {
         self._value = value
+        self.settings = settings
     }
 
     static let formatter: NumberFormatter = {
@@ -58,25 +66,34 @@ public struct NodeNumberInput: View {
             .onEnded(self.onDragEnded(_:))
     }
 
-    let normalSensitiviy = 0.1
-    let slowSensitivity = 0.001
-
-
     func onDragChanged(_ gesture: DragGesture.Value) {
+        self.dragIncrement(gesture)
+    }
+
+    func onDragEnded(_ gesture: DragGesture.Value) {
+        self.dragIncrement(gesture)
+        self.valueAtDragStart = nil
+    }
+
+    func dragIncrement(_ gesture: DragGesture.Value) {
         if self.valueAtDragStart == nil {
             self.valueAtDragStart = self.value
         }
 
-        self.value = self.valueAtDragStart! + gesture.translation.width * 0.1
-    }
+        #if os(macOS)
+        let sensitivity = if NSEvent.modifierFlags.contains(.shift) {
+            self.settings.dragSensitivity.slow
+        } else {
+            self.settings.dragSensitivity.normal
+        }
+        #else
+        let sensitivity = self.settings.dragSensitivity.normal
+        #endif
 
-    func onDragEnded(_ gesture: DragGesture.Value) {
-        self.value = self.valueAtDragStart! + gesture.translation.width * 0.1
-        self.valueAtDragStart = nil
+        self.value = (self.valueAtDragStart! + gesture.translation.width * sensitivity).roundTo(fractionalDigits: self.settings.dragMaxFractionDigits)
     }
 
     func onTap() {
-        log("tap!!!")
         self.focused = true
     }
 
@@ -92,25 +109,25 @@ public struct NodeNumberInput: View {
         TextField("", value: self.$value, formatter: Self.formatter)
             .textFieldStyle(.plain)
             .fixedSize()
-        #if os(iOS)
-            .keyboardType(.decimalPad)
-        #endif
+            #if os(iOS)
+        .keyboardType(.decimalPad)
+            #endif
             .font(.system(size: 10))
             .focused(self.$focused, equals: true)
-        #if os(masOS)
-            .onExitCommand(perform: self.onExitHandler)
+            #if os(masOS)
+        .onExitCommand(perform: self.onExitHandler)
         #endif
-            .onSubmit(self.onSubmitHandler)
-            .padding(.vertical, 5)
-            .padding(.leading, 6)
+        .onSubmit(self.onSubmitHandler)
+        .padding(.vertical, 5)
+        .padding(.leading, 6)
         #if os(iOS)
-            .padding(.trailing, 6)
+        .padding(.trailing, 6)
         #else
-            .padding(.trailing, 2)
+        .padding(.trailing, 2)
         #endif
-            .background(Background(focused: self.focused))
-            .overlay(self.overlayView)
-            .animation(.easeInOut(duration: 0.15), value: self.focused)
+        .background(Background(focused: self.focused))
+        .overlay(self.overlayView)
+        .animation(.easeInOut(duration: 0.15), value: self.focused)
     }
 
     private var overlayView: some View {
@@ -119,8 +136,26 @@ public struct NodeNumberInput: View {
                 view
                     .contentShape(Rectangle())
                     .gesture(self.dragGesture)
+                    // .gesture(DragGestureWithDelta())
                     .onTapGesture(perform: self.onTap)
             }
+    }
+}
+
+fileprivate struct Background: View, Equatable {
+    let focused: Bool
+
+    var body: some View {
+        ZStack {
+            Color.purple
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .opacity(self.focused ? 1 : 0)
+                .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
+
+            Colors.numberInputBackground.color
+                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                .padding(3)
+        }
     }
 }
 

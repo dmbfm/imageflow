@@ -3,7 +3,7 @@ import Foundation
 public extension Double {
     func truncateTo(fractionalDigits n: Int) -> Double {
         let factor = pow(10.0, Double(n))
-        return floor(self * factor) / factor
+        return trunc(self * factor) / factor
     }
 
     func roundTo(fractionalDigits n: Int) -> Double {

@@ -117,7 +117,8 @@ let package = Package(
         .target(
             name: "SwiftUIUtils",
             dependencies: [
-                "Logging"
+                "Logging",
+                "CommonUtils",
             ],
         ),
         .target(
