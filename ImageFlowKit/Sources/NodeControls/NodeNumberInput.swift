@@ -81,16 +81,19 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
         }
 
         #if os(macOS)
-        let sensitivity = if NSEvent.modifierFlags.contains(.shift) {
-            self.settings.dragSensitivity.slow
-        } else {
-            self.settings.dragSensitivity.normal
-        }
+        let sensitivity =
+            if NSEvent.modifierFlags.contains(.shift) {
+                self.settings.dragSensitivity.slow
+            } else {
+                self.settings.dragSensitivity.normal
+            }
         #else
         let sensitivity = self.settings.dragSensitivity.normal
         #endif
 
-        self.value = (self.valueAtDragStart! + gesture.translation.width * sensitivity).roundTo(fractionalDigits: self.settings.dragMaxFractionDigits)
+        self.value = (self.valueAtDragStart! + gesture.translation.width * sensitivity).roundTo(
+            fractionalDigits: self.settings.dragMaxFractionDigits
+        )
     }
 
     func onTap() {
@@ -152,10 +155,13 @@ fileprivate struct Background: View, Equatable {
                 .opacity(self.focused ? 1 : 0)
                 .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
 
-            Colors.numberInputBackground.color
+            Rectangle()
+                .fill(Colors.numberInputBackground.color)
+                // .fill(Colors.numberInputBackground.color.shadow(.inner(color: .init(white: 0, opacity: 0.25), radius: self.focused ? 4 : 0, y: self.focused ? 8 : 0)))
                 .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .padding(3)
         }
+        // .foregroundStyle(.shadow(.inner(color: .black, radius: 4)))
     }
 }
 
