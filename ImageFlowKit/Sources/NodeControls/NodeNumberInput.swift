@@ -4,6 +4,40 @@ import Logging
 import SwiftUI
 import SwiftUIUtils
 
+public struct NodeIntInput: View, @preconcurrency Equatable {
+    public static func == (lhs: NodeIntInput, rhs: NodeIntInput) -> Bool {
+        lhs.value == rhs.value
+    }
+
+    @Binding var value: Int
+
+    public var body: some View {
+        HStack(spacing: 0) {
+            NodeNumberInput(
+                value: .init {
+                    Double(self.value)
+                } set: { newValue in
+                    self.value = Int(round(newValue))
+                },
+                settings: .init(formatter: .int)
+            )
+
+            Stepper("", value: self.$value)
+                #if os(macOS)
+            .controlSize(.small)
+            .padding(.leading, -4)
+                #else
+            .padding(.leading, -2)
+            .fixedSize()
+            .scaleEffect(0.5)
+            .padding(.leading, -25)
+            .padding(.trailing, -15)
+                #endif
+
+        }
+    }
+}
+
 public struct NodeNumberInput: View, @preconcurrency Equatable {
     public static func == (lhs: NodeNumberInput, rhs: NodeNumberInput) -> Bool {
         lhs.value == rhs.value && lhs.focused == rhs.focused && lhs.valueAtDragStart == rhs.valueAtDragStart
@@ -16,9 +50,15 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
     public struct Settings {
         public var dragSensitivity: DragSensitivity = .init()
         public var dragMaxFractionDigits: Int = 2
-        public init(dragSensitivity: NodeNumberInput.DragSensitivity = .init(), dragMaxFractionDigits: Int = 2) {
+        public var formatter: Formatter = .float
+        public init(
+            dragSensitivity: NodeNumberInput.DragSensitivity = .init(),
+            dragMaxFractionDigits: Int = 2,
+            formatter: Formatter = .float
+        ) {
             self.dragSensitivity = dragSensitivity
             self.dragMaxFractionDigits = dragMaxFractionDigits
+            self.formatter = formatter
         }
     }
 
@@ -31,6 +71,11 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
         }
     }
 
+    public enum Formatter {
+        case int
+        case float
+    }
+
     let settings: Settings
 
     public init(value: Binding<Double>, settings: Settings = .init()) {
@@ -38,7 +83,16 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
         self.settings = settings
     }
 
-    static let formatter: NumberFormatter = {
+    static let intFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal  // or .none, depending on whether you want grouping separators
+        formatter.allowsFloats = false  // disallow any decimal input
+        formatter.minimumFractionDigits = 0  // no fractional digits
+        formatter.maximumFractionDigits = 0  // no fractional digits
+        return formatter
+    }()
+
+    static let floatFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         #if os(macOS)
@@ -59,6 +113,15 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
         formatter.minimumFractionDigits = 1
         return formatter
     }()
+
+    var formatter: NumberFormatter {
+        switch self.settings.formatter {
+        case .int:
+            Self.intFormatter
+        case .float:
+            Self.floatFormatter
+        }
+    }
 
     var dragGesture: some Gesture {
         DragGesture()
@@ -109,7 +172,7 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
     }
 
     public var body: some View {
-        TextField("", value: self.$value, formatter: Self.formatter)
+        TextField("", value: self.$value, formatter: self.formatter)
             .textFieldStyle(.plain)
             .fixedSize()
             #if os(iOS)
@@ -167,9 +230,11 @@ fileprivate struct Background: View, Equatable {
 
 #Preview {
     @Previewable @State var value: Double = 0.0
+    @Previewable @State var intValue: Int = 0
     VStack {
         NodeNumberInput(value: $value)
         Text("value = \(value)")
+        NodeIntInput(value: $intValue)
     }
     .frame(width: 500, height: 200)
     .background(Colors.cardBackground.color)
