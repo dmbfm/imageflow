@@ -213,7 +213,8 @@ fileprivate struct Background: View, Equatable {
 
     var body: some View {
         ZStack {
-            Color.purple
+            Rectangle()
+                .fill(.tint)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .opacity(self.focused ? 1 : 0)
                 .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
@@ -224,7 +225,6 @@ fileprivate struct Background: View, Equatable {
                 .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .padding(3)
         }
-        // .foregroundStyle(.shadow(.inner(color: .black, radius: 4)))
     }
 }
 
@@ -233,8 +233,10 @@ fileprivate struct Background: View, Equatable {
     @Previewable @State var intValue: Int = 0
     VStack {
         NodeNumberInput(value: $value)
+            .tint(.orange)
         Text("value = \(value)")
         NodeIntInput(value: $intValue)
+            .tint(.purple)
     }
     .frame(width: 500, height: 200)
     .background(Colors.cardBackground.color)
