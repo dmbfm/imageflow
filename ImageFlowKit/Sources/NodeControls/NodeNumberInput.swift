@@ -40,11 +40,10 @@ public struct NodeIntInput: View, @preconcurrency Equatable {
 
 public struct NodeNumberInput: View, @preconcurrency Equatable {
     public static func == (lhs: NodeNumberInput, rhs: NodeNumberInput) -> Bool {
-        lhs.value == rhs.value && lhs.focused == rhs.focused && lhs.valueAtDragStart == rhs.valueAtDragStart
+        lhs.value == rhs.value && lhs.valueAtDragStart == rhs.valueAtDragStart
     }
 
     @Binding var value: Double
-    @FocusState var focused: Bool
     @State var valueAtDragStart: Double?
 
     public struct Settings {
@@ -159,72 +158,12 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
         )
     }
 
-    func onTap() {
-        self.focused = true
-    }
-
-    func onExitHandler() {
-        self.focused = false
-    }
-
-    func onSubmitHandler() {
-        self.focused = false
-    }
-
     public var body: some View {
         TextField("", value: self.$value, formatter: self.formatter)
-            .textFieldStyle(.plain)
-            .fixedSize()
+            .nodeTextField(onDragChanged: self.onDragChanged(_:), onDragEnded: self.onDragEnded(_:))
             #if os(iOS)
         .keyboardType(.decimalPad)
             #endif
-            .font(.system(size: 10))
-            .focused(self.$focused, equals: true)
-            #if os(masOS)
-        .onExitCommand(perform: self.onExitHandler)
-        #endif
-        .onSubmit(self.onSubmitHandler)
-        .padding(.vertical, 5)
-        .padding(.leading, 6)
-        #if os(iOS)
-        .padding(.trailing, 6)
-        #else
-        .padding(.trailing, 2)
-        #endif
-        .background(Background(focused: self.focused))
-        .overlay(self.overlayView)
-        .animation(.easeInOut(duration: 0.15), value: self.focused)
-    }
-
-    private var overlayView: some View {
-        Color.clear
-            .if(!self.focused) { view in
-                view
-                    .contentShape(Rectangle())
-                    .gesture(self.dragGesture)
-                    // .gesture(DragGestureWithDelta())
-                    .onTapGesture(perform: self.onTap)
-            }
-    }
-}
-
-fileprivate struct Background: View, Equatable {
-    let focused: Bool
-
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.tint)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .opacity(self.focused ? 1 : 0)
-                .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
-
-            Rectangle()
-                .fill(Colors.numberInputBackground.color)
-                // .fill(Colors.numberInputBackground.color.shadow(.inner(color: .init(white: 0, opacity: 0.25), radius: self.focused ? 4 : 0, y: self.focused ? 8 : 0)))
-                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                .padding(3)
-        }
     }
 }
 
