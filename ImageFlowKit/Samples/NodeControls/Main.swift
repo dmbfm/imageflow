@@ -45,7 +45,6 @@ struct IntrospectView: NSViewRepresentable {
             }
 
             while superview != nil {
-                print("superview: \(superview?.className)")
                 superview = superview?.superview
                 if let superview {
                     printSubviews(" ", superview)
