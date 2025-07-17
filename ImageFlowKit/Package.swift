@@ -112,6 +112,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "Design",
+                "NodeControls",
             ],
         ),
         .target(

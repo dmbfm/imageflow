@@ -53,8 +53,10 @@ struct NodeTextFieldWrapper<Label: View>: View {
                 .onExitCommand(perform: self.onExitHandler)
             #endif
             .onSubmit(self.onSubmitHandler)
-            .padding(.vertical, 5)
+            .padding(.vertical, 3)
             .padding(.leading, 6)
+            .padding(.top, self.focused ? 3 : 1)
+            .animation(nil, value: self.focused)
             #if os(iOS)
                 .padding(.trailing, 6)
             #else
@@ -85,14 +87,14 @@ fileprivate struct Background: View, Equatable {
         ZStack {
             Rectangle()
                 .fill(.tint)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .opacity(self.focused ? 1 : 0)
                 .shadow(color: .init(white: 0, opacity: 0.9), radius: self.focused ? 5 : 0, y: 3)
 
             Rectangle()
                 .fill(Colors.numberInputBackground.color)
                 // .fill(Colors.numberInputBackground.color.shadow(.inner(color: .init(white: 0, opacity: 0.25), radius: self.focused ? 4 : 0, y: self.focused ? 8 : 0)))
-                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                 .padding(3)
         }
     }

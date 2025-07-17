@@ -5,19 +5,19 @@ public struct NodeVectorInput: View {
 
     @Binding var value: [Double]
 
-    init(array: Binding<[Double]>) {
+    public init(array: Binding<[Double]>) {
         self._value = array
     }
 
-    init(vector2: Binding<Vector2>) {
+    public init(vector2: Binding<Vector2>) {
         self._value = vector2.array
     }
 
-    init(vector3: Binding<Vector3>) {
+    public init(vector3: Binding<Vector3>) {
         self._value = vector3.array
     }
 
-    init(vector4: Binding<Vector4>) {
+    public init(vector4: Binding<Vector4>) {
         self._value = vector4.array
     }
 

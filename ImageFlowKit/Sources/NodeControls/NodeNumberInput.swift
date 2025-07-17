@@ -4,10 +4,10 @@ import Logging
 import SwiftUI
 import SwiftUIUtils
 
-public struct NodeIntInput: View, @preconcurrency Equatable {
-    public static func == (lhs: NodeIntInput, rhs: NodeIntInput) -> Bool {
-        lhs.value == rhs.value
-    }
+public struct NodeIntInput: View {
+    // public static func == (lhs: NodeIntInput, rhs: NodeIntInput) -> Bool {
+    //     lhs.value == rhs.value
+    // }
 
     @Binding var value: Int
 
@@ -38,13 +38,10 @@ public struct NodeIntInput: View, @preconcurrency Equatable {
     }
 }
 
-public struct NodeNumberInput: View, @preconcurrency Equatable {
-    public static func == (lhs: NodeNumberInput, rhs: NodeNumberInput) -> Bool {
-        lhs.value == rhs.value && lhs.valueAtDragStart == rhs.valueAtDragStart
-    }
-
+public struct NodeNumberInput: View {
     @Binding var value: Double
     @State var valueAtDragStart: Double?
+    @FocusState var focused: Bool
 
     public struct Settings {
         public var dragSensitivity: DragSensitivity = .init()
@@ -161,6 +158,7 @@ public struct NodeNumberInput: View, @preconcurrency Equatable {
     public var body: some View {
         TextField("", value: self.$value, formatter: self.formatter)
             .nodeTextField(onDragChanged: self.onDragChanged(_:), onDragEnded: self.onDragEnded(_:))
+            .focused(self.$focused, equals: true)
             #if os(iOS)
         .keyboardType(.decimalPad)
             #endif

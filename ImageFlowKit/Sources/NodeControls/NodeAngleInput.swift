@@ -10,6 +10,11 @@ public struct NodeAngleInput: View {
         case expanded
     }
 
+    public init(value: Binding<Double>, mode: Mode) {
+        self._value = value
+        self.mode = mode
+    }
+
     public var body: some View {
         switch self.mode {
         case .compact:
@@ -23,9 +28,9 @@ public struct NodeAngleInput: View {
     var compactView: some View {
         HStack(spacing: 0) {
             AngleDial(angle: self.$value)
-                .scaleEffect(0.5)
-                .frame(width: 25, height: 25)
-                .border(.red)
+                .scaleEffect(0.38)
+                .frame(width: 20, height: 20)
+                // .border(.red)
 
             NodeNumberInput(
                 value: .init {
@@ -33,11 +38,11 @@ public struct NodeAngleInput: View {
                 } set: { newValue in
                     self.value = CGFloat(newValue).normalized(as: .degrees).radians
                 },
-                settings: .init(formatter: .int)
+                settings: .init(dragSensitivity: .init(normal: 0.1, slow: 0.01), formatter: .int)
             )
-            .frame(minWidth: 40)
+            .frame(minWidth: 34)
             .fixedSize()
-            .border(.blue)
+            // .border(.blue)
         }
     }
 

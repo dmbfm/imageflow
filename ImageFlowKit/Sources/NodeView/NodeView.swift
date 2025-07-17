@@ -1,5 +1,8 @@
 import Models
+import NodeControls
 import SwiftUI
+
+let labelSize: CGFloat = 10
 
 public struct NodeView: View {
 
@@ -23,6 +26,7 @@ public struct NodeView: View {
                 .measureWidth(storeIn: self.$contentWidth)
         }
         .nodeCard(tintColor: self.node.kind.frontendNodeColor)
+        .tint(self.node.kind.frontendNodeColor)
     }
 }
 
@@ -47,49 +51,71 @@ fileprivate struct NodeContentView: View, @preconcurrency Equatable {
     }
 }
 
-fileprivate struct NodeInputRowsBlockView: View, @preconcurrency Equatable {
-    static func == (lhs: NodeInputRowsBlockView, rhs: NodeInputRowsBlockView) -> Bool {
-        lhs.inputs == rhs.inputs
-    }
+fileprivate struct NodeInputRowsBlockView: View {
 
     @Binding var inputs: [FlowNode.Input]
+    @FocusState var focusedRow: String?
 
     var body: some View {
         Grid(horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(self.$inputs) { $input in
                 GridRow(alignment: .center) {
                     NodeInputRowView(input: $input)
+                        .focused(self.$focusedRow, equals: input.id)
+                        .zIndex(self.focusedRow == input.id ? .infinity : 0)
+                    // .border(self.focusedRow == input.id ? .red.opacity(0.25) : .clear)
                 }
+                .frame(height: 18)
             }
         }
         .padding(.trailing, 14)
     }
 }
 
-fileprivate struct NodeInputRowView: View, @preconcurrency Equatable {
+fileprivate struct NodeInputRowView: View {
     @Binding var input: FlowNode.Input
-
-    static func == (lhs: NodeInputRowView, rhs: NodeInputRowView) -> Bool {
-        lhs.input == rhs.input
-    }
+    @FocusState var isFocused: Bool
 
     var body: some View {
         HStack(spacing: 2) {
             PortView(connected: false)
             Text(input.label)
-                .font(.system(size: 10))
+                .fixedSize()
+                .font(.system(size: labelSize, weight: .regular))
                 .foregroundStyle(.secondary)
         }
         .gridColumnAlignment(.leading)
+        .padding(.trailing, 20)
 
-        TextField("", text: .constant("2555"))
-            .font(.system(size: 10))
-            .fixedSize()
-            .padding(.leading, 20)
+        Group {
+            switch input.value.type {
+            case .float:
+                if input.label == "angle" {
+                    NodeAngleInput(value: $input.value.float, mode: .compact)
+                } else {
+                    NodeNumberInput(value: $input.value.float)
+                        .focused(self.$isFocused, equals: true)
+                }
+            case .vector2:
+                NodeVectorInput(vector2: $input.value.vector2)
+            case .image:
+                NodeImageInput(value: $input.value.image)
+            default:
+                Text("TODO: \(input.value.type)")
+                    .font(.system(size: 10))
+                    .fixedSize()
+            }
+        }
+        .gridColumnAlignment(.leading)
+
+        // TextField("", text: .constant("2555"))
+        //     .font(.system(size: 10))
+        //     .fixedSize()
+        //     .padding(.leading, 20)
     }
 }
 
-fileprivate struct NodeOutputRowsBlockView: View, Equatable {
+fileprivate struct NodeOutputRowsBlockView: View {
     let outputs: [FlowNode.Output]
 
     var body: some View {
@@ -111,7 +137,7 @@ fileprivate struct NodeOutputRowView: View, Equatable {
         Text("")
         HStack(spacing: 2) {
             Text(output.label)
-                .font(.system(size: 10))
+                .font(.system(size: labelSize))
                 .foregroundStyle(.secondary)
             PortView(connected: false)
         }
