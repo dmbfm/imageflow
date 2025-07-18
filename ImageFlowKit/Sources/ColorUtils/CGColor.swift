@@ -8,28 +8,28 @@
 import CoreGraphics
 
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 #if canImport(AppKit)
-import AppKit
+    import AppKit
 #endif
 
 #if canImport(UIKit)
-public extension CGColor {
-    static let blue: CGColor = UIColor.systemBlue.cgColor
-    static let red: CGColor = UIColor.systemRed.cgColor
-    static let pink: CGColor = UIColor.systemPink.cgColor
-}
+    public extension CGColor {
+        static let blue: CGColor = UIColor.systemBlue.cgColor
+        static let red: CGColor = UIColor.systemRed.cgColor
+        static let pink: CGColor = UIColor.systemPink.cgColor
+    }
 #endif
 
 #if canImport(AppKit)
-public extension CGColor {
-    static let blue: CGColor = NSColor.systemBlue.cgColor
-    static let red: CGColor = NSColor.systemRed.cgColor
-    static let pink: CGColor = NSColor.systemPink.cgColor
-    static let teal: CGColor = NSColor.systemTeal.cgColor
-}
+    public extension CGColor {
+        static let blue: CGColor = NSColor.systemBlue.cgColor
+        static let red: CGColor = NSColor.systemRed.cgColor
+        static let pink: CGColor = NSColor.systemPink.cgColor
+        static let teal: CGColor = NSColor.systemTeal.cgColor
+    }
 #endif
 
 public extension CGColor {
@@ -41,33 +41,33 @@ public extension CGColor {
         var brightness: CGFloat = 0
         var alpha: CGFloat = 0
         #if canImport(UIKit)
-        UIColor(cgColor: self).getHue(
-            &hue,
-            saturation: &saturation,
-            brightness: &brightness,
-            alpha: &alpha
-        )
-        transform(&hue, &saturation, &brightness)
-        return UIColor(
-            hue: hue,
-            saturation: saturation,
-            brightness: brightness,
-            alpha: alpha
-        ).cgColor
+            UIColor(cgColor: self).getHue(
+                &hue,
+                saturation: &saturation,
+                brightness: &brightness,
+                alpha: &alpha
+            )
+            transform(&hue, &saturation, &brightness)
+            return UIColor(
+                hue: hue,
+                saturation: saturation,
+                brightness: brightness,
+                alpha: alpha
+            ).cgColor
         #elseif canImport(AppKit)
-        NSColor(cgColor: self)!.getHue(
-            &hue,
-            saturation: &saturation,
-            brightness: &brightness,
-            alpha: &alpha
-        )
-        transform(&hue, &saturation, &brightness)
-        return NSColor(
-            hue: hue,
-            saturation: saturation,
-            brightness: brightness,
-            alpha: alpha
-        ).cgColor
+            NSColor(cgColor: self)!.getHue(
+                &hue,
+                saturation: &saturation,
+                brightness: &brightness,
+                alpha: &alpha
+            )
+            transform(&hue, &saturation, &brightness)
+            return NSColor(
+                hue: hue,
+                saturation: saturation,
+                brightness: brightness,
+                alpha: alpha
+            ).cgColor
         #endif
     }
 

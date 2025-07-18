@@ -33,6 +33,11 @@ extension CGPoint {
         CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 
+    // Add - operator
+    public static prefix func - (rhs: CGPoint) -> CGPoint {
+        CGPoint(x: -rhs.x, y: -rhs.y)
+    }
+
     // Add -= operator
     public static func -= (lhs: inout CGPoint, rhs: CGPoint) {
         lhs = lhs - rhs
@@ -139,6 +144,11 @@ extension CGSize {
     // - operator
     public static func - (lhs: CGSize, rhs: CGSize) -> CGSize {
         CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
+    }
+
+    // - operator
+    public static prefix func - (rhs: CGSize) -> CGSize {
+        CGSize(width: -rhs.width, height: -rhs.height)
     }
 
     // -= operator

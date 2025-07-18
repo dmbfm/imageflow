@@ -15,7 +15,6 @@ extension TextField {
     }
 }
 
-
 struct NodeTextFieldWrapper<Label: View>: View {
     let textField: TextField<Label>
     var onDragChanged: ((DragGesture.Value) -> ())?

@@ -9,7 +9,7 @@ public struct NodeImageInput: View {
         self._value = value
         self.openAssetBrowser = openAssetBrowser
     }
- 
+
     var label: String {
         if let imageIdentifier = self.value {
             imageIdentifier.uuid.uuidString

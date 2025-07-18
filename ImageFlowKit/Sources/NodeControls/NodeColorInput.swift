@@ -18,12 +18,12 @@ public struct NodeColor3Input: View {
     public var body: some View {
         ColorPicker("", selection: self.binding, supportsOpacity: false)
             .controlSize(.small)
-        #if os(iOS)
-            .scaleEffect(0.75)
-        #endif
+            #if os(iOS)
+                .scaleEffect(0.75)
+            #endif
             .frame(height: 25)
             .fixedSize()
-        
+
     }
 }
 
@@ -44,12 +44,12 @@ public struct NodeColor4Input: View {
     public var body: some View {
         ColorPicker("", selection: self.binding, supportsOpacity: true)
             .controlSize(.small)
-        #if os(iOS)
-            .scaleEffect(0.75)
-        #endif
+            #if os(iOS)
+                .scaleEffect(0.75)
+            #endif
             .frame(height: 25)
             .fixedSize()
-        
+
     }
 }
 

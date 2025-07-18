@@ -19,11 +19,11 @@ public struct FlowNode: Sendable, Equatable, Codable {
     public var outputs: [Output]
 
     // MARK: - Public Types
-     
+
     public struct Input: Hashable, Sendable, Codable, Identifiable {
         public var label: String
         public var value: Value
-        public var semantics: ValueSemantics 
+        public var semantics: ValueSemantics
         public var connected: Bool
         public var id: String { self.label }
 

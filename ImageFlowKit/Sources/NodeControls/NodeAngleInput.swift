@@ -30,7 +30,7 @@ public struct NodeAngleInput: View {
             AngleDial(angle: self.$value)
                 .scaleEffect(0.38)
                 .frame(width: 20, height: 20)
-                // .border(.red)
+            // .border(.red)
 
             NodeNumberInput(
                 value: .init {

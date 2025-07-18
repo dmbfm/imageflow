@@ -28,6 +28,7 @@ let package = Package(
         .library(name: "NodeView"),
         .library(name: "SwiftUIUtils"),
         .library(name: "Values"),
+        .library(name: "CanvasView"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
@@ -124,6 +125,15 @@ let package = Package(
         ),
         .target(
             name: "Values",
+        ),
+        .target(
+            name: "CanvasView",
+            dependencies: [
+                "Logging",
+                "Design",
+                "CommonUtils",
+                "SwiftUIUtils",
+            ]
         ),
 
         // MARK: - Executable Targets

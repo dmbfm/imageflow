@@ -9,7 +9,6 @@ public struct AffineTransform: Sendable, Codable, Hashable {
     public var tX: CGFloat
     public var tY: CGFloat
 
-
     public static var identity: Self {
         .init(m11: 1, m12: 0, m21: 0, m22: 1, tX: 0, tY: 0)
     }

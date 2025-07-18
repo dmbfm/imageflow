@@ -2,11 +2,11 @@ import CommonUtils
 import Easing
 
 #if canImport(AppKit)
-import AppKit
+    import AppKit
 #endif
 
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 public struct HSL: Hashable, Sendable {
@@ -21,9 +21,9 @@ public struct HSL: Hashable, Sendable {
         let s = self.lightness > 0 ? 2 * t / b : 0
 
         #if canImport(UIKit)
-        return UIColor(hue: self.hue, saturation: s, brightness: b, alpha: self.alpha).cgColor
+            return UIColor(hue: self.hue, saturation: s, brightness: b, alpha: self.alpha).cgColor
         #else
-        return NSColor(hue: self.hue, saturation: s, brightness: b, alpha: self.alpha).cgColor
+            return NSColor(hue: self.hue, saturation: s, brightness: b, alpha: self.alpha).cgColor
         #endif
     }
 
@@ -104,44 +104,44 @@ public struct HSL: Hashable, Sendable {
 
     public init?(cgColor: CGColor) {
         #if canImport(UIKit)
-        self.init(uiColor: UIColor(cgColor: cgColor))
+            self.init(uiColor: UIColor(cgColor: cgColor))
         #else
-        if let nsColor = NSColor(cgColor: cgColor) {
-            self.init(nsColor: nsColor)
-        } else {
-            return nil
-        }
+            if let nsColor = NSColor(cgColor: cgColor) {
+                self.init(nsColor: nsColor)
+            } else {
+                return nil
+            }
         #endif
     }
 
     #if canImport(AppKit)
-    public init?(nsColor: NSColor) {
-        var hue: CGFloat = 0.0
-        var saturation: CGFloat = 0.0
-        var brightness: CGFloat = 0.0
-        var alpha: CGFloat = 0.0
+        public init?(nsColor: NSColor) {
+            var hue: CGFloat = 0.0
+            var saturation: CGFloat = 0.0
+            var brightness: CGFloat = 0.0
+            var alpha: CGFloat = 0.0
 
-        nsColor.usingColorSpace(.deviceRGB)?.getHue(
-            &hue,
-            saturation: &saturation,
-            brightness: &brightness,
-            alpha: &alpha
-        )
-        self.init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
-    }
+            nsColor.usingColorSpace(.deviceRGB)?.getHue(
+                &hue,
+                saturation: &saturation,
+                brightness: &brightness,
+                alpha: &alpha
+            )
+            self.init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+        }
     #endif
 
     #if canImport(UIKit)
-    public init(uiColor: UIColor) {
-        var hue: CGFloat = 0.0
-        var saturation: CGFloat = 0.0
-        var brightness: CGFloat = 0.0
-        var alpha: CGFloat = 0.0
+        public init(uiColor: UIColor) {
+            var hue: CGFloat = 0.0
+            var saturation: CGFloat = 0.0
+            var brightness: CGFloat = 0.0
+            var alpha: CGFloat = 0.0
 
-        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+            uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
 
-        self.init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
-    }
+            self.init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+        }
     #endif
 }
 
