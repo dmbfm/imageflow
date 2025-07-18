@@ -7,7 +7,20 @@ public struct GridView: View {
 
     @Binding var viewport: CanvasViewport
     @Environment(\.displayScale) var displayScale
-    @State var makeCircleImage = MakeCircleImage()
+    @State var makeCircleImage = MakeCircleImageWrapper(value: .init())
+    
+    // Wrapping this because `MakeCircleImage` is a struct but we don't want it to update the view.
+    class MakeCircleImageWrapper {
+        var value: MakeCircleImage
+        
+        init(value: MakeCircleImage) {
+            self.value = value
+        }
+    }
+    
+    public init(viewport: Binding<CanvasViewport>) {
+        self._viewport = viewport
+    }
 
     func draw(_ context: inout GraphicsContext, _ size: CGSize) {
         context.withCGContext { cgContext in
@@ -17,7 +30,7 @@ public struct GridView: View {
             let offsetY = -viewport.origin.y.truncatingRemainder(dividingBy: imageSize)
             let offset = viewport.convert(CGSize(width: offsetX, height: offsetY), from: .canvas, to: .screen)
 
-            let image = self.makeCircleImage(Colors.canvasBackground.cgColor, Colors.canvasBackgroundDot.cgColor)
+            let image = self.makeCircleImage.value(Colors.canvasBackground.cgColor, Colors.canvasBackgroundDot.cgColor)
 
             cgContext.draw(
                 image,
