@@ -1,3 +1,4 @@
+import ColorUtils
 import CommonUtils
 import Design
 import Logging
@@ -27,7 +28,13 @@ public struct GridView: View, @preconcurrency Equatable {
             let offsetY = -viewport.origin.y.truncatingRemainder(dividingBy: imageSize)
             let offset = viewport.convert(CGSize(width: offsetX, height: offsetY), from: .canvas, to: .screen)
 
-            let image = self.circleImageDrawer.draw(Colors.canvasBackground.cgColor, Colors.canvasBackgroundDot.cgColor)
+            let t = 1.0 - viewport.scale.clamped(to: 0.0...1.0)
+            let dotColor = HSL(cgColor: Colors.canvasBackgroundDot.cgColor)!.lerp(
+                to: HSL(cgColor: Colors.canvasBackground.cgColor)!,
+                channelMask: [.hue, .lightness, .saturation],
+                t: t
+            ).cgColor
+            let image = self.circleImageDrawer.draw(Colors.canvasBackground.cgColor, dotColor)
 
             cgContext.draw(
                 image,

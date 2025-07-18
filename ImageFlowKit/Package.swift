@@ -133,6 +133,7 @@ let package = Package(
                 "Design",
                 "CommonUtils",
                 "SwiftUIUtils",
+                "ColorUtils",
             ]
         ),
 
