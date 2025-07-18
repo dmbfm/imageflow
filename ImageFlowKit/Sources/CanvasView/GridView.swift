@@ -5,20 +5,29 @@ import Logging
 import SwiftUI
 
 public struct GridView: View, @preconcurrency Equatable {
-    public static func == (lhs: GridView, rhs: GridView) -> Bool {
-        true
-    }
 
     let configuration: CanvasConfiguration
     @Binding var viewport: CanvasViewport
+    @State var circleImageDrawer = CircleImageDrawer()
+
     @Environment(\.displayScale) var displayScale
     @Environment(\.colorScheme) var colorScheme
-    @State var circleImageDrawer = CircleImageDrawer()
+
+    // MARK: - Equatable
+
+    public static func == (lhs: GridView, rhs: GridView) -> Bool {
+        // Only update with `@State`, `@Binding` and `@Environment`
+        true
+    }
+
+    // MARK: - Initializers
 
     public init(viewport: Binding<CanvasViewport>, configuration: CanvasConfiguration = .default) {
         self._viewport = viewport
         self.configuration = configuration
     }
+
+    // MARK: - Methods
 
     func draw(_ context: inout GraphicsContext, _ size: CGSize) {
         context.withCGContext { cgContext in
@@ -47,8 +56,10 @@ public struct GridView: View, @preconcurrency Equatable {
         }
     }
 
+    // MARK: - Body
+
     public var body: some View {
-        Canvas(opaque: true, rendersAsynchronously: true, renderer: self.draw(_:_:))
+        self.contentView
             #if os(macOS)
                 .overlay {
                     GestureOverlayView() { translation in
@@ -73,6 +84,10 @@ public struct GridView: View, @preconcurrency Equatable {
                 )
                 .modifier(ZoomGestureModifier(viewport: self.$viewport, configuration: self.configuration))
             #endif
+    }
+
+    var contentView: some View {
+        Canvas(opaque: true, rendersAsynchronously: true, renderer: self.draw(_:_:))
     }
 }
 
@@ -213,8 +228,7 @@ public struct GridView: View, @preconcurrency Equatable {
     }
 #endif
 
-#if os(iOS)
-#endif
+// MARK: - Previews
 
 #Preview {
     @Previewable @State var viewport: CanvasViewport = .init()
