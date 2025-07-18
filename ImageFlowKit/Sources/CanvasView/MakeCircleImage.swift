@@ -1,19 +1,20 @@
 import CoreGraphics
 import Foundation
 
-struct MakeCircleImage {
+@MainActor
+class CircleImageDrawer {
     private var cache: CGImage?
     private var lastBGColor: CGColor?
     private var lastDotColor: CGColor?
 
-    mutating func invalidateCache() {
+    func invalidateCache() {
         self.cache = nil
         self.lastBGColor = nil
         self.lastDotColor = nil
     }
 
     @inline(__always)
-    mutating func callAsFunction(_ bgColor: CGColor, _ dotColor: CGColor) -> CGImage {
+    func draw(_ bgColor: CGColor, _ dotColor: CGColor) -> CGImage {
         if self.lastBGColor == bgColor && self.lastDotColor == dotColor,
             let cache = self.cache
         {

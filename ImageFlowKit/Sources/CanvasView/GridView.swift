@@ -3,23 +3,20 @@ import Design
 import Logging
 import SwiftUI
 
-public struct GridView: View {
+public struct GridView: View, @preconcurrency Equatable {
+    public static func == (lhs: GridView, rhs: GridView) -> Bool {
+        true
+    }
 
+    let configuration: CanvasConfiguration
     @Binding var viewport: CanvasViewport
     @Environment(\.displayScale) var displayScale
-    @State var makeCircleImage = MakeCircleImageWrapper(value: .init())
-    
-    // Wrapping this because `MakeCircleImage` is a struct but we don't want it to update the view.
-    class MakeCircleImageWrapper {
-        var value: MakeCircleImage
-        
-        init(value: MakeCircleImage) {
-            self.value = value
-        }
-    }
-    
-    public init(viewport: Binding<CanvasViewport>) {
+    @Environment(\.colorScheme) var colorScheme
+    @State var circleImageDrawer = CircleImageDrawer()
+
+    public init(viewport: Binding<CanvasViewport>, configuration: CanvasConfiguration = .default) {
         self._viewport = viewport
+        self.configuration = configuration
     }
 
     func draw(_ context: inout GraphicsContext, _ size: CGSize) {
@@ -30,7 +27,7 @@ public struct GridView: View {
             let offsetY = -viewport.origin.y.truncatingRemainder(dividingBy: imageSize)
             let offset = viewport.convert(CGSize(width: offsetX, height: offsetY), from: .canvas, to: .screen)
 
-            let image = self.makeCircleImage.value(Colors.canvasBackground.cgColor, Colors.canvasBackgroundDot.cgColor)
+            let image = self.circleImageDrawer.draw(Colors.canvasBackground.cgColor, Colors.canvasBackgroundDot.cgColor)
 
             cgContext.draw(
                 image,
@@ -55,10 +52,10 @@ public struct GridView: View {
                             case .precise(let delta):
                                 self.viewport.scale - delta
                             case .regular(let delta):
-                                self.viewport.scale - 0.05 * delta
+                                self.viewport.scale - self.configuration.scrollWheelSensitivity * delta
                             }
 
-                        self.viewport.zoom(newZoom.clamped(to: 0.1...1), atScreenPoint: location)
+                        self.viewport.zoom(self.configuration.clampZoom(newZoom), atScreenPoint: location)
                     }
                 }
             #else
@@ -67,7 +64,7 @@ public struct GridView: View {
                         self.viewport.translate(by: -translation.cgSize, in: .screen)
                     }
                 )
-                .modifier(ZoomGestureModifier(viewport: self.$viewport))
+                .modifier(ZoomGestureModifier(viewport: self.$viewport, configuration: self.configuration))
             #endif
     }
 }
@@ -75,11 +72,11 @@ public struct GridView: View {
 // MARK: - iOS specific
 
 #if os(iOS)
-
     struct ZoomGestureModifier: ViewModifier {
 
         @Binding var viewport: CanvasViewport
         @State var zoomAtStart: CGFloat?
+        let configuration: CanvasConfiguration
 
         func body(content: Content) -> some View {
             content
@@ -91,18 +88,17 @@ public struct GridView: View {
                             }
 
                             let newZoom = self.zoomAtStart! * value.magnification
-                            self.viewport.zoom(newZoom, atScreenPoint: value.startLocation)
+                            self.viewport.zoom(configuration.clampZoom(newZoom), atScreenPoint: value.startLocation)
                         }
                         .onEnded { value in
                             let newZoom = self.zoomAtStart! * value.magnification
-                            self.viewport.zoom(newZoom, atScreenPoint: value.startLocation)
+                            self.viewport.zoom(configuration.clampZoom(newZoom), atScreenPoint: value.startLocation)
                             self.zoomAtStart = nil
                         }
                 )
         }
     }
 
-    import UIKit
     struct MultifingerDragGesture: UIGestureRecognizerRepresentable {
         var numberOfTouches: Int = 2
         var action: (CGPoint) -> ()

@@ -15,11 +15,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AEB76A562E2AE7750020EE2F /* ImageFlowPreviews */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ImageFlowPreviews;
-			sourceTree = "<group>";
-		};
 		AEB76A682E2AEAA20020EE2F /* CanvasViewPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CanvasViewPreview;
@@ -42,7 +37,6 @@
 		AEB76A4B2E2AE7750020EE2F = {
 			isa = PBXGroup;
 			children = (
-				AEB76A562E2AE7750020EE2F /* ImageFlowPreviews */,
 				AEB76A682E2AEAA20020EE2F /* CanvasViewPreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
