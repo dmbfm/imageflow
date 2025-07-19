@@ -11,13 +11,15 @@ import CanvasView
 struct ContentView: View {
     
     @State var viewport: CanvasViewport = .init()
+    @State var showInspector: Bool = false
     
     var body: some View {
-        VStack {
-            GridView(viewport:  self.$viewport)
+        CanvasView(viewport: self.$viewport) {
+           PinkNodeView()
+                .offset(x: 50, y: 50)
         }
-        .border(.gray)
-        .padding()
+            .border(.gray.opacity(25))
+            .padding(40)
     }
 }
 
