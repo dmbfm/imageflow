@@ -16,6 +16,9 @@ struct ContentView: View {
     var body: some View {
         CanvasView(viewport: self.$viewport) {
            PinkNodeView()
+                .onTapGesture {
+                    print("tap!!!!!!")
+                }
                 .offset(x: 50, y: 50)
         }
             .border(.gray.opacity(25))
