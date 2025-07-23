@@ -38,7 +38,7 @@ public struct PinkNodeView: View {
                 print("World!")
             }
         }
-        .frame(width: 2000, height: 120)
+        .frame(width: 80, height: 80)
     }
 }
 
