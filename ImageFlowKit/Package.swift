@@ -114,6 +114,7 @@ let package = Package(
                 "Models",
                 "Design",
                 "NodeControls",
+                "CanvasView",
             ],
         ),
         .target(
