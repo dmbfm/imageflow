@@ -9,7 +9,6 @@ import SwiftUI
 import CanvasView
 
 struct ContentView: View {
-    
     @State var viewport: CanvasViewport = .init()
     @State var showInspector: Bool = false
     

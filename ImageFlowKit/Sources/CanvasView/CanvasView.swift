@@ -1,5 +1,7 @@
 import CommonUtils
+import Logging
 import SwiftUI
+import SwiftUIUtils
 
 public struct CanvasView<Content: View>: View {
     @Binding var viewport: CanvasViewport
@@ -12,13 +14,15 @@ public struct CanvasView<Content: View>: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            GridView(viewport: self.$viewport)
-            self.content()
-                .transformEffect(self.viewport.transform(from: .canvas, to: .screen))
-        }
-        .canvasGestures(self.$viewport, configuration: self.configuration)
-        .clipped()
+        GridView(viewport: self.$viewport)
+            .overlay(alignment: .topLeading) {
+                ZStack(alignment: .topLeading) {
+                    self.content()
+                        .transformEffect(self.viewport.transform(from: .canvas, to: .screen))
+                }
+            }
+            .canvasGestures(self.$viewport, configuration: self.configuration)
+            .clipped()
     }
 }
 
@@ -27,14 +31,14 @@ public struct PinkNodeView: View {
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill(.pink.gradient)
+                .fill(.random.gradient)
                 .shadow(radius: 4)
 
             Button("Hello!") {
                 print("World!")
             }
         }
-        .frame(width: 200, height: 350)
+        .frame(width: 2000, height: 120)
     }
 }
 
