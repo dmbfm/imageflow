@@ -1,30 +1,78 @@
 import CanvasView
+import CommonUtils
 import Logging
+import Models
 import NodeDataStore
 import NodeView
 import SwiftUI
+import SwiftUIUtils
+
+public struct NodePositionStore: Sendable, Hashable {
+    public var items: [Item] = []
+
+    public struct Item: Sendable, Hashable, Identifiable {
+        public var id: UUID
+        public var position: CGPoint
+
+        public init(id: UUID, position: CGPoint) {
+            self.id = id
+            self.position = position
+        }
+    }
+
+    public init(items: [NodePositionStore.Item] = []) {
+        self.items = items
+    }
+
+    subscript(id: UUID) -> CGPoint {
+        get {
+            for item in self.items {
+                if item.id == id {
+                    return item.position
+                }
+            }
+
+            fatalError("Invalid id: \(id)")
+        }
+
+        set {
+            for index in self.items.indices {
+                if self.items[index].id == id {
+                    self.items[index].position = newValue
+                    return
+                }
+            }
+
+            fatalError("Invalid id: \(id)")
+        }
+
+    }
+}
 
 @Observable
 @MainActor
 public class CanvasFeatureState {
     public var viewport: CanvasViewport = .init()
-    public var nodePositions: [NodePositionItem] = []
+    public var nodePositionStore: NodePositionStore = .init()
 
-    public struct NodePositionItem: Sendable, Hashable, Identifiable {
-        public var id: UUID
-        public var position: CGPoint
+    public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
+        self.viewport = viewport
+        self.nodePositionStore = nodePositionStore
     }
 
-    public init(viewport: CanvasViewport = .init(), nodePositions: [NodePositionItem] = []) {
-        self.viewport = viewport
-        self.nodePositions = nodePositions
+    public func positionBinding(_ id: UUID) -> Binding<CGPoint> {
+        .init {
+            self.nodePositionStore[id]
+        } set: { newValue in
+            self.nodePositionStore[id] = newValue
+        }
     }
 }
 
 extension CanvasFeatureState: Equatable {
     public static nonisolated func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
         MainActor.assumeIsolated {
-            lhs.viewport == rhs.viewport && lhs.nodePositions == rhs.nodePositions
+            lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore
         }
     }
 }
@@ -36,19 +84,54 @@ public struct CanvasFeatureView: View {
 
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
-            ForEach(self.state.nodePositions) { item in
-                PinkNodeView()
+            ForEach(self.state.nodePositionStore.items) { item in
+                NodeView(node: .constant(.init(kind: .addNode(.float))))
                     .offset(item.position.cgSize)
+                    .dragNode(self.state.positionBinding(item.id))
+            }
+
+            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
+                // EdgeView(edge: .init(start: edge.from, end: edge.to, color: .red))
             }
         }
     }
 }
 
+struct DragNodeModifier: ViewModifier {
+
+    @Binding var position: CGPoint
+    @State var startPos: CGPoint?
+
+    func body(content: Content) -> some View {
+        content
+            .gesture(
+                DragGesture().onChanged { value in
+                    if self.startPos == nil {
+                        self.startPos = self.position
+                    }
+
+                    self.position = self.startPos! + value.translation.cgPoint
+                }.onEnded { value in
+                    self.position = self.startPos! + value.translation.cgPoint
+                    self.startPos = nil
+                }
+            )
+    }
+}
+
+extension View {
+    func dragNode(_ position: Binding<CGPoint>) -> some View {
+        self.modifier(DragNodeModifier(position: position))
+    }
+}
+
 #Preview {
-    @Previewable @State var state = CanvasFeatureState(nodePositions: [
-        .init(id: .init(), position: .zero),
-        .init(id: .init(), position: .init(x: 200, y: 200)),
-    ])
+    @Previewable @State var state = CanvasFeatureState(
+        nodePositionStore: .init(items: [
+            .init(id: .init(), position: .zero),
+            .init(id: .init(), position: .init(x: 250, y: 250)),
+        ])
+    )
     @Previewable @State var nodeDataStore = NodeDataStore()
     VStack {
         CanvasFeatureView(state: state, nodeDataStore: nodeDataStore)

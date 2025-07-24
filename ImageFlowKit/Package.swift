@@ -146,6 +146,7 @@ let package = Package(
                 "CanvasView",
                 "NodeView",
                 "NodeDataStore",
+                "SwiftUIUtils",
             ],
         ),
         .target(

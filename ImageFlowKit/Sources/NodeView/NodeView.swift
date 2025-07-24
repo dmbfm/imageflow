@@ -9,6 +9,10 @@ public struct NodeView: View {
     @Binding var node: FlowNode
     @State var contentWidth: CGFloat = 0
 
+    public init(node: Binding<FlowNode>) {
+        self._node = node
+    }
+
     public var body: some View {
         VStack(alignment: .leading) {
             NodeTitleView(
