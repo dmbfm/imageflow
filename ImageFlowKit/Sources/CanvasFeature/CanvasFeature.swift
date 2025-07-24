@@ -54,7 +54,7 @@ extension CanvasFeatureState: Equatable {
 public struct CanvasFeatureView: View {
 
     @Bindable var state: CanvasFeatureState
-    let nodeDataStore: NodeDataStore
+    var nodeDataStore: NodeDataStore
 
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
@@ -65,9 +65,15 @@ public struct CanvasFeatureView: View {
             }
 
             ForEach(self.state.nodePositionStore.items) { item in
-                NodeView(node: .constant(.init(id: item.id, kind: .addNode(.float))))
-                    .offset(item.position.cgSize)
-                    .dragNode(self.state.positionBinding(item.id))
+                NodeView(
+                    node: .init {
+                        self.nodeDataStore.nodes[item.id]!
+                    } set: { newValue in
+                        self.nodeDataStore.nodes[item.id] = newValue
+                    }
+                )
+                .offset(item.position.cgSize)
+                .dragNode(self.state.positionBinding(item.id))
             }
             .environment(\.portPositionStorage, self.state)
 
@@ -136,11 +142,30 @@ fileprivate struct PreviewData {
         )
         return state
     }()
-    @Previewable @State var nodeDataStore = NodeDataStore(
-        edges: Set([
-            .init(.init(node: PreviewData.id1, port: .output(0)), .init(node: PreviewData.id2, port: .input(0)))!
-        ])
-    )
+    @Previewable @State var nodeDataStore = {
+        // let store = NodeDataStore(
+        //     [
+        //         PreviewData.id1: FlowNode(id: PreviewData.id1, kind: .addNode(.float)),
+        //         PreviewData.id2: FlowNode(id: PreviewData.id2, kind: .addNode(.float)),
+        //     ],
+        //     edges: Set([
+        //         .init(.init(node: PreviewData.id1, port: .output(0)), .init(node: PreviewData.id2, port: .input(0)))!
+        //     ])
+        // )
+        // store.
+        let store = NodeDataStore()
+        var n1 = FlowNode(id: PreviewData.id1, kind: .addNode(.float))
+        var n2 = FlowNode(id: PreviewData.id2, kind: .addNode(.float))
+        store.addNode(n1)
+        store.addNode(n2)
+        _ = store.addEdge(
+            .init(
+                PortLocation(node: PreviewData.id1, port: .output(0)),
+                PortLocation(node: PreviewData.id2, port: .input(0))
+            )!
+        )
+        return store
+    }()
     VStack {
         CanvasFeatureView(state: state, nodeDataStore: nodeDataStore)
     }
