@@ -1,7 +1,7 @@
+import CanvasView
 import Design
 import Logging
 import SwiftUI
-import CanvasView
 
 extension EnvironmentValues {
     @Entry var onPortPositionChanged: ((CGPoint) -> ())? = nil
