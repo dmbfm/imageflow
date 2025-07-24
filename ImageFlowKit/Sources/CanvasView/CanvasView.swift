@@ -3,6 +3,8 @@ import Logging
 import SwiftUI
 import SwiftUIUtils
 
+public let canvasCoordinateSpaceName = "canvas"
+
 public struct CanvasView<Content: View>: View {
     @Binding var viewport: CanvasViewport
     let content: () -> Content
@@ -23,6 +25,7 @@ public struct CanvasView<Content: View>: View {
             }
             .canvasGestures(self.$viewport, configuration: self.configuration)
             .clipped()
+            .coordinateSpace(name: canvasCoordinateSpaceName)
     }
 }
 

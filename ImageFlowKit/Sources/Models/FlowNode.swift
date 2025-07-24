@@ -22,26 +22,31 @@ public struct FlowNode: Sendable, Equatable, Codable {
 
     public struct Input: Hashable, Sendable, Codable, Identifiable {
         public var label: String
+        public var index: Int
         public var value: Value
         public var semantics: ValueSemantics
         public var connected: Bool
-        public var id: String { self.label }
+        public var id: Int { self.index }
 
-        public init(label: String, value: Value, semantics: ValueSemantics, connected: Bool) {
+        public init(label: String, index: Int, value: Value, semantics: ValueSemantics, connected: Bool) {
             self.label = label
+            self.index = index
             self.value = value
             self.semantics = semantics
             self.connected = connected
         }
     }
 
-    public struct Output: Hashable, Sendable, Codable {
+    public struct Output: Hashable, Sendable, Codable, Identifiable {
         public var label: String
+        public var index: Int
         public var type: ValueType
         public var connected: Bool
+        public var id: Int { self.index }
 
-        public init(label: String, type: ValueType, connected: Bool) {
+        public init(label: String, index: Int, type: ValueType, connected: Bool) {
             self.label = label
+            self.index = index
             self.connected = connected
             self.type = type
         }
@@ -73,16 +78,17 @@ public struct FlowNode: Sendable, Equatable, Codable {
         self.id = id
         self.name = name ?? kind.displayName
         self.kind = kind
-        self.inputs = kind.schema.inputs.map { input in
+        self.inputs = kind.schema.inputs.enumerated().map { (index, input) in
             .init(
                 label: input.name,
+                index: index,
                 value: input.defaultValue ?? Value.defaultValue(forType: input.type),
                 semantics: input.semantics,
                 connected: false
             )
         }
-        self.outputs = kind.schema.outputs.map { output in
-            .init(label: output.name, type: output.type, connected: false)
+        self.outputs = kind.schema.outputs.enumerated().map { (index, output) in
+            .init(label: output.name, index: index, type: output.type, connected: false)
         }
     }
 

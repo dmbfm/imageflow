@@ -1,8 +1,19 @@
+import Logging
 import Models
 import NodeControls
 import SwiftUI
 
-let labelSize: CGFloat = 10
+private let labelSize: CGFloat = 10
+
+extension EnvironmentValues {
+    @Entry var nodeID: UUID = .init()
+    @Entry public var portPositionStorage: (any PortPositionStorageProtocol)? = nil
+}
+
+@MainActor
+public protocol PortPositionStorageProtocol: AnyObject {
+    func updatePortPosition(_ location: PortLocation, _ position: CGPoint)
+}
 
 public struct NodeView: View {
 
@@ -31,21 +42,12 @@ public struct NodeView: View {
         }
         .nodeCard(tintColor: self.node.kind.frontendNodeColor)
         .tint(self.node.kind.frontendNodeColor)
+        .environment(\.nodeID, self.node.id)
     }
 }
 
-extension NodeView: @preconcurrency Equatable {
-    public static func == (lhs: NodeView, rhs: NodeView) -> Bool {
-        lhs.node == rhs.node && lhs.contentWidth == rhs.contentWidth
-    }
-}
-
-fileprivate struct NodeContentView: View, @preconcurrency Equatable {
+fileprivate struct NodeContentView: View {
     @Binding var node: FlowNode
-
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.node == rhs.node
-    }
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
@@ -58,16 +60,23 @@ fileprivate struct NodeContentView: View, @preconcurrency Equatable {
 fileprivate struct NodeInputRowsBlockView: View {
 
     @Binding var inputs: [FlowNode.Input]
-    @FocusState var focusedRow: String?
+    @FocusState var focusedRow: Int?
+    @Environment(\.nodeID) var nodeID
+    @Environment(\.portPositionStorage) var portPositionStorage
 
     var body: some View {
         Grid(horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(self.$inputs) { $input in
                 GridRow(alignment: .center) {
                     NodeInputRowView(input: $input)
+                        .onPortPositionChanged { point in
+                            self.portPositionStorage?.updatePortPosition(
+                                .init(node: self.nodeID, port: .input(input.id)),
+                                point
+                            )
+                        }
                         .focused(self.$focusedRow, equals: input.id)
                         .zIndex(self.focusedRow == input.id ? .infinity : 0)
-                    // .border(self.focusedRow == input.id ? .red.opacity(0.25) : .clear)
                 }
                 .frame(height: 18)
             }
@@ -77,6 +86,7 @@ fileprivate struct NodeInputRowsBlockView: View {
 }
 
 fileprivate struct NodeInputRowView: View {
+
     @Binding var input: FlowNode.Input
     @FocusState var isFocused: Bool
 
@@ -119,14 +129,28 @@ fileprivate struct NodeInputRowView: View {
     }
 }
 
-fileprivate struct NodeOutputRowsBlockView: View {
+fileprivate struct NodeOutputRowsBlockView: View, Equatable {
+    static nonisolated func == (lhs: NodeOutputRowsBlockView, rhs: NodeOutputRowsBlockView) -> Bool {
+        MainActor.assumeIsolated {
+            lhs.outputs == rhs.outputs
+        }
+    }
+
     let outputs: [FlowNode.Output]
+    @Environment(\.nodeID) var nodeID
+    @Environment(\.portPositionStorage) var portPositionStorage
 
     var body: some View {
         Grid(alignment: .trailing, horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(self.outputs, id: \.label) { output in
                 GridRow {
                     NodeOutputRowView(output: output)
+                        .onPortPositionChanged { point in
+                            self.portPositionStorage?.updatePortPosition(
+                                .init(node: self.nodeID, port: .output(output.id)),
+                                point
+                            )
+                        }
                 }
             }
         }

@@ -7,6 +7,68 @@ import NodeView
 import SwiftUI
 import SwiftUIUtils
 
+// MARK: - State
+
+@Observable
+@MainActor
+public class CanvasFeatureState: PortPositionStorageProtocol {
+    public var viewport: CanvasViewport = .init()
+    public var nodePositionStore: NodePositionStore = .init()
+
+    @ObservationIgnored
+    var portPositions: [PortLocation:CGPoint] = [:]
+
+    public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
+        self.viewport = viewport
+        self.nodePositionStore = nodePositionStore
+    }
+
+    public func positionBinding(_ id: UUID) -> Binding<CGPoint> {
+        .init {
+            self.nodePositionStore[id]
+        } set: { newValue in
+            self.nodePositionStore[id] = newValue
+        }
+    }
+
+    public func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
+        self.portPositions[location] = self.viewport.convert(position, from: .screen, to: .canvas)
+    }
+}
+
+extension CanvasFeatureState: Equatable {
+    public static nonisolated func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
+        MainActor.assumeIsolated {
+            lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore
+        }
+    }
+}
+
+// MARK: - View
+
+public struct CanvasFeatureView: View {
+
+    @Bindable var state: CanvasFeatureState
+    let nodeDataStore: NodeDataStore
+
+    public var body: some View {
+        CanvasView(viewport: self.$state.viewport) {
+            ForEach(self.state.nodePositionStore.items) { item in
+                NodeView(node: .constant(.init(kind: .addNode(.float))))
+                    .offset(item.position.cgSize)
+                    .dragNode(self.state.positionBinding(item.id))
+            }
+            .environment(\.portPositionStorage, self.state)
+
+            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
+                // EdgeView(edge: .init(start: edge.from, end: edge.to, color: .red))
+            }
+        }
+    }
+}
+
+// MARK: - NodePositionStore
+
 public struct NodePositionStore: Sendable, Hashable {
     public var items: [Item] = []
 
@@ -49,81 +111,15 @@ public struct NodePositionStore: Sendable, Hashable {
     }
 }
 
-@Observable
-@MainActor
-public class CanvasFeatureState {
-    public var viewport: CanvasViewport = .init()
-    public var nodePositionStore: NodePositionStore = .init()
-
-    public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
-        self.viewport = viewport
-        self.nodePositionStore = nodePositionStore
-    }
-
-    public func positionBinding(_ id: UUID) -> Binding<CGPoint> {
-        .init {
-            self.nodePositionStore[id]
-        } set: { newValue in
-            self.nodePositionStore[id] = newValue
-        }
+class PortPositionStorage: PortPositionStorageProtocol {
+    var items: [PortLocation: CGPoint] = [:]
+    func updatePortPosition(_ location: Models.PortLocation, _ position: CGPoint) {
+        self.items[location] = position
+        print(self.items)
     }
 }
 
-extension CanvasFeatureState: Equatable {
-    public static nonisolated func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
-        MainActor.assumeIsolated {
-            lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore
-        }
-    }
-}
-
-public struct CanvasFeatureView: View {
-
-    @Bindable var state: CanvasFeatureState
-    let nodeDataStore: NodeDataStore
-
-    public var body: some View {
-        CanvasView(viewport: self.$state.viewport) {
-            ForEach(self.state.nodePositionStore.items) { item in
-                NodeView(node: .constant(.init(kind: .addNode(.float))))
-                    .offset(item.position.cgSize)
-                    .dragNode(self.state.positionBinding(item.id))
-            }
-
-            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
-                // EdgeView(edge: .init(start: edge.from, end: edge.to, color: .red))
-            }
-        }
-    }
-}
-
-struct DragNodeModifier: ViewModifier {
-
-    @Binding var position: CGPoint
-    @State var startPos: CGPoint?
-
-    func body(content: Content) -> some View {
-        content
-            .gesture(
-                DragGesture().onChanged { value in
-                    if self.startPos == nil {
-                        self.startPos = self.position
-                    }
-
-                    self.position = self.startPos! + value.translation.cgPoint
-                }.onEnded { value in
-                    self.position = self.startPos! + value.translation.cgPoint
-                    self.startPos = nil
-                }
-            )
-    }
-}
-
-extension View {
-    func dragNode(_ position: Binding<CGPoint>) -> some View {
-        self.modifier(DragNodeModifier(position: position))
-    }
-}
+// MARK: - Previews
 
 #Preview {
     @Previewable @State var state = CanvasFeatureState(
