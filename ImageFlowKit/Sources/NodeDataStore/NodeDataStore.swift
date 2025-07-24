@@ -33,8 +33,9 @@ public final class NodeDataStore {
 
     // MARK: - Initialization
 
-    public init(_ nodes: [UUID: FlowNode] = [:]) {
+    public init(_ nodes: [UUID: FlowNode] = [:], edges: Set<Edge> = []) {
         self.nodes = nodes
+        self.edges = edges
     }
 
     // MARK: - Edges

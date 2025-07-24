@@ -1,5 +1,6 @@
 import CanvasView
 import CommonUtils
+import Design
 import Logging
 import Models
 import NodeDataStore
@@ -15,8 +16,8 @@ public class CanvasFeatureState: PortPositionStorageProtocol {
     public var viewport: CanvasViewport = .init()
     public var nodePositionStore: NodePositionStore = .init()
 
-    @ObservationIgnored
-    var portPositions: [PortLocation:CGPoint] = [:]
+    // @ObservationIgnored
+    public var portPositions: [PortLocation: CGPoint] = [:]
 
     public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
         self.viewport = viewport
@@ -33,6 +34,10 @@ public class CanvasFeatureState: PortPositionStorageProtocol {
 
     public func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
         self.portPositions[location] = self.viewport.convert(position, from: .screen, to: .canvas)
+    }
+
+    public func portPosition(_ location: PortLocation) -> CGPoint? {
+        self.portPositions[location]
     }
 }
 
@@ -53,16 +58,19 @@ public struct CanvasFeatureView: View {
 
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
+            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
+                if let start = self.state.portPositions[edge.from], let end = self.state.portPositions[edge.to] {
+                    EdgeView(edge: .init(start: start, end: end, color: Colors.edgeWithSuccess.color))
+                }
+            }
+
             ForEach(self.state.nodePositionStore.items) { item in
-                NodeView(node: .constant(.init(kind: .addNode(.float))))
+                NodeView(node: .constant(.init(id: item.id, kind: .addNode(.float))))
                     .offset(item.position.cgSize)
                     .dragNode(self.state.positionBinding(item.id))
             }
             .environment(\.portPositionStorage, self.state)
 
-            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
-                // EdgeView(edge: .init(start: edge.from, end: edge.to, color: .red))
-            }
         }
     }
 }
@@ -111,24 +119,28 @@ public struct NodePositionStore: Sendable, Hashable {
     }
 }
 
-class PortPositionStorage: PortPositionStorageProtocol {
-    var items: [PortLocation: CGPoint] = [:]
-    func updatePortPosition(_ location: Models.PortLocation, _ position: CGPoint) {
-        self.items[location] = position
-        print(self.items)
-    }
-}
-
 // MARK: - Previews
 
+fileprivate struct PreviewData {
+    static let id1 = UUID()
+    static let id2 = UUID()
+}
+
 #Preview {
-    @Previewable @State var state = CanvasFeatureState(
-        nodePositionStore: .init(items: [
-            .init(id: .init(), position: .zero),
-            .init(id: .init(), position: .init(x: 250, y: 250)),
+    @Previewable @State var state = {
+        let state = CanvasFeatureState(
+            nodePositionStore: .init(items: [
+                .init(id: PreviewData.id1, position: .zero),
+                .init(id: PreviewData.id2, position: .init(x: 250, y: 250)),
+            ])
+        )
+        return state
+    }()
+    @Previewable @State var nodeDataStore = NodeDataStore(
+        edges: Set([
+            .init(.init(node: PreviewData.id1, port: .output(0)), .init(node: PreviewData.id2, port: .input(0)))!
         ])
     )
-    @Previewable @State var nodeDataStore = NodeDataStore()
     VStack {
         CanvasFeatureView(state: state, nodeDataStore: nodeDataStore)
     }

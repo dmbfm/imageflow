@@ -92,7 +92,7 @@ fileprivate struct NodeInputRowView: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            PortView(connected: false)
+            PortView(connected: self.input.connected)
             Text(input.label)
                 .fixedSize()
                 .font(.system(size: labelSize, weight: .regular))
@@ -167,7 +167,7 @@ fileprivate struct NodeOutputRowView: View, Equatable {
             Text(output.label)
                 .font(.system(size: labelSize))
                 .foregroundStyle(.secondary)
-            PortView(connected: false)
+            PortView(connected: self.output.connected)
         }
         .gridColumnAlignment(.trailing)
     }
