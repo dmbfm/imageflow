@@ -1,6 +1,7 @@
 import CanvasView
 import Design
 import Logging
+import Models
 import SwiftUI
 
 extension EnvironmentValues {
@@ -22,18 +23,23 @@ struct PortView: View, Equatable {
     }
 
     let connected: Bool
+    let port: PortLocation
     var size: CGFloat = 4
     var outerSize: CGFloat = 12
     @Environment(\.onPortPositionChanged) var onPortPositionChanged
+    @Environment(\.portDragGesture) var portDragGesture
+    @State var isDragging: Bool = false
 
     internal init(
         connected: Bool,
+        port: PortLocation = .init(node: .init(), port: .input(0)),
         size: CGFloat = 4,
         outerSize: CGFloat = 12,
     ) {
         self.connected = connected
         self.size = size
         self.outerSize = outerSize
+        self.port = port
     }
 
     public var body: some View {
@@ -54,6 +60,25 @@ struct PortView: View, Equatable {
             }
         }
         .frame(width: self.outerSize, height: self.outerSize)
+        .gesture(
+            DragGesture(coordinateSpace: .named(canvasCoordinateSpaceName)).onChanged { value in
+                let phase = { () -> PortDragGesture.Phase in
+                    if self.isDragging == false {
+                        self.isDragging = true
+                        return .started
+                    } else {
+                        return .changed
+                    }
+                }()
+
+                self.portDragGesture?.handler(.init(port: self.port, location: value.location), phase)
+            }
+
+            .onEnded { value in
+                self.isDragging = false
+                self.portDragGesture?.handler(.init(port: self.port, location: value.location), .ended)
+            }
+        )
     }
 }
 

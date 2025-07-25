@@ -7,7 +7,42 @@ private let labelSize: CGFloat = 10
 
 extension EnvironmentValues {
     @Entry var nodeID: UUID = .init()
-    @Entry public var portPositionStorage: (any PortPositionStorageProtocol)? = nil
+    @Entry var portPositionStorage: (any PortPositionStorageProtocol)? = nil
+    @Entry var portDragGesture: PortDragGesture? = nil
+}
+
+extension View {
+    public func portDragGesture(_ handler: @escaping (PortDragGesture.Value, PortDragGesture.Phase) -> ()) -> some View
+    {
+        self
+            .environment(\.portDragGesture, .init(handler: handler))
+    }
+
+    public func portPositionStorage(_ storage: (PortPositionStorageProtocol)?) -> some View {
+        self
+            .environment(\.portPositionStorage, storage)
+    }
+}
+
+public struct PortDragGesture {
+
+    public var handler: (Value, Phase) -> ()
+
+    public struct Value: Sendable, Equatable {
+        var port: PortLocation
+        var location: CGPoint
+    }
+
+    public enum Phase: Sendable, Equatable {
+        case started
+        case cancelled
+        case changed
+        case ended
+    }
+
+    public init(handler: @escaping (Value, Phase) -> ()) {
+        self.handler = handler
+    }
 }
 
 @MainActor
@@ -68,7 +103,7 @@ fileprivate struct NodeInputRowsBlockView: View {
         Grid(horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(self.$inputs) { $input in
                 GridRow(alignment: .center) {
-                    NodeInputRowView(input: $input)
+                    NodeInputRowView(input: $input, port: .init(node: self.nodeID, port: .input(input.id)))
                         .onPortPositionChanged { point in
                             self.portPositionStorage?.updatePortPosition(
                                 .init(node: self.nodeID, port: .input(input.id)),
@@ -89,10 +124,11 @@ fileprivate struct NodeInputRowView: View {
 
     @Binding var input: FlowNode.Input
     @FocusState var isFocused: Bool
+    let port: PortLocation
 
     var body: some View {
         HStack(spacing: 2) {
-            PortView(connected: self.input.connected)
+            PortView(connected: self.input.connected, port: self.port)
             Text(input.label)
                 .fixedSize()
                 .font(.system(size: labelSize, weight: .regular))
@@ -144,7 +180,7 @@ fileprivate struct NodeOutputRowsBlockView: View, Equatable {
         Grid(alignment: .trailing, horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(self.outputs, id: \.label) { output in
                 GridRow {
-                    NodeOutputRowView(output: output)
+                    NodeOutputRowView(output: output, port: .init(node: self.nodeID, port: .output(output.index)))
                         .onPortPositionChanged { point in
                             self.portPositionStorage?.updatePortPosition(
                                 .init(node: self.nodeID, port: .output(output.id)),
@@ -160,6 +196,7 @@ fileprivate struct NodeOutputRowsBlockView: View, Equatable {
 
 fileprivate struct NodeOutputRowView: View, Equatable {
     let output: FlowNode.Output
+    let port: PortLocation
     var body: some View {
         // Spacer()
         Text("")
@@ -167,7 +204,7 @@ fileprivate struct NodeOutputRowView: View, Equatable {
             Text(output.label)
                 .font(.system(size: labelSize))
                 .foregroundStyle(.secondary)
-            PortView(connected: self.output.connected)
+            PortView(connected: self.output.connected, port: self.port)
         }
         .gridColumnAlignment(.trailing)
     }

@@ -55,6 +55,12 @@ public struct CanvasFeatureView: View {
 
     @Bindable var state: CanvasFeatureState
     var nodeDataStore: NodeDataStore
+    @State var partialEdge: PartialEdge?
+
+    struct PartialEdge: Sendable, Equatable {
+        var port: PortLocation
+        var point: CGPoint
+    }
 
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
@@ -74,9 +80,11 @@ public struct CanvasFeatureView: View {
                 )
                 .offset(item.position.cgSize)
                 .dragNode(self.state.positionBinding(item.id))
+                .portDragGesture() { value, phase in
+                    log("portDragGesture: \(value), \(phase)")
+                }
             }
-            .environment(\.portPositionStorage, self.state)
-
+            .portPositionStorage(self.state)
         }
     }
 }
