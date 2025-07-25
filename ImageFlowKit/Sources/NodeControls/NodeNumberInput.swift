@@ -24,14 +24,14 @@ public struct NodeIntInput: View {
 
             Stepper("", value: self.$value)
                 #if os(macOS)
-                    .controlSize(.small)
-                    .padding(.leading, -4)
+            .controlSize(.small)
+            .padding(.leading, -4)
                 #else
-                    .padding(.leading, -2)
-                    .fixedSize()
-                    .scaleEffect(0.5)
-                    .padding(.leading, -25)
-                    .padding(.trailing, -15)
+            .padding(.leading, -2)
+            .fixedSize()
+            .scaleEffect(0.5)
+            .padding(.leading, -25)
+            .padding(.trailing, -15)
                 #endif
 
         }
@@ -92,19 +92,19 @@ public struct NodeNumberInput: View {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         #if os(macOS)
-            formatter.roundingBehavior = .init(
-                roundingMode: .plain,
-                scale: 8,
-                raiseOnExactness: false,
-                raiseOnOverflow: false,
-                raiseOnUnderflow: false,
-                raiseOnDivideByZero: false
-            )
-            formatter.localizesFormat = false
+        formatter.roundingBehavior = .init(
+            roundingMode: .plain,
+            scale: 8,
+            raiseOnExactness: false,
+            raiseOnOverflow: false,
+            raiseOnUnderflow: false,
+            raiseOnDivideByZero: false
+        )
+        formatter.localizesFormat = false
         #endif
         #if os(iOS)
-            formatter.decimalSeparator = "."
-            formatter.maximumFractionDigits = 6
+        formatter.decimalSeparator = "."
+        formatter.maximumFractionDigits = 6
         #endif
         formatter.minimumFractionDigits = 1
         return formatter
@@ -140,14 +140,14 @@ public struct NodeNumberInput: View {
         }
 
         #if os(macOS)
-            let sensitivity =
-                if NSEvent.modifierFlags.contains(.shift) {
-                    self.settings.dragSensitivity.slow
-                } else {
-                    self.settings.dragSensitivity.normal
-                }
+        let sensitivity =
+            if NSEvent.modifierFlags.contains(.shift) {
+                self.settings.dragSensitivity.slow
+            } else {
+                self.settings.dragSensitivity.normal
+            }
         #else
-            let sensitivity = self.settings.dragSensitivity.normal
+        let sensitivity = self.settings.dragSensitivity.normal
         #endif
 
         self.value = (self.valueAtDragStart! + gesture.translation.width * sensitivity).roundTo(
@@ -160,7 +160,7 @@ public struct NodeNumberInput: View {
             .nodeTextField(onDragChanged: self.onDragChanged(_:), onDragEnded: self.onDragEnded(_:))
             .focused(self.$focused, equals: true)
             #if os(iOS)
-                .keyboardType(.decimalPad)
+        .keyboardType(.decimalPad)
             #endif
     }
 }

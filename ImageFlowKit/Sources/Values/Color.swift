@@ -63,106 +63,106 @@ public struct Color4: Sendable, Hashable, Codable {
 
 #if canImport(AppKit)
 
-    import AppKit
-    import SwiftUI
+import AppKit
+import SwiftUI
 
-    extension Color3 {
-        public init?(nsColor: NSColor) {
-            guard let converted = nsColor.usingColorSpace(.sRGB) else {
-                return nil
-            }
-
-            self.init(red: converted.redComponent, green: converted.greenComponent, blue: converted.blueComponent)
+extension Color3 {
+    public init?(nsColor: NSColor) {
+        guard let converted = nsColor.usingColorSpace(.sRGB) else {
+            return nil
         }
 
-        public var nsColor: NSColor {
-            return NSColor(red: CGFloat(self.red), green: CGFloat(self.green), blue: CGFloat(self.blue), alpha: 1)
-        }
-
-        public var color: Color {
-            return Color(red: self.red, green: self.green, blue: self.blue)
-        }
-
-        public init?(color: Color) {
-            let nsColor = NSColor(color)
-            self.init(red: nsColor.redComponent, green: nsColor.greenComponent, blue: nsColor.blueComponent)
-        }
+        self.init(red: converted.redComponent, green: converted.greenComponent, blue: converted.blueComponent)
     }
 
-    extension Color4 {
-        public init?(nsColor: NSColor) {
-            guard let converted = nsColor.usingColorSpace(.sRGB) else {
-                return nil
-            }
-
-            self.init(
-                red: converted.redComponent,
-                green: converted.greenComponent,
-                blue: converted.blueComponent,
-                alpha: converted.alphaComponent
-            )
-        }
-
-        public var nsColor: NSColor {
-            return NSColor(
-                red: CGFloat(self.red),
-                green: CGFloat(self.green),
-                blue: CGFloat(self.blue),
-                alpha: CGFloat(self.alpha)
-            )
-        }
-
-        public var color: Color {
-            return Color(red: self.red, green: self.green, blue: self.blue, opacity: self.alpha)
-        }
-
-        public init?(color: Color) {
-            let nsColor = NSColor(color)
-            self.init(
-                red: nsColor.redComponent,
-                green: nsColor.greenComponent,
-                blue: nsColor.blueComponent,
-                alpha: nsColor.alphaComponent
-            )
-        }
-
-        public mutating func set(color: Color) {
-            let nsColor = NSColor(color)
-            self.red = nsColor.redComponent
-            self.green = nsColor.greenComponent
-            self.blue = nsColor.blueComponent
-            self.alpha = nsColor.alphaComponent
-        }
+    public var nsColor: NSColor {
+        return NSColor(red: CGFloat(self.red), green: CGFloat(self.green), blue: CGFloat(self.blue), alpha: 1)
     }
 
-    extension Binding<Color3?> {
-        public var colorBinding: Binding<Color> {
-            Binding<Color>(
-                get: { self.wrappedValue?.color ?? .clear },
-                set: { newValue in
-                    if let color = Color3(color: newValue) {
-                        self.wrappedValue = color
-                    } else {
-                        self.wrappedValue = nil
-                    }
+    public var color: Color {
+        return Color(red: self.red, green: self.green, blue: self.blue)
+    }
+
+    public init?(color: Color) {
+        let nsColor = NSColor(color)
+        self.init(red: nsColor.redComponent, green: nsColor.greenComponent, blue: nsColor.blueComponent)
+    }
+}
+
+extension Color4 {
+    public init?(nsColor: NSColor) {
+        guard let converted = nsColor.usingColorSpace(.sRGB) else {
+            return nil
+        }
+
+        self.init(
+            red: converted.redComponent,
+            green: converted.greenComponent,
+            blue: converted.blueComponent,
+            alpha: converted.alphaComponent
+        )
+    }
+
+    public var nsColor: NSColor {
+        return NSColor(
+            red: CGFloat(self.red),
+            green: CGFloat(self.green),
+            blue: CGFloat(self.blue),
+            alpha: CGFloat(self.alpha)
+        )
+    }
+
+    public var color: Color {
+        return Color(red: self.red, green: self.green, blue: self.blue, opacity: self.alpha)
+    }
+
+    public init?(color: Color) {
+        let nsColor = NSColor(color)
+        self.init(
+            red: nsColor.redComponent,
+            green: nsColor.greenComponent,
+            blue: nsColor.blueComponent,
+            alpha: nsColor.alphaComponent
+        )
+    }
+
+    public mutating func set(color: Color) {
+        let nsColor = NSColor(color)
+        self.red = nsColor.redComponent
+        self.green = nsColor.greenComponent
+        self.blue = nsColor.blueComponent
+        self.alpha = nsColor.alphaComponent
+    }
+}
+
+extension Binding<Color3?> {
+    public var colorBinding: Binding<Color> {
+        Binding<Color>(
+            get: { self.wrappedValue?.color ?? .clear },
+            set: { newValue in
+                if let color = Color3(color: newValue) {
+                    self.wrappedValue = color
+                } else {
+                    self.wrappedValue = nil
                 }
-            )
-        }
+            }
+        )
     }
+}
 
-    extension Binding<Color4?> {
-        public var colorBinding: Binding<Color> {
-            Binding<Color>(
-                get: { self.wrappedValue?.color ?? .clear },
-                set: { newValue in
-                    if let color = Color4(color: newValue) {
-                        self.wrappedValue = color
-                    } else {
-                        self.wrappedValue = nil
-                    }
+extension Binding<Color4?> {
+    public var colorBinding: Binding<Color> {
+        Binding<Color>(
+            get: { self.wrappedValue?.color ?? .clear },
+            set: { newValue in
+                if let color = Color4(color: newValue) {
+                    self.wrappedValue = color
+                } else {
+                    self.wrappedValue = nil
                 }
-            )
-        }
+            }
+        )
     }
+}
 
 #endif

@@ -25,7 +25,7 @@ public struct NodeImageInput: View {
             Text(self.label)
         }
         #if os(macOS)
-            .buttonStyle(.borderless)
+        .buttonStyle(.borderless)
         #endif
         .tint(.orange)
         .font(.system(size: 10))

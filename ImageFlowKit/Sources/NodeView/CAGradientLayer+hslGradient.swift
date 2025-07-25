@@ -2,11 +2,11 @@ import ColorUtils
 import Easing
 
 #if canImport(AppKit)
-    import AppKit
+import AppKit
 #endif
 
 #if canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 extension CAGradientLayer {

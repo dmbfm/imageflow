@@ -3,8 +3,8 @@ import Design
 import SwiftUI
 
 #if canImport(AppKit)
-    import AppKit
-    import AppKitUtils
+import AppKit
+import AppKitUtils
 #endif
 
 extension EnvironmentValues {
@@ -101,238 +101,238 @@ extension View {
 // MARK: - AppKit
 
 #if os(macOS)
-    struct BackgroundView: NSViewRepresentable {
-        /// The start color of the gradient
-        var tintColor: Color = .blue
-        /// The end color of the gradient
-        var backgroundColor: Color = Colors.cardBackground.color
+struct BackgroundView: NSViewRepresentable {
+    /// The start color of the gradient
+    var tintColor: Color = .blue
+    /// The end color of the gradient
+    var backgroundColor: Color = Colors.cardBackground.color
 
-        func makeNSView(context: Context) -> NativeBackgroundView {
-            // resolve both colors from the SwiftUI environment
-            let resolvedTint = tintColor.resolve(in: context.environment).cgColor
-            let resolvedBG = backgroundColor.resolve(in: context.environment).cgColor
+    func makeNSView(context: Context) -> NativeBackgroundView {
+        // resolve both colors from the SwiftUI environment
+        let resolvedTint = tintColor.resolve(in: context.environment).cgColor
+        let resolvedBG = backgroundColor.resolve(in: context.environment).cgColor
 
-            let view = NativeBackgroundView(
-                frame: .zero,
-                gradientHeight: 60,
-                tintColor: resolvedTint,
-                backgroundColor: resolvedBG
-            )
+        let view = NativeBackgroundView(
+            frame: .zero,
+            gradientHeight: 60,
+            tintColor: resolvedTint,
+            backgroundColor: resolvedBG
+        )
 
-            // cache the initial tint
-            return view
-        }
+        // cache the initial tint
+        return view
+    }
 
-        func updateNSView(_ nsView: NativeBackgroundView, context: Context) {
-            nsView.tintColor = self.tintColor.resolve(in: context.environment).cgColor
-            nsView.backgroundColor = self.backgroundColor.resolve(in: context.environment).cgColor
+    func updateNSView(_ nsView: NativeBackgroundView, context: Context) {
+        nsView.tintColor = self.tintColor.resolve(in: context.environment).cgColor
+        nsView.backgroundColor = self.backgroundColor.resolve(in: context.environment).cgColor
+    }
+}
+
+class NativeBackgroundView: NSView {
+
+    let gradientHeight: CGFloat
+
+    var tintColor: CGColor {
+        didSet {
+            if self.tintColor != oldValue {
+                self.needsDisplay = true
+            }
         }
     }
 
-    class NativeBackgroundView: NSView {
-
-        let gradientHeight: CGFloat
-
-        var tintColor: CGColor {
-            didSet {
-                if self.tintColor != oldValue {
-                    self.needsDisplay = true
-                }
+    var backgroundColor: CGColor {
+        didSet {
+            if self.backgroundColor != oldValue {
+                self.needsDisplay = true
             }
-        }
-
-        var backgroundColor: CGColor {
-            didSet {
-                if self.backgroundColor != oldValue {
-                    self.needsDisplay = true
-                }
-            }
-        }
-
-        private var gradientLayer: CAGradientLayer = CAGradientLayer()
-
-        override var wantsUpdateLayer: Bool { true }
-
-        override var isFlipped: Bool {
-            true
-        }
-
-        private var gradientChannelMask: HSL.ChannelMask {
-            if self.effectiveAppearance.isDarkMode {
-                [.lightness, .saturation]
-            } else {
-                [.lightness]
-            }
-        }
-
-        init(
-            frame frameRect: NSRect,
-            gradientHeight: CGFloat,
-            tintColor: CGColor,
-            backgroundColor: CGColor
-        ) {
-            self.gradientHeight = gradientHeight
-            self.tintColor = tintColor
-            self.backgroundColor = backgroundColor
-            super.init(frame: frameRect)
-
-            self.gradientLayer.frame = self.bounds
-            self.gradientLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-
-            self.wantsLayer = true
-            self.layer?.insertSublayer(self.gradientLayer, at: 0)
-        }
-
-        override func updateLayer() {
-            self.gradientLayer.startPoint = CGPointMake(0, -10.0 / self.bounds.height)
-            self.gradientLayer.endPoint = CGPointMake(0, self.gradientHeight / self.bounds.height)
-            self.gradientLayer.colors = CAGradientLayer.colors(
-                hslGradientStart: self.tintColor,
-                end: self.backgroundColor,
-                channelMask: self.gradientChannelMask,
-                curve: .cubic,
-                stops: 10
-            )
-        }
-
-        required init?(coder: NSCoder) {
-            nil
         }
     }
+
+    private var gradientLayer: CAGradientLayer = CAGradientLayer()
+
+    override var wantsUpdateLayer: Bool { true }
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    private var gradientChannelMask: HSL.ChannelMask {
+        if self.effectiveAppearance.isDarkMode {
+            [.lightness, .saturation]
+        } else {
+            [.lightness]
+        }
+    }
+
+    init(
+        frame frameRect: NSRect,
+        gradientHeight: CGFloat,
+        tintColor: CGColor,
+        backgroundColor: CGColor
+    ) {
+        self.gradientHeight = gradientHeight
+        self.tintColor = tintColor
+        self.backgroundColor = backgroundColor
+        super.init(frame: frameRect)
+
+        self.gradientLayer.frame = self.bounds
+        self.gradientLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+
+        self.wantsLayer = true
+        self.layer?.insertSublayer(self.gradientLayer, at: 0)
+    }
+
+    override func updateLayer() {
+        self.gradientLayer.startPoint = CGPointMake(0, -10.0 / self.bounds.height)
+        self.gradientLayer.endPoint = CGPointMake(0, self.gradientHeight / self.bounds.height)
+        self.gradientLayer.colors = CAGradientLayer.colors(
+            hslGradientStart: self.tintColor,
+            end: self.backgroundColor,
+            channelMask: self.gradientChannelMask,
+            curve: .cubic,
+            stops: 10
+        )
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+}
 #endif
 
 // MARK: - UIKit
 
 #if os(iOS)
-    class NativeBackgroundView: UIView {
+class NativeBackgroundView: UIView {
 
-        // MARK: – Public API
+    // MARK: – Public API
 
-        /// Height of the gradient in points.
-        let gradientHeight: CGFloat
+    /// Height of the gradient in points.
+    let gradientHeight: CGFloat
 
-        /// Tint‐color for the gradient start.
-        /// When set, we mark the view dirty so layoutSubviews will re‐run the gradient update.
-        var gradientTintColor: CGColor {
-            didSet {
-                if self.gradientTintColor != oldValue {
-                    self.setNeedsLayout()
-                    self.setNeedsDisplay()
-                }
+    /// Tint‐color for the gradient start.
+    /// When set, we mark the view dirty so layoutSubviews will re‐run the gradient update.
+    var gradientTintColor: CGColor {
+        didSet {
+            if self.gradientTintColor != oldValue {
+                self.setNeedsLayout()
+                self.setNeedsDisplay()
             }
-        }
-
-        var gradientBackgroundColor: CGColor {
-            didSet {
-                if self.gradientBackgroundColor != oldValue {
-                    self.setNeedsLayout()
-                    self.setNeedsDisplay()
-                }
-            }
-        }
-
-        // MARK: – Private
-
-        private let gradientLayer = CAGradientLayer()
-
-        private var gradientChannelMask: HSL.ChannelMask {
-            // mimic your macOS isDarkMode check
-            if traitCollection.userInterfaceStyle == .dark {
-                return [.lightness, .saturation]
-            } else {
-                return [.lightness]
-            }
-        }
-
-        // MARK: – Initializers
-
-        /// Designated initializer, same API as your NSView version.
-        init(
-            frame: CGRect,
-            gradientHeight: CGFloat,
-            tintColor: CGColor,
-            backgroundColor: CGColor
-        ) {
-            self.gradientHeight = gradientHeight
-            self.gradientTintColor = tintColor
-            self.gradientBackgroundColor = backgroundColor
-            super.init(frame: frame)
-
-            // set up our layer
-            layer.addSublayer(gradientLayer)
-            gradientLayer.needsDisplayOnBoundsChange = true
-
-            // if you still want a fill behind the gradient:
-            // layer.backgroundColor = endColor
-        }
-
-        required init?(coder: NSCoder) {
-            // we don’t support IB/storyboards
-            return nil
-        }
-
-        // MARK: – Layout & Appearance
-
-        override func layoutSubviews() {
-            super.layoutSubviews()
-
-            // match the layer to our bounds
-            gradientLayer.frame = bounds
-
-            // recalc gradient
-            updateGradient()
-        }
-
-        override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-            super.traitCollectionDidChange(previousTraitCollection)
-
-            // when user switches light/dark, re‐layout the gradient
-            if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-                setNeedsLayout()
-            }
-        }
-
-        // MARK: – Gradient Logic
-
-        private func updateGradient() {
-            // same geometry as you had in updateLayer()
-            gradientLayer.startPoint = CGPoint(x: 0, y: -10.0 / bounds.height)
-            gradientLayer.endPoint = CGPoint(x: 0, y: gradientHeight / bounds.height)
-
-            gradientLayer.colors = CAGradientLayer.colors(
-                hslGradientStart: self.gradientTintColor,
-                end: self.gradientBackgroundColor,
-                channelMask: gradientChannelMask,
-                curve: .cubic,
-                stops: 10
-            )
         }
     }
 
-    struct BackgroundView: UIViewRepresentable {
-        /// The start color of the gradient
-        var tintColor: Color = .blue
-        /// The end color of the gradient
-        var backgroundColor: Color = Colors.cardBackground.color
-
-        func makeUIView(context: Context) -> NativeBackgroundView {
-            let resolvedTint = tintColor.resolve(in: context.environment).cgColor
-            let resolvedBG = backgroundColor.resolve(in: context.environment).cgColor
-
-            let view = NativeBackgroundView(
-                frame: .zero,
-                gradientHeight: 60,
-                tintColor: resolvedTint,
-                backgroundColor: resolvedBG
-            )
-            return view
-        }
-
-        func updateUIView(_ uiView: NativeBackgroundView, context: Context) {
-            uiView.gradientTintColor = self.tintColor.resolve(in: context.environment).cgColor
-            uiView.gradientBackgroundColor = self.backgroundColor.resolve(in: context.environment).cgColor
+    var gradientBackgroundColor: CGColor {
+        didSet {
+            if self.gradientBackgroundColor != oldValue {
+                self.setNeedsLayout()
+                self.setNeedsDisplay()
+            }
         }
     }
+
+    // MARK: – Private
+
+    private let gradientLayer = CAGradientLayer()
+
+    private var gradientChannelMask: HSL.ChannelMask {
+        // mimic your macOS isDarkMode check
+        if traitCollection.userInterfaceStyle == .dark {
+            return [.lightness, .saturation]
+        } else {
+            return [.lightness]
+        }
+    }
+
+    // MARK: – Initializers
+
+    /// Designated initializer, same API as your NSView version.
+    init(
+        frame: CGRect,
+        gradientHeight: CGFloat,
+        tintColor: CGColor,
+        backgroundColor: CGColor
+    ) {
+        self.gradientHeight = gradientHeight
+        self.gradientTintColor = tintColor
+        self.gradientBackgroundColor = backgroundColor
+        super.init(frame: frame)
+
+        // set up our layer
+        layer.addSublayer(gradientLayer)
+        gradientLayer.needsDisplayOnBoundsChange = true
+
+        // if you still want a fill behind the gradient:
+        // layer.backgroundColor = endColor
+    }
+
+    required init?(coder: NSCoder) {
+        // we don’t support IB/storyboards
+        return nil
+    }
+
+    // MARK: – Layout & Appearance
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // match the layer to our bounds
+        gradientLayer.frame = bounds
+
+        // recalc gradient
+        updateGradient()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        // when user switches light/dark, re‐layout the gradient
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            setNeedsLayout()
+        }
+    }
+
+    // MARK: – Gradient Logic
+
+    private func updateGradient() {
+        // same geometry as you had in updateLayer()
+        gradientLayer.startPoint = CGPoint(x: 0, y: -10.0 / bounds.height)
+        gradientLayer.endPoint = CGPoint(x: 0, y: gradientHeight / bounds.height)
+
+        gradientLayer.colors = CAGradientLayer.colors(
+            hslGradientStart: self.gradientTintColor,
+            end: self.gradientBackgroundColor,
+            channelMask: gradientChannelMask,
+            curve: .cubic,
+            stops: 10
+        )
+    }
+}
+
+struct BackgroundView: UIViewRepresentable {
+    /// The start color of the gradient
+    var tintColor: Color = .blue
+    /// The end color of the gradient
+    var backgroundColor: Color = Colors.cardBackground.color
+
+    func makeUIView(context: Context) -> NativeBackgroundView {
+        let resolvedTint = tintColor.resolve(in: context.environment).cgColor
+        let resolvedBG = backgroundColor.resolve(in: context.environment).cgColor
+
+        let view = NativeBackgroundView(
+            frame: .zero,
+            gradientHeight: 60,
+            tintColor: resolvedTint,
+            backgroundColor: resolvedBG
+        )
+        return view
+    }
+
+    func updateUIView(_ uiView: NativeBackgroundView, context: Context) {
+        uiView.gradientTintColor = self.tintColor.resolve(in: context.environment).cgColor
+        uiView.gradientBackgroundColor = self.backgroundColor.resolve(in: context.environment).cgColor
+    }
+}
 
 #endif
 

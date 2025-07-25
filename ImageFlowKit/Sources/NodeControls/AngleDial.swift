@@ -11,14 +11,14 @@ struct AngleDial: View {
         let p = location - center
 
         #if os(macOS)
-            let angle =
-                if NSEvent.modifierFlags.contains(.shift) {
-                    atan2(-p.y, p.x).snapped(toDivisions: 8, as: .radians)
-                } else {
-                    atan2(-p.y, p.x)
-                }
+        let angle =
+            if NSEvent.modifierFlags.contains(.shift) {
+                atan2(-p.y, p.x).snapped(toDivisions: 8, as: .radians)
+            } else {
+                atan2(-p.y, p.x)
+            }
         #else
-            let angle = atan2(-p.y, p.x)
+        let angle = atan2(-p.y, p.x)
         #endif
 
         self.angle = angle.snapped(toDivisions: 360, as: .radians).normalized(as: .radians)

@@ -49,7 +49,7 @@ struct NodeTextFieldWrapper<Label: View>: View {
             .fixedSize()
             .focused(self.$focused, equals: true)
             #if os(masOS)
-                .onExitCommand(perform: self.onExitHandler)
+        .onExitCommand(perform: self.onExitHandler)
             #endif
             .onSubmit(self.onSubmitHandler)
             .padding(.vertical, 3)
@@ -57,13 +57,13 @@ struct NodeTextFieldWrapper<Label: View>: View {
             .padding(.top, self.focused ? 3 : 1)
             .animation(nil, value: self.focused)
             #if os(iOS)
-                .padding(.trailing, 6)
-            #else
-                .padding(.trailing, 2)
-            #endif
-            .background(Background(focused: self.focused))
-            .overlay(self.overlayView)
-            .animation(.easeInOut(duration: 0.15), value: self.focused)
+        .padding(.trailing, 6)
+        #else
+        .padding(.trailing, 2)
+        #endif
+        .background(Background(focused: self.focused))
+        .overlay(self.overlayView)
+        .animation(.easeInOut(duration: 0.15), value: self.focused)
     }
 
     private var overlayView: some View {

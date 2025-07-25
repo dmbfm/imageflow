@@ -11,7 +11,7 @@ import SwiftUI
 import Values
 
 #if canImport(AppKit)
-    import AppKit
+import AppKit
 #endif
 
 public extension NodeKind {
