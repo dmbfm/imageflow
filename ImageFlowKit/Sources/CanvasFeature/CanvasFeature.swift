@@ -62,12 +62,34 @@ public struct CanvasFeatureView: View {
         var point: CGPoint
     }
 
+    var resolvedPartialEdge: EdgeView.Edge? {
+        self.partialEdge.flatMap { partialEdge in
+
+            switch partialEdge.port.slot {
+            case .input(_):
+                if let end = self.state.portPosition(partialEdge.port) {
+                    return .init(start: partialEdge.point, end: end, color: Colors.edgeWithSuccess.color)
+                }
+            case .output(_):
+                if let start = self.state.portPosition(partialEdge.port) {
+                    return .init(start: start, end: partialEdge.point, color: Colors.edgeWithSuccess.color)
+                }
+            }
+
+            return nil
+        }
+    }
+
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
             ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
                 if let start = self.state.portPositions[edge.from], let end = self.state.portPositions[edge.to] {
                     EdgeView(edge: .init(start: start, end: end, color: Colors.edgeWithSuccess.color))
                 }
+            }
+
+            if let partialEdge = self.resolvedPartialEdge {
+                EdgeView(edge: partialEdge)
             }
 
             ForEach(self.state.nodePositionStore.items) { item in
@@ -81,7 +103,16 @@ public struct CanvasFeatureView: View {
                 .offset(item.position.cgSize)
                 .dragNode(self.state.positionBinding(item.id))
                 .portDragGesture() { value, phase in
-                    log("portDragGesture: \(value), \(phase)")
+                    switch phase {
+                    case .started, .changed:
+                        self.partialEdge = .init(
+                            port: value.port,
+                            point: self.state.viewport.convert(value.location, from: .screen, to: .canvas)
+                        )
+                    case .ended, .cancelled:
+                        self.partialEdge = nil
+                        break
+                    }
                 }
             }
             .portPositionStorage(self.state)

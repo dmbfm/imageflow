@@ -29,8 +29,8 @@ public struct PortDragGesture {
     public var handler: (Value, Phase) -> ()
 
     public struct Value: Sendable, Equatable {
-        var port: PortLocation
-        var location: CGPoint
+        public var port: PortLocation
+        public var location: CGPoint
     }
 
     public enum Phase: Sendable, Equatable {
