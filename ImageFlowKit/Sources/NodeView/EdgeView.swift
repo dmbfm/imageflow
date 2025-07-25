@@ -39,7 +39,7 @@ public struct EdgeView: View, Equatable {
             path.addCurve(to: middle, control1: cp3, control2: cp4)
         }
         .stroke(self.edge.color, style: .init(lineWidth: 4, lineCap: .round))
-        .animation(.easeInOut(duration: 0.25), value: self.edge.color)
+        .animation(.easeInOut(duration: 0.08), value: self.edge.color)
     }
 }
 

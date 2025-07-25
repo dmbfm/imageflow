@@ -142,6 +142,7 @@ let package = Package(
         .target(
             name: "CanvasFeature",
             dependencies: [
+                "Backend",
                 "Logging",
                 "CanvasView",
                 "NodeView",

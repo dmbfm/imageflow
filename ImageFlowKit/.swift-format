@@ -5,7 +5,7 @@
     "spaces": 4
   },
   "lineBreakBeforeEachArgument": true,
-  "indentConditionalCompilationBlocks": true,
+  "indentConditionalCompilationBlocks": false,
   "prioritizeKeepingFunctionOutputTogether": true,
   "rules": {
     "AlwaysUseLowerCamelCase": false,
