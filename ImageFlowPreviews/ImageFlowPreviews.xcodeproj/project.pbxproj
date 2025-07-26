@@ -7,14 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEB1301C2E35862D00FCE746 /* CanvasFeature */; };
 		AEB76A7C2E2AEAE10020EE2F /* CanvasView in Frameworks */ = {isa = PBXBuildFile; productRef = AEB76A7B2E2AEAE10020EE2F /* CanvasView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB76A672E2AEAA20020EE2F /* CanvasViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AEB130112E3585F400FCE746 /* CanvasFeaturePreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CanvasFeaturePreview;
+			sourceTree = "<group>";
+		};
 		AEB76A682E2AEAA20020EE2F /* CanvasViewPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CanvasViewPreview;
@@ -23,6 +30,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AEB1300D2E3585F400FCE746 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEB76A642E2AEAA20020EE2F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -38,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				AEB76A682E2AEAA20020EE2F /* CanvasViewPreview */,
+				AEB130112E3585F400FCE746 /* CanvasFeaturePreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -47,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				AEB76A672E2AEAA20020EE2F /* CanvasViewPreview.app */,
+				AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +78,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AEB1300F2E3585F400FCE746 /* CanvasFeaturePreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEB130192E3585F600FCE746 /* Build configuration list for PBXNativeTarget "CanvasFeaturePreview" */;
+			buildPhases = (
+				AEB1300C2E3585F400FCE746 /* Sources */,
+				AEB1300D2E3585F400FCE746 /* Frameworks */,
+				AEB1300E2E3585F400FCE746 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AEB130112E3585F400FCE746 /* CanvasFeaturePreview */,
+			);
+			name = CanvasFeaturePreview;
+			packageProductDependencies = (
+				AEB1301C2E35862D00FCE746 /* CanvasFeature */,
+			);
+			productName = CanvasFeaturePreview;
+			productReference = AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */;
+			productType = "com.apple.product-type.application";
+		};
 		AEB76A662E2AEAA20020EE2F /* CanvasViewPreview */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AEB76A702E2AEAA30020EE2F /* Build configuration list for PBXNativeTarget "CanvasViewPreview" */;
@@ -94,6 +134,9 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					AEB1300F2E3585F400FCE746 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 					AEB76A662E2AEAA20020EE2F = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -114,11 +157,19 @@
 			projectRoot = "";
 			targets = (
 				AEB76A662E2AEAA20020EE2F /* CanvasViewPreview */,
+				AEB1300F2E3585F400FCE746 /* CanvasFeaturePreview */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AEB1300E2E3585F400FCE746 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEB76A652E2AEAA20020EE2F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -129,6 +180,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AEB1300C2E3585F400FCE746 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEB76A632E2AEAA20020EE2F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +197,84 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		AEB1301A2E3585F600FCE746 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CanvasFeaturePreview/CanvasFeaturePreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.CanvasFeaturePreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Debug;
+		};
+		AEB1301B2E3585F600FCE746 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CanvasFeaturePreview/CanvasFeaturePreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.CanvasFeaturePreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Release;
+		};
 		AEB76A5E2E2AE7770020EE2F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -336,6 +472,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AEB130192E3585F600FCE746 /* Build configuration list for PBXNativeTarget "CanvasFeaturePreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEB1301A2E3585F600FCE746 /* Debug */,
+				AEB1301B2E3585F600FCE746 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AEB76A4F2E2AE7750020EE2F /* Build configuration list for PBXProject "ImageFlowPreviews" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -357,6 +502,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AEB1301C2E35862D00FCE746 /* CanvasFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CanvasFeature;
+		};
 		AEB76A7B2E2AEAE10020EE2F /* CanvasView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CanvasView;

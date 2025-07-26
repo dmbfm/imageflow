@@ -85,7 +85,8 @@ let package = Package(
         .target(
             name: "MacApp",
             dependencies: [
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS]))
+                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
+                "Logging",
             ],
         ),
         .target(

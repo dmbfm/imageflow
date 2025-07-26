@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AEB12FF42E355ED300FCE746 /* MacApp in Frameworks */ = {isa = PBXBuildFile; productRef = AEB12FF32E355ED300FCE746 /* MacApp */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		AE596D102E21C2AF005F49B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +33,22 @@
 		AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AEB12FF22E355DD000FCE746 /* Exceptions for "ImageFlowMac" folder in "ImageFlowMac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AE596D002E21C2AE005F49B2 /* ImageFlowMac */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AE596D032E21C2AE005F49B2 /* ImageFlowMac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AEB12FF22E355DD000FCE746 /* Exceptions for "ImageFlowMac" folder in "ImageFlowMac" target */,
+			);
 			path = ImageFlowMac;
 			sourceTree = "<group>";
 		};
@@ -52,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEB12FF42E355ED300FCE746 /* MacApp in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +138,7 @@
 			);
 			name = ImageFlowMac;
 			packageProductDependencies = (
+				AEB12FF32E355ED300FCE746 /* MacApp */,
 			);
 			productName = ImageFlowMac;
 			productReference = AE596D012E21C2AE005F49B2 /* ImageFlowMac.app */;
@@ -410,6 +429,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowMac/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -437,6 +457,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowMac/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -559,6 +580,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AEB12FF32E355ED300FCE746 /* MacApp */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MacApp;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AE596CF92E21C2AE005F49B2 /* Project object */;
 }

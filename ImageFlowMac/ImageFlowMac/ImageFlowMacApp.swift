@@ -6,14 +6,8 @@
 //
 
 import SwiftUI
+import MacApp
 
 @main
-struct ImageFlowMacApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .onAppear {
-                }
-        }
-    }
-}
+extension ImageFlowApp {}
+        
