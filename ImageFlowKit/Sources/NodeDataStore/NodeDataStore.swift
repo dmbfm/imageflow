@@ -5,20 +5,32 @@ import Foundation
 import Logging
 import Models
 import SwiftUI
+import Synchronization
 import Values
 
 import struct Models.Edge
 
-@Observable
-@MainActor
-public final class NodeDataStore {
+extension NodeDataStore: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case nodes
+        case edges
+    }
+}
+
+extension NodeDataStore: Equatable {
+    public static func == (lhs: NodeDataStore, rhs: NodeDataStore) -> Bool {
+        lhs.edges == rhs.edges && lhs.nodes == rhs.nodes
+    }
+}
+
+public struct NodeDataStore: Sendable {
 
     // MARK: - Public Properties
 
     /// The nodes
     public var nodes: [UUID: FlowNode] = [:] {
         didSet {
-            self.validateEdgesCache = nil
+            self.validateEdgesCache.clear()
             // self.nodesPublisher.send(oldValue)
         }
     }
@@ -26,7 +38,7 @@ public final class NodeDataStore {
     /// The edges
     public var edges: Set<Edge> = [] {
         didSet {
-            self.validateEdgesCache = nil
+            self.validateEdgesCache.clear()
             // self.edgesPublisher.send(oldValue)
         }
     }
@@ -142,13 +154,13 @@ public final class NodeDataStore {
     /// the connections.
     ///
     /// - Returns: The `ValidateEdgesResult` value.
-    public func validateEdges() -> ValidateEdgesResult {
+    public mutating func validateEdges() -> ValidateEdgesResult {
 
-        if let validateEdgesCache = self.validateEdgesCache {
+        if let validateEdgesCache = self.validateEdgesCache.get() {
             return validateEdgesCache
         }
 
-        self.validateEdgesCache = {
+        let result: ValidateEdgesResult? = {
             for edge in self.edges {
                 let from = edge.from
                 let to = edge.to
@@ -194,11 +206,13 @@ public final class NodeDataStore {
             return .ok
         }()
 
-        return self.validateEdgesCache!
+        self.validateEdgesCache.set(result)
+
+        return result!
     }
 
     /// The result of the `validateEdges` method.
-    public enum ValidateEdgesResult: Equatable {
+    public enum ValidateEdgesResult: Sendable, Equatable {
         /// Evertything ok :)
         case ok
         // The node with the given id is missing.
@@ -211,15 +225,37 @@ public final class NodeDataStore {
         case tooFewOutgointEdges(PortLocation)
     }
 
+    class ValidateEdgesCache: @unchecked Sendable {
+        let value: Mutex<ValidateEdgesResult?> =  .init(nil)
+
+        func clear() {
+            self.set(nil)
+        }
+
+        func set(_ newValue: ValidateEdgesResult?) {
+            self.value.withLock { value in
+                value = newValue
+            }
+        }
+
+        func get() -> ValidateEdgesResult? {
+            var result: ValidateEdgesResult? = nil
+            self.value.withLock { value in
+                result = value
+            }
+            return result
+        }
+    }
+
     /// We cache the validation results and invalidate when the store is changed.
-    private var validateEdgesCache: ValidateEdgesResult? = nil
+    private let validateEdgesCache = ValidateEdgesCache()
 
     /// Adds an edge between two node slots to the store. A number of checks are
     /// made to see if the edge is valid before inserting.
     ///
     /// - Parameter edge: The edge to be added.
     /// - Returns: The added edge (same as the input) or an `AddEdgeError` value.
-    public func addEdge(_ edge: Edge) -> Result<Edge, AddEdgeError> {
+    public mutating func addEdge(_ edge: Edge) -> Result<Edge, AddEdgeError> {
         // First, check if the edge is valid in principle
         // (this is not strictly necessary since an `Edge` should,
         // by construction, be valid, but I will leave this as a precaution)
@@ -305,7 +341,7 @@ public final class NodeDataStore {
     ///
     /// - Parameter edge: The edge to be removed.
     /// - Returns: In case of failure, a `RemoveEdgeError` and a `Void` if successful.
-    public func removeEdge(_ edge: Edge) -> Result<(), RemoveEdgeError> {
+    public mutating func removeEdge(_ edge: Edge) -> Result<(), RemoveEdgeError> {
 
         // Check if edge is present
         if !self.edges.contains(edge) {
@@ -419,7 +455,7 @@ public final class NodeDataStore {
     ///
     /// - Returns: The previous `Value` if successful, a `SetInputValueError` otherwise.
     @discardableResult
-    public func setInputValue(_ id: UUID, _ port: Int, _ value: Value) -> Result<Value, SetInputValueError> {
+    public mutating func setInputValue(_ id: UUID, _ port: Int, _ value: Value) -> Result<Value, SetInputValueError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID)
         }
@@ -456,7 +492,7 @@ public final class NodeDataStore {
     /// - Returns: The previous value if successful or the failure reason via
     ///            `SetPortConnectedError` on failure.
     @discardableResult
-    public func setPortConnected(_ id: UUID, slot: PortSlot, connected: Bool) -> Result<Bool, SetPortConnectedError> {
+    public mutating func setPortConnected(_ id: UUID, slot: PortSlot, connected: Bool) -> Result<Bool, SetPortConnectedError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID)
         }
@@ -514,7 +550,7 @@ public final class NodeDataStore {
     ///
     /// - Returns: The result of the operation.
     @discardableResult
-    public func addNode(_ node: FlowNode) -> Result<(), AddNodeError> {
+    public mutating func addNode(_ node: FlowNode) -> Result<(), AddNodeError> {
         if self.nodes[node.id] != nil {
             return .failure(.repeatedNodeID(node.id))
         }
@@ -541,7 +577,7 @@ public final class NodeDataStore {
     /// - Parameter id: The id of the node.
     /// - Returns: The result of the operation.
     @discardableResult
-    public func removeNode(_ id: UUID) -> Result<(), RemoveNodeError> {
+    public mutating func removeNode(_ id: UUID) -> Result<(), RemoveNodeError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID(id))
         }
@@ -563,8 +599,3 @@ public final class NodeDataStore {
     }
 }
 
-extension NodeDataStore: @preconcurrency Equatable {
-    public static func == (lhs: NodeDataStore, rhs: NodeDataStore) -> Bool {
-        rhs.nodes == lhs.nodes && rhs.edges == lhs.edges
-    }
-}

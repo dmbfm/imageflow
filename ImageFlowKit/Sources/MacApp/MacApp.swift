@@ -12,7 +12,7 @@ public struct ImageFlowApp: App {
     public init() {}
 
     public var body: some Scene {
-        DocumentGroup(newDocument: FlowDoc()) { configuration in
+        DocumentGroup(newDocument: FlowDoc.sample) { configuration in
             ContentView(doc: configuration.$document)
         }
     }
@@ -25,9 +25,8 @@ public struct ImageFlowApp: App {
 }
 
 struct ContentView: View {
-    @Binding var doc: FlowDoc
 
-    @State var nodeDataStore = NodeDataStore()
+    @Binding var doc: FlowDoc
     @State var canvasState = CanvasFeature.State()
     // @State var canvas = CanvasFeatureState()
 
@@ -38,7 +37,7 @@ struct ContentView: View {
                 Text("\(self.canvasState.viewport.origin.y)")
             }
         } detail: {
-            CanvasFeatureView(self.$canvasState, self.$doc.canvasStore, nodeDataStore: self.nodeDataStore)
+            CanvasFeatureView(self.$canvasState, self.$doc.canvasStore, self.$doc.nodeDataStore)
         }
         .onChange(of: self.doc.canvasStore) {
             log("canvas: \(self.doc.canvasStore)")

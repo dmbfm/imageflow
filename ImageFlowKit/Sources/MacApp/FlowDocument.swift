@@ -3,6 +3,7 @@ import AppKitUtils
 import CanvasFeature
 import CanvasView
 import Logging
+import NodeDataStore
 import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
@@ -10,6 +11,7 @@ import UniformTypeIdentifiers
 struct FlowDoc: FileDocument, Codable, Equatable {
 
     var canvasStore: CanvasFeature.StoredState = .init()
+    var nodeDataStore: NodeDataStore = .init()
 
     static var readableContentTypes: [UTType] {
         [.imageFlowDocument]
@@ -25,18 +27,29 @@ struct FlowDoc: FileDocument, Codable, Equatable {
             fatalError()
         }
 
-        self.canvasStore = try JSONDecoder().decode(CanvasFeature.StoredState.self, from: data)
+        self = try JSONDecoder().decode(Self.self, from: data)
+        // self.canvasStore = try JSONDecoder().decode(CanvasFeature.StoredState.self, from: data)
     }
 
     init() {}
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         log("saving...")
-        let data = try JSONEncoder().encode(self.canvasStore)
+        let data = try JSONEncoder().encode(self)
         let result = FileWrapper(directoryWithFileWrappers: ["flow.json": FileWrapper(regularFileWithContents: data)])
         log("done!")
         return result
     }
+}
+
+extension FlowDoc {
+    static let sample: Self = {
+        var doc = Self()
+        let id = UUID()
+        doc.nodeDataStore.addNode(.init(id: id, kind: .addNode(.float)))
+        doc.canvasStore.nodePositions[id] = .zero
+        return doc
+    }()
 }
 
 // extension FlowDoc: AssetImageSource {

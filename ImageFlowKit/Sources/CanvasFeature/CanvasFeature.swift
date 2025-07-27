@@ -56,8 +56,7 @@ public struct CanvasFeatureView: View {
 
     @Binding var state: CanvasFeature.State
     @Binding var store: CanvasFeature.StoredState
-
-    var nodeDataStore: NodeDataStore
+    @Binding var nodeDataStore: NodeDataStore
     @State var partialEdge: PartialEdge?
     @Environment(\.undoManager) var undoManager
 
@@ -81,10 +80,10 @@ public struct CanvasFeatureView: View {
         }
     }
 
-    public init(_ state: Binding<CanvasFeature.State>, _ store: Binding<CanvasFeature.StoredState>, nodeDataStore: NodeDataStore) {
+    public init(_ state: Binding<CanvasFeature.State>, _ store: Binding<CanvasFeature.StoredState>, _ nodeDataStore: Binding<NodeDataStore>) {
         self._state = state
         self._store = store
-        self.nodeDataStore = nodeDataStore
+        self._nodeDataStore = nodeDataStore
     }
 
     var resolvedPartialEdge: EdgeView.Edge? {
@@ -335,11 +334,25 @@ public struct NodePositionStore: Sendable, Hashable, Codable {
         }
     }
 
+    public enum Errors: Error {
+        case repeatedId
+    }
+
     public init(items: [NodePositionStore.Item] = []) {
         self.items = items
     }
 
-    subscript(id: UUID) -> CGPoint {
+    // public mutating func add(_ item: Item) throws(Errors) {
+    //     for e in self.items {
+    //         if e.id == item.id {
+    //             throw .repeatedId
+    //         }
+    //     }
+
+    //     self.items.append(item)
+    // }
+
+    public subscript(id: UUID) -> CGPoint {
         get {
             for item in self.items {
                 if item.id == id {
@@ -358,7 +371,7 @@ public struct NodePositionStore: Sendable, Hashable, Codable {
                 }
             }
 
-            fatalError("Invalid id: \(id)")
+            self.items.append(.init(id: id, position: newValue))
         }
 
     }
@@ -393,7 +406,7 @@ fileprivate struct PreviewData {
         //     ])
         // )
         // store.
-        let store = NodeDataStore()
+        var store = NodeDataStore()
         var n1 = FlowNode(id: PreviewData.id1, kind: .addNode(.float))
         var n2 = FlowNode(id: PreviewData.id2, kind: .addNode(.float))
         store.addNode(n1)
@@ -407,7 +420,7 @@ fileprivate struct PreviewData {
         return store
     }()
     VStack {
-        CanvasFeatureView($state, $store, nodeDataStore: nodeDataStore)
+        CanvasFeatureView($state, $store, $nodeDataStore)
     }
     .frame(width: 500, height: 500)
     .border(.gray.opacity(0.2))
