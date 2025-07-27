@@ -11,48 +11,55 @@ import SwiftUIUtils
 
 // MARK: - State
 
-public struct CanvasFeatureState: Sendable, Equatable, Codable {
-    public var viewport: CanvasViewport = .init()
-    public var nodePositionStore: NodePositionStore = .init()
-    public var portPositions: [PortLocation: CGPoint] = [:]
+public struct CanvasFeature {
+    public struct State: Sendable, Equatable {
+        public var viewport: CanvasViewport = .init()
+        public var portPositions: [PortLocation: CGPoint] = [:]
 
-    public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
-        self.viewport = viewport
-        self.nodePositionStore = nodePositionStore
-    }
-
-    public mutating func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
-        self.portPositions[location] = self.viewport.convert(position, from: .screen, to: .canvas)
-    }
-
-    public func portPosition(_ location: PortLocation) -> CGPoint? {
-        self.portPositions[location]
-    }
-
-    public func portHitTest(_ point: CGPoint, _ radius: CGFloat = 10) -> PortLocation? {
-        for (port, pos) in self.portPositions {
-            log("\(point) ---> \(pos)")
-            if pos.distance(to: point) <= radius {
-                return port
-            }
+        public init(viewport: CanvasViewport = .init(), portPositions: [PortLocation: CGPoint] = [:]) {
+            self.viewport = viewport
+            self.portPositions = portPositions
+        }
+        public mutating func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
+            self.portPositions[location] = self.viewport.convert(position, from: .screen, to: .canvas)
         }
 
-        return nil
+        public func portPosition(_ location: PortLocation) -> CGPoint? {
+            self.portPositions[location]
+        }
+
+        public func portHitTest(_ point: CGPoint, _ radius: CGFloat = 10) -> PortLocation? {
+            for (port, pos) in self.portPositions {
+                log("\(point) ---> \(pos)")
+                if pos.distance(to: point) <= radius {
+                    return port
+                }
+            }
+
+            return nil
+        }
+    }
+
+    public struct StoredState: Sendable, Equatable, Codable {
+
+        public var nodePositions: NodePositionStore = .init()
+
+        public init(nodePositionStore: NodePositionStore = .init()) {
+            self.nodePositions = nodePositionStore
+        }
     }
 }
-
-// extension CanvasFeatureState: Equatable {
-//     public static func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
-//         lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore && lhs.portPositions == rhs.portt
-//     }
-// }
 
 // MARK: - View
 
 public struct CanvasFeatureView: View {
-    @Binding var state: CanvasFeatureState
+
+    @Binding var state: CanvasFeature.State
+    @Binding var store: CanvasFeature.StoredState
+
     var nodeDataStore: NodeDataStore
     @State var partialEdge: PartialEdge?
+    @Environment(\.undoManager) var undoManager
 
     struct PartialEdge: Sendable, Equatable {
         var port: PortLocation
@@ -74,8 +81,9 @@ public struct CanvasFeatureView: View {
         }
     }
 
-    public init(_ state: Binding<CanvasFeatureState>, nodeDataStore: NodeDataStore) {
+    public init(_ state: Binding<CanvasFeature.State>, _ store: Binding<CanvasFeature.StoredState>, nodeDataStore: NodeDataStore) {
         self._state = state
+        self._store = store
         self.nodeDataStore = nodeDataStore
     }
 
@@ -255,6 +263,20 @@ public struct CanvasFeatureView: View {
         }
     }
 
+    func onCanvasNotification(_ notification: CanvasNotification) {
+        // switch notification {
+        //     case .continuousTranslationBegan:
+        //         self.undoManager?.beginUndoGrouping()
+        //         self.undoManager?.setActionName("Viewport")
+        //     case .continuousTranslationEnded:
+        //         self.undoManager?.endUndoGrouping()
+        //     case .willScrollZoom:
+        //         self.undoManager?.disableUndoRegistration()
+        //     case .didScrollZoom:
+        //         self.undoManager?.enableUndoRegistration()
+        // }
+    }
+
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
             Text("Hello!")
@@ -269,7 +291,7 @@ public struct CanvasFeatureView: View {
                 EdgeView(edge: partialEdge)
             }
 
-            ForEach(self.state.nodePositionStore.items) { item in
+            ForEach(self.store.nodePositions.items) { item in
                 NodeView(
                     node: .init {
                         self.nodeDataStore.nodes[item.id]!
@@ -278,7 +300,7 @@ public struct CanvasFeatureView: View {
                     }
                 )
                 .offset(item.position.cgSize)
-                .dragNode(self.$state.nodePositionStore[item.id])
+                .dragNode(self.$store.nodePositions[item.id])
                 .portDragGesture(self.onPortDrag(_:_:))
                 // .portDragGesture() { value, phase in
                 //     switch phase {
@@ -294,6 +316,7 @@ public struct CanvasFeatureView: View {
                 // }
             }
         }
+        .onCanvasViewNotification(self.onCanvasNotification(_:))
     }
 }
 
@@ -349,8 +372,8 @@ fileprivate struct PreviewData {
 }
 
 #Preview {
-    @Previewable @State var state = {
-        let state = CanvasFeatureState(
+    @Previewable @State var store = {
+        let state = CanvasFeature.StoredState(
             nodePositionStore: .init(items: [
                 .init(id: PreviewData.id1, position: .zero),
                 .init(id: PreviewData.id2, position: .init(x: 250, y: 250)),
@@ -358,6 +381,7 @@ fileprivate struct PreviewData {
         )
         return state
     }()
+    @Previewable @State var state = CanvasFeature.State()
     @Previewable @State var nodeDataStore = {
         // let store = NodeDataStore(
         //     [
@@ -383,7 +407,7 @@ fileprivate struct PreviewData {
         return store
     }()
     VStack {
-        CanvasFeatureView($state, nodeDataStore: nodeDataStore)
+        CanvasFeatureView($state, $store, nodeDataStore: nodeDataStore)
     }
     .frame(width: 500, height: 500)
     .border(.gray.opacity(0.2))

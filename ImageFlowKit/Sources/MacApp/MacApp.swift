@@ -1,7 +1,7 @@
 import AppKit
 import CanvasFeature
-import NodeDataStore
 import Logging
+import NodeDataStore
 import SwiftUI
 
 @MainActor
@@ -26,20 +26,22 @@ public struct ImageFlowApp: App {
 
 struct ContentView: View {
     @Binding var doc: FlowDoc
+
     @State var nodeDataStore = NodeDataStore()
+    @State var canvasState = CanvasFeature.State()
     // @State var canvas = CanvasFeatureState()
 
     var body: some View {
         NavigationSplitView {
             List {
-                Text("\(doc.canvas.viewport.origin.x)")
-                Text("\(doc.canvas.viewport.origin.y)")
+                Text("\(self.canvasState.viewport.origin.x)")
+                Text("\(self.canvasState.viewport.origin.y)")
             }
         } detail: {
-            CanvasFeatureView(self.$doc.canvas, nodeDataStore: self.nodeDataStore)
+            CanvasFeatureView(self.$canvasState, self.$doc.canvasStore, nodeDataStore: self.nodeDataStore)
         }
-        .onChange(of: self.doc.canvas) {
-            log("canvas: \(self.doc.canvas)")
+        .onChange(of: self.doc.canvasStore) {
+            log("canvas: \(self.doc.canvasStore)")
         }
     }
 }

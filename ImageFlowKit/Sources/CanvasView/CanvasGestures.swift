@@ -7,6 +7,23 @@ extension View {
     }
 }
 
+extension EnvironmentValues {
+    @Entry public var canvasNotificationHandler: ((CanvasNotification) -> ())? = nil
+}
+
+extension View {
+    public func onCanvasViewNotification(_ handler: @escaping (CanvasNotification) -> ()) -> some View {
+        self.environment(\.canvasNotificationHandler, handler)
+    }
+}
+
+public enum CanvasNotification {
+    case continuousTranslationBegan
+    case continuousTranslationEnded
+    case willScrollZoom
+    case didScrollZoom
+}
+
 // MARK: - macOS
 
 #if os(macOS)
@@ -14,10 +31,20 @@ struct CanvasGestureModifier: ViewModifier {
     @Binding var viewport: CanvasViewport
     let configuration: CanvasConfiguration
 
+    @Environment(\.canvasNotificationHandler) var sendNotification
+    @Environment(\.undoManager) var undoManager
+
     func body(content: Content) -> some View {
         content.overlay {
-            GestureOverlayView() { translation in
+            GestureOverlayView() { translation, state in
+                if state == .began {
+                    self.sendNotification?(.continuousTranslationBegan)
+                }
                 self.viewport.translate(by: -translation.cgSize, in: .screen)
+                if state == .ended {
+                    self.sendNotification?(.continuousTranslationEnded)
+                    //     self.undoManager?.endUndoGrouping()
+                }
             } onScroll: { location, amount in
                 let newZoom =
                     switch amount {
@@ -27,7 +54,9 @@ struct CanvasGestureModifier: ViewModifier {
                         self.viewport.scale - self.configuration.scrollWheelSensitivity * delta
                     }
 
+                self.sendNotification?(.willScrollZoom)
                 self.viewport.zoom(self.configuration.clampZoom(newZoom), atScreenPoint: location)
+                self.sendNotification?(.didScrollZoom)
             }
         }
     }
@@ -35,7 +64,7 @@ struct CanvasGestureModifier: ViewModifier {
 
 struct GestureOverlayView: NSViewRepresentable {
 
-    var onDrag: (CGPoint) -> ()
+    var onDrag: (CGPoint, NSGestureRecognizer.State) -> ()
     var onScroll: (CGPoint, ScrollAmount) -> ()
 
     enum ScrollAmount {
@@ -55,7 +84,7 @@ struct GestureOverlayView: NSViewRepresentable {
     }
 
     class Inner: NSView, NSGestureRecognizerDelegate {
-        var onDrag: ((CGPoint) -> ())?
+        var onDrag: ((CGPoint, NSGestureRecognizer.State) -> ())?
         var onScroll: ((CGPoint, ScrollAmount) -> ())?
 
         override var isFlipped: Bool {
@@ -103,7 +132,7 @@ struct GestureOverlayView: NSViewRepresentable {
         @objc
         func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
             let t = gesture.translation(in: nil)
-            self.onDrag?(.init(x: t.x, y: -t.y))
+            self.onDrag?(.init(x: t.x, y: -t.y), gesture.state)
             gesture.setTranslation(.zero, in: nil)
         }
 
