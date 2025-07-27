@@ -11,13 +11,9 @@ import SwiftUIUtils
 
 // MARK: - State
 
-@Observable
-@MainActor
-public class CanvasFeatureState: PortPositionStorageProtocol {
+public struct CanvasFeatureState: Sendable, Equatable, Codable {
     public var viewport: CanvasViewport = .init()
     public var nodePositionStore: NodePositionStore = .init()
-
-    // @ObservationIgnored
     public var portPositions: [PortLocation: CGPoint] = [:]
 
     public init(viewport: CanvasViewport = .init(), nodePositionStore: NodePositionStore = .init()) {
@@ -25,15 +21,7 @@ public class CanvasFeatureState: PortPositionStorageProtocol {
         self.nodePositionStore = nodePositionStore
     }
 
-    public func positionBinding(_ id: UUID) -> Binding<CGPoint> {
-        .init {
-            self.nodePositionStore[id]
-        } set: { newValue in
-            self.nodePositionStore[id] = newValue
-        }
-    }
-
-    public func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
+    public mutating func updatePortPosition(_ location: PortLocation, _ position: CGPoint) {
         self.portPositions[location] = self.viewport.convert(position, from: .screen, to: .canvas)
     }
 
@@ -53,19 +41,16 @@ public class CanvasFeatureState: PortPositionStorageProtocol {
     }
 }
 
-extension CanvasFeatureState: Equatable {
-    public static nonisolated func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
-        MainActor.assumeIsolated {
-            lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore
-        }
-    }
-}
+// extension CanvasFeatureState: Equatable {
+//     public static func == (lhs: CanvasFeatureState, rhs: CanvasFeatureState) -> Bool {
+//         lhs.viewport == rhs.viewport && lhs.nodePositionStore == rhs.nodePositionStore && lhs.portPositions == rhs.portt
+//     }
+// }
 
 // MARK: - View
 
 public struct CanvasFeatureView: View {
-
-    @Bindable var state: CanvasFeatureState
+    @Binding var state: CanvasFeatureState
     var nodeDataStore: NodeDataStore
     @State var partialEdge: PartialEdge?
 
@@ -87,6 +72,11 @@ public struct CanvasFeatureView: View {
                 }
             }
         }
+    }
+
+    public init(_ state: Binding<CanvasFeatureState>, nodeDataStore: NodeDataStore) {
+        self._state = state
+        self.nodeDataStore = nodeDataStore
     }
 
     var resolvedPartialEdge: EdgeView.Edge? {
@@ -267,6 +257,8 @@ public struct CanvasFeatureView: View {
 
     public var body: some View {
         CanvasView(viewport: self.$state.viewport) {
+            Text("Hello!")
+                .background(.white)
             ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
                 if let start = self.state.portPositions[edge.from], let end = self.state.portPositions[edge.to] {
                     EdgeView(edge: .init(start: start, end: end, color: Colors.portConnected.color))
@@ -286,7 +278,7 @@ public struct CanvasFeatureView: View {
                     }
                 )
                 .offset(item.position.cgSize)
-                .dragNode(self.state.positionBinding(item.id))
+                .dragNode(self.$state.nodePositionStore[item.id])
                 .portDragGesture(self.onPortDrag(_:_:))
                 // .portDragGesture() { value, phase in
                 //     switch phase {
@@ -301,17 +293,16 @@ public struct CanvasFeatureView: View {
                 //     }
                 // }
             }
-            .portPositionStorage(self.state)
         }
     }
 }
 
 // MARK: - NodePositionStore
 
-public struct NodePositionStore: Sendable, Hashable {
+public struct NodePositionStore: Sendable, Hashable, Codable {
     public var items: [Item] = []
 
-    public struct Item: Sendable, Hashable, Identifiable {
+    public struct Item: Sendable, Hashable, Identifiable, Codable {
         public var id: UUID
         public var position: CGPoint
 
@@ -392,7 +383,7 @@ fileprivate struct PreviewData {
         return store
     }()
     VStack {
-        CanvasFeatureView(state: state, nodeDataStore: nodeDataStore)
+        CanvasFeatureView($state, nodeDataStore: nodeDataStore)
     }
     .frame(width: 500, height: 500)
     .border(.gray.opacity(0.2))

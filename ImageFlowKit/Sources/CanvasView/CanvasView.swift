@@ -26,6 +26,9 @@ public struct CanvasView<Content: View>: View {
             .canvasGestures(self.$viewport, configuration: self.configuration)
             .clipped()
             .coordinateSpace(name: canvasCoordinateSpaceName)
+            .onChange(of: self.viewport) {
+                log("CanvasView: viewport: \(self.viewport)", level: .debug)
+            }
     }
 }
 

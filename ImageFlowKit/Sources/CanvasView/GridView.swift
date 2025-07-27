@@ -16,8 +16,7 @@ public struct GridView: View, @preconcurrency Equatable {
     // MARK: - Equatable
 
     public static func == (lhs: GridView, rhs: GridView) -> Bool {
-        // Only update with `@State`, `@Binding` and `@Environment`
-        true
+        lhs.viewport == rhs.viewport
     }
 
     // MARK: - Initializers
@@ -59,7 +58,13 @@ public struct GridView: View, @preconcurrency Equatable {
     // MARK: - Body
 
     public var body: some View {
-        Canvas(opaque: true, rendersAsynchronously: true, renderer: self.draw(_:_:))
+        ZStack {
+            Canvas(opaque: true, rendersAsynchronously: true, renderer: self.draw(_:_:))
+            Text("\(self.viewport.origin)")
+        }
+        .onChange(of: self.viewport) {
+            log("GridView: \(self.viewport)", level: .debug)
+        }
     }
 }
 

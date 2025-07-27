@@ -87,6 +87,8 @@ let package = Package(
             dependencies: [
                 .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
                 "Logging",
+                "CanvasFeature",
+                "NodeDataStore",
             ],
         ),
         .target(

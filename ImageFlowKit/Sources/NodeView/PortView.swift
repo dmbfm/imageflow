@@ -4,16 +4,6 @@ import Logging
 import Models
 import SwiftUI
 
-extension EnvironmentValues {
-    @Entry var onPortPositionChanged: ((CGPoint) -> ())? = nil
-}
-
-extension View {
-    func onPortPositionChanged(_ action: @escaping (CGPoint) -> ()) -> some View {
-        self.environment(\.onPortPositionChanged, action)
-    }
-}
-
 struct PortView: View, Equatable {
 
     static nonisolated func == (lhs: PortView, rhs: PortView) -> Bool {
@@ -26,6 +16,7 @@ struct PortView: View, Equatable {
     let port: PortLocation
     var size: CGFloat = 4
     var outerSize: CGFloat = 12
+    var onPositionChanged: ((CGPoint) -> ())?
     @Environment(\.onPortPositionChanged) var onPortPositionChanged
     @Environment(\.portDragGesture) var portDragGesture
     @State var isDragging: Bool = false
@@ -35,11 +26,13 @@ struct PortView: View, Equatable {
         port: PortLocation = .init(node: .init(), port: .input(0)),
         size: CGFloat = 4,
         outerSize: CGFloat = 12,
+        onPositionChanged: ((CGPoint) -> ())? = nil
     ) {
         self.connected = connected
         self.size = size
         self.outerSize = outerSize
         self.port = port
+        self.onPositionChanged = onPositionChanged
     }
 
     public var body: some View {
@@ -55,7 +48,7 @@ struct PortView: View, Equatable {
                 Color.clear
                     .onChange(of: proxy.frame(in: .named(canvasCoordinateSpaceName))) {
                         let frame = proxy.frame(in: .named(canvasCoordinateSpaceName))
-                        self.onPortPositionChanged?(frame.center)
+                        self.onPositionChanged?(frame.center)
                     }
             }
         }

@@ -6,101 +6,98 @@ import Logging
 import SwiftUI
 import UniformTypeIdentifiers
 
-@objc(FlowDocument)
-class FlowDocument: NSDocument {
-    override func makeWindowControllers() {
+// @objc(FlowDocument)
+// class FlowDocument: NSDocument {
+//     override func makeWindowControllers() {
 
-        let window = NSWindow(
-            contentRect: .init(origin: .zero, size: .init(width: 800, height: 600)),
-            styleMask: [.closable, .resizable, .miniaturizable, .titled],
-            backing: .buffered,
-            defer: false
-        )
-        window.contentView = NSHostingView(rootView: ContentView())
-        window.setFrameAutosaveName("imageflow-main-window")
+//         let window = NSWindow(
+//             contentRect: .init(origin: .zero, size: .init(width: 800, height: 600)),
+//             styleMask: [.closable, .resizable, .miniaturizable, .titled],
+//             backing: .buffered,
+//             defer: false
+//         )
+//         window.contentView = NSHostingView(rootView: ContentView())
+//         window.setFrameAutosaveName("imageflow-main-window")
 
-        // Create and add the toolbar
-        // let toolbar = NSToolbar(identifier: "ImageFlowToolbar")
-        // toolbar.delegate = viewController
-        // toolbar.allowsUserCustomization = false
-        // window.toolbar = toolbar
+//         // Create and add the toolbar
+//         // let toolbar = NSToolbar(identifier: "ImageFlowToolbar")
+//         // toolbar.delegate = viewController
+//         // toolbar.allowsUserCustomization = false
+//         // window.toolbar = toolbar
 
-        // Apply the window style
-        WindowStyle
-            .compact
-            .with(\.fullSizeContentView, true)
-            .apply(window)
+//         // Apply the window style
+//         WindowStyle
+//             .compact
+//             .with(\.fullSizeContentView, true)
+//             .apply(window)
 
-        let windowController = NSWindowController(window: window)
-        windowController.windowFrameAutosaveName = "imageflow-main-window"
-        self.addWindowController(windowController)
+//         let windowController = NSWindowController(window: window)
+//         windowController.windowFrameAutosaveName = "imageflow-main-window"
+//         self.addWindowController(windowController)
 
-        //// 
+//         ////
 
-        let doc = FlowDoc()
-        let asset = AssetManager(source: doc)
-    }
-}
+//         // let doc = FlowDoc()
+//         // let asset = AssetManager(source: doc)
+//     }
 
-struct ContentView: View {
-    var body: some View {
-        NavigationSplitView {
-            List {}
-        } detail: {
-            ZStack {
-                Color.teal
-                Text("Hello!")
-            }
-        }
-    }
-}
+// }
 
-struct CanvasState {
-    var viewport: CanvasViewport = .init()
-    var positions: [(UUID, CGPoint)] = []
-}
+// struct ContentView: View {
+//     var body: some View {
+//         NavigationSplitView {
+//             List {}
+//         } detail: {
+//             ZStack {
+//                 Color.teal
+//                 Text("Hello!")
+//             }
+//         }
+//     }
+// }
 
-@Observable
-final class FlowDoc: ReferenceFileDocument {
+struct FlowDoc: FileDocument, Codable {
 
-    var canvas: CanvasState
-    var assets: [UUID: CGImage]
-
-    func snapshot(contentType: UTType) throws -> Snapshot {
-        .init()
-    }
-
-    func fileWrapper(snapshot: Snapshot, configuration: WriteConfiguration) throws -> FileWrapper {
-        .init()
-    }
-
-    struct Snapshot {}
+    var canvas: CanvasFeatureState = .init()
 
     static var readableContentTypes: [UTType] {
-        [.init(exportedAs: "com.dmbfm.imageFlowDocument")]
+        [.imageFlowDocument]
     }
 
     init(configuration: ReadConfiguration) throws {
+        log("loading...")
+        guard let data = configuration.file.regularFileContents else {
+            return
+        }
 
+        self.canvas = try JSONDecoder().decode(CanvasFeatureState.self, from: data)
     }
 
     init() {}
-}
 
-extension FlowDoc: AssetImageSource {
-    func get(image id: UUID) -> CGImage? {
-        self.assets[id]
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        log("saving...")
+        let data = try JSONEncoder().encode(self.canvas)
+        let result = FileWrapper(regularFileWithContents: data)
+        log("done!")
+        return result
     }
 }
 
-protocol AssetImageSource {
-    func get(image id: UUID) -> CGImage?
-}
+// extension FlowDoc: AssetImageSource {
+//     func get(image id: UUID) -> CGImage? {
+//         self.assets[id]
+//     }
+// }
 
-actor AssetManager {
-    init(source: any AssetImageSource) {
-        self.source = source
-    }
+// protocol AssetImageSource {
+//     func get(image id: UUID) -> CGImage?
+// }
 
-    var source: (AssetImageSource)
-}
+// actor AssetManager {
+//     init(source: any AssetImageSource) {
+//         self.source = source
+//     }
+
+//     var source: (AssetImageSource)
+// }
