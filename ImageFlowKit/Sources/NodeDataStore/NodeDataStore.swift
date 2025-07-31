@@ -226,7 +226,7 @@ public struct NodeDataStore: Sendable {
     }
 
     class ValidateEdgesCache: @unchecked Sendable {
-        let value: Mutex<ValidateEdgesResult?> =  .init(nil)
+        let value: Mutex<ValidateEdgesResult?> = .init(nil)
 
         func clear() {
             self.set(nil)
@@ -492,7 +492,11 @@ public struct NodeDataStore: Sendable {
     /// - Returns: The previous value if successful or the failure reason via
     ///            `SetPortConnectedError` on failure.
     @discardableResult
-    public mutating func setPortConnected(_ id: UUID, slot: PortSlot, connected: Bool) -> Result<Bool, SetPortConnectedError> {
+    public mutating func setPortConnected(
+        _ id: UUID,
+        slot: PortSlot,
+        connected: Bool
+    ) -> Result<Bool, SetPortConnectedError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID)
         }
@@ -598,4 +602,3 @@ public struct NodeDataStore: Sendable {
         case removeEdge(RemoveEdgeError)
     }
 }
-

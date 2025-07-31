@@ -13,15 +13,12 @@ struct ContentView: View {
     @State var showInspector: Bool = false
     
     var body: some View {
-        CanvasView(viewport: self.$viewport) {
-           PinkNodeView()
-                .onTapGesture {
-                    print("tap!!!!!!")
-                }
-                .offset(x: 50, y: 50)
+        VStack {
+            CanvasView(self.$viewport)
+                .border(.gray.opacity(0.25))
+            Text("viewport: \(self.viewport)")
         }
-            .border(.gray.opacity(25))
-            .padding(40)
+        .padding(10)
     }
 }
 

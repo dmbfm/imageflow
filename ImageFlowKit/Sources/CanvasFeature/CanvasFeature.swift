@@ -80,29 +80,33 @@ public struct CanvasFeatureView: View {
         }
     }
 
-    public init(_ state: Binding<CanvasFeature.State>, _ store: Binding<CanvasFeature.StoredState>, _ nodeDataStore: Binding<NodeDataStore>) {
+    public init(
+        _ state: Binding<CanvasFeature.State>,
+        _ store: Binding<CanvasFeature.StoredState>,
+        _ nodeDataStore: Binding<NodeDataStore>
+    ) {
         self._state = state
         self._store = store
         self._nodeDataStore = nodeDataStore
     }
 
-    var resolvedPartialEdge: EdgeView.Edge? {
-        self.partialEdge.flatMap { partialEdge in
+    // var resolvedPartialEdge: EdgeView.Edge? {
+    //     self.partialEdge.flatMap { partialEdge in
 
-            switch partialEdge.port.slot {
-            case .input(_):
-                if let end = self.state.portPosition(partialEdge.port) {
-                    return .init(start: partialEdge.point, end: end, color: partialEdge.state.color)
-                }
-            case .output(_):
-                if let start = self.state.portPosition(partialEdge.port) {
-                    return .init(start: start, end: partialEdge.point, color: partialEdge.state.color)
-                }
-            }
+    //         switch partialEdge.port.slot {
+    //         case .input(_):
+    //             if let end = self.state.portPosition(partialEdge.port) {
+    //                 return .init(start: partialEdge.point, end: end, color: partialEdge.state.color)
+    //             }
+    //         case .output(_):
+    //             if let start = self.state.portPosition(partialEdge.port) {
+    //                 return .init(start: start, end: partialEdge.point, color: partialEdge.state.color)
+    //             }
+    //         }
 
-            return nil
-        }
-    }
+    //         return nil
+    //     }
+    // }
 
     func canDropPort(_ source: PortLocation, _ destination: PortLocation) -> CanDropPortResult {
 
@@ -276,47 +280,49 @@ public struct CanvasFeatureView: View {
         // }
     }
 
-    public var body: some View {
-        CanvasView(viewport: self.$state.viewport) {
-            Text("Hello!")
-                .background(.white)
-            ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
-                if let start = self.state.portPositions[edge.from], let end = self.state.portPositions[edge.to] {
-                    EdgeView(edge: .init(start: start, end: end, color: Colors.portConnected.color))
-                }
-            }
+    public var body: some View {}
 
-            if let partialEdge = self.resolvedPartialEdge {
-                EdgeView(edge: partialEdge)
-            }
+    // public var body: some View {
+    //     CanvasView(viewport: self.$state.viewport) {
+    //         Text("Hello!")
+    //             .background(.white)
+    //         ForEach(Array(self.nodeDataStore.edges)) { (edge: Models.Edge) in
+    //             if let start = self.state.portPositions[edge.from], let end = self.state.portPositions[edge.to] {
+    //                 EdgeView(edge: .init(start: start, end: end, color: Colors.portConnected.color))
+    //             }
+    //         }
 
-            ForEach(self.store.nodePositions.items) { item in
-                NodeView(
-                    node: .init {
-                        self.nodeDataStore.nodes[item.id]!
-                    } set: { newValue in
-                        self.nodeDataStore.nodes[item.id] = newValue
-                    }
-                )
-                .offset(item.position.cgSize)
-                .dragNode(self.$store.nodePositions[item.id])
-                .portDragGesture(self.onPortDrag(_:_:))
-                // .portDragGesture() { value, phase in
-                //     switch phase {
-                //     case .started, .changed:
-                //         self.partialEdge = .init(
-                //             port: value.port,
-                //             point: self.state.viewport.convert(value.location, from: .screen, to: .canvas)
-                //         )
-                //     case .ended, .cancelled:
-                //         self.partialEdge = nil
-                //         break
-                //     }
-                // }
-            }
-        }
-        .onCanvasViewNotification(self.onCanvasNotification(_:))
-    }
+    //         if let partialEdge = self.resolvedPartialEdge {
+    //             EdgeView(edge: partialEdge)
+    //         }
+
+    //         ForEach(self.store.nodePositions.items) { item in
+    //             NodeView(
+    //                 node: .init {
+    //                     self.nodeDataStore.nodes[item.id]!
+    //                 } set: { newValue in
+    //                     self.nodeDataStore.nodes[item.id] = newValue
+    //                 }
+    //             )
+    //             .offset(item.position.cgSize)
+    //             .dragNode(self.$store.nodePositions[item.id])
+    //             .portDragGesture(self.onPortDrag(_:_:))
+    //             // .portDragGesture() { value, phase in
+    //             //     switch phase {
+    //             //     case .started, .changed:
+    //             //         self.partialEdge = .init(
+    //             //             port: value.port,
+    //             //             point: self.state.viewport.convert(value.location, from: .screen, to: .canvas)
+    //             //         )
+    //             //     case .ended, .cancelled:
+    //             //         self.partialEdge = nil
+    //             //         break
+    //             //     }
+    //             // }
+    //         }
+    //     }
+    //     .onCanvasViewNotification(self.onCanvasNotification(_:))
+    // }
 }
 
 // MARK: - NodePositionStore

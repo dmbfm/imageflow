@@ -172,7 +172,7 @@ fileprivate struct NodeOutputRowsBlockView: View, Equatable {
 
     let outputs: [FlowNode.Output]
     @Environment(\.nodeID) var nodeID
-    @Environment(\.onPortPositionChanged) var onPortPositionChanged 
+    @Environment(\.onPortPositionChanged) var onPortPositionChanged
 
     var body: some View {
         Grid(alignment: .trailing, horizontalSpacing: 0, verticalSpacing: 0) {

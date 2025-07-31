@@ -7,7 +7,7 @@ public struct CanvasConfiguration: Sendable, Hashable {
 
     public init(
         scrollWheelSensitivity: CGFloat = 0.05,
-        zoomRange: ClosedRange<CGFloat> = 0.1...1.0
+        zoomRange: ClosedRange<CGFloat> = 0.1...4.0
     ) {
         self.scrollWheelSensitivity = scrollWheelSensitivity
         self.zoomRange = zoomRange

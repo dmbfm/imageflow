@@ -22,7 +22,7 @@ class CircleImageDrawer {
         }
 
         // Define the image size
-        let imageSize = CGSize(width: 40, height: 40)
+        let imageSize = CGSize(width: 50, height: 50)
 
         // Define the circle's properties
         let circleRadius: CGFloat = 2.0
