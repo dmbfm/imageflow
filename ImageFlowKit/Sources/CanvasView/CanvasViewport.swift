@@ -79,7 +79,6 @@ public struct CanvasViewport: Codable, Sendable, Hashable, Equatable {
     {
         point.applying(self.transform(from: from, to: to))
     }
-    
 
     /// Convert a size from one coordinate space to another.
     /// - Parameters:
@@ -105,7 +104,7 @@ public struct CanvasViewport: Codable, Sendable, Hashable, Equatable {
     ) -> CGFloat {
         CGSize(width: length, height: 0).applying(self.transform(from: from, to: to)).width
     }
-    
+
     public func convert(
         _ rect: CGRect,
         from: CoordinateSpace,

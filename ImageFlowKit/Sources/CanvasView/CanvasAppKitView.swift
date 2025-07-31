@@ -6,7 +6,7 @@ import Design
 
 public final class CanvasAppKitView: NSView {
 
-    // MARK: - State
+    // MARK: - Public Properties
 
     public var viewport: CanvasViewport {
         didSet {
@@ -15,24 +15,32 @@ public final class CanvasAppKitView: NSView {
     }
 
     public let configuration: CanvasConfiguration
-         
+
     public var onEvent: ((Event) -> ())?
 
+    // MARK: - Private Properties
+
+    private var scaleAtStartOfMagnification: CGFloat = 1.0
+    private var leftPanInitialPos: CGPoint?
+
     // MARK: - Subviews
+
     private lazy var gridView: GridView = {
         let view = GridView()
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
-                case .scroll(let event):
-                    self.gridView(didScrollWith: event)
-                default:
-                    break
+            case .scroll(let event):
+                self.gridView(didScrollWith: event)
+            default:
+                break
             }
         }
         view.autoresizingMask = [.width, .height]
         return view
     }()
+
+    // MARK: - Initializers
 
     internal init(viewport: CanvasViewport, configuration: CanvasConfiguration = .init()) {
         self.viewport = viewport
@@ -49,11 +57,16 @@ public final class CanvasAppKitView: NSView {
         }
     }
 
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Grid View Methods
+
     func setupGridView() {
         self.gridView.frame = self.bounds
         self.addSubview(self.gridView)
 
-        
         let panGesture = NSPanGestureRecognizer(
             target: self,
             action: #selector(self.gridView(panGesture:))
@@ -81,23 +94,9 @@ public final class CanvasAppKitView: NSView {
         self.gridView.addGestureRecognizer(magnificationGesture)
     }
 
-    required init?(coder: NSCoder) {
-        nil
-    }
-
-    func viewportDidChange() {
-        self.onEvent?(.viewportDidChange(self.viewport))
-        self.gridViewDraw()
-        // self.updateContentView()
-    }
-
-    // MARK: - Drawing
-
     func gridViewDraw() {
         self.gridView.draw(viewport: self.viewport)
     }
-
-    private var scaleAtStartOfMagnification: CGFloat = 1.0
 
     @objc
     func gridView(magnificationGesture gesture: NSMagnificationGestureRecognizer) {
@@ -153,8 +152,6 @@ public final class CanvasAppKitView: NSView {
         // self.emitter.emit(.clickBackground)
     }
 
-    private var leftPanInitialPos: CGPoint?
-
     @objc func gridView(leftPanGesture gesture: NSPanGestureRecognizer) {
 
         // let shiftDown = NSEvent.modifierFlags.contains(.shift)
@@ -189,6 +186,13 @@ public final class CanvasAppKitView: NSView {
         // self.emitter.emit(.rectSelectEvent(.modified(shiftDown: shiftDown, rect: contentRect)))
     }
 
+    // MARK: - Updates
+
+    func viewportDidChange() {
+        self.onEvent?(.viewportDidChange(self.viewport))
+        self.gridViewDraw()
+        // self.updateContentView()
+    }
 }
 
 // MARK: - GridView
@@ -205,7 +209,6 @@ extension CanvasAppKitView {
             case mouseEntered
             case mouseLeft
         }
-
 
         init() {
             super.init(frame: .zero)
@@ -236,22 +239,14 @@ extension CanvasAppKitView {
         }
 
         override func draw(_ dirtyRect: NSRect) {
-            // tracing.logger.log("draw")
-
             guard let context = NSGraphicsContext.current?.cgContext else {
                 return
             }
 
-            if let viewport = self.viewport {
-                self.drawBackground(context, viewport)
+            if let viewport = self.viewport, let layer = self.layer {
+                self.drawBackgroundTiles(context, layer, viewport)
             }
             // self.drawEdges(context)
-        }
-
-        internal var makeCircle: CircleImageDrawer = .init()
-
-        override func viewDidChangeEffectiveAppearance() {
-            self.makeCircle.invalidateCache()
         }
 
         override func scrollWheel(with event: NSEvent) {

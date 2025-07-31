@@ -11,38 +11,15 @@ import AppKit
 import UIKit
 #endif
 
-#if canImport(AppKit)
-typealias PlatformRepresentable = NSViewRepresentable
-#else
-typealias PlatformRepresentable = UIViewRepresentable
-#endif
+@MainActor
+public struct CanvasView {
 
-public struct CanvasView: PlatformRepresentable {
-    
     @Binding var viewport: CanvasViewport
-    
+
     public init(_ viewport: Binding<CanvasViewport>) {
         self._viewport = viewport
     }
-    
-    #if canImport(AppKit)
-    public func makeNSView(context: Context) -> CanvasPlatformView {
-        self.makeView(context: context)
-    }
-    public func updateNSView(_ nsView: NSViewType, context: Context) {
-        self.upadateView(nsView, context)
-    }
-    #endif
-    
-    #if canImport(UIKit)
-    public func makeUIView(context: Context) -> CanvasPlatformView {
-        self.makeView(context: context)
-    }
-    public func updateUIView(_ uiView: CanvasPlatformView, context: Context) {
-        self.upadateView(uiView, context)
-    }
-    #endif
-    
+
     func makeView(context: Context) -> CanvasPlatformView {
         let view = CanvasPlatformView(viewport: .init())
         view.onEvent = { event in
@@ -53,12 +30,38 @@ public struct CanvasView: PlatformRepresentable {
         }
         return view
     }
-    
+
     func upadateView(_ view: CanvasPlatformView, _ context: Context) {
         if view.viewport != self.viewport {
             view.viewport = self.viewport
         }
     }
+}
+
+#if canImport(AppKit)
+typealias PlatformRepresentable = NSViewRepresentable
+#else
+typealias PlatformRepresentable = UIViewRepresentable
+#endif
+
+extension CanvasView: PlatformRepresentable {
+    #if canImport(AppKit)
+    public func makeNSView(context: Context) -> CanvasPlatformView {
+        self.makeView(context: context)
+    }
+    public func updateNSView(_ nsView: NSViewType, context: Context) {
+        self.upadateView(nsView, context)
+    }
+    #endif
+
+    #if canImport(UIKit)
+    public func makeUIView(context: Context) -> CanvasPlatformView {
+        self.makeView(context: context)
+    }
+    public func updateUIView(_ uiView: CanvasPlatformView, context: Context) {
+        self.upadateView(uiView, context)
+    }
+    #endif
 }
 
 // public struct CanvasView<Content: View>: View {

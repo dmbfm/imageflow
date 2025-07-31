@@ -6,19 +6,24 @@ import CommonUtils
 import Design
 import Logging
 
+// MARK: - CanvasUIKitView
+
 public final class CanvasUIKitView: UIView {
+
+    // MARK: - Public Properties
 
     public var viewport: CanvasViewport {
         didSet {
             self.viewportDidChange()
         }
     }
-    
+
     public let configuration: CanvasConfiguration
-    
+
     public var onEvent: ((Event) -> ())?
-    
-        // MARK: - Subviews
+
+    // MARK: - Subviews
+
     private lazy var gridView: GridView = {
         let view = GridView()
         // view.emitter.subscribe { [weak self] event in
@@ -33,6 +38,8 @@ public final class CanvasUIKitView: UIView {
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return view
     }()
+
+    // MARK: - Initializers
 
     internal init(viewport: CanvasViewport, configuration: CanvasConfiguration = .init()) {
         self.viewport = viewport
@@ -50,55 +57,59 @@ public final class CanvasUIKitView: UIView {
         nil
     }
 
+    // MARK: - Grid View
+
     func setupGridView() {
         self.gridView.frame = self.bounds
         self.addSubview(self.gridView)
-        
+
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.gridViewPanGesture(_:)))
         panGesture.minimumNumberOfTouches = 2
         panGesture.maximumNumberOfTouches = 2
         self.gridView.addGestureRecognizer(panGesture)
-        
+
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(Self.gridViewPinchGesture(_:)))
         self.gridView.addGestureRecognizer(pinchGesture)
-    }
-
-    func viewportDidChange() {
-        self.onEvent?(.viewportDidChange(self.viewport))
-        self.drawGrid()
     }
 
     func drawGrid() {
         self.gridView.draw(viewport: self.viewport)
     }
-    
-    // MARK: - User interations
-    
+
     @objc
     func gridViewPanGesture(_ gesture: UIPanGestureRecognizer) {
         let t = gesture.translation(in: nil)
         self.viewport.translate(by: t.cgSize * -1.0, in: .screen)
         gesture.setTranslation(.zero, in: nil)
     }
-    
+
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var startLoc: CGPoint = .zero
 
     @objc
     func gridViewPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-        
+
         if gesture.state == .began {
             self.scaleAtStartOfMagnification = self.viewport.scale
             self.startLoc = gesture.location(in: self.gridView)
         }
-        
+
         let scale = gesture.scale
         let location = gesture.location(in: self.gridView)
         let newZoom = self.scaleAtStartOfMagnification * scale
         self.viewport.zoom(self.configuration.clampZoom(newZoom), atScreenPoint: self.startLoc)
     }
+
+    // MARK: - Updates
+
+    func viewportDidChange() {
+        self.onEvent?(.viewportDidChange(self.viewport))
+        self.drawGrid()
+    }
+
 }
 
+// MARK: - Grid View
 extension CanvasUIKitView {
     class GridView: UIView {
         var viewport: CanvasViewport? = nil
@@ -111,35 +122,25 @@ extension CanvasUIKitView {
         required init?(coder: NSCoder) {
             nil
         }
-        
+
         func draw(viewport: CanvasViewport) {
             self.viewport = viewport
             self.setNeedsDisplay()
         }
 
         override func draw(_ rect: CGRect) {
-            // tracing.logger.log("draw")
-
             guard let context = UIGraphicsGetCurrentContext() else {
                 return
             }
 
             if let viewport = self.viewport {
-                self.drawBackground(context, viewport)
+                self.drawBackgroundEllipses(context, self.layer, viewport)
             }
             // self.drawEdges(context)
         }
-
-        internal var makeCircle: CircleImageDrawer = .init()
-
-        //
-        //    override func viewDidChangeEffectiveAppearance() {
-        //        self.drawBackgroundCache.appearanceChanged = true
-        //        self.makeCircle.invalidateCache()
-        //    }
     }
-
 }
+
 extension CanvasUIKitView {
     fileprivate struct Preview: UIViewRepresentable {
         func makeUIView(context: Context) -> CanvasUIKitView {

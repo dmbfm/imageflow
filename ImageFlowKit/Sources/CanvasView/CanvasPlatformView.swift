@@ -20,14 +20,6 @@ extension CanvasPlatformView {
 }
 
 extension CanvasPlatformView.GridView {
-    func drawBackground(_ ctx: CGContext, _ viewport: CanvasViewport) {
-        #if canImport(AppKit)
-        self.drawBackgroundTiles(ctx, viewport)
-        #else
-        self.drawBackgroundEllipses(ctx, viewport)
-        #endif
-    }
-
     struct BackgroundStyle: With {
         var spacing: CGFloat
         var radius: CGFloat
@@ -94,12 +86,8 @@ extension CanvasPlatformView.GridView {
         return (dotColor, t)
     }
 
-    func drawBackgroundTiles(_ ctx: CGContext, _ viewport: CanvasViewport) {
+    func drawBackgroundTiles(_ ctx: CGContext, _ layer: CALayer, _ viewport: CanvasViewport) {
         let style = BackgroundStyle.default
-
-        #if canImport(AppKit)
-        guard let layer = self.layer else { return }
-        #endif
 
         layer.backgroundColor = style.bg.cgColor
 
@@ -127,12 +115,8 @@ extension CanvasPlatformView.GridView {
         }
     }
 
-    func drawBackgroundEllipses(_ ctx: CGContext, _ viewport: CanvasViewport) {
+    func drawBackgroundEllipses(_ ctx: CGContext, _ layer: CALayer, _ viewport: CanvasViewport) {
         let style = BackgroundStyle.default
-
-        #if canImport(AppKit)
-        guard let layer = self.layer else { return }
-        #endif
 
         layer.backgroundColor = style.bg.cgColor
         let (dotColor, t) = self.calcDotColor(style, viewport.scale)
@@ -152,7 +136,6 @@ extension CanvasPlatformView.GridView {
         let imax: Int = Int(canvasViewRect.maxX / spacing)
         let jmax: Int = Int(canvasViewRect.maxY / spacing)
 
-
         for i in i...imax {
             for j in j...jmax {
                 let p = viewport.convert(
@@ -170,77 +153,3 @@ extension CanvasPlatformView.GridView {
     }
 
 }
-
-// internal struct DrawBackgroundCache {
-//     var _dotColor: HSL
-//     var _bgColor: HSL
-//     var _finalDotColor: (t: CGFloat, color: CGColor)?
-
-//     public var appearanceChanged: Bool
-
-//     init() {
-//         #if canImport(AppKit)
-//         self._dotColor = HSL(nsColor: Colors.canvasBackgroundDot.platformColor)!
-//         self._bgColor = HSL(nsColor: Colors.canvasBackground.platformColor)!
-//         #else
-//         self._dotColor = HSL(uiColor: Colors.canvasBackgroundDot.platformColor)
-//         self._bgColor = HSL(uiColor: Colors.canvasBackground.platformColor)
-//         #endif
-//         self._finalDotColor = nil
-//         self.appearanceChanged = false
-//     }
-
-//     @inline(__always)
-//     mutating func dotAndBgColors() -> (HSL, HSL) {
-//         if self.appearanceChanged {
-//             self.updateDynamicColors()
-//         }
-
-//         return (self._dotColor, self._bgColor)
-//     }
-
-//     @inline(__always)
-//     mutating func dotColor() -> HSL {
-//         if self.appearanceChanged {
-//             self.updateDynamicColors()
-//         }
-
-//         return self._dotColor
-//     }
-
-//     @inline(__always)
-//     mutating func bgColor() -> HSL {
-//         if self.appearanceChanged {
-//             self.updateDynamicColors()
-//         }
-
-//         return self._bgColor
-//     }
-
-//     mutating func finalDotColor(_ t: CGFloat, calculate: () -> CGColor) -> CGColor {
-//         if let finalDotColor = self._finalDotColor, finalDotColor.t == t {
-//             return finalDotColor.color
-//         } else {
-//             let color = calculate()
-//             self._finalDotColor = (t, color)
-//             return color
-//         }
-//     }
-
-//     mutating func invalidate() {
-//         self._finalDotColor = nil
-//     }
-
-//     @inline(__always)
-//     mutating func updateDynamicColors() {
-//         #if canImport(AppKit)
-//         self._dotColor = HSL(nsColor: Colors.canvasBackgroundDot.platformColor)!
-//         self._bgColor = HSL(nsColor: Colors.canvasBackground.platformColor)!
-//         #else
-//         self._dotColor = HSL(uiColor: Colors.canvasBackgroundDot.platformColor)
-//         self._bgColor = HSL(uiColor: Colors.canvasBackground.platformColor)
-//         #endif
-//         self._finalDotColor = nil
-//         self.appearanceChanged = false
-//     }
-// }
