@@ -30,7 +30,7 @@ public struct CanvasView {
     }
 
     func makeView(context: Context) -> CanvasPlatformView {
-        let view = CanvasPlatformView(viewport: .init(), viewForNode: self.viewForNode)
+        let view = CanvasPlatformView(viewport: self.viewport, nodePositions: self.nodePositions, configuration: .init(), viewForNode: self.viewForNode)
         view.onEvent = { event in
             switch event {
             case .viewportDidChange(let viewport):

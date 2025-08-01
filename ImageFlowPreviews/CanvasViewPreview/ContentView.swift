@@ -16,8 +16,9 @@ struct ContentView: View {
     var body: some View {
         VStack {
             CanvasView(self.$viewport, self.$nodePositions) { id in
-                print("----------------> !!! <------------------")
-                return BlueSquareView(id: id, frame: .zero)
+                nil
+//                print("----------------> !!! <------------------")
+//                return BlueSquareView(id: id, frame: .zero)
             }
                 .border(.gray.opacity(0.25))
             Text("viewport: \(self.viewport)")
