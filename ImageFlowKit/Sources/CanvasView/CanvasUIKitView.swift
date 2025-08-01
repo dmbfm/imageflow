@@ -132,6 +132,7 @@ extension CanvasUIKitView {
             guard let context = UIGraphicsGetCurrentContext() else {
                 return
             }
+            
 
             if let viewport = self.viewport {
                 self.drawBackgroundEllipses(context, self.layer, viewport)

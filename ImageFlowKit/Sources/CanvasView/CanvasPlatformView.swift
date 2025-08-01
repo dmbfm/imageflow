@@ -16,7 +16,41 @@ public typealias CanvasPlatformView = CanvasUIKitView
 extension CanvasPlatformView {
     public enum Event {
         case viewportDidChange(CanvasViewport)
+        case nodePositionsDidChange([UUID: CGPoint])
     }
+}
+
+class CanvasCommonView: PlatformView {
+    internal init(viewport: CanvasViewport, nodePositions: [UUID: CGPoint]) {
+        self.viewport = viewport
+        self.nodePositions = nodePositions
+
+        super.init(frame: .zero)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    public var viewport: CanvasViewport {
+        didSet {
+            if self.viewport != oldValue {
+                // self.viewportDidChange()
+            }
+        }
+    }
+
+    public var nodePositions: [UUID: CGPoint] {
+        didSet {
+            if self.nodePositions != oldValue {
+                // self.nodePositionsDidChange(oldValue)
+            }
+        }
+    }
+}
+
+class CanvasAppKitV: CanvasCommonView {
+    
 }
 
 extension CanvasPlatformView.GridView {

@@ -15,17 +15,28 @@ import UIKit
 public struct CanvasView {
 
     @Binding var viewport: CanvasViewport
+    @Binding var nodePositions: [UUID: CGPoint]
 
-    public init(_ viewport: Binding<CanvasViewport>) {
+    let viewForNode: (UUID) -> (any CanvasNodeView)?
+
+    public init(
+        _ viewport: Binding<CanvasViewport>,
+        _ nodePositions: Binding<[UUID: CGPoint]>,
+        _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil }
+    ) {
         self._viewport = viewport
+        self._nodePositions = nodePositions
+        self.viewForNode = viewForNode
     }
 
     func makeView(context: Context) -> CanvasPlatformView {
-        let view = CanvasPlatformView(viewport: .init())
+        let view = CanvasPlatformView(viewport: .init(), viewForNode: self.viewForNode)
         view.onEvent = { event in
             switch event {
             case .viewportDidChange(let viewport):
                 self.viewport = viewport
+            case .nodePositionsDidChange(let nodePositions):
+                self.nodePositions = nodePositions
             }
         }
         return view
@@ -34,6 +45,11 @@ public struct CanvasView {
     func upadateView(_ view: CanvasPlatformView, _ context: Context) {
         if view.viewport != self.viewport {
             view.viewport = self.viewport
+        }
+
+        if view.nodePositions != self.nodePositions {
+            log("updating node position!")
+            view.nodePositions = self.nodePositions
         }
     }
 }

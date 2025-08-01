@@ -2,7 +2,10 @@
 import AppKit
 import SwiftUI
 import ColorUtils
+import CommonUtils
 import Design
+import EventEmitter
+import Logging
 
 public final class CanvasAppKitView: NSView {
 
@@ -10,13 +13,27 @@ public final class CanvasAppKitView: NSView {
 
     public var viewport: CanvasViewport {
         didSet {
-            self.viewportDidChange()
+            if self.viewport != oldValue {
+                self.viewportDidChange()
+            }
+        }
+    }
+
+    public var nodePositions: [UUID: CGPoint] {
+        didSet {
+            if self.nodePositions != oldValue {
+                self.nodePositionsDidChange(oldValue)
+            }
         }
     }
 
     public let configuration: CanvasConfiguration
 
     public var onEvent: ((Event) -> ())?
+
+    public var viewForNode: (UUID) -> (any CanvasNodeView)?
+
+    public private(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
 
     // MARK: - Private Properties
 
@@ -40,17 +57,32 @@ public final class CanvasAppKitView: NSView {
         return view
     }()
 
+    private lazy var contentView: ContentView = {
+        let view = ContentView()
+        view.autoresizingMask = [.width, .height]
+        return view
+    }()
+
     // MARK: - Initializers
 
-    internal init(viewport: CanvasViewport, configuration: CanvasConfiguration = .init()) {
+    internal init(
+        viewport: CanvasViewport,
+        configuration: CanvasConfiguration = .init(),
+        nodePositions: [UUID: CGPoint] = [:],
+        viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil }
+    ) {
         self.viewport = viewport
         self.configuration = configuration
+        self.nodePositions = nodePositions
+        self.viewForNode = viewForNode
 
         super.init(frame: .zero)
 
         self.autoresizesSubviews = true
+        self.clipsToBounds = true
 
         self.setupGridView()
+        self.setupContentView()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.gridViewDraw()
@@ -59,6 +91,24 @@ public final class CanvasAppKitView: NSView {
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    // MARK: - Content View Methods
+
+    func setupContentView() {
+        self.contentView.frame = self.bounds
+        self.addSubview(self.contentView)
+    }
+
+    func updateContentView() {
+        self.contentView.bounds = NSRect(
+            origin: self.viewport.origin,
+            size: self.viewport.convert(
+                self.bounds.size,
+                from: .screen,
+                to: .viewport
+            )
+        )
     }
 
     // MARK: - Grid View Methods
@@ -191,7 +241,100 @@ public final class CanvasAppKitView: NSView {
     func viewportDidChange() {
         self.onEvent?(.viewportDidChange(self.viewport))
         self.gridViewDraw()
-        // self.updateContentView()
+        self.updateContentView()
+    }
+
+    func nodePositionsDidChange(_ oldValue: [UUID: CGPoint]) {
+        for change in oldValue.difference(from: self.nodePositions) {
+            switch change {
+            case let .added(id, pos):
+                self.addNode(id, at: pos)
+            case let .removed(id):
+                self.removeNode(id)
+            case let .modified(id, pos):
+                self.moveNode(id, to: pos)
+            }
+        }
+    }
+
+    // MARK: - Node Management
+
+    private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
+        node.frame.origin = position
+        node.frame.size = node.intrinsicContentSize
+        let id = node.id
+        node.emitter.on() { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case let .dragGesture(gesture):
+                switch gesture.phase {
+                case .changed:
+                    let amount = self.viewport.convert(
+                        .init(width: gesture.dx, height: gesture.dy),
+                        from: .screen,
+                        to: .canvas
+                    )
+                    self.translateNode(id, by: amount)
+                default:
+                    break
+                }
+
+            case .sizeChanged:
+                node.setFrameSize(node.intrinsicContentSize)
+
+            case .click:
+                // self.emitter.emit(.nodeClicked(id))
+                break
+
+            case .other(_):
+                break
+
+            }
+        }
+        self.nodeViews[node.id] = node
+        self.contentView.addSubview(node)
+        self.contentView.sortSubviews()
+    }
+
+    private func addNode(_ id: UUID, at position: CGPoint) {
+        if let node = self.viewForNode(id) {
+            self.addNode(node, at: position)
+        } else {
+            log("Missing view for node \(id)")
+        }
+    }
+
+    private func removeNode(_ id: UUID) {
+        guard let node = self.nodeViews[id] else {
+            log("Node not found: \(id)")
+            return
+        }
+        self.nodeViews.removeValue(forKey: id)
+        node.removeFromSuperview()
+    }
+
+    private func moveNode(_ id: UUID, to position: CGPoint) {
+        guard let node = self.nodeViews[id] else {
+            log("Node not found: \(id)")
+            return
+        }
+        node.frame.origin = position
+        self.needsLayout = true
+    }
+
+    private func translateNode(_ id: UUID, by translation: CGSize) {
+        if self.nodePositions[id] == nil {
+            log("Node not found: \(id)")
+            return
+        }
+
+        let newPos = self.nodePositions[id]! + translation.cgPoint
+        self.nodePositions[id] = newPos
+        self.onEvent?(.nodePositionsDidChange(self.nodePositions))
+        // if let view = self.nodeViews[id] {
+        //     view.setFrameOrigin(newPos)
+        // }
+        // self.emitter.emit(.nodeShouldMove(id, newPos))
     }
 }
 
@@ -252,6 +395,111 @@ extension CanvasAppKitView {
         override func scrollWheel(with event: NSEvent) {
             self.onEvent?(.scroll(event))
         }
+    }
+}
+
+// MARK: - ContentView
+
+final class ContentView: NSView {
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override var isOpaque: Bool {
+        true
+    }
+
+    override var wantsDefaultClipping: Bool {
+        false
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if let event = NSApp.currentEvent, event.type == .otherMouseDown {
+            return nil
+        }
+
+        let localPoint = self.convert(point, from: self.superview)
+        for view in self.subviews.reversed() {
+            if view.hitTest(localPoint) != nil {
+                return super.hitTest(point)
+            }
+        }
+
+        return nil
+    }
+
+    func sortSubviews() {
+        self.subviews.sort { a, b in
+            guard let a = a as? (any CanvasNodeView),
+                let b = b as? (any CanvasNodeView)
+            else { return false }
+            return a.level < b.level
+        }
+    }
+}
+
+public class BlueSquareView: NSView, CanvasNodeView {
+    public var id: UUID
+    public var emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
+
+    // Create the button
+    private let centerButton: NSButton = {
+        let button = NSButton(
+            title: "Press Me",
+            target: nil,
+            action: #selector(handleButtonPress(_:))
+        )
+        button.bezelStyle = .rounded
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    // MARK: - Initializers
+
+    public init(id: UUID, frame frameRect: NSRect) {
+        self.id = id
+        super.init(frame: frameRect)
+        setUpView()
+    }
+
+    required init?(coder decoder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Setup
+
+    private func setUpView() {
+        // Make view layer-backed and set background color
+        wantsLayer = true
+        layer?.backgroundColor = NSColor.systemBlue.cgColor
+
+        // Add and center the button
+        addSubview(centerButton)
+        NSLayoutConstraint.activate([
+            centerButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            centerButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+
+        self.addGestureRecognizer(NSPanGestureRecognizer(target: self, action: #selector(Self.drag(_:))))
+    }
+
+    @objc
+    func drag(_ gesture: NSPanGestureRecognizer) {
+        let t = gesture.translation(in: nil)
+        gesture.setTranslation(.zero, in: nil)
+        self.emitter.emit(.dragGesture(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: -t.y)))
+    }
+
+    // Ensure the view naturally sizes to 200×200
+    public override var intrinsicContentSize: NSSize {
+        return NSSize(width: 200, height: 200)
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleButtonPress(_ sender: NSButton) {
+        print("Button pressed!")
     }
 }
 

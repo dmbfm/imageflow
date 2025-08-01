@@ -20,12 +20,14 @@ let package = Package(
         .library(name: "CommonUtils"),
         .library(name: "Design"),
         .library(name: "Easing"),
+        .library(name: "EventEmitter"),
         .library(name: "IPadApp"),
         .library(name: "Logging"),
         .library(name: "MacApp"),
         .library(name: "Models"),
         .library(name: "NodeControls"),
         .library(name: "NodeView"),
+        .library(name: "PlatformUtils"),
         .library(name: "SwiftUIUtils"),
         .library(name: "Values"),
         .library(name: "CanvasView"),
@@ -70,6 +72,10 @@ let package = Package(
         ),
         .target(
             name: "Easing",
+            dependencies: [],
+        ),
+        .target(
+            name: "EventEmitter",
             dependencies: [],
         ),
         .target(
@@ -123,6 +129,9 @@ let package = Package(
             ],
         ),
         .target(
+            name: "PlatformUtils",
+        ),
+        .target(
             name: "SwiftUIUtils",
             dependencies: [
                 "Logging",
@@ -138,6 +147,8 @@ let package = Package(
                 "Logging",
                 "Design",
                 "CommonUtils",
+                "EventEmitter",
+                "PlatformUtils",
                 "SwiftUIUtils",
                 "ColorUtils",
             ]
