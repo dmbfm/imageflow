@@ -59,7 +59,7 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
         view.autoresizingMask = [.width, .height]
         view.onTapGesture = { [weak self] in self?.emitter.emit(.click) }
         view.onDragGesture = { [weak self] (phase, dx, dy) in
-            self?.emitter.emit(.dragGesture(.init(phase:  phase, dx: dx, dy: dy)))
+            self?.emitter.emit(.dragGesture(.init(phase: phase, dx: dx, dy: dy)))
         }
         view.clipsToBounds = false
         return view
@@ -81,7 +81,7 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
         self.size = size
 
         super.init(frame: .zero)
-        
+
         self.autoresizesSubviews = true
 
         self.addSubview(self.backgroundDragView)
@@ -93,7 +93,7 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
         self.layer?.cornerRadius = 10
         self.layer?.shadowRadius = 10
         #endif
-        
+
         #if os(iOS)
         self.backgroundColor = UIColor(cgColor: color)
         self.layer.cornerRadius = 10
@@ -114,4 +114,3 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
         self.size
     }
 }
-

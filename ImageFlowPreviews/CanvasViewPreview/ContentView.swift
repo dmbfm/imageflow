@@ -16,13 +16,22 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            CanvasView(self.$viewport, self.$nodePositions) { id in
-                ColorNodeView(id: id, size: CGSize(width: 200, height: 200), color: .red)
-//                nil
-//                print("----------------> !!! <------------------")
-//                return CustomHostingView(id: id)
-            }
+            HStack {
+                CanvasView(self.$viewport, self.$nodePositions) { id in
+                    ColorNodeView(id: id, size: CGSize(width: 200, height: 200), color: .red)
+                }
                 .border(.gray.opacity(0.25))
+                
+                List {
+                    Section("positions") {
+                        ForEach(self.nodePositions.sorted(by: { $0.key.uuidString < $1.key.uuidString }), id: \.key) { item in
+                            Text("\(Int(item.value.x)), \(Int(item.value.y))")
+                                .font(.caption2)
+                        }
+                    }
+                }
+                .frame(width: 150)
+            }
             Text("viewport: \(self.viewport)")
         }
         .padding(10)

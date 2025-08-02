@@ -14,13 +14,13 @@ open class DragTapPlatformView: PlatformView {
     public var onTapGesture: (() -> ())?
     public var onDragGesture: ((_ phase: GesturePhase, _ deltaX: CGFloat, _ deltaY: CGFloat) -> ())?
 
-    // MARK: - iOS Specific 
+    // MARK: - iOS Specific
 
     #if os(iOS)
     convenience init() {
         self.init(frame: .zero)
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -45,7 +45,7 @@ open class DragTapPlatformView: PlatformView {
         tapGR.require(toFail: panGR)
         addGestureRecognizer(tapGR)
     }
-    
+
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: nil)
         self.onDragGesture?(.init(gestureRecognizerState: gesture.state), translation.x, translation.y)
@@ -57,8 +57,8 @@ open class DragTapPlatformView: PlatformView {
     }
     #endif
 
-    // MARK: - MacOS Specific 
-     
+    // MARK: - MacOS Specific
+
     #if os(macOS)
     override public var isFlipped: Bool {
         true
