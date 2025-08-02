@@ -14,53 +14,65 @@ public struct PlatfowmAutoresizingMask: Sendable, OptionSet {
         self.rawValue = rawValue
     }
 
-    public static let flexibleLeftMargin = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleLeftMargin.rawValue
-        #else
-        return NSView.AutoresizingMask.minXMargin.rawValue
-        #endif
-    }())
+    public static let flexibleLeftMargin = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleLeftMargin.rawValue
+            #else
+            return NSView.AutoresizingMask.minXMargin.rawValue
+            #endif
+        }()
+    )
 
-    public static let flexibleWidth = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleWidth.rawValue
-        #else
-        return NSView.AutoresizingMask.width.rawValue
-        #endif
-    }())
+    public static let flexibleWidth = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleWidth.rawValue
+            #else
+            return NSView.AutoresizingMask.width.rawValue
+            #endif
+        }()
+    )
 
-    public static let flexibleRightMargin = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleRightMargin.rawValue
-        #else
-        return NSView.AutoresizingMask.maxXMargin.rawValue
-        #endif
-    }())
+    public static let flexibleRightMargin = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleRightMargin.rawValue
+            #else
+            return NSView.AutoresizingMask.maxXMargin.rawValue
+            #endif
+        }()
+    )
 
-    public static let flexibleTopMargin = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleTopMargin.rawValue
-        #else
-        return NSView.AutoresizingMask.maxYMargin.rawValue
-        #endif
-    }())
+    public static let flexibleTopMargin = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleTopMargin.rawValue
+            #else
+            return NSView.AutoresizingMask.maxYMargin.rawValue
+            #endif
+        }()
+    )
 
-    public static let flexibleHeight = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleHeight.rawValue
-        #else
-        return NSView.AutoresizingMask.height.rawValue
-        #endif
-    }())
+    public static let flexibleHeight = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleHeight.rawValue
+            #else
+            return NSView.AutoresizingMask.height.rawValue
+            #endif
+        }()
+    )
 
-    public static let flexibleBottomMargin = PlatfowmAutoresizingMask(rawValue: {
-        #if os(iOS)
-        return UIView.AutoresizingMask.flexibleBottomMargin.rawValue
-        #else
-        return NSView.AutoresizingMask.minYMargin.rawValue
-        #endif
-    }())
+    public static let flexibleBottomMargin = PlatfowmAutoresizingMask(
+        rawValue: {
+            #if os(iOS)
+            return UIView.AutoresizingMask.flexibleBottomMargin.rawValue
+            #else
+            return NSView.AutoresizingMask.minYMargin.rawValue
+            #endif
+        }()
+    )
 
     /// Convert our mask set into the platform’s native mask.
     public var platformMask: _PlatformAutoresizingMask {
@@ -73,4 +85,3 @@ extension PlatformView {
         self.autoresizingMask = mask.platformMask
     }
 }
-

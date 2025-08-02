@@ -1,8 +1,8 @@
 import ColorUtils
 import CommonUtils
 import Design
-import PlatformUtils
 import Logging
+import PlatformUtils
 
 #if canImport(AppKit)
 import AppKit
@@ -25,7 +25,6 @@ public final class GridView: PlatformView {
         case mouseLeft
     }
     #endif
-    
 
     init() {
         super.init(frame: .zero)
@@ -35,16 +34,16 @@ public final class GridView: PlatformView {
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     #if os(macOS)
     func platformInit() {
         self.wantsLayer = true
     }
     #endif
-    
+
     #if os(iOS)
     func platformInit() {
-        self.backgroundColor = BackgroundStyle.default.bg.platformColor //Colors.canvasBackground.platformColor
+        self.backgroundColor = BackgroundStyle.default.bg.platformColor  //Colors.canvasBackground.platformColor
         self.setNeedsDisplay()
     }
     #endif
@@ -71,7 +70,6 @@ public final class GridView: PlatformView {
         #endif
         self.clipsToBounds = true
     }
-    
 
     #if os(macOS)
     public override func draw(_ dirtyRect: NSRect) {
@@ -85,19 +83,18 @@ public final class GridView: PlatformView {
         // self.drawEdges(context)
     }
     #endif
-    
+
     #if os(iOS)
     public override func draw(_ rect: CGRect) {
-            guard let context = UIGraphicsGetCurrentContext() else {
-                return
-            }
-            
-
-            if let viewport = self.viewport {
-                self.drawBackgroundEllipses(context, self.layer, viewport)
-            }
-            // self.drawEdges(context)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return
         }
+
+        if let viewport = self.viewport {
+            self.drawBackgroundEllipses(context, self.layer, viewport)
+        }
+        // self.drawEdges(context)
+    }
     #endif
 
     #if os(macOS)

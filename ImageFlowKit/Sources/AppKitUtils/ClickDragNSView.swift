@@ -5,7 +5,7 @@ open class ClickDragNSView: NSView {
 
     public var onClick: (() -> ())?
 
-    public var onDragGesture: ((_ phase: GesturePhase, _ deltaX: CGFloat, _ deltaY: CGFloat) -> ())?
+    public var onDragGesture: ((_ phase: NSGestureRecognizer.State, _ deltaX: CGFloat, _ deltaY: CGFloat) -> ())?
 
     override public var isFlipped: Bool {
         true

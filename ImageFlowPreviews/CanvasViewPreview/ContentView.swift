@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CanvasView
+import EventEmitter
 
 struct ContentView: View {
     @State var viewport: CanvasViewport = .init()
@@ -16,9 +17,10 @@ struct ContentView: View {
     var body: some View {
         VStack {
             CanvasView(self.$viewport, self.$nodePositions) { id in
-                nil
+                ColorNodeView(id: id, size: CGSize(width: 200, height: 200), color: .red)
+//                nil
 //                print("----------------> !!! <------------------")
-//                return BlueSquareView(id: id, frame: .zero)
+//                return CustomHostingView(id: id)
             }
                 .border(.gray.opacity(0.25))
             Text("viewport: \(self.viewport)")
