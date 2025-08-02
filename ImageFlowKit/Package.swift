@@ -121,6 +121,7 @@ let package = Package(
                 .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
                 "CommonUtils",
                 "SwiftUIUtils",
+                "PlatformUtils",
                 "Logging",
                 "Models",
                 "Design",

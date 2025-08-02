@@ -2,7 +2,7 @@
 import UIKit
 import SwiftUI
 
-public struct PlatformColor: Sendable {
+public struct PlatformColor: Sendable, Equatable {
 
     private var uiColor: UIColor
 
@@ -40,7 +40,7 @@ public struct PlatformColor: Sendable {
 import AppKit
 import SwiftUI
 
-public struct PlatformColor: Sendable {
+public struct PlatformColor: Sendable, Equatable {
     private var nsColor: NSColor
 
     public var platformColor: NSColor {
@@ -74,3 +74,8 @@ public struct PlatformColor: Sendable {
     }
 }
 #endif
+
+extension PlatformColor {
+    public static let red: Self = .init(.red)
+    public static let systemBlue: Self = .init(.systemBlue)
+}
