@@ -1,12 +1,65 @@
-import AppKit
 import CommonUtils
 
-open class ClickDragNSView: NSView {
+#if canImport(AppKit)
+import AppKit
+import AppKitUtils
+#endif
 
-    public var onClick: (() -> ())?
+#if canImport(UIKit)
+import UIKit
+#endif
 
-    public var onDragGesture: ((_ phase: NSGestureRecognizer.State, _ deltaX: CGFloat, _ deltaY: CGFloat) -> ())?
+open class DragTapPlatformView: PlatformView {
 
+    public var onTapGesture: (() -> ())?
+    public var onDragGesture: ((_ phase: GesturePhase, _ deltaX: CGFloat, _ deltaY: CGFloat) -> ())?
+
+    // MARK: - iOS Specific 
+
+    #if os(iOS)
+    convenience init() {
+        self.init(frame: .zero)
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        commonInit()
+    }
+
+    required public init?(coder: NSCoder) {
+        super.init(coder: coder)
+        commonInit()
+    }
+
+    private func commonInit() {
+        backgroundColor = .clear
+        isUserInteractionEnabled = true
+
+        // 1. Pan gesture for dragging
+        let panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        addGestureRecognizer(panGR)
+
+        // 2. Tap gesture for taps
+        let tapGR = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        // ensure tap only fires if pan fails (i.e. no movement)
+        tapGR.require(toFail: panGR)
+        addGestureRecognizer(tapGR)
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: nil)
+        self.onDragGesture?(.init(gestureRecognizerState: gesture.state), translation.x, translation.y)
+        gesture.setTranslation(.zero, in: superview)
+    }
+
+    @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
+        self.onTapGesture?()
+    }
+    #endif
+
+    // MARK: - MacOS Specific 
+     
+    #if os(macOS)
     override public var isFlipped: Bool {
         true
     }
@@ -74,7 +127,7 @@ open class ClickDragNSView: NSView {
                     if (date.timeIntervalSinceNow * 1_000 > -clickTimeMs)
                         && start.distance(to: location) < minDragDist
                     {
-                        self.onClick?()
+                        self.onTapGesture?()
                         state = .done
                     } else {
                         dx = location.x - prev.x
@@ -84,7 +137,7 @@ open class ClickDragNSView: NSView {
                     }
                     break
                 case .mouseDown:
-                    self.onClick?()
+                    self.onTapGesture?()
                     state = .done
                 }
             default:
@@ -93,4 +146,5 @@ open class ClickDragNSView: NSView {
             // log("end: state: \(state)")
         }
     }
+    #endif
 }

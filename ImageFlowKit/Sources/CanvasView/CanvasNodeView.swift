@@ -51,26 +51,26 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
 
     lazy var backgroundDragView: PlatformView = {
         #if os(macOS)
-        let view = ClickDragNSView()
+        let view = DragTapPlatformView()
         view.frame = self.bounds
         view.wantsLayer = true
         view.layer?.backgroundColor = .clear
         view.layer?.cornerRadius = 10.0
         view.autoresizingMask = [.width, .height]
-        view.onClick = { [weak self] in self?.emitter.emit(.click) }
+        view.onTapGesture = { [weak self] in self?.emitter.emit(.click) }
         view.onDragGesture = { [weak self] (phase, dx, dy) in
-            self?.emitter.emit(.dragGesture(.init(phase: .init(gestureRecognizerState: phase), dx: dx, dy: dy)))
+            self?.emitter.emit(.dragGesture(.init(phase:  phase, dx: dx, dy: dy)))
         }
         view.clipsToBounds = false
         return view
         #endif
 
         #if os(iOS)
-        let view = DraggableTapView()
+        let view = DragTapPlatformView()
         view.frame = self.bounds
         view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
-        view.onDrag = { [weak self] state, dx, dy in
-            self?.emitter.emit(.dragGesture(.init(phase: .init(gestureRecognizerState: state), dx: dx, dy: dy)))
+        view.onDragGesture = { [weak self] phase, dx, dy in
+            self?.emitter.emit(.dragGesture(.init(phase: phase, dx: dx, dy: dy)))
         }
         return view
         #endif
@@ -115,56 +115,3 @@ public class ColorNodeView: PlatformView, CanvasNodeView {
     }
 }
 
-#if os(iOS)
-
-
-/// A simple view that can be dragged and tapped.
-/// 
-/// - onDrag: called continuously with the view’s new center as you pan.
-/// - onTap: called once when you tap the view without dragging.
-class DraggableTapView: UIView {
-    /// Called with the new center point whenever the user drags the view.
-    var onDrag: ((UIGestureRecognizer.State, CGFloat, CGFloat) -> Void)?
-    /// Called once when the user taps (no drag) on the view.
-    var onTap: (() -> Void)?
-
-    // MARK: - Initializers
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
-
-    private func commonInit() {
-        backgroundColor = .systemBlue
-        isUserInteractionEnabled = true
-
-        // 1. Pan gesture for dragging
-        let panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        addGestureRecognizer(panGR)
-
-        // 2. Tap gesture for taps
-        let tapGR = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        // ensure tap only fires if pan fails (i.e. no movement)
-        tapGR.require(toFail: panGR)
-        addGestureRecognizer(tapGR)
-    }
-    
-    // MARK: - Gesture handlers
-
-    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: nil)
-        self.onDrag?(gesture.state, translation.x, translation.y)
-        gesture.setTranslation(.zero, in: superview)
-    }
-
-    @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
-        onTap?()
-    }
-}
-#endif
