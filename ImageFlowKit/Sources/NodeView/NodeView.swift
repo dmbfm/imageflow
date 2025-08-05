@@ -111,6 +111,7 @@ public final class NodeView: PlatformView, CanvasNodeView {
         view.alignment = .leading
         view.spacing = 10
         view.translatesAutoresizingMaskIntoConstraints = false
+//        view.border(.init(.systemTeal), width: 1)
         return view
     }()
 
@@ -143,20 +144,27 @@ public final class NodeView: PlatformView, CanvasNodeView {
         // Background view
         self.backgroundView.constraintToFill(self)
         
-        NSLayoutConstraint.activate([
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor),
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-        ])
+        // Stack view
+        self.stackView.constraintToFill(self)
     }
     
     public override var intrinsicContentSize: NSSize {
-        .init(width: 200, height: 300)
+        let titleSize = self.titleView.intrinsicContentSize
+        let width = style.titleLeading + titleSize.width + style.titleMinTrailing
+        let height = style.titleTop + titleSize.height + style.bottomPadding
+        return .init(width: width, height: height)
+
     }
     
     // MARK: - Shadow
     
     func setupShadow() {
-        
+        self.wantsLayer = true
+        self.shadow = .init()
+        self.layer?.shadowColor = .init(gray: 0, alpha: 0.4)
+        self.layer?.shadowOpacity = 1
+        self.layer?.shadowRadius = 4
+        self.layer?.shadowOffset = .zero
     }
     #endif
 

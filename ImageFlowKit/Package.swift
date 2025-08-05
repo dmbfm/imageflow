@@ -132,7 +132,8 @@ let package = Package(
         .target(
             name: "PlatformUtils",
             dependencies: [
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS]))
+                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
+                "ColorUtils",
             ],
         ),
         .target(
