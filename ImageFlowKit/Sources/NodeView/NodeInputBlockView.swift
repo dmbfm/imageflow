@@ -43,21 +43,14 @@ final class NodeInputBlockView: PlatformView {
     func addRow(_ row: NodeInputRowView) {
         self.stack.addArrangedSubview(row)
         self.rows.append(row)
-        
+        row.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
         self.invalidateIntrinsicContentSize()
-        let size = self.intrinsicContentSize
-//        row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
     }
 
     func removeRow(_ index: Int) {
         self.stack.removeView(self.rows[index])
         self.rows.remove(at: index)
-        
         self.invalidateIntrinsicContentSize()
-        let size = self.intrinsicContentSize
-        for row in self.rows {
-//            row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        }
     }
 
     func clearRows() {
@@ -65,12 +58,7 @@ final class NodeInputBlockView: PlatformView {
             self.stack.removeView(row)
         }
         self.rows = []
-        
         self.invalidateIntrinsicContentSize()
-        let size = self.intrinsicContentSize
-        for row in self.rows {
-//            row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        }
     }
 
     override var intrinsicContentSize: NSSize {

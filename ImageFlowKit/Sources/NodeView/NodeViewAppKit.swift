@@ -38,6 +38,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
 
     struct Style {
         var titlePadding: EdgeInsets = .init(top: 18, leading: 8, bottom: 18, trailing: 8)
+        var bottomPadding: CGFloat = 8
     }
 
     var style = Style()
@@ -59,10 +60,15 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(self.titleView)
+        // view.border(.red)
         NSLayoutConstraint.activate([
             self.titleView.topAnchor.constraint(equalTo: view.topAnchor, constant: self.style.titlePadding.top),
             self.titleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: self.style.titlePadding.leading),
         ])
+        
+        view.heightAnchor.constraint(
+            equalToConstant: self.titleView.intrinsicContentSize.height + self.style.titlePadding.top + self.style.titlePadding.bottom
+        ).isActive = true
         return view
     }()
 
@@ -79,6 +85,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
 
     lazy var stackView: NSStackView = {
         let view = NSStackView()
+        // view.border(.red)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.orientation = .vertical
         view.alignment = .leading
@@ -102,9 +109,6 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         self.invalidateIntrinsicContentSize()
         let size = self.intrinsicContentSize
         self.inputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        for row in self.inputBlockView.rows {
-            row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        }
 
         self.shadow = .init()
         self.wantsLayer = true
@@ -112,17 +116,6 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         self.layer?.shadowColor = .black
     }
     
-    public override func viewDidMoveToSuperview() {
-            self.invalidateIntrinsicContentSize()
-        let size = self.intrinsicContentSize
-        print("---------> size: \(size)")
-        self.inputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        for row in self.inputBlockView.rows {
-            row.border(.systemBlue)
-            row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
-        }
-    }
-
     public required init?(coder: NSCoder) {
         nil
     }
@@ -131,7 +124,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         let titleSize = self.titleView.intrinsicContentSize
         let inputBlockSize = self.inputBlockView.intrinsicContentSize
         let width = max(self.style.titlePadding.leading + titleSize.width + self.style.titlePadding.trailing, inputBlockSize.width)
-        let height = self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height
+        let height = self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height + self.style.bottomPadding
         return CGSize(width: width, height: height)
     }
 }
