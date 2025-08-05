@@ -15,7 +15,9 @@ public protocol PlatformViewRepresentable: NSViewRepresentable where NSViewType 
 
     func makeView(context: Context) -> ViewType
     func updateView(_ view: ViewType, context: Context)
+    func sizeThatFits(_  proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize?
 }
+
 
 public extension PlatformViewRepresentable {
     func makeNSView(context: Context) -> NSViewType {
@@ -25,6 +27,15 @@ public extension PlatformViewRepresentable {
     func updateNSView(_ view: ViewType, context: Context) {
         self.updateView(view, context: context)
     }
+    
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSViewType, context: Context) -> CGSize? {
+        self.sizeThatFits(proposal, view: nsView, context: context)
+    }
+    
+    func sizeThatFits(_  proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+        nil
+    }
+    
 }
 #endif
 
@@ -35,6 +46,7 @@ public protocol PlatformViewRepresentable: UIViewRepresentable where UIViewType 
 
     func makeView(context: Context) -> ViewType
     func updateView(_ view: ViewType, context: Context)
+    func sizeThatFits(_  proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize?
 }
 public extension PlatformViewRepresentable {
     func makeUIView(context: Context) -> UIViewType {
@@ -43,6 +55,14 @@ public extension PlatformViewRepresentable {
 
     func updateUIView(_ view: ViewType, context: Context) {
         self.updateView(view, context: context)
+    }
+    
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIViewType, context: Context) -> CGSize? {
+        self.sizeThatFits(proposal, view: uiView, context: context)
+    }
+    
+    func sizeThatFits(_  proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+        nil
     }
 }
 #endif

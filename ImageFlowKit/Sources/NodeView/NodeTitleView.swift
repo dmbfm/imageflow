@@ -21,43 +21,54 @@ final class NodeTitleView: PlatformView {
     }
 
     struct Model: Sendable, Equatable {
-        var title: String = "Node Title"
-        var subtitle: String = "Node Subtitle"
-        var icon: String = "exclamationmark.triangle"
+//        var title: String = "Node Title That is Really Large"
+        var title: String = "Add"
+//        var subtitle: String = "Node Subtitle"
+        var subtitle: String = "Add"
+        var icon: String = "paintbrush"
         var color: PlatformColor = .systemBlue
     }
 
     // MARK: - Style
 
-    private var style: Style = .init()
 
     struct Style {
         var iconTitleSpacing: CGFloat = 8
         var titleSubtitleSpacing: CGFloat = 2
+        var iconSize: CGFloat = 16
+        var iconPointSize: CGFloat = 12
+        var minTitleWidth: CGFloat = 80
+        var titleWidthSafetyMargin: CGFloat = 0
     }
 
     // MARK: - Subviews (macOS)
 
+    
     #if os(macOS)
+    
+    private var style: Style = .init(iconSize: 24, minTitleWidth: 90, titleWidthSafetyMargin: 10)
+    
     lazy var imageView: NSImageView = {
         let image = NSImage(systemSymbolName: self.vm.icon, accessibilityDescription: nil)!
         let iconView = NSImageView()
         iconView.image = image
         iconView.contentTintColor = self.vm.color.platformColor
-        iconView.symbolConfiguration = .init(pointSize: 20, weight: .regular)
+        iconView.symbolConfiguration = .init(pointSize: self.style.iconPointSize, weight: .regular)
         iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.setContentHuggingPriority(.required, for: .horizontal)
-        iconView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        iconView.widthAnchor.constraint(equalToConstant: self.style.iconSize).isActive = true
+        iconView.heightAnchor.constraint(equalToConstant: self.style.iconSize).isActive = true
+        iconView.wantsLayer = true
         return iconView
     }()
 
     lazy var titleView: NSTextField = {
         let title = NSTextField(labelWithString: self.vm.title)
         title.font = .systemFont(ofSize: 13, weight: .medium)
-        // title.cell!.lineBreakMode = .byCharWrapping
-        // title.cell!.truncatesLastVisibleLine = true
-        title.translatesAutoresizingMaskIntoConstraints = false
+        title.cell!.truncatesLastVisibleLine = true
         title.lineBreakMode = .byTruncatingTail
+        title.usesSingleLineMode = true
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return title
     }()
 
@@ -92,6 +103,9 @@ final class NodeTitleView: PlatformView {
     // MARK: - Subviews (iOS)
 
     #if os(iOS)
+    
+    private var style: Style = .init()
+    
     lazy var imageView: UIImageView = {
         let image = UIImage(systemName: self.vm.icon)!
         let view = UIImageView()
@@ -101,6 +115,9 @@ final class NodeTitleView: PlatformView {
         view.tintColor = self.vm.color.platformColor
         view.setContentHuggingPriority(.required, for: .horizontal)
         view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let size = 16.0
+        view.widthAnchor.constraint(equalToConstant: size).isActive = true
+        view.heightAnchor.constraint(equalToConstant: size).isActive = true
         return view
     }()
     private let titleView: UILabel = {
@@ -184,9 +201,12 @@ final class NodeTitleView: PlatformView {
     // - MARK: - Methods (iOS)
 
     #if os(iOS)
+    
     func platformInit() {
         self.backgroundColor = .clear
+        
         addSubview(containerStack)
+        
         NSLayoutConstraint.activate([
             containerStack.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerStack.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -194,12 +214,32 @@ final class NodeTitleView: PlatformView {
             containerStack.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
+    
     func update() {
         self.titleView.text = self.vm.title
         self.subtitleView.text = self.vm.subtitle
         self.imageView.tintColor = self.vm.color.platformColor
+        self.invalidateIntrinsicContentSize()
     }
+    
     #endif
+    override var intrinsicContentSize: CGSize {
+        #if os(iOS)
+        let titleSize = self.titleView.textRect(forBounds: .infinite, limitedToNumberOfLines: 1)
+        let subtitleSize = self.subtitleView.textRect(forBounds: .infinite, limitedToNumberOfLines: 1)
+        #endif
+        #if os(macOS)
+        let titleSize = self.titleView.intrinsicContentSize
+        let subtitleSize = self.subtitleView.intrinsicContentSize//cell?.drawingRect(forBounds: .infinite) ?? .zero
+        #endif
+        
+        let size =  CGSize(
+            width: 16 + self.style.iconTitleSpacing + min(titleSize.width + style.titleWidthSafetyMargin, max(subtitleSize.width, self.style.minTitleWidth)),
+            height: titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing
+        )
+        
+        return size
+    }
 }
 
 // MARK: - Previews
@@ -208,16 +248,15 @@ extension NodeTitleView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> NodeTitleView {
             let view = NodeTitleView(.init())
-            view.translatesAutoresizingMaskIntoConstraints = false
             return view
         }
 
         func updateView(_ view: NodeTitleView, context: Context) {
 
         }
-
-        func sizeThatFits(_ proposal: ProposedViewSize, nsView: NodeTitleView, context: Context) -> CGSize? {
-            .init(width: 300, height: 200)
+        
+        func sizeThatFits(_ proposal: ProposedViewSize, view: NodeTitleView, context: Context) -> CGSize? {
+            view.intrinsicContentSize
         }
     }
 }
@@ -225,7 +264,7 @@ extension NodeTitleView {
 #Preview {
     VStack {
         NodeTitleView.Preview()
+            .border(.orange)
     }
-    .border(.black)
     .padding(50)
 }
