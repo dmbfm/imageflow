@@ -21,16 +21,15 @@ final class NodeTitleView: PlatformView {
     }
 
     struct Model: Sendable, Equatable {
-//        var title: String = "Node Title That is Really Large"
+        //        var title: String = "Node Title That is Really Large"
         var title: String = "Add"
-//        var subtitle: String = "Node Subtitle"
+        //        var subtitle: String = "Node Subtitle"
         var subtitle: String = "Add"
         var icon: String = "paintbrush"
         var color: PlatformColor = .systemBlue
     }
 
     // MARK: - Style
-
 
     struct Style {
         var iconTitleSpacing: CGFloat = 8
@@ -43,11 +42,10 @@ final class NodeTitleView: PlatformView {
 
     // MARK: - Subviews (macOS)
 
-    
     #if os(macOS)
-    
+
     private var style: Style = .init(iconSize: 24, minTitleWidth: 90, titleWidthSafetyMargin: 10)
-    
+
     lazy var imageView: NSImageView = {
         let image = NSImage(systemSymbolName: self.vm.icon, accessibilityDescription: nil)!
         let iconView = NSImageView()
@@ -103,9 +101,9 @@ final class NodeTitleView: PlatformView {
     // MARK: - Subviews (iOS)
 
     #if os(iOS)
-    
+
     private var style: Style = .init()
-    
+
     lazy var imageView: UIImageView = {
         let image = UIImage(systemName: self.vm.icon)!
         let view = UIImageView()
@@ -201,12 +199,12 @@ final class NodeTitleView: PlatformView {
     // - MARK: - Methods (iOS)
 
     #if os(iOS)
-    
+
     func platformInit() {
         self.backgroundColor = .clear
-        
+
         addSubview(containerStack)
-        
+
         NSLayoutConstraint.activate([
             containerStack.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerStack.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -214,14 +212,14 @@ final class NodeTitleView: PlatformView {
             containerStack.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
-    
+
     func update() {
         self.titleView.text = self.vm.title
         self.subtitleView.text = self.vm.subtitle
         self.imageView.tintColor = self.vm.color.platformColor
         self.invalidateIntrinsicContentSize()
     }
-    
+
     #endif
     override var intrinsicContentSize: CGSize {
         #if os(iOS)
@@ -230,14 +228,15 @@ final class NodeTitleView: PlatformView {
         #endif
         #if os(macOS)
         let titleSize = self.titleView.intrinsicContentSize
-        let subtitleSize = self.subtitleView.intrinsicContentSize//cell?.drawingRect(forBounds: .infinite) ?? .zero
+        let subtitleSize = self.subtitleView.intrinsicContentSize  //cell?.drawingRect(forBounds: .infinite) ?? .zero
         #endif
-        
-        let size =  CGSize(
-            width: 16 + self.style.iconTitleSpacing + min(titleSize.width + style.titleWidthSafetyMargin, max(subtitleSize.width, self.style.minTitleWidth)),
+
+        let size = CGSize(
+            width: 16 + self.style.iconTitleSpacing
+                + min(titleSize.width + style.titleWidthSafetyMargin, max(subtitleSize.width, self.style.minTitleWidth)),
             height: titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing
         )
-        
+
         return size
     }
 }
@@ -254,7 +253,7 @@ extension NodeTitleView {
         func updateView(_ view: NodeTitleView, context: Context) {
 
         }
-        
+
         func sizeThatFits(_ proposal: ProposedViewSize, view: NodeTitleView, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }

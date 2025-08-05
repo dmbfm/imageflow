@@ -26,18 +26,18 @@ typealias NodeOutputRowView = NodeOutputRowUIKitView
 
 #if os(macOS)
 final class NodeOutputRowAppKitView: NSView {
-    
+
     public var output: FlowNode.Output {
         didSet {
 
         }
     }
-    
+
     init(_ output: FlowNode.Output) {
         self.output = output
         super.init(frame: .zero)
     }
-    
+
     required init?(coder: NSCoder) {
         nil
     }
