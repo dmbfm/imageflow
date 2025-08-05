@@ -25,8 +25,9 @@ extension NodeView {
 
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {
+        let node: FlowNode
         public func makeView(context: Context) -> some NSView {
-            NodeView(.init(kind: .addNode(.float)))
+            NodeView(node)
         }
         
         public func updateView(_ view: ViewType, context: Context) {
@@ -38,9 +39,17 @@ extension NodeView {
     }
 }
 
-#Preview {
+#Preview("Add") {
     VStack {
-        NodeView.Preview()
+        NodeView.Preview(node: .init(kind: .addNode(.float)))
+    }
+    .frame(width: 500, height: 500)
+    .background(Colors.canvasBackground.color)
+}
+
+#Preview("Gaussian Blur") {
+    VStack {
+        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
     }
     .frame(width: 500, height: 500)
     .background(Colors.canvasBackground.color)

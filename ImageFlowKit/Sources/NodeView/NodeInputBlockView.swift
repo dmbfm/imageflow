@@ -1,10 +1,3 @@
-//
-//  NodeInputBlockView.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 05/08/25.
-//
-
 import CommonUtils
 import PlatformUtils
 import SwiftUI

@@ -53,6 +53,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
     lazy var titleView: NodeTitleView = {
         let view = NodeTitleView(self.titleModel)
         view.translatesAutoresizingMaskIntoConstraints = false
+        // view.border(.red)
         return view
     }()
 
@@ -60,10 +61,10 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(self.titleView)
-        // view.border(.red)
         NSLayoutConstraint.activate([
             self.titleView.topAnchor.constraint(equalTo: view.topAnchor, constant: self.style.titlePadding.top),
             self.titleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: self.style.titlePadding.leading),
+            self.titleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -self.style.titlePadding.trailing),
         ])
         
         view.heightAnchor.constraint(
@@ -83,6 +84,17 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         return view
     }()
 
+    lazy var outputBlockView: NodeOutputBlockView = {
+        let view = NodeOutputBlockView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+
+        for output in self.node.outputs {
+            view.addRow(.init(output))
+        }
+
+        return view
+    }()
+
     lazy var stackView: NSStackView = {
         let view = NSStackView()
         // view.border(.red)
@@ -92,6 +104,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         view.spacing = 0
         view.addArrangedSubview(self.titleContainerView)
         view.addArrangedSubview(self.inputBlockView)
+        view.addArrangedSubview(self.outputBlockView)
         return view
     }()
 
@@ -109,6 +122,8 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         self.invalidateIntrinsicContentSize()
         let size = self.intrinsicContentSize
         self.inputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
+        self.outputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
+        self.titleContainerView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
 
         self.shadow = .init()
         self.wantsLayer = true
@@ -123,8 +138,9 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
     public override var intrinsicContentSize: NSSize {
         let titleSize = self.titleView.intrinsicContentSize
         let inputBlockSize = self.inputBlockView.intrinsicContentSize
-        let width = max(self.style.titlePadding.leading + titleSize.width + self.style.titlePadding.trailing, inputBlockSize.width)
-        let height = self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height + self.style.bottomPadding
+        let outputBlockSize = self.outputBlockView.intrinsicContentSize
+        let width = max(self.style.titlePadding.leading + titleSize.width + self.style.titlePadding.trailing, inputBlockSize.width, outputBlockSize.width)
+        let height = self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height + outputBlockSize.height + self.style.bottomPadding
         return CGSize(width: width, height: height)
     }
 }

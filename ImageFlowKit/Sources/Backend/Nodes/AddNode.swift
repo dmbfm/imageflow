@@ -8,7 +8,7 @@ extension Nodes {
                 name: "Add (\(type))",
                 inputs: [
                     .init(name: "A", type: type.valueType),
-                    .init(name: "B Second", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
                 ],
                 outputs: [
                     .init(name: "Result", type: type.valueType)

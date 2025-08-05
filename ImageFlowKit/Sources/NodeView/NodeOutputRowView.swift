@@ -33,13 +33,77 @@ final class NodeOutputRowAppKitView: NSView {
         }
     }
 
+    // MARK: - Private Properties
+
+    var style = Style()
+
+    // MARK: - Private Types
+
+    struct Style {
+        var portSize: CGFloat = 16
+        var labelFontSize: CGFloat = 10
+        var labelControlSpacing: CGFloat = 8
+        var trailingPadding: CGFloat = 8
+        var height: CGFloat = 22
+    }
+
+    // MARK: - Subviews
+
+    lazy var stackView: NSStackView = {
+        let v = NSStackView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.orientation = .horizontal
+        v.alignment = .centerY
+        v.spacing = 0
+        v.addView(self.labelView, in: .trailing)
+        v.addView(self.portView, in: .trailing)
+        return v
+    }()
+
+    lazy var portView: PortView = {
+        let view = PortView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.connected = self.output.connected
+        view.widthAnchor.constraint(equalToConstant: style.portSize).isActive = true
+        return view
+    }()
+
+    lazy var labelView: NSTextField = {
+        let view = NSTextField(labelWithString: self.output.label)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.textColor = .secondaryLabelColor
+        view.font = .systemFont(ofSize: style.labelFontSize)
+        return view
+    }()
+
+    // MARK: - Initializers
+
     init(_ output: FlowNode.Output) {
         self.output = output
+
         super.init(frame: .zero)
+
+        self.setupLayout()
     }
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    // MARK: - Layout
+    func setupLayout() {
+        self.addSubview(self.stackView)
+        self.stackView.constraintToFill(self)
+    }
+
+    override var intrinsicContentSize: NSSize {
+        let portSize = style.portSize
+        let labelSize = self.labelView.intrinsicContentSize
+        let result = CGSize(
+            width: portSize + labelSize.width + style.labelControlSpacing + style.trailingPadding,
+            height: style.height  //max(portSize, labelSize.height, controlSize.height)
+        )
+        return result
     }
 }
 #endif
@@ -203,12 +267,8 @@ extension NodeOutputRowView {
 
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, uiView: ViewType, context: Context) -> CGSize? {
-            if let width = proposal.width {
-                return .init(width: width, height: 64)
-            } else {
-                return nil
-            }
+        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+            view.intrinsicContentSize
         }
     }
 }
@@ -216,8 +276,9 @@ extension NodeOutputRowView {
 #Preview {
     VStack {
         NodeOutputRowView.Preview()
-            //            .frame(height: 200)
-            .border(.red)
+            .border(.gray.opacity(0.2))
+            // .border(.red)
     }
     .padding(50)
+    .background(.white)
 }

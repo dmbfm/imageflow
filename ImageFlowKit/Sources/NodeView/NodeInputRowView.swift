@@ -134,7 +134,6 @@ final class NodeInputRowAppKitView: NSView {
             width: portSize + labelSize.width + style.labelControlSpacing + controlSize.width + style.trailingPadding,
             height: style.height //max(portSize, labelSize.height, controlSize.height)
         )
-        print("size: \(result)")
         return result
     }
     
