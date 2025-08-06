@@ -39,20 +39,28 @@ final class NodeOutputBlockView: PlatformView {
     }
 
     func removeRow(_ index: Int) {
+        #if os(macOS)
         self.stack.removeView(self.rows[index])
+        #else
+        self.stack.removeArrangedSubview(self.rows[index])
+        #endif
         self.rows.remove(at: index)
         self.invalidateIntrinsicContentSize()
     }
 
     func clearRows() {
         for row in self.rows {
+            #if os(masOS)
             self.stack.removeView(row)
+            #else
+            self.stack.removeArrangedSubview(row)
+            #endif
         }
         self.rows = []
         self.invalidateIntrinsicContentSize()
     }
 
-    override var intrinsicContentSize: NSSize {
+    override var intrinsicContentSize: CGSize {
         let blockSize: CGSize = self.rows.reduce(.zero) { acc, view in
             .init(
                 width: max(acc.width, view.intrinsicContentSize.width),
@@ -77,6 +85,13 @@ final class NodeOutputBlockView: PlatformView {
     func platformInit() {
         self.clipsToBounds = false
     }
+    #endif
+    
+    #if os(iOS)
+    lazy var stack: UIStackView = {
+        let view = UIStackView()
+        return view
+    }()
     #endif
 }
 

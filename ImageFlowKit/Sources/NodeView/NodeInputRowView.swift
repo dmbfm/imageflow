@@ -11,8 +11,10 @@ import Design
 import Easing
 import EventEmitter
 import Models
+import NodeControls
 import PlatformUtils
 import SwiftUI
+import Values
 
 #if canImport(AppKit)
 import AppKit
@@ -33,6 +35,7 @@ final class NodeInputRowAppKitView: NSView {
     public var input: FlowNode.Input {
         didSet {
             self.portView.connected = input.connected
+            self.labelView.stringValue = input.label
         }
     }
 
@@ -50,15 +53,36 @@ final class NodeInputRowAppKitView: NSView {
         var height: CGFloat = 22
     }
 
-    class DummyControl: NSView {
-        var slider: NSSlider!
-        override init(frame frameRect: NSRect) {
-            super.init(frame: frameRect)
+    class DummyControl: NSView, NodeControl {
+        var tintColor: PlatformUtils.PlatformColor = .blue
 
-            self.slider = NSSlider()
+        var value: Values.Value {
+            didSet {
+                if self.value != oldValue {
+                    self.slider.doubleValue = self.value.float
+                }
+            }
+        }
+
+        var valueDidChange: ((Values.Value) -> ())?
+
+        var slider: NSSlider!
+
+        init(_ value: Value) {
+            self.value = value
+            super.init(frame: .zero)
+
+            self.slider = NSSlider(target: self, action: #selector(Self.onSliderChange))
+            self.slider.doubleValue = value.float
             self.slider.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(self.slider)
             self.slider.constraintToFill(self, edgeInsets: .init(top: 0, left: 2, bottom: 0, right: 2))
+        }
+
+        @objc
+        func onSliderChange() {
+            self.value = .float(self.slider.doubleValue)
+            self.valueDidChange?(self.value)
         }
 
         required init?(coder: NSCoder) {
@@ -90,7 +114,15 @@ final class NodeInputRowAppKitView: NSView {
     }()
 
     lazy var controlView: NSView = {
-        let view = DummyControl()
+        let view: any NodeControl = switch self.input.value.type {
+            case .float:
+                DummyControl(self.input.value)
+            default: 
+                StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
+        }
+        view.valueDidChange = { newValue in
+            print("new value: \(newValue)")
+        }
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -224,9 +256,10 @@ class NodeInputRowUIKitView: UIView {
 
 extension NodeInputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
+        var input: FlowNode.Input = .init(label: "Something", index: 0, value: .float(0.5), semantics: .default, connected: false) 
         func makeView(context: Context) -> NodeInputRowView {
             NodeInputRowView(
-                .init(label: "Something", index: 0, value: .float(0.5), semantics: .default, connected: false)
+                self.input
             )
         }
 
@@ -234,7 +267,7 @@ extension NodeInputRowView {
 
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, view: NodeInputRowAppKitView, context: Context) -> CGSize? {
+        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
     }
@@ -243,6 +276,9 @@ extension NodeInputRowView {
 #Preview {
     VStack {
         NodeInputRowView.Preview()
+            .border(.gray.opacity(0.12))
+
+        NodeInputRowView.Preview(input: .init(label: "Other", index: 1, value: .bool(true), semantics: .default, connected: true))
             .border(.gray.opacity(0.12))
     }
     .padding(200)

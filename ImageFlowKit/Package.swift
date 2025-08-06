@@ -114,6 +114,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "Design",
+                "PlatformUtils",
             ],
         ),
         .target(
