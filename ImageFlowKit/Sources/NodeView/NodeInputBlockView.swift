@@ -32,7 +32,7 @@ final class NodeInputBlockView: PlatformView {
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     func addRow(_ row: NodeInputRowView) {
         self.stack.addArrangedSubview(row)
         self.rows.append(row)
@@ -86,13 +86,17 @@ extension NodeInputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
             let view = NodeInputBlockView()
-            view.addRow(.init(.init(label: "Some Number", index: 0, value: .float(0.5), semantics: .default, connected: false)))
-            view.addRow(.init(.init(label: "Other", index: 1, value: .float(0.5), semantics: .default, connected: true)))
+            view.addRow(
+                .init(.init(label: "Some Number", index: 0, value: .float(0.5), semantics: .default, connected: false))
+            )
+            view.addRow(
+                .init(.init(label: "Other", index: 1, value: .float(0.5), semantics: .default, connected: true))
+            )
             return view
         }
 
         func updateView(_ view: ViewType, context: Context) {
-        
+
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {

@@ -63,12 +63,19 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         view.addSubview(self.titleView)
         NSLayoutConstraint.activate([
             self.titleView.topAnchor.constraint(equalTo: view.topAnchor, constant: self.style.titlePadding.top),
-            self.titleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: self.style.titlePadding.leading),
-            self.titleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -self.style.titlePadding.trailing),
+            self.titleView.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor,
+                constant: self.style.titlePadding.leading
+            ),
+            self.titleView.trailingAnchor.constraint(
+                equalTo: view.trailingAnchor,
+                constant: -self.style.titlePadding.trailing
+            ),
         ])
-        
+
         view.heightAnchor.constraint(
-            equalToConstant: self.titleView.intrinsicContentSize.height + self.style.titlePadding.top + self.style.titlePadding.bottom
+            equalToConstant: self.titleView.intrinsicContentSize.height + self.style.titlePadding.top
+                + self.style.titlePadding.bottom
         ).isActive = true
         return view
     }()
@@ -80,7 +87,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         for input in self.node.inputs {
             view.addRow(.init(input))
         }
-        
+
         return view
     }()
 
@@ -118,7 +125,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
 
         self.addSubview(self.stackView)
         self.stackView.constraintToFill(self)
-        
+
         self.invalidateIntrinsicContentSize()
         let size = self.intrinsicContentSize
         self.inputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
@@ -130,7 +137,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         self.layer?.shadowRadius = 4
         self.layer?.shadowColor = .black
     }
-    
+
     public required init?(coder: NSCoder) {
         nil
     }
@@ -139,8 +146,14 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         let titleSize = self.titleView.intrinsicContentSize
         let inputBlockSize = self.inputBlockView.intrinsicContentSize
         let outputBlockSize = self.outputBlockView.intrinsicContentSize
-        let width = max(self.style.titlePadding.leading + titleSize.width + self.style.titlePadding.trailing, inputBlockSize.width, outputBlockSize.width)
-        let height = self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height + outputBlockSize.height + self.style.bottomPadding
+        let width = max(
+            self.style.titlePadding.leading + titleSize.width + self.style.titlePadding.trailing,
+            inputBlockSize.width,
+            outputBlockSize.width
+        )
+        let height =
+            self.style.titlePadding.top + titleSize.height + self.style.titlePadding.bottom + inputBlockSize.height
+            + outputBlockSize.height + self.style.bottomPadding
         return CGSize(width: width, height: height)
     }
 }

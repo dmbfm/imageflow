@@ -277,7 +277,7 @@ extension NodeOutputRowView {
     VStack {
         NodeOutputRowView.Preview()
             .border(.gray.opacity(0.2))
-            // .border(.red)
+        // .border(.red)
     }
     .padding(50)
     .background(.white)

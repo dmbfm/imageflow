@@ -19,7 +19,7 @@ public typealias NodeView = NodeViewUIKit
 
 extension NodeView {
     public enum Event {
-        
+
     }
 }
 
@@ -29,10 +29,10 @@ extension NodeView {
         public func makeView(context: Context) -> some NSView {
             NodeView(node)
         }
-        
+
         public func updateView(_ view: ViewType, context: Context) {
         }
-        
+
         public func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
@@ -166,17 +166,17 @@ extension NodeView {
 //        ])
 //        return view
 //    }()
-//    
-//    
+//
+//
 //
 //    lazy var outputStackView: NSStackView = {
 //        let view = NSStackView()
 //        view.translatesAutoresizingMaskIntoConstraints = false
 //        return view
 //    }()
-//    
+//
 //    // MARK: - Setup Rows
-//    
+//
 //    var inputRowViews: [NodeInputRowView] = []
 //    func setupRows() {
 //        for input in self.node.inputs {
@@ -199,7 +199,7 @@ extension NodeView {
 //        self.stackView.constraintToFill(self)
 //        self.stackView.edgeInsets = .init(top: 0, left: 0, bottom: style.bottomPadding, right: 0)
 //    }
-//    
+//
 //    func calcInputBlockSize() -> CGSize {
 //        print("calculating... \(self.inputRowViews.count)")
 //        return self.inputRowViews.reduce(.zero, { acc, view in

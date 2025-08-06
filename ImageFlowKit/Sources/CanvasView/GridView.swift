@@ -106,8 +106,8 @@ public final class GridView: PlatformView {
     struct BackgroundStyle: With {
         var spacing: CGFloat
         var radius: CGFloat
-        var fg: PlatformColor
-        var bg: PlatformColor
+        var fg: DynamicColor
+        var bg: DynamicColor
         var dotFadeCuttoff: CGFloat
 
         static let `default`: Self = {

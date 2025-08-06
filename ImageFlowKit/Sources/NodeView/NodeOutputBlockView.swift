@@ -90,7 +90,7 @@ extension NodeOutputBlockView {
         }
 
         func updateView(_ view: ViewType, context: Context) {
-        
+
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {

@@ -22,7 +22,7 @@ extension PlatformView {
         ])
     }
 
-    public func border(_ color: PlatformColor, width: CGFloat = 1) {
+    public func border(_ color: DynamicColor, width: CGFloat = 1) {
         #if os(macOS)
         self.wantsLayer = true
         self.layer?.borderColor = color.cgColor

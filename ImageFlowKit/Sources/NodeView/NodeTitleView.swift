@@ -26,7 +26,7 @@ final class NodeTitleView: PlatformView {
         //        var subtitle: String = "Node Subtitle"
         var subtitle: String = "Add"
         var icon: String = "paintbrush"
-        var color: PlatformColor = .systemBlue
+        var color: DynamicColor = .systemBlue
     }
 
     // MARK: - Style

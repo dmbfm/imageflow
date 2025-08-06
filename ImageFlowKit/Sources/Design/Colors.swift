@@ -1,55 +1,55 @@
 import ColorUtils
 
 public enum Colors {
-    public static let cardBackground: PlatformColor = .init(
+    public static let cardBackground: DynamicColor = .init(
         light: ImageFlowPalette.cardBackgroundLight,
         dark: ImageFlowPalette.cardBackgroundDark
     )
 
-    public static let canvasBackground: PlatformColor = .init(
+    public static let canvasBackground: DynamicColor = .init(
         light: ImageFlowPalette.canvasBackgroundLight,
         dark: ImageFlowPalette.canvasBackgroundDark
     )
 
-    public static let canvasBackgroundDot: PlatformColor = .init(
+    public static let canvasBackgroundDot: DynamicColor = .init(
         light: ImageFlowPalette.canvasBackgroundDotLight,
         dark: ImageFlowPalette.canvasBackgroundDotDark
     )
 
-    public static let cardPurple: PlatformColor = .init(ImageFlowPalette.cardPurple)
+    public static let cardPurple: DynamicColor = .init(ImageFlowPalette.cardPurple)
 
-    public static let cardBlue: PlatformColor = .init(ImageFlowPalette.cardBlue)
+    public static let cardBlue: DynamicColor = .init(ImageFlowPalette.cardBlue)
 
-    public static let portEmpty: PlatformColor = .init(
+    public static let portEmpty: DynamicColor = .init(
         light: ImageFlowPalette.portEmptyLight,
         dark: ImageFlowPalette.portEmptyDark
     )
 
-    public static let portConnected: PlatformColor = .init(
+    public static let portConnected: DynamicColor = .init(
         light: ImageFlowPalette.portConnectedLight,
         dark: ImageFlowPalette.portConnectedDark
     )
 
-    public static let numberInputBackground: PlatformColor = .init(
+    public static let numberInputBackground: DynamicColor = .init(
         light: ImageFlowPalette.numberInputBackgroundLight,
         dark: ImageFlowPalette.numberInputBackgroundDark
     )
 
-    public static let numberInputBorder: PlatformColor = .init(
+    public static let numberInputBorder: DynamicColor = .init(
         light: ImageFlowPalette.numberInputBorderLight,
         dark: ImageFlowPalette.numberInputBorderDark
     )
 
-    public static let coverView: PlatformColor = .init(
+    public static let coverView: DynamicColor = .init(
         light: ImageFlowPalette.coverViewLight,
         dark: ImageFlowPalette.coverViewDark
     )
 
-    public static let edgeWithError: PlatformColor = .init(ImageFlowPalette.edgeWithError)
+    public static let edgeWithError: DynamicColor = .init(ImageFlowPalette.edgeWithError)
 
-    public static let edgeWithSuccess: PlatformColor = .init(ImageFlowPalette.edgeWithSuccess)
+    public static let edgeWithSuccess: DynamicColor = .init(ImageFlowPalette.edgeWithSuccess)
 
-    public static let imagePreviewBackground: PlatformColor = .init(ImageFlowPalette.imagePreviewBackground)
+    public static let imagePreviewBackground: DynamicColor = .init(ImageFlowPalette.imagePreviewBackground)
 }
 
 #if os(macOS)

@@ -27,7 +27,7 @@ typealias NodeInputRowView = NodeInputRowUIKitView
 // MARK: - macOS
 #if os(macOS)
 final class NodeInputRowAppKitView: NSView {
-    
+
     // MARK: - Public Properties
 
     public var input: FlowNode.Input {
@@ -35,13 +35,13 @@ final class NodeInputRowAppKitView: NSView {
             self.portView.connected = input.connected
         }
     }
-    
+
     // MARK: - Private Properties
-    
+
     var style = Style()
-    
+
     // MARK: - Private Types
-    
+
     struct Style {
         var portSize: CGFloat = 16
         var labelFontSize: CGFloat = 10
@@ -49,28 +49,28 @@ final class NodeInputRowAppKitView: NSView {
         var trailingPadding: CGFloat = 8
         var height: CGFloat = 22
     }
-    
+
     class DummyControl: NSView {
         var slider: NSSlider!
         override init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
-            
+
             self.slider = NSSlider()
             self.slider.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(self.slider)
-            self.slider.constraintToFill(self, edgeInsets: .init(top:  0, left: 2, bottom: 0, right: 2))
+            self.slider.constraintToFill(self, edgeInsets: .init(top: 0, left: 2, bottom: 0, right: 2))
         }
-        
+
         required init?(coder: NSCoder) {
             nil
         }
-        
+
         override var intrinsicContentSize: NSSize {
             .init(width: 100, height: self.slider.intrinsicContentSize.height + 2)
         }
-        
+
     }
-    
+
     // MARK: - Subviews
 
     lazy var portView: PortView = {
@@ -80,7 +80,7 @@ final class NodeInputRowAppKitView: NSView {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     lazy var labelView: NSTextField = {
         let view = NSTextField(labelWithString: self.input.label)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -88,13 +88,13 @@ final class NodeInputRowAppKitView: NSView {
         view.font = .systemFont(ofSize: style.labelFontSize)
         return view
     }()
-    
+
     lazy var controlView: NSView = {
         let view = DummyControl()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     lazy var stackView: NSStackView = {
         let view = NSStackView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -108,14 +108,14 @@ final class NodeInputRowAppKitView: NSView {
         view.edgeInsets = .init(top: 0, left: 0, bottom: 0, right: style.trailingPadding)
         return view
     }()
-    
+
     // MARK: - Initializers
-    
+
     init(_ input: FlowNode.Input) {
         self.input = input
-        
+
         super.init(frame: .zero)
-        
+
         self.addSubview(self.stackView)
         self.stackView.constraintToFill(self)
         self.stackView.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
@@ -124,7 +124,7 @@ final class NodeInputRowAppKitView: NSView {
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     // MARK: - Layout
     override var intrinsicContentSize: NSSize {
         let portSize = style.portSize
@@ -132,11 +132,11 @@ final class NodeInputRowAppKitView: NSView {
         let controlSize = self.controlView.intrinsicContentSize
         let result = CGSize(
             width: portSize + labelSize.width + style.labelControlSpacing + controlSize.width + style.trailingPadding,
-            height: style.height //max(portSize, labelSize.height, controlSize.height)
+            height: style.height  //max(portSize, labelSize.height, controlSize.height)
         )
         return result
     }
-    
+
 }
 #endif
 
@@ -233,7 +233,7 @@ extension NodeInputRowView {
         func updateView(_ view: NodeInputRowView, context: Context) {
 
         }
-        
+
         func sizeThatFits(_ proposal: ProposedViewSize, view: NodeInputRowAppKitView, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
