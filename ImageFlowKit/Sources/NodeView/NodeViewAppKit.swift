@@ -32,7 +32,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
             title: self.node.name,
             subtitle: self.node.kind.displayName,
             icon: self.node.kind.icon,
-            color: .systemBlue
+            color: self.node.kind.frontendNodeColor, //.systemBlue
         )
     }
 
@@ -45,7 +45,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
 
     lazy var backgroundView: BackgroundView = {
         let view = BackgroundView()
-        view.color = .systemBlue  //self.node.kind.frontendNodeColor
+        view.color = self.node.kind.frontendNodeColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

@@ -103,6 +103,7 @@ let package = Package(
                 "Logging",
                 "Values",
                 "Backend",
+                "ColorUtils",
             ],
         ),
         .target(

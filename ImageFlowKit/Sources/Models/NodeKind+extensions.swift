@@ -7,6 +7,7 @@
 
 import Backend
 import CommonUtils
+import ColorUtils
 import SwiftUI
 import Values
 
@@ -29,7 +30,7 @@ public extension NodeKind {
         }
     }
 
-    var frontendNodeColor: Color {
+    var frontendNodeColor: DynamicColor {
         switch self {
         case .coreImageFilterNode(_):
             .orange

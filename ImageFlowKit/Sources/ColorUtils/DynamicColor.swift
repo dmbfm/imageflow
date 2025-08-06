@@ -77,5 +77,6 @@ public struct DynamicColor: Sendable, Equatable {
 
 extension DynamicColor {
     public static let red: Self = .init(.red)
-    public static let systemBlue: Self = .init(.systemBlue)
+    public static let blue: Self = .init(.systemBlue)
+    public static let orange: Self = .init(.systemOrange)
 }

@@ -14,7 +14,7 @@ import UIKit
 
 class BackgroundView: PlatformView {
 
-    public var color: DynamicColor = .systemBlue {
+    public var color: DynamicColor = .blue {
         didSet {
             self.setNeedsDisplay()
         }
@@ -34,7 +34,7 @@ class BackgroundView: PlatformView {
 
     private var gradientLayer: CAGradientLayer = CAGradientLayer()
 
-    init(frame frameRect: CGRect = .zero, color: DynamicColor = .systemBlue) {
+    init(frame frameRect: CGRect = .zero, color: DynamicColor = .blue) {
         self.color = color
         super.init(frame: frameRect)
 
