@@ -32,7 +32,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
             title: self.node.name,
             subtitle: self.node.kind.displayName,
             icon: self.node.kind.icon,
-            color: self.node.kind.frontendNodeColor, //.systemBlue
+            color: self.node.kind.frontendNodeColor,  //.systemBlue
         )
     }
 
