@@ -1,7 +1,7 @@
 import CommonUtils
+import Design
 import PlatformUtils
 import Values
-import Design
 
 #if os(macOS)
 import AppKit
@@ -35,20 +35,19 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
         self.layer?.cornerRadius = 4
     }
     #endif
-    
+
     #if os(iOS)
     lazy var labelView: UILabel = {
         let label = UILabel()
         label.text = self.text
         return label
     }()
-    
-    func platformInit(){
+
+    func platformInit() {
         self.backgroundColor = Colors.numberInputBackground.platformColor
         self.layer.cornerRadius = 4
     }
     #endif
-    
 
     public init(_ value: Value, _ text: String) {
         self.value = value

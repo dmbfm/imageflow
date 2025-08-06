@@ -114,12 +114,13 @@ final class NodeInputRowAppKitView: NSView {
     }()
 
     lazy var controlView: NSView = {
-        let view: any NodeControl = switch self.input.value.type {
+        let view: any NodeControl =
+            switch self.input.value.type {
             case .float:
                 DummyControl(self.input.value)
-            default: 
+            default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
-        }
+            }
         view.valueDidChange = { newValue in
             print("new value: \(newValue)")
         }
@@ -256,7 +257,13 @@ class NodeInputRowUIKitView: UIView {
 
 extension NodeInputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
-        var input: FlowNode.Input = .init(label: "Something", index: 0, value: .float(0.5), semantics: .default, connected: false) 
+        var input: FlowNode.Input = .init(
+            label: "Something",
+            index: 0,
+            value: .float(0.5),
+            semantics: .default,
+            connected: false
+        )
         func makeView(context: Context) -> NodeInputRowView {
             NodeInputRowView(
                 self.input
@@ -278,8 +285,10 @@ extension NodeInputRowView {
         NodeInputRowView.Preview()
             .border(.gray.opacity(0.12))
 
-        NodeInputRowView.Preview(input: .init(label: "Other", index: 1, value: .bool(true), semantics: .default, connected: true))
-            .border(.gray.opacity(0.12))
+        NodeInputRowView.Preview(
+            input: .init(label: "Other", index: 1, value: .bool(true), semantics: .default, connected: true)
+        )
+        .border(.gray.opacity(0.12))
     }
     .padding(200)
     .background(.white)

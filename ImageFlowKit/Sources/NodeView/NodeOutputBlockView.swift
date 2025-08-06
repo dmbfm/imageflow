@@ -86,7 +86,7 @@ final class NodeOutputBlockView: PlatformView {
         self.clipsToBounds = false
     }
     #endif
-    
+
     #if os(iOS)
     lazy var stack: UIStackView = {
         let view = UIStackView()

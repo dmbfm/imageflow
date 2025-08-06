@@ -88,15 +88,15 @@ final class NodeInputBlockView: PlatformView {
         self.clipsToBounds = false
     }
     #endif
-    
+
     #if os(iOS)
     lazy var stack: UIStackView = {
         let view = UIStackView()
         return view
     }()
-    
+
     func platformInit() {
-        
+
     }
     #endif
 }
