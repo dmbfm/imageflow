@@ -40,6 +40,9 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
     lazy var labelView: UILabel = {
         let label = UILabel()
         label.text = self.text
+        label.font = .preferredFont(forTextStyle: .caption2)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = self.text
         return label
     }()
 

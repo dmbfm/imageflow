@@ -90,6 +90,11 @@ final class NodeOutputBlockView: PlatformView {
     #if os(iOS)
     lazy var stack: UIStackView = {
         let view = UIStackView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.axis = .vertical
+        view.alignment = .trailing
+        view.distribution = .fill
+        view.spacing = self.style.stackSpacing
         return view
     }()
     #endif

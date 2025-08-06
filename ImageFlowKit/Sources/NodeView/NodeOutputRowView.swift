@@ -199,11 +199,23 @@ class NodeOutputRowUIKitView: UIView {
         }
     }
 
+    var style = Style()
+
+    // MARK: - Private Types
+
+    struct Style {
+        var portSize: CGFloat = 16
+        var labelFontSize: CGFloat = 10
+        var labelControlSpacing: CGFloat = 8
+        var trailingPadding: CGFloat = 8
+        var height: CGFloat = 22
+    }
+
     // MARK: - Subviews
     lazy var labelView: UILabel = {
         let view = UILabel()
         view.text = self.output.label
-        view.font = .preferredFont(forTextStyle: .body)
+        view.font = .preferredFont(forTextStyle: .caption1)
         view.textColor = .secondaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         //        view.layer.borderColor = .blue
@@ -214,8 +226,8 @@ class NodeOutputRowUIKitView: UIView {
     lazy var portView: PortView = {
         let view = PortView(connected: self.output.connected)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: 16).isActive = true
-        view.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        view.widthAnchor.constraint(equalToConstant: style.portSize).isActive = true
+        view.heightAnchor.constraint(equalToConstant: style.portSize).isActive = true
         return view
     }()
 
@@ -225,7 +237,7 @@ class NodeOutputRowUIKitView: UIView {
         view.axis = .horizontal
         view.alignment = .center
         view.distribution = .fill
-        view.setCustomSpacing(4, after: self.labelView)
+        view.spacing = 0
         view.setContentHuggingPriority(.defaultLow, for: .vertical)
         view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         return view
@@ -250,10 +262,19 @@ class NodeOutputRowUIKitView: UIView {
         nil
     }
 
-    override var intrinsicContentSize: CGSize {
-        .init(width: 0, height: 32)
-    }
+    //    override var intrinsicContentSize: CGSize {
+    //        .init(width: 200, height: 32)
+    //    }
 
+    override var intrinsicContentSize: CGSize {
+        let portSize = style.portSize
+        let labelSize = self.labelView.intrinsicContentSize
+        let result = CGSize(
+            width: portSize + labelSize.width + style.labelControlSpacing + style.trailingPadding,
+            height: style.height  //max(portSize, labelSize.height, controlSize.height)
+        )
+        return result
+    }
 }
 #endif
 

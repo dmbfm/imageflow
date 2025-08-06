@@ -7,21 +7,20 @@ import Models
 import PlatformUtils
 import SwiftUI
 
-#if canImport(AppKit)
-import AppKit
-public typealias NodeView = NodeViewAppKit
-#endif
-
-#if canImport(UIKit)
-import UIKit
-public typealias NodeView = NodeViewUIKit
-#endif
-
-extension NodeView {
-    public enum Event {
-
-    }
-}
+//
+//#if canImport(AppKit)
+//import AppKit
+//public typealias NodeView = NodeViewAppKit
+//#endif
+//
+//#if canImport(UIKit)
+//import UIKit
+//public typealias NodeView = NodeViewUIKit
+//#endif
+//
+//extension NodeView {
+//
+//}
 
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {

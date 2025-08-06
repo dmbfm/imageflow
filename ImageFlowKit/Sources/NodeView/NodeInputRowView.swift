@@ -53,48 +53,6 @@ final class NodeInputRowAppKitView: NSView {
         var height: CGFloat = 22
     }
 
-    class DummyControl: NSView, NodeControl {
-        var tintColor: PlatformUtils.PlatformColor = .blue
-
-        var value: Values.Value {
-            didSet {
-                if self.value != oldValue {
-                    self.slider.doubleValue = self.value.float
-                }
-            }
-        }
-
-        var valueDidChange: ((Values.Value) -> ())?
-
-        var slider: NSSlider!
-
-        init(_ value: Value) {
-            self.value = value
-            super.init(frame: .zero)
-
-            self.slider = NSSlider(target: self, action: #selector(Self.onSliderChange))
-            self.slider.doubleValue = value.float
-            self.slider.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(self.slider)
-            self.slider.constraintToFill(self, edgeInsets: .init(top: 0, left: 2, bottom: 0, right: 2))
-        }
-
-        @objc
-        func onSliderChange() {
-            self.value = .float(self.slider.doubleValue)
-            self.valueDidChange?(self.value)
-        }
-
-        required init?(coder: NSCoder) {
-            nil
-        }
-
-        override var intrinsicContentSize: NSSize {
-            .init(width: 100, height: self.slider.intrinsicContentSize.height + 2)
-        }
-
-    }
-
     // MARK: - Subviews
 
     lazy var portView: PortView = {
@@ -188,7 +146,7 @@ class NodeInputRowUIKitView: UIView {
     lazy var labelView: UILabel = {
         let view = UILabel()
         view.text = self.input.label
-        view.font = .preferredFont(forTextStyle: .body)
+        view.font = .preferredFont(forTextStyle: .caption1)
         view.textColor = .secondaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         //        view.layer.borderColor = .blue
@@ -204,10 +162,25 @@ class NodeInputRowUIKitView: UIView {
         return view
     }()
 
-    lazy var controlView: UIView = {
-        let view = UISlider()
+    //    lazy var controlView: UIView =. {
+    //        let view = UISlider()
+    //        view.translatesAutoresizingMaskIntoConstraints = false
+    //        view.widthAnchor.constraint(equalToConstant: 150).isActive = true
+    //        return view
+    //    }()
+
+    lazy var controlView: PlatformView = {
+        let view: any NodeControl =
+            switch self.input.value.type {
+            case .float:
+                DummyControl(self.input.value)
+            default:
+                StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
+            }
+        view.valueDidChange = { newValue in
+            print("new value: \(newValue)")
+        }
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: 150).isActive = true
         return view
     }()
 
@@ -254,6 +227,65 @@ class NodeInputRowUIKitView: UIView {
 
 }
 #endif
+
+class DummyControl: PlatformView, NodeControl {
+    var tint: PlatformUtils.PlatformColor = .blue
+
+    var value: Values.Value {
+        didSet {
+            if self.value != oldValue {
+                #if os(macOS)
+                self.slider.doubleValue = self.value.float
+                #else
+                self.slider.value = Float(self.value.float)
+                #endif
+            }
+        }
+    }
+
+    var valueDidChange: ((Values.Value) -> ())?
+
+    #if os(macOS)
+    var slider: NSSlider!
+    #else
+    var slider: UISlider!
+    #endif
+
+    init(_ value: Value) {
+        self.value = value
+        super.init(frame: .zero)
+
+        #if os(macOS)
+        self.slider = NSSlider(target: self, action: #selector(Self.onSliderChange))
+        self.slider.doubleValue = value.float
+        #else
+        self.slider = UISlider()
+        self.slider.addTarget(self, action: #selector(Self.onSliderChange), for: .valueChanged)
+        self.slider.value = Float(value.float)
+        #endif
+        self.slider.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.slider)
+        self.slider.constraintToFill(self, edgeInsets: .init(top: 0, left: 2, bottom: 0, right: 2))
+    }
+
+    @objc
+    func onSliderChange() {
+        #if os(macOS)
+        self.value = .float(self.slider.doubleValue)
+        #else
+        self.value = .float(Double(self.slider.value))
+        #endif
+        self.valueDidChange?(self.value)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override var intrinsicContentSize: CGSize {
+        .init(width: 100, height: self.slider.intrinsicContentSize.height + 2)
+    }
+}
 
 extension NodeInputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {

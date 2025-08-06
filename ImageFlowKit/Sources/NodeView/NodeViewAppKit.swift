@@ -5,15 +5,23 @@
 //  Created by Daniel Fortes on 05/08/25.
 //
 
-#if os(macOS)
-
-import AppKit
 import CanvasView
 import EventEmitter
 import Models
+import PlatformUtils
 import SwiftUI
 
-public final class NodeViewAppKit: NSView, CanvasNodeView {
+#if os(macOS)
+import AppKit
+#endif
+
+#if os(iOS)
+import UIKit
+#endif
+
+public final class NodeView: PlatformView, CanvasNodeView {
+
+    // MARK: - Public Properties
 
     public var node: FlowNode {
         didSet {
@@ -27,7 +35,15 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
 
     public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
 
-    private var titleModel: NodeTitleView.Model {
+    // MARK: - Public Types
+
+    public enum Event {
+
+    }
+
+    // MARK: - Common
+
+    var titleModel: NodeTitleView.Model {
         .init(
             title: self.node.name,
             subtitle: self.node.kind.displayName,
@@ -57,8 +73,8 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         return view
     }()
 
-    lazy var titleContainerView: NSView = {
-        let view = NSView()
+    lazy var titleContainerView: PlatformView = {
+        let view = PlatformView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(self.titleView)
         NSLayoutConstraint.activate([
@@ -102,6 +118,7 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         return view
     }()
 
+    #if os(macOS)
     lazy var stackView: NSStackView = {
         let view = NSStackView()
         // view.border(.red)
@@ -114,6 +131,19 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         view.addArrangedSubview(self.outputBlockView)
         return view
     }()
+    #else
+    lazy var stackView: UIStackView = {
+        let view = UIStackView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.axis = .vertical
+        view.alignment = .leading
+        view.spacing = 0
+        view.addArrangedSubview(self.titleContainerView)
+        view.addArrangedSubview(self.inputBlockView)
+        view.addArrangedSubview(self.outputBlockView)
+        return view
+    }()
+    #endif
 
     init(_ node: FlowNode) {
         self.node = node
@@ -132,17 +162,24 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         self.outputBlockView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
         self.titleContainerView.widthAnchor.constraint(equalToConstant: size.width).isActive = true
 
+        #if os(macOS)
         self.shadow = .init()
         self.wantsLayer = true
         self.layer?.shadowRadius = 4
         self.layer?.shadowColor = .black
+        #else
+        self.layer.shadowColor = UIColor.black.cgColor
+        self.layer.shadowRadius = 4
+        self.layer.shadowOpacity = 0.4
+        self.layer.shadowOffset = .zero
+        #endif
     }
 
     public required init?(coder: NSCoder) {
         nil
     }
 
-    public override var intrinsicContentSize: NSSize {
+    public override var intrinsicContentSize: CGSize {
         let titleSize = self.titleView.intrinsicContentSize
         let inputBlockSize = self.inputBlockView.intrinsicContentSize
         let outputBlockSize = self.outputBlockView.intrinsicContentSize
@@ -157,5 +194,3 @@ public final class NodeViewAppKit: NSView, CanvasNodeView {
         return CGSize(width: width, height: height)
     }
 }
-
-#endif

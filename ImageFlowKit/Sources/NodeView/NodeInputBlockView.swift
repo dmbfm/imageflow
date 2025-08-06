@@ -92,11 +92,16 @@ final class NodeInputBlockView: PlatformView {
     #if os(iOS)
     lazy var stack: UIStackView = {
         let view = UIStackView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.axis = .vertical
+        view.alignment = .leading
+        view.distribution = .fill
+        view.spacing = self.style.stackSpacing
         return view
     }()
 
     func platformInit() {
-
+        self.clipsToBounds = false
     }
     #endif
 }
