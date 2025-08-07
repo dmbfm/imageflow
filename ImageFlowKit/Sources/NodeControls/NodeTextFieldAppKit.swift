@@ -5,6 +5,8 @@
 //  Created by Daniel Fortes on 06/08/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import SwiftUI
 import CommonUtils
@@ -15,23 +17,33 @@ import ColorUtils
 public final class NodeTextFieldAppKit: NSView {
     public var text: String {
         didSet {
-            
+            if self.label.stringValue != self.text {
+                self.label.stringValue = self.text
+                self.invalidateIntrinsicContentSize()
+            }
+
+            if self.textField.stringValue != self.text {
+                self.textField.stringValue = self.text
+                self.invalidateIntrinsicContentSize()
+            }
         }
     }
-    
+
+    public var textDidChange: ((String) -> ())?
+
     public var borderColor: DynamicColor {
         didSet {
-            
+
         }
     }
-    
+
     lazy var label: NSTextField = {
         let label = NSTextField(labelWithString: self.text)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 10)
         return label
     }()
-    
+
     lazy var textField: NSTextField = {
         let view = NSTextField()
         view.font = .systemFont(ofSize: 10)
@@ -45,48 +57,60 @@ public final class NodeTextFieldAppKit: NSView {
         view.delegate = self
         return view
     }()
-    
+
+    lazy var backgroundView: NSView = {
+        let view = NSView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.wantsLayer = true
+        view.layer?.backgroundColor = Colors.numberInputBackground.cgColor
+        view.layer?.cornerRadius = 4
+        return view
+    }()
+
     struct Style {
-        var labelInsets: NSEdgeInsets = .init(top: 2, left: 4, bottom: 2, right: 4)
+        var backgroundInsets: NSEdgeInsets = .init(top: 2, left: 2, bottom: 2, right: 2)
+        var labelInsets: NSEdgeInsets = .init(top: 4, left: 6, bottom: 4, right: 6)
     }
-    
+
     var style = Style()
-    
+
     init(_ text: String, borderColor: DynamicColor) {
         self.text = text
         self.borderColor = borderColor
         super.init(frame: .zero)
+
+        self.addSubview(self.backgroundView)
+        self.backgroundView.constraintToFill(self, edgeInsets: style.backgroundInsets)
         self.addSubview(self.label)
-        
-        self.wantsLayer = true
-        
         self.label.constraintToFill(self, edgeInsets: style.labelInsets)
-        
+
         self.wantsLayer = true
-        self.layer?.backgroundColor = Colors.numberInputBackground.cgColor
-        self.layer?.cornerRadius = 5.0
+        self.layer?.cornerRadius = 6
+        self.layer?.delegate = self
+        self.layer?.borderColor = self.borderColor.cgColor
+        self.layer?.borderWidth = 0
+        self.clipsToBounds = false
     }
-    
+
     public required init?(coder: NSCoder) {
         nil
     }
-    
-    
+
     public override var intrinsicContentSize: NSSize {
         self.label.intrinsicContentSize + style.labelInsets.size
     }
-    
+
     public override func mouseDown(with event: NSEvent) {
         self.beginEditing()
     }
-    
+
     enum State {
         case idle
         case editing
     }
-    
+
     var state = State.idle
-    
+
     func beginEditing() {
         if self.state == .idle {
             self.label.removeFromSuperview()
@@ -94,20 +118,27 @@ public final class NodeTextFieldAppKit: NSView {
             self.textField.constraintToFill(self, edgeInsets: self.style.labelInsets)
             self.window?.makeFirstResponder(self.textField)
             self.state = .editing
-            self.shadow(.init(radius: 4))
-            self.border(.init(color: self.borderColor.platformColor, width: 2))
+            self.layer?.borderWidth = 2
+            self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
         }
     }
-    
+
     func endEditing() {
         if self.state == .editing {
             self.textField.removeFromSuperview()
             self.addSubview(self.label)
             self.label.constraintToFill(self, edgeInsets: self.style.labelInsets)
+            self.layer?.borderWidth = 0
             self.shadow(nil)
-            self.border(nil)
             self.state = .idle
+            self.label.stringValue = self.text
+            self.textField.stringValue = self.text
         }
+    }
+
+    func cancelEditing() {
+        self.endEditing()
+        self.invalidateIntrinsicContentSize()
     }
 }
 
@@ -116,9 +147,33 @@ extension NodeTextFieldAppKit: NSTextFieldDelegate {
         self.label.stringValue = self.textField.stringValue
         self.invalidateIntrinsicContentSize()
     }
-    
+
     public func controlTextDidEndEditing(_ obj: Notification) {
+        self.text = self.textField.stringValue
+        self.textDidChange?(self.text)
         self.endEditing()
+    }
+
+    public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
+            self.textField.abortEditing()
+            self.cancelEditing()
+            return true
+        }
+
+        return false
+    }
+}
+
+extension NodeTextFieldAppKit: @preconcurrency CALayerDelegate {
+    public func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {
+        if event == "borderWidth" || event.starts(with: "shadow") {
+            let anim = CABasicAnimation()
+            anim.duration = 0.1
+            return anim
+        }
+
+        return nil
     }
 }
 
@@ -129,16 +184,23 @@ extension NSEdgeInsets {
 }
 
 extension NodeTextFieldAppKit {
-    
-    
+
     fileprivate struct Preview: NSViewRepresentable {
-        func makeNSView(context: Context) -> some NSView {
-            NodeTextFieldAppKit("Hello", borderColor: .blue)
+
+        @Binding var text: String
+
+        func makeNSView(context: Context) -> NodeTextFieldAppKit {
+            let view = NodeTextFieldAppKit(self.text, borderColor: .blue)
+            view.textDidChange = { text in self.text = text }
+            return view
         }
-        
-        func updateNSView(_ nsView: NSViewType, context: Context) {
+
+        func updateNSView(_ nsView: NodeTextFieldAppKit, context: Context) {
+            if nsView.text != self.text {
+                nsView.text = self.text
+            }
         }
-        
+
         func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSViewType, context: Context) -> CGSize? {
             nsView.intrinsicContentSize
         }
@@ -146,12 +208,18 @@ extension NodeTextFieldAppKit {
 }
 
 #Preview {
+    @Previewable @State var text = "Hello!"
     VStack {
-        NodeTextFieldAppKit.Preview()
-//            .border(.gray)
+        NodeTextFieldAppKit.Preview(text: $text)
+        Text(text)
+            .fixedSize()
+        Button("Reset") {
+            text = "Hello!"
+        }
+        //            .border(.gray)
     }
     .padding(100)
     .background(.white)
 }
 
-
+#endif

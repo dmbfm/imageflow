@@ -115,6 +115,8 @@ let package = Package(
                 "Models",
                 "Design",
                 "PlatformUtils",
+                "ColorUtils",
+                "Values",
             ],
         ),
         .target(

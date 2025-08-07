@@ -2,8 +2,8 @@ import Backend
 import CommonUtils
 import Design
 import PlatformUtils
-import Values
 import SwiftUI
+import Values
 
 #if os(macOS)
 import AppKit
@@ -46,19 +46,19 @@ public final class NodeNumberInput: PlatformView, NodeControl {
 
     init(_ value: Value) {
         self.value = value
-        
+
         super.init(frame: .zero)
-        
-        self.addSubview(self.textField)
-        self.textField.constraintToFill(self)
-        self.textField.stringValue = "\(self.value)"
+
+        //        self.addSubview(self.textField)
+        //        self.textField.constraintToFill(self)
+        //        self.textField.stringValue = "\(self.value)"
     }
 
     public required init?(coder: NSCoder) {
         nil
     }
-    
-    public override var intrinsicContentSize: NSSize {
+
+    public override var intrinsicContentSize: CGSize {
         .init(width: 200, height: 200)
     }
 
@@ -78,7 +78,7 @@ extension NodeNumberInput {
         }
 
         func updateView(_ view: ViewType, context: Context) {
-        
+
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
