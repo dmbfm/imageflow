@@ -4,6 +4,7 @@ import Design
 import PlatformUtils
 import SwiftUI
 import Values
+import Logging
 
 #if os(macOS)
 import AppKit
@@ -23,35 +24,41 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .blue
+    public var tint: PlatformColor = .systemBlue
 
     public var valueDidChange: ((Value) -> ())?
-
-    #if os(macOS)
-    private lazy var textField: NSTextField = {
-        let textField = NSTextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.font = NSFont.systemFont(ofSize: 10)
-        textField.drawsBackground = false
-        textField.isBezeled = false
-        textField.isBordered = false
-        textField.focusRingType = .none
-        textField.delegate = self
-        textField.maximumNumberOfLines = 1
-        textField.isSelectable = false
-        textField.isEditable = false
-        return textField
+    
+    lazy var formatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.decimalSeparator = "."
+        return f
     }()
-    #endif
-
+    
+    lazy var locale: Locale = {.init(identifier: "en-US")}()
+   
+    lazy var textField: NodeTextField = {
+        let view = NodeTextField(text: self.formattedValue, borderColor: self.tint)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.textDidChange = { [weak self] value in
+            guard let self else { return }
+            if let number = Double(value) {
+                self.value.float = number
+                log("value: \(self.value)")
+                self.invalidateIntrinsicContentSize()
+            } else {
+                self.update()
+            }
+        }
+        return view
+    }()
+    
     init(_ value: Value) {
         self.value = value
 
         super.init(frame: .zero)
-
-        //        self.addSubview(self.textField)
-        //        self.textField.constraintToFill(self)
-        //        self.textField.stringValue = "\(self.value)"
+        
+        self.addSubview(self.textField)
+        self.textField.constraintToFill(self)
     }
 
     public required init?(coder: NSCoder) {
@@ -59,10 +66,16 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     }
 
     public override var intrinsicContentSize: CGSize {
-        .init(width: 200, height: 200)
+        self.textField.intrinsicContentSize
+    }
+    
+    var formattedValue: String {
+        self.value.float.formatted(.number.locale(self.locale).precision(.significantDigits(2...100)))
     }
 
-    func update() {}
+    func update() {
+        self.textField.text = self.formattedValue
+    }
 }
 
 #if os(macOS)
@@ -74,6 +87,7 @@ extension NodeNumberInput {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
             let view = NodeNumberInput(.float(0.5))
+            view.translatesAutoresizingMaskIntoConstraints = false
             return view
         }
 
@@ -90,7 +104,6 @@ extension NodeNumberInput {
 #Preview {
     VStack {
         NodeNumberInput.Preview()
-            .border(.gray)
     }
     .padding(100)
     .background(.white)

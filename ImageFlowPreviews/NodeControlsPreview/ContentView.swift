@@ -9,7 +9,7 @@ import SwiftUI
 import NodeControls
 
 struct ContentView: View {
-    @State var text: String = "Hello!"
+    @State var text: String = "50"
     var body: some View {
         VStack {
             NodeTextField.Preview($text)

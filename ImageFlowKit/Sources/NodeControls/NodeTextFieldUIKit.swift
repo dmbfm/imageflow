@@ -30,7 +30,7 @@ public final class NodeTextFieldUIKit: UIView {
 
     public var textDidChange: ((String) -> ())?
 
-    public var borderColor: DynamicColor {
+    public var borderColor: UIColor {
         didSet {
 
         }
@@ -64,6 +64,7 @@ public final class NodeTextFieldUIKit: UIView {
         view.delegate = self
         view.returnKeyType = .done
         view.addTarget(self, action: #selector(Self.onTextFieldChange), for: .editingChanged)
+        view.keyboardType = .decimalPad
         return view
     }()
 
@@ -82,8 +83,18 @@ public final class NodeTextFieldUIKit: UIView {
         view.isUserInteractionEnabled = true
         return view
     }()
+    
+    lazy var dummyLabel: UILabel = {
+        let view = UILabel()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.text = "XX"
+        view.font = self.font
+        view.numberOfLines = 1
+        view.isUserInteractionEnabled = true
+        return view
+    }()
 
-    init(text: String, borderColor: DynamicColor) {
+    init(text: String, borderColor: UIColor) {
         self.text = text
         self.borderColor = borderColor
 
@@ -124,7 +135,7 @@ public final class NodeTextFieldUIKit: UIView {
     }
 
     public override var intrinsicContentSize: CGSize {
-        self.label.intrinsicContentSize + self.labelInsets.size
+        self.label.intrinsicContentSize.max(self.dummyLabel.intrinsicContentSize) + self.labelInsets.size
     }
 
     enum State {
