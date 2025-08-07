@@ -31,7 +31,7 @@ public final class NodeTextFieldAppKit: NSView {
 
     public var textDidChange: ((String) -> ())?
 
-    public var borderColor: DynamicColor {
+    public var borderColor: NSColor {
         didSet {
 
         }
@@ -74,7 +74,7 @@ public final class NodeTextFieldAppKit: NSView {
 
     var style = Style()
 
-    init(_ text: String, borderColor: DynamicColor) {
+    init(_ text: String, borderColor: NSColor) {
         self.text = text
         self.borderColor = borderColor
         super.init(frame: .zero)
@@ -185,23 +185,27 @@ extension NSEdgeInsets {
 
 extension NodeTextFieldAppKit {
 
-    fileprivate struct Preview: NSViewRepresentable {
+    public struct Preview: NSViewRepresentable {
 
         @Binding var text: String
 
-        func makeNSView(context: Context) -> NodeTextFieldAppKit {
+        public init(_ text: Binding<String>) {
+            self._text = text
+        }
+
+        public func makeNSView(context: Context) -> NodeTextFieldAppKit {
             let view = NodeTextFieldAppKit(self.text, borderColor: .blue)
             view.textDidChange = { text in self.text = text }
             return view
         }
 
-        func updateNSView(_ nsView: NodeTextFieldAppKit, context: Context) {
+        public func updateNSView(_ nsView: NodeTextFieldAppKit, context: Context) {
             if nsView.text != self.text {
                 nsView.text = self.text
             }
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSViewType, context: Context) -> CGSize? {
+        public func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSViewType, context: Context) -> CGSize? {
             nsView.intrinsicContentSize
         }
     }
@@ -210,7 +214,7 @@ extension NodeTextFieldAppKit {
 #Preview {
     @Previewable @State var text = "Hello!"
     VStack {
-        NodeTextFieldAppKit.Preview(text: $text)
+        NodeTextFieldAppKit.Preview($text)
         Text(text)
             .fixedSize()
         Button("Reset") {

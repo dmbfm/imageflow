@@ -83,18 +83,18 @@ public final class NodeTextFieldUIKit: UIView {
         view.isUserInteractionEnabled = true
         return view
     }()
-    
+
     lazy var dummyLabel: UILabel = {
         let view = UILabel()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.text = "XX"
+        view.text = "X"
         view.font = self.font
         view.numberOfLines = 1
         view.isUserInteractionEnabled = true
         return view
     }()
 
-    init(text: String, borderColor: UIColor) {
+    init(_ text: String, borderColor: UIColor) {
         self.text = text
         self.borderColor = borderColor
 
@@ -190,7 +190,7 @@ extension NodeTextFieldUIKit {
         }
 
         public func makeUIView(context: Context) -> NodeTextFieldUIKit {
-            let view = NodeTextFieldUIKit(text: self.text, borderColor: .orange)
+            let view = NodeTextFieldUIKit(self.text, borderColor: .orange)
             view.textDidChange = { value in
                 self.text = value
             }

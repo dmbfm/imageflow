@@ -1,10 +1,10 @@
 import Backend
 import CommonUtils
 import Design
+import Logging
 import PlatformUtils
 import SwiftUI
 import Values
-import Logging
 
 #if os(macOS)
 import AppKit
@@ -14,6 +14,23 @@ import AppKitUtils
 #if os(iOS)
 import UIKit
 #endif
+
+struct NodeNumberInputFormat: FormatStyle {
+    func format(_ value: Double) -> String {
+        value.formatted(
+            .number
+                .locale(.init(identifier: "en-US"))
+                .precision(.significantDigits(2...100))
+                .grouping(.never)
+        )
+    }
+}
+
+extension FormatStyle where Self == NodeNumberInputFormat {
+    static var nodeNumber: NodeNumberInputFormat {
+        .init()
+    }
+}
 
 public final class NodeNumberInput: PlatformView, NodeControl {
     public var value: Value {
@@ -27,36 +44,40 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     public var tint: PlatformColor = .systemBlue
 
     public var valueDidChange: ((Value) -> ())?
-    
+
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.decimalSeparator = "."
         return f
     }()
-    
-    lazy var locale: Locale = {.init(identifier: "en-US")}()
-   
+
+    lazy var locale: Locale = { .init(identifier: "en-US") }()
+
     lazy var textField: NodeTextField = {
-        let view = NodeTextField(text: self.formattedValue, borderColor: self.tint)
+        let view = NodeTextField(self.value.float.formatted(.nodeNumber), borderColor: self.tint)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.textDidChange = { [weak self] value in
             guard let self else { return }
             if let number = Double(value) {
-                self.value.float = number
-                log("value: \(self.value)")
-                self.invalidateIntrinsicContentSize()
+                self.setValue(number)
             } else {
-                self.update()
+                if value == "" {
+                    self.setValue(0.0)
+                } else {
+                    self.update()
+                }
             }
         }
         return view
     }()
-    
+
     init(_ value: Value) {
         self.value = value
 
         super.init(frame: .zero)
-        
+
+        self.clipsToBounds = false
+
         self.addSubview(self.textField)
         self.textField.constraintToFill(self)
     }
@@ -68,13 +89,15 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     public override var intrinsicContentSize: CGSize {
         self.textField.intrinsicContentSize
     }
-    
-    var formattedValue: String {
-        self.value.float.formatted(.number.locale(self.locale).precision(.significantDigits(2...100)))
+
+    func setValue(_ value: Double) {
+        self.value.float = value
+        self.valueDidChange?(self.value)
     }
 
     func update() {
-        self.textField.text = self.formattedValue
+        self.textField.text = self.value.float.formatted(.nodeNumber)
+        self.invalidateIntrinsicContentSize()
     }
 }
 
@@ -85,14 +108,22 @@ extension NodeNumberInput: NSTextFieldDelegate {
 
 extension NodeNumberInput {
     fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
-            let view = NodeNumberInput(.float(0.5))
+
+        @Binding var value: Value
+
+        func makeView(context: Context) -> NodeNumberInput {
+            let view = NodeNumberInput(self.value)
             view.translatesAutoresizingMaskIntoConstraints = false
+            view.valueDidChange = { value in
+                self.value = value
+            }
             return view
         }
 
-        func updateView(_ view: ViewType, context: Context) {
-
+        func updateView(_ view: NodeNumberInput, context: Context) {
+            if self.value != view.value {
+                view.value = self.value
+            }
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
@@ -102,9 +133,17 @@ extension NodeNumberInput {
 }
 
 #Preview {
-    VStack {
-        NodeNumberInput.Preview()
+    @Previewable @State var value: Value = .float(0.1234)
+    var formatted: String {
+        value.float.formatted(.nodeNumber)
     }
-    .padding(100)
+    VStack {
+        NodeNumberInput.Preview(value: $value)
+        Text(formatted)
+            .font(.caption2)
+            .fontDesign(.monospaced)
+    }
+    .frame(minWidth: 500)
+    .frame(height: 500)
     .background(.white)
 }
