@@ -145,20 +145,23 @@ class NodeInputRowUIKitView: UIView {
     // MARK: - Subviews
     lazy var labelView: UILabel = {
         let view = UILabel()
-        view.text = self.input.label
-        view.font = .preferredFont(forTextStyle: .caption1)
+        view.text = self.input.label.capitalized
+        view.font = .preferredFont(forTextStyle: .body)
         view.textColor = .secondaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         //        view.layer.borderColor = .blue
         //        view.layer.borderWidth = 2
         return view
     }()
+    
+    let portSize: CGFloat = 12
+    let portSpace: CGFloat = 32
 
     lazy var portView: PortView = {
-        let view = PortView(connected: self.input.connected)
+        let view = PortView(connected: self.input.connected, size: self.portSize)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: 16).isActive = true
-        view.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        view.widthAnchor.constraint(equalToConstant: self.portSpace).isActive = true
+        view.heightAnchor.constraint(equalToConstant: self.portSpace).isActive = true
         return view
     }()
 
@@ -173,7 +176,9 @@ class NodeInputRowUIKitView: UIView {
         let view: any NodeControl =
             switch self.input.value.type {
             case .float:
-                DummyControl(self.input.value)
+                NodeNumberInput(self.input.value)
+            case .bool:
+                NodeBooleanInput(self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
@@ -181,6 +186,7 @@ class NodeInputRowUIKitView: UIView {
             print("new value: \(newValue)")
         }
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.tint = self.tintColor
         return view
     }()
 
@@ -221,7 +227,7 @@ class NodeInputRowUIKitView: UIView {
     override var intrinsicContentSize: CGSize {
         let labelSize = self.labelView.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize)
         let width = 16.0 + 4 + labelSize.width + 16 + 158
-        let height = 32.0
+        let height = 38.0
         return .init(width: width, height: height)
     }
 

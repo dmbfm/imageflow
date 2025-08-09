@@ -53,3 +53,11 @@ extension NodeView {
     .frame(width: 500, height: 500)
     .background(Colors.canvasBackground.color)
 }
+
+#Preview("KMeans") {
+    VStack {
+        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
+    }
+    .frame(width: 500, height: 500)
+    .background(Colors.canvasBackground.color)
+}

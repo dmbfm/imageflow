@@ -64,6 +64,7 @@ public final class NodeTextFieldAppKit: NSView {
         view.wantsLayer = true
         view.layer?.backgroundColor = Colors.numberInputBackground.cgColor
         view.layer?.cornerRadius = 4
+        view.layer?.cornerCurve = .continuous
         return view
     }()
 
@@ -86,6 +87,7 @@ public final class NodeTextFieldAppKit: NSView {
 
         self.wantsLayer = true
         self.layer?.cornerRadius = 6
+        self.layer?.cornerCurve = .continuous
         self.layer?.delegate = self
         self.layer?.borderColor = self.borderColor.cgColor
         self.layer?.borderWidth = 0
@@ -119,7 +121,7 @@ public final class NodeTextFieldAppKit: NSView {
             self.window?.makeFirstResponder(self.textField)
             self.state = .editing
             self.layer?.borderWidth = 2
-            self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
+//            self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
         }
     }
 
@@ -194,7 +196,7 @@ extension NodeTextFieldAppKit {
         }
 
         public func makeNSView(context: Context) -> NodeTextFieldAppKit {
-            let view = NodeTextFieldAppKit(self.text, borderColor: .blue)
+            let view = NodeTextFieldAppKit(self.text, borderColor: .systemBlue)
             view.textDidChange = { text in self.text = text }
             return view
         }

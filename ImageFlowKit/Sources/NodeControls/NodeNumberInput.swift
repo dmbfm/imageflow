@@ -71,7 +71,7 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         return view
     }()
 
-    init(_ value: Value) {
+    public init(_ value: Value) {
         self.value = value
 
         super.init(frame: .zero)
