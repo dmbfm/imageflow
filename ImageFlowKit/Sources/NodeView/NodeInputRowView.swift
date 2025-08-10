@@ -135,163 +135,99 @@ final class NodeInputRowAppKitView: NSView {
 
 #if os(iOS)
 class NodeInputRowUIKitView: UIView {
-
-    public var input: FlowNode.Input {
-        didSet {
-
-        }
-    }
-
-    // MARK: - Subviews
-    lazy var labelView: UILabel = {
-        let view = UILabel()
-        view.text = self.input.label.capitalized
-        view.font = .preferredFont(forTextStyle: .body)
-        view.textColor = .secondaryLabel
-        view.translatesAutoresizingMaskIntoConstraints = false
-        //        view.layer.borderColor = .blue
-        //        view.layer.borderWidth = 2
-        return view
-    }()
     
-    let portSize: CGFloat = 12
-    let portSpace: CGFloat = 32
-
-    lazy var portView: PortView = {
-        let view = PortView(connected: self.input.connected, size: self.portSize)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: self.portSpace).isActive = true
-        view.heightAnchor.constraint(equalToConstant: self.portSpace).isActive = true
-        return view
-    }()
-
-    //    lazy var controlView: UIView =. {
-    //        let view = UISlider()
-    //        view.translatesAutoresizingMaskIntoConstraints = false
-    //        view.widthAnchor.constraint(equalToConstant: 150).isActive = true
-    //        return view
-    //    }()
-
-    lazy var controlView: PlatformView = {
-        let view: any NodeControl =
-            switch self.input.value.type {
-            case .float:
-                NodeNumberInput(self.input.value)
-            case .bool:
-                NodeBooleanInput(self.input.value)
-            default:
-                StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
-            }
-        view.valueDidChange = { newValue in
-            print("new value: \(newValue)")
-        }
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.tint = self.tintColor
-        return view
-    }()
-
-    lazy var stackView: UIView = {
-        let view = UIStackView(arrangedSubviews: [self.portView, self.labelView, self.controlView])
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.axis = .horizontal
-        view.alignment = .center
-        view.distribution = .fill
-        view.spacing = 4
-        view.setCustomSpacing(16, after: self.labelView)
-        view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = .init(top: 0, left: 0, bottom: 0, right: 8)
-        view.setContentHuggingPriority(.defaultLow, for: .vertical)
-        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        return view
-    }()
-
+    var portView: PortView!
+    var labelView: UILabel!
+    var stack: UIStackView!
+    var control: (any NodeControl)!
+    
     init(_ input: FlowNode.Input) {
-        self.input = input
-
+        
         super.init(frame: .zero)
-
-        self.addSubview(self.stackView)
-
-        NSLayoutConstraint.activate([
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor),
-            self.stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-        ])
+        
+        self.portView = {
+            let view = PortView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.widthAnchor.constraint(equalToConstant: Design.default.portSize).isActive = true
+            view.heightAnchor.constraint(equalToConstant: Design.default.portSize).isActive = true
+            view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            view.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+            return view
+        }()
+        
+        self.labelView = {
+            let label = UILabel(nodeRowLabelWithString: input.label)
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            label.setContentCompressionResistancePriority(.required, for: .horizontal)
+            return label
+        }()
+        
+        let emptyView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            return view
+        }()
+        
+        self.control = {
+            let view: (any NodeControl) = switch input.value.type {
+            case .float:
+                NodeNumberInput(input.value)
+            default:
+                StaticLabelNodeControl(input.value, "...")
+            }
+            
+            if let v = view as? NodeNumberInput {
+                v.sizeDidChange = { [weak self] in
+                    self?.invalidateIntrinsicContentSize()
+                }
+            }
+            
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            return view
+        }()
+        
+        self.control.valueDidChange = { [weak self] value in
+            self?.invalidateIntrinsicContentSize()
+        }
+        
+        self.stack = {
+            let view = UIStackView(arrangedSubviews: [self.portView, self.labelView, emptyView, self.control])
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.axis = .horizontal
+            view.alignment = .center
+            
+            view.setCustomSpacing(Design.default.portLabelSpacing, after: self.portView)
+            view.setCustomSpacing(Design.default.labelControlSpacing, after: self.labelView)
+            
+            return view
+        }()
+        
+        self.addSubview(self.stack)
+        self.stack.constraintToFill(self)
+        
     }
-
+    
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     override var intrinsicContentSize: CGSize {
-        let labelSize = self.labelView.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize)
-        let width = 16.0 + 4 + labelSize.width + 16 + 158
-        let height = 38.0
-        return .init(width: width, height: height)
+        let width = Design.default.portSize
+            + Design.default.portLabelSpacing
+        + self.labelView.intrinsicContentSize.width
+        + Design.default.labelControlSpacing
+        + self.control.intrinsicContentSize.width
+        return .init(width: width, height: 50)
     }
-
+    
 }
 #endif
 
-class DummyControl: PlatformView, NodeControl {
-    var tint: PlatformUtils.PlatformColor = .blue
-
-    var value: Values.Value {
-        didSet {
-            if self.value != oldValue {
-                #if os(macOS)
-                self.slider.doubleValue = self.value.float
-                #else
-                self.slider.value = Float(self.value.float)
-                #endif
-            }
-        }
-    }
-
-    var valueDidChange: ((Values.Value) -> ())?
-
-    #if os(macOS)
-    var slider: NSSlider!
-    #else
-    var slider: UISlider!
-    #endif
-
-    init(_ value: Value) {
-        self.value = value
-        super.init(frame: .zero)
-
-        #if os(macOS)
-        self.slider = NSSlider(target: self, action: #selector(Self.onSliderChange))
-        self.slider.doubleValue = value.float
-        #else
-        self.slider = UISlider()
-        self.slider.addTarget(self, action: #selector(Self.onSliderChange), for: .valueChanged)
-        self.slider.value = Float(value.float)
-        #endif
-        self.slider.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.slider)
-        self.slider.constraintToFill(self, edgeInsets: .init(top: 0, left: 2, bottom: 0, right: 2))
-    }
-
-    @objc
-    func onSliderChange() {
-        #if os(macOS)
-        self.value = .float(self.slider.doubleValue)
-        #else
-        self.value = .float(Double(self.slider.value))
-        #endif
-        self.valueDidChange?(self.value)
-    }
-
-    required init?(coder: NSCoder) {
-        nil
-    }
-
-    override var intrinsicContentSize: CGSize {
-        .init(width: 100, height: self.slider.intrinsicContentSize.height + 2)
-    }
-}
 
 extension NodeInputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
@@ -318,7 +254,7 @@ extension NodeInputRowView {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NodeInputRowView.Preview()
             .border(.gray.opacity(0.12))

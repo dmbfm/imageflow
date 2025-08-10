@@ -44,6 +44,7 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     public var tint: PlatformColor = .systemBlue
 
     public var valueDidChange: ((Value) -> ())?
+    public var sizeDidChange: (() -> ())?
 
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
@@ -68,6 +69,11 @@ public final class NodeNumberInput: PlatformView, NodeControl {
                 }
             }
         }
+        view.sizeDidChange = { [weak self] in
+            self?.invalidateIntrinsicContentSize()
+            self?.superview?.invalidateIntrinsicContentSize()
+            self?.sizeDidChange?()
+        }
         return view
     }()
 
@@ -79,7 +85,11 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         self.clipsToBounds = false
 
         self.addSubview(self.textField)
-        self.textField.constraintToFill(self)
+        
+        NSLayoutConstraint.activate([
+            self.textField.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            self.textField.topAnchor.constraint(equalTo: self.topAnchor),
+        ])
     }
 
     public required init?(coder: NSCoder) {
@@ -87,14 +97,16 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     }
 
     public override var intrinsicContentSize: CGSize {
-        self.textField.intrinsicContentSize
+        let result = self.textField.intrinsicContentSize
+        print("size: \(result)")
+        return result
     }
 
     func setValue(_ value: Double) {
         self.value.float = value
         self.valueDidChange?(self.value)
     }
-
+    
     func update() {
         self.textField.text = self.value.float.formatted(.nodeNumber)
         self.invalidateIntrinsicContentSize()
@@ -139,6 +151,7 @@ extension NodeNumberInput {
     }
     VStack {
         NodeNumberInput.Preview(value: $value)
+            .border(.gray.opacity(0.2))
         Text(formatted)
             .font(.caption2)
             .fontDesign(.monospaced)

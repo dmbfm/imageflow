@@ -1,4 +1,5 @@
 import CommonUtils
+import Models
 import PlatformUtils
 import SwiftUI
 
@@ -8,114 +9,74 @@ import AppKit
 
 #if canImport(UIKit)
 import UIKit
+typealias NodeInputBlockView = NodeInputBlockUIView
 #endif
 
-final class NodeInputBlockView: PlatformView {
 
+#if canImport(UIKit)
+final class NodeInputBlockUIView: UIView {
+    
     var rows: [NodeInputRowView] = []
-
-    private var style = Style()
-
-    struct Style {
-        var stackSpacing: CGFloat = 2
-    }
-
-    init() {
+    
+    lazy var stack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.distribution = .fillEqually
+        stack.spacing = 0
+        return stack
+    }()
+    
+    init(_ inputs: [FlowNode.Input]) {
         super.init(frame: .zero)
-
+        
         self.addSubview(self.stack)
         self.stack.constraintToFill(self)
-
-        self.platformInit()
+        
+        for input in inputs {
+            let row = NodeInputRowView(input)
+            row.layer.borderWidth = 1
+            row.translatesAutoresizingMaskIntoConstraints = false
+            self.rows.append(row)
+            self.stack.addArrangedSubview(row)
+            row.widthAnchor.constraint(equalTo: self.stack.widthAnchor).isActive = true
+        }
+        
+        self.reloadRowWidths()
     }
-
+    
     required init?(coder: NSCoder) {
         nil
     }
-
-    func addRow(_ row: NodeInputRowView) {
-        self.stack.addArrangedSubview(row)
-        self.rows.append(row)
-        row.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
-        self.invalidateIntrinsicContentSize()
-    }
-
-    func removeRow(_ index: Int) {
-        #if os(macOS)
-        self.stack.removeView(self.rows[index])
-        #else
-        self.stack.removeArrangedSubview(self.rows[index])
-        #endif
-        self.rows.remove(at: index)
-        self.invalidateIntrinsicContentSize()
-    }
-
-    func clearRows() {
-        for row in self.rows {
-            #if os(macOS)
-            self.stack.removeView(row)
-            #else
-            self.stack.removeArrangedSubview(row)
-            #endif
-        }
-        self.rows = []
-        self.invalidateIntrinsicContentSize()
-    }
-
+    
     override var intrinsicContentSize: CGSize {
-        let blockSize: CGSize = self.rows.reduce(.zero) { acc, view in
-            .init(
-                width: max(acc.width, view.intrinsicContentSize.width),
-                height: acc.height + view.intrinsicContentSize.height
-            )
+        let width = self.rows.reduce(0.0, { acc, row in
+            max(acc, row.intrinsicContentSize.width)
+        })
+        let height: CGFloat = CGFloat(self.rows.count) * Design.default.nodeRowHeight
+        return .init(width: width, height: height)
+    }
+    
+    func reloadRowWidths() {
+        self.invalidateIntrinsicContentSize()
+        let size = self.intrinsicContentSize
+        for row in rows {
+            row.widthAnchor.constraint(equalToConstant: size.width).isActive = true
         }
-
-        return blockSize + .init(width: 0, height: self.style.stackSpacing * (max(0.0, CGFloat(self.rows.count))))
     }
-
-    #if os(macOS)
-    lazy var stack: NSStackView = {
-        let view = NSStackView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.orientation = .vertical
-        view.alignment = .width
-        view.distribution = .fill
-        view.spacing = self.style.stackSpacing
-        return view
-    }()
-
-    func platformInit() {
-        self.clipsToBounds = false
-    }
-    #endif
-
-    #if os(iOS)
-    lazy var stack: UIStackView = {
-        let view = UIStackView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.axis = .vertical
-        view.alignment = .leading
-        view.distribution = .fill
-        view.spacing = self.style.stackSpacing
-        return view
-    }()
-
-    func platformInit() {
-        self.clipsToBounds = false
-    }
-    #endif
 }
+#endif
+
 
 extension NodeInputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
-            let view = NodeInputBlockView()
-            view.addRow(
-                .init(.init(label: "Some Number", index: 0, value: .float(0.5), semantics: .default, connected: false))
-            )
-            view.addRow(
-                .init(.init(label: "Other", index: 1, value: .float(0.5), semantics: .default, connected: true))
-            )
+        func makeView(context: Context) -> NodeInputBlockView {
+            let view = NodeInputBlockView([
+                .init(label: "Some number", index: 0, value: .float(0.5), semantics: .default, connected: false),
+                .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
+                .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
+            ])
             return view
         }
 
@@ -129,7 +90,7 @@ extension NodeInputBlockView {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NodeInputBlockView.Preview()
             .border(.gray.opacity(0.12))

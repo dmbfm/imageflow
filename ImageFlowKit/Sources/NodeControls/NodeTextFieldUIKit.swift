@@ -29,6 +29,7 @@ public final class NodeTextFieldUIKit: UIView {
     }
 
     public var textDidChange: ((String) -> ())?
+    public var sizeDidChange: (() -> ())?
 
     public var borderColor: UIColor {
         didSet {
@@ -45,7 +46,8 @@ public final class NodeTextFieldUIKit: UIView {
     }()
 
     lazy var font: UIFont = {
-        .preferredFont(forTextStyle: .caption1)
+        .monospacedSystemFont(ofSize: 14, weight: .regular)
+//        .preferredFont(forTextStyle: .caption1)
     }()
 
     lazy var backgroundView: UIView = {
@@ -72,6 +74,7 @@ public final class NodeTextFieldUIKit: UIView {
     func onTextFieldChange() {
         self.label.text = self.textField.text
         self.invalidateIntrinsicContentSize()
+        self.sizeDidChange?()
     }
 
     lazy var label: UILabel = {
@@ -213,7 +216,7 @@ extension NodeTextFieldUIKit {
     @Previewable @State var text: String = "Hello"
     VStack {
         NodeTextFieldUIKit.Preview($text)
-        //            .border(.gray)
+                    .border(.gray)
     }
     .padding(200)
     .background(.white)

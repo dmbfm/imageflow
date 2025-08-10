@@ -14,17 +14,15 @@ import UIKit
 final class NodeOutputBlockView: PlatformView {
     var rows: [NodeOutputRowView] = []
 
-    private var style = Style()
-
-    struct Style {
-        var stackSpacing: CGFloat = 2
-    }
-
-    init() {
+    init(_ outputs: [FlowNode.Output]) {
         super.init(frame: .zero)
 
         self.addSubview(self.stack)
         self.stack.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
+        
+        for output in outputs {
+            self.addRow(.init(output))
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -68,7 +66,7 @@ final class NodeOutputBlockView: PlatformView {
             )
         }
 
-        return blockSize + .init(width: 0, height: self.style.stackSpacing * (max(0.0, CGFloat(self.rows.count))))
+        return blockSize
     }
 
     #if os(macOS)
@@ -94,7 +92,6 @@ final class NodeOutputBlockView: PlatformView {
         view.axis = .vertical
         view.alignment = .trailing
         view.distribution = .fill
-        view.spacing = self.style.stackSpacing
         return view
     }()
     #endif
@@ -103,9 +100,10 @@ final class NodeOutputBlockView: PlatformView {
 extension NodeOutputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
-            let view = NodeOutputBlockView()
-            view.addRow(.init(.init(label: "First Output", index: 0, type: .float, connected: false)))
-            view.addRow(.init(.init(label: "Second Output", index: 1, type: .float, connected: true)))
+            let view = NodeOutputBlockView([
+            .init(label: "First Output", index: 0, type: .float, connected: false),
+            .init(label: "Second Output", index: 1, type: .float, connected: true),
+            ])
             return view
         }
 
@@ -119,7 +117,7 @@ extension NodeOutputBlockView {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NodeOutputBlockView.Preview()
             .border(.gray.opacity(0.12))

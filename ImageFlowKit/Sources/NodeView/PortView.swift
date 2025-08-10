@@ -12,177 +12,118 @@ import SwiftUI
 
 #if canImport(AppKit)
 import AppKit
-typealias PortView = PortViewAppKit
 #endif
 
 #if canImport(UIKit)
 import UIKit
-typealias PortView = PortViewUIKit
 #endif
 
-// MARK: - iOS
-
-#if os(iOS)
-public final class PortViewUIKit: UIView {
-    // MARK: - Public Properties
-
-    public var connected: Bool = false {
+public final class PortView: PlatformView {
+    
+    // MARK: - State
+    
+    public var connected: Bool {
         didSet {
-            self.setNeedsDisplay()
+            if self.connected != oldValue {
+                self.setNeedsDisplay()
+            }
         }
     }
-
-    public var size: CGFloat = 4.0 {
-        didSet {
-            self.setNeedsDisplay()
+    
+    // MARK: - Style
+    
+    struct Style {
+        var size: CGFloat
+        
+        static var iOS: Self {
+            .init(size: Design.default.portSize)
+        }
+        
+        static var macOS: Self {
+            .init(size: Design.default.portSize)
         }
     }
-
-    public var emitter: EventEmitter<Event> = .init()
-
-    init(connected: Bool = false, size: CGFloat = 4.0) {
+    
+    // MARK: - Initializers
+    
+    init(connected: Bool = false) {
         self.connected = connected
-        self.size = size
-
+        
         super.init(frame: .zero)
-
-        self.backgroundColor = .clear
+        
+        self.platformInit()
     }
-
+    
     public required init?(coder: NSCoder) {
         nil
     }
-
+    
+    // MARK: - Common Methods
+    
+    public override var intrinsicContentSize: CGSize {
+        .init(width: self.style.size, height: self.style.size)
+    }
+    
+    // MARK: - iOS
+    #if os(iOS)
+    var style: Style = .iOS
+    
+    func platformInit() {
+        self.backgroundColor = .clear
+        self.clipsToBounds = false
+    }
+    
     public override func draw(_ rect: CGRect) {
-        let center = self.bounds.center
-        let hs = self.size * 0.5
-        let rect = CGRect(x: center.x - hs, y: center.y - hs, width: self.size, height: self.size)
+        let w = Design.default.portStrokeWidth
+        let rect: CGRect = .init(x: 0, y: 0, width: self.style.size, height: self.style.size).insetBy(dx: w * 0.5, dy: w * 0.5)
+        let path = UIBezierPath(ovalIn: rect)
+        UIColor.clear.setFill()
+        UIRectFill(rect)
+        
         if self.connected {
             Colors.portConnected.platformColor.setFill()
+            path.fill()
         } else {
             Colors.portEmpty.platformColor.setFill()
+            Colors.portConnected.platformColor.setStroke()
+            path.fill()
+            path.lineWidth = w
+            path.stroke()
         }
-        UIBezierPath(ovalIn: rect).fill()
+        
+//        UIBezierPath(ovalIn: .init(x: 0, y: 0, width: self.style.size, height: self.style.size)).fill()
     }
-
-}
-#endif
-
-// MARK: - macOS
-
-#if os(macOS)
-public final class PortViewAppKit: NSView {
-    // MARK: - Public Properties
-
-    public var connected: Bool = false {
-        didSet {
-            self.needsDisplay = true
+    
+    #endif
+    
+    // MARK: - macOS
+    #if os(macOS)
+    var style: Style = .macOS
+    
+    func platformInit() {
+        
+    }
+    
+    public override func draw(_ dirtyRect: NSRect) {
+        let rect = CGRect(x: 0, y: 0, width: self.style.size, height: self.style.size).insetBy(dx: 0.5, dy: 0.5)
+        let path = NSBezierPath(ovalIn: rect)
+        
+        if self.connected {
+            Colors.portConnected.platformColor.setFill()
+            path.fill()
+        } else {
+            Colors.portEmpty.platformColor.setFill()
+            Colors.portConnected.platformColor.setStroke()
+            path.fill()
+            path.stroke()
         }
     }
-
-    public var size: CGFloat = 4.0 {
-        didSet {
-            self.needsDisplay = true
-        }
-    }
-
-    public var emitter: EventEmitter<Event> = .init()
-
-    // MARK: - Initialization
-
-    public override init(frame: NSRect) {
-        super.init(frame: frame)
-
-        let panGesture = NSPanGestureRecognizer(target: self, action: #selector(self.panGestureHandler(_:)))
-        self.addGestureRecognizer(panGesture)
-
-    }
-
-    // public override func updateTrackingAreas() {
-    //     super.updateTrackingAreas()
-
-    //     for trackingArea in self.trackingAreas {
-    //         self.removeTrackingArea(trackingArea)
-    //     }
-
-    //     self.addTrackingArea(.init(rect: self.bounds, options: [.mouseEnteredAndExited, .activeAlways], owner: self, userInfo: nil))
-    // }
-
-    public required init?(coder: NSCoder) {
-        fatalError()
-    }
-
-    // MARK: - Drawing
-
+    
     public override var isFlipped: Bool {
         true
     }
-
-    public override func draw(_ dirtyRect: NSRect) {
-        let color =
-            if self.connected {
-                Colors.portConnected.platformColor
-            } else {
-                Colors.portEmpty.platformColor
-            }
-
-        let center = self.bounds.center
-        let hs = self.size * 0.5
-        let rect = NSRect(
-            origin: CGPoint(x: center.x - hs, y: center.y - hs),
-            size: CGSize(width: self.size, height: self.size)
-        )
-
-        // let diameter = min(self.frame.width, self.frame.height)
-        // let rect = NSRect(x: 0, y: 0, width: diameter, height: diameter)
-        color.setFill()
-        NSBezierPath(ovalIn: rect).fill()
-    }
-
-    // MARK: - User Interaction
-    var gestureCancelled: Bool = false
-
-    @objc
-    func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
-        if gesture.state == .began {
-            self.gestureCancelled = false
-        }
-
-        if self.gestureCancelled {
-            gesture.reset()
-            return
-        }
-
-        let phase = GesturePhase(gestureRecognizerState: gesture.state)  //GesturePhase(nsGestureRecognizerState: gesture.state)
-        let locationInWindow = gesture.location(in: nil)
-
-        let data = DragData(phase: phase, locationInWindow: locationInWindow)
-
-        self.emitter.emit(.drag(data))
-    }
-
-    public func cancelDrag() {
-        self.gestureCancelled = true
-    }
-
-    public override func mouseEntered(with event: NSEvent) {
-        NSCursor.openHand.push()
-    }
-
-    public override func mouseExited(with event: NSEvent) {
-        NSCursor.pop()
-    }
-}
-#endif
-
-extension PortView {
-    public struct DragData {
-        public var phase: GesturePhase
-        public var locationInWindow: CGPoint
-    }
-    public enum Event {
-        case drag(DragData)
-    }
+    #endif
+    
 }
 
 // MARK: - Previews
@@ -200,17 +141,18 @@ extension PortView {
 
         func updateView(_ nsView: PortView, context: Context) {
         }
+        
+        func sizeThatFits(_ proposal: ProposedViewSize, view: PortView, context: Context) -> CGSize? {
+            view.intrinsicContentSize
+        }
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     HStack {
         PortView.Preview()
-            .frame(width: 16, height: 16)
-            .border(.black)
+//            .border(.gray.opacity(0.25))
         PortView.Preview(connected: true)
-            .frame(width: 16, height: 16)
     }
     .padding()
-    .background(Color.white)
 }

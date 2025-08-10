@@ -1,6 +1,7 @@
 import ColorUtils
 import PlatformUtils
 import SwiftUI
+import Models
 
 #if canImport(AppKit)
 import AppKit
@@ -22,19 +23,35 @@ final class NodeTitleView: PlatformView {
 
     struct Model: Sendable, Equatable {
         //        var title: String = "Node Title That is Really Large"
-        var title: String = "Add"
+        var title: String = "Aqdd"
         //        var subtitle: String = "Node Subtitle"
         var subtitle: String = "Add"
         var icon: String = "paintbrush"
         var color: DynamicColor = .blue
+        
+        init(){}
+        
+        init(title: String, subtitle: String, icon: String, color: DynamicColor) {
+            self.title = title
+            self.subtitle = subtitle
+            self.icon = icon
+            self.color = color
+        }
+        
+        init(_ node: FlowNode) {
+            self.title = node.name
+            self.subtitle = node.kind.displayName
+            self.icon = node.kind.icon
+            self.color = node.kind.frontendNodeColor
+        }
     }
 
     // MARK: - Style
 
     struct Style {
-        var iconTitleSpacing: CGFloat = 8
-        var titleSubtitleSpacing: CGFloat = 2
-        var iconSize: CGFloat = 16
+        var iconTitleSpacing: CGFloat = 10
+        var titleSubtitleSpacing: CGFloat = 0
+        var iconSize: CGFloat = 24
         var iconPointSize: CGFloat = 12
         var minTitleWidth: CGFloat = 80
         var titleWidthSafetyMargin: CGFloat = 0
@@ -111,29 +128,33 @@ final class NodeTitleView: PlatformView {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.contentMode = .scaleAspectFit
         view.tintColor = self.vm.color.platformColor
-        view.setContentHuggingPriority(.required, for: .horizontal)
-        view.setContentCompressionResistancePriority(.required, for: .horizontal)
-        let size = 16.0
-        view.widthAnchor.constraint(equalToConstant: size).isActive = true
-        view.heightAnchor.constraint(equalToConstant: size).isActive = true
+//        view.setContentHuggingPriority(.required, for: .horizontal)
+//        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+//        let size = 247.0
+        view.widthAnchor.constraint(equalToConstant: style.iconSize).isActive = true
+//        view.heightAnchor.constraint(equalToConstant: size).isActive = true
+//        view.layer.borderWidth = 1
         return view
     }()
+    
     private let titleView: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.font = .systemFont(ofSize: 13, weight: .medium)
+        lbl.font = .systemFont(ofSize: 20, weight: .semibold)
         lbl.textColor = .label
         lbl.numberOfLines = 1
         lbl.lineBreakMode = .byTruncatingTail
+//        lbl.layer.borderWidth = 1
         return lbl
     }()
     private let subtitleView: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.font = .systemFont(ofSize: 10, weight: .regular)
+        lbl.font = .systemFont(ofSize: 12, weight: .regular)
         lbl.textColor = .secondaryLabel
         lbl.numberOfLines = 1
         lbl.lineBreakMode = .byTruncatingTail
+//        lbl.layer.borderWidth = 1
         return lbl
     }()
 
@@ -232,7 +253,7 @@ final class NodeTitleView: PlatformView {
         #endif
 
         let size = CGSize(
-            width: 16 + self.style.iconTitleSpacing
+            width: style.iconSize + self.style.iconTitleSpacing
                 + min(titleSize.width + style.titleWidthSafetyMargin, max(subtitleSize.width, self.style.minTitleWidth)),
             height: titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing
         )
@@ -260,7 +281,7 @@ extension NodeTitleView {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NodeTitleView.Preview()
             .border(.orange)

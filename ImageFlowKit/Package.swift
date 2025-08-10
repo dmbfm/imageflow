@@ -183,17 +183,5 @@ let package = Package(
                 "CommonUtils",
             ],
         ),
-
-        // MARK: - Executable Targets
-
-        .executableTarget(
-            name: "NodeViewSample",
-            path: "Samples/NodeView"
-        ),
-        .executableTarget(
-            name: "NodeControlsSample",
-            dependencies: ["NodeControls"],
-            path: "Samples/NodeControls"
-        ),
     ]
 )

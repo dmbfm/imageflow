@@ -55,6 +55,9 @@ public final class NodeIntegerInput: PlatformView, NodeControl {
                 }
             }
         }
+        view.sizeDidChange = { [weak self] in
+            self?.invalidateIntrinsicContentSize()
+        }
         return view
     }()
     

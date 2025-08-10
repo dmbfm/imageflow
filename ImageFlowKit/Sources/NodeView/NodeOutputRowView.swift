@@ -21,262 +21,59 @@ typealias NodeOutputRowView = NodeOutputRowAppKitView
 
 #if canImport(UIKit)
 import UIKit
-typealias NodeOutputRowView = NodeOutputRowUIKitView
+typealias NodeOutputRowView = NodeOutputRowUIView
 #endif
 
-#if os(macOS)
-final class NodeOutputRowAppKitView: NSView {
-
-    public var output: FlowNode.Output {
-        didSet {
-
-        }
-    }
-
-    // MARK: - Private Properties
-
-    var style = Style()
-
-    // MARK: - Private Types
-
-    struct Style {
-        var portSize: CGFloat = 16
-        var labelFontSize: CGFloat = 10
-        var labelControlSpacing: CGFloat = 8
-        var trailingPadding: CGFloat = 8
-        var height: CGFloat = 22
-    }
-
-    // MARK: - Subviews
-
-    lazy var stackView: NSStackView = {
-        let v = NSStackView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.orientation = .horizontal
-        v.alignment = .centerY
-        v.spacing = 0
-        v.addView(self.labelView, in: .trailing)
-        v.addView(self.portView, in: .trailing)
-        return v
-    }()
-
-    lazy var portView: PortView = {
-        let view = PortView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.connected = self.output.connected
-        view.widthAnchor.constraint(equalToConstant: style.portSize).isActive = true
-        return view
-    }()
-
-    lazy var labelView: NSTextField = {
-        let view = NSTextField(labelWithString: self.output.label)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.textColor = .secondaryLabelColor
-        view.font = .systemFont(ofSize: style.labelFontSize)
-        return view
-    }()
-
-    // MARK: - Initializers
-
-    init(_ output: FlowNode.Output) {
-        self.output = output
-
-        super.init(frame: .zero)
-
-        self.setupLayout()
-    }
-
-    required init?(coder: NSCoder) {
-        nil
-    }
-
-    // MARK: - Layout
-    func setupLayout() {
-        self.addSubview(self.stackView)
-        self.stackView.constraintToFill(self)
-    }
-
-    override var intrinsicContentSize: NSSize {
-        let portSize = style.portSize
-        let labelSize = self.labelView.intrinsicContentSize
-        let result = CGSize(
-            width: portSize + labelSize.width + style.labelControlSpacing + style.trailingPadding,
-            height: style.height  //max(portSize, labelSize.height, controlSize.height)
-        )
-        return result
-    }
-}
-#endif
-
-//
-//final class NodeInputRowView: PlatformView {
-//
-//    class DummyControlView: NSView {
-//        override init(frame frameRect: NSRect) {
-//            super.init(frame: frameRect)
-//            self.wantsLayer = true
-//            self.layer?.backgroundColor = .blue
-//        }
-//        required init?(coder: NSCoder) {
-//            nil
-//        }
-//
-//        override var intrinsicContentSize: NSSize {
-//            .init(width: 50, height: 50)
-//        }
-//    }
-//
-//    var input: FlowNode.Input {
-//        didSet {
-//        }
-//    }
-//
-//    #if os(macOS)
-//    lazy var stackView: NSStackView = {
-//        let view = NSStackView(views: [])
-//        view.orientation = .horizontal
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.wantsLayer = true
-//        view.layer?.borderColor = .black
-//        view.layer?.borderWidth = 1
-//
-//        view.setContentCompressionResistancePriority(.fittingSizeCompression, for: .vertical)
-//        view.setContentHuggingPriority(.fittingSizeCompression, for: .vertical)
-//
-//        view.addView(self.labelView, in: .top)
-//        view.addView(self.controlView, in: .bottom)
-//
-//        return view
-//    }()
-//
-//    lazy var portView: NSView = {
-//        fatalError("TODO")
-//    }()
-//
-//
-//    lazy var labelView: NSTextField = {
-//        let view = NSTextField(labelWithString: input.label)
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        return view
-//    }()
-//
-//    lazy var controlView: NSView = {
-//        let container = NSView()
-//        container.translatesAutoresizingMaskIntoConstraints = false
-//        let view = DummyControlView(frame: .zero)
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        return view
-//    }()
-//    #endif
-//
-//    init(_ input: FlowNode.Input) {
-//        self.input = input
-//        super.init(frame: .zero)
-//
-//        self.addSubview(self.stackView)
-//
-//        NSLayoutConstraint.activate([
-//            self.stackView.topAnchor.constraint(equalTo: self.topAnchor),
-//            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-//            self.stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-//        ])
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        nil
-//    }
-//}
-//
-
-// MARK: - iOS
-
-#if os(iOS)
-class NodeOutputRowUIKitView: UIView {
-
-    public var output: FlowNode.Output {
-        didSet {
-
-        }
-    }
-
-    var style = Style()
-
-    // MARK: - Private Types
-
-    struct Style {
-        var portSize: CGFloat = 16
-        var labelFontSize: CGFloat = 10
-        var labelControlSpacing: CGFloat = 8
-        var trailingPadding: CGFloat = 8
-        var height: CGFloat = 22
-    }
-
-    // MARK: - Subviews
-    lazy var labelView: UILabel = {
-        let view = UILabel()
-        view.text = self.output.label
-        view.font = .preferredFont(forTextStyle: .caption1)
-        view.textColor = .secondaryLabel
-        view.translatesAutoresizingMaskIntoConstraints = false
-        //        view.layer.borderColor = .blue
-        //        view.layer.borderWidth = 2
-        return view
-    }()
-
-    lazy var portView: PortView = {
-        let view = PortView(connected: self.output.connected)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: style.portSize).isActive = true
-        view.heightAnchor.constraint(equalToConstant: style.portSize).isActive = true
-        return view
-    }()
-
-    lazy var stackView: UIView = {
-        let view = UIStackView(arrangedSubviews: [UIView(), self.labelView, self.portView])
+#if canImport(UIKit)
+final class NodeOutputRowUIView: UIView {
+    
+    var label: UILabel
+    var portView: PortView
+    
+    lazy var stack: UIStackView = {
+        let view = UIStackView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.axis = .horizontal
         view.alignment = .center
-        view.distribution = .fill
-        view.spacing = 0
-        view.setContentHuggingPriority(.defaultLow, for: .vertical)
-        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         return view
     }()
-
+    
     init(_ output: FlowNode.Output) {
-        self.output = output
+        
+        self.label = UILabel(nodeRowLabelWithString: output.label)
+        self.label.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.portView = PortView(connected: output.connected)
+        self.portView.translatesAutoresizingMaskIntoConstraints = false
+        self.portView.widthAnchor.constraint(equalToConstant: Design.default.portSize).isActive = true
+        self.portView.heightAnchor.constraint(equalToConstant: Design.default.portSize).isActive = true
 
         super.init(frame: .zero)
-
-        self.addSubview(self.stackView)
-
-        NSLayoutConstraint.activate([
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor),
-            self.stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-        ])
+        
+        self.addSubview(self.stack)
+        self.stack.constraintToFill(self)
+        
+        self.stack.addArrangedSubview(UIView())
+        self.stack.addArrangedSubview(self.label)
+        self.stack.addArrangedSubview(self.portView)
+        self.stack.setCustomSpacing(Design.default.portLabelSpacing, after: self.label)
     }
-
+    
     required init?(coder: NSCoder) {
         nil
     }
-
-    //    override var intrinsicContentSize: CGSize {
-    //        .init(width: 200, height: 32)
-    //    }
-
+    
     override var intrinsicContentSize: CGSize {
-        let portSize = style.portSize
-        let labelSize = self.labelView.intrinsicContentSize
-        let result = CGSize(
-            width: portSize + labelSize.width + style.labelControlSpacing + style.trailingPadding,
-            height: style.height  //max(portSize, labelSize.height, controlSize.height)
-        )
-        return result
+        let width = self.label.intrinsicContentSize.width
+        + Design.default.portLabelSpacing
+        + Design.default.portSize
+        let height: CGFloat = max(self.label.intrinsicContentSize.height, Design.default.portSize)
+        return .init(width: width, height: height)
+        
     }
 }
 #endif
+
 
 extension NodeOutputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
@@ -294,7 +91,7 @@ extension NodeOutputRowView {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NodeOutputRowView.Preview()
             .border(.gray.opacity(0.2))
