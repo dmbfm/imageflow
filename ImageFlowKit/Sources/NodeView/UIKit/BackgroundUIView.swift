@@ -5,12 +5,12 @@
 //  Created by Daniel Fortes on 11/08/25.
 //
 
+import CanvasView
 import ColorUtils
 import Design
 import Easing
 import PlatformUtils
 import SwiftUI
-import CanvasView
 
 #if canImport(AppKit)
 import AppKit
@@ -39,14 +39,13 @@ class BackgroundUIView: PlatformView {
             self.setNeedsDisplay()
         }
     }
-    
+
     var onEvent: ((Event) -> ())?
-    
+
     enum Event {
         case tap
         case drag(CanvasNodeDragGesture)
     }
-    
 
     var gradientLayer: CAGradientLayer = CAGradientLayer()
 
@@ -57,20 +56,19 @@ class BackgroundUIView: PlatformView {
         self.setWantsLayer()
         self.layer().insertSublayer(self.gradientLayer, at: 0)
         self.gradientLayer.frame = self.bounds
-        
-        
+
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureHandler))
         self.addGestureRecognizer(tapGesture)
-        
+
         let dragGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHangler(_:)))
         self.addGestureRecognizer(dragGesture)
     }
-    
+
     @objc
     func tapGestureHandler() {
         self.onEvent?(.tap)
     }
-    
+
     @objc
     func panGestureHangler(_ gesture: UIPanGestureRecognizer) {
         let t = gesture.translation(in: nil)

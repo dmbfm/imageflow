@@ -17,7 +17,7 @@ import NodeControls
 public final class NodeUIView: UIView, CanvasNodeView {
 
     // MARK: - Properties
-    
+
     public var node: FlowNode {
         didSet {
             if self.node != oldValue {
@@ -31,7 +31,7 @@ public final class NodeUIView: UIView, CanvasNodeView {
     public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
 
     // MARK: - Subviews
-    
+
     lazy var backgroundView: BackgroundView = {
         let view = BackgroundView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -83,8 +83,7 @@ public final class NodeUIView: UIView, CanvasNodeView {
         let view = NodeOutputBlockView(self.node.outputs)
         return view
     }()
-    
-    
+
     // MARK: - Initializers
 
     init(_ node: FlowNode) {
@@ -101,7 +100,7 @@ public final class NodeUIView: UIView, CanvasNodeView {
     public required init?(coder: NSCoder) {
         nil
     }
-    
+
     // MARK: Layout
 
     public override var intrinsicContentSize: CGSize {
@@ -162,9 +161,9 @@ public final class NodeUIView: UIView, CanvasNodeView {
             height: outputBlockSize.height
         )
     }
-    
+
     // MARK: - Updates
-    
+
     func update(_ oldValue: FlowNode) {
         for diff in self.node.diff(oldValue) {
             switch diff {

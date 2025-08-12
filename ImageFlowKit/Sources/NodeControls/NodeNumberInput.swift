@@ -90,7 +90,7 @@ public final class NodeNumberInput: PlatformView, NodeControl {
             self.textField.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.textField.topAnchor.constraint(equalTo: self.topAnchor),
         ])
-        
+
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
         self.addGestureRecognizer(panGesture)
     }
@@ -114,9 +114,9 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
     }
-    
+
     private var valueAtDragStart: CGFloat = 0.0
-    
+
     @objc
     func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
@@ -125,7 +125,7 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         default:
             break
         }
-        
+
         let t = gesture.translation(in: nil).x * 0.001
         let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
         self.setValue(newValue)
@@ -141,7 +141,7 @@ extension NodeNumberInput {
     public struct Preview: PlatformViewRepresentable {
 
         @Binding var value: Value
-        
+
         public init(value: Binding<Value>) {
             self._value = value
         }

@@ -17,7 +17,7 @@ final class NodeOutputBlockUIView: PlatformView {
             self.rows.append(row)
         }
     }
-    
+
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let p = self.convert(point, to: nil)
         for row in rows {
@@ -27,7 +27,7 @@ final class NodeOutputBlockUIView: PlatformView {
         }
         return nil
     }
-    
+
     required init?(coder: NSCoder) {
         nil
     }

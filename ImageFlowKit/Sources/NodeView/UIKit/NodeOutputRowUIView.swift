@@ -53,7 +53,7 @@ final class NodeOutputRowUIView: UIView {
         return .init(width: width, height: height)
 
     }
-    
+
     override func layoutSubviews() {
         let labelSize = self.label.intrinsicContentSize
         self.portView.frame = .init(

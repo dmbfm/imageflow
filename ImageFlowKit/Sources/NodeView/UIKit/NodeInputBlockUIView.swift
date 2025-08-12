@@ -64,15 +64,17 @@ final class NodeInputBlockUIView: UIView {
             )
         }
     }
-    
+
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let p = self.convert(point, to: nil)
         for row in rows {
             if let view = row.portView.hitTest(row.portView.convert(p, from: nil), with: event) {
                 return view
             }
-            
-            if let controlView = row.controlView, let view = controlView.hitTest(controlView.convert(p, from: nil), with: event) {
+
+            if let controlView = row.controlView,
+                let view = controlView.hitTest(controlView.convert(p, from: nil), with: event)
+            {
                 return view
             }
         }

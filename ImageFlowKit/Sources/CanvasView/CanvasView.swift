@@ -1,8 +1,8 @@
 import CommonUtils
 import Logging
+import PlatformUtils
 import SwiftUI
 import SwiftUIUtils
-import PlatformUtils
 
 public let canvasCoordinateSpaceName = "canvas"
 
@@ -58,4 +58,3 @@ public struct CanvasView: PlatformViewRepresentable {
         }
     }
 }
-

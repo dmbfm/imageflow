@@ -14,14 +14,14 @@ typealias BackgroundView = BackgroundUIView
 #endif
 
 extension BackgroundView {
-    
+
     func draw() {
         self.layer().cornerRadius = self.cornerRadius
         self.gradientLayer.cornerRadius = self.cornerRadius
         self.updateGradientColor(self.color.cgColor)
     }
-    
-     func updateGradientColor(_ color: CGColor) {
+
+    func updateGradientColor(_ color: CGColor) {
         self.gradientLayer.colors = CAGradientLayer.colors(
             hslGradientStart: color,
             end: Colors.cardBackground.cgColor,

@@ -38,7 +38,6 @@ public final class CanvasNSView: NSView {
 
     public internal(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
 
-
     // MARK: - Private Properties
 
     private var scaleAtStartOfMagnification: CGFloat = 1.0
@@ -240,10 +239,8 @@ public final class CanvasNSView: NSView {
         )
     }
 
-    
-
     // MARK: - Node Management
-    
+
 }
 
 #endif

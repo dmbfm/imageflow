@@ -17,13 +17,12 @@ import UIKit
 public typealias CanvasPlatformView = CanvasUIView
 #endif
 
-
 extension CanvasPlatformView {
     public enum Event {
         case viewportDidChange(CanvasViewport)
         case nodePositionsDidChange([UUID: CGPoint])
     }
-    
+
     // MARK: - Updates
 
     func viewportDidChange() {
@@ -44,9 +43,9 @@ extension CanvasPlatformView {
             }
         }
     }
-    
+
     // MARK: - Node Management
-    
+
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
         log("addNode at: \(position)")
         node.frame.origin = position
@@ -127,6 +126,4 @@ extension CanvasPlatformView {
         // self.emitter.emit(.nodeShouldMove(id, newPos))
     }
 
-
 }
-

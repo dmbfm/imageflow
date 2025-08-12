@@ -85,11 +85,11 @@ public final class CanvasUIView: UIView {
     public required init?(coder: NSCoder) {
         nil
     }
-    
+
     // MARK: - GridView Methods
 
     func setupGridView() {
-        
+
         self.gridView.frame = self.bounds
         self.addSubview(self.gridView)
 
@@ -118,7 +118,7 @@ public final class CanvasUIView: UIView {
         }
 
         let scale = gesture.scale
-//        let location = gesture.location(in: self.gridView)
+        //        let location = gesture.location(in: self.gridView)
         let newZoom = self.scaleAtStartOfMagnification * scale
         self.viewport.zoom(self.configuration.clampZoom(newZoom), atScreenPoint: self.startLoc)
     }

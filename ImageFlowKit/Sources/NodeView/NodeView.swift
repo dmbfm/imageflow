@@ -3,10 +3,10 @@ import ColorUtils
 import Design
 import Easing
 import EventEmitter
+import Logging
 import Models
 import PlatformUtils
 import SwiftUI
-import Logging
 import Values
 
 #if canImport(AppKit)
@@ -53,7 +53,7 @@ extension NodeView {
         NodeView.Preview(node: .init(kind: .addNode(.float)))
     }
     .padding(50)
-//    .frame(width: 300, height: 300)
+    //    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -62,7 +62,7 @@ extension NodeView {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
     }
     .padding(50)
-//    .frame(width: 300, height: 300)
+    //    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -71,6 +71,6 @@ extension NodeView {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
     }
     .padding(50)
-//    .frame(width: 300, height: 300)
+    //    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }
