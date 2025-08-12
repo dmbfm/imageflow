@@ -7,18 +7,24 @@
 
 import SwiftUI
 import NodeControls
+import Values
 
 struct ContentView: View {
     @State var text: String = "50"
+    @State var number: Value = .float(0.5)
     var body: some View {
-        VStack {
-            NodeTextField.Preview($text)
-            Text("<\(self.text)>")
+        VStack(spacing: 20) {
+            VStack {
+                NodeTextField.Preview($text)
+                Text("<\(self.text)>")
+            }
+            
+            VStack {
+                NodeNumberInput.Preview(value: self.$number)
+                Text("<\(self.number)>")
+            }
         }
         .padding()
     }
 }
 
-#Preview {
-    ContentView()
-}

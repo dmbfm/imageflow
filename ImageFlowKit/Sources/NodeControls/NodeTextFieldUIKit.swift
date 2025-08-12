@@ -134,7 +134,6 @@ public final class NodeTextFieldUIKit: UIView {
 
     @objc
     func onTapLabel() {
-        print("tap!!")
         self.state = .editing
     }
 

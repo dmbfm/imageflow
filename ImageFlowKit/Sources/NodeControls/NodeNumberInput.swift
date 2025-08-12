@@ -90,6 +90,9 @@ public final class NodeNumberInput: PlatformView, NodeControl {
             self.textField.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.textField.topAnchor.constraint(equalTo: self.topAnchor),
         ])
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
+        self.addGestureRecognizer(panGesture)
     }
 
     public required init?(coder: NSCoder) {
@@ -98,7 +101,6 @@ public final class NodeNumberInput: PlatformView, NodeControl {
 
     public override var intrinsicContentSize: CGSize {
         let result = self.textField.intrinsicContentSize
-        print("size: \(result)")
         return result
     }
 
@@ -112,6 +114,22 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
     }
+    
+    private var valueAtDragStart: CGFloat = 0.0
+    
+    @objc
+    func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            self.valueAtDragStart = self.value.float
+        default:
+            break
+        }
+        
+        let t = gesture.translation(in: nil).x * 0.001
+        let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
+        self.setValue(newValue)
+    }
 }
 
 #if os(macOS)
@@ -120,11 +138,15 @@ extension NodeNumberInput: NSTextFieldDelegate {
 #endif
 
 extension NodeNumberInput {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    public struct Preview: PlatformViewRepresentable {
 
         @Binding var value: Value
+        
+        public init(value: Binding<Value>) {
+            self._value = value
+        }
 
-        func makeView(context: Context) -> NodeNumberInput {
+        public func makeView(context: Context) -> NodeNumberInput {
             let view = NodeNumberInput(self.value)
             view.translatesAutoresizingMaskIntoConstraints = false
             view.onEvent = { event in
@@ -136,13 +158,13 @@ extension NodeNumberInput {
             return view
         }
 
-        func updateView(_ view: NodeNumberInput, context: Context) {
+        public func updateView(_ view: NodeNumberInput, context: Context) {
             if self.value != view.value {
                 view.value = self.value
             }
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+        public func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
     }
