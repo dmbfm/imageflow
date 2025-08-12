@@ -6,6 +6,8 @@ import EventEmitter
 import Models
 import PlatformUtils
 import SwiftUI
+import Logging
+import Values
 
 #if canImport(AppKit)
 import AppKit
@@ -14,8 +16,14 @@ public typealias NodeView = NodeViewAppKit
 
 #if canImport(UIKit)
 import UIKit
-public typealias NodeView = NodeViewUIKit
+public typealias NodeView = NodeUIView
 #endif
+
+extension NodeView {
+    public enum Event {
+        case valueDidChange(Int, Value)
+    }
+}
 
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {
@@ -24,7 +32,11 @@ extension NodeView {
             self.node = node
         }
         public func makeView(context: Context) -> some PlatformView {
-            NodeView(node)
+            let view = NodeView(node)
+            view.emitter.on { event in
+                log("event: \(event)")
+            }
+            return view
         }
 
         public func updateView(_ view: ViewType, context: Context) {
@@ -40,7 +52,8 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .addNode(.float)))
     }
-    .frame(width: 300, height: 300)
+    .padding(50)
+//    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -48,7 +61,8 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
     }
-    .frame(width: 300, height: 300)
+    .padding(50)
+//    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -56,6 +70,7 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
     }
-    .frame(width: 300, height: 300)
+    .padding(50)
+//    .frame(width: 300, height: 300)
     .background(Colors.canvasBackground.color)
 }

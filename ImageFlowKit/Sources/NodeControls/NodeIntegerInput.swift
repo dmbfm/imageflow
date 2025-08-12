@@ -1,10 +1,10 @@
 import Backend
 import CommonUtils
 import Design
+import Logging
 import PlatformUtils
 import SwiftUI
 import Values
-import Logging
 
 #if os(macOS)
 import AppKit
@@ -28,6 +28,8 @@ extension FormatStyle where Self == NodeIntegerInputFormat {
 }
 
 public final class NodeIntegerInput: PlatformView, NodeControl {
+    public var onEvent: ((NodeControlEvent) -> ())?
+
     public var value: Value {
         didSet {
             if self.value != oldValue {
@@ -38,36 +40,37 @@ public final class NodeIntegerInput: PlatformView, NodeControl {
 
     public var tint: PlatformColor = .systemBlue
 
-    public var valueDidChange: ((Value) -> ())?
-    
     lazy var textField: NodeTextField = {
         let view = NodeTextField(self.value.int.formatted(.nodeInterger), borderColor: self.tint)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.textDidChange = { [weak self] value in
-            guard let self else { return }
-            if let number = Int(value) {
-                self.setValue(number)
-            } else {
-                if value == "" {
-                    self.setValue(0)
+        view.onEvent = { [weak self] event in
+            switch event {
+            case .textDidChange(let value):
+                guard let self else { return }
+                if let number = Int(value) {
+                    self.setValue(number)
                 } else {
-                    self.update()
+                    if value == "" {
+                        self.setValue(0)
+                    } else {
+                        self.update()
+                    }
                 }
+            case .sizeDidChange:
+                self?.invalidateIntrinsicContentSize()
+                self?.emit(.sizeDidChange)
             }
-        }
-        view.sizeDidChange = { [weak self] in
-            self?.invalidateIntrinsicContentSize()
         }
         return view
     }()
-    
+
     init(_ value: Value) {
         self.value = value
 
         super.init(frame: .zero)
-        
+
         self.clipsToBounds = false
-        
+
         self.addSubview(self.textField)
         self.textField.constraintToFill(self)
     }
@@ -79,10 +82,10 @@ public final class NodeIntegerInput: PlatformView, NodeControl {
     public override var intrinsicContentSize: CGSize {
         self.textField.intrinsicContentSize
     }
-    
+
     func setValue(_ value: Int) {
         self.value.int = value
-        self.valueDidChange?(self.value)
+        self.emit(.valueDidChange(self.value))
     }
 
     func update() {
@@ -98,14 +101,17 @@ extension NodeIntegerInput: NSTextFieldDelegate {
 
 extension NodeIntegerInput {
     fileprivate struct Preview: PlatformViewRepresentable {
-        
+
         @Binding var value: Value
-        
+
         func makeView(context: Context) -> NodeIntegerInput {
             let view = NodeIntegerInput(self.value)
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.valueDidChange = { value in
-                self.value = value
+            view.onEvent = { event in
+                switch event {
+                case .valueDidChange(let value): self.value = value
+                case .sizeDidChange: break
+                }
             }
             return view
         }

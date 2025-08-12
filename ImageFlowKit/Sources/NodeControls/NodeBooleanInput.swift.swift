@@ -25,7 +25,7 @@ public final class NodeBooleanInput: PlatformView, NodeControl {
         }
     }
 
-    public var valueDidChange: ((Value) -> ())?
+    public var onEvent: ((NodeControlEvent) -> ())?
 
     public var tint: PlatformColor = .systemBlue {
         didSet {
@@ -46,18 +46,18 @@ public final class NodeBooleanInput: PlatformView, NodeControl {
         view.state = self.value.bool ? .on : .off
         return view
     }()
-    
+
     func update() {
         self.toggle.state = self.value.bool ? .on : .off
     }
-    
+
     @objc
     func onToggleChange() {
         self.setValue(self.toggle.state == .on)
     }
-    
+
     #endif
-    
+
     #if os(iOS)
     lazy var toggle: UISwitch = {
         let view = UISwitch()
@@ -66,17 +66,17 @@ public final class NodeBooleanInput: PlatformView, NodeControl {
         view.addTarget(self, action: #selector(Self.onToggleChange), for: .valueChanged)
         return view
     }()
-    
+
     func update() {
         self.toggle.isOn = self.value.bool
     }
- 
+
     @objc
     func onToggleChange() {
         self.setValue(self.toggle.isOn)
     }
     #endif
-    
+
     public init(_ value: Value) {
         self.value = value
 
@@ -93,10 +93,10 @@ public final class NodeBooleanInput: PlatformView, NodeControl {
     public override var intrinsicContentSize: CGSize {
         self.toggle.intrinsicContentSize
     }
-    
+
     func setValue(_ value: Bool) {
         self.value = .bool(value)
-        self.valueDidChange?(self.value)
+        self.emit(.valueDidChange(self.value))
     }
 }
 
@@ -106,7 +106,14 @@ extension NodeBooleanInput {
         public func makeView(context: Context) -> NodeBooleanInput {
             let view = NodeBooleanInput(self.value)
             view.tint = .systemOrange
-            view.valueDidChange = { value in self.value = value }
+            view.onEvent = { event in
+                switch event {
+                case .valueDidChange(let value):
+                    self.value = value
+                case .sizeDidChange:
+                    break
+                }
+            }
             return view
         }
 
@@ -128,11 +135,17 @@ extension NodeBooleanInput {
         NodeBooleanInput.Preview(value: $value)
             .border(.gray.opacity(0.2))
         Text("<\(value)>")
-        Toggle("", isOn: .init(get: {
-            value.bool
-        }, set: { newValue in
-            value = .bool(newValue)
-        }))
+        Toggle(
+            "",
+            isOn: .init(
+                get: {
+                    value.bool
+                },
+                set: { newValue in
+                    value = .bool(newValue)
+                }
+            )
+        )
     }
     .frame(width: 500, height: 500)
     .background(.white)

@@ -19,17 +19,23 @@ public final class NodeTextFieldUIKit: UIView {
             if self.text != self.label.text {
                 self.label.text = self.text
                 self.invalidateIntrinsicContentSize()
+                self.setNeedsLayout()
             }
 
             if self.text != self.textField.text {
                 self.textField.text = self.text
                 self.invalidateIntrinsicContentSize()
+                self.setNeedsLayout()
             }
         }
     }
 
-    public var textDidChange: ((String) -> ())?
-    public var sizeDidChange: (() -> ())?
+    public enum Event {
+        case textDidChange(String)
+        case sizeDidChange
+    }
+
+    public var onEvent: ((Event) -> ())?
 
     public var borderColor: UIColor {
         didSet {
@@ -38,7 +44,7 @@ public final class NodeTextFieldUIKit: UIView {
     }
 
     lazy var labelInsets: UIEdgeInsets = {
-        .init(top: 4, left: 4, bottom: 4, right: 4)
+        .init(top: 6, left: 8, bottom: 6, right: 8)
     }()
 
     lazy var backgroundInsets: UIEdgeInsets = {
@@ -47,20 +53,21 @@ public final class NodeTextFieldUIKit: UIView {
 
     lazy var font: UIFont = {
         .monospacedSystemFont(ofSize: 14, weight: .regular)
-//        .preferredFont(forTextStyle: .caption1)
+        //        .preferredFont(forTextStyle: .caption1)
     }()
 
     lazy var backgroundView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
+        //        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = Colors.numberInputBackground.platformColor
-        view.layer.cornerRadius = 4
+        view.layer.cornerRadius = 8
+        view.layer.cornerCurve = .continuous
         return view
     }()
 
     lazy var textField: UITextField = {
         let view = UITextField()
-        view.translatesAutoresizingMaskIntoConstraints = false
+        //        view.translatesAutoresizingMaskIntoConstraints = false
         view.font = self.font
         view.text = self.text
         view.delegate = self
@@ -74,14 +81,16 @@ public final class NodeTextFieldUIKit: UIView {
     func onTextFieldChange() {
         self.label.text = self.textField.text
         self.invalidateIntrinsicContentSize()
-        self.sizeDidChange?()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
     }
 
     lazy var label: UILabel = {
         let view = UILabel()
-        view.translatesAutoresizingMaskIntoConstraints = false
+        //        view.translatesAutoresizingMaskIntoConstraints = false
         view.text = self.text
         view.font = self.font
+        //        view.layer.borderWidth = 1
         view.numberOfLines = 1
         view.isUserInteractionEnabled = true
         return view
@@ -89,7 +98,7 @@ public final class NodeTextFieldUIKit: UIView {
 
     lazy var dummyLabel: UILabel = {
         let view = UILabel()
-        view.translatesAutoresizingMaskIntoConstraints = false
+        //        view.translatesAutoresizingMaskIntoConstraints = false
         view.text = "X"
         view.font = self.font
         view.numberOfLines = 1
@@ -104,7 +113,7 @@ public final class NodeTextFieldUIKit: UIView {
         super.init(frame: .zero)
 
         self.clipsToBounds = false
-        self.layer.cornerRadius = 6
+        self.layer.cornerRadius = 10
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowRadius = 4
         self.layer.shadowOpacity = 0
@@ -113,14 +122,10 @@ public final class NodeTextFieldUIKit: UIView {
         self.layer.borderWidth = 0
 
         self.addSubview(self.backgroundView)
-        self.backgroundView.constraintToFill(self, edgeInsets: self.backgroundInsets)
-
         self.addSubview(self.textField)
-        self.textField.constraintToFill(self, edgeInsets: self.labelInsets)
-        self.textField.isHidden = true
-
         self.addSubview(self.label)
-        self.label.constraintToFill(self, edgeInsets: self.labelInsets)
+
+        self.textField.isHidden = true
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(Self.onTapLabel))
         tapGesture.numberOfTapsRequired = 1
@@ -163,9 +168,19 @@ public final class NodeTextFieldUIKit: UIView {
             self.label.isHidden = true
             self.textField.isHidden = false
             self.textField.becomeFirstResponder()
-            self.layer.shadowOpacity = 0.6
+            //            self.layer.shadowOpacity = 0.6
             self.layer.borderWidth = 2
         }
+    }
+
+    public override func layoutSubviews() {
+        let size = self.intrinsicContentSize
+        let rect = CGRect(origin: .zero, size: size)
+        self.backgroundView.frame = rect.inset(by: self.backgroundInsets)  //self.ba //rect.i //.init(x: 2, y: 2, width: size.width - 4, height: size.height - 4)
+        self.label.frame = rect.inset(by: self.labelInsets)
+        self.textField.frame = rect.inset(by: self.labelInsets)
+        //        self.label.frame = .init(x: 4, y: 4, width: size.width - 8, height: size.height - 8)
+        //        self.textField.frame = .init(x: 4, y: 4, width: size.width - 8, height: size.height - 8)
     }
 }
 
@@ -173,7 +188,7 @@ extension NodeTextFieldUIKit: UITextFieldDelegate {
     public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
         if let text = self.textField.text {
             self.text = text
-            self.textDidChange?(self.text)
+            self.onEvent?(.textDidChange(self.text))
         }
         self.state = .idle
     }
@@ -194,8 +209,11 @@ extension NodeTextFieldUIKit {
 
         public func makeUIView(context: Context) -> NodeTextFieldUIKit {
             let view = NodeTextFieldUIKit(self.text, borderColor: .orange)
-            view.textDidChange = { value in
-                self.text = value
+            view.onEvent = { event in
+                switch event {
+                case .textDidChange(let value): self.text = value
+                case .sizeDidChange: break
+                }
             }
             return view
         }
@@ -212,11 +230,10 @@ extension NodeTextFieldUIKit {
     }
 }
 
-#Preview {
-    @Previewable @State var text: String = "Hello"
+#Preview(traits: .sizeThatFitsLayout) {
+    @Previewable @State var text: String = "0.51"
     VStack {
         NodeTextFieldUIKit.Preview($text)
-                    .border(.gray)
     }
     .padding(200)
     .background(.white)

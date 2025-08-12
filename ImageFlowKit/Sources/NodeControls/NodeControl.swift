@@ -8,6 +8,12 @@ public protocol NodeControl: PlatformView {
     var onEvent: ((NodeControlEvent) -> ())? { get set }
 }
 
+extension NodeControl {
+    func emit(_ event: NodeControlEvent) {
+        self.onEvent?(event)
+    }
+}
+
 public enum NodeControlEvent {
     case valueDidChange(Value)
     case sizeDidChange

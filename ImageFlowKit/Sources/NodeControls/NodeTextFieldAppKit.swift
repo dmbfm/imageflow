@@ -121,7 +121,7 @@ public final class NodeTextFieldAppKit: NSView {
             self.window?.makeFirstResponder(self.textField)
             self.state = .editing
             self.layer?.borderWidth = 2
-//            self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
+            //            self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
         }
     }
 

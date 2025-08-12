@@ -12,13 +12,13 @@ import UIKit
 #endif
 
 public final class StaticLabelNodeControl: PlatformView, NodeControl {
+    public var onEvent: ((NodeControlEvent) -> ())?
+
     public var text: String
 
     public var tint: PlatformColor = .blue
 
     public var value: Value
-
-    public var valueDidChange: ((Value) -> ())?
 
     #if os(macOS)
     lazy var labelView: NSTextField = {

@@ -33,6 +33,8 @@ extension FormatStyle where Self == NodeNumberInputFormat {
 }
 
 public final class NodeNumberInput: PlatformView, NodeControl {
+    public var onEvent: ((NodeControlEvent) -> ())?
+
     public var value: Value {
         didSet {
             if self.value != oldValue {
@@ -42,9 +44,6 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     }
 
     public var tint: PlatformColor = .systemBlue
-
-    public var valueDidChange: ((Value) -> ())?
-    public var sizeDidChange: (() -> ())?
 
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
@@ -57,22 +56,23 @@ public final class NodeNumberInput: PlatformView, NodeControl {
     lazy var textField: NodeTextField = {
         let view = NodeTextField(self.value.float.formatted(.nodeNumber), borderColor: self.tint)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.textDidChange = { [weak self] value in
-            guard let self else { return }
-            if let number = Double(value) {
-                self.setValue(number)
-            } else {
-                if value == "" {
-                    self.setValue(0.0)
+        view.onEvent = { [weak self] event in
+            switch event {
+            case .textDidChange(let value):
+                guard let self else { return }
+                if let number = Double(value) {
+                    self.setValue(number)
                 } else {
-                    self.update()
+                    if value == "" {
+                        self.setValue(0.0)
+                    } else {
+                        self.update()
+                    }
                 }
+            case .sizeDidChange:
+                self?.invalidateIntrinsicContentSize()
+                self?.emit(.sizeDidChange)
             }
-        }
-        view.sizeDidChange = { [weak self] in
-            self?.invalidateIntrinsicContentSize()
-            self?.superview?.invalidateIntrinsicContentSize()
-            self?.sizeDidChange?()
         }
         return view
     }()
@@ -85,7 +85,7 @@ public final class NodeNumberInput: PlatformView, NodeControl {
         self.clipsToBounds = false
 
         self.addSubview(self.textField)
-        
+
         NSLayoutConstraint.activate([
             self.textField.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.textField.topAnchor.constraint(equalTo: self.topAnchor),
@@ -104,12 +104,13 @@ public final class NodeNumberInput: PlatformView, NodeControl {
 
     func setValue(_ value: Double) {
         self.value.float = value
-        self.valueDidChange?(self.value)
+        self.emit(.valueDidChange(self.value))
     }
-    
+
     func update() {
         self.textField.text = self.value.float.formatted(.nodeNumber)
         self.invalidateIntrinsicContentSize()
+        self.emit(.sizeDidChange)
     }
 }
 
@@ -126,8 +127,11 @@ extension NodeNumberInput {
         func makeView(context: Context) -> NodeNumberInput {
             let view = NodeNumberInput(self.value)
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.valueDidChange = { value in
-                self.value = value
+            view.onEvent = { event in
+                switch event {
+                case .valueDidChange(let value): self.value = value
+                case .sizeDidChange: break
+                }
             }
             return view
         }
