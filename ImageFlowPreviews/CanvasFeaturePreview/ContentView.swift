@@ -7,16 +7,23 @@
 
 import SwiftUI
 import CanvasFeature
+import NodeDataStore
 
 struct ContentView: View {
+    
+    @State var state: CanvasFeatureState = .init()
+    @State var nodeDataStore: NodeDataStore = .init()
+    
+    init() {
+        let id = UUID()
+        self._state = .init(wrappedValue: .init(nodePositions: [id:.zero]))
+        self._nodeDataStore = .init(wrappedValue: .init([id:.init(id: id, kind: .addNode(.float))]))
+    }
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            CanvasFeatureView(self.$state, self.$nodeDataStore)
         }
-        .padding()
     }
 }
 

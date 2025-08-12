@@ -86,7 +86,7 @@ public final class NodeUIView: UIView, CanvasNodeView {
 
     // MARK: - Initializers
 
-    init(_ node: FlowNode) {
+    public init(_ node: FlowNode) {
         self.node = node
 
         super.init(frame: .zero)
