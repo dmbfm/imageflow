@@ -1,4 +1,5 @@
 import CommonUtils
+import Logging
 import Models
 import PlatformUtils
 import SwiftUI
@@ -20,6 +21,7 @@ extension NodeOutputBlockView {
                 .init(label: "First Output", index: 0, type: .float, connected: false),
                 .init(label: "Second Output", index: 1, type: .float, connected: true),
             ])
+            view.onEvent = { log("event: \($0)") }
             return view
         }
 
@@ -38,5 +40,6 @@ extension NodeOutputBlockView {
         NodeOutputBlockView.Preview()
             .border(.gray.opacity(0.12))
     }
-    .padding(200)
+    .frame(minWidth: 300, minHeight: 300)
+    .background(.white)
 }

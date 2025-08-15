@@ -65,6 +65,7 @@ final class NodeInputBlockNSView: NSView {
             }
             self.addSubview(row)
             self.rows.append(row)
+            // row.border(.init(color: .systemBlue, width: 1))
         }
 
         self.needsLayout = true

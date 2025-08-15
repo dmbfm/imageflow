@@ -20,6 +20,7 @@ extension BackgroundView {
     func draw() {
         self.layer().cornerRadius = self.cornerRadius
         self.gradientLayer.cornerRadius = self.cornerRadius
+        // self.gradientLayer.frame = self.bounds
         self.updateGradientColor(self.color.cgColor)
     }
 

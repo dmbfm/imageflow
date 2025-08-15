@@ -33,7 +33,11 @@ struct Design {
     static var macOS: Self {
         .init(
             portSize: 8,
-            portLabelSpacing: 4
+            portLabelSpacing: 4,
+            titleBottom: 14,
+            nodeRowHeight: 24,
+            inputBlockBottomPadding: 4,
+            outputBlockBottomPadding: 8
         )
     }
 

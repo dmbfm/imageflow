@@ -55,8 +55,6 @@ public final class BackgroundNSView: NSView {
 
         self.wantsLayer = true
         self.layer?.insertSublayer(self.gradientLayer, at: 0)
-        self.gradientLayer.frame = self.bounds
-        self.gradientLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
 
         let clickGR = NSClickGestureRecognizer(target: self, action: #selector(Self.onClickGesture(_:)))
         self.addGestureRecognizer(clickGR)
@@ -83,6 +81,14 @@ public final class BackgroundNSView: NSView {
 
     public override var isFlipped: Bool {
         true
+    }
+
+    public override func layout() {
+        super.layout()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.gradientLayer.frame = self.bounds
+        CATransaction.commit()
     }
 
     public override func draw(_ dirtyRect: NSRect) {

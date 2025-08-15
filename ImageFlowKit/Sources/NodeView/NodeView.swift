@@ -52,8 +52,7 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .addNode(.float)))
     }
-    .padding(50)
-    //    .frame(width: 300, height: 300)
+    .frame(minWidth: 300, minHeight: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -61,8 +60,7 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
     }
-    .padding(50)
-    //    .frame(width: 300, height: 300)
+    .frame(minWidth: 300, minHeight: 300)
     .background(Colors.canvasBackground.color)
 }
 
@@ -70,7 +68,6 @@ extension NodeView {
     VStack {
         NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
     }
-    .padding(50)
-    //    .frame(width: 300, height: 300)
+    .frame(minWidth: 300, minHeight: 300)
     .background(Colors.canvasBackground.color)
 }
