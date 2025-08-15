@@ -30,7 +30,7 @@ public final class CanvasNSView: NSView {
         }
     }
 
-    public let configuration: CanvasConfiguration
+    public var configuration: CanvasConfiguration = .init()
 
     public var onEvent: ((Event) -> ())?
 
@@ -71,12 +71,10 @@ public final class CanvasNSView: NSView {
     public init(
         viewport: CanvasViewport,
         nodePositions: [UUID: CGPoint],
-        configuration: CanvasConfiguration,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?,
     ) {
         self.viewport = viewport
         self.nodePositions = nodePositions
-        self.configuration = configuration
         self.viewForNode = viewForNode
 
         super.init(frame: .zero)

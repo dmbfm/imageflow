@@ -13,7 +13,7 @@ import Logging
 import Design
 import ColorUtils
 
-public final class NodeTextFieldUIKit: UIView {
+public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     public var text: String {
         didSet {
             if self.text != self.label.text {
@@ -30,12 +30,7 @@ public final class NodeTextFieldUIKit: UIView {
         }
     }
 
-    public enum Event {
-        case textDidChange(String)
-        case sizeDidChange
-    }
-
-    public var onEvent: ((Event) -> ())?
+    public var onEvent: ((NodeTextFieldEvent) -> ())?
 
     public var borderColor: UIColor {
         didSet {
@@ -183,7 +178,7 @@ public final class NodeTextFieldUIKit: UIView {
     }
 }
 
-extension NodeTextFieldUIKit: UITextFieldDelegate {
+extension NodeTextFieldUIView: UITextFieldDelegate {
     public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
         if let text = self.textField.text {
             self.text = text
@@ -197,7 +192,7 @@ extension NodeTextFieldUIKit: UITextFieldDelegate {
     }
 }
 
-extension NodeTextFieldUIKit {
+extension NodeTextFieldUIView {
     public struct Preview: UIViewRepresentable {
 
         @Binding var text: String
@@ -206,8 +201,8 @@ extension NodeTextFieldUIKit {
             self._text = text
         }
 
-        public func makeUIView(context: Context) -> NodeTextFieldUIKit {
-            let view = NodeTextFieldUIKit(self.text, borderColor: .orange)
+        public func makeUIView(context: Context) -> NodeTextFieldUIView {
+            let view = NodeTextFieldUIView(self.text, borderColor: .orange)
             view.onEvent = { event in
                 switch event {
                 case .textDidChange(let value): self.text = value
@@ -217,7 +212,7 @@ extension NodeTextFieldUIKit {
             return view
         }
 
-        public func updateUIView(_ uiView: NodeTextFieldUIKit, context: Context) {
+        public func updateUIView(_ uiView: NodeTextFieldUIView, context: Context) {
             if uiView.text != self.text {
                 uiView.text = self.text
             }
@@ -232,7 +227,7 @@ extension NodeTextFieldUIKit {
 #Preview(traits: .sizeThatFitsLayout) {
     @Previewable @State var text: String = "0.51"
     VStack {
-        NodeTextFieldUIKit.Preview($text)
+        NodeTextFieldUIView.Preview($text)
     }
     .padding(200)
     .background(.white)

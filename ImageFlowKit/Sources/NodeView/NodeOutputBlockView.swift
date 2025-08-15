@@ -5,6 +5,7 @@ import SwiftUI
 
 #if canImport(AppKit)
 import AppKit
+typealias NodeOutputBlockView = NodeOutputBlockNSView
 #endif
 
 #if canImport(UIKit)

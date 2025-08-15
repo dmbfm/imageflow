@@ -82,6 +82,8 @@ let package = Package(
             name: "IPadApp",
             dependencies: [
                 "Backend",
+                "CanvasFeature",
+                "NodeDataStore",
                 "Models",
             ],
         ),

@@ -34,9 +34,22 @@
 		AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowIPadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE92B3EA2E4C056200B41CCF /* Exceptions for "ImageFlowIPad" folder in "ImageFlowIPad" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AE596D372E21C2D2005F49B2 /* ImageFlowIPad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE92B3EA2E4C056200B41CCF /* Exceptions for "ImageFlowIPad" folder in "ImageFlowIPad" target */,
+			);
 			path = ImageFlowIPad;
 			sourceTree = "<group>";
 		};
@@ -417,6 +430,7 @@
 				DEVELOPMENT_TEAM = F325FKC3ZQ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowIPad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -445,6 +459,7 @@
 				DEVELOPMENT_TEAM = F325FKC3ZQ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowIPad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

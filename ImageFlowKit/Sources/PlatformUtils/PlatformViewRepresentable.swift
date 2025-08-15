@@ -9,6 +9,7 @@ import UIKit
 #endif
 
 #if os(macOS)
+@MainActor
 public protocol PlatformViewRepresentable: NSViewRepresentable where NSViewType == ViewType {
 
     associatedtype ViewType: PlatformView

@@ -1,11 +1,13 @@
 import ColorUtils
 import Design
 import Easing
+import Logging
 import PlatformUtils
 import SwiftUI
 
 #if canImport(AppKit)
 import AppKit
+typealias BackgroundView = BackgroundNSView
 #endif
 
 #if canImport(UIKit)
@@ -166,7 +168,9 @@ extension CAGradientLayer {
 extension BackgroundView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
-            BackgroundView()
+            let view = BackgroundView()
+            view.onEvent = { log("event: \($0)") }
+            return view
         }
 
         func updateView(_ view: ViewType, context: Context) {

@@ -9,7 +9,7 @@ import NodeView
 import SwiftUI
 import SwiftUIUtils
 
-public struct CanvasFeatureState: Sendable, Codable {
+public struct CanvasFeatureState: Sendable, Codable, Equatable {
     public var viewport: CanvasViewport = .init()
     public var nodePositions: [UUID:CGPoint] = .init()
     

@@ -31,7 +31,10 @@ struct Design {
     }
 
     static var macOS: Self {
-        .init(portSize: 8)
+        .init(
+            portSize: 8,
+            portLabelSpacing: 4
+        )
     }
 
     #if os(macOS)

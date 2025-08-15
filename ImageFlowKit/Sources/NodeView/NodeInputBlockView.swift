@@ -40,5 +40,6 @@ extension NodeInputBlockView {
         NodeInputBlockView.Preview()
             .border(.gray.opacity(0.12))
     }
-    .padding(200)
+    .frame(minWidth: 400, minHeight: 400)
+    .background(.white)
 }

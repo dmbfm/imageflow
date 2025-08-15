@@ -59,6 +59,9 @@ public final class NodeIntegerInput: PlatformView, NodeControl {
             case .sizeDidChange:
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
+            case .drag:
+                // TODO: Handle drag
+                break
             }
         }
         return view

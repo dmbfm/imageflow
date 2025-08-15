@@ -6,7 +6,7 @@
 //  Created by Daniel Fortes on 11/08/25.
 //
 
-#if os(iOS)
+#if canImport(UIKit)
 
 import CanvasView
 import ColorUtils

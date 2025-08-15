@@ -11,7 +11,7 @@ import Values
 
 #if canImport(AppKit)
 import AppKit
-public typealias NodeView = NodeViewAppKit
+public typealias NodeView = NodeNSView
 #endif
 
 #if canImport(UIKit)

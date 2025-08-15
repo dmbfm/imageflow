@@ -30,7 +30,7 @@ public final class CanvasUIView: UIView {
         }
     }
 
-    public let configuration: CanvasConfiguration
+    public var configuration: CanvasConfiguration = .init(zoomRange: 0.1...1.0)
 
     public var onEvent: ((Event) -> ())?
 
@@ -61,12 +61,10 @@ public final class CanvasUIView: UIView {
     public init(
         viewport: CanvasViewport,
         nodePositions: [UUID: CGPoint],
-        configuration: CanvasConfiguration,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?,
     ) {
         self.viewport = viewport
         self.nodePositions = nodePositions
-        self.configuration = configuration
         self.viewForNode = viewForNode
 
         super.init(frame: .zero)
@@ -136,6 +134,14 @@ public final class CanvasUIView: UIView {
 
     func updateContentView() {
         self.contentView.transform = self.viewport.transform(from: .canvas, to: .screen)
+//        self.contentView.contentScaleFactor = self.viewport.scale * 2.0
+//        self.contentView.setNeedsDisplay()
+//        self.contentView.layer.rasterizationScale = self.viewport.scale * 2.0
+//        for view in self.nodeViews {
+//            view.value.contentScaleFactor = self.viewport.scale * 2.0
+//            view.value.layer.rasterizationScale = self.viewport.scale * 2.0
+//            view.value.setNeedsDisplay()
+//        }
     }
 }
 

@@ -33,7 +33,6 @@ public struct CanvasView: PlatformViewRepresentable {
         let view = CanvasPlatformView(
             viewport: self.viewport,
             nodePositions: self.nodePositions,
-            configuration: .init(),
             viewForNode: self.viewForNode
         )
         view.onEvent = { event in
