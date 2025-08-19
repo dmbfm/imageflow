@@ -87,6 +87,17 @@ final class NodeOutputBlockNSView: NSView {
             )
         }
     }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        for row in self.rows {
+            let point = row.convert(point, from: self.superview)
+            if let view = row.portView.hitTest(point) {
+                return view
+            }
+        }
+
+        return nil
+    }
 }
 
 #endif

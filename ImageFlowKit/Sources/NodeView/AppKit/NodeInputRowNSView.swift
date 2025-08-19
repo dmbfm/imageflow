@@ -49,15 +49,15 @@ final class NodeInputRowNSView: NSView {
 
     private static let labelSafetyMargin: CGFloat = 2.0
 
-    private lazy var portView: PortView = {
+    lazy var portView: PortView = {
         PortView()
     }()
 
-    private lazy var labelView: NSTextField = {
+    lazy var labelView: NSTextField = {
         NSTextField(nodeRowLabelWithString: "")
     }()
 
-    private lazy var controlView: any NodeControl = {
+    lazy var controlView: any NodeControl = {
         let view: any NodeControl =
             switch self.input.value.type {
             case .float:

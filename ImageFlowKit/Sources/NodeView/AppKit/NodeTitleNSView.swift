@@ -78,6 +78,10 @@ final class NodeTitleNSView: NSView {
         true
     }
 
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        nil
+    }
+
     var titleSize: CGSize {
         self.titleView.intrinsicContentSize + .init(width: 4, height: 0)
     }
