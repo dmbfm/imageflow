@@ -14,6 +14,10 @@ import Design
 import ColorUtils
 
 public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
+    public var nodeTextFieldFont: NodeTextFieldFont = .mono {
+        didSet {}
+    }
+
     public var text: String {
         didSet {
             if self.text != self.label.text {
@@ -191,46 +195,46 @@ extension NodeTextFieldUIView: UITextFieldDelegate {
         textField.resignFirstResponder()
     }
 }
-
-extension NodeTextFieldUIView {
-    public struct Preview: UIViewRepresentable {
-
-        @Binding var text: String
-
-        public init(_ text: Binding<String>) {
-            self._text = text
-        }
-
-        public func makeUIView(context: Context) -> NodeTextFieldUIView {
-            let view = NodeTextFieldUIView(self.text, borderColor: .orange)
-            view.onEvent = { event in
-                switch event {
-                case .textDidChange(let value): self.text = value
-                case .sizeDidChange: break
-                }
-            }
-            return view
-        }
-
-        public func updateUIView(_ uiView: NodeTextFieldUIView, context: Context) {
-            if uiView.text != self.text {
-                uiView.text = self.text
-            }
-        }
-
-        public func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIViewType, context: Context) -> CGSize? {
-            uiView.intrinsicContentSize
-        }
-    }
-}
-
-#Preview(traits: .sizeThatFitsLayout) {
-    @Previewable @State var text: String = "0.51"
-    VStack {
-        NodeTextFieldUIView.Preview($text)
-    }
-    .padding(200)
-    .background(.white)
-}
-
+//
+//extension NodeTextFieldUIView {
+//    public struct Preview: UIViewRepresentable {
+//
+//        @Binding var text: String
+//
+//        public init(_ text: Binding<String>) {
+//            self._text = text
+//        }
+//
+//        public func makeUIView(context: Context) -> NodeTextFieldUIView {
+//            let view = NodeTextFieldUIView(self.text, borderColor: .orange)
+//            view.onEvent = { event in
+//                switch event {
+//                case .textDidChange(let value): self.text = value
+//                case .sizeDidChange: break
+//                }
+//            }
+//            return view
+//        }
+//
+//        public func updateUIView(_ uiView: NodeTextFieldUIView, context: Context) {
+//            if uiView.text != self.text {
+//                uiView.text = self.text
+//            }
+//        }
+//
+//        public func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIViewType, context: Context) -> CGSize? {
+//            uiView.intrinsicContentSize
+//        }
+//    }
+//}
+//
+//#Preview(traits: .sizeThatFitsLayout) {
+//    @Previewable @State var text: String = "0.51"
+//    VStack {
+//        NodeTextFieldUIView.Preview($text)
+//    }
+//    .padding(200)
+//    .background(.white)
+//}
+//
 #endif

@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE36FF402E550FAA009F5EFF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AE36FF3F2E550FAA009F5EFF /* AppFeature */; };
 		AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEE87D4E2E21EA5C00BFC36F /* NodeView */; };
-		AEE87D512E21EB0500BFC36F /* IPadApp in Frameworks */ = {isa = PBXBuildFile; productRef = AEE87D502E21EB0500BFC36F /* IPadApp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,8 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEE87D512E21EB0500BFC36F /* IPadApp in Frameworks */,
 				AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */,
+				AE36FF402E550FAA009F5EFF /* AppFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,7 +141,7 @@
 			name = ImageFlowIPad;
 			packageProductDependencies = (
 				AEE87D4E2E21EA5C00BFC36F /* NodeView */,
-				AEE87D502E21EB0500BFC36F /* IPadApp */,
+				AE36FF3F2E550FAA009F5EFF /* AppFeature */,
 			);
 			productName = ImageFlowIPad;
 			productReference = AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */;
@@ -443,9 +443,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -472,9 +476,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
@@ -592,13 +600,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AE36FF3F2E550FAA009F5EFF /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
 		AEE87D4E2E21EA5C00BFC36F /* NodeView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NodeView;
-		};
-		AEE87D502E21EB0500BFC36F /* IPadApp */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = IPadApp;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

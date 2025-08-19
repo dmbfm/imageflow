@@ -5,7 +5,7 @@
 //  Created by Daniel Fortes on 11/07/25.
 //
 
-import MacApp
+import AppFeature
 import SwiftUI
 
 @main

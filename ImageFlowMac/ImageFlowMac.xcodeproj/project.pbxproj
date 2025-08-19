@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AEB12FF42E355ED300FCE746 /* MacApp in Frameworks */ = {isa = PBXBuildFile; productRef = AEB12FF32E355ED300FCE746 /* MacApp */; };
+		AE36FF3C2E5509FF009F5EFF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AE36FF3B2E5509FF009F5EFF /* AppFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEB12FF42E355ED300FCE746 /* MacApp in Frameworks */,
+				AE36FF3C2E5509FF009F5EFF /* AppFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,7 +138,7 @@
 			);
 			name = ImageFlowMac;
 			packageProductDependencies = (
-				AEB12FF32E355ED300FCE746 /* MacApp */,
+				AE36FF3B2E5509FF009F5EFF /* AppFeature */,
 			);
 			productName = ImageFlowMac;
 			productReference = AE596D012E21C2AE005F49B2 /* ImageFlowMac.app */;
@@ -582,9 +582,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AEB12FF32E355ED300FCE746 /* MacApp */ = {
+		AE36FF3B2E5509FF009F5EFF /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = MacApp;
+			productName = AppFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

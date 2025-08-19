@@ -5,6 +5,8 @@
 //  Created by Daniel Fortes on 12/08/25.
 //
 
+#if canImport(UIKit)
+
 import CanvasFeature
 import SwiftUI
 
@@ -24,3 +26,4 @@ struct MainView: View {
         }
     }
 }
+#endif

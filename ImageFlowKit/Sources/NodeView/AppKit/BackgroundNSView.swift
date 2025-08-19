@@ -75,7 +75,7 @@ public final class BackgroundNSView: NSView {
     @objc
     func onPanGesture(_ gesture: NSPanGestureRecognizer) {
         let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: t.y)))
+        self.onEvent?(.drag(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: -t.y)))
         gesture.setTranslation(.zero, in: nil)
     }
 

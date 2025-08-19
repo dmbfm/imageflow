@@ -15,6 +15,12 @@ typealias NodeOutputBlockView = NodeOutputBlockUIView
 #endif
 
 extension NodeOutputBlockView {
+    public enum Event {
+        case sizeDidChange
+    }
+}
+
+extension NodeOutputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
             let view = NodeOutputBlockView([

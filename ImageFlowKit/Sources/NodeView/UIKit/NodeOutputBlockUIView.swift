@@ -8,6 +8,8 @@ import SwiftUI
 final class NodeOutputBlockUIView: PlatformView {
     var rows: [NodeOutputRowView] = []
 
+    var onEvent: ((Event) -> ())?
+
     init(_ outputs: [FlowNode.Output]) {
         super.init(frame: .zero)
 

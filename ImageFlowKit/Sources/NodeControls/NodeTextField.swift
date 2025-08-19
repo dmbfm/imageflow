@@ -49,7 +49,7 @@ extension NodeTextField {
 
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, view: NodeTextFieldNSView, context: Context) -> CGSize? {
+        func sizeThatFits(_ proposal: ProposedViewSize, view: NodeTextField, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
     }

@@ -17,10 +17,6 @@ final class NodeOutputBlockNSView: NSView {
 
     public var onEvent: ((Event) -> ())?
 
-    public enum Event {
-        case sizeDidChange
-    }
-
     init(_ outputs: [FlowNode.Output]) {
         self.outputs = outputs
 

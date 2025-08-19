@@ -21,9 +21,7 @@ let package = Package(
         .library(name: "Design"),
         .library(name: "Easing"),
         .library(name: "EventEmitter"),
-        .library(name: "IPadApp"),
         .library(name: "Logging"),
-        .library(name: "MacApp"),
         .library(name: "Models"),
         .library(name: "NodeControls"),
         .library(name: "NodeView"),
@@ -33,6 +31,7 @@ let package = Package(
         .library(name: "CanvasView"),
         .library(name: "CanvasFeature"),
         .library(name: "NodeDataStore"),
+        .library(name: "AppFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
@@ -40,6 +39,15 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "AppFeature",
+            dependencies: [
+                "Backend",
+                "CanvasFeature",
+                "NodeDataStore",
+                "Models",
+            ],
+        ),
         .target(
             name: "AppKitUtils",
             dependencies: [
@@ -79,25 +87,7 @@ let package = Package(
             dependencies: [],
         ),
         .target(
-            name: "IPadApp",
-            dependencies: [
-                "Backend",
-                "CanvasFeature",
-                "NodeDataStore",
-                "Models",
-            ],
-        ),
-        .target(
             name: "Logging",
-        ),
-        .target(
-            name: "MacApp",
-            dependencies: [
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
-                "Logging",
-                "CanvasFeature",
-                "NodeDataStore",
-            ],
         ),
         .target(
             name: "Models",

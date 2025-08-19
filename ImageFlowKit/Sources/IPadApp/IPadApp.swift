@@ -1,3 +1,5 @@
+#if canImport(UIKit)
+
 import CanvasFeature
 import NodeDataStore
 import SwiftUI
@@ -60,3 +62,5 @@ extension UTType {
         .init(exportedAs: "com.dmbfm.imageFlowDocument")
     }
 }
+
+#endif
