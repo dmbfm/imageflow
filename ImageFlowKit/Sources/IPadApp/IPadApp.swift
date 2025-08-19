@@ -1,6 +1,6 @@
-import SwiftUI
 import CanvasFeature
 import NodeDataStore
+import SwiftUI
 import UniformTypeIdentifiers
 
 public struct ImageFlowApp: App {
@@ -15,31 +15,28 @@ public struct ImageFlowApp: App {
     }
 }
 
-
 struct ImageFlowDocument: FileDocument, Codable, Equatable {
     init(canvas: CanvasFeatureState = .init(), nodeData: NodeDataStore = .init()) {
         print("!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.canvas = canvas
         self.nodeData = nodeData
     }
-    
-    
+
     var canvas: CanvasFeatureState = .init()
     var nodeData: NodeDataStore = .init()
-    
+
     static var readableContentTypes: [UTType] {
         [.imageFlowDocument]
     }
-    
+
     init() {
-        
+
     }
-    
-    
+
     init(configuration: ReadConfiguration) throws {
         self = .sample
     }
-    
+
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let fw = FileWrapper(directoryWithFileWrappers: [:])
         return fw
@@ -49,7 +46,10 @@ struct ImageFlowDocument: FileDocument, Codable, Equatable {
 extension ImageFlowDocument {
     static var sample: Self {
         let id = UUID()
-        let doc = ImageFlowDocument(canvas: .init(nodePositions: [id:.zero]), nodeData: .init([id:.init(id: id, kind: .addNode(.float))]))
+        let doc = ImageFlowDocument(
+            canvas: .init(nodePositions: [id: .zero]),
+            nodeData: .init([id: .init(id: id, kind: .addNode(.float))])
+        )
         print("doc: \(doc)")
         return doc
     }

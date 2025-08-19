@@ -134,14 +134,14 @@ public final class CanvasUIView: UIView {
 
     func updateContentView() {
         self.contentView.transform = self.viewport.transform(from: .canvas, to: .screen)
-//        self.contentView.contentScaleFactor = self.viewport.scale * 2.0
-//        self.contentView.setNeedsDisplay()
-//        self.contentView.layer.rasterizationScale = self.viewport.scale * 2.0
-//        for view in self.nodeViews {
-//            view.value.contentScaleFactor = self.viewport.scale * 2.0
-//            view.value.layer.rasterizationScale = self.viewport.scale * 2.0
-//            view.value.setNeedsDisplay()
-//        }
+        //        self.contentView.contentScaleFactor = self.viewport.scale * 2.0
+        //        self.contentView.setNeedsDisplay()
+        //        self.contentView.layer.rasterizationScale = self.viewport.scale * 2.0
+        //        for view in self.nodeViews {
+        //            view.value.contentScaleFactor = self.viewport.scale * 2.0
+        //            view.value.layer.rasterizationScale = self.viewport.scale * 2.0
+        //            view.value.setNeedsDisplay()
+        //        }
     }
 }
 

@@ -32,13 +32,13 @@ public final class NodeNSView: NSView, CanvasNodeView {
 
     lazy var backgroundView: BackgroundView = {
         let view = BackgroundView(frame: .zero, color: self.node.kind.frontendNodeColor)
-        view.onEvent = {[weak self] event in
+        view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
-                case .tap:
-                    self.emitter.emit(.click)
-                case .drag(let drag):
-                    self.emitter.emit(.dragGesture(drag))
+            case .tap:
+                self.emitter.emit(.click)
+            case .drag(let drag):
+                self.emitter.emit(.dragGesture(drag))
             }
         }
         view.shadow(

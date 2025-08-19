@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MainView: View {
     @Binding var document: ImageFlowDocument
-    
+
     var body: some View {
         NavigationSplitView {
             List {

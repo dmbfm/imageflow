@@ -5,9 +5,9 @@
 //  Created by Daniel Fortes on 06/08/25.
 //
 
+import Logging
 import PlatformUtils
 import SwiftUI
-import Logging
 
 #if os(macOS)
 public typealias NodeTextField = NodeTextFieldNSView

@@ -57,7 +57,7 @@ public final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     lazy var textField: NSTextField = {
         let view = NSTextField()
-        view.font =  self.font //.systemFont(ofSize: 10)
+        view.font = self.font  //.systemFont(ofSize: 10)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.stringValue = self.text
         view.isBezeled = false

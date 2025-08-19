@@ -110,7 +110,7 @@ final class NodeTitleNSView: NSView {
         self.titleView.frame = .init(
             x: textGuide,
             y: 0,
-            width: titleSize.width,// min(titleSize.width, self.bounds.width - textGuide),
+            width: titleSize.width,  // min(titleSize.width, self.bounds.width - textGuide),
             height: titleSize.height
         )
         self.subtitleView.frame = .init(
