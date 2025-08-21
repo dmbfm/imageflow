@@ -8,7 +8,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case valueNode(ValueType)
     case angleNode
     case passthroughNode(ValueType)
-    case coreImageFilterNode(CIFilterNodeKind)
+    case blur(BlurType)
 }
 
 extension NodeKind {
@@ -22,7 +22,7 @@ extension NodeKind {
             Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
             Nodes.PassthroughNode.impl(type)
-        case .coreImageFilterNode(let type):
+        case .blur(let type):
             type.impl
         }
     }

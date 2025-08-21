@@ -18,9 +18,9 @@ public extension UTType {
     static let nodeKindDragItem = UTType(exportedAs: "com.dmbfm.imageflow.node-kind")
 }
 
-public class NodeKindDragItem: NSObject, Codable {
-    public var kind: NodeKind
-    public var offset: CGPoint
+public final class NodeKindDragItem: NSObject, Codable {
+    public let kind: NodeKind
+    public let offset: CGPoint
 
     public override var description: String {
         "kind: \(self.kind), offset: \(self.offset)"

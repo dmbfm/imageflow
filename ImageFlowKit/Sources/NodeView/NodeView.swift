@@ -56,18 +56,18 @@ extension NodeView {
     .background(Colors.canvasBackground.color)
 }
 
-#Preview("Gaussian Blur", traits: .sizeThatFitsLayout) {
-    VStack {
-        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
-    }
-    .frame(minWidth: 300, minHeight: 300)
-    .background(Colors.canvasBackground.color)
-}
-
-#Preview("KMeans", traits: .sizeThatFitsLayout) {
-    VStack {
-        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
-    }
-    .frame(minWidth: 300, minHeight: 300)
-    .background(Colors.canvasBackground.color)
-}
+//#Preview("Gaussian Blur", traits: .sizeThatFitsLayout) {
+//    VStack {
+//        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
+//    }
+//    .frame(minWidth: 300, minHeight: 300)
+//    .background(Colors.canvasBackground.color)
+//}
+//
+//#Preview("KMeans", traits: .sizeThatFitsLayout) {
+//    VStack {
+//        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
+//    }
+//    .frame(minWidth: 300, minHeight: 300)
+//    .background(Colors.canvasBackground.color)
+//}

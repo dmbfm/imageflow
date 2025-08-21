@@ -18,8 +18,8 @@ import AppKit
 public extension NodeKind {
     var displayName: String {
         switch self {
-        case .coreImageFilterNode(_):
-            self.schema.name
+//        case .coreImageFilterNode(_):
+//            self.schema.name
         // filter.hashValue
         // filter.rawValue.humanizedNameDroppingCIPrefix()
         case .valueNode(let type):
@@ -27,12 +27,14 @@ public extension NodeKind {
         case .addNode(_): "Add"
         case .passthroughNode(_): "Passthrough"
         case .angleNode: "Angle"
+        case .blur(_):
+            fatalError("TODO")
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
-        case .coreImageFilterNode(_):
+        case .blur(_):
             .orange
         case .valueNode(_):
             .blue
@@ -49,7 +51,7 @@ public extension NodeKind {
         switch self {
         case .addNode(_):
             "plus.circle.fill"
-        case .coreImageFilterNode(_):
+        case .blur(_):
             "camera.filters"
         case .passthroughNode(_):
             "arrow.right.circle.dotted"
