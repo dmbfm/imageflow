@@ -12,14 +12,22 @@ import Values
 public struct NodeSchema: Sendable {
     /// The name of the node.
     public var name: String
+    /// The display name of the node.
+    public var displayName: String
     /// The input properties of the node.
     public var inputs: [InputPropertySchema]
     /// The output properties of the node.
     public var outputs: [OutputPropertySchema]
 
     /// Creates a new `NodeSchema`.
-    public init(name: String, inputs: [InputPropertySchema], outputs: [OutputPropertySchema]) {
+    public init(
+        name: String,
+        displayName: String? = nil,
+        inputs: [InputPropertySchema],
+        outputs: [OutputPropertySchema]
+    ) {
         self.name = name
+        self.displayName = displayName ?? name
         self.inputs = inputs
         self.outputs = outputs
     }
@@ -72,6 +80,8 @@ public struct InputPropertySchema: Sendable, Hashable {
     public var type: ValueType
     /// The default value of the property, if any.
     public var defaultValue: Value?
+    /// An optional range for numerical values.
+    public var range: ClosedRange<Double>?
     /// The `ValueSemantics` associated with this input.
     public var semantics: ValueSemantics
 

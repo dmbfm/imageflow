@@ -27,14 +27,14 @@ public extension NodeKind {
         case .addNode(_): "Add"
         case .passthroughNode(_): "Passthrough"
         case .angleNode: "Angle"
-        case .blur(_):
-            fatalError("TODO")
+        case .coreImageFilterNode(let kind):
+            kind.impl.schema.displayName
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
-        case .blur(_):
+        case .coreImageFilterNode(_):
             .orange
         case .valueNode(_):
             .blue
@@ -51,7 +51,7 @@ public extension NodeKind {
         switch self {
         case .addNode(_):
             "plus.circle.fill"
-        case .blur(_):
+        case .coreImageFilterNode(_):
             "camera.filters"
         case .passthroughNode(_):
             "arrow.right.circle.dotted"

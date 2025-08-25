@@ -25,4 +25,8 @@ public struct AffineTransform: Sendable, Codable, Hashable {
     public var cgAffineTransform: CGAffineTransform {
         .init(self.m11, self.m12, self.m21, self.m22, self.tX, self.tY)
     }
+
+    public var fAffineTransform: Foundation.AffineTransform {
+        .init(m11: self.m11, m12: self.m12, m21: self.m21, m22: self.m22, tX: self.tX, tY: self.tY)
+    }
 }

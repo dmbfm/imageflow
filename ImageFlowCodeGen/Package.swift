@@ -9,6 +9,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "601.0.1"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(path: "../ImageFlowKit"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -17,10 +18,16 @@ let package = Package(
             name: "Cli",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "CodeGen",
             ]
         ),
         .target(
-            name: "CodeGen"
+            name: "CodeGen",
+            dependencies: [
+                .product(name: "Values", package: "ImageFlowKit"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+            ],
         ),
     ]
 )

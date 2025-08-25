@@ -13,4 +13,13 @@ public enum ColorSpace: Sendable, Codable, Hashable {
             return CGColorSpace(name: name as CFString)!
         }
     }
+
+    public var name: String {
+        switch self {
+            case .sRGB:
+                CGColorSpace.sRGB as String
+            case .named(let name):
+                name
+        }
+    }
 }
