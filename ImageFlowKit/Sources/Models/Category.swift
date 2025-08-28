@@ -27,11 +27,11 @@ public enum Category: CaseIterable, Identifiable, Sendable, Hashable {
             ValueType.allCases.map { .valueNode($0) }
         case .colorAdjustment:
             []
-//            [
-//                CIFilterNodeKind.colorAbsoluteDifference, .colorClamp, .colorControls, .colorCrossPolynomial,
-//                .colorCube, .colorCubeWithColorSpace, .colorCubesMixedWithMask, .colorCurves, .colorInvert,
-//                .colorMap, .colorMatrix, .colorMonochrome, .colorPolynomial, .colorPosterize, .colorThreshold,
-//            ].map { .coreImageFilterNode($0) }
+        //            [
+        //                CIFilterNodeKind.colorAbsoluteDifference, .colorClamp, .colorControls, .colorCrossPolynomial,
+        //                .colorCube, .colorCubeWithColorSpace, .colorCubesMixedWithMask, .colorCurves, .colorInvert,
+        //                .colorMap, .colorMatrix, .colorMonochrome, .colorPolynomial, .colorPosterize, .colorThreshold,
+        //            ].map { .coreImageFilterNode($0) }
         default:
             []
         }
@@ -42,7 +42,7 @@ public enum NodePaletteItem {
     case addNode
     case passthroughNode
     case valueNode(ValueType)
-//    case coreImageFilterNode(CIFilterNodeKind)
+    //    case coreImageFilterNode(CIFilterNodeKind)
 
     public var defaultNode: NodeKind {
         switch self {
@@ -52,8 +52,8 @@ public enum NodePaletteItem {
             return .addNode(.float)
         case .passthroughNode:
             return .passthroughNode(.float)
-//        case .coreImageFilterNode(let filter):
-//            return .coreImageFilterNode(filter)
+        //        case .coreImageFilterNode(let filter):
+        //            return .coreImageFilterNode(filter)
         }
     }
 

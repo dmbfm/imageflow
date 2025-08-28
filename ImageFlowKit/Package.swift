@@ -32,6 +32,7 @@ let package = Package(
         .library(name: "CanvasFeature"),
         .library(name: "NodeDataStore"),
         .library(name: "SidebarFeature"),
+        .library(name: "NodePaletteService"),
         .library(name: "AppFeature"),
     ],
     dependencies: [
@@ -53,6 +54,15 @@ let package = Package(
             name: "SidebarFeature",
             dependencies: [
                 "Backend",
+                "NodePaletteService",
+            ],
+        ),
+        .target(
+            name: "NodePaletteService",
+            dependencies: [
+                "Backend",
+                "Values",
+                "Models",
             ],
         ),
         .target(

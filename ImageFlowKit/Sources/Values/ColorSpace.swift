@@ -16,10 +16,10 @@ public enum ColorSpace: Sendable, Codable, Hashable {
 
     public var name: String {
         switch self {
-            case .sRGB:
-                CGColorSpace.sRGB as String
-            case .named(let name):
-                name
+        case .sRGB:
+            CGColorSpace.sRGB as String
+        case .named(let name):
+            name
         }
     }
 }

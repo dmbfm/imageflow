@@ -15,12 +15,8 @@ extension Nodes {
         static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Bokeh Blur",
-                inputs: [
-                    
-                ],
-                outputs: [
-                    
-                ]
+                inputs: [],
+                outputs: []
             )
 
             return .init(schema: schema) { node, context in

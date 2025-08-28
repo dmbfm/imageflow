@@ -18,15 +18,10 @@ import AppKit
 public extension NodeKind {
     var displayName: String {
         switch self {
-//        case .coreImageFilterNode(_):
-//            self.schema.name
-        // filter.hashValue
-        // filter.rawValue.humanizedNameDroppingCIPrefix()
         case .valueNode(let type):
             "\(type.displayName)"
         case .addNode(_): "Add"
         case .passthroughNode(_): "Passthrough"
-        case .angleNode: "Angle"
         case .coreImageFilterNode(let kind):
             kind.impl.schema.displayName
         }
@@ -42,8 +37,6 @@ public extension NodeKind {
             .blue
         case .passthroughNode(_):
             .blue
-        case .angleNode:
-            .blue
         }
     }
 
@@ -57,8 +50,6 @@ public extension NodeKind {
             "arrow.right.circle.dotted"
         case .valueNode(_):
             "number.circle.fill"
-        case .angleNode:
-            "angle"
         }
     }
 

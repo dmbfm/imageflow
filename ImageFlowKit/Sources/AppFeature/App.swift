@@ -51,7 +51,7 @@ extension ImageFlowDocument {
         let id = UUID()
         let doc = ImageFlowDocument(
             canvas: .init(nodePositions: [id: .zero]),
-            nodeData: .init([id: .init(id: id, kind: .addNode(.float))])
+            nodeData: .init([id: .init(id: id, kind: .coreImageFilterNode(.colorEffect(.CIXRay)))])
         )
         print("doc: \(doc)")
         return doc

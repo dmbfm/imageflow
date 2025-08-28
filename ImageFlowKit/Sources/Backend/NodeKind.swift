@@ -6,7 +6,6 @@ import Values
 public enum NodeKind: Sendable, Hashable, Codable {
     case addNode(NumericValueType)
     case valueNode(ValueType)
-    case angleNode
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
 }
@@ -16,8 +15,6 @@ extension NodeKind {
         switch self {
         case .addNode(let type):
             Nodes.AddNode.impl(type)
-        case .angleNode:
-            Nodes.AngleNode.impl()
         case .valueNode(let type):
             Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
