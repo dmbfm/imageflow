@@ -40,14 +40,14 @@ extension FilterInfo {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)))
+                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(input.type?.semanticsExpr ?? ".default"))
                             """
                     )
                 } else {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue))
+                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr ?? ".default"))
                             """
                     )
                 }
@@ -62,6 +62,29 @@ extension FilterInfo {
                 filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
                 """
             }
+        }
+    }
+}
+
+extension InputType {
+    var semanticsExpr: String {
+        switch self {
+        case .angle: ".angle"
+        case .boolean: ".boolean"
+        case .color: ".color"
+        case .count: ".count"
+        case .distance: ".distance"
+        case .gradient: ".gradient"
+        case .image: ".image"
+        case .integer: ".integer"
+        case .offset: ".offset"
+        case .opaqueColor: ".opaqueColor"
+        case .position: ".position2"
+        case .position3: ".position3"
+        case .rectangle: ".rectangle"
+        case .scalar: ".default"
+        case .time: ".time"
+        case .transform: ".transform"
         }
     }
 }
