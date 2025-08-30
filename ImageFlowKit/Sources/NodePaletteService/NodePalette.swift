@@ -129,7 +129,7 @@ public struct NodePaletteService: Sendable {
         // Geometry Adjustment
         result.append(
             .init(
-                name: .generator,
+                name: .geometryAdjustment,
                 items: CIFilterNodeKind.GeometryadjustmentNodeKind.allCases.map { type in
                     let kind = NodeKind.coreImageFilterNode(.geometryAdjustment(type))
                     return NodePaletteItem(
@@ -301,5 +301,5 @@ public struct NodePaletteItem: Sendable, Hashable, Identifiable {
     public var icon: String
     public var nodeKind: NodeKind
 
-    public var id: NodeKind { self.nodeKind }
+    public var id: Self { self }
 }

@@ -46,10 +46,10 @@ struct ImageFlowDocument: FileDocument, Codable, Equatable {
         return fw
     }
     
-    mutating func addNode(fromPaletteItem item: NodePaletteItem) {
+    mutating func addNode(fromPaletteItem item: NodePaletteItem, at position: CGPoint = .zero) {
         let id = UUID()
         self.nodeData.addNode(.init(id: id, kind: item.nodeKind))
-        self.canvas.nodePositions[id] = .init(x: 500, y: 500)
+        self.canvas.nodePositions[id] = position
     }
 }
 

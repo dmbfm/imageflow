@@ -72,12 +72,21 @@ struct NodePaletteListView: View {
 
 struct NodePaletteSheetView: View {
     var onTapItem: ((NodePaletteItem) -> ())?
+    var topPadding: CGFloat {
+        if #available(iOS 26, *) {
+            -50
+        } else {
+            0
+        }
+    }
     var body: some View {
         NavigationStack {
             NodePaletteListView() {  self.onTapItem?($0) }
                 .navigationBarBackButtonHidden()
+                .navigationTitle("Add Node")
+                .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(.top, -50)
+        .padding(.top, self.topPadding)
     }
 }
 
