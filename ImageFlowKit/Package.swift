@@ -47,6 +47,7 @@ let package = Package(
                 "Backend",
                 "CanvasFeature",
                 "NodeDataStore",
+                "NodePaletteService",
                 "Models",
             ],
         ),

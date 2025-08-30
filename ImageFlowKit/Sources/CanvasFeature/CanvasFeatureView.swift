@@ -22,6 +22,8 @@ public struct CanvasFeatureView: View {
     }
 
     func viewForNode(_ id: UUID) -> (any CanvasNodeView)? {
+        log("nodes: \(self.nodeDataStore.nodes)")
+        log("positions: \(self.state.nodePositions)")
         guard let node = self.nodeDataStore.nodes[id] else {
             log("Node data not found for id: \(id)", level: .warning)
             return nil
@@ -39,6 +41,12 @@ public struct CanvasFeatureView: View {
                 self.$state.nodePositions,
                 self.viewForNode
             )
+            .onChange(of: self.nodeDataStore) {
+                log("onChangeOfNodes: \(self.nodeDataStore.nodes)")
+            }
+            .onChange(of: self.state) {
+                log("onChangeOfState")
+            }
         }
     }
 }

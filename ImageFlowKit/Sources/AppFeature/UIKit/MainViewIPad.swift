@@ -9,11 +9,17 @@
 
 import SwiftUI
 import CanvasFeature
+import NodePaletteService
 
 struct MainViewIPad: View {
 
     @Binding var document: ImageFlowDocument
     @State var showNodePaletteModal: Bool = false
+    
+    func onNodePaletteTapItem(_ item: NodePaletteItem) {
+        self.document.addNode(fromPaletteItem: item)
+        self.showNodePaletteModal = false
+    }
 
     var body: some View {
         ZStack {
@@ -23,7 +29,7 @@ struct MainViewIPad: View {
         .toolbar { self.toolbarContent }
         .toolbarRole(.editor)
         .sheet(isPresented: self.$showNodePaletteModal) {
-
+            NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
         }
     }
 

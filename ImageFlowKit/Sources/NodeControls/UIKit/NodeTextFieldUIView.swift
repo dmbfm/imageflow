@@ -133,6 +133,7 @@ public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     @objc
     func onTapLabel() {
+        log("tapped!")
         self.state = .editing
     }
 
@@ -151,7 +152,9 @@ public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     var state: State = .idle {
         didSet {
-            self.update()
+            if self.state != oldValue {
+                self.update()
+            }
         }
     }
 
@@ -164,6 +167,7 @@ public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             self.layer.borderWidth = 0
         case .editing:
             self.label.isHidden = true
+            self.textField.keyboardType = .decimalPad
             self.textField.isHidden = false
             self.textField.becomeFirstResponder()
             //            self.layer.shadowOpacity = 0.6

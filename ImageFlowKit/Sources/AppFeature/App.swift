@@ -1,4 +1,5 @@
 import CanvasFeature
+import NodePaletteService
 import NodeDataStore
 import SwiftUI
 import UniformTypeIdentifiers
@@ -43,6 +44,12 @@ struct ImageFlowDocument: FileDocument, Codable, Equatable {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let fw = FileWrapper(directoryWithFileWrappers: [:])
         return fw
+    }
+    
+    mutating func addNode(fromPaletteItem item: NodePaletteItem) {
+        let id = UUID()
+        self.nodeData.addNode(.init(id: id, kind: item.nodeKind))
+        self.canvas.nodePositions[id] = .init(x: 500, y: 500)
     }
 }
 

@@ -47,6 +47,9 @@ public struct CanvasView: PlatformViewRepresentable {
     }
 
     public func updateView(_ view: ViewType, context: Context) {
+
+        view.viewForNode = self.viewForNode
+
         if view.viewport != self.viewport {
             view.viewport = self.viewport
         }

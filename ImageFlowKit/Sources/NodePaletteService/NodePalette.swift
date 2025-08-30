@@ -3,7 +3,7 @@ import Models
 import Values
 
 public struct NodePaletteService: Sendable {
-    public private(set) lazy var categories: [NodePaletteCategory] = {
+    public let categories: [NodePaletteCategory] = {
 
         var result = [NodePaletteCategory]()
 
@@ -28,7 +28,7 @@ public struct NodePaletteService: Sendable {
                 items: ValueType.allCases.map { type in
                     let kind: NodeKind = .valueNode(type)
                     return NodePaletteItem(
-                        displayName: kind.schema.displayName,
+                        displayName: kind.displayName,
                         icon: kind.icon,
                         nodeKind: kind
                     )
@@ -259,7 +259,7 @@ public struct NodePaletteService: Sendable {
             )
         )
 
-        return []
+        return result
     }()
 
     public init() {}
