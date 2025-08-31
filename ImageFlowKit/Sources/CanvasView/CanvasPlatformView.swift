@@ -43,6 +43,11 @@ extension CanvasPlatformView {
             }
         }
     }
+    
+    func edgeLayersDidChange() {
+        log("edgeLayersDidChange")
+        self.gridViewDraw()
+    }
 
     // MARK: - Node Management
 

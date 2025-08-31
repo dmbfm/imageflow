@@ -84,7 +84,9 @@ struct NodePaletteSheetView: View {
             NodePaletteListView() {  self.onTapItem?($0) }
                 .navigationBarBackButtonHidden()
                 .navigationTitle("Add Node")
+                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
         }
         .padding(.top, self.topPadding)
     }

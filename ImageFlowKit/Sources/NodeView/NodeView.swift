@@ -19,12 +19,58 @@ import UIKit
 public typealias NodeView = NodeUIView
 #endif
 
+// MARK: - Event
+ 
 extension NodeView {
     public enum Event {
         case valueDidChange(Int, Value)
     }
 }
 
+// MARK: - Ports
+
+extension NodeView {
+    /// Returns the window-coordinate frame of the port at `location`.
+    /// - Parameter slot: The slot we want the frame for.
+    /// - Returns: The frame, if the slot is valid.
+    public func portFrame(_ slot: PortSlot) -> CGRect? {
+        switch slot {
+        case .input(let port):
+            if port >= self.inputBlockView.rows.count {
+                return nil
+            }
+            let frame = self.inputBlockView.rows[port].portView.frame
+            return self.inputBlockView.rows[port].convert(frame, to: nil)
+        case .output(let port):
+            if port >= self.outputBlockView.rows.count {
+                return nil
+            }
+            let frame = self.outputBlockView.rows[port].portView.frame
+            return self.outputBlockView.rows[port].convert(frame, to: nil)
+        }
+    }
+
+    /// Returns the `PortView` for the given slot.
+    /// - Parameter slot:
+    /// - Returns:
+    public func portView(_ slot: PortSlot) -> PortView? {
+        switch slot {
+        case .input(let idx):
+            if idx < 0 || idx >= self.inputBlockView.rows.count {
+                return nil
+            }
+            return self.inputBlockView.rows[idx].portView
+        case .output(let idx):
+            if idx < 0 || idx >= self.outputBlockView.rows.count {
+                return nil
+            }
+            return self.outputBlockView.rows[idx].portView
+        }
+    }
+}
+
+// MARK: - Previews
+ 
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {
         let node: FlowNode
@@ -48,6 +94,7 @@ extension NodeView {
     }
 }
 
+ 
 #Preview("Add", traits: .sizeThatFitsLayout) {
     VStack {
         NodeView.Preview(node: .init(kind: .addNode(.float)))

@@ -51,7 +51,6 @@ struct MainViewIPad: View {
                     .onGeometryChange(for: CGPoint.self) { proxy in
                         proxy.frame(in: .local).center
                     } action: { newValue in
-                        print("center: \(newValue)")
                         self.canvasCenter.value = newValue
                     }
             }

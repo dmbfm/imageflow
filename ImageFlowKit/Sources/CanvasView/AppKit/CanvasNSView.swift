@@ -30,6 +30,15 @@ public final class CanvasNSView: NSView {
         }
     }
 
+    public var edgeLayers: [EdgeLayer] = [] {
+        didSet {
+            log("edgeLayersDidSet")
+            if self.edgeLayers != oldValue {
+                self.edgeLayersDidChange()
+            }
+        }
+    }
+
     public var configuration: CanvasConfiguration = .init()
 
     public var onEvent: ((Event) -> ())?
@@ -216,7 +225,8 @@ public final class CanvasNSView: NSView {
     }
 
     func gridViewDraw() {
-        self.gridView.draw(viewport: self.viewport)
+        log("drawing: \(self.viewport), \(self.edgeLayers)")
+        self.gridView.draw(viewport: self.viewport, edges: self.edgeLayers)
     }
 
     // MARK: - ContentView Methods

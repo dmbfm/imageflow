@@ -45,6 +45,7 @@ let package = Package(
             name: "AppFeature",
             dependencies: [
                 "Backend",
+                "CommonUtils",
                 "CanvasFeature",
                 "NodeDataStore",
                 "NodePaletteService",
@@ -170,6 +171,7 @@ let package = Package(
                 "PlatformUtils",
                 "SwiftUIUtils",
                 "ColorUtils",
+                "Models",
                 .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
             ]
         ),
@@ -179,6 +181,7 @@ let package = Package(
                 "Backend",
                 "Logging",
                 "CanvasView",
+                "Models",
                 "NodeView",
                 "NodeDataStore",
                 "SwiftUIUtils",

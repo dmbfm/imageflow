@@ -3,9 +3,8 @@
 A node-based image effects composer.
 
 ### TODO
-- Node Edges
-  - [ ] Drawing
-  - [ ] Drag port to create edge
+- Remove focus from any node controls (e.g., number input) when the user touches/clicks anything
+- Canvas Annotations (E.g., error messages, etc.)
 - Node Inspector
 - Node selection system
 - Asset Browser
@@ -17,9 +16,16 @@ A node-based image effects composer.
   - Colors
   - Transforms
 - macOS MainView
+- Previews
 
 ### DOING
-- [iOS] Node palette new node position
+- Node Edges
+  - [ ] Drawing
+    - [X] Draw full edges
+    - [ ] Draw partial edges
+  - [ ] Drag port to create edge
+
 
 ### DONE
 - Basic NodePalette
+- [iOS] Node palette new node position

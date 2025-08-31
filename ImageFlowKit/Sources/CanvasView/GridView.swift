@@ -29,6 +29,7 @@ public final class GridView: PlatformView {
     init() {
         super.init(frame: .zero)
         self.platformInit()
+        self.setupShapeLayers()
     }
 
     required init?(coder: NSCoder) {
@@ -61,8 +62,10 @@ public final class GridView: PlatformView {
     /// - Parameter viewport: The viewport state.
     /// - Parameter edges: The list of edges to be drawn.
     // func draw(viewport: CanvasViewport, edges: [EdgeLayer]) {
-    func draw(viewport: CanvasViewport) {
+    func draw(viewport: CanvasViewport, edges: [EdgeLayer]) {
+        log("draw: viewport: \(viewport), edges: \(edges)", level: .debug)
         self.viewport = viewport
+        self.edgesLayersToDraw = edges
         #if os(macOS)
         self.needsDisplay = true
         #else
@@ -80,7 +83,7 @@ public final class GridView: PlatformView {
         if let viewport = self.viewport, let layer = self.layer {
             self.drawBackgroundTiles(context, layer, viewport)
         }
-        // self.drawEdges(context)
+        self.drawEdges(context)
     }
     #endif
 
@@ -93,9 +96,70 @@ public final class GridView: PlatformView {
         if let viewport = self.viewport {
             self.drawBackgroundEllipses(context, self.layer, viewport)
         }
-        // self.drawEdges(context)
+        self.drawEdges(context)
     }
     #endif
+
+    var edgesLayersToDraw: [EdgeLayer] = []
+
+    var edgeShapeLayers: [CAShapeLayer] = []
+
+    var curves: [UUID: (EdgeCurve, Int)] = [:]
+    
+    private func setupShapeLayers() {
+        for _ in 0..<10 {
+            let layer = CAShapeLayer()
+            layer.fillColor = nil
+            layer.strokeColor = Colors.portConnected.cgColor
+            layer.lineWidth = 4.0
+            #if os(macOS)
+            layer.delegate = self
+            #endif
+            self.layer().addSublayer(layer)
+            self.edgeShapeLayers.append(layer)
+        }
+    }
+
+    private func drawEdges(_ ctx: CGContext) {
+        log("drawing edges: \(self.edgesLayersToDraw)")
+        guard let viewport = self.viewport else {
+            log("Viewport is missing!", level: .warning)
+            return
+        }
+
+        self.curves.removeAll()
+        
+        if self.edgesLayersToDraw.count > self.edgeShapeLayers.count {
+            fatalError("Insufficient edge shape layers!")
+        }
+        
+        for layer in edgeShapeLayers {
+            layer.path = nil
+        }
+        
+        for (idx, edgeLayer) in self.edgesLayersToDraw.enumerated() {
+            let edgesPath = {
+                let path = CGMutablePath()
+
+                for edge in edgeLayer.edges {
+                    let curve = EdgeCurve(start: edge.src, end: edge.dst, withViewport: viewport)
+                    curve.addToPath(path)
+                    self.curves[edge.id] = (curve, idx)
+                }
+
+                return path
+            }()
+
+            let edgeWidth = viewport.convert(4.0, from: .canvas, to: .screen)
+
+            let layer = self.edgeShapeLayers[idx]
+
+            layer.lineCap = .round
+            layer.lineWidth = edgeWidth
+            layer.path = edgesPath
+            layer.strokeColor = edgeLayer.color.cgColor
+        }
+    }
 
     #if os(macOS)
     public override func scrollWheel(with event: NSEvent) {
@@ -234,5 +298,10 @@ public final class GridView: PlatformView {
             }
         }
     }
-
 }
+
+#if os(macOS)
+extension GridView: CALayerDelegate {
+    
+}
+#endif

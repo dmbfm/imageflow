@@ -1,10 +1,9 @@
 import CommonUtils
 import Logging
+import Models
 import PlatformUtils
 import SwiftUI
 import SwiftUIUtils
-
-public let canvasCoordinateSpaceName = "canvas"
 
 #if canImport(AppKit)
 import AppKit
@@ -14,19 +13,27 @@ import UIKit
 
 @MainActor
 public struct CanvasView: PlatformViewRepresentable {
+
+    // MARK: - Bindings
     @Binding var viewport: CanvasViewport
     @Binding var nodePositions: [UUID: CGPoint]
+    let edgeLayers: [EdgeLayer]
+    let canvasPlatformViewRef: PlatformViewRef
 
     let viewForNode: (UUID) -> (any CanvasNodeView)?
 
     public init(
         _ viewport: Binding<CanvasViewport>,
         _ nodePositions: Binding<[UUID: CGPoint]>,
+        _ edges: [EdgeLayer],
+        _ canvasPlatformViewRef: PlatformViewRef,
         _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil }
     ) {
         self._viewport = viewport
         self._nodePositions = nodePositions
+        self.edgeLayers = edges
         self.viewForNode = viewForNode
+        self.canvasPlatformViewRef = canvasPlatformViewRef
     }
 
     public func makeView(context: Context) -> CanvasPlatformView {
@@ -43,6 +50,9 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.nodePositions = nodePositions
             }
         }
+        self.canvasPlatformViewRef.view = view
+        view.edgeLayers = self.edgeLayers
+        log("makeView: edgeLayers: \(self.edgeLayers)", level: .debug)
         return view
     }
 
@@ -55,8 +65,12 @@ public struct CanvasView: PlatformViewRepresentable {
         }
 
         if view.nodePositions != self.nodePositions {
-            log("updating node position!")
             view.nodePositions = self.nodePositions
+        }
+
+        log("updateView: \(self.edgeLayers), \(view.edgeLayers)", level: .debug)
+        if view.edgeLayers != self.edgeLayers {
+            view.edgeLayers = self.edgeLayers
         }
     }
 }
