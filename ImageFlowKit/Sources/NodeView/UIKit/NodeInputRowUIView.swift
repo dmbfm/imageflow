@@ -18,7 +18,17 @@ import PlatformUtils
 import SwiftUI
 import Values
 
-class NodeInputRowUIView: UIView {
+final class NodeInputRowUIView: UIView, NodeInputRowViewProtocol {
+
+    public var input: FlowNode.Input {
+        didSet {
+            if self.input != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    public var onEvent: ((Event) -> ())?
 
     lazy var portView: PortView = {
         let view = PortView()
@@ -37,14 +47,8 @@ class NodeInputRowUIView: UIView {
 
     var controlView: (any NodeControl)?
 
-    var onEvent: ((Event) -> ())?
-
-    enum Event {
-        case valueDidChange(Value)
-        case sizeDidChange
-    }
-
-    init(_ input: FlowNode.Input) {
+    public init(_ input: FlowNode.Input) {
+        self.input = input
         super.init(frame: .zero)
 
         self.addSubview(self.portView)
@@ -52,6 +56,13 @@ class NodeInputRowUIView: UIView {
 
         self.addSubview(self.labelView)
         self.labelView.text = input.label
+
+        self.portView.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let data):
+                self?.onEvent?(.dragPort(data))
+            }
+        }
 
         self.controlView =
             switch input.value.type {
@@ -66,16 +77,36 @@ class NodeInputRowUIView: UIView {
                 self?.onEvent?(.valueDidChange(value))
                 break
             case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.setNeedsLayout()
-                self?.onEvent?(.sizeDidChange)
+                self?.updateSize()
             }
         }
+
         self.addSubview(self.controlView!)
     }
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    func update() {
+        if self.portView.connected != self.input.connected {
+            self.portView.connected = self.input.connected
+        }
+
+        if self.controlView?.value != self.input.value {
+            self.controlView?.value = self.input.value
+        }
+
+        if self.labelView.text != self.input.label {
+            self.labelView.text = self.input.label
+            self.updateSize()
+        }
+    }
+
+    func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
     }
 
     override var intrinsicContentSize: CGSize {

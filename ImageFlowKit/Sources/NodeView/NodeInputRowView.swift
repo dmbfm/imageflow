@@ -27,6 +27,21 @@ import UIKit
 typealias NodeInputRowView = NodeInputRowUIView
 #endif
 
+@MainActor
+protocol NodeInputRowViewProtocol {
+    var input: FlowNode.Input { get set }
+    var onEvent: ((NodeInputRowView.Event) -> ())? { get set }
+    init(_ input: FlowNode.Input)
+}
+
+extension NodeInputRowView {
+    public enum Event {
+        case sizeDidChange
+        case valueDidChange(Value)
+        case dragPort(PortView.DragData)
+    }
+}
+
 extension NodeInputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
         var input: FlowNode.Input = .init(

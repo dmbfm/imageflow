@@ -13,39 +13,66 @@ import PlatformUtils
 import SwiftUI
 import Values
 
-final class NodeInputBlockUIView: UIView {
+final class NodeInputBlockUIView: UIView, NodeInputBlockViewProtocol {
 
-    var rows: [NodeInputRowView] = []
-
-    enum Event {
-        case valueDidChange(Int, Value)
-        case sizeDidChange
+    public var inputs: [FlowNode.Input] {
+        didSet {
+            if self.inputs != oldValue {
+                self.update()
+            }
+        }
     }
 
-    var onEvent: ((Event) -> ())?
+    public private(set) var rows: [NodeInputRowView] = []
+
+    public var onEvent: ((Event) -> ())?
 
     init(_ inputs: [FlowNode.Input]) {
+        self.inputs = inputs
+
         super.init(frame: .zero)
 
+        self.popluateRows()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    func update() {
+        assert(self.inputs.count == self.rows.count, "Changing the number of inputs is not supported")
+
+        for (idx, input) in self.inputs.enumerated() {
+            if input != self.rows[idx].input {
+                self.rows[idx].input = input
+            }
+        }
+    }
+
+    func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    func popluateRows() {
         for input in inputs {
             let row = NodeInputRowView(input)
             row.onEvent = { [weak self] event in
                 switch event {
                 case .valueDidChange(let value):
                     self?.onEvent?(.valueDidChange(input.index, value))
+                case .dragPort(let data):
+                    self?.onEvent?(.dragPort(input.index, data))
                 case .sizeDidChange:
-                    self?.invalidateIntrinsicContentSize()
-                    self?.setNeedsLayout()
-                    self?.onEvent?(.sizeDidChange)
+                    self?.updateSize()
                 }
             }
             self.rows.append(row)
             self.addSubview(row)
         }
-    }
 
-    required init?(coder: NSCoder) {
-        nil
+        self.updateSize()
     }
 
     override var intrinsicContentSize: CGSize {

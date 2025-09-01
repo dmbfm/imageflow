@@ -14,6 +14,22 @@ import UIKit
 typealias NodeInputBlockView = NodeInputBlockUIView
 #endif
 
+@MainActor
+protocol NodeInputBlockViewProtocol {
+    var inputs: [FlowNode.Input] { get set }
+    var rows: [NodeInputRowView] { get }
+    var onEvent: ((NodeInputBlockView.Event) -> ())? { get set }
+    init(_ inputs: [FlowNode.Input])
+}
+
+extension NodeInputBlockView {
+    public enum Event {
+        case sizeDidChange
+        case valueDidChange(Int, Value)
+        case dragPort(Int, PortView.DragData)
+    }
+}
+
 extension NodeInputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> NodeInputBlockView {

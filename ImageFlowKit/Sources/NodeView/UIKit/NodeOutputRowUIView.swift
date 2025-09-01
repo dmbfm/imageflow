@@ -18,7 +18,15 @@ import Models
 import PlatformUtils
 import SwiftUI
 
-final class NodeOutputRowUIView: UIView {
+final class NodeOutputRowUIView: UIView, NodeOutputRowViewProtocol {
+
+    var output: FlowNode.Output {
+        didSet {
+            self.update()
+        }
+    }
+
+    var onEvent: ((Event) -> ())?
 
     var label: UILabel
 
@@ -26,8 +34,8 @@ final class NodeOutputRowUIView: UIView {
 
     init(_ output: FlowNode.Output) {
 
+        self.output = output
         self.label = UILabel(nodeRowLabelWithString: output.label)
-
         self.portView = PortView(connected: output.connected)
         self.portView.frame = .init(
             origin: .zero,
@@ -36,12 +44,25 @@ final class NodeOutputRowUIView: UIView {
 
         super.init(frame: .zero)
 
+        self.portView.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let data):
+                self?.onEvent?(.dragPort(data))
+            }
+        }
+
         self.addSubview(self.label)
         self.addSubview(self.portView)
     }
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    func update() {
+        self.portView.connected = self.output.connected
+        self.label.text = self.output.label
+        self.onEvent?(.sizeDidChange)
     }
 
     override var intrinsicContentSize: CGSize {

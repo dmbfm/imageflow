@@ -15,7 +15,7 @@ import EventEmitter
 import CommonUtils
 import NodeControls
 
-public final class NodeUIView: UIView, CanvasNodeView {
+public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
 
     // MARK: - Properties
 
@@ -71,6 +71,8 @@ public final class NodeUIView: UIView, CanvasNodeView {
             switch event {
             case let .valueDidChange(index, value):
                 self?.emitter.emit(.other(.valueDidChange(index, value)))
+            case let .dragPort(index, data):
+                self?.emitter.emit(.other(.dragPort(.input(index), data)))
             case .sizeDidChange:
                 self?.invalidateIntrinsicContentSize()
                 self?.setNeedsLayout()
@@ -82,6 +84,16 @@ public final class NodeUIView: UIView, CanvasNodeView {
 
     lazy var outputBlockView: NodeOutputBlockView = {
         let view = NodeOutputBlockView(self.node.outputs)
+        view.onEvent = { [weak self] event in
+            switch event {
+            case let .dragPort(index, data):
+                self?.emitter.emit(.other(.dragPort(.output(index), data)))
+            case .sizeDidChange:
+                self?.invalidateIntrinsicContentSize()
+                self?.setNeedsLayout()
+                self?.emitter.emit(.sizeChanged)
+            }
+        }
         return view
     }()
 

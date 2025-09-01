@@ -14,9 +14,18 @@ import UIKit
 typealias NodeOutputBlockView = NodeOutputBlockUIView
 #endif
 
+@MainActor
+protocol NodeOutputBlockViewProtocol {
+    var outputs: [FlowNode.Output] { get set }
+    var rows: [NodeOutputRowView] { get }
+    var onEvent: ((NodeOutputBlockView.Event) -> ())? { get set }
+    init(_ outputs: [FlowNode.Output])
+}
+
 extension NodeOutputBlockView {
     public enum Event {
         case sizeDidChange
+        case dragPort(Int, PortView.DragData)
     }
 }
 

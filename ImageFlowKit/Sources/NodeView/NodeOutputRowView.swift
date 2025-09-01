@@ -25,6 +25,20 @@ import UIKit
 typealias NodeOutputRowView = NodeOutputRowUIView
 #endif
 
+@MainActor
+protocol NodeOutputRowViewProtocol {
+    var output: FlowNode.Output { get set }
+    var portView: PortView { get }
+    var onEvent: ((NodeOutputRowView.Event) -> ())? { get set }
+}
+
+extension NodeOutputRowView {
+    public enum Event {
+        case sizeDidChange
+        case dragPort(PortView.DragData)
+    }
+}
+
 extension NodeOutputRowView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {

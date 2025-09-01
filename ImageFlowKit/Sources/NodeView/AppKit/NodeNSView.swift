@@ -7,7 +7,7 @@ import CanvasView
 import EventEmitter
 import PlatformUtils
 
-public final class NodeNSView: NSView, CanvasNodeView {
+public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
 
     public var node: FlowNode {
         didSet {
@@ -62,8 +62,10 @@ public final class NodeNSView: NSView, CanvasNodeView {
             switch event {
             case .sizeDidChange:
                 self?.updateSize()
-            case .valueDidChange(let value):
-                break
+            case let .dragPort(index, data):
+                self?.emitter.emit(.other(.dragPort(.input(index), data)))
+            case let .valueDidChange(index, value):
+                self?.emitter.emit(.other(.valueDidChange(index, value)))
             }
         }
         return view
@@ -75,6 +77,8 @@ public final class NodeNSView: NSView, CanvasNodeView {
             switch event {
             case .sizeDidChange:
                 self?.updateSize()
+            case let .dragPort(index, data):
+                self?.emitter.emit(.other(.dragPort(.output(index), data)))
             }
         }
         return view

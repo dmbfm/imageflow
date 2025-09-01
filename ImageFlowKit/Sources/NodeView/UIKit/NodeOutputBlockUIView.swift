@@ -5,19 +5,50 @@ import Models
 import PlatformUtils
 import SwiftUI
 
-final class NodeOutputBlockUIView: PlatformView {
-    var rows: [NodeOutputRowView] = []
+final class NodeOutputBlockUIView: PlatformView, NodeOutputBlockViewProtocol {
 
-    var onEvent: ((Event) -> ())?
+    public var outputs: [Models.FlowNode.Output] {
+        didSet {
+            if self.outputs != oldValue {
+                self.update()
+            }
+        }
+    }
 
-    init(_ outputs: [FlowNode.Output]) {
+    public private(set) var rows: [NodeOutputRowView] = []
+
+    public var onEvent: ((Event) -> ())?
+
+    public init(_ outputs: [FlowNode.Output]) {
+        self.outputs = outputs
+
         super.init(frame: .zero)
 
+        self.populateRows()
+    }
+
+    func populateRows() {
         for output in outputs {
             let row = NodeOutputRowView(output)
+            row.onEvent = { [weak self] event in
+                switch event {
+                case .sizeDidChange:
+                    self?.updateSize()
+                case .dragPort(let data):
+                    self?.onEvent?(.dragPort(output.id, data))
+                }
+            }
             self.addSubview(row)
             self.rows.append(row)
         }
+    }
+
+    func update() {}
+
+    func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {

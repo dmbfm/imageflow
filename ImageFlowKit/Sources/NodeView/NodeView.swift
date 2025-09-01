@@ -21,10 +21,17 @@ public typealias NodeView = NodeUIView
 
 // MARK: - Event
 
+@MainActor
+protocol NodeViewProtocol {
+    var node: FlowNode { get set }
+    var emitter: EventEmitter<CanvasNodeEvent<NodeView.Event>> { get }
+    init(_ node: FlowNode)
+}
+
 extension NodeView {
     public enum Event {
         case valueDidChange(Int, Value)
-        // case dragPort(PortSlot)
+        case dragPort(PortSlot, PortView.DragData)
     }
 }
 

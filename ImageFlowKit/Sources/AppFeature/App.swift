@@ -17,11 +17,11 @@ public struct ImageFlowApp: App {
         .defaultWindowPlacement { root, context in
             let screenSize = context.defaultDisplay.bounds
             let margin: CGPoint = .init(x: 0.1, y: 0.1)
-            let frame = screenSize.insetBy(dx: margin.x * screenSize.width , dy: margin.y * screenSize.height)
+            let frame = screenSize.insetBy(dx: margin.x * screenSize.width, dy: margin.y * screenSize.height)
             return .init(.center, size: frame.size)
         }
         #endif
- 
+
         #if os(iOS)
         DocumentGroupLaunchScene {}
         #endif

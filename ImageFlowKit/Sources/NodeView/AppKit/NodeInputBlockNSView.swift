@@ -6,7 +6,7 @@ import Values
 
 // MARK: - NodeInputBlockNSView
 
-final class NodeInputBlockNSView: NSView {
+final class NodeInputBlockNSView: NSView, NodeInputBlockViewProtocol {
 
     public var inputs: [FlowNode.Input] {
         didSet {
@@ -19,11 +19,6 @@ final class NodeInputBlockNSView: NSView {
     public private(set) var rows: [NodeInputRowView] = []
 
     public var onEvent: ((Event) -> ())?
-
-    public enum Event {
-        case sizeDidChange
-        case valueDidChange(Value)
-    }
 
     init(_ inputs: [FlowNode.Input]) {
         self.inputs = inputs
@@ -60,7 +55,9 @@ final class NodeInputBlockNSView: NSView {
                     self.invalidateIntrinsicContentSize()
                     self.onEvent?(.sizeDidChange)
                 case .valueDidChange(let value):
-                    self.onEvent?(.valueDidChange(value))
+                    self.onEvent?(.valueDidChange(input.id, value))
+                case .dragPort(let data):
+                    self.onEvent?(.dragPort(input.id, data))
                 }
             }
             self.addSubview(row)

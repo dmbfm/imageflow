@@ -3,7 +3,7 @@
 import AppKit
 import Models
 
-final class NodeOutputBlockNSView: NSView {
+final class NodeOutputBlockNSView: NSView, NodeOutputBlockViewProtocol {
 
     public var outputs: [FlowNode.Output] {
         didSet {
@@ -48,6 +48,8 @@ final class NodeOutputBlockNSView: NSView {
                 switch event {
                 case .sizeDidChange:
                     self?.updateSize()
+                case .dragPort(let data):
+                    self?.onEvent?(.dragPort(output.id, data))
                 }
             }
             self.addSubview(row)

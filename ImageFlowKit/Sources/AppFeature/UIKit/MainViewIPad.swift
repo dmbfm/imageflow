@@ -14,22 +14,22 @@ import NodePaletteService
 
 final class Box<T> {
     public var value: T
-    
+
     public init(_ value: T) {
         self.value = value
     }
 }
 
 struct MainViewIPad: View {
-    
+
     @Binding var document: ImageFlowDocument
     @State var showNodePaletteModal: Bool = false
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
-    
+
     var viewport: CanvasViewport {
         self.document.canvas.viewport
     }
-    
+
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
         self.document.addNode(
             fromPaletteItem: item,
@@ -37,7 +37,7 @@ struct MainViewIPad: View {
         )
         self.showNodePaletteModal = false
     }
-    
+
     func onAppear() {
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
@@ -46,11 +46,11 @@ struct MainViewIPad: View {
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
     }
-    
+
     var isIOS26: Bool {
         if #available(iOS 26, *) { true } else { false }
     }
-    
+
     var canvasView: some View {
         ZStack {
             CanvasFeatureView(self.$document.canvas, self.$document.nodeData)
@@ -61,7 +61,7 @@ struct MainViewIPad: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     var content: some View {
         if #available(iOS 26, *) {
@@ -70,7 +70,7 @@ struct MainViewIPad: View {
             self.contentIOS18
         }
     }
-    
+
     @ViewBuilder
     @available(iOS 26, *)
     var contentIOS26: some View {
@@ -89,7 +89,7 @@ struct MainViewIPad: View {
             .toolbarRole(.editor)
         }
     }
-    
+
     @ViewBuilder
     var contentIOS18: some View {
         self.canvasView
@@ -98,18 +98,18 @@ struct MainViewIPad: View {
             .toolbar { self.toolbarContent }
             .toolbarRole(.editor)
     }
-    
+
     var body: some View {
         self.content
-        .sheet(isPresented: self.$showNodePaletteModal) {
-            NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
-        }
-        .onAppear { self.onAppear() }
+            .sheet(isPresented: self.$showNodePaletteModal) {
+                NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
+            }
+            .onAppear { self.onAppear() }
     }
-    
+
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-        
+
         if #available(iOS 26, *) {
             ToolbarItem(placement: .secondaryAction) {
                 Button {
@@ -118,12 +118,12 @@ struct MainViewIPad: View {
                     Image(systemName: "plus")
                 }
             }
-            
+
             //                ToolbarSpacer(.fixed, placement: .secondaryAction)
-            
+
             ToolbarItem(placement: .secondaryAction) {
                 Button {
-                    
+
                 } label: {
                     Image(systemName: "paperclip")
                 }
@@ -136,10 +136,10 @@ struct MainViewIPad: View {
                     Image(systemName: "plus")
                 }
             }
-            
+
             ToolbarItem(placement: .secondaryAction) {
                 Button {
-                    
+
                 } label: {
                     Image(systemName: "paperclip")
                 }

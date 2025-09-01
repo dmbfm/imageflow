@@ -50,6 +50,7 @@ public struct CanvasFeatureView: View {
             case .other(let event):
                 switch event {
                 case .valueDidChange(_, _): break
+                case .dragPort(_, _): break
                 }
             }
         }
@@ -62,7 +63,7 @@ public struct CanvasFeatureView: View {
     // MARK: - Node Edges
 
     func updateEdges() {
-        var edges = [
+        let edges = [
             EdgeLayer(
                 color: Colors.portConnected.platformColor,
                 edges: self.nodeDataStore.edges.map { edge in

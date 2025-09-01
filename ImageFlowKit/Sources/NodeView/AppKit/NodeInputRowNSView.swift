@@ -8,7 +8,7 @@ import Values
 
 // MARK: - NodeInputRowNSView
 
-final class NodeInputRowNSView: NSView {
+final class NodeInputRowNSView: NSView, NodeInputRowViewProtocol {
 
     // MARK: - Initializers
 
@@ -38,11 +38,6 @@ final class NodeInputRowNSView: NSView {
         }
     }
 
-    public enum Event {
-        case sizeDidChange
-        case valueDidChange(Value)
-    }
-
     public var onEvent: ((Event) -> ())?
 
     // MARK: - Private
@@ -50,7 +45,14 @@ final class NodeInputRowNSView: NSView {
     private static let labelSafetyMargin: CGFloat = 2.0
 
     lazy var portView: PortView = {
-        PortView()
+        let view = PortView()
+        view.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let data):
+                self?.onEvent?(.dragPort(data))
+            }
+        }
+        return view
     }()
 
     lazy var labelView: NSTextField = {

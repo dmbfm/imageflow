@@ -12,7 +12,7 @@ import AppKit
 import CommonUtils
 import Models
 
-final class NodeOutputRowNSView: NSView {
+final class NodeOutputRowNSView: NSView, NodeOutputRowViewProtocol {
 
     public var output: FlowNode.Output {
         didSet {
@@ -23,10 +23,6 @@ final class NodeOutputRowNSView: NSView {
     }
 
     public var onEvent: ((Event) -> ())?
-
-    public enum Event {
-        case sizeDidChange
-    }
 
     var portView: PortView
     var labelView: NSTextField
@@ -48,6 +44,13 @@ final class NodeOutputRowNSView: NSView {
 
         super.init(frame: .zero)
 
+        self.portView.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let data):
+                self?.onEvent?(.dragPort(data))
+            }
+        }
+
         self.addSubview(self.portView)
         self.addSubview(self.labelView)
     }
@@ -57,7 +60,11 @@ final class NodeOutputRowNSView: NSView {
     }
 
     func update() {
-
+        self.portView.connected = self.output.connected
+        if self.output.label != self.labelView.stringValue {
+            self.labelView.stringValue = self.output.label
+            self.onEvent?(.sizeDidChange)
+        }
     }
 
     override var isFlipped: Bool {
