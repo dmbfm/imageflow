@@ -4,14 +4,14 @@ import Logging
 import Models
 import NodeDataStore
 import NodeView
-import  PlatformUtils
+import PlatformUtils
 import SwiftUI
 
 import enum CanvasView.CoordinateSpace
 
 public struct CanvasFeatureView: View {
 
-    // MARK: - State 
+    // MARK: - State
 
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
@@ -20,7 +20,7 @@ public struct CanvasFeatureView: View {
     @State var canvasPlatformViewRef: PlatformViewRef = .init()
 
     // MARK: - Initializers
-     
+
     public init(_ state: Binding<CanvasFeatureState>, _ nodeDataStore: Binding<NodeDataStore>) {
         self._state = state
         self._nodeDataStore = nodeDataStore
@@ -59,9 +59,8 @@ public struct CanvasFeatureView: View {
         return view
     }
 
-
     // MARK: - Node Edges
-    
+
     func updateEdges() {
         var edges = [
             EdgeLayer(
@@ -114,7 +113,6 @@ public struct CanvasFeatureView: View {
         guard let frame = self.portFrame(location) else { return nil }
         return self.state.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
-
 
     public var body: some View {
         ZStack {

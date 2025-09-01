@@ -6,9 +6,15 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string></string>
+			<string>ImageFlow Document</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.dmbfm.imageFlowDocument</string>
+            </array>
+                <!-- If it’s a package: -->
+            <key>LSTypeIsPackage</key><true/>
 		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>

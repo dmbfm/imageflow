@@ -9,6 +9,7 @@ import Design
 import EventEmitter
 import PlatformUtils
 import SwiftUI
+import Logging
 
 #if canImport(AppKit)
 import AppKit
@@ -71,6 +72,14 @@ public final class PortView: PlatformView {
     func platformInit() {
         self.backgroundColor = .clear
         self.clipsToBounds = false
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
+        self.addGestureRecognizer(panGesture)
+    }
+    
+    @objc
+    func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        log("pan: \(gesture.location(in: nil))")
     }
 
     public override func draw(_ rect: CGRect) {
@@ -104,7 +113,13 @@ public final class PortView: PlatformView {
     var style: Style = .macOS
 
     func platformInit() {
+        let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
+        self.addGestureRecognizer(panGesture)
+    }
 
+    @objc
+    func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
+        log("pan: \(gesture.location(in: nil))")
     }
 
     public override func draw(_ dirtyRect: NSRect) {

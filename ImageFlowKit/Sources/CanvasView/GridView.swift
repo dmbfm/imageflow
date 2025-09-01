@@ -105,7 +105,7 @@ public final class GridView: PlatformView {
     var edgeShapeLayers: [CAShapeLayer] = []
 
     var curves: [UUID: (EdgeCurve, Int)] = [:]
-    
+
     private func setupShapeLayers() {
         for _ in 0..<10 {
             let layer = CAShapeLayer()
@@ -128,15 +128,15 @@ public final class GridView: PlatformView {
         }
 
         self.curves.removeAll()
-        
+
         if self.edgesLayersToDraw.count > self.edgeShapeLayers.count {
             fatalError("Insufficient edge shape layers!")
         }
-        
+
         for layer in edgeShapeLayers {
             layer.path = nil
         }
-        
+
         for (idx, edgeLayer) in self.edgesLayersToDraw.enumerated() {
             let edgesPath = {
                 let path = CGMutablePath()
@@ -302,6 +302,6 @@ public final class GridView: PlatformView {
 
 #if os(macOS)
 extension GridView: CALayerDelegate {
-    
+
 }
 #endif

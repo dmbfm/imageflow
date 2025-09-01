@@ -103,6 +103,10 @@ public final class CanvasNSView: NSView {
         nil
     }
 
+    public override var isFlipped: Bool {
+        true
+    }
+
     // MARK: - GridView Methods
 
     func setupGridView() {

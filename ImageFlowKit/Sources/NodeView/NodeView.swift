@@ -20,10 +20,11 @@ public typealias NodeView = NodeUIView
 #endif
 
 // MARK: - Event
- 
+
 extension NodeView {
     public enum Event {
         case valueDidChange(Int, Value)
+        // case dragPort(PortSlot)
     }
 }
 
@@ -70,7 +71,7 @@ extension NodeView {
 }
 
 // MARK: - Previews
- 
+
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {
         let node: FlowNode
@@ -94,7 +95,6 @@ extension NodeView {
     }
 }
 
- 
 #Preview("Add", traits: .sizeThatFitsLayout) {
     VStack {
         NodeView.Preview(node: .init(kind: .addNode(.float)))

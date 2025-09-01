@@ -13,7 +13,15 @@ public struct ImageFlowApp: App {
         DocumentGroup(newDocument: ImageFlowDocument.sample) { configuration in
             MainView(document: configuration.$document)
         }
-
+        #if os(macOS)
+        .defaultWindowPlacement { root, context in
+            let screenSize = context.defaultDisplay.bounds
+            let margin: CGPoint = .init(x: 0.1, y: 0.1)
+            let frame = screenSize.insetBy(dx: margin.x * screenSize.width , dy: margin.y * screenSize.height)
+            return .init(.center, size: frame.size)
+        }
+        #endif
+ 
         #if os(iOS)
         DocumentGroupLaunchScene {}
         #endif
@@ -22,7 +30,6 @@ public struct ImageFlowApp: App {
 
 struct ImageFlowDocument: FileDocument, Codable, Equatable {
     init(canvas: CanvasFeatureState = .init(), nodeData: NodeDataStore = .init()) {
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.canvas = canvas
         self.nodeData = nodeData
     }
@@ -74,7 +81,7 @@ extension ImageFlowDocument {
                 edges: .init(
                     [
                         .init(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!,
-                        .init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(0)))!,
+                        .init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!,
                     ])
             )
         )
@@ -85,6 +92,6 @@ extension ImageFlowDocument {
 
 extension UTType {
     static var imageFlowDocument: Self {
-        .init(exportedAs: "com.dmbfm.imageFlowDocument")
+        .init(exportedAs: "com.dmbfm.imageFlowDocument", conformingTo: .package)
     }
 }

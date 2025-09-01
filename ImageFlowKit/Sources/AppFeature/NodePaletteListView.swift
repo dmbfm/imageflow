@@ -1,14 +1,14 @@
+import Logging
 import Models
 import NodePaletteService
 import SwiftUI
-import Logging
 
 struct NodePaletteListView: View {
 
     @State var searchText: String = ""
-    
+
     var onTapItem: ((NodePaletteItem) -> ())?
-    
+
     var categories: [NodePaletteCategory] {
         if searchText.isEmpty {
             return NodePaletteService.shared.categories
@@ -22,17 +22,20 @@ struct NodePaletteListView: View {
             }.filter({ !$0.items.isEmpty })
         }
     }
-    
-    @State var expanded: [NodePaletteCategoryName:Bool] = [:]
-    
+
+    @State var expanded: [NodePaletteCategoryName: Bool] = [:]
+
     func expandedBinding(_ name: NodePaletteCategoryName) -> Binding<Bool> {
-        .init(get: {
-            expanded[name, default: true]
-        }, set: {
-            expanded[name, default: true] = $0
-        })
+        .init(
+            get: {
+                expanded[name, default: true]
+            },
+            set: {
+                expanded[name, default: true] = $0
+            }
+        )
     }
-    
+
     func onTapItemHandler(_ item: NodePaletteItem) {
         log("Tapped item: \(item.displayName)")
         self.onTapItem?(item)
@@ -46,10 +49,10 @@ struct NodePaletteListView: View {
                         HStack(spacing: 8) {
                             Image(systemName: item.icon)
                                 .foregroundStyle(item.nodeKind.frontendNodeColor.color)
-//                                .resizable()
-//                                .aspectRatio(contentMode: .fit)
-//                                .frame(width: 12, height: 12)
-//                                .bold()
+                            //                                .resizable()
+                            //                                .aspectRatio(contentMode: .fit)
+                            //                                .frame(width: 12, height: 12)
+                            //                                .bold()
 
                             Text(item.displayName)
                             Spacer()
@@ -81,11 +84,11 @@ struct NodePaletteSheetView: View {
     }
     var body: some View {
         NavigationStack {
-            NodePaletteListView() {  self.onTapItem?($0) }
+            NodePaletteListView() { self.onTapItem?($0) }
                 .navigationBarBackButtonHidden()
                 .navigationTitle("Add Node")
                 #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
                 #endif
         }
         .padding(.top, self.topPadding)
@@ -100,6 +103,6 @@ struct NodePaletteSheetView: View {
     }
     .sheet(isPresented: .constant(true)) {
         NodePaletteSheetView()
-//            .presentationDetents([.medium, .large])
+        //            .presentationDetents([.medium, .large])
     }
 }

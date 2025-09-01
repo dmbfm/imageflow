@@ -20,10 +20,8 @@ A node-based image effects composer.
 
 ### DOING
 - Node Edges
-  - [ ] Drawing
-    - [X] Draw full edges
-    - [ ] Draw partial edges
-  - [ ] Drag port to create edge
+  - [X] Draw full edges
+  - [ ] Drag port to create edge / Draw partial edges
 
 
 ### DONE
