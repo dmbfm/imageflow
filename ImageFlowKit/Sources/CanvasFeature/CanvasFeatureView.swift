@@ -22,9 +22,28 @@ public struct CanvasFeatureView: View {
 
     // MARK: - Types
 
-    private struct PartialEdge {
+    private struct PartialEdge: Sendable, Equatable {
         var port: PortLocation
         var pointer: CGPoint
+        var state: State = .default
+
+        enum State: Equatable {
+            case `default`
+            case cantConnect
+            case canConnect
+        }
+
+        var color: PlatformColor {
+            switch self.state {
+            case .default:
+                Colors.portConnected.platformColor
+            case .canConnect:
+                Colors.edgeWithSuccess.platformColor
+            case .cantConnect:
+                Colors.edgeWithError.platformColor
+            }
+        }
+
     }
 
     // MARK: - Initializers
@@ -71,7 +90,8 @@ public struct CanvasFeatureView: View {
     // MARK: - Node Edges
 
     func updateEdges() {
-        let edges = [
+        log("portDragHandler: updateEdges")
+        var edges = [
             EdgeLayer(
                 color: Colors.portConnected.platformColor,
                 edges: self.nodeDataStore.edges.map { edge in
@@ -84,25 +104,26 @@ public struct CanvasFeatureView: View {
             )
         ]
 
-        // if let e = self.partialEdge {
+        if let e = self.partialEdge {
 
-        //     let point = self.state.viewport.convert(
-        //         self.converter.convertFromWindow(e.point),
-        //         from: .screen,
-        //         to: .canvas
-        //     )
-        //     let (src, dst) =
-        //         switch e.port.slot {
-        //         case .input:
-        //             (point, self.portFrameCenter(e.port)!)
-        //         case .output:
-        //             (self.portFrameCenter(e.port)!, point)
-        //         }
+            let point = self.state.viewport.convert(
+                self.canvasPlatformViewRef.view!.convert(e.pointer, from: nil),
+                //self.converter.convertFromWindow(e.point),
+                from: .screen,
+                to: .canvas
+            )
+            let (src, dst) =
+                switch e.port.slot {
+                case .input:
+                    (point, self.portFrameCenter(e.port)!)
+                case .output:
+                    (self.portFrameCenter(e.port)!, point)
+                }
 
-        //     edges.append(
-        //         .init(color: e.color, edges: [.init(src: src, dst: dst)])
-        //     )
-        // }
+            edges.append(
+                .init(color: e.color, edges: [.init(src: src, dst: dst)])
+            )
+        }
 
         self.edgeLayers = edges
 
@@ -112,7 +133,15 @@ public struct CanvasFeatureView: View {
     // MARK: - Port
 
     func portDragHandler(_ port: PortLocation, _ data: PortView.DragData) {
-        log("port: \(port), data: \(data)")
+        switch data.phase {
+        case .began: break
+        case .changed:
+            self.partialEdge = .init(port: port, pointer: data.locationInWindow)
+            self.updateEdges()
+        case .cancelled, .ended:
+            self.partialEdge = nil
+            self.updateEdges()
+        }
     }
 
     func portFrame(_ location: PortLocation) -> CGRect? {
