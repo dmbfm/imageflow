@@ -68,15 +68,16 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
     lazy var inputBlockView: NodeInputBlockView = {
         let view = NodeInputBlockView(self.node.inputs)
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case let .valueDidChange(index, value):
-                self?.emitter.emit(.other(.valueDidChange(index, value)))
+                self.emitter.emit(.other(.valueDidChange(index, value)))
             case let .dragPort(index, data):
-                self?.emitter.emit(.other(.dragPort(.input(index), data)))
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .input(index)), data)))
             case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.setNeedsLayout()
-                self?.emitter.emit(.sizeChanged)
+                self.invalidateIntrinsicContentSize()
+                self.setNeedsLayout()
+                self.emitter.emit(.sizeChanged)
             }
         }
         return view
@@ -85,13 +86,14 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
     lazy var outputBlockView: NodeOutputBlockView = {
         let view = NodeOutputBlockView(self.node.outputs)
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case let .dragPort(index, data):
-                self?.emitter.emit(.other(.dragPort(.output(index), data)))
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .output(index)), data)))
             case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.setNeedsLayout()
-                self?.emitter.emit(.sizeChanged)
+                self.invalidateIntrinsicContentSize()
+                self.setNeedsLayout()
+                self.emitter.emit(.sizeChanged)
             }
         }
         return view

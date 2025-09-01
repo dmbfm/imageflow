@@ -59,13 +59,14 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
     lazy var inputBlockView: NodeInputBlockView = {
         let view = NodeInputBlockView(self.node.inputs)
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case .sizeDidChange:
-                self?.updateSize()
+                self.updateSize()
             case let .dragPort(index, data):
-                self?.emitter.emit(.other(.dragPort(.input(index), data)))
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .input(index)), data)))
             case let .valueDidChange(index, value):
-                self?.emitter.emit(.other(.valueDidChange(index, value)))
+                self.emitter.emit(.other(.valueDidChange(index, value)))
             }
         }
         return view
@@ -74,11 +75,12 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
     lazy var outputBlockView: NodeOutputBlockView = {
         let view = NodeOutputBlockView(self.node.outputs)
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case .sizeDidChange:
-                self?.updateSize()
+                self.updateSize()
             case let .dragPort(index, data):
-                self?.emitter.emit(.other(.dragPort(.output(index), data)))
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .output(index)), data)))
             }
         }
         return view

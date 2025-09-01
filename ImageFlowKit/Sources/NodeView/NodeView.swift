@@ -31,7 +31,7 @@ protocol NodeViewProtocol {
 extension NodeView {
     public enum Event {
         case valueDidChange(Int, Value)
-        case dragPort(PortSlot, PortView.DragData)
+        case dragPort(PortLocation, PortView.DragData)
     }
 }
 

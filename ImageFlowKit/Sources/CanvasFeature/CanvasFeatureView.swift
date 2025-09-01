@@ -15,9 +15,17 @@ public struct CanvasFeatureView: View {
 
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
-    @State var edgeLayers: [EdgeLayer] = []
-    @State var nodeViews: NodeViewCollection = .init()
-    @State var canvasPlatformViewRef: PlatformViewRef = .init()
+    @State private var edgeLayers: [EdgeLayer] = []
+    @State private var nodeViews: NodeViewCollection = .init()
+    @State private var canvasPlatformViewRef: PlatformViewRef = .init()
+    @State private var partialEdge: PartialEdge? = nil
+
+    // MARK: - Types
+
+    private struct PartialEdge {
+        var port: PortLocation
+        var pointer: CGPoint
+    }
 
     // MARK: - Initializers
 
@@ -50,7 +58,7 @@ public struct CanvasFeatureView: View {
             case .other(let event):
                 switch event {
                 case .valueDidChange(_, _): break
-                case .dragPort(_, _): break
+                case let .dragPort(port, data): self.portDragHandler(port, data)
                 }
             }
         }
@@ -102,6 +110,10 @@ public struct CanvasFeatureView: View {
     }
 
     // MARK: - Port
+
+    func portDragHandler(_ port: PortLocation, _ data: PortView.DragData) {
+        log("port: \(port), data: \(data)")
+    }
 
     func portFrame(_ location: PortLocation) -> CGRect? {
         guard let frame = self.nodeViews[location.node]?.portFrame(location.slot) else {
