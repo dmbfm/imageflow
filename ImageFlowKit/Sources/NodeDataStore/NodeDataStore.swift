@@ -250,6 +250,10 @@ public struct NodeDataStore: Sendable {
     /// We cache the validation results and invalidate when the store is changed.
     private let validateEdgesCache = ValidateEdgesCache()
 
+    public func canAddEdge(_ edge: Edge) -> Result<(), AddEdgeError> {
+        return .success(())
+    }
+
     /// Adds an edge between two node slots to the store. A number of checks are
     /// made to see if the edge is valid before inserting.
     ///

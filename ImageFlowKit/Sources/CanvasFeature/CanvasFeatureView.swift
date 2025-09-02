@@ -159,24 +159,48 @@ public struct CanvasFeatureView: View {
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
 
         case .changed:
-            self.partialEdge = .init(port: port, pointer: data.locationInWindow)
 
+            self.partialEdge = .init(port: port, pointer: data.locationInWindow, state: .default)
             self.partialEdge?.state =
-                self.portHitTest(locationInWindow: data.locationInWindow).map { hit in
-                    switch self.canDropPort(port, hit) {
-                    case .ok:
-                        .canConnect
-                    case .failure:
-                        port == hit ? .default : .cantConnect
-                    }
-                } ?? .default
+                switch self.canDropPort(port, data.locationInWindow) {
+                case .ok:
+                    .canConnect
+                case .failure:
+                    .cantConnect
+                default:
+                    .default
+                }
 
             self.updateEdges()
 
         case .ended:
+
+            if let hit = self.portHitTest(locationInWindow: data.locationInWindow),
+                let edge = Models.Edge(port, hit)
+            {
+                switch self.canDropPort(port, hit) {
+                case .ok(let condition):
+                    switch condition {
+                    case .needsToConvertDestinationNodeTo(let variation):
+                        let _ = self.nodeDataStore.nodes[edge.to.node]!.convert(toVariation: variation)
+                    case .needsToConvertSourceNodeTo(let variation):
+                        let _ = self.nodeDataStore.nodes[edge.from.node]!.convert(toVariation: variation)
+                    case .none:
+                        break
+                    }
+
+                    if case let .failure(err) = self.nodeDataStore.addEdge(edge) {
+                        log("\(err)", level: .error)
+                    }
+                case .failure(let reason):
+                    log("Can't create edge: \(reason)", level: .error)
+                    break
+                }
+            }
+
+            assert(self.nodeDataStore.validateEdges() ==  .ok)
             self.partialEdge = nil
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
-            // TODO: Actually create edge if it can be created
             self.updateEdges()
 
         case .cancelled:
@@ -197,6 +221,11 @@ public struct CanvasFeatureView: View {
             }
         }
         return nil
+    }
+
+    func canDropPort(_ source: PortLocation, _ locationInWindow: CGPoint) -> CanDropPortResult? {
+        guard let hit = self.portHitTest(locationInWindow: locationInWindow), hit != source else { return nil }
+        return self.canDropPort(source, hit)
     }
 
     func canDropPort(_ source: PortLocation, _ destination: PortLocation) -> CanDropPortResult {
