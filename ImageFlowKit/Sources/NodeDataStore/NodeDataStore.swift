@@ -493,22 +493,21 @@ public struct NodeDataStore: Sendable {
     ///            `SetPortConnectedError` on failure.
     @discardableResult
     public mutating func setPortConnected(
-        _ id: UUID,
-        slot: PortSlot,
-        connected: Bool
+        _ port: PortLocation,
+        _ connected: Bool
     ) -> Result<Bool, SetPortConnectedError> {
-        if self.nodes[id] == nil {
+        if self.nodes[port.node] == nil {
             return .failure(.invalidNodeID)
         }
 
-        if !self.nodes[id]!.isValidPortSlot(slot) {
+        if !self.nodes[port.node]!.isValidPortSlot(port.slot) {
             return .failure(.invalidPort)
         }
 
-        let oldValue = self.nodes[id]![connectedAt: slot]
+        let oldValue = self.nodes[port.node]![connectedAt: port.slot]
 
         if connected != oldValue {
-            self.nodes[id]![connectedAt: slot] = connected
+            self.nodes[port.node]![connectedAt: port.slot] = connected
         }
 
         return .success(oldValue)

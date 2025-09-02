@@ -26,6 +26,12 @@ final class NodeOutputRowUIView: UIView, NodeOutputRowViewProtocol {
         }
     }
 
+    public var drawPortAsConnected: Bool = false {
+        didSet {
+            self.portView.connected = self.drawPortAsConnected || self.output.connected
+        }
+    }
+
     var onEvent: ((Event) -> ())?
 
     var label: UILabel
@@ -60,7 +66,7 @@ final class NodeOutputRowUIView: UIView, NodeOutputRowViewProtocol {
     }
 
     func update() {
-        self.portView.connected = self.output.connected
+        self.portView.connected = self.drawPortAsConnected || self.output.connected
         self.label.text = self.output.label
         self.onEvent?(.sizeDidChange)
     }

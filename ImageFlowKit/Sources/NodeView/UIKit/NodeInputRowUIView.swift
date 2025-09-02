@@ -30,6 +30,14 @@ final class NodeInputRowUIView: UIView, NodeInputRowViewProtocol {
 
     public var onEvent: ((Event) -> ())?
 
+    public var drawPortAsConnected: Bool = false {
+        didSet {
+            print("xxx didSet drawPortAsConnected: \(self.drawPortAsConnected), \(self.input.connected)")
+            self.portView.connected = self.drawPortAsConnected || self.input.connected
+            print("xxx didSet drawPortAsConnected: \(self.portView.connected)")
+        }
+    }
+
     lazy var portView: PortView = {
         let view = PortView()
         return view
@@ -89,9 +97,8 @@ final class NodeInputRowUIView: UIView, NodeInputRowViewProtocol {
     }
 
     func update() {
-        if self.portView.connected != self.input.connected {
-            self.portView.connected = self.input.connected
-        }
+        print("xxx update: \(self.drawPortAsConnected), \(self.input.connected)")
+        self.portView.connected = self.drawPortAsConnected || self.input.connected
 
         if self.controlView?.value != self.input.value {
             self.controlView?.value = self.input.value

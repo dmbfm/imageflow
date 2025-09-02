@@ -1,3 +1,4 @@
+import Backend
 import CanvasView
 import Design
 import Logging
@@ -6,6 +7,7 @@ import NodeDataStore
 import NodeView
 import PlatformUtils
 import SwiftUI
+import SwiftUIUtils
 
 import enum CanvasView.CoordinateSpace
 
@@ -69,7 +71,6 @@ public struct CanvasFeatureView: View {
         let view = NodeView(node)
 
         view.emitter.on { event in
-            log("node: \(id), event: \(event)")
             switch event {
             case .click: break
             case .dragGesture(_): break
@@ -87,10 +88,17 @@ public struct CanvasFeatureView: View {
         return view
     }
 
+    func updateNodeData() {
+        for (id, node) in self.nodeDataStore.nodes {
+            if let view = self.nodeViews[id] {
+                view.node = node
+            }
+        }
+    }
+
     // MARK: - Node Edges
 
     func updateEdges() {
-        log("portDragHandler: updateEdges")
         var edges = [
             EdgeLayer(
                 color: Colors.portConnected.platformColor,
@@ -126,21 +134,129 @@ public struct CanvasFeatureView: View {
         }
 
         self.edgeLayers = edges
-
-        log("edge layers updated: \(self.edgeLayers)")
     }
 
     // MARK: - Port
 
     func portDragHandler(_ port: PortLocation, _ data: PortView.DragData) {
         switch data.phase {
-        case .began: break
+        case .began:
+
+            let isInput = port.slot.isInput
+            let isConnected = self.nodeDataStore.getPortConnected(port) == .success(true)
+
+            if isInput && isConnected {
+                guard let edgeToRemove = self.nodeDataStore.edges(to: port).first else {
+                    log("Failed to get edge starting at \(port)", level: .error)
+                    return
+                }
+                if case let .failure(err) = self.nodeDataStore.removeEdge(edgeToRemove) {
+                    log("Failed to remove edge: \(err)", level: .error)
+                    return
+                }
+            }
+
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
+
         case .changed:
             self.partialEdge = .init(port: port, pointer: data.locationInWindow)
+
+            self.partialEdge?.state =
+                self.portHitTest(locationInWindow: data.locationInWindow).map { hit in
+                    switch self.canDropPort(port, hit) {
+                    case .ok:
+                        .canConnect
+                    case .failure:
+                        port == hit ? .default : .cantConnect
+                    }
+                } ?? .default
+
             self.updateEdges()
-        case .cancelled, .ended:
+
+        case .ended:
             self.partialEdge = nil
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            // TODO: Actually create edge if it can be created
             self.updateEdges()
+
+        case .cancelled:
+            self.partialEdge = nil
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.updateEdges()
+        }
+    }
+
+    func portHitTest(locationInWindow point: CGPoint) -> PortLocation? {
+        for (_, view) in self.nodeViews {
+            for (port, frame) in view.ports.map({ (loc, view) in
+                (loc, view.superview!.convert(view.frame, to: nil))
+            }) {
+                if frame.contains(point) {
+                    return port
+                }
+            }
+        }
+        return nil
+    }
+
+    func canDropPort(_ source: PortLocation, _ destination: PortLocation) -> CanDropPortResult {
+
+        if source.node == destination.node {
+            return .failure(.sameNode)
+        }
+
+        if !source.canConnectWith(destination) {
+            return .failure(.portDirection)
+        }
+
+        guard let edge = Models.Edge(source, destination) else { return .failure(.invalidEdge) }
+
+        if self.nodeDataStore.edges.contains(edge) {
+            return .failure(.edgeAlreadyExists)
+        }
+
+        let checkResult = self.nodeDataStore.typeCheck(addingEdge: edge)
+
+        switch checkResult {
+        case .typeMismatch(.nofix):
+            return .failure(.typeMismatch)
+        case .typeMismatch(.fixConvertingSourceTo(let variation)):
+            return .ok(.needsToConvertSourceNodeTo(variation))
+        case .typeMismatch(.fixConvertingDestTo(let variation)):
+            return .ok(.needsToConvertDestinationNodeTo(variation))
+        case .invalidPort(_):
+            return .failure(.invalidPort)
+        default: break
+        }
+
+        return .ok(.none)
+    }
+
+    enum CanDropPortResult: Equatable {
+        case ok(Condition)
+        case failure(Reason)
+
+        enum Condition: Equatable {
+            case none
+            case needsToConvertSourceNodeTo(NodeKind)
+            case needsToConvertDestinationNodeTo(NodeKind)
+        }
+
+        enum Reason: Equatable {
+            case portDirection
+            case typeMismatch
+            case invalidEdge
+            case invalidPort
+            case edgeAlreadyExists
+            case sameNode
+        }
+
+        var isOk: Bool {
+            if case .ok = self {
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -165,8 +281,10 @@ public struct CanvasFeatureView: View {
                 self.canvasPlatformViewRef,
                 self.viewForNode
             )
+            // .randomColorDebugBorder(50)
             .onChange(of: self.nodeDataStore.edges, initial: true) { self.updateEdges() }
             .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
+            .onChange(of: self.nodeDataStore.nodes, initial: true) { self.updateNodeData() }
         }
     }
 }

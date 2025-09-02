@@ -27,9 +27,18 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
         }
     }
 
+    public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
+
     public var id: UUID { self.node.id }
 
-    public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
+    private var titleModel: NodeTitleView.ViewModel {
+        .init(
+            title: self.node.name,
+            subtitle: self.node.kind.displayName,
+            icon: self.node.kind.icon,
+            color: self.node.kind.frontendNodeColor
+        )
+    }
 
     // MARK: - Subviews
 
@@ -180,33 +189,36 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
     // MARK: - Updates
 
     func update(_ oldValue: FlowNode) {
-        for diff in self.node.diff(oldValue) {
-            switch diff {
-            case .kind:
-                self.titleView.vm = .init(self.node)
-                self.backgroundView.color = self.node.kind.frontendNodeColor
-            case .name:
-                self.titleView.vm.title = self.node.name
-            case .inputs(let diff):
-                switch diff {
-                case .count:
-                    // TODO: Reload all input rows
-                    fatalError("Changing number of inputs not supported yet!")
-                case .value(let index):
-                    self.inputBlockView.rows[index].controlView?.value = self.node.inputs[index].value
-                case .connected(let index):
-                    self.inputBlockView.rows[index].portView.connected = self.node.inputs[index].connected
-                }
-            case .outputs(let diff):
-                switch diff {
-                case .count:
-                    // TODO: Reload all output rows
-                    fatalError("Changing number of outputs not supported yet!")
-                case .connected(let index):
-                    self.outputBlockView.rows[index].portView.connected = self.node.outputs[index].connected
-                }
-            }
-        }
+        self.titleView.vm = self.titleModel
+        self.inputBlockView.inputs = self.node.inputs
+        self.outputBlockView.outputs = self.node.outputs
+        // for diff in self.node.diff(oldValue) {
+        //     switch diff {
+        //     case .kind:
+        //         self.titleView.vm = .init(self.node)
+        //         self.backgroundView.color = self.node.kind.frontendNodeColor
+        //     case .name:
+        //         self.titleView.vm.title = self.node.name
+        //     case .inputs(let diff):
+        //         switch diff {
+        //         case .count:
+        //             // TODO: Reload all input rows
+        //             fatalError("Changing number of inputs not supported yet!")
+        //         case .value(let index):
+        //             self.inputBlockView.rows[index].controlView?.value = self.node.inputs[index].value
+        //         case .connected(let index):
+        //             self.inputBlockView.rows[index].portView.connected = self.node.inputs[index].connected
+        //         }
+        //     case .outputs(let diff):
+        //         switch diff {
+        //         case .count:
+        //             // TODO: Reload all output rows
+        //             fatalError("Changing number of outputs not supported yet!")
+        //         case .connected(let index):
+        //             self.outputBlockView.rows[index].portView.connected = self.node.outputs[index].connected
+        //         }
+        //     }
+        // }
     }
 }
 

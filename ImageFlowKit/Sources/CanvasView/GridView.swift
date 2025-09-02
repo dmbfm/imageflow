@@ -26,6 +26,8 @@ public final class GridView: PlatformView {
     }
     #endif
 
+    var layerDelegate: GridViewLayerDelegate = .init()
+
     init() {
         super.init(frame: .zero)
         self.platformInit()
@@ -112,9 +114,7 @@ public final class GridView: PlatformView {
             layer.fillColor = nil
             layer.strokeColor = Colors.portConnected.cgColor
             layer.lineWidth = 4.0
-            #if os(macOS)
-            layer.delegate = self
-            #endif
+            layer.delegate = self.layerDelegate
             self.layer().addSublayer(layer)
             self.edgeShapeLayers.append(layer)
         }
@@ -300,8 +300,14 @@ public final class GridView: PlatformView {
     }
 }
 
-#if os(macOS)
-extension GridView: CALayerDelegate {
-
+final class GridViewLayerDelegate: NSObject, CALayerDelegate {
+    func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {
+        if event == "strokeColor" {
+            let animation = CASpringAnimation(perceptualDuration: 0.15, bounce: 0)  //CABasicAnimation()
+            // animation.perceptualDuration = 0.15
+            animation.duration = 0.15
+            return animation
+        }
+        return NSNull()
+    }
 }
-#endif

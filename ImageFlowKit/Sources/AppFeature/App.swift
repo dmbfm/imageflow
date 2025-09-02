@@ -61,7 +61,7 @@ extension ImageFlowDocument {
     static var sample: Self {
         let ids = [UUID(), UUID(), UUID()]
         let offset = CGPoint(x: 200, y: 200)
-        let doc = ImageFlowDocument(
+        var doc = ImageFlowDocument(
             canvas: .init(
                 nodePositions: [
                     ids[0]: .zero + offset,
@@ -73,14 +73,20 @@ extension ImageFlowDocument {
                     ids[0]: .init(id: ids[0], kind: .valueNode(.float)),
                     ids[1]: .init(id: ids[1], kind: .valueNode(.float)),
                     ids[2]: .init(id: ids[2], kind: .addNode(.float)),
-                ],
-                edges: .init(
-                    [
-                        .init(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!,
-                        .init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!,
-                    ])
+                ]
+                // edges: .init(
+                //     [
+                //         .init(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!,
+                //         .init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!,
+                //     ])
             )
         )
+        _ = try! doc.nodeData.addEdge(
+            .init(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!
+        ).get()
+        _ = try! doc.nodeData.addEdge(
+            .init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!
+        ).get()
         print("doc: \(doc)")
         return doc
     }

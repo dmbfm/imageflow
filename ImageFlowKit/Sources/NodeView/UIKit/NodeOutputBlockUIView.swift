@@ -43,7 +43,14 @@ final class NodeOutputBlockUIView: PlatformView, NodeOutputBlockViewProtocol {
         }
     }
 
-    func update() {}
+    func update() {
+        assert(self.outputs.count == self.rows.count, "Changing the number of inputs is not supported")
+        for (idx, output) in outputs.enumerated() {
+            if output != self.rows[idx].output {
+                self.rows[idx].output = output
+            }
+        }
+    }
 
     func updateSize() {
         self.invalidateIntrinsicContentSize()

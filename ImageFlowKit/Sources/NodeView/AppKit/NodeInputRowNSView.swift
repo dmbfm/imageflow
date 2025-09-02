@@ -9,6 +9,23 @@ import Values
 // MARK: - NodeInputRowNSView
 
 final class NodeInputRowNSView: NSView, NodeInputRowViewProtocol {
+    // MARK: - Public
+
+    public var input: FlowNode.Input {
+        didSet {
+            if self.input != oldValue {
+                self.update(oldValue)
+            }
+        }
+    }
+
+    public var drawPortAsConnected: Bool = false {
+        didSet {
+            self.portView.connected = self.drawPortAsConnected || self.input.connected
+        }
+    }
+
+    public var onEvent: ((Event) -> ())?
 
     // MARK: - Initializers
 
@@ -27,18 +44,6 @@ final class NodeInputRowNSView: NSView, NodeInputRowViewProtocol {
     required init?(coder: NSCoder) {
         nil
     }
-
-    // MARK: - Public
-
-    public var input: FlowNode.Input {
-        didSet {
-            if self.input != oldValue {
-                self.update(oldValue)
-            }
-        }
-    }
-
-    public var onEvent: ((Event) -> ())?
 
     // MARK: - Private
 
@@ -84,9 +89,9 @@ final class NodeInputRowNSView: NSView, NodeInputRowViewProtocol {
     }()
 
     private func update(_ oldValue: FlowNode.Input?) {
-        if self.input.connected != oldValue?.connected {
-            self.portView.connected = self.input.connected
-        }
+        // if self.input.connected != oldValue?.connected {
+        self.portView.connected = self.drawPortAsConnected || self.input.connected
+        // }
 
         if self.input.label != oldValue?.label {
             self.labelView.stringValue = self.input.label

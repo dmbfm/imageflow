@@ -33,6 +33,25 @@ extension NodeView {
         case valueDidChange(Int, Value)
         case dragPort(PortLocation, PortView.DragData)
     }
+
+    public var ports: [(PortLocation, PortView)] {
+        self.inputBlockView.rows.enumerated().map {
+            (.init(node: self.id, port: .input($0.offset)), $0.element.portView)
+        }
+            + self.outputBlockView.rows.enumerated().map {
+                (.init(node: self.id, port: .output($0.offset)), $0.element.portView)
+            }
+    }
+
+    public func setDrawPortAsConnected(_ slot: PortSlot, _ value: Bool) {
+        print("xxx setDrawProtAsConnected: \(slot), \(value)")
+        switch slot {
+        case .input(let index):
+            self.inputBlockView.rows[index].drawPortAsConnected = value
+        case .output(let index):
+            self.outputBlockView.rows[index].drawPortAsConnected = value
+        }
+    }
 }
 
 // MARK: - Ports

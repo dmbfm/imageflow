@@ -29,6 +29,7 @@ typealias NodeOutputRowView = NodeOutputRowUIView
 protocol NodeOutputRowViewProtocol {
     var output: FlowNode.Output { get set }
     var portView: PortView { get }
+    var drawPortAsConnected: Bool { get set }
     var onEvent: ((NodeOutputRowView.Event) -> ())? { get set }
 }
 

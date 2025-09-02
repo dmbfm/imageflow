@@ -24,6 +24,7 @@ public final class PortView: PlatformView {
 
     public var connected: Bool {
         didSet {
+            print("xxx connected: \(oldValue) -> \(self.connected)")
             if self.connected != oldValue {
                 self.setNeedsDisplay()
             }

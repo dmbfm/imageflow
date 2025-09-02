@@ -30,6 +30,7 @@ typealias NodeInputRowView = NodeInputRowUIView
 @MainActor
 protocol NodeInputRowViewProtocol {
     var input: FlowNode.Input { get set }
+    var drawPortAsConnected: Bool { get set }
     var onEvent: ((NodeInputRowView.Event) -> ())? { get set }
     init(_ input: FlowNode.Input)
 }

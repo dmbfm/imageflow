@@ -104,7 +104,9 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
     }
 
     func update(_ oldValue: FlowNode) {
-
+        self.titleView.vm = self.titleModel
+        self.inputBlockView.inputs = self.node.inputs
+        self.outputBlockView.outputs = self.node.outputs
     }
 
     func updateSize() {
