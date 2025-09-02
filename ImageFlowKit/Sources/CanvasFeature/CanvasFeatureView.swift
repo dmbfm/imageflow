@@ -198,7 +198,7 @@ public struct CanvasFeatureView: View {
                 }
             }
 
-            assert(self.nodeDataStore.validateEdges() ==  .ok)
+            assert(self.nodeDataStore.validateEdges() == .ok)
             self.partialEdge = nil
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
             self.updateEdges()
@@ -229,36 +229,33 @@ public struct CanvasFeatureView: View {
     }
 
     func canDropPort(_ source: PortLocation, _ destination: PortLocation) -> CanDropPortResult {
-
-        if source.node == destination.node {
-            return .failure(.sameNode)
+        guard let edge = Models.Edge(source, destination) else {
+            return .failure(.invalidEdge)
         }
 
-        if !source.canConnectWith(destination) {
-            return .failure(.portDirection)
+        switch self.nodeDataStore.canAddEdge(edge) {
+        case .success:
+            return .ok(.none)
+        case .failure(.typeMismatch):
+            switch self.nodeDataStore.typeCheck(addingEdge: edge) {
+            case .typeMismatch(.nofix):
+                return .failure(.typeMismatch)
+            case .typeMismatch(.fixConvertingSourceTo(let variation)):
+                return .ok(.needsToConvertSourceNodeTo(variation))
+            case .typeMismatch(.fixConvertingDestTo(let variation)):
+                return .ok(.needsToConvertDestinationNodeTo(variation))
+            case .invalidPort(_):
+                return .failure(.invalidPort)
+            case .edgeAlreadyExists:
+                return .failure(.edgeAlreadyExists)
+            case .missingNode(let node):
+                return .failure(.missingNode(node))
+            case .ok:
+                return .ok(.none)
+            }
+        case .failure(let reason):
+            return .failure(.addEdge(reason))
         }
-
-        guard let edge = Models.Edge(source, destination) else { return .failure(.invalidEdge) }
-
-        if self.nodeDataStore.edges.contains(edge) {
-            return .failure(.edgeAlreadyExists)
-        }
-
-        let checkResult = self.nodeDataStore.typeCheck(addingEdge: edge)
-
-        switch checkResult {
-        case .typeMismatch(.nofix):
-            return .failure(.typeMismatch)
-        case .typeMismatch(.fixConvertingSourceTo(let variation)):
-            return .ok(.needsToConvertSourceNodeTo(variation))
-        case .typeMismatch(.fixConvertingDestTo(let variation)):
-            return .ok(.needsToConvertDestinationNodeTo(variation))
-        case .invalidPort(_):
-            return .failure(.invalidPort)
-        default: break
-        }
-
-        return .ok(.none)
     }
 
     enum CanDropPortResult: Equatable {
@@ -278,6 +275,8 @@ public struct CanvasFeatureView: View {
             case invalidPort
             case edgeAlreadyExists
             case sameNode
+            case missingNode(UUID)
+            case addEdge(NodeDataStore.AddEdgeError)
         }
 
         var isOk: Bool {

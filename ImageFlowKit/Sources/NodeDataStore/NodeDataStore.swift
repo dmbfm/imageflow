@@ -251,15 +251,6 @@ public struct NodeDataStore: Sendable {
     private let validateEdgesCache = ValidateEdgesCache()
 
     public func canAddEdge(_ edge: Edge) -> Result<(), AddEdgeError> {
-        return .success(())
-    }
-
-    /// Adds an edge between two node slots to the store. A number of checks are
-    /// made to see if the edge is valid before inserting.
-    ///
-    /// - Parameter edge: The edge to be added.
-    /// - Returns: The added edge (same as the input) or an `AddEdgeError` value.
-    public mutating func addEdge(_ edge: Edge) -> Result<Edge, AddEdgeError> {
         // First, check if the edge is valid in principle
         // (this is not strictly necessary since an `Edge` should,
         // by construction, be valid, but I will leave this as a precaution)
@@ -305,10 +296,6 @@ public struct NodeDataStore: Sendable {
             return .failure(.destinationAlreadyConnected(to))
         }
 
-        // Set the slots as connected
-        self.nodes[from.node]![connectedAt: from.slot] = true
-        self.nodes[to.node]![connectedAt: to.slot] = true
-
         // Check if the slots have the same type
         let sourceType = self.nodes[from.node]![valueTypeAt: from.slot]
         let destType = self.nodes[to.node]![valueTypeAt: to.slot]
@@ -316,6 +303,24 @@ public struct NodeDataStore: Sendable {
             return .failure(.typeMismatch(source: sourceType, dest: destType))
 
         }
+
+        return .success(())
+    }
+
+    /// Adds an edge between two node slots to the store. A number of checks are
+    /// made to see if the edge is valid before inserting.
+    ///
+    /// - Parameter edge: The edge to be added.
+    /// - Returns: The added edge (same as the input) or an `AddEdgeError` value.
+    public mutating func addEdge(_ edge: Edge) -> Result<Edge, AddEdgeError> {
+
+        if case let .failure(reason) = self.canAddEdge(edge) {
+            return .failure(reason)
+        }
+
+        // Set the slots as connected
+        self.nodes[edge.from.node]![connectedAt: edge.from.slot] = true
+        self.nodes[edge.to.node]![connectedAt: edge.to.slot] = true
 
         // Add the edge to the set
         self.edges.insert(edge)
