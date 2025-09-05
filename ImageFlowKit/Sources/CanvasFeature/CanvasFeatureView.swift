@@ -300,8 +300,15 @@ public struct CanvasFeatureView: View {
         return self.state.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
 
+    var messagePos: CGPoint {
+        let point = self.state.viewport.convert(CGPoint(x: 200, y: 200), from: .canvas, to: .screen)
+        return point
+        // let scale = self.state.viewport.scale
+        // return .init(x: point.x * scale, y: point.y * scale)
+    }
+
     public var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             CanvasView(
                 self.$state.viewport,
                 self.$state.nodePositions,

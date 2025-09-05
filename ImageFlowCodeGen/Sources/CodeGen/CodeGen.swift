@@ -60,17 +60,17 @@ extension FilterInfo {
             for (idx, input) in self.inputs.enumerated() {
                 // NSValue(bytes: UnsafeRawPointer, objCType: UnsafePointer<CChar>)
                 if input.valueType == .affineTransform {
-                """
-                #if os(macOS)
-                filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
-                #else
-                filter.setValue(node.inputs[\(raw: idx)].affineTransform.nsValue, forKey: "\(raw: input.name)")
-                #endif
-                """
+                    """
+                    #if os(macOS)
+                    filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
+                    #else
+                    filter.setValue(node.inputs[\(raw: idx)].affineTransform.nsValue, forKey: "\(raw: input.name)")
+                    #endif
+                    """
                 } else {
-                """
-                filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
-                """
+                    """
+                    filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
+                    """
                 }
             }
         }

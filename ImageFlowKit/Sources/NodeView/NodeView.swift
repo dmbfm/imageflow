@@ -44,7 +44,6 @@ extension NodeView {
     }
 
     public func setDrawPortAsConnected(_ slot: PortSlot, _ value: Bool) {
-        print("xxx setDrawProtAsConnected: \(slot), \(value)")
         switch slot {
         case .input(let index):
             self.inputBlockView.rows[index].drawPortAsConnected = value
