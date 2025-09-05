@@ -21,6 +21,7 @@ A node-based image effects composer.
 
 ### DOING
 - Canvas Annotations (E.g., error messages, etc.)
+  - [X] `AnnotationView`
 
 ### DONE
 - Basic NodePalette

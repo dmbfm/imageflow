@@ -1,5 +1,6 @@
 import CanvasView
 import EventEmitter
+import Logging
 import PlatformUtils
 import SwiftUI
 
@@ -132,10 +133,15 @@ final class AnnotationView: PlatformView, CanvasNodeView {
             if self.annotation.style.background != oldValue?.style.background {
                 self.updateBackground()
             }
-
             self.messageLabel.textColor = self.annotation.style.messageColor
             self.titleLabel.textColor = self.annotation.style.titleColor
         }
+
+        self.titleLabel.text = self.annotation.title
+        self.messageLabel.text = self.annotation.message
+
+        self.invalidateIntrinsicContentSize()
+        self.emitter.emit(.sizeChanged)
     }
 
     func updateBackground() {
@@ -243,12 +249,10 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         NSLayoutConstraint.activate([
             self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.padding.left),
             self.stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: self.padding.top),
-            //            self.stackView.widthAnchor.constraint(lessThanOrEqualToConstant: self.annotation.maxWidth + self.padding.left - self.padding.right),
             self.stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -self.padding.bottom),
 
-            //            self.titleLabel.widthAnchor.constraint(lessThanOrEqualToConstant: self.annotation.maxWidth + self.padding.left - self.padding.right),
             self.messageLabel.widthAnchor.constraint(
-                lessThanOrEqualToConstant: self.annotation.maxWidth + self.padding.left - self.padding.right
+                lessThanOrEqualToConstant: self.annotation.maxWidth - self.padding.left - self.padding.right
             ),
         ])
 
@@ -256,9 +260,15 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     }
 
     func platformUpdate(_ oldValue: Annotation? = nil) {
+        self.titleLabel.stringValue = self.annotation.title
+        self.messageLabel.stringValue = self.annotation.message
+
         if self.annotation.style != oldValue?.style {
             self.updateBackground()
         }
+
+        self.invalidateIntrinsicContentSize()
+        self.emitter.emit(.sizeChanged)
     }
 
     func updateBackground() {
@@ -284,9 +294,13 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     var messageLabelSize: CGSize {
         let drawingRect =
             self.messageLabel.cell?.drawingRect(
-                forBounds: .init(origin: .zero, size: .init(width: self.annotation.maxWidth, height: .infinity))
+                forBounds: .init(
+                    origin: .zero,
+                    size: .init(width: self.annotation.maxWidth, height: .infinity)
+                )
             ) ?? .zero
-        return self.messageLabel.cell!.cellSize(forBounds: drawingRect)
+        let size = self.messageLabel.cell!.cellSize(forBounds: drawingRect)
+        return size
     }
 
     var titleLabelSize: CGSize {

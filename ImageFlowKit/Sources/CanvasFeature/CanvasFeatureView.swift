@@ -21,6 +21,10 @@ public struct CanvasFeatureView: View {
     @State private var nodeViews: NodeViewCollection = .init()
     @State private var canvasPlatformViewRef: PlatformViewRef = .init()
     @State private var partialEdge: PartialEdge? = nil
+    @State private var annotationView: AnnotationView = .init(
+        .init(),
+        .init(title: "", message: "", maxWidth: 280, style: .default)
+    )
 
     // MARK: - Types
 
@@ -63,6 +67,10 @@ public struct CanvasFeatureView: View {
             return view
         }
 
+        if id == self.annotationView.id {
+            return self.annotationView
+        }
+
         guard let node = self.nodeDataStore.nodes[id] else {
             log("Node data not found for id: \(id)", level: .warning)
             return nil
@@ -94,6 +102,17 @@ public struct CanvasFeatureView: View {
                 view.node = node
             }
         }
+    }
+
+    // MARK: - Annotations
+
+    func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
+        self.annotationView.annotation = annotation
+        self.state.nodePositions[self.annotationView.id] = point
+    }
+
+    func hideAnnotation() {
+        self.state.nodePositions.removeValue(forKey: self.annotationView.id)
     }
 
     // MARK: - Node Edges
@@ -161,42 +180,56 @@ public struct CanvasFeatureView: View {
         case .changed:
 
             self.partialEdge = .init(port: port, pointer: data.locationInWindow, state: .default)
-            self.partialEdge?.state =
+            self.partialEdge?.state = {
                 switch self.canDropPort(port, data.locationInWindow) {
                 case .ok:
-                    .canConnect
-                case .failure:
-                    .cantConnect
-                default:
-                    .default
+                    return .canConnect
+                case .failure(let port, let reason):
+                    if let pos = self.portFrameCenter(port) {
+                        self.showAnnotation(
+                            .init(title: "Can't connect ports", message: "\(reason)", maxWidth: 250),
+                            at: pos
+                        )
+                    }
+                    return .cantConnect
+                case .noPort, .samePort:
+                    return .default
                 }
+            }()
 
             self.updateEdges()
 
         case .ended:
 
-            if let hit = self.portHitTest(locationInWindow: data.locationInWindow),
-                let edge = Models.Edge(port, hit)
-            {
-                switch self.canDropPort(port, hit) {
-                case .ok(let condition):
-                    switch condition {
-                    case .needsToConvertDestinationNodeTo(let variation):
-                        let _ = self.nodeDataStore.nodes[edge.to.node]!.convert(toVariation: variation)
-                    case .needsToConvertSourceNodeTo(let variation):
-                        let _ = self.nodeDataStore.nodes[edge.from.node]!.convert(toVariation: variation)
-                    case .none:
-                        break
-                    }
+            // if let hit = self.portHitTest(locationInWindow: data.locationInWindow),
+            //     let edge = Models.Edge(port, hit)
+            // {
+            switch self.canDropPort(port, data.locationInWindow) {
+            case .ok(let hit, let condition):
 
-                    if case let .failure(err) = self.nodeDataStore.addEdge(edge) {
-                        log("\(err)", level: .error)
-                    }
-                case .failure(let reason):
-                    log("Can't create edge: \(reason)", level: .error)
+                guard let edge = Models.Edge(port, hit) else { break }
+
+                switch condition {
+                case .needsToConvertDestinationNodeTo(let variation):
+                    let _ = self.nodeDataStore.nodes[edge.to.node]!.convert(toVariation: variation)
+                case .needsToConvertSourceNodeTo(let variation):
+                    let _ = self.nodeDataStore.nodes[edge.from.node]!.convert(toVariation: variation)
+                case .none:
                     break
                 }
+
+                if case let .failure(err) = self.nodeDataStore.addEdge(edge) {
+                    log("\(err)", level: .error)
+                }
+
+            case .failure(let hit, let reason):
+                log("Can't create edge: \(reason)", level: .error)
+                break
+
+            case .noPort, .samePort:
+                break
             }
+            // }
 
             assert(self.nodeDataStore.validateEdges() == .ok)
             self.partialEdge = nil
@@ -223,44 +256,49 @@ public struct CanvasFeatureView: View {
         return nil
     }
 
-    func canDropPort(_ source: PortLocation, _ locationInWindow: CGPoint) -> CanDropPortResult? {
-        guard let hit = self.portHitTest(locationInWindow: locationInWindow), hit != source else { return nil }
-        return self.canDropPort(source, hit)
-    }
+    func canDropPort(_ source: PortLocation, _ locationInWindow: CGPoint) -> CanDropPortResult {
+        guard let destination = self.portHitTest(locationInWindow: locationInWindow) else {
+            return .noPort
+        }
 
-    func canDropPort(_ source: PortLocation, _ destination: PortLocation) -> CanDropPortResult {
+        if destination == source {
+            return .samePort
+        }
+
         guard let edge = Models.Edge(source, destination) else {
-            return .failure(.invalidEdge)
+            return .failure(destination, .invalidEdge)
         }
 
         switch self.nodeDataStore.canAddEdge(edge) {
         case .success:
-            return .ok(.none)
+            return .ok(destination, .none)
         case .failure(.typeMismatch):
             switch self.nodeDataStore.typeCheck(addingEdge: edge) {
             case .typeMismatch(.nofix):
-                return .failure(.typeMismatch)
+                return .failure(destination, .typeMismatch)
             case .typeMismatch(.fixConvertingSourceTo(let variation)):
-                return .ok(.needsToConvertSourceNodeTo(variation))
+                return .ok(destination, .needsToConvertSourceNodeTo(variation))
             case .typeMismatch(.fixConvertingDestTo(let variation)):
-                return .ok(.needsToConvertDestinationNodeTo(variation))
+                return .ok(destination, .needsToConvertDestinationNodeTo(variation))
             case .invalidPort(_):
-                return .failure(.invalidPort)
+                return .failure(destination, .invalidPort)
             case .edgeAlreadyExists:
-                return .failure(.edgeAlreadyExists)
+                return .failure(destination, .edgeAlreadyExists)
             case .missingNode(let node):
-                return .failure(.missingNode(node))
+                return .failure(destination, .missingNode(node))
             case .ok:
-                return .ok(.none)
+                return .ok(destination, .none)
             }
         case .failure(let reason):
-            return .failure(.addEdge(reason))
+            return .failure(destination, .addEdge(reason))
         }
     }
 
     enum CanDropPortResult: Equatable {
-        case ok(Condition)
-        case failure(Reason)
+        case samePort
+        case noPort
+        case ok(PortLocation, Condition)
+        case failure(PortLocation, Reason)
 
         enum Condition: Equatable {
             case none
