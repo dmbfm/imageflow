@@ -3,7 +3,7 @@
 A node-based image effects composer.
 
 ### TODO
-- [macOS] Sidebar feature
+- [BUG][NodeControls][macOS] Dark mode backround color for number input 
 - [CanvasFeature] Update node data store when a node input control changes value
 - Remove focus from any node controls (e.g., number input) when the user touches/clicks anything
 - Node Inspector
@@ -20,10 +20,11 @@ A node-based image effects composer.
 - Previews
 
 ### DOING
-- Canvas Annotations (E.g., error messages, etc.)
-  - [X] `AnnotationView`
+- [macOS] Sidebar feature
 
 ### DONE
+- Canvas Annotations (E.g., error messages, etc.)
+  - [X] `AnnotationView`
 - Basic NodePalette
 - [iOS] Node palette new node position
 - Node Edges

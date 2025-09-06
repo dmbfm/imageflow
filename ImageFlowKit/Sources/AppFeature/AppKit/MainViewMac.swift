@@ -8,6 +8,7 @@
 #if canImport(AppKit)
 
 import CanvasFeature
+import SidebarFeature
 import SwiftUI
 
 struct MainViewMac: View {
@@ -37,10 +38,8 @@ struct MainViewMac: View {
     @ViewBuilder
     var contentView: some View {
         NavigationSplitView {
-            List {
-                Text("\(self.document.canvas.nodePositions.count)")
-            }
-            .searchable(text: .constant(""))
+            SidebarFeatureView()
+                .navigationSplitViewColumnWidth(min: 200, ideal: 300, max: 400)
         } detail: {
             ZStack {
                 CanvasFeatureView(self.$document.canvas, self.$document.nodeData)

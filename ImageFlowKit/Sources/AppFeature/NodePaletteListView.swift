@@ -10,17 +10,7 @@ struct NodePaletteListView: View {
     var onTapItem: ((NodePaletteItem) -> ())?
 
     var categories: [NodePaletteCategory] {
-        if searchText.isEmpty {
-            return NodePaletteService.shared.categories
-        } else {
-            return NodePaletteService.shared.categories.map { cat in
-                var r = cat
-                r.items = cat.items.filter { item in
-                    item.displayName.contains(searchText)
-                }
-                return r
-            }.filter({ !$0.items.isEmpty })
-        }
+        NodePaletteService.categories(searchText: self.searchText)
     }
 
     @State var expanded: [NodePaletteCategoryName: Bool] = [:]

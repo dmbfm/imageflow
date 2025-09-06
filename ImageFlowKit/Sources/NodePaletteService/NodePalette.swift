@@ -265,6 +265,20 @@ public struct NodePaletteService: Sendable {
     public init() {}
 
     public static let shared: Self = .init()
+
+    public static func categories(searchText: String = "") -> [NodePaletteCategory] {
+        if searchText.isEmpty {
+            return NodePaletteService.shared.categories
+        } else {
+            return NodePaletteService.shared.categories.map { cat in
+                var r = cat
+                r.items = cat.items.filter { item in
+                    item.displayName.lowercased().contains(searchText.lowercased())
+                }
+                return r
+            }.filter({ !$0.items.isEmpty })
+        }
+    }
 }
 
 public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {

@@ -27,7 +27,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     public var id: UUID
 
     public var emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
-    
+
     var style: AnnotationStyle {
         self.annotation.type.style
     }
@@ -98,7 +98,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
             view.effect = UIBlurEffect(style: .systemMaterial)
             view.layer.cornerRadius = 2
         }
-        
+
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -141,12 +141,12 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     func platformUpdate(_ oldValue: Annotation? = nil) {
         self.titleLabel.text = self.annotation.title
         self.messageLabel.text = self.annotation.message
-        
+
         if self.annotation.type != oldValue?.type {
             self.titleLabel.textColor = self.style.titleColor
-            
+
             self.messageLabel.textColor = self.style.messageColor
-            
+
             if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
                 switch self.style.backgroundStyle {
                 case .color:
@@ -165,12 +165,14 @@ final class AnnotationView: PlatformView, CanvasNodeView {
                     }
                 }
             }
-            
+
             self.backgroundView.backgroundColor = self.style.backgroundColor
             self.backgroundView.layer.cornerRadius = self.style.cornerRadius
             if #available(iOS 26, *) {
                 (self.visualEffectView.effect as? UIGlassEffect)?.tintColor = self.style.backgroundColor
-                self.visualEffectView.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
+                self.visualEffectView.cornerConfiguration = .corners(
+                    radius: .init(floatLiteral: self.style.cornerRadius)
+                )
             }
         }
 
@@ -178,26 +180,26 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         self.emitter.emit(.sizeChanged)
     }
 
-//    func updateBackground() {
-//        switch self.annotation.style.background {
-//        case .material:
-//            self.backgroundView.removeFromSuperview()
-//            if self.visualEffectView.superview != self {
-//                self.insertSubview(self.visualEffectView, at: 0)
-//            }
-////            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
-////            self.materialView.clipsToBounds = true
-//        case .color(let color):
-//            self.visualEffectView.removeFromSuperview()
-//            if self.backgroundView.superview != self {
-//                self.insertSubview(self.backgroundView, at: 0)
-//            }
-//            self.backgroundView.backgroundColor = color
-//            self.backgroundView.clipsToBounds = true
-//            self.backgroundView.layer.cornerRadius = self.annotation.style.cornerRadius
-//            break
-//        }
-//    }
+    //    func updateBackground() {
+    //        switch self.annotation.style.background {
+    //        case .material:
+    //            self.backgroundView.removeFromSuperview()
+    //            if self.visualEffectView.superview != self {
+    //                self.insertSubview(self.visualEffectView, at: 0)
+    //            }
+    ////            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
+    ////            self.materialView.clipsToBounds = true
+    //        case .color(let color):
+    //            self.visualEffectView.removeFromSuperview()
+    //            if self.backgroundView.superview != self {
+    //                self.insertSubview(self.backgroundView, at: 0)
+    //            }
+    //            self.backgroundView.backgroundColor = color
+    //            self.backgroundView.clipsToBounds = true
+    //            self.backgroundView.layer.cornerRadius = self.annotation.style.cornerRadius
+    //            break
+    //        }
+    //    }
 
     override var intrinsicContentSize: CGSize {
         let titleSize = self.titleLabel.intrinsicContentSize
@@ -263,7 +265,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let view = NSVisualEffectView()
         view.wantsLayer = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.material = .popover //.hudWindow // .init(rawValue: 3)!
+        view.material = .popover  //.hudWindow // .init(rawValue: 3)!
         view.blendingMode = .withinWindow
         view.layer?.cornerRadius = self.style.cornerRadius
         view.layer?.cornerCurve = .continuous
@@ -300,12 +302,12 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     func platformUpdate(_ oldValue: Annotation? = nil) {
         self.titleLabel.stringValue = self.annotation.title
         self.messageLabel.stringValue = self.annotation.message
-        
+
         if self.annotation.type != oldValue?.type {
             self.backgroundView.layer?.backgroundColor = self.style.backgroundColor?.cgColor
             self.backgroundView.layer?.cornerRadius = self.style.cornerRadius
             self.visualEffectView.layer?.cornerRadius = self.style.cornerRadius
-            
+
             if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
                 switch self.style.backgroundStyle {
                 case .color:
@@ -319,18 +321,17 @@ final class AnnotationView: PlatformView, CanvasNodeView {
                     if self.backgroundView.superview != nil {
                         self.backgroundView.removeFromSuperview()
                     }
-                    
-                    if self.visualEffectView.superview  == nil {
+
+                    if self.visualEffectView.superview == nil {
                         self.addSubview(self.visualEffectView, positioned: .below, relativeTo: nil)
                     }
                 }
             }
         }
-        
+
         self.invalidateIntrinsicContentSize()
         self.emitter.emit(.sizeChanged)
     }
-
 
     var messageLabelSize: CGSize {
         let drawingRect =
