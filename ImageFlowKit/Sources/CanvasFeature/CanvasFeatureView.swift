@@ -183,6 +183,7 @@ public struct CanvasFeatureView: View {
             self.partialEdge?.state = {
                 switch self.canDropPort(port, data.locationInWindow) {
                 case .ok:
+                    self.hideAnnotation()
                     return .canConnect
                 case .failure(let port, let reason):
                     if let pos = self.portFrameCenter(port) {
@@ -193,6 +194,7 @@ public struct CanvasFeatureView: View {
                     }
                     return .cantConnect
                 case .noPort, .samePort:
+                    self.hideAnnotation()
                     return .default
                 }
             }()

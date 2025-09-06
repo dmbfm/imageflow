@@ -89,7 +89,16 @@ final class AnnotationView: PlatformView, CanvasNodeView {
 
     lazy var materialView: UIVisualEffectView = {
         let view = UIVisualEffectView()
-        view.effect = UIBlurEffect(style: .systemMaterial)
+        if #available(iOS 26, *) {
+            UIView.animate {
+                view.effect = UIGlassEffect(style: .regular)
+            }
+            view.cornerConfiguration = .corners(radius: 8)
+        } else {
+            view.effect = UIBlurEffect(style: .systemMaterial)
+        }
+        view.layer.cornerRadius = 2
+        view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -151,8 +160,8 @@ final class AnnotationView: PlatformView, CanvasNodeView {
             if self.materialView.superview != self {
                 self.insertSubview(self.materialView, at: 0)
             }
-            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
-            self.materialView.clipsToBounds = true
+//            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
+//            self.materialView.clipsToBounds = true
         case .color(let color):
             self.materialView.removeFromSuperview()
             if self.backgroundView.superview != self {
@@ -227,7 +236,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let view = NSVisualEffectView()
         view.wantsLayer = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.material = .popover
+        view.material = .popover //.hudWindow // .init(rawValue: 3)!
         view.blendingMode = .withinWindow
         return view
     }()
