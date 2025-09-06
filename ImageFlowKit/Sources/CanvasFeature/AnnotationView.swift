@@ -16,8 +16,6 @@ final class AnnotationView: PlatformView, CanvasNodeView {
 
     // MARK: - Common
 
-    // MARK: - Public properties
-
     public var annotation: Annotation {
         didSet {
             if self.annotation != oldValue {
@@ -29,8 +27,10 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     public var id: UUID
 
     public var emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
-
-    // MARK: - Initializers
+    
+    var style: AnnotationStyle {
+        self.annotation.type.style
+    }
 
     init(_ id: UUID, _ annotation: Annotation) {
         self.id = id
@@ -71,7 +71,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.text = self.annotation.title
-        label.textColor = self.annotation.style.titleColor
+        label.textColor = self.style.titleColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         return label
@@ -81,23 +81,24 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let label = UILabel()
         label.text = self.annotation.message
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = self.annotation.style.messageColor
+        label.textColor = self.style.messageColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 100
         return label
     }()
 
-    lazy var materialView: UIVisualEffectView = {
+    lazy var visualEffectView: UIVisualEffectView = {
         let view = UIVisualEffectView()
         if #available(iOS 26, *) {
-            UIView.animate {
-                view.effect = UIGlassEffect(style: .regular)
-            }
-            view.cornerConfiguration = .corners(radius: 8)
+            let glassEffect = UIGlassEffect()
+            glassEffect.tintColor = self.style.backgroundColor
+            view.effect = glassEffect
+            view.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
         } else {
             view.effect = UIBlurEffect(style: .systemMaterial)
+            view.layer.cornerRadius = 2
         }
-        view.layer.cornerRadius = 2
+        
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -114,13 +115,13 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         self.layer.shadowOpacity = 0.25
         self.layer.shadowOffset = .init(width: 0, height: 0)
 
-        self.addSubview(self.materialView)
+        self.addSubview(self.visualEffectView)
         self.addSubview(self.backgroundView)
         self.addSubview(self.stackView)
 
         NSLayoutConstraint.activate([
-            self.materialView.widthAnchor.constraint(equalTo: self.widthAnchor),
-            self.materialView.heightAnchor.constraint(equalTo: self.heightAnchor),
+            self.visualEffectView.widthAnchor.constraint(equalTo: self.widthAnchor),
+            self.visualEffectView.heightAnchor.constraint(equalTo: self.heightAnchor),
 
             self.backgroundView.widthAnchor.constraint(equalTo: self.widthAnchor),
             self.backgroundView.heightAnchor.constraint(equalTo: self.heightAnchor),
@@ -138,41 +139,65 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     }
 
     func platformUpdate(_ oldValue: Annotation? = nil) {
-        if self.annotation.style != oldValue?.style {
-            if self.annotation.style.background != oldValue?.style.background {
-                self.updateBackground()
-            }
-            self.messageLabel.textColor = self.annotation.style.messageColor
-            self.titleLabel.textColor = self.annotation.style.titleColor
-        }
-
         self.titleLabel.text = self.annotation.title
         self.messageLabel.text = self.annotation.message
+        
+        if self.annotation.type != oldValue?.type {
+            self.titleLabel.textColor = self.style.titleColor
+            
+            self.messageLabel.textColor = self.style.messageColor
+            
+            if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
+                switch self.style.backgroundStyle {
+                case .color:
+                    if self.visualEffectView.superview != nil {
+                        self.visualEffectView.removeFromSuperview()
+                    }
+                    if self.backgroundView.superview == nil {
+                        self.insertSubview(self.backgroundView, at: 0)
+                    }
+                case .material:
+                    if self.backgroundView.superview != nil {
+                        self.backgroundView.removeFromSuperview()
+                    }
+                    if self.visualEffectView.superview == nil {
+                        self.insertSubview(self.visualEffectView, at: 0)
+                    }
+                }
+            }
+            
+            self.backgroundView.backgroundColor = self.style.backgroundColor
+            self.backgroundView.layer.cornerRadius = self.style.cornerRadius
+            if #available(iOS 26, *) {
+                (self.visualEffectView.effect as? UIGlassEffect)?.tintColor = self.style.backgroundColor
+                self.visualEffectView.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
+            }
+        }
 
         self.invalidateIntrinsicContentSize()
         self.emitter.emit(.sizeChanged)
     }
 
-    func updateBackground() {
-        switch self.annotation.style.background {
-        case .material:
-            self.backgroundView.removeFromSuperview()
-            if self.materialView.superview != self {
-                self.insertSubview(self.materialView, at: 0)
-            }
-//            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
-//            self.materialView.clipsToBounds = true
-        case .color(let color):
-            self.materialView.removeFromSuperview()
-            if self.backgroundView.superview != self {
-                self.insertSubview(self.backgroundView, at: 0)
-            }
-            self.backgroundView.backgroundColor = color
-            self.backgroundView.clipsToBounds = true
-            self.backgroundView.layer.cornerRadius = self.annotation.style.cornerRadius
-            break
-        }
-    }
+//    func updateBackground() {
+//        switch self.annotation.style.background {
+//        case .material:
+//            self.backgroundView.removeFromSuperview()
+//            if self.visualEffectView.superview != self {
+//                self.insertSubview(self.visualEffectView, at: 0)
+//            }
+////            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
+////            self.materialView.clipsToBounds = true
+//        case .color(let color):
+//            self.visualEffectView.removeFromSuperview()
+//            if self.backgroundView.superview != self {
+//                self.insertSubview(self.backgroundView, at: 0)
+//            }
+//            self.backgroundView.backgroundColor = color
+//            self.backgroundView.clipsToBounds = true
+//            self.backgroundView.layer.cornerRadius = self.annotation.style.cornerRadius
+//            break
+//        }
+//    }
 
     override var intrinsicContentSize: CGSize {
         let titleSize = self.titleLabel.intrinsicContentSize
@@ -194,7 +219,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     lazy var titleLabel: NSTextField = {
         let label = NSTextField(labelWithString: self.annotation.title)
         label.font = .systemFont(ofSize: 12, weight: .bold)
-        label.textColor = self.annotation.style.titleColor
+        label.textColor = self.style.titleColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byTruncatingTail
         label.maximumNumberOfLines = 1
@@ -204,7 +229,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     lazy var messageLabel: NSTextField = {
         let label = NSTextField(labelWithString: self.annotation.message)
         label.font = .systemFont(ofSize: 11)
-        label.textColor = self.annotation.style.messageColor
+        label.textColor = self.style.messageColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byWordWrapping
         label.maximumNumberOfLines = 100
@@ -229,15 +254,19 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
+        view.layer?.cornerRadius = self.style.cornerRadius
+        view.layer?.cornerCurve = .continuous
         return view
     }()
 
-    lazy var materialView: NSVisualEffectView = {
+    lazy var visualEffectView: NSVisualEffectView = {
         let view = NSVisualEffectView()
         view.wantsLayer = true
         view.translatesAutoresizingMaskIntoConstraints = false
         view.material = .popover //.hudWindow // .init(rawValue: 3)!
         view.blendingMode = .withinWindow
+        view.layer?.cornerRadius = self.style.cornerRadius
+        view.layer?.cornerCurve = .continuous
         return view
     }()
 
@@ -247,13 +276,13 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         self.layer?.shadowOpacity = 1.0
         self.layer?.shadowRadius = 8
 
-        self.addSubview(self.materialView)
+        self.addSubview(self.visualEffectView)
         self.addSubview(self.backgroundView)
         self.addSubview(self.stackView)
 
         //        self.stackView.constraintToFill(self, edgeInsets: self.padding)
         self.backgroundView.constraintToFill(self)
-        self.materialView.constraintToFill(self)
+        self.visualEffectView.constraintToFill(self)
 
         NSLayoutConstraint.activate([
             self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.padding.left),
@@ -271,34 +300,37 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     func platformUpdate(_ oldValue: Annotation? = nil) {
         self.titleLabel.stringValue = self.annotation.title
         self.messageLabel.stringValue = self.annotation.message
-
-        if self.annotation.style != oldValue?.style {
-            self.updateBackground()
+        
+        if self.annotation.type != oldValue?.type {
+            self.backgroundView.layer?.backgroundColor = self.style.backgroundColor?.cgColor
+            self.backgroundView.layer?.cornerRadius = self.style.cornerRadius
+            self.visualEffectView.layer?.cornerRadius = self.style.cornerRadius
+            
+            if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
+                switch self.style.backgroundStyle {
+                case .color:
+                    if self.visualEffectView.superview != nil {
+                        self.visualEffectView.removeFromSuperview()
+                    }
+                    if self.backgroundView.superview == nil {
+                        self.addSubview(self.backgroundView, positioned: .below, relativeTo: nil)
+                    }
+                case .material:
+                    if self.backgroundView.superview != nil {
+                        self.backgroundView.removeFromSuperview()
+                    }
+                    
+                    if self.visualEffectView.superview  == nil {
+                        self.addSubview(self.visualEffectView, positioned: .below, relativeTo: nil)
+                    }
+                }
+            }
         }
-
+        
         self.invalidateIntrinsicContentSize()
         self.emitter.emit(.sizeChanged)
     }
 
-    func updateBackground() {
-        switch self.annotation.style.background {
-        case .material:
-            self.backgroundView.removeFromSuperview()
-            if self.materialView.superview != self {
-                self.addSubview(self.materialView, positioned: .below, relativeTo: nil)
-            }
-            self.materialView.layer?.cornerRadius = self.annotation.style.cornerRadius
-            self.materialView.layer?.cornerCurve = .continuous
-        case .color(let platformColor):
-            self.materialView.removeFromSuperview()
-            if self.backgroundView.superview != self {
-                self.addSubview(self.materialView, positioned: .below, relativeTo: nil)
-            }
-            self.backgroundView.layer?.backgroundColor = platformColor.cgColor
-            self.backgroundView.layer?.cornerRadius = self.annotation.style.cornerRadius
-            self.backgroundView.layer?.cornerCurve = .continuous
-        }
-    }
 
     var messageLabelSize: CGSize {
         let drawingRect =
@@ -371,7 +403,6 @@ extension AnnotationView {
                 message:
                     "Some short not long message actually very very long I was lying why I don't know I just felt like it I suppose no reason at all not a thought behind just a spur of the moment thing",
                 maxWidth: 300,
-                style: .default
             )
         )
         //        .border(.red)
@@ -388,7 +419,7 @@ extension AnnotationView {
                 message:
                     "Some short not long message actually very very long I was lying why I don't know I just felt like it I suppose no reason at all not a thought behind just a spur of the moment thing",
                 maxWidth: 300,
-                style: .error
+                type: .error
             )
         )
     }
@@ -402,7 +433,6 @@ extension AnnotationView {
                 title: "Some very long title that explains too much for a unusnres trisentries ntriesnt riesnt risent",
                 message: "very short message",
                 maxWidth: 300,
-                style: .default
             )
         )
         //        .border(.red)

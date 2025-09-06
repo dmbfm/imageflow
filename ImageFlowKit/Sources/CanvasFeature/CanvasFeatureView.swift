@@ -1,5 +1,6 @@
 import Backend
 import CanvasView
+import CommonUtils
 import Design
 import Logging
 import Models
@@ -23,7 +24,7 @@ public struct CanvasFeatureView: View {
     @State private var partialEdge: PartialEdge? = nil
     @State private var annotationView: AnnotationView = .init(
         .init(),
-        .init(title: "", message: "", maxWidth: 280, style: .default)
+        .init(title: "", message: "", maxWidth: 280, type: .regular)
     )
 
     // MARK: - Types
@@ -109,10 +110,11 @@ public struct CanvasFeatureView: View {
     func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
         self.annotationView.annotation = annotation
         self.state.nodePositions[self.annotationView.id] = point
+        self.annotationView.isHidden = false
     }
 
     func hideAnnotation() {
-        self.state.nodePositions.removeValue(forKey: self.annotationView.id)
+        self.annotationView.isHidden = true
     }
 
     // MARK: - Node Edges
@@ -189,7 +191,7 @@ public struct CanvasFeatureView: View {
                     if let pos = self.portFrameCenter(port) {
                         self.showAnnotation(
                             .init(title: "Can't connect ports", message: "\(reason)", maxWidth: 250),
-                            at: pos
+                            at: pos + .init(x: 10, y: 0)
                         )
                     }
                     return .cantConnect
@@ -224,7 +226,7 @@ public struct CanvasFeatureView: View {
                     log("\(err)", level: .error)
                 }
 
-            case .failure(let hit, let reason):
+            case .failure(_, let reason):
                 log("Can't create edge: \(reason)", level: .error)
                 break
 
@@ -236,11 +238,13 @@ public struct CanvasFeatureView: View {
             assert(self.nodeDataStore.validateEdges() == .ok)
             self.partialEdge = nil
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
             self.updateEdges()
 
         case .cancelled:
             self.partialEdge = nil
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
             self.updateEdges()
         }
     }

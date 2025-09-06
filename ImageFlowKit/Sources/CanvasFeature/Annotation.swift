@@ -6,25 +6,89 @@ struct Annotation: Equatable {
     public var title: String
     public var message: String
     public var maxWidth: CGFloat
-    public var style: AnnotationStyle = .default
+    public var type: AnnotationType = .regular
+}
+
+public enum AnnotationType {
+    case regular
+    case error
+
+    var style: AnnotationStyle {
+        switch self {
+        case .regular:
+            return .default
+        case .error:
+            return .error
+        }
+    }
 }
 
 struct AnnotationStyle: Equatable, With {
-    public var background: Background
+    public var backgroundStyle: BackgroundStyle
+    public var backgroundColor: PlatformColor? = nil
     public var titleColor: PlatformColor
     public var messageColor: PlatformColor
     public var cornerRadius: CGFloat = 10.0
 
-    public enum Background: Equatable {
+    public enum BackgroundStyle: Equatable {
         case material
-        case color(PlatformColor)
+        case color
     }
 
     static var `default`: Self {
-        .init(background: .material, titleColor: .init(white: 0, alpha: 0.8), messageColor: .init(white: 0, alpha: 0.6))
+        #if os(macOS)
+        .init(
+            backgroundStyle: .material,
+            titleColor: .init(white: 0, alpha: 0.8),
+            messageColor: .init(white: 0, alpha: 0.6),
+            cornerRadius: 10.0
+        )
+        #else
+        if #available(iOS 26, *) {
+            .init(
+                backgroundStyle: .material,
+                titleColor: .init(white: 0, alpha: 0.8),
+                messageColor: .init(white: 0, alpha: 0.6),
+                cornerRadius: 18.0
+            )
+        } else {
+            .init(
+                backgroundStyle: .material,
+                titleColor: .init(white: 0, alpha: 0.8),
+                messageColor: .init(white: 0, alpha: 0.6),
+                cornerRadius: 10.0
+            )
+        }
+        #endif
     }
 
     static var error: Self {
-        .init(background: .color(.systemRed), titleColor: .white, messageColor: .white)
+        #if os(macOS)
+        .init(
+            backgroundStyle: .color,
+            backgroundColor: .red,
+            titleColor: .white,
+            messageColor: .white,
+            cornerRadius: 10.0
+        )
+        #else
+        if #available(iOS 26, *) {
+            .init(
+                backgroundStyle: .material,
+                backgroundColor: .red,
+                titleColor: .white,
+                messageColor: .white,
+                cornerRadius: 18.0
+            )
+        } else {
+            .init(
+                backgroundStyle: .color,
+                backgroundColor: .red,
+                titleColor: .white,
+                messageColor: .white,
+                cornerRadius: 10.0
+            )
+        }
+        #endif
     }
 }
