@@ -24,11 +24,12 @@ A node-based image effects composer.
 - Previews
 
 ### DOING
-- [macOS] Sidebar feature
-  - [X] Drag-and-drop to create node in canvas
-  - [ ] Double-click to create node in canvas
+- [iOS] Use `Dispatcher` action to create node via the palette 
 
 ### DONE
+- [macOS] Sidebar feature
+  - [X] Drag-and-drop to create node in canvas
+  - [X] Double-click to create node in canvas
 - Canvas Annotations (E.g., error messages, etc.)
   - [X] `AnnotationView`
 - Basic NodePalette
