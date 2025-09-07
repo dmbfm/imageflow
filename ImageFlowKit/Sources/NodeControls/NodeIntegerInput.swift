@@ -135,7 +135,7 @@ extension NodeIntegerInput {
     @Previewable @State var value: Value = .int(1234)
     VStack {
         NodeIntegerInput.Preview(value: $value)
-        Text("\(value)")
+        Text("\(value.description)")
             .font(.caption2)
             .fontDesign(.monospaced)
     }

@@ -131,10 +131,13 @@ extension NodeBooleanInput {
 
 #Preview {
     @Previewable @State var value: Value = .bool(false)
+    var desc: String {
+        value.bool.description
+    }
     VStack {
         NodeBooleanInput.Preview(value: $value)
             .border(.gray.opacity(0.2))
-        Text("<\(value)>")
+        Text(desc)
         Toggle(
             "",
             isOn: .init(

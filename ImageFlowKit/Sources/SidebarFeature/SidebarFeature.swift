@@ -1,3 +1,4 @@
+import Models
 import NodePaletteService
 import SwiftUI
 
@@ -7,18 +8,25 @@ public struct SidebarFeatureView: View {
 
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
-    @State private var expandedSections: [NodePaletteCategoryName:Bool] = [:]
+    @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
     
     func isExpandedBinding(_ name: NodePaletteCategoryName) -> Binding<Bool> {
-        .init(get: {
-            self.expandedSections[name, default: true]
-        }, set: { newValue in
-            self.expandedSections[name] = newValue
-        })
+        .init(
+            get: {
+                self.expandedSections[name, default: true]
+            },
+            set: { newValue in
+                self.expandedSections[name] = newValue
+            }
+        )
     }
-    
+
     var categories: [NodePaletteCategory] {
         NodePaletteService.categories(searchText: self.searchText)
+    }
+
+    func nodeKindDragItem(_ item: NodePaletteItem) -> NodeKindDragItem {
+        .init(kind: item.nodeKind)
     }
 
     public var body: some View {
@@ -39,7 +47,7 @@ public struct SidebarFeatureView: View {
                                     .opacity(self.hoveredItem == item ? 0.25 : 0.0)
                                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                             }
-//                            .border(.red, width: self.hoveredItem == item ? 1.0 : 0.0)
+                            .draggable(self.nodeKindDragItem(item))
                             .onHover { hover in
                                 self.hoveredItem = hover ? item : nil
                             }
@@ -66,6 +74,6 @@ struct ItemView: View {
 }
 
 #Preview {
-        SidebarFeatureView()
-            .listStyle(.sidebar)
+    SidebarFeatureView()
+        .listStyle(.sidebar)
 }

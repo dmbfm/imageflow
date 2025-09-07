@@ -96,7 +96,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
             view.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
         } else {
             view.effect = UIBlurEffect(style: .systemMaterial)
-            view.layer.cornerRadius = 2
+            view.layer.cornerRadius = self.style.cornerRadius
         }
 
         view.clipsToBounds = true
@@ -107,6 +107,9 @@ final class AnnotationView: PlatformView, CanvasNodeView {
     lazy var backgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = self.style.cornerRadius
+        view.layer.cornerCurve = .continuous
+        view.clipsToBounds = true
         return view
     }()
 

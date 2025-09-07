@@ -13,6 +13,7 @@ import SwiftUI
 
 struct MainViewMac: View {
     @Binding var document: ImageFlowDocument
+    @State var showNodePalettePopover: Bool = false
 
     func windowAutosaveFrameFix(_ window: NSWindow?) {
         guard let window else { return }
@@ -32,6 +33,20 @@ struct MainViewMac: View {
 
     var body: some View {
         self.contentView
+//            .toolbar {
+//                ToolbarItem {
+//                    Button {
+//                        self.showNodePalettePopover.toggle()
+//                        print("\(self.showNodePalettePopover)")
+//                    } label: {
+//                        Image(systemName: "plus")
+//                    }
+//                    .popover(isPresented: self.$showNodePalettePopover) {
+//                        NodePaletteListView()
+//                            .presentationCompactAdaptation(.popover)
+//                    }
+//                }
+//            }
             .windowAccessor { self.windowAutosaveFrameFix($0) }
     }
 
@@ -39,7 +54,7 @@ struct MainViewMac: View {
     var contentView: some View {
         NavigationSplitView {
             SidebarFeatureView()
-                .navigationSplitViewColumnWidth(min: 200, ideal: 300, max: 400)
+                .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
         } detail: {
             ZStack {
                 CanvasFeatureView(self.$document.canvas, self.$document.nodeData)

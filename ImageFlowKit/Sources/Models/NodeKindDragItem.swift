@@ -34,7 +34,7 @@ public final class NodeKindDragItem: NSObject, Codable {
 
 extension NodeKindDragItem: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .nodeKindDragItem)
+        CodableRepresentation(contentType: .json)
     }
 }
 

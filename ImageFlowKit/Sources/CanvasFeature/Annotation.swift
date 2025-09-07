@@ -39,23 +39,23 @@ struct AnnotationStyle: Equatable, With {
         #if os(macOS)
         .init(
             backgroundStyle: .material,
-            titleColor: .init(white: 0, alpha: 0.8),
-            messageColor: .init(white: 0, alpha: 0.6),
+            titleColor:  .labelColor, 
+            messageColor: .secondaryLabelColor,
             cornerRadius: 10.0
         )
         #else
         if #available(iOS 26, *) {
             .init(
                 backgroundStyle: .material,
-                titleColor: .init(white: 0, alpha: 0.8),
-                messageColor: .init(white: 0, alpha: 0.6),
+                titleColor: .label,
+                messageColor: .secondaryLabel,
                 cornerRadius: 18.0
             )
         } else {
             .init(
                 backgroundStyle: .material,
-                titleColor: .init(white: 0, alpha: 0.8),
-                messageColor: .init(white: 0, alpha: 0.6),
+                titleColor: .label,
+                messageColor: .secondaryLabel,
                 cornerRadius: 10.0
             )
         }

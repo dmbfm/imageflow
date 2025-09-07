@@ -344,11 +344,17 @@ public struct CanvasFeatureView: View {
         return self.state.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
 
-    var messagePos: CGPoint {
-        let point = self.state.viewport.convert(CGPoint(x: 200, y: 200), from: .canvas, to: .screen)
-        return point
-        // let scale = self.state.viewport.scale
-        // return .init(x: point.x * scale, y: point.y * scale)
+    func drodDestinationHandler(_ items: [NodeKindDragItem], _ point: CGPoint) -> Bool {
+
+        guard let item = items.first else { return false }
+
+        let id = UUID()
+        if case .failure(_) = self.nodeDataStore.addNode(.init(id: id, kind: item.kind)) {
+            return false
+        }
+        self.state.nodePositions[id] = self.state.viewport.convert(point, from: .screen, to: .canvas)
+
+        return true
     }
 
     public var body: some View {
@@ -360,7 +366,7 @@ public struct CanvasFeatureView: View {
                 self.canvasPlatformViewRef,
                 self.viewForNode
             )
-            // .randomColorDebugBorder(50)
+            .dropDestination(for: NodeKindDragItem.self, action: self.drodDestinationHandler(_:_:))
             .onChange(of: self.nodeDataStore.edges, initial: true) { self.updateEdges() }
             .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
             .onChange(of: self.nodeDataStore.nodes, initial: true) { self.updateNodeData() }
