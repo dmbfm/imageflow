@@ -1,5 +1,7 @@
+import Backend
 import CanvasFeature
 import CommonUtils
+import Models
 import NodeDataStore
 import NodePaletteService
 import SwiftUI
@@ -50,10 +52,13 @@ struct ImageFlowDocument: FileDocument, Codable, Equatable {
         return fw
     }
 
+    mutating func addNode(node: FlowNode, at position: CGPoint) {
+        self.nodeData.addNode(node)
+        self.canvas.nodePositions[node.id] = position
+    } 
+
     mutating func addNode(fromPaletteItem item: NodePaletteItem, at position: CGPoint = .zero) {
-        let id = UUID()
-        self.nodeData.addNode(.init(id: id, kind: item.nodeKind))
-        self.canvas.nodePositions[id] = position
+        self.addNode(node: .init(id: UUID(), kind: item.nodeKind), at: position)
     }
 }
 

@@ -9,7 +9,8 @@ public struct SidebarFeatureView: View {
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
-    
+    @EnvironmentObject var dispatcher: Dispatcher
+
     func isExpandedBinding(_ name: NodePaletteCategoryName) -> Binding<Bool> {
         .init(
             get: {
@@ -27,6 +28,10 @@ public struct SidebarFeatureView: View {
 
     func nodeKindDragItem(_ item: NodePaletteItem) -> NodeKindDragItem {
         .init(kind: item.nodeKind)
+    }
+
+    func itemDoubleTapHandler(_ item: NodePaletteItem) {
+        self.dispatcher.send(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
     }
 
     public var body: some View {
@@ -51,6 +56,7 @@ public struct SidebarFeatureView: View {
                             .onHover { hover in
                                 self.hoveredItem = hover ? item : nil
                             }
+                            .onTapGesture(count: 2) { self.itemDoubleTapHandler(item) }
                         }
                     }
                 }

@@ -57,6 +57,7 @@ let package = Package(
             name: "SidebarFeature",
             dependencies: [
                 "Backend",
+                "Models",
                 "NodePaletteService",
             ],
         ),

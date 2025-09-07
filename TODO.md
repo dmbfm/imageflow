@@ -25,6 +25,8 @@ A node-based image effects composer.
 
 ### DOING
 - [macOS] Sidebar feature
+  - [X] Drag-and-drop to create node in canvas
+  - [ ] Double-click to create node in canvas
 
 ### DONE
 - Canvas Annotations (E.g., error messages, etc.)

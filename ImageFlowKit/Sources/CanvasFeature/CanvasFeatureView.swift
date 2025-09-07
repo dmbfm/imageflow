@@ -18,9 +18,9 @@ public struct CanvasFeatureView: View {
 
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
+    @Binding var canvasPlatformViewRef: PlatformViewRef
     @State private var edgeLayers: [EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
-    @State private var canvasPlatformViewRef: PlatformViewRef = .init()
     @State private var partialEdge: PartialEdge? = nil
     @State private var annotationView: AnnotationView = .init(
         .init(),
@@ -55,9 +55,14 @@ public struct CanvasFeatureView: View {
 
     // MARK: - Initializers
 
-    public init(_ state: Binding<CanvasFeatureState>, _ nodeDataStore: Binding<NodeDataStore>) {
+    public init(
+        _ state: Binding<CanvasFeatureState>,
+        _ nodeDataStore: Binding<NodeDataStore>,
+        _ canvasViewRef: Binding<PlatformViewRef>
+    ) {
         self._state = state
         self._nodeDataStore = nodeDataStore
+        self._canvasPlatformViewRef = canvasViewRef
     }
 
     // MARK: - Node Views
@@ -380,10 +385,11 @@ enum PreviewData {
 
 #Preview(traits: .sizeThatFitsLayout) {
     @Previewable @State var state: CanvasFeatureState = .init(nodePositions: [PreviewData.id: .zero])
+    @Previewable @State var canvasViewRef = PlatformViewRef()
     @Previewable @State var nodeDataStore: NodeDataStore = .init([
         PreviewData.id: .init(id: PreviewData.id, kind: .addNode(.float))
     ])
     VStack {
-        CanvasFeatureView($state, $nodeDataStore)
+        CanvasFeatureView($state, $nodeDataStore, $canvasViewRef)
     }
 }
