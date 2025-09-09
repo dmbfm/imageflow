@@ -21,6 +21,13 @@ extension CanvasPlatformView {
     public enum Event {
         case viewportDidChange(CanvasViewport)
         case nodePositionsDidChange([UUID: CGPoint])
+        case rectSelect(RectSelect)
+
+        public enum RectSelect {
+            case started(shiftDown: Bool)
+            case modified(shiftDown: Bool, rect: CGRect)
+            case ended
+        }
     }
 
     // MARK: - Updates

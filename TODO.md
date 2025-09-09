@@ -18,12 +18,12 @@ A node-based image effects composer.
   - Transforms
 
 ### NEXT
-- Node selection system
 - Node Inspector
 - Backend integration service
 - Previews
 
 ### DOING
+- Node selection system
 
 ### DONE
 - [iOS] NodeNumberInput: drag to change values

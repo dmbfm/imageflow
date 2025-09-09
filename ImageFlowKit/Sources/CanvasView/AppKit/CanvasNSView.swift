@@ -69,6 +69,12 @@ public final class CanvasNSView: NSView {
         return view
     }()
 
+    private lazy var rectSelectionView: RectSelectionView = {
+        let view = RectSelectionView()
+        view.autoresizingMask = [.width, .height]
+        return view
+    }()
+
     lazy var contentView: ContentView = {
         let view = ContentView()
         view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
@@ -112,6 +118,7 @@ public final class CanvasNSView: NSView {
     func setupGridView() {
         self.gridView.frame = self.bounds
         self.addSubview(self.gridView)
+        self.addSubview(self.rectSelectionView)
 
         let panGesture = NSPanGestureRecognizer(
             target: self,
@@ -196,36 +203,35 @@ public final class CanvasNSView: NSView {
 
     @objc func gridView(leftPanGesture gesture: NSPanGestureRecognizer) {
 
-        // let shiftDown = NSEvent.modifierFlags.contains(.shift)
+        let shiftDown = NSEvent.modifierFlags.contains(.shift)
 
-        // if gesture.state == .began {
-        //     self.leftPanInitialPos = gesture.location(in: self.gridView)
-        //     self.emitter.emit(.rectSelectEvent(.started(shiftDown: shiftDown)))
-        //     return
-        // }
+        if gesture.state == .began {
+            self.leftPanInitialPos = gesture.location(in: self.gridView)
+            self.onEvent?(.rectSelect(.started(shiftDown: shiftDown)))
+            return
+        }
 
-        // if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
-        //     self.leftPanInitialPos = nil
-        //     self.rectSelectionView.selectionRect = .zero
-        //     self.emitter.emit(.rectSelectEvent(.ended))
-        //     return
-        // }
+        if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
+            self.leftPanInitialPos = nil
+            self.rectSelectionView.selectionRect = .zero
+            self.onEvent?(.rectSelect(.ended))
+            return
+        }
 
-        // guard let initial = self.leftPanInitialPos else {
-        //     log("initial location not set", level: .error)
-        //     return
-        // }
+        guard let initial = self.leftPanInitialPos else {
+            log("initial location not set", level: .error)
+            return
+        }
 
-        // let gridRect = CGRect(
-        //     origin: initial,
-        //     size: gesture.translation(in: self.gridView).cgSize
-        // )
+        let gridRect = CGRect(
+            origin: initial,
+            size: gesture.translation(in: self.gridView).cgSize
+        )
 
-        // let contentRect = self.contentView.convert(gridRect, from: self.gridView)
+        let contentRect = self.contentView.convert(gridRect, from: self.gridView)
 
-        // self.rectSelectionView.selectionRect = gridRect
-
-        // self.emitter.emit(.rectSelectEvent(.modified(shiftDown: shiftDown, rect: contentRect)))
+        self.rectSelectionView.selectionRect = gridRect
+        self.onEvent?(.rectSelect(.modified(shiftDown: shiftDown, rect: contentRect)))
     }
 
     func gridViewDraw() {
@@ -253,6 +259,32 @@ public final class CanvasNSView: NSView {
 
     // MARK: - Node Management
 
+}
+
+private final class RectSelectionView: NSView {
+    var selectionRect: NSRect = .zero {
+        didSet {
+            self.needsDisplay = true
+        }
+    }
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        nil
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        NSColor.systemOrange.withAlphaComponent(0.2).set()
+        NSBezierPath(rect: self.selectionRect).fill()
+
+        // solid border
+        NSColor.systemOrange.set()
+        NSBezierPath.defaultLineWidth = 1.0
+        NSBezierPath(rect: self.selectionRect).stroke()
+    }
 }
 
 #endif

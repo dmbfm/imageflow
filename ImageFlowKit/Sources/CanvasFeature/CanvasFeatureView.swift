@@ -63,6 +63,12 @@ public struct CanvasFeatureView: View {
         self._nodeDataStore = nodeDataStore
     }
 
+    // MARK: - Canvas 
+
+    func onCanvasEvent(_ event: CanvasView.Event) {
+        log("\(event)", level: .debug)
+    }
+
     // MARK: - Node Views
 
     func viewForNode(_ id: UUID) -> (any CanvasNodeView)? {
@@ -84,7 +90,8 @@ public struct CanvasFeatureView: View {
 
         view.emitter.on { event in
             switch event {
-            case .click: break
+            case .click:
+                log("cliked node \(id)", level: .debug)
             case .dragGesture(_): break
             case .sizeChanged: break
             case .other(let event):
@@ -368,7 +375,8 @@ public struct CanvasFeatureView: View {
                 self.$state.nodePositions,
                 self.edgeLayers,
                 self.canvasPlatformViewRef,
-                self.viewForNode
+                self.viewForNode,
+                self.onCanvasEvent,
             )
             .dropDestination(for: NodeKindDragItem.self, action: self.drodDestinationHandler(_:_:))
             .onChange(of: self.nodeDataStore.edges, initial: true) { self.updateEdges() }

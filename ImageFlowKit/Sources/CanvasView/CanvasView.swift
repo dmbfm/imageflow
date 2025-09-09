@@ -21,19 +21,26 @@ public struct CanvasView: PlatformViewRepresentable {
     let canvasPlatformViewRef: PlatformViewRef
 
     let viewForNode: (UUID) -> (any CanvasNodeView)?
+    let onEvent: ((CanvasView.Event) -> ())?
+
+    public enum Event {
+        case rectSelect(CanvasPlatformView.Event.RectSelect)
+    }
 
     public init(
         _ viewport: Binding<CanvasViewport>,
         _ nodePositions: Binding<[UUID: CGPoint]>,
         _ edges: [EdgeLayer],
         _ canvasPlatformViewRef: PlatformViewRef,
-        _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil }
+        _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
+        _ onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
         self._viewport = viewport
         self._nodePositions = nodePositions
         self.edgeLayers = edges
         self.viewForNode = viewForNode
         self.canvasPlatformViewRef = canvasPlatformViewRef
+        self.onEvent = onEvent
     }
 
     public func makeView(context: Context) -> CanvasPlatformView {
@@ -48,6 +55,8 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.viewport = viewport
             case .nodePositionsDidChange(let nodePositions):
                 self.nodePositions = nodePositions
+            case .rectSelect(let event):
+                self.onEvent?(.rectSelect(event))
             }
         }
         self.canvasPlatformViewRef.view = view
