@@ -31,7 +31,6 @@ public struct NodeDataStore: Sendable {
     public var nodes: [UUID: FlowNode] = [:] {
         didSet {
             self.validateEdgesCache.clear()
-            // self.nodesPublisher.send(oldValue)
         }
     }
 

@@ -8,25 +8,27 @@ A node-based image effects composer.
 - [AnnotationView] Change the positioning so that it is placed above the point
   instead of below. On the ipad the message often gets obsured by the finger.
 - [BUG][NodeControls][macOS] Dark mode backround color for number input 
-- [CanvasFeature] Update node data store when a node input control changes value
 - Remove focus from any node controls (e.g., number input) when the user touches/clicks anything
-- Node Inspector
-- Node selection system
 - Asset Browser
-- Backend integration service
 - Node Controls
   - Image
   - Integer
   - Vectors
   - Colors
   - Transforms
-- macOS MainView
+
+### NEXT
+- [iOS] NodeNumberInput: drag to change values
+- Node selection system
+- Node Inspector
+- Backend integration service
 - Previews
 
 ### DOING
-- [iOS] Use `Dispatcher` action to create node via the palette 
 
 ### DONE
+- [CanvasFeature] Update node data store when a node input control changes value
+- [iOS] Use `Dispatcher` action to create node via the palette 
 - [macOS] Sidebar feature
   - [X] Drag-and-drop to create node in canvas
   - [X] Double-click to create node in canvas

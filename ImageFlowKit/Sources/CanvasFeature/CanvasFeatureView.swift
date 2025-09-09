@@ -89,7 +89,8 @@ public struct CanvasFeatureView: View {
             case .sizeChanged: break
             case .other(let event):
                 switch event {
-                case .valueDidChange(_, _): break
+                case .valueDidChange(let portIndex, let value):
+                    self.nodeDataStore.nodes[id]?.inputs[portIndex].value = value
                 case let .dragPort(port, data): self.portDragHandler(port, data)
                 }
             }

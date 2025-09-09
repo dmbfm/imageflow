@@ -74,7 +74,6 @@ extension CanvasPlatformView {
 
             case .sizeChanged:
                 node.frame.size = node.intrinsicContentSize
-            //                node.setFrameSize(node.intrinsicContentSize)
 
             case .click:
                 // self.emitter.emit(.nodeClicked(id))
