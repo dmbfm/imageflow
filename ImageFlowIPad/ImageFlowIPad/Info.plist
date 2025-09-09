@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -9,12 +11,12 @@
 			<string>ImageFlow Document</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.dmbfm.imageFlowDocument</string>
-            </array>
-                <!-- If it’s a package: -->
-            <key>LSTypeIsPackage</key><true/>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.dmbfm.imageFlowDocument</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<true/>
 		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>

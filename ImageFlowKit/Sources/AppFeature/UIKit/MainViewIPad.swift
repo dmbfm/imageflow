@@ -10,15 +10,8 @@
 import SwiftUI
 import CanvasFeature
 import CanvasView
+import CommonUtils
 import NodePaletteService
-
-final class Box<T> {
-    public var value: T
-
-    public init(_ value: T) {
-        self.value = value
-    }
-}
 
 struct MainViewIPad: View {
 
@@ -31,10 +24,7 @@ struct MainViewIPad: View {
     }
 
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
-        self.document.addNode(
-            fromPaletteItem: item,
-            at: self.viewport.convert(self.canvasCenter.value, from: .screen, to: .canvas)
-        )
+        self.addNode(fromPaletteItem: item)
         self.showNodePaletteModal = false
     }
 
