@@ -129,13 +129,22 @@ public final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(Self.onTapLabel))
         tapGesture.numberOfTapsRequired = 1
         self.label.addGestureRecognizer(tapGesture)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler))
+        self.addGestureRecognizer(panGesture)
     }
 
     @objc
     func onTapLabel() {
-        log("tapped!")
         self.state = .editing
     }
+    
+    @objc
+    func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        let t = gesture.translation(in: nil)
+        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
+    }
+    
 
     public required init?(coder: NSCoder) {
         nil

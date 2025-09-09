@@ -106,6 +106,15 @@ public final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         self.layer?.borderColor = self.borderColor.cgColor
         self.layer?.borderWidth = 0
         self.clipsToBounds = false
+
+        let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
+        self.addGestureRecognizer(panGesture)
+    }
+
+    @objc
+    func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
+        let t = gesture.translation(in: nil)
+        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
     }
 
     public required init?(coder: NSCoder) {

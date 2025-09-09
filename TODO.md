@@ -7,7 +7,7 @@ A node-based image effects composer.
   obscures the end of the edge that is being dragged.
 - [AnnotationView] Change the positioning so that it is placed above the point
   instead of below. On the ipad the message often gets obsured by the finger.
-- [BUG][NodeControls][macOS] Dark mode backround color for number input 
+- [BUG]:[NodeControls]:[macOS] Dark mode backround color for number input 
 - Remove focus from any node controls (e.g., number input) when the user touches/clicks anything
 - Asset Browser
 - Node Controls
@@ -18,7 +18,6 @@ A node-based image effects composer.
   - Transforms
 
 ### NEXT
-- [iOS] NodeNumberInput: drag to change values
 - Node selection system
 - Node Inspector
 - Backend integration service
@@ -27,6 +26,7 @@ A node-based image effects composer.
 ### DOING
 
 ### DONE
+- [iOS] NodeNumberInput: drag to change values
 - [CanvasFeature] Update node data store when a node input control changes value
 - [iOS] Use `Dispatcher` action to create node via the palette 
 - [macOS] Sidebar feature
