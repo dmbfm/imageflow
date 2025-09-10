@@ -25,6 +25,7 @@ public struct CanvasView: PlatformViewRepresentable {
 
     public enum Event {
         case rectSelect(CanvasPlatformView.Event.RectSelect)
+        case clickBackground
     }
 
     public init(
@@ -57,6 +58,8 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.nodePositions = nodePositions
             case .rectSelect(let event):
                 self.onEvent?(.rectSelect(event))
+            case .clickBackground:
+                self.onEvent?(.clickBackground)
             }
         }
         self.canvasPlatformViewRef.view = view

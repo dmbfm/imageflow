@@ -5,6 +5,7 @@ import Design
 import Logging
 import Models
 import NodeDataStore
+import NodeSelectionStore
 import NodeView
 import PlatformUtils
 import SwiftUI
@@ -18,6 +19,7 @@ public struct CanvasFeatureView: View {
 
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
+    @Binding var selection: NodeSelectionStore
     @State private var canvasPlatformViewRef: PlatformViewRef = .init()
     @State private var edgeLayers: [EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -57,19 +59,36 @@ public struct CanvasFeatureView: View {
 
     public init(
         _ state: Binding<CanvasFeatureState>,
-        _ nodeDataStore: Binding<NodeDataStore>
+        _ nodeDataStore: Binding<NodeDataStore>,
+        _ nodeSelectionStore: Binding<NodeSelectionStore>,
     ) {
         self._state = state
         self._nodeDataStore = nodeDataStore
+        self._selection = nodeSelectionStore
     }
 
-    // MARK: - Canvas 
+    // MARK: - Canvas
 
     func onCanvasEvent(_ event: CanvasView.Event) {
         log("\(event)", level: .debug)
+        switch event {
+        case .rectSelect(_):
+            break
+        case .clickBackground:
+            self.selection.deselectAll()
+            break
+        }
     }
 
     // MARK: - Node Views
+
+    private var shift: Bool {
+        #if os(macOS)
+        NSEvent.modifierFlags.contains(.shift)
+        #else
+        false
+        #endif
+    }
 
     func viewForNode(_ id: UUID) -> (any CanvasNodeView)? {
 
@@ -91,7 +110,7 @@ public struct CanvasFeatureView: View {
         view.emitter.on { event in
             switch event {
             case .click:
-                log("cliked node \(id)", level: .debug)
+                self.selection.userAction(action: .clickNode(id, shift: self.shift))
             case .dragGesture(_): break
             case .sizeChanged: break
             case .other(let event):
@@ -368,6 +387,12 @@ public struct CanvasFeatureView: View {
         return true
     }
 
+    func updateSelection() {
+        for (id, view) in self.nodeViews {
+            view.isSelected = self.selection.isSelected(id)
+        }
+    }
+
     public var body: some View {
         ZStack(alignment: .topLeading) {
             CanvasView(
@@ -382,6 +407,7 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.nodeDataStore.edges, initial: true) { self.updateEdges() }
             .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
             .onChange(of: self.nodeDataStore.nodes, initial: true) { self.updateNodeData() }
+            .onChange(of: self.selection, initial: true) { self.updateSelection() }
         }
     }
 }
@@ -395,7 +421,8 @@ enum PreviewData {
     @Previewable @State var nodeDataStore: NodeDataStore = .init([
         PreviewData.id: .init(id: PreviewData.id, kind: .addNode(.float))
     ])
+    @Previewable @State var nodeSelectionStore: NodeSelectionStore = .init()
     VStack {
-        CanvasFeatureView($state, $nodeDataStore)
+        CanvasFeatureView($state, $nodeDataStore, $nodeSelectionStore)
     }
 }

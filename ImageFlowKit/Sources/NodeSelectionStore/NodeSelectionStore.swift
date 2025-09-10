@@ -1,6 +1,6 @@
 import Foundation
 
-public struct NodeSelectionStore: Sendable, Equatable {
+public struct NodeSelectionStore: Sendable, Equatable, Codable {
 
     public private(set) var selection: Set<UUID> = []
 
@@ -9,8 +9,23 @@ public struct NodeSelectionStore: Sendable, Equatable {
         case replace
     }
 
+    public enum Action {
+        case clickNode(UUID, shift: Bool)
+    }
+
     public init(selection: Set<UUID> = []) {
         self.selection = selection
+    }
+
+    public mutating func userAction(action: Action) {
+        switch action {
+        case let .clickNode(id, shift: shift):
+            self.select(node: id, mode: shift ? .union : .replace)
+        }
+    }
+
+    public func isSelected(_ node: UUID) -> Bool {
+        self.selection.contains(node)
     }
 
     public mutating func select(node: UUID, mode: SelectionMode = .replace) {
@@ -23,11 +38,11 @@ public struct NodeSelectionStore: Sendable, Equatable {
 
     public mutating func select(nodes: Set<UUID>, mode: SelectionMode = .replace) {
         switch mode {
-            case .replace:
-                self.selection = nodes
-                break
-            case .union:
-                self.selection.formUnion(nodes)
+        case .replace:
+            self.selection = nodes
+            break
+        case .union:
+            self.selection.formUnion(nodes)
         }
     }
 

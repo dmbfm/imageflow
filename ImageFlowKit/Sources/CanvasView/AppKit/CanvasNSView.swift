@@ -132,12 +132,14 @@ public final class CanvasNSView: NSView {
             target: self,
             action: #selector(self.gridView(clickGesture:))
         )
+        clickGesture.delegate = self
         self.gridView.addGestureRecognizer(clickGesture)
 
         let leftPanGesture = NSPanGestureRecognizer(
             target: self,
             action: #selector(self.gridView(leftPanGesture:))
         )
+        leftPanGesture.delegate = self
         self.gridView.addGestureRecognizer(leftPanGesture)
 
         let magnificationGesture = NSMagnificationGestureRecognizer(
@@ -198,7 +200,7 @@ public final class CanvasNSView: NSView {
     }
 
     @objc func gridView(clickGesture gesture: NSClickGestureRecognizer) {
-        // self.emitter.emit(.clickBackground)
+        self.onEvent?(.clickBackground)
     }
 
     @objc func gridView(leftPanGesture gesture: NSPanGestureRecognizer) {
@@ -259,6 +261,21 @@ public final class CanvasNSView: NSView {
 
     // MARK: - Node Management
 
+}
+
+extension CanvasNSView: NSGestureRecognizerDelegate {
+    public func gestureRecognizer(
+        _ gestureRecognizer: NSGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSGestureRecognizer
+    ) -> Bool {
+        if (gestureRecognizer as? NSClickGestureRecognizer) != nil
+            || (otherGestureRecognizer as? NSClickGestureRecognizer) != nil
+        {
+            return true
+        }
+
+        return false
+    }
 }
 
 private final class RectSelectionView: NSView {

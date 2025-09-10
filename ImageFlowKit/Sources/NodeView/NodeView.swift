@@ -24,8 +24,9 @@ public typealias NodeView = NodeUIView
 @MainActor
 protocol NodeViewProtocol {
     var node: FlowNode { get set }
+    var isSelected: Bool { get set }
     var emitter: EventEmitter<CanvasNodeEvent<NodeView.Event>> { get }
-    init(_ node: FlowNode)
+    init(_ node: FlowNode, _ isSelected: Bool)
 }
 
 extension NodeView {

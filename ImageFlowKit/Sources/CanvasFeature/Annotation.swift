@@ -39,7 +39,7 @@ struct AnnotationStyle: Equatable, With {
         #if os(macOS)
         .init(
             backgroundStyle: .material,
-            titleColor:  .labelColor, 
+            titleColor: .labelColor,
             messageColor: .secondaryLabelColor,
             cornerRadius: 10.0
         )

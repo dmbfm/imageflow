@@ -64,7 +64,7 @@ public final class CanvasUIView: UIView {
         let view = ContentView()
         return view
     }()
-    
+
     private lazy var rectSelectionView: RectSelectionView = {
         let view = RectSelectionView()
         view.isUserInteractionEnabled = false
@@ -91,7 +91,7 @@ public final class CanvasUIView: UIView {
         self.setupGridView()
         self.setupRectSelectionView()
         self.setupContentView()
-        
+
         self.nodePositionsDidChange([:])
         self.gridViewDraw()
     }
@@ -108,6 +108,9 @@ public final class CanvasUIView: UIView {
         self.gridView.frame = self.bounds
         self.addSubview(self.gridView)
 
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureHandler))
+        self.gridView.addGestureRecognizer(tapGesture)
+
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.gridViewPanGesture(_:)))
         panGesture.minimumNumberOfTouches = 2
         panGesture.maximumNumberOfTouches = 2
@@ -115,23 +118,28 @@ public final class CanvasUIView: UIView {
 
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(Self.gridViewPinchGesture(_:)))
         self.gridView.addGestureRecognizer(pinchGesture)
-        
+
         let oneFingerPanGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.oneFingerPanGesture(_:)))
         oneFingerPanGesture.minimumNumberOfTouches = 1
         oneFingerPanGesture.maximumNumberOfTouches = 1
         self.gridView.addGestureRecognizer(oneFingerPanGesture)
     }
-    
+
+    @objc
+    func tapGestureHandler() {
+        self.onEvent?(.clickBackground)
+    }
+
     @objc
     func oneFingerPanGesture(_ gesture: UIPanGestureRecognizer) {
         log("\(gesture.state)")
-        
+
         if gesture.state == .began {
             self.oneFingerPanInitialPos = gesture.location(in: self.gridView)
             self.onEvent?(.rectSelect(.started(shiftDown: false)))
             return
         }
-        
+
         if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
             self.oneFingerPanInitialPos = .zero
             self.rectSelectionView.selectionRect = .zero
@@ -194,9 +202,9 @@ public final class CanvasUIView: UIView {
         //            view.value.setNeedsDisplay()
         //        }
     }
-    
+
     // MARK: - RectSelectionView Methods
-    
+
     func setupRectSelectionView() {
         self.rectSelectionView.bounds = self.frame
         self.addSubview(self.rectSelectionView)
@@ -209,17 +217,17 @@ private final class RectSelectionView: UIView {
             self.setNeedsDisplay()
         }
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+
         self.backgroundColor = .clear
     }
-    
+
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     override func draw(_ rect: CGRect) {
         UIColor.systemOrange.withAlphaComponent(0.2).setFill()
         UIColor.systemOrange.setStroke()

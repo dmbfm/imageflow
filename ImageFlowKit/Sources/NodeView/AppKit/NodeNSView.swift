@@ -17,6 +17,14 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
         }
     }
 
+    public var isSelected: Bool {
+        didSet {
+            if self.isSelected != oldValue {
+                self.updateBorder()
+            }
+        }
+    }
+
     public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
 
     public var id: UUID { self.node.id }
@@ -86,8 +94,9 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
         return view
     }()
 
-    public init(_ node: FlowNode) {
+    public init(_ node: FlowNode, _ isSelected: Bool = false) {
         self.node = node
+        self.isSelected = isSelected
 
         super.init(frame: .zero)
 
@@ -114,6 +123,14 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
         self.invalidateIntrinsicContentSize()
         self.needsLayout = true
         self.emitter.emit(.sizeChanged)
+    }
+
+    func updateBorder() {
+        if self.isSelected {
+            self.backgroundView.showBorder(self.node.kind.frontendNodeColor.cgColor, Design.default.selectedBorderWidth)
+        } else {
+            self.backgroundView.hideBorder()
+        }
     }
 
     public override var isFlipped: Bool { true }

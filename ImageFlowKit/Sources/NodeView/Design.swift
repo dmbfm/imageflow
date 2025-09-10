@@ -25,6 +25,7 @@ struct Design {
     var nodeRowHeight: CGFloat = 32
     var inputBlockBottomPadding: CGFloat = 12
     var outputBlockBottomPadding: CGFloat = 10
+    var selectedBorderWidth: CGFloat = 2.0
 
     static var iOS: Self {
         .init(portSize: 12, portStrokeWidth: 1)

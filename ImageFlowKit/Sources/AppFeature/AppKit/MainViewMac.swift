@@ -71,7 +71,7 @@ struct MainViewMac: View {
 
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.$document.canvas, self.$document.nodeData)
+            CanvasFeatureView(self.$document.canvas, self.$document.nodeData, self.$document.nodeSelection)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in

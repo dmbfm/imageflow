@@ -1,9 +1,9 @@
 import CanvasFeature
 import CommonUtils
 import Models
+import NodePaletteService
 import NodeView
 import SwiftUI
-import NodePaletteService
 
 #if os(macOS)
 typealias MainView = MainViewMac

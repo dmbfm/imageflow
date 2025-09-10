@@ -22,6 +22,7 @@ extension CanvasPlatformView {
         case viewportDidChange(CanvasViewport)
         case nodePositionsDidChange([UUID: CGPoint])
         case rectSelect(RectSelect)
+        case clickBackground
 
         public enum RectSelect {
             case started(shiftDown: Bool)

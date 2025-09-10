@@ -27,6 +27,14 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
         }
     }
 
+    public var isSelected: Bool {
+        didSet {
+            if self.isSelected != oldValue {
+                self.updateBorder()
+            }
+        }
+    }
+
     public var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
 
     public var id: UUID { self.node.id }
@@ -110,8 +118,9 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
 
     // MARK: - Initializers
 
-    public init(_ node: FlowNode) {
+    public init(_ node: FlowNode, _ isSelected: Bool = false) {
         self.node = node
+        self.isSelected = isSelected
 
         super.init(frame: .zero)
 
@@ -219,6 +228,15 @@ public final class NodeUIView: UIView, CanvasNodeView, NodeViewProtocol {
         //         }
         //     }
         // }
+    }
+
+    func updateBorder() {
+        if self.isSelected {
+            self.backgroundView.gradientLayer.borderWidth = Design.default.selectedBorderWidth
+            self.backgroundView.gradientLayer.borderColor = self.node.kind.frontendNodeColor.cgColor
+        } else {
+            self.backgroundView.gradientLayer.borderWidth = 0.0
+        }
     }
 }
 

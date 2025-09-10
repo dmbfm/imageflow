@@ -32,6 +32,8 @@ public final class BackgroundNSView: NSView {
         }
     }
 
+    public var borderAnimationDuration: CGFloat = 0.08
+
     var onEvent: ((Event) -> ())?
 
     enum Event {
@@ -53,13 +55,22 @@ public final class BackgroundNSView: NSView {
         self.color = color
         super.init(frame: frame)
 
+        let borderAnim = CABasicAnimation()
+        borderAnim.timingFunction = .init(name: .easeInEaseOut)
+        self.gradientLayer.actions = [
+            "borderColor": borderAnim,
+            "borderWidth": borderAnim,
+        ]
+
         self.wantsLayer = true
         self.layer?.insertSublayer(self.gradientLayer, at: 0)
 
         let clickGR = NSClickGestureRecognizer(target: self, action: #selector(Self.onClickGesture(_:)))
+        clickGR.delegate = self
         self.addGestureRecognizer(clickGR)
 
         let panGR = NSPanGestureRecognizer(target: self, action: #selector(Self.onPanGesture(_:)))
+        panGR.delegate = self
         self.addGestureRecognizer(panGR)
     }
 
@@ -91,8 +102,32 @@ public final class BackgroundNSView: NSView {
         CATransaction.commit()
     }
 
+    public func showBorder(_ color: CGColor, _ width: CGFloat) {
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(self.borderAnimationDuration)
+        self.gradientLayer.borderWidth = width
+        self.gradientLayer.borderColor = color
+        CATransaction.commit()
+    }
+
+    public func hideBorder() {
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(self.borderAnimationDuration)
+        self.gradientLayer.borderWidth = 0.0
+        CATransaction.commit()
+    }
+
     public override func draw(_ dirtyRect: NSRect) {
         self.draw()
+    }
+}
+
+extension BackgroundNSView: NSGestureRecognizerDelegate {
+    public func gestureRecognizer(
+        _ gestureRecognizer: NSGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSGestureRecognizer
+    ) -> Bool {
+        true
     }
 }
 
