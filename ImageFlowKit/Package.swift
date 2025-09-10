@@ -31,6 +31,7 @@ let package = Package(
         .library(name: "CanvasView"),
         .library(name: "CanvasFeature"),
         .library(name: "NodeDataStore"),
+        .library(name: "NodeSelectionStore"),
         .library(name: "SidebarFeature"),
         .library(name: "NodePaletteService"),
         .library(name: "AppFeature"),
@@ -197,6 +198,14 @@ let package = Package(
                 "Values",
                 "CommonUtils",
             ],
+        ),
+        .target(name: "NodeSelectionStore"),
+        // Test targets
+        .testTarget(
+            name: "NodeSelectionStoreTests",
+            dependencies: [
+                "NodeSelectionStore"
+            ]
         ),
     ]
 )
