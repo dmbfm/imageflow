@@ -23,6 +23,7 @@ extension CanvasPlatformView {
         case nodePositionsDidChange([UUID: CGPoint])
         case rectSelect(RectSelect)
         case clickBackground
+        case translatedNode(UUID, CGSize)
 
         public enum RectSelect {
             case started(shiftDown: Bool)
@@ -132,10 +133,6 @@ extension CanvasPlatformView {
         let newPos = self.nodePositions[id]! + translation.cgPoint
         self.nodePositions[id] = newPos
         self.onEvent?(.nodePositionsDidChange(self.nodePositions))
-        // if let view = self.nodeViews[id] {
-        //     view.setFrameOrigin(newPos)
-        // }
-        // self.emitter.emit(.nodeShouldMove(id, newPos))
+        self.onEvent?(.translatedNode(id, translation))
     }
-
 }

@@ -26,6 +26,7 @@ public struct CanvasView: PlatformViewRepresentable {
     public enum Event {
         case rectSelect(CanvasPlatformView.Event.RectSelect)
         case clickBackground
+        case translatedNode(UUID, CGSize)
     }
 
     public init(
@@ -60,6 +61,8 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.onEvent?(.rectSelect(event))
             case .clickBackground:
                 self.onEvent?(.clickBackground)
+            case let .translatedNode(id, amount):
+                self.onEvent?(.translatedNode(id, amount))
             }
         }
         self.canvasPlatformViewRef.view = view

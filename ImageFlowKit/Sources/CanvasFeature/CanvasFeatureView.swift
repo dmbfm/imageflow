@@ -94,7 +94,15 @@ public struct CanvasFeatureView: View {
             break
         case .clickBackground:
             self.nodeSelectionStore.deselectAll()
-            break
+
+        case let .translatedNode(id, size):
+            if self.nodeSelectionStore.selection.count >= 2 && self.nodeSelectionStore.isSelected(id) {
+                for other in self.nodeSelectionStore.selection.filter({ $0 != id }) {
+                    if let pos = self.state.nodePositions[other] {
+                        self.state.nodePositions[other] = pos + size.cgPoint
+                    }
+                }
+            }
         }
     }
 
