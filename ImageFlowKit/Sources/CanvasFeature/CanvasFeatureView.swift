@@ -19,7 +19,7 @@ public struct CanvasFeatureView: View {
 
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
-    @Binding var selection: NodeSelectionStore
+    @Binding var nodeSelectionStore: NodeSelectionStore
     @State private var canvasPlatformViewRef: PlatformViewRef = .init()
     @State private var edgeLayers: [EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -28,6 +28,7 @@ public struct CanvasFeatureView: View {
         .init(),
         .init(title: "", message: "", maxWidth: 280, type: .regular)
     )
+    @State private var selectionAtRectDragStart: Box<Set<UUID>> = .init(.init())
 
     // MARK: - Types
 
@@ -64,18 +65,35 @@ public struct CanvasFeatureView: View {
     ) {
         self._state = state
         self._nodeDataStore = nodeDataStore
-        self._selection = nodeSelectionStore
+        self._nodeSelectionStore = nodeSelectionStore
     }
 
     // MARK: - Canvas
 
     func onCanvasEvent(_ event: CanvasView.Event) {
-        log("\(event)", level: .debug)
         switch event {
-        case .rectSelect(_):
+        case .rectSelect(let state):
+            switch state {
+            case .started:
+                self.selectionAtRectDragStart.value = self.nodeSelectionStore.selection
+                break
+            case let .modified(shiftDown: shiftDown, rect: rect):
+                var nodes = Set<UUID>()
+                for (id, view) in self.nodeViews {
+                    if view.frame.intersects(rect) {
+                        nodes.insert(id)
+                    }
+                }
+                self.nodeSelectionStore.select(
+                    nodes: shiftDown ? nodes.union(self.selectionAtRectDragStart.value) : nodes,
+                    mode: .replace
+                )
+            case .ended:
+                break
+            }
             break
         case .clickBackground:
-            self.selection.deselectAll()
+            self.nodeSelectionStore.deselectAll()
             break
         }
     }
@@ -110,7 +128,7 @@ public struct CanvasFeatureView: View {
         view.emitter.on { event in
             switch event {
             case .click:
-                self.selection.userAction(action: .clickNode(id, shift: self.shift))
+                self.nodeSelectionStore.select(node: id, mode: self.shift ? .union : .replace)
             case .dragGesture(_): break
             case .sizeChanged: break
             case .other(let event):
@@ -389,7 +407,7 @@ public struct CanvasFeatureView: View {
 
     func updateSelection() {
         for (id, view) in self.nodeViews {
-            view.isSelected = self.selection.isSelected(id)
+            view.isSelected = self.nodeSelectionStore.isSelected(id)
         }
     }
 
@@ -407,7 +425,7 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.nodeDataStore.edges, initial: true) { self.updateEdges() }
             .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
             .onChange(of: self.nodeDataStore.nodes, initial: true) { self.updateNodeData() }
-            .onChange(of: self.selection, initial: true) { self.updateSelection() }
+            .onChange(of: self.nodeSelectionStore, initial: true) { self.updateSelection() }
         }
     }
 }

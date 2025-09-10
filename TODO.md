@@ -24,6 +24,10 @@ A node-based image effects composer.
 
 ### DOING
 - Node selection system
+  - [ ] Move selected nodes together
+  - [ ] Menu commands
+    - Select All
+    - Deselect
 
 ### DONE
 - [iOS] NodeNumberInput: drag to change values

@@ -9,19 +9,8 @@ public struct NodeSelectionStore: Sendable, Equatable, Codable {
         case replace
     }
 
-    public enum Action {
-        case clickNode(UUID, shift: Bool)
-    }
-
     public init(selection: Set<UUID> = []) {
         self.selection = selection
-    }
-
-    public mutating func userAction(action: Action) {
-        switch action {
-        case let .clickNode(id, shift: shift):
-            self.select(node: id, mode: shift ? .union : .replace)
-        }
     }
 
     public func isSelected(_ node: UUID) -> Bool {
