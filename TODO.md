@@ -18,13 +18,15 @@ A node-based image effects composer.
   - Transforms
 
 ### NEXT
+- Transient States
+  - When using `DocumengGroup`/`FileDocument`, any changes in the document will automatically crete undos.
 - Node Inspector
 - Backend integration service
 - Previews
 
 ### DOING
 - Node selection system
-  - [ ] Move selected nodes together
+  - [X] Move selected nodes together
   - [ ] Menu commands
     - Select All
     - Deselect
