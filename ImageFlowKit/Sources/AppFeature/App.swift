@@ -1,5 +1,6 @@
 import SwiftUI
 
+#if os(iOS)
 public struct ImageFlowApp: App {
 
     public init() {}
@@ -17,3 +18,4 @@ public struct ImageFlowApp: App {
         #endif
     }
 }
+#endif

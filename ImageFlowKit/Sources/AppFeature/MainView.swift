@@ -22,12 +22,12 @@ extension MainView {
                     let view = NodeView(node)
                     let size = view.intrinsicContentSize
                     let pos = self.canvasCenter.value - (size * 0.5).cgPoint
-                    return self.document.canvas.viewport.convert(pos, from: .screen, to: .canvas)
+                    return self.documentState.doc.canvas.viewport.convert(pos, from: .screen, to: .canvas)
                 case .point(let point):
                     return point
                 }
             }
-            self.document.addNode(node: .init(id: data.id, kind: data.kind), at: pos)
+            self.documentState.doc.addNode(node: .init(id: data.id, kind: data.kind), at: pos)
         }
     }
 

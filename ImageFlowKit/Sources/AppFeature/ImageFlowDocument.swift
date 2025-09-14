@@ -7,7 +7,7 @@ import NodeSelectionStore
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ImageFlowDocument: FileDocument, Codable, Equatable {
+struct ImageFlowDocument: Codable, Equatable {
     init(canvas: CanvasFeatureState = .init(), nodeData: NodeDataStore = .init()) {
         self.canvas = canvas
         self.nodeData = nodeData
@@ -25,14 +25,14 @@ struct ImageFlowDocument: FileDocument, Codable, Equatable {
 
     }
 
-    init(configuration: ReadConfiguration) throws {
-        self = .sample
-    }
-
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let fw = FileWrapper(directoryWithFileWrappers: [:])
-        return fw
-    }
+//    init(configuration: ReadConfiguration) throws {
+//        self = .sample
+//    }
+//
+//    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+//        let fw = FileWrapper(directoryWithFileWrappers: [:])
+//        return fw
+//    }
 
     mutating func addNode(node: FlowNode, at position: CGPoint) {
         self.nodeData.addNode(node)

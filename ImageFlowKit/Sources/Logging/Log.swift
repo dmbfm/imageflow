@@ -29,7 +29,7 @@ public struct Log {
         }
     }
 
-    static let level: Level = .debug
+    static let level: Level = .trace
 
     static let dateFormatStyle: Date.FormatStyle = .dateTime
         .hour()

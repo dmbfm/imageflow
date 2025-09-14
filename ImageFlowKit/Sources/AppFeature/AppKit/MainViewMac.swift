@@ -15,7 +15,9 @@ import PlatformUtils
 import SwiftUI
 
 struct MainViewMac: View {
-    @Binding var document: ImageFlowDocument
+//    @Binding var document: ImageFlowDocument
+//    @State var document: ImageFlowDocument = .sample
+    @Bindable var documentState: DocumentState
     @State private(set) var canvasCenter: Box<CGPoint> = .init(.zero)
     @State private(set) var showNodePalettePopover: Bool = false
     @State private(set) var dispatcher = Dispatcher()
@@ -71,7 +73,7 @@ struct MainViewMac: View {
 
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.$document.canvas, self.$document.nodeData, self.$document.nodeSelection)
+            CanvasFeatureView(self.$documentState.doc.canvas, self.$documentState.doc.nodeData, self.$documentState.doc.nodeSelection)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in

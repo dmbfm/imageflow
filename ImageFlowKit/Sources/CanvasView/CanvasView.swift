@@ -15,8 +15,8 @@ import UIKit
 public struct CanvasView: PlatformViewRepresentable {
 
     // MARK: - Bindings
-    @Binding var viewport: CanvasViewport
-    @Binding var nodePositions: [UUID: CGPoint]
+    let viewport: CanvasViewport
+    let nodePositions: [UUID: CGPoint]
     let edgeLayers: [EdgeLayer]
     let canvasPlatformViewRef: PlatformViewRef
 
@@ -27,18 +27,21 @@ public struct CanvasView: PlatformViewRepresentable {
         case rectSelect(CanvasPlatformView.Event.RectSelect)
         case clickBackground
         case translatedNode(UUID, CGSize)
+        case viewportChange(CanvasViewport)
+        case viewportDrag(phase: GesturePhase, translation: CGSize)
+        case nodeDrag(node: UUID, phase: GesturePhase, translation: CGSize)
     }
 
     public init(
-        _ viewport: Binding<CanvasViewport>,
-        _ nodePositions: Binding<[UUID: CGPoint]>,
+        _ viewport: CanvasViewport,
+        _ nodePositions: [UUID: CGPoint],
         _ edges: [EdgeLayer],
         _ canvasPlatformViewRef: PlatformViewRef,
         _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         _ onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
-        self._viewport = viewport
-        self._nodePositions = nodePositions
+        self.viewport = viewport
+        self.nodePositions = nodePositions
         self.edgeLayers = edges
         self.viewForNode = viewForNode
         self.canvasPlatformViewRef = canvasPlatformViewRef
@@ -54,15 +57,20 @@ public struct CanvasView: PlatformViewRepresentable {
         view.onEvent = { event in
             switch event {
             case .viewportDidChange(let viewport):
-                self.viewport = viewport
-            case .nodePositionsDidChange(let nodePositions):
-                self.nodePositions = nodePositions
+                self.onEvent?(.viewportChange(viewport))
+//            case .nodePositionsDidChange(let nodePositions):
+//                log("xxx")
+//                self.nodePositions = nodePositions
             case .rectSelect(let event):
                 self.onEvent?(.rectSelect(event))
             case .clickBackground:
                 self.onEvent?(.clickBackground)
-            case let .translatedNode(id, amount):
-                self.onEvent?(.translatedNode(id, amount))
+//            case let .translatedNode(id, amount):
+//                self.onEvent?(.translatedNode(id, amount))
+            case .nodeDrag(node: let node, phase: let phase, translation: let translation):
+                self.onEvent?(.nodeDrag(node: node, phase: phase, translation: translation))
+            case .viewportDrag(phase: let phase, translation: let translation):
+                self.onEvent?(.viewportDrag(phase: phase, translation: translation))
             }
         }
         self.canvasPlatformViewRef.view = view

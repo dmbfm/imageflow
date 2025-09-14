@@ -196,7 +196,8 @@ public final class CanvasNSView: NSView {
             width: -t.x,
             height: -t.y
         )
-        self.viewport.translate(by: amount, in: .screen)
+        self.onEvent?(.viewportDrag(phase: .init(gestureRecognizerState: gesture.state), translation: amount))
+//        self.viewport.translate(by: amount, in: .screen)
     }
 
     @objc func gridView(clickGesture gesture: NSClickGestureRecognizer) {

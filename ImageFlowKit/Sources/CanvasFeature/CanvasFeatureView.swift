@@ -29,6 +29,10 @@ public struct CanvasFeatureView: View {
         .init(title: "", message: "", maxWidth: 280, type: .regular)
     )
     @State private var selectionAtRectDragStart: Box<Set<UUID>> = .init(.init())
+    @State private var viewportAtDragStart: Box<CanvasViewport> = .init(.init())
+    @State private var nodePositionAtDragStart: Box<(UUID, CGPoint)> = .init((.init(), .init()))
+    @Environment(\._undoManager) var undoManager
+    
 
     // MARK: - Types
 
@@ -71,6 +75,7 @@ public struct CanvasFeatureView: View {
     // MARK: - Canvas
 
     func onCanvasEvent(_ event: CanvasView.Event) {
+        log("xxx \(event)")
         switch event {
         case .rectSelect(let state):
             switch state {
@@ -101,6 +106,51 @@ public struct CanvasFeatureView: View {
                     if let pos = self.state.nodePositions[other] {
                         self.state.nodePositions[other] = pos + size.cgPoint
                     }
+                }
+            }
+        case .viewportChange(let viewport):
+            self.state.viewport = viewport
+        case .viewportDrag(phase: let phase, translation: let translation):
+            log("xxx viewportDrag")
+            switch phase {
+            case .began:
+                self.undoManager?.beginUndoGrouping()
+                self.undoManager?.setActionName("Viewport")
+                self.viewportAtDragStart.value = self.state.viewport
+            case .changed:
+                self.state.viewport.translate(by: translation, in: .screen)
+            case .ended:
+//                self.undoManager?.registerUndo {
+//                    self.state.viewport = self.viewportAtDragStart.value
+//                }
+                self.undoManager?.registerUndo(withValue: self.viewportAtDragStart.value, handler: { value in
+                    self.state.viewport = value
+                })
+                self.undoManager?.endUndoGrouping()
+                self.undoManager?.undo()
+            case .cancelled:
+                self.undoManager?.endUndoGrouping()
+                self.state.viewport = self.viewportAtDragStart.value
+            }
+        case .nodeDrag(node: let node, phase: let phase, translation: let translation):
+            switch phase {
+            case .began:
+                self.undoManager?.beginUndoGrouping()
+                self.undoManager?.setActionName("Drag Node")
+                self.nodePositionAtDragStart.value = (node, self.state.nodePositions[node]!)
+            case .changed:
+                if self.state.nodePositions[node] == nil { fatalError() }
+                let newPos = self.state.nodePositions[node]! + translation.cgPoint
+                self.state.nodePositions[node] = newPos
+            case .ended, .cancelled:
+                self.undoManager?.registerUndo(withValue: self.nodePositionAtDragStart.value, handler: { (node, pos) in
+                    if self.state.nodePositions[node] != nil {
+                        self.state.nodePositions[node] = pos
+                    }
+                })
+                self.undoManager?.endUndoGrouping()
+                if phase == .cancelled {
+                    self.undoManager?.undo()
                 }
             }
         }
@@ -422,8 +472,8 @@ public struct CanvasFeatureView: View {
     public var body: some View {
         ZStack(alignment: .topLeading) {
             CanvasView(
-                self.$state.viewport,
-                self.$state.nodePositions,
+                self.state.viewport,
+                self.state.nodePositions,
                 self.edgeLayers,
                 self.canvasPlatformViewRef,
                 self.viewForNode,
