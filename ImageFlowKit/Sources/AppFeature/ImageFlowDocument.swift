@@ -25,14 +25,14 @@ struct ImageFlowDocument: Codable, Equatable {
 
     }
 
-//    init(configuration: ReadConfiguration) throws {
-//        self = .sample
-//    }
-//
-//    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-//        let fw = FileWrapper(directoryWithFileWrappers: [:])
-//        return fw
-//    }
+    //    init(configuration: ReadConfiguration) throws {
+    //        self = .sample
+    //    }
+    //
+    //    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    //        let fw = FileWrapper(directoryWithFileWrappers: [:])
+    //        return fw
+    //    }
 
     mutating func addNode(node: FlowNode, at position: CGPoint) {
         self.nodeData.addNode(node)

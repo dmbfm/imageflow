@@ -32,7 +32,6 @@ public struct CanvasFeatureView: View {
     @State private var viewportAtDragStart: Box<CanvasViewport> = .init(.init())
     @State private var nodePositionAtDragStart: Box<(UUID, CGPoint)> = .init((.init(), .init()))
     @Environment(\._undoManager) var undoManager
-    
 
     // MARK: - Types
 
@@ -120,12 +119,15 @@ public struct CanvasFeatureView: View {
             case .changed:
                 self.state.viewport.translate(by: translation, in: .screen)
             case .ended:
-//                self.undoManager?.registerUndo {
-//                    self.state.viewport = self.viewportAtDragStart.value
-//                }
-                self.undoManager?.registerUndo(withValue: self.viewportAtDragStart.value, handler: { value in
-                    self.state.viewport = value
-                })
+                //                self.undoManager?.registerUndo {
+                //                    self.state.viewport = self.viewportAtDragStart.value
+                //                }
+                self.undoManager?.registerUndo(
+                    withValue: self.viewportAtDragStart.value,
+                    handler: { value in
+                        self.state.viewport = value
+                    }
+                )
                 self.undoManager?.endUndoGrouping()
                 self.undoManager?.undo()
             case .cancelled:
@@ -143,11 +145,14 @@ public struct CanvasFeatureView: View {
                 let newPos = self.state.nodePositions[node]! + translation.cgPoint
                 self.state.nodePositions[node] = newPos
             case .ended, .cancelled:
-                self.undoManager?.registerUndo(withValue: self.nodePositionAtDragStart.value, handler: { (node, pos) in
-                    if self.state.nodePositions[node] != nil {
-                        self.state.nodePositions[node] = pos
+                self.undoManager?.registerUndo(
+                    withValue: self.nodePositionAtDragStart.value,
+                    handler: { (node, pos) in
+                        if self.state.nodePositions[node] != nil {
+                            self.state.nodePositions[node] = pos
+                        }
                     }
-                })
+                )
                 self.undoManager?.endUndoGrouping()
                 if phase == .cancelled {
                     self.undoManager?.undo()

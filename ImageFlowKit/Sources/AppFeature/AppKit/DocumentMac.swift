@@ -64,12 +64,12 @@ final class FlowDocument: NSDocument {
 
     @objc
     func selectAllNodes(_ sender: AnyObject) {
-        
+
     }
 
     @objc
     func deselectAllNodes(_ sender: AnyObject) {
-        
+
     }
 
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {

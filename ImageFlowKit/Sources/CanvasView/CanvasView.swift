@@ -58,15 +58,15 @@ public struct CanvasView: PlatformViewRepresentable {
             switch event {
             case .viewportDidChange(let viewport):
                 self.onEvent?(.viewportChange(viewport))
-//            case .nodePositionsDidChange(let nodePositions):
-//                log("xxx")
-//                self.nodePositions = nodePositions
+            //            case .nodePositionsDidChange(let nodePositions):
+            //                log("xxx")
+            //                self.nodePositions = nodePositions
             case .rectSelect(let event):
                 self.onEvent?(.rectSelect(event))
             case .clickBackground:
                 self.onEvent?(.clickBackground)
-//            case let .translatedNode(id, amount):
-//                self.onEvent?(.translatedNode(id, amount))
+            //            case let .translatedNode(id, amount):
+            //                self.onEvent?(.translatedNode(id, amount))
             case .nodeDrag(node: let node, phase: let phase, translation: let translation):
                 self.onEvent?(.nodeDrag(node: node, phase: phase, translation: translation))
             case .viewportDrag(phase: let phase, translation: let translation):
