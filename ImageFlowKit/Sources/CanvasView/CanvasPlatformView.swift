@@ -76,7 +76,6 @@ extension CanvasPlatformView {
     // MARK: - Node Management
 
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
-        log("addNode at: \(position)")
         node.frame.origin = position
         node.frame.size = node.intrinsicContentSize
         let id = node.id
@@ -84,8 +83,13 @@ extension CanvasPlatformView {
             guard let self else { return }
             switch event {
             case let .dragGesture(gesture):
+                let translation = self.viewport.convert(
+                    CGSize(width: gesture.dx, height: gesture.dy),
+                    from: .screen,
+                    to: .canvas
+                )
                 self.onEvent?(
-                    .nodeDrag(node: id, phase: gesture.phase, translation: .init(width: gesture.dx, height: gesture.dy))
+                    .nodeDrag(node: id, phase: gesture.phase, translation: translation)
                 )
             case .sizeChanged:
                 node.frame.size = node.intrinsicContentSize

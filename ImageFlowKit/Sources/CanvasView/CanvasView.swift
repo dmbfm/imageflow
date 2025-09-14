@@ -26,7 +26,6 @@ public struct CanvasView: PlatformViewRepresentable {
     public enum Event {
         case rectSelect(CanvasPlatformView.Event.RectSelect)
         case clickBackground
-        case translatedNode(UUID, CGSize)
         case viewportChange(CanvasViewport)
         case viewportDrag(phase: GesturePhase, translation: CGSize)
         case nodeDrag(node: UUID, phase: GesturePhase, translation: CGSize)

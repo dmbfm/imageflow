@@ -34,7 +34,9 @@ let package = Package(
         .library(name: "NodeSelectionStore"),
         .library(name: "SidebarFeature"),
         .library(name: "NodePaletteService"),
+        .library(name: "NodePaletteListFeature"),
         .library(name: "AppFeature"),
+        .library(name: "MainViewFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
@@ -50,10 +52,23 @@ let package = Package(
                 "CanvasFeature",
                 "NodeDataStore",
                 "NodePaletteService",
+                "NodePaletteListFeature",
                 "NodeSelectionStore",
                 "SidebarFeature",
                 "Models",
             ],
+        ),
+        .target(
+            name: "MainViewFeature",
+            dependencies: [],
+        ),
+        .target(
+            name: "NodePaletteListFeature",
+            dependencies: [
+                "NodePaletteService",
+                "Models",
+                "Logging",
+            ]
         ),
         .target(
             name: "SidebarFeature",

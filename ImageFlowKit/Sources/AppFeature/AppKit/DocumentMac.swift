@@ -12,19 +12,17 @@ import Logging
 import SwiftUI
 import Models
 
-@Observable
-class DocumentState {
-    public var doc: ImageFlowDocument = .sample
-}
-
 @objc(FlowDocument)
 final class FlowDocument: NSDocument {
 
     var state: DocumentState = .init()
 
-    override func makeWindowControllers() {
+    override init() {
+        super.init()
         self.hasUndoManager = true
-        //        log("xxx \(self.undoManager)")
+    }
+
+    override func makeWindowControllers() {
         log("", level: .trace)
 
         let window = NSWindow(
@@ -35,7 +33,7 @@ final class FlowDocument: NSDocument {
         )
         window.setFrameAutosaveName("imageflowMainWindow")
         window.contentView = NSHostingView(
-            rootView: MainView(documentState: self.state).environment(\._undoManager, self.undoManager)
+            rootView: DocumentView(self.state).environment(\._undoManager, self.undoManager)
         )
         window.center()
         window.toolbar = NSToolbar()

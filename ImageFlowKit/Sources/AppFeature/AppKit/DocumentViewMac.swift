@@ -14,13 +14,15 @@ import Models
 import PlatformUtils
 import SwiftUI
 
-struct MainViewMac: View {
-    //    @Binding var document: ImageFlowDocument
-    //    @State var document: ImageFlowDocument = .sample
-    @Bindable var documentState: DocumentState
-    @State private(set) var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State private(set) var showNodePalettePopover: Bool = false
-    @State private(set) var dispatcher = Dispatcher()
+struct DocumentViewMac: View {
+    @Bindable var state: DocumentState
+    @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @State var showNodePalettePopover: Bool = false
+    @State var dispatcher = Dispatcher()
+
+    init(_ state: DocumentState) {
+        self.state = state
+    }
 
     func windowAutosaveFrameFix(_ window: NSWindow?) {
         guard let window else { return }
@@ -74,9 +76,9 @@ struct MainViewMac: View {
     var canvasView: some View {
         ZStack {
             CanvasFeatureView(
-                self.$documentState.doc.canvas,
-                self.$documentState.doc.nodeData,
-                self.$documentState.doc.nodeSelection
+                self.$state.canvas,
+                self.$state.nodeData,
+                self.$state.nodeSelection,
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center

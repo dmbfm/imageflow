@@ -1,6 +1,6 @@
+#if os(iOS)
 import SwiftUI
 
-#if os(iOS)
 public struct ImageFlowApp: App {
 
     public init() {}
