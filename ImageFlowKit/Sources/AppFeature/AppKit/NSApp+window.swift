@@ -15,13 +15,13 @@ extension NSApplication {
         }
 
         return false
-    } 
+    }
 
     @discardableResult
     func closeWindow(_ id: WindowID) -> Bool {
         self.closeWindow(id.rawValue)
     }
-    
+
 }
 
 #endif

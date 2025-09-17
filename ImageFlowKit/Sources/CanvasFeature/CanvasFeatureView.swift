@@ -81,12 +81,12 @@ public struct CanvasFeatureView: View {
             onCanvasRectSelect(state)
         case .clickBackground:
             onCanvasClickBackground()
-        case .viewportChange(let viewport):
-            onCanvasViewportChange(viewport)
-        case .viewportDrag(phase: let phase, translation: let translation):
-            onCanvasViewportDrag(phase, translation)
-        case .nodeDrag(node: let node, phase: let phase, translation: let translation):
-            onCanvasNodeDrag(phase, node, translation)
+        // case .viewportChange(let viewport):
+            // onCanvasViewportChange(viewport)
+        // case .viewportDrag(phase: let phase, translation: let translation):
+            // onCanvasViewportDrag(phase, translation)
+        // case .nodeDrag(node: let node, phase: let phase, translation: let translation):
+        //     onCanvasNodeDrag(phase, node, translation)
         }
     }
 
@@ -478,7 +478,7 @@ public struct CanvasFeatureView: View {
     public var body: some View {
         ZStack(alignment: .topLeading) {
             CanvasView(
-                self.state.viewport,
+                self.$state.viewport,
                 self.state.nodePositions,
                 self.edgeLayers,
                 self.canvasPlatformViewRef,

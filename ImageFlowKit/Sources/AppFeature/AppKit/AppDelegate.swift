@@ -9,7 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         false
     }
     @objc
-    func shareAction(_ sender: Any?){}
+    func shareAction(_ sender: Any?) {}
 }
 
 #endif

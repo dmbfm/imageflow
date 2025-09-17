@@ -5,7 +5,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Logging
 
-
 extension UTType {
     static var imageFlowDocument: UTType {
         .init(exportedAs: "com.dmbfm.imageFlowDocument")
@@ -69,13 +68,12 @@ final class FlowDocument: NSDocument {
         )
         window.setFrameAutosaveName("imageflowMainWindow")
         window.contentView = NSHostingView(
-            rootView: Color.red, //DocumentView(self.state).environment(\._undoManager, self.undoManager)
+            rootView: Color.red,  //DocumentView(self.state).environment(\._undoManager, self.undoManager)
         )
         window.center()
         window.toolbar = NSToolbar()
         window.toolbarStyle = .unified
-		window.identifier = WindowID.document.identifier
-
+        window.identifier = WindowID.document.identifier
 
         let wc = NSWindowController(window: window)
         self.addWindowController(wc)

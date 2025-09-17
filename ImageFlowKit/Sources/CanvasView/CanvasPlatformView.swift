@@ -37,8 +37,6 @@ extension CanvasPlatformView {
         case viewportDidChange(CanvasViewport)
         case rectSelect(RectSelect)
         case clickBackground
-        case nodeDrag(node: UUID, phase: GesturePhase, translation: CGSize)
-        case viewportDrag(phase: GesturePhase, translation: CGSize)
 
         public enum RectSelect {
             case started(shiftDown: Bool)
@@ -69,7 +67,6 @@ extension CanvasPlatformView {
     }
 
     func edgeLayersDidChange() {
-        log("edgeLayersDidChange")
         self.gridViewDraw()
     }
 
@@ -83,14 +80,7 @@ extension CanvasPlatformView {
             guard let self else { return }
             switch event {
             case let .dragGesture(gesture):
-                let translation = self.viewport.convert(
-                    CGSize(width: gesture.dx, height: gesture.dy),
-                    from: .screen,
-                    to: .canvas
-                )
-                self.onEvent?(
-                    .nodeDrag(node: id, phase: gesture.phase, translation: translation)
-                )
+                self.onDragNode(id, gesture)
             case .sizeChanged:
                 node.frame.size = node.intrinsicContentSize
             case .click:
@@ -103,6 +93,16 @@ extension CanvasPlatformView {
         self.nodeViews[node.id] = node
         self.contentView.addSubview(node)
         self.contentView.sortSubviews()
+    }
+
+    private func onDragNode(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
+        let translation = self.viewport.convert(
+            CGSize(width: gesture.dx, height: gesture.dy),
+            from: .screen,
+            to: .canvas
+        )
+
+        self.translateNode(id, by: translation)
     }
 
     func addNode(_ id: UUID, at position: CGPoint) {
@@ -131,15 +131,13 @@ extension CanvasPlatformView {
         self.setNeedsLayout()
     }
 
-    //    func translateNode(_ id: UUID, by translation: CGSize) {
-    //        if self.nodePositions[id] == nil {
-    //            log("Node not found: \(id)")
-    //            return
-    //        }
-    //
-    //        let newPos = self.nodePositions[id]! + translation.cgPoint
-    //        self.nodePositions[id] = newPos
-    //        self.onEvent?(.nodePositionsDidChange(self.nodePositions))
-    //        self.onEvent?(.translatedNode(id, translation))
-    //    }
+    func translateNode(_ id: UUID, by translation: CGSize) {
+        if self.nodePositions[id] == nil {
+            log("Node not found: \(id)")
+            return
+        }
+
+        let newPos = self.nodePositions[id]! + translation.cgPoint
+        self.nodePositions[id] = newPos
+    }
 }

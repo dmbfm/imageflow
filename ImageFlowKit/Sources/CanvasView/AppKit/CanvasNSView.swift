@@ -189,6 +189,7 @@ public final class CanvasNSView: NSView {
     }
 
     @objc func gridView(panGesture gesture: NSPanGestureRecognizer) {
+        log("xxx panGesture \(gesture.translation(in: nil))")
         let t = gesture.translation(in: self.gridView)
         gesture.setTranslation(.zero, in: self.gridView)
 
@@ -196,8 +197,7 @@ public final class CanvasNSView: NSView {
             width: -t.x,
             height: -t.y
         )
-        self.onEvent?(.viewportDrag(phase: .init(gestureRecognizerState: gesture.state), translation: amount))
-        //        self.viewport.translate(by: amount, in: .screen)
+        self.viewport.translate(by: amount, in: .screen)
     }
 
     @objc func gridView(clickGesture gesture: NSClickGestureRecognizer) {

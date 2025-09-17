@@ -11,35 +11,50 @@ import AppKit
 import UIKit
 #endif
 
+/// The `CanvasView` is a view that displays an infinite canvas populated by
+/// nodes. It can also draw edges that are meant to connect nodes. This is
+/// a presentation view and stores miminal state insidet it, and has the bulk of
+/// its state provided via two-way `@Binding`s or one-way `let` bindings. It also
+/// communicates with its parent view via events (see `Event` and `onEvent`).
 @MainActor
 public struct CanvasView: PlatformViewRepresentable {
 
-    // MARK: - Bindings
-    let viewport: CanvasViewport
+    /// A binding to the `CanvasViewport`. This view will freely modify the
+    /// viewport according to user input.
+    @Binding var viewport: CanvasViewport
+
+    /// The positions of the nodes to be displayed.
     let nodePositions: [UUID: CGPoint]
+
+    /// This array of `EdgeLayer` tells the view which edges to draw in which colors.
     let edgeLayers: [EdgeLayer]
+
+    /// This is used to set a reference to the underlying `NSView` or `UIView` to be used upwards in the view chain.
     let canvasPlatformViewRef: PlatformViewRef
 
+    /// A closure that provides node views for a give node UUID.
     let viewForNode: (UUID) -> (any CanvasNodeView)?
+
+    /// A closure to listen to canvas view events (see `Event`).
     let onEvent: ((CanvasView.Event) -> ())?
 
+    /// The public events handled by the `onEvent` closure.
     public enum Event {
+        /// This event is emitted when the user drags the canvas' background grid to create a rectangular selection.
         case rectSelect(CanvasPlatformView.Event.RectSelect)
+        /// This event is emitted when the user clicks the canvas' background grid.
         case clickBackground
-        case viewportChange(CanvasViewport)
-        case viewportDrag(phase: GesturePhase, translation: CGSize)
-        case nodeDrag(node: UUID, phase: GesturePhase, translation: CGSize)
     }
 
     public init(
-        _ viewport: CanvasViewport,
+        _ viewport: Binding<CanvasViewport>,
         _ nodePositions: [UUID: CGPoint],
         _ edges: [EdgeLayer],
         _ canvasPlatformViewRef: PlatformViewRef,
         _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         _ onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
-        self.viewport = viewport
+        self._viewport = viewport
         self.nodePositions = nodePositions
         self.edgeLayers = edges
         self.viewForNode = viewForNode
@@ -53,28 +68,22 @@ public struct CanvasView: PlatformViewRepresentable {
             nodePositions: self.nodePositions,
             viewForNode: self.viewForNode
         )
+
         view.onEvent = { event in
             switch event {
             case .viewportDidChange(let viewport):
-                self.onEvent?(.viewportChange(viewport))
-            //            case .nodePositionsDidChange(let nodePositions):
-            //                log("xxx")
-            //                self.nodePositions = nodePositions
+                self.viewport = viewport
             case .rectSelect(let event):
                 self.onEvent?(.rectSelect(event))
             case .clickBackground:
                 self.onEvent?(.clickBackground)
-            //            case let .translatedNode(id, amount):
-            //                self.onEvent?(.translatedNode(id, amount))
-            case .nodeDrag(node: let node, phase: let phase, translation: let translation):
-                self.onEvent?(.nodeDrag(node: node, phase: phase, translation: translation))
-            case .viewportDrag(phase: let phase, translation: let translation):
-                self.onEvent?(.viewportDrag(phase: phase, translation: translation))
             }
         }
-        self.canvasPlatformViewRef.view = view
+
         view.edgeLayers = self.edgeLayers
-        log("makeView: edgeLayers: \(self.edgeLayers)", level: .debug)
+
+        self.canvasPlatformViewRef.view = view
+
         return view
     }
 
@@ -90,7 +99,6 @@ public struct CanvasView: PlatformViewRepresentable {
             view.nodePositions = self.nodePositions
         }
 
-        log("updateView: \(self.edgeLayers), \(view.edgeLayers)", level: .debug)
         if view.edgeLayers != self.edgeLayers {
             view.edgeLayers = self.edgeLayers
         }
