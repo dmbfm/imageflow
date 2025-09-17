@@ -127,7 +127,7 @@ public struct CanvasFeatureView: View {
             self.viewportAtDragStart.value = self.state.viewport
         case .changed:
             self.state.viewport.translate(by: translation, in: .screen)
-        case .ended:
+        case .ended, .cancelled:
             self.undoManager?.registerUndo(
                 withValue: self.viewportAtDragStart.value,
                 handler: { value in
@@ -135,10 +135,9 @@ public struct CanvasFeatureView: View {
                 }
             )
             self.undoManager?.endUndoGrouping()
-            self.undoManager?.undo()
-        case .cancelled:
-            self.undoManager?.endUndoGrouping()
-            self.state.viewport = self.viewportAtDragStart.value
+            if phase == .cancelled {
+                self.undoManager?.undo()
+            }
         }
     }
 

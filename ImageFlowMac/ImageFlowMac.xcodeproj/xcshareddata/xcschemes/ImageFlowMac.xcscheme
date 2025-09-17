@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AE596D002E21C2AE005F49B2"
-               BuildableName = "ImageFlowMac.app"
+               BuildableName = "Image Flow.app"
                BlueprintName = "ImageFlowMac"
                ReferencedContainer = "container:ImageFlowMac.xcodeproj">
             </BuildableReference>
@@ -69,7 +69,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AE596D002E21C2AE005F49B2"
-            BuildableName = "ImageFlowMac.app"
+            BuildableName = "Image Flow.app"
             BlueprintName = "ImageFlowMac"
             ReferencedContainer = "container:ImageFlowMac.xcodeproj">
          </BuildableReference>
@@ -93,7 +93,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AE596D002E21C2AE005F49B2"
-            BuildableName = "ImageFlowMac.app"
+            BuildableName = "Image Flow.app"
             BlueprintName = "ImageFlowMac"
             ReferencedContainer = "container:ImageFlowMac.xcodeproj">
          </BuildableReference>

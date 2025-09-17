@@ -1,35 +1,24 @@
-//
-//  AppMac.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 13/09/25.
-//
-
 #if canImport(AppKit)
 
-import AppKit
 import SwiftUI
-import Logging
-import CommonUtils
+import AppKit
 
-@MainActor
-public struct ImageFlowApp {
-    public static func main() {
-        let delegate = AppDelegate()
-        NSApplication.shared.delegate = delegate
-        _ = NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
+public struct ImageFlowApp: App {
+
+    @NSApplicationDelegateAdaptor var appDelegate: AppDelegate
+
+    public init() {
+        _ = NSDocumentController.shared
+    }
+
+    public var body: some Scene {
+        Group {
+            WelcomeWindow("Image Flow")
+
+            Window("dummy", id: "dummy-window") {}
+                .commands { MenuCommands() }
+        }
     }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        log("", level: .trace)
-        NSApp.setupMainMenu()
-    }
-
-    func applicationWillTerminate(_ aNotification: Notification) {
-        log("", level: .trace)
-    }
-}
-
-#endif
+#endif  // canImport(AppKit)

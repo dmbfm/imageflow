@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -57,6 +57,9 @@ let package = Package(
                 "SidebarFeature",
                 "Models",
             ],
+            // swiftSettings: [
+            //     .defaultIsolation(MainActor.self)
+            // ],
         ),
         .target(
             name: "MainViewFeature",
@@ -216,7 +219,12 @@ let package = Package(
                 "CommonUtils",
             ],
         ),
-        .target(name: "NodeSelectionStore"),
+        .target(
+            name: "NodeSelectionStore",
+            dependencies: [
+                "Models"
+            ]
+        ),
         // Test targets
         .testTarget(
             name: "NodeSelectionStoreTests",
@@ -226,3 +234,10 @@ let package = Package(
         ),
     ]
 )
+
+// Enable the NonisolatedNonsendingByDefault experimental feature
+for target in package.targets {
+    var settings = target.swiftSettings ?? []
+    settings.append(.enableExperimentalFeature("NonisolatedNonsendingByDefault"))
+    target.swiftSettings = settings
+}

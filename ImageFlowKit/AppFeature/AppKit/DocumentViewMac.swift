@@ -12,6 +12,7 @@ import CommonUtils
 import SidebarFeature
 import Models
 import PlatformUtils
+import Logging
 import SwiftUI
 
 struct DocumentViewMac: View {
@@ -84,6 +85,9 @@ struct DocumentViewMac: View {
                 proxy.frame(in: .local).center
             } action: { newValue in
                 self.canvasCenter.value = newValue
+            }
+            .onChange(of: self.state.canvas, initial: true) {
+                log("xxx canvas: \(self.state.canvas)")
             }
         }
     }

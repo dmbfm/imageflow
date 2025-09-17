@@ -247,7 +247,7 @@ public struct NodeDataStore: Sendable {
     }
 
     /// We cache the validation results and invalidate when the store is changed.
-    private let validateEdgesCache = ValidateEdgesCache()
+    private var validateEdgesCache = ValidateEdgesCache()
 
     public func canAddEdge(_ edge: Edge) -> Result<(), AddEdgeError> {
         // First, check if the edge is valid in principle
@@ -607,5 +607,20 @@ public struct NodeDataStore: Sendable {
     public enum RemoveNodeError: Error {
         case invalidNodeID(UUID)
         case removeEdge(RemoveEdgeError)
+    }
+}
+
+extension NodeDataStore: Storable {
+    public typealias StorableData = NodeDataStore
+
+    public init(_ data: NodeDataStore) {
+        self = data
+        self.validateEdgesCache.clear()
+    }
+
+    public func snapshot() async throws -> NodeDataStore {
+        let snap = self
+        snap.validateEdgesCache.clear()
+        return snap
     }
 }

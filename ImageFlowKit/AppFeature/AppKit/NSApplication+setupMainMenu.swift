@@ -30,18 +30,18 @@ extension NSApplication {
                 SubMenu("Open Recent...") {}
                 Separator()
                 Item("Close", #selector(NSWindow.performClose(_:)), "w")
-                Item("Save", #selector(NSDocument.save(_:)), "s")
-                Item("Save As...", #selector(NSDocument.saveAs(_:)), "s").modifierFlags([.command, .shift])
+                Item("Save...", #selector(MenuActions.saveDocument(_:)), "s")
+                Item("Save As...", #selector(MenuActions.saveDocumentAs(_:)), "s").modifierFlags([.command, .shift])
                 Item("Revert to Saved", #selector(NSDocument.revertToSaved(_:)), "r")
             }
 
             SubMenu("Edit") {
-                Item("Undo", #selector(EditMenuActions.undo(_:)), "z")
-                Item("Redo", #selector(EditMenuActions.redo(_:)), "z").modifierFlags([.command, .shift])
+                Item("Undo", #selector(MenuActions.undo(_:)), "z")
+                Item("Redo", #selector(MenuActions.redo(_:)), "z").modifierFlags([.command, .shift])
                 Separator()
-                Item("Cut", #selector(EditMenuActions.cut(_:)), "x")
-                Item("Copy", #selector(EditMenuActions.copy(_:)), "c")
-                Item("Paste", #selector(EditMenuActions.paste(_:)), "v")
+                Item("Cut", #selector(MenuActions.cut(_:)), "x")
+                Item("Copy", #selector(MenuActions.copy(_:)), "c")
+                Item("Paste", #selector(MenuActions.paste(_:)), "v")
                 Separator()
                 Item("Select All Nodes", #selector(FlowDocument.selectAllNodes(_:)), "a")
                 Item("Deselect All Nodes", #selector(FlowDocument.deselectAllNodes(_:)), "a").modifierFlags([
@@ -62,7 +62,9 @@ extension NSApplication {
     }
 }
 
-@objc protocol EditMenuActions {
+@objc protocol MenuActions {
+    func saveDocument(_ sender: AnyObject)
+    func saveDocumentAs(_ sender: AnyObject)
     func redo(_ sender: AnyObject)
     func undo(_ sender: AnyObject)
     func cut(_ sender: AnyObject)

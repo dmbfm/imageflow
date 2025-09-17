@@ -28,7 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AE596D012E21C2AE005F49B2 /* ImageFlowMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFlowMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE596D012E21C2AE005F49B2 /* Image Flow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Image Flow.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE596D0F2E21C2AF005F49B2 /* ImageFlowMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -111,7 +111,7 @@
 		AE596D022E21C2AE005F49B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AE596D012E21C2AE005F49B2 /* ImageFlowMac.app */,
+				AE596D012E21C2AE005F49B2 /* Image Flow.app */,
 				AE596D0F2E21C2AF005F49B2 /* ImageFlowMacTests.xctest */,
 				AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */,
 			);
@@ -141,7 +141,7 @@
 				AE36FF3B2E5509FF009F5EFF /* AppFeature */,
 			);
 			productName = ImageFlowMac;
-			productReference = AE596D012E21C2AE005F49B2 /* ImageFlowMac.app */;
+			productReference = AE596D012E21C2AE005F49B2 /* Image Flow.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AE596D0E2E21C2AF005F49B2 /* ImageFlowMacTests */ = {
@@ -435,9 +435,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Image Flow";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -463,9 +463,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Image Flow";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
