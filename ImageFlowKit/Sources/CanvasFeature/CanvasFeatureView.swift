@@ -501,9 +501,12 @@ fileprivate final class NodeViewCoordinator {
 
         let newPos = self.state.nodePositions[id]! + translation.cgPoint
 
-        if gesture.phase == .ended {
+        switch gesture.phase {
+        case .ended:
             self.commitNodePosition(id, newPos, self.nodePosAtDragStart)
-        } else {
+        case .cancelled:
+            self.state.nodePositions[id] = self.nodePosAtDragStart
+        default:
             self.state.nodePositions[id] = newPos
         }
     }
