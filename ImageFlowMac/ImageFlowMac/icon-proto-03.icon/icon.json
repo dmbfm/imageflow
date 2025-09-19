@@ -1,0 +1,1243 @@
+{
+  "fill" : {
+    "solid" : "gray:0.39539,1.00000"
+  },
+  "groups" : [
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 1,
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill" : {
+            "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Regular-S.png",
+          "name" : "Regular-S",
+          "position" : {
+            "scale" : 0,
+            "translation-in-points" : [
+              35.125,
+              -67.6875
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "solid" : "display-p3:0.62503,0.72640,1.00000,1.00000"
+          },
+          "glass" : true,
+          "hidden" : true,
+          "image-name" : "image 2.png",
+          "name" : "image 2",
+          "position" : {
+            "scale" : 1.74,
+            "translation-in-points" : [
+              -4.625,
+              -28.25
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "automatic-gradient" : "extended-gray:0.75000,1.00000"
+          },
+          "glass" : true,
+          "hidden" : true,
+          "image-name" : "Ellipse 2 2.png",
+          "name" : "Ellipse 2 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 2.09,
+            "translation-in-points" : [
+              210.203125,
+              196.484375
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "automatic-gradient" : "extended-gray:0.75000,1.00000"
+          },
+          "glass" : true,
+          "hidden" : true,
+          "image-name" : "Ellipse 2 2.png",
+          "name" : "Ellipse 2 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 2.09,
+            "translation-in-points" : [
+              -184.40625,
+              -61.0625
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Group",
+      "opacity" : 0.95,
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 1
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 1
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 1,
+      "hidden" : false,
+      "layers" : [
+        {
+          "blend-mode" : "multiply",
+          "fill" : {
+            "solid" : "extended-gray:0.25000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Rectangle 3.png",
+          "name" : "Rectangle 3",
+          "position" : {
+            "scale" : 0.73,
+            "translation-in-points" : [
+              482.8203125,
+              -31.25
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "linear-gradient" : [
+              "srgb:0.23860,0.64468,1.00000,1.00000",
+              "display-p3:1.00000,1.00000,1.00000,1.00000"
+            ]
+          },
+          "image-name" : "Group 1.png",
+          "name" : "Group 1",
+          "position" : {
+            "scale" : 1.36,
+            "translation-in-points" : [
+              122.6328125,
+              -139.609375
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.27585,0.58584,1.00000,1.00000",
+              "gray:1.00000,1.00000"
+            ]
+          },
+          "glass" : true,
+          "hidden" : true,
+          "image-name" : "Rectangle 2.png",
+          "name" : "Rectangle 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1.98,
+            "translation-in-points" : [
+              121.0390625,
+              -141.421875
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          -122.5390625,
+          140.8671875
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 1
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.56
+      }
+    },
+    {
+      "blur-material" : 1,
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill" : {
+            "solid" : "srgb:0.35357,0.70040,1.00000,1.00000"
+          },
+          "image-name" : "Vector 19 ee.png",
+          "name" : "Vector 19 ee",
+          "position" : {
+            "scale" : 2.31,
+            "translation-in-points" : [
+              328.6484375,
+              -358.5234375
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "srgb:0.35357,0.70040,1.00000,1.00000"
+          },
+          "hidden" : false,
+          "image-name" : "Vector 19 2.png",
+          "name" : "Vector 19 2",
+          "position" : {
+            "scale" : 2.3,
+            "translation-in-points" : [
+              1584.0625,
+              515.8046875
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "srgb:0.35357,0.70040,1.00000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Vector 19.png",
+          "name" : "Vector 19",
+          "position" : {
+            "scale" : 1.67,
+            "translation-in-points" : [
+              1518.6875,
+              416.375
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "srgb:0.35357,0.70040,1.00000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Vector 19.png",
+          "name" : "Vector 19",
+          "position" : {
+            "scale" : 2.3,
+            "translation-in-points" : [
+              404.875,
+              -230.046875
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.30584,0.60030,0.90968,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Vector 15 copy.png",
+          "name" : "Vector 15 copy",
+          "position" : {
+            "scale" : 2.52,
+            "translation-in-points" : [
+              1661.2890625,
+              402.6640625
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.30010,0.51804,0.72943,1.00000"
+          },
+          "glass" : true,
+          "hidden" : true,
+          "image-name" : "Vector 15 2.png",
+          "name" : "Vector 15 2",
+          "position" : {
+            "scale" : 4,
+            "translation-in-points" : [
+              1642.5390625,
+              422.8046875
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.30010,0.51804,0.72943,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Vector 15 2.png",
+          "name" : "Vector 15 2",
+          "position" : {
+            "scale" : 4,
+            "translation-in-points" : [
+              310.1875,
+              -474.9765625
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.30584,0.60030,0.90968,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Vector 15.png",
+          "name" : "Vector 15",
+          "position" : {
+            "scale" : 2.52,
+            "translation-in-points" : [
+              228.0234375,
+              -254.671875
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "extended-gray:0.75000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Rectangle 3@2x.png",
+          "name" : "Rectangle 3@2x",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              1785.34375,
+              281.421875
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "extended-gray:0.75000,1.00000"
+          },
+          "hidden" : true,
+          "image-name" : "Rectangle 3@2x.png",
+          "name" : "Rectangle 3@2x",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              34.828125,
+              -102.5625
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "opacity" : 1,
+      "position" : {
+        "scale" : 0.66,
+        "translation-in-points" : [
+          -646.0625,
+          9.625
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 1
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : null,
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -505.28125,
+              248.15625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -507.3203125,
+              71.0703125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -504.609375,
+              -112.3515625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -495.1171875,
+              -279.828125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              478.6328125,
+              -277.0859375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              472.7890625,
+              -104.3359375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              463.2265625,
+              57.9140625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              463.7421875,
+              245.296875
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              305.3046875,
+              412.484375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -327.6171875,
+              414.1015625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -112.109375,
+              406.34375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              114.8515625,
+              407.75
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              299.9140625,
+              247.953125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -333.0078125,
+              249.5703125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -117.5,
+              241.8125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              109.4609375,
+              243.21875
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              298.28125,
+              60.984375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -334.640625,
+              62.6015625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -119.1328125,
+              54.84375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              107.828125,
+              56.25
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              297.9140625,
+              -105.375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -335.0078125,
+              -103.7578125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -119.5,
+              -111.515625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              107.4609375,
+              -110.109375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              298.328125,
+              -279
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -334.59375,
+              -277.3828125
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -119.0859375,
+              -285.140625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              107.875,
+              -283.734375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.49641,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              299.90625,
+              -426.4609375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -333.015625,
+              -424.84375
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              -117.5078125,
+              -432.6015625
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "gray:0.74925,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Ellipse 2.png",
+          "name" : "Ellipse 2",
+          "position" : {
+            "scale" : 1.59,
+            "translation-in-points" : [
+              109.453125,
+              -431.1953125
+            ]
+          }
+        }
+      ],
+      "opacity" : 0.28,
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "hidden" : true,
+      "layers" : [
+        {
+          "fill" : {
+            "solid" : "display-p3:0.70657,0.79619,0.95217,1.00000"
+          },
+          "image-name" : "Rectangle 3.png",
+          "name" : "Rectangle 3",
+          "position" : {
+            "scale" : 1.81,
+            "translation-in-points" : [
+              -363.203125,
+              8.75
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.73997,0.81484,0.94607,1.00000"
+          },
+          "image-name" : "Rectangle 3.png",
+          "name" : "Rectangle 3",
+          "position" : {
+            "scale" : 1.81,
+            "translation-in-points" : [
+              361.9921875,
+              10.296875
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

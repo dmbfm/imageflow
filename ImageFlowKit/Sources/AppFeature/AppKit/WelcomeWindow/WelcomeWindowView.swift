@@ -53,17 +53,30 @@ struct WelcomeWindowView: View {
         }
     }
 
+    var shadowColor: Color {
+        if self.colorScheme == .dark {
+            .white.opacity(0.25)
+        } else {
+            .black.opacity(0.25)
+        }
+    }
+
+    var imageName: String {
+        self.colorScheme == .dark ? "logo-dark" : "logo"
+    }
+
     @ViewBuilder
     var contentBodyView: some View {
         VStack(spacing: 0) {
 
             Spacer().frame(height: 36)
 
-            Image(self.colorScheme == .dark ? "shitlogo-blue" : "shitlogo-black")
+            Image(self.imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 128)
                 .frame(maxWidth: 460)
+                .shadow(color: self.shadowColor, radius: 4)
 
             Spacer().frame(height: 10)
 
