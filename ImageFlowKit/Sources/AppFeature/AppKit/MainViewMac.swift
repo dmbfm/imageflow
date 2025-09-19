@@ -8,7 +8,7 @@ import SwiftUI
 import SidebarFeature
 
 struct MainViewMac: View {
-    @Binding var flow: Flow
+    @ObservedObject var document: ImageFlowDocument
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
     @State var dispatcher: Dispatcher = .init()
     @Environment(\.dismissWindow) var dismissWindow
@@ -42,17 +42,15 @@ struct MainViewMac: View {
     var detailView: some View {
         ZStack {
             CanvasFeatureView(
-                self.$flow.canvas,
-                self.$flow.nodeData,
-                self.$flow.nodeSelection,
+                self.$document.flow.canvas,
+                self.$document.flow.nodeData,
+                self.$document.flow.nodeSelection,
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center
             } action: { newValue in
                 self.canvasCenter.value = newValue
             }
-            // .onChange(of: self.flow.canvas, initial: true) {
-            // }
         }
     }
 }

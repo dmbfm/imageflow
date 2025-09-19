@@ -13,7 +13,7 @@ public struct ImageFlowApp: App {
     public var body: some Scene {
 
         DocumentGroup(newDocument: { ImageFlowDocument(.sample) }) { configuration in
-            MainViewMac(flow: configuration.$document.flow)
+            MainViewMac(document: configuration.document)
         }
         .defaultWindowPlacement { root, context in
             let screenRect = context.defaultDisplay.visibleRect
