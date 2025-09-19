@@ -17,13 +17,26 @@ import UIKit
 public typealias CanvasPlatformView = CanvasUIView
 #endif
 
+protocol CanvasPlatformViewProtocol {
+    var viewport: CanvasViewport { get set }
+    var nodePositions: [UUID: CGPoint] { get set }
+    var edgeLayers: [EdgeLayer] { get set }
+    var configuration: CanvasConfiguration { get }
+    var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
+    var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
+    init(
+        viewport: CanvasViewport,
+        nodePositions: [UUID: CGPoint],
+        configuration: CanvasConfiguration,
+        viewForNode: @escaping (UUID) -> (any CanvasNodeView)?
+    )
+}
+
 extension CanvasPlatformView {
     public enum Event {
         case viewportDidChange(CanvasViewport)
-        case nodePositionsDidChange([UUID: CGPoint])
         case rectSelect(RectSelect)
         case clickBackground
-        case translatedNode(UUID, CGSize)
 
         public enum RectSelect {
             case started(shiftDown: Bool)
@@ -54,14 +67,12 @@ extension CanvasPlatformView {
     }
 
     func edgeLayersDidChange() {
-        log("edgeLayersDidChange")
         self.gridViewDraw()
     }
 
     // MARK: - Node Management
 
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
-        log("addNode at: \(position)")
         node.frame.origin = position
         node.frame.size = node.intrinsicContentSize
         let id = node.id
@@ -69,25 +80,11 @@ extension CanvasPlatformView {
             guard let self else { return }
             switch event {
             case let .dragGesture(gesture):
-                switch gesture.phase {
-                case .changed:
-                    let amount = self.viewport.convert(
-                        .init(width: gesture.dx, height: gesture.dy),
-                        from: .screen,
-                        to: .canvas
-                    )
-                    self.translateNode(id, by: amount)
-                default:
-                    break
-                }
-
+                self.onDragNode(id, gesture)
             case .sizeChanged:
                 node.frame.size = node.intrinsicContentSize
-
             case .click:
-                // self.emitter.emit(.nodeClicked(id))
                 break
-
             case .other(_):
                 break
 
@@ -96,6 +93,16 @@ extension CanvasPlatformView {
         self.nodeViews[node.id] = node
         self.contentView.addSubview(node)
         self.contentView.sortSubviews()
+    }
+
+    private func onDragNode(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
+        let translation = self.viewport.convert(
+            CGSize(width: gesture.dx, height: gesture.dy),
+            from: .screen,
+            to: .canvas
+        )
+
+        self.translateNode(id, by: translation)
     }
 
     func addNode(_ id: UUID, at position: CGPoint) {
@@ -132,7 +139,5 @@ extension CanvasPlatformView {
 
         let newPos = self.nodePositions[id]! + translation.cgPoint
         self.nodePositions[id] = newPos
-        self.onEvent?(.nodePositionsDidChange(self.nodePositions))
-        self.onEvent?(.translatedNode(id, translation))
     }
 }

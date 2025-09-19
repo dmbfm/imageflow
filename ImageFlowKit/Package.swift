@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -34,7 +34,9 @@ let package = Package(
         .library(name: "NodeSelectionStore"),
         .library(name: "SidebarFeature"),
         .library(name: "NodePaletteService"),
+        .library(name: "NodePaletteListFeature"),
         .library(name: "AppFeature"),
+        .library(name: "MainViewFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
@@ -50,10 +52,26 @@ let package = Package(
                 "CanvasFeature",
                 "NodeDataStore",
                 "NodePaletteService",
+                "NodePaletteListFeature",
                 "NodeSelectionStore",
                 "SidebarFeature",
                 "Models",
             ],
+            // swiftSettings: [
+            //     .defaultIsolation(MainActor.self)
+            // ],
+        ),
+        .target(
+            name: "MainViewFeature",
+            dependencies: [],
+        ),
+        .target(
+            name: "NodePaletteListFeature",
+            dependencies: [
+                "NodePaletteService",
+                "Models",
+                "Logging",
+            ]
         ),
         .target(
             name: "SidebarFeature",
@@ -201,7 +219,12 @@ let package = Package(
                 "CommonUtils",
             ],
         ),
-        .target(name: "NodeSelectionStore"),
+        .target(
+            name: "NodeSelectionStore",
+            dependencies: [
+                "Models"
+            ]
+        ),
         // Test targets
         .testTarget(
             name: "NodeSelectionStoreTests",
@@ -211,3 +234,10 @@ let package = Package(
         ),
     ]
 )
+
+// Enable the NonisolatedNonsendingByDefault experimental feature
+for target in package.targets {
+    var settings = target.swiftSettings ?? []
+    settings.append(.enableExperimentalFeature("NonisolatedNonsendingByDefault"))
+    target.swiftSettings = settings
+}

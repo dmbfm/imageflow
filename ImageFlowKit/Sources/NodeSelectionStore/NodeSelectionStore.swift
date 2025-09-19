@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public struct NodeSelectionStore: Sendable, Equatable, Codable {
 
@@ -45,5 +46,17 @@ public struct NodeSelectionStore: Sendable, Equatable, Codable {
 
     public mutating func deselectAll() {
         self.selection = []
+    }
+}
+
+extension NodeSelectionStore: Storable {
+    public typealias StorableData = NodeSelectionStore
+
+    public init(_ data: NodeSelectionStore) {
+        self = data
+    }
+
+    public func snapshot() async throws -> NodeSelectionStore {
+        self
     }
 }

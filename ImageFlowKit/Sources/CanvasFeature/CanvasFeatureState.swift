@@ -18,3 +18,13 @@ public struct CanvasFeatureState: Sendable, Codable, Equatable {
         self.nodePositions = nodePositions
     }
 }
+
+extension CanvasFeatureState: Storable {
+    public init(_ data: CanvasFeatureState) {
+        self = data
+    }
+
+    public func snapshot() async throws -> CanvasFeatureState {
+        self
+    }
+}

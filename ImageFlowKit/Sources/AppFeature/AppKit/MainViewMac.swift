@@ -1,82 +1,56 @@
-//
-//  MainViewMac.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 28/08/25.
-//
-
 #if canImport(AppKit)
 
 import CanvasFeature
 import CommonUtils
-import SidebarFeature
+import Logging
 import Models
-import PlatformUtils
 import SwiftUI
+import SidebarFeature
 
 struct MainViewMac: View {
-    @Binding var document: ImageFlowDocument
-    @State private(set) var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State private(set) var showNodePalettePopover: Bool = false
-    @State private(set) var dispatcher = Dispatcher()
+    @ObservedObject var document: ImageFlowDocument
+    @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @State var dispatcher: Dispatcher = .init()
+    @Environment(\.dismissWindow) var dismissWindow
 
-    func windowAutosaveFrameFix(_ window: NSWindow?) {
-        guard let window else { return }
-        let name = "imageFlowDocumentWindow"
-        if !window.setFrameUsingName(name) {
-            let screenFrame = window.screen?.frame ?? .init(x: 0, y: 0, width: 1920, height: 1080)
-            let margin: CGPoint = .init(x: 0.1, y: 0.1)
-            let frame = screenFrame.insetBy(
-                dx: margin.x * screenFrame.size.width,
-                dy: margin.y * screenFrame.size.height
-            )
-            window.setFrame(frame, display: false, animate: false)
-        }
-        window.windowController?.windowFrameAutosaveName = name
-        window.isRestorable = true
+    func dispatch(_ action: Action) {
+        log("\(action)", level: .trace)
+    }
+
+    func onAppear() {
+        self.dispatcher.listen { self.dispatch($0) }
+        self.dismissWindow(id: WindowID.welcome.rawValue)
     }
 
     var body: some View {
-        self.contentView
-            //            .toolbar {
-            //                ToolbarItem {
-            //                    Button {
-            //                        self.showNodePalettePopover.toggle()
-            //                        print("\(self.showNodePalettePopover)")
-            //                    } label: {
-            //                        Image(systemName: "plus")
-            //                    }
-            //                    .popover(isPresented: self.$showNodePalettePopover) {
-            //                        NodePaletteListView()
-            //                            .presentationCompactAdaptation(.popover)
-            //                    }
-            //                }
-            //            }
-            .windowAccessor { self.windowAutosaveFrameFix($0) }
+        self.mainView
+            .environmentObject(self.dispatcher)
+            .onAppear(perform: self.onAppear)
     }
 
     @ViewBuilder
-    var contentView: some View {
+    var mainView: some View {
         NavigationSplitView {
             SidebarFeatureView()
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
         } detail: {
-            self.canvasView
-        }
-        .environmentObject(self.dispatcher)
-        .onAppear {
-            self.dispatcher.listen { self.dispatch(action: $0) }
+            self.detailView
         }
     }
 
-    var canvasView: some View {
+    @ViewBuilder
+    var detailView: some View {
         ZStack {
-            CanvasFeatureView(self.$document.canvas, self.$document.nodeData, self.$document.nodeSelection)
-                .onGeometryChange(for: CGPoint.self) { proxy in
-                    proxy.frame(in: .local).center
-                } action: { newValue in
-                    self.canvasCenter.value = newValue
-                }
+            CanvasFeatureView(
+                self.$document.flow.canvas,
+                self.$document.flow.nodeData,
+                self.$document.flow.nodeSelection,
+            )
+            .onGeometryChange(for: CGPoint.self) { proxy in
+                proxy.frame(in: .local).center
+            } action: { newValue in
+                self.canvasCenter.value = newValue
+            }
         }
     }
 }
