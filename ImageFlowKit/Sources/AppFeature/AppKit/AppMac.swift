@@ -34,6 +34,12 @@ import CommonUtils
 import NodeDataStore
 import NodeSelectionStore
 
+extension UTType {
+    static var imageFlowDocument: UTType {
+        .init(exportedAs: "com.dmbfm.imageFlowDocument")
+    }
+}
+
 struct Flow: Sendable, Equatable, Codable {
     var canvas: CanvasFeatureState = .init()
     var nodeData: NodeDataStore = .init()
@@ -51,7 +57,7 @@ extension Flow {
             .get()
         _ = try! nodeData.addEdge(.init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!)
             .get()
-        let offset: CGPoint = .init(x: 400, y: 400)
+        let offset: CGPoint = .init(x: 100, y: 100)
         return .init(
             canvas: .init(
                 viewport: .init(),
@@ -67,7 +73,7 @@ extension Flow {
     }
 }
 
-class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
+final class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
     @Published var flow: Flow = .init()
 
@@ -78,6 +84,7 @@ class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     required init(configuration: ReadConfiguration) throws {
+        self.flow = .init()
     }
 
     func snapshot(contentType: UTType) throws -> Flow {
@@ -85,7 +92,7 @@ class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     func fileWrapper(snapshot: Flow, configuration: WriteConfiguration) throws -> FileWrapper {
-        fatalError()
+        return .init(directoryWithFileWrappers: [:])
     }
 
 }

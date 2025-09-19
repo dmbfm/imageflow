@@ -10,6 +10,7 @@ import NodeView
 import PlatformUtils
 import SwiftUI
 import SwiftUIUtils
+import Values
 
 import enum CanvasView.CoordinateSpace
 
@@ -21,6 +22,7 @@ public struct CanvasFeatureView: View {
     @Binding var nodeDataStore: NodeDataStore
     @Binding var nodeSelectionStore: NodeSelectionStore
 
+    @State private var undoManagerBox: Box<UndoManager?> = .init(nil)
     @State private var canvasPlatformViewRef: PlatformViewRef = .init()
     @State private var edgeLayers: [EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -33,7 +35,7 @@ public struct CanvasFeatureView: View {
     @State private var viewportAtDragStart: Box<CanvasViewport> = .init(.init())
     @State private var nodePositionAtDragStart: Box<(UUID, CGPoint)> = .init((.init(), .init()))
 
-    @Environment(\._undoManager) var undoManager
+    @Environment(\.undoManager) private var undoManager: UndoManager?
 
     // MARK: - Types
 
@@ -81,12 +83,6 @@ public struct CanvasFeatureView: View {
             onCanvasRectSelect(state)
         case .clickBackground:
             onCanvasClickBackground()
-        // case .viewportChange(let viewport):
-            // onCanvasViewportChange(viewport)
-        // case .viewportDrag(phase: let phase, translation: let translation):
-            // onCanvasViewportDrag(phase, translation)
-        // case .nodeDrag(node: let node, phase: let phase, translation: let translation):
-        //     onCanvasNodeDrag(phase, node, translation)
         }
     }
 
@@ -115,59 +111,6 @@ public struct CanvasFeatureView: View {
         self.nodeSelectionStore.deselectAll()
     }
 
-    private func onCanvasViewportChange(_ viewport: CanvasViewport) {
-        self.state.viewport = viewport
-    }
-
-    fileprivate func onCanvasViewportDrag(_ phase: GesturePhase, _ translation: CGSize) {
-        switch phase {
-        case .began:
-            self.undoManager?.beginUndoGrouping()
-            self.undoManager?.setActionName("Viewport")
-            self.viewportAtDragStart.value = self.state.viewport
-        case .changed:
-            self.state.viewport.translate(by: translation, in: .screen)
-        case .ended, .cancelled:
-            self.undoManager?.registerUndo(
-                withValue: self.viewportAtDragStart.value,
-                handler: { value in
-                    self.state.viewport = value
-                }
-            )
-            self.undoManager?.endUndoGrouping()
-            if phase == .cancelled {
-                self.undoManager?.undo()
-            }
-        }
-    }
-
-    private func onCanvasNodeDrag(_ phase: GesturePhase, _ node: UUID, _ translation: CGSize) {
-        switch phase {
-        case .began:
-            self.undoManager?.beginUndoGrouping()
-            self.undoManager?.setActionName("Drag Node")
-            self.nodePositionAtDragStart.value = (node, self.state.nodePositions[node]!)
-        case .changed:
-            if self.state.nodePositions[node] == nil { fatalError() }
-            let newPos =
-                self.state.nodePositions[node]! + translation.cgPoint
-            self.state.nodePositions[node] = newPos
-        case .ended, .cancelled:
-            self.undoManager?.registerUndo(
-                withValue: self.nodePositionAtDragStart.value,
-                handler: { (node, pos) in
-                    if self.state.nodePositions[node] != nil {
-                        self.state.nodePositions[node] = pos
-                    }
-                }
-            )
-            self.undoManager?.endUndoGrouping()
-            if phase == .cancelled {
-                self.undoManager?.undo()
-            }
-        }
-    }
-
     // MARK: - Node Views
 
     private func viewForNode(_ id: UUID) -> (any CanvasNodeView)? {
@@ -187,20 +130,14 @@ public struct CanvasFeatureView: View {
 
         let view = NodeView(node)
 
-        view.emitter.on { event in
-            switch event {
-            case .click:
-                self.nodeSelectionStore.select(node: id, mode: self.isShiftDown ? .union : .replace)
-            case .dragGesture(_): break
-            case .sizeChanged: break
-            case .other(let event):
-                switch event {
-                case .valueDidChange(let portIndex, let value):
-                    self.nodeDataStore.nodes[id]?.inputs[portIndex].value = value
-                case let .dragPort(port, data): self.portDragHandler(port, data)
-                }
-            }
-        }
+        let coordinator = NodeViewCoordinator(
+            state: self.$state,
+            nodeDataStore: self.$nodeDataStore,
+            nodeSelectionStore: self.$nodeSelectionStore,
+            undoManager: self.undoManagerBox
+        )
+
+        view.emitter.on { coordinator.onEvent(id, $0) }
 
         self.nodeViews[id] = view
 
@@ -490,7 +427,95 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
             .onChange(of: self.nodeDataStore.nodes, initial: true) { self.updateNodeData() }
             .onChange(of: self.nodeSelectionStore, initial: true) { self.updateSelection() }
+            .onChange(of: self.undoManager, initial: true) { self.undoManagerBox.value = self.undoManager }
         }
+    }
+}
+
+// MARK: - NodeViewCoordinator
+
+@MainActor
+fileprivate final class NodeViewCoordinator {
+    @Binding var state: CanvasFeatureState
+    @Binding var nodeDataStore: NodeDataStore
+    @Binding var nodeSelectionStore: NodeSelectionStore
+    var undoBox: Box<UndoManager?>
+    var nodePosAtDragStart: CGPoint = .zero
+
+    var undoManager: UndoManager? {
+        self.undoBox.value
+    }
+
+    var isShiftDown: Bool {
+        CanvasFeatureView.isShiftDown
+    }
+
+    init(
+        state: Binding<CanvasFeatureState>,
+        nodeDataStore: Binding<NodeDataStore>,
+        nodeSelectionStore: Binding<NodeSelectionStore>,
+        undoManager: Box<UndoManager?>
+    ) {
+        self._state = state
+        self._nodeDataStore = nodeDataStore
+        self._nodeSelectionStore = nodeSelectionStore
+        self.undoBox = undoManager
+    }
+
+    func onEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
+        switch event {
+        case .click: self.onClick(id)
+        case .dragGesture(let gesture): self.onDragGesture(id, gesture)
+        case .sizeChanged: break
+        case .other(let event):
+            switch event {
+            case .dragPort(_, _): break
+            case let .valueDidChange(index, value): valueDidChange(id, index, value)
+            }
+        }
+    }
+
+    func onClick(_ id: UUID) {
+        self.nodeSelectionStore.select(node: id, mode: self.isShiftDown ? .union : .replace)
+    }
+
+    func valueDidChange(_ id: UUID, _ index: Int, _ value: Value) {
+        self.nodeDataStore.nodes[id]?.inputs[index].value = value
+    }
+
+    func onDragGesture(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
+        let translation = self.state.viewport.convert(
+            CGSize(width: gesture.dx, height: gesture.dy),
+            from: .screen,
+            to: .canvas
+        )
+
+        if self.state.nodePositions[id] == nil {
+            log("Node not found: \(id)")
+            return
+        }
+
+        if gesture.phase == .began {
+            self.nodePosAtDragStart = self.state.nodePositions[id]!
+        }
+
+        let newPos = self.state.nodePositions[id]! + translation.cgPoint
+
+        if gesture.phase == .ended {
+            self.commitNodePosition(id, newPos, self.nodePosAtDragStart)
+        } else {
+            self.state.nodePositions[id] = newPos
+        }
+    }
+
+    func commitNodePosition(_ id: UUID, _ pos: CGPoint, _ prev: CGPoint) {
+        self.state.nodePositions[id] = pos
+        self.undoManager?.registerUndo(
+            withTarget: self,
+            handler: { this in
+                this.commitNodePosition(id, prev, pos)
+            }
+        )
     }
 }
 

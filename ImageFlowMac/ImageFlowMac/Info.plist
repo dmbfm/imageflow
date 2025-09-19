@@ -13,10 +13,8 @@
 			<array>
 				<string>com.dmbfm.imageFlowDocument</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>FlowDocument</string>
-            <key>LSTypeIsPackage</key>
-            <true/>
+			<key>LSTypeIsPackage</key>
+			<true/>
 			<key>NSUbiquitousDocumentUserActivityType</key>
 			<string>com.dmbfm.imageFlow.editing</string>
 		</dict>

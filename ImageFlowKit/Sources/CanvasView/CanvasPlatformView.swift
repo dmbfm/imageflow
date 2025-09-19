@@ -75,12 +75,10 @@ extension CanvasPlatformView {
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
         node.frame.origin = position
         node.frame.size = node.intrinsicContentSize
-        let id = node.id
-        node.emitter.on() { [weak self] event in
-            guard let self else { return }
+        node.emitter.on() {  event in
             switch event {
-            case let .dragGesture(gesture):
-                self.onDragNode(id, gesture)
+            case .dragGesture:
+                break
             case .sizeChanged:
                 node.frame.size = node.intrinsicContentSize
             case .click:
@@ -93,16 +91,6 @@ extension CanvasPlatformView {
         self.nodeViews[node.id] = node
         self.contentView.addSubview(node)
         self.contentView.sortSubviews()
-    }
-
-    private func onDragNode(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
-        let translation = self.viewport.convert(
-            CGSize(width: gesture.dx, height: gesture.dy),
-            from: .screen,
-            to: .canvas
-        )
-
-        self.translateNode(id, by: translation)
     }
 
     func addNode(_ id: UUID, at position: CGPoint) {
@@ -129,15 +117,5 @@ extension CanvasPlatformView {
         }
         node.frame.origin = position
         self.setNeedsLayout()
-    }
-
-    func translateNode(_ id: UUID, by translation: CGSize) {
-        if self.nodePositions[id] == nil {
-            log("Node not found: \(id)")
-            return
-        }
-
-        let newPos = self.nodePositions[id]! + translation.cgPoint
-        self.nodePositions[id] = newPos
     }
 }
