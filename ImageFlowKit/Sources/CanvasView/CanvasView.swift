@@ -44,6 +44,8 @@ public struct CanvasView: PlatformViewRepresentable {
         case rectSelect(CanvasPlatformView.Event.RectSelect)
         /// This event is emitted when the user clicks the canvas' background grid.
         case clickBackground
+        /// This event is emitted when the canvas' platform view responds to `viewDidMoveToSuperview`.
+        case didMoveToSuperview
     }
 
     public init(
@@ -77,6 +79,8 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.onEvent?(.rectSelect(event))
             case .clickBackground:
                 self.onEvent?(.clickBackground)
+            case .didMoveToSuperview:
+                self.onEvent?(.didMoveToSuperview)
             }
         }
 

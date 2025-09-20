@@ -37,6 +37,7 @@ extension CanvasPlatformView {
         case viewportDidChange(CanvasViewport)
         case rectSelect(RectSelect)
         case clickBackground
+        case didMoveToSuperview
 
         public enum RectSelect {
             case started(shiftDown: Bool)

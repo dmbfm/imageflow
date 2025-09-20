@@ -83,6 +83,10 @@ public struct CanvasFeatureView: View {
             onCanvasRectSelect(state)
         case .clickBackground:
             onCanvasClickBackground()
+        case .didMoveToSuperview:
+            Task { @MainActor in
+                self.updateEdges()
+            }
         }
     }
 

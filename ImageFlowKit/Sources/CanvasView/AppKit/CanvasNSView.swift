@@ -109,8 +109,14 @@ public final class CanvasNSView: NSView {
         nil
     }
 
+    // MARK: - NSView
+
     public override var isFlipped: Bool {
         true
+    }
+
+    public override func viewDidMoveToSuperview() {
+        self.onEvent?(.didMoveToSuperview)
     }
 
     // MARK: - GridView Methods
