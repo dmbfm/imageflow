@@ -105,5 +105,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;cd &quot;${PROJECT_DIR}&quot; ; agvtool bump&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "AE596D002E21C2AE005F49B2"
+                     BuildableName = "Image Flow.app"
+                     BlueprintName = "ImageFlowMac"
+                     ReferencedContainer = "container:ImageFlowMac.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ArchiveAction>
 </Scheme>
