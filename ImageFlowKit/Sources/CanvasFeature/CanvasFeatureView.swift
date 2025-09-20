@@ -444,7 +444,7 @@ fileprivate final class NodeViewCoordinator {
     @Binding var nodeDataStore: NodeDataStore
     @Binding var nodeSelectionStore: NodeSelectionStore
     var undoBox: Box<UndoManager?>
-    var nodePosAtDragStart: CGPoint = .zero
+    var nodePositionsAtDragStart: [UUID:CGPoint] = [:]
 
     var undoManager: UndoManager? {
         self.undoBox.value
@@ -468,13 +468,18 @@ fileprivate final class NodeViewCoordinator {
 
     func onEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
         switch event {
-        case .click: self.onClick(id)
-        case .dragGesture(let gesture): self.onDragGesture(id, gesture)
-        case .sizeChanged: break
+        case .click:
+            self.onClick(id)
+        case .dragGesture(let gesture):
+            self.onDragGesture(id, gesture)
+        case .sizeChanged:
+            break
         case .other(let event):
             switch event {
-            case .dragPort(_, _): break
-            case let .valueDidChange(index, value): valueDidChange(id, index, value)
+            case .dragPort(_, _):
+                break
+            case let .valueDidChange(index, value):
+                valueDidChange(id, index, value)
             }
         }
     }
@@ -494,24 +499,40 @@ fileprivate final class NodeViewCoordinator {
             to: .canvas
         )
 
-        if self.state.nodePositions[id] == nil {
-            log("Node not found: \(id)")
-            return
-        }
-
-        if gesture.phase == .began {
-            self.nodePosAtDragStart = self.state.nodePositions[id]!
-        }
-
-        let newPos = self.state.nodePositions[id]! + translation.cgPoint
-
         switch gesture.phase {
-        case .ended:
-            self.commitNodePosition(id, newPos, self.nodePosAtDragStart)
+        case .began:
+            self.nodePositionsAtDragStart = {
+                let nodes: Set<UUID> =
+                    if self.nodeSelectionStore.isSelected(id) {
+                        self.nodeSelectionStore.selection
+                    } else {
+                        [id]
+                    }
+
+                return Dictionary(
+                    uniqueKeysWithValues: nodes.compactMap {
+                        if let pos = self.state.nodePositions[$0] { ($0, pos) } else { nil }
+                    }
+                )
+            }()
+            break
+        case .changed:
+            for (id, _) in self.nodePositionsAtDragStart {
+                let newPos = self.state.nodePositions[id]! + translation.cgPoint
+                self.state.nodePositions[id] = newPos
+            }
         case .cancelled:
-            self.state.nodePositions[id] = self.nodePosAtDragStart
-        default:
-            self.state.nodePositions[id] = newPos
+            for (id, pos) in self.nodePositionsAtDragStart {
+                self.state.nodePositions[id] = pos
+            }
+        case .ended:
+            self.undoManager?.beginUndoGrouping()
+            self.undoManager?.setActionName("Drag Nodes")
+            for (id, pos) in self.nodePositionsAtDragStart {
+                self.commitNodePosition(id, self.state.nodePositions[id]!, pos)
+            }
+            self.undoManager?.endUndoGrouping()
+            break
         }
     }
 
