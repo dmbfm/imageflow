@@ -4,8 +4,11 @@ import SwiftUI
 
 public struct SidebarFeatureView: View {
 
-    public init() {}
+    public init(_ focusState: FocusState<Focus?>.Binding) {
+        self.focusBinding = focusState
+    }
 
+    var focusBinding: FocusState<Focus?>.Binding
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
@@ -63,6 +66,7 @@ public struct SidebarFeatureView: View {
             }
         }
         .searchable(text: self.$searchText, placement: .sidebar, prompt: "Search nodes...")
+        .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) { self.expandedSections = [:] }
     }
 }
@@ -80,6 +84,7 @@ struct ItemView: View {
 }
 
 #Preview {
-    SidebarFeatureView()
+    @Previewable @FocusState var focus: Focus?
+    SidebarFeatureView($focus)
         .listStyle(.sidebar)
 }

@@ -18,6 +18,7 @@ public struct CanvasFeatureView: View {
 
     // MARK: - State
 
+    var focus: FocusState<Focus?>.Binding
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
     @Binding var nodeSelectionStore: NodeSelectionStore
@@ -69,10 +70,12 @@ public struct CanvasFeatureView: View {
         _ state: Binding<CanvasFeatureState>,
         _ nodeDataStore: Binding<NodeDataStore>,
         _ nodeSelectionStore: Binding<NodeSelectionStore>,
+        _ focus: FocusState<Focus?>.Binding
     ) {
         self._state = state
         self._nodeDataStore = nodeDataStore
         self._nodeSelectionStore = nodeSelectionStore
+        self.focus = focus
     }
 
     // MARK: - Canvas
@@ -81,8 +84,10 @@ public struct CanvasFeatureView: View {
         switch event {
         case .rectSelect(let state):
             onCanvasRectSelect(state)
+            self.focus.wrappedValue = .global
         case .clickBackground:
             onCanvasClickBackground()
+            self.focus.wrappedValue = .global
         case .didMoveToSuperview:
             Task { @MainActor in
                 self.updateEdges()
@@ -138,7 +143,8 @@ public struct CanvasFeatureView: View {
             state: self.$state,
             nodeDataStore: self.$nodeDataStore,
             nodeSelectionStore: self.$nodeSelectionStore,
-            undoManager: self.undoManagerBox
+            undoManager: self.undoManagerBox,
+            focus: self.focus
         )
 
         view.emitter.on { coordinator.onEvent(id, $0) }
@@ -443,6 +449,7 @@ fileprivate final class NodeViewCoordinator {
     @Binding var state: CanvasFeatureState
     @Binding var nodeDataStore: NodeDataStore
     @Binding var nodeSelectionStore: NodeSelectionStore
+    var focus: FocusState<Focus?>.Binding
     var undoBox: Box<UndoManager?>
     var nodePositionsAtDragStart: [UUID:CGPoint] = [:]
 
@@ -458,18 +465,21 @@ fileprivate final class NodeViewCoordinator {
         state: Binding<CanvasFeatureState>,
         nodeDataStore: Binding<NodeDataStore>,
         nodeSelectionStore: Binding<NodeSelectionStore>,
-        undoManager: Box<UndoManager?>
+        undoManager: Box<UndoManager?>,
+        focus: FocusState<Focus?>.Binding,
     ) {
         self._state = state
         self._nodeDataStore = nodeDataStore
         self._nodeSelectionStore = nodeSelectionStore
         self.undoBox = undoManager
+        self.focus = focus
     }
 
     func onEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
         switch event {
         case .click:
             self.onClick(id)
+            self.focus.wrappedValue = .global
         case .dragGesture(let gesture):
             self.onDragGesture(id, gesture)
         case .sizeChanged:
@@ -551,13 +561,13 @@ private enum PreviewData {
     static let id = UUID()
 }
 
-#Preview(traits: .sizeThatFitsLayout) {
-    @Previewable @State var state: CanvasFeatureState = .init(nodePositions: [PreviewData.id: .zero])
-    @Previewable @State var nodeDataStore: NodeDataStore = .init([
-        PreviewData.id: .init(id: PreviewData.id, kind: .addNode(.float))
-    ])
-    @Previewable @State var nodeSelectionStore: NodeSelectionStore = .init()
-    VStack {
-        CanvasFeatureView($state, $nodeDataStore, $nodeSelectionStore)
-    }
-}
+// #Preview(traits: .sizeThatFitsLayout) {
+//     @Previewable @State var state: CanvasFeatureState = .init(nodePositions: [PreviewData.id: .zero])
+//     @Previewable @State var nodeDataStore: NodeDataStore = .init([
+//         PreviewData.id: .init(id: PreviewData.id, kind: .addNode(.float))
+//     ])
+//     @Previewable @State var nodeSelectionStore: NodeSelectionStore = .init()
+//     VStack {
+//         CanvasFeatureView($state, $nodeDataStore, $nodeSelectionStore)
+//     }
+// }
