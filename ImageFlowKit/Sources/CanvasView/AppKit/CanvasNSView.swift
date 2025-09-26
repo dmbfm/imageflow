@@ -4,6 +4,7 @@ import ColorUtils
 import CommonUtils
 import CoreGraphics
 import Design
+import Models
 import EventEmitter
 import Logging
 import PlatformUtils
@@ -23,7 +24,6 @@ public final class CanvasNSView: NSView {
 
     public var nodePositions: [UUID: CGPoint] {
         didSet {
-            log("nodePositionsDidSet")
             if self.nodePositions != oldValue {
                 self.nodePositionsDidChange(oldValue)
             }
@@ -32,7 +32,6 @@ public final class CanvasNSView: NSView {
 
     public var edgeLayers: [EdgeLayer] = [] {
         didSet {
-            log("edgeLayersDidSet")
             if self.edgeLayers != oldValue {
                 self.edgeLayersDidChange()
             }
@@ -195,7 +194,6 @@ public final class CanvasNSView: NSView {
     }
 
     @objc func gridView(panGesture gesture: NSPanGestureRecognizer) {
-        log("xxx panGesture \(gesture.translation(in: nil))")
         let t = gesture.translation(in: self.gridView)
         gesture.setTranslation(.zero, in: self.gridView)
 
@@ -244,7 +242,6 @@ public final class CanvasNSView: NSView {
     }
 
     func gridViewDraw() {
-        log("drawing: \(self.viewport), \(self.edgeLayers)")
         self.gridView.draw(viewport: self.viewport, edges: self.edgeLayers)
     }
 

@@ -1,18 +1,20 @@
+import Backend
 import Models
 import NodePaletteService
 import SwiftUI
 
 public struct SidebarFeatureView: View {
 
-    public init(_ focusState: FocusState<Focus?>.Binding) {
-        self.focusBinding = focusState
-    }
-
-    var focusBinding: FocusState<Focus?>.Binding
+    let focusBinding: FocusState<Focus?>.Binding
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
-    @EnvironmentObject var dispatcher: Dispatcher
+
+    @Environment(\.dispatch) var dispatch
+
+    public init(_ focusState: FocusState<Focus?>.Binding) {
+        self.focusBinding = focusState
+    }
 
     func isExpandedBinding(_ name: NodePaletteCategoryName) -> Binding<Bool> {
         .init(
@@ -34,7 +36,7 @@ public struct SidebarFeatureView: View {
     }
 
     func itemDoubleTapHandler(_ item: NodePaletteItem) {
-        self.dispatcher.send(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
+        self.dispatch?(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
     }
 
     public var body: some View {

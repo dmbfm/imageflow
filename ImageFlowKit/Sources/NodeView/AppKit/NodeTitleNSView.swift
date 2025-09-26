@@ -8,6 +8,7 @@
 #if canImport(AppKit)
 
 import AppKit
+import Logging
 import CommonUtils
 
 // MARK: - NodeTitleNSView
@@ -36,7 +37,7 @@ final class NodeTitleNSView: NSView {
     public var vm: ViewModel {
         didSet {
             if self.vm != oldValue {
-                self.update()
+                self.update(oldValue)
             }
         }
     }
@@ -46,13 +47,9 @@ final class NodeTitleNSView: NSView {
     var style = Style.macOS
 
     private lazy var iconView: NSImageView = {
-        let image = NSImage(systemSymbolName: self.vm.icon, accessibilityDescription: nil)!
-            .withSymbolConfiguration(.init(pointSize: style.iconPointSize, weight: .regular))!
         let iconView = NSImageView()
-        iconView.image = image
+        iconView.loadImage(systemSymbolName: self.vm.icon, size: style.iconPointSize)
         iconView.contentTintColor = self.vm.color.platformColor
-        // iconView.wantsLayer = true
-        // iconView.layer?.borderWidth = 2
         return iconView
     }()
 
@@ -99,8 +96,15 @@ final class NodeTitleNSView: NSView {
         return size
     }
 
-    func update() {
+    func update(_ oldValue: ViewModel) {
+        self.titleView.stringValue = self.vm.title
+        self.subtitleView.stringValue = self.vm.subtitle
 
+        if oldValue.icon != self.vm.icon {
+            self.iconView.loadImage(systemSymbolName: self.vm.icon, size: style.iconPointSize)
+        }
+
+        self.iconView.contentTintColor = self.vm.color.platformColor
     }
 
     override func layout() {
@@ -124,6 +128,15 @@ final class NodeTitleNSView: NSView {
             alignment: .verticalCenter,
             guide: .constant(self.subtitleView.frame.maxY * 0.5)
         )
+    }
+}
+
+extension NSImageView {
+    func loadImage(systemSymbolName name: String, size: CGFloat, weight: NSFont.Weight = .regular) {
+        let image = NSImage(systemSymbolName: name, accessibilityDescription: nil)!
+            .withSymbolConfiguration(.init(pointSize: size, weight: weight))!
+        self.image = image
+        // let iconView = NSImageView()
     }
 }
 

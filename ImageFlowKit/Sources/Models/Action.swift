@@ -1,19 +1,31 @@
 import Backend
 import Foundation
+import SwiftUI
 
-@MainActor
-public final class Dispatcher: ObservableObject {
+public extension EnvironmentValues {
+    @Entry var dispatch: ((Action) -> ())? = nil
+}
 
-    public init() {}
+public struct ActionUndoData {
+    public weak var undoManager: UndoManager?
+    public var title: String
+}
 
-    private var listener: (@MainActor (Action) -> ())? = nil
+public struct Dispatcher<A>: Equatable {
 
-    public func send(_ action: Action) {
-        self.listener?(action)
+    public static func == (lhs: Dispatcher<A>, rhs: Dispatcher<A>) -> Bool {
+        lhs.id == rhs.id
     }
 
-    public func listen(_ listener: @escaping @MainActor (Action) -> ()) {
-        self.listener = listener
+    public var id: UUID = .init()
+    public var dispatcher: (A) -> ()
+
+    public init(_ dispatcher: @escaping (A) -> ()) {
+        self.dispatcher = dispatcher
+    }
+
+    public func callAsFunction(_ action: A) {
+        self.dispatcher(action)
     }
 }
 
@@ -38,5 +50,4 @@ extension Action {
             self.position = position
         }
     }
-
 }

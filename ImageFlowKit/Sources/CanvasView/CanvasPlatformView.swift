@@ -76,7 +76,7 @@ extension CanvasPlatformView {
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
         node.frame.origin = position
         node.frame.size = node.intrinsicContentSize
-        node.emitter.on() {  event in
+        node.emitter.on() { event in
             switch event {
             case .dragGesture:
                 break

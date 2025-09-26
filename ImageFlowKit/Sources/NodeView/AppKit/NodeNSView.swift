@@ -5,6 +5,7 @@ import CommonUtils
 import Models
 import CanvasView
 import EventEmitter
+import Logging
 import PlatformUtils
 
 public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
@@ -113,6 +114,7 @@ public final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
     }
 
     func update(_ oldValue: FlowNode) {
+        log("\(oldValue) -> \(self.node)", level: .debug)
         self.titleView.vm = self.titleModel
         self.inputBlockView.inputs = self.node.inputs
         self.outputBlockView.outputs = self.node.outputs

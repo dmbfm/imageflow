@@ -65,7 +65,6 @@ public final class GridView: PlatformView {
     /// - Parameter edges: The list of edges to be drawn.
     // func draw(viewport: CanvasViewport, edges: [EdgeLayer]) {
     func draw(viewport: CanvasViewport, edges: [EdgeLayer]) {
-        log("draw: viewport: \(viewport), edges: \(edges)", level: .debug)
         self.viewport = viewport
         self.edgesLayersToDraw = edges
         #if os(macOS)
@@ -121,7 +120,6 @@ public final class GridView: PlatformView {
     }
 
     private func drawEdges(_ ctx: CGContext) {
-        log("drawing edges: \(self.edgesLayersToDraw)")
         guard let viewport = self.viewport else {
             log("Viewport is missing!", level: .warning)
             return
@@ -250,8 +248,6 @@ public final class GridView: PlatformView {
             style.bg.cgColor,
             dotColor
         )
-
-        log("offset: \(offset), size: \(size)")
 
         if t <= style.dotFadeCuttoff {
             ctx.draw(

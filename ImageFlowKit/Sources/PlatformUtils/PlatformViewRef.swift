@@ -8,3 +8,8 @@ public final class PlatformViewRef {
         self.view = view
     }
 }
+
+@MainActor
+public protocol PlatformViewRefStore: AnyObject {
+    var view: PlatformView? { get set }
+}

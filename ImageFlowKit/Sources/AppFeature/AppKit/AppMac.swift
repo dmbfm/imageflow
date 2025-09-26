@@ -2,7 +2,11 @@
 
 import SwiftUI
 import AppKit
+import Logging
 import UniformTypeIdentifiers
+import CommonUtils
+
+import enum Models.Action
 
 public struct ImageFlowApp: App {
 
@@ -11,9 +15,8 @@ public struct ImageFlowApp: App {
     public init() {}
 
     public var body: some Scene {
-
-        DocumentGroup(newDocument: { ImageFlowDocument(.sample) }) { configuration in
-            MainViewMac(document: configuration.document)
+        DocumentGroup(newDocument: { ImageFlowDocument() }) { configuration in
+            MainViewWrapper(configuration.document)
         }
         .defaultWindowPlacement { root, context in
             let screenRect = context.defaultDisplay.visibleRect
@@ -27,74 +30,106 @@ public struct ImageFlowApp: App {
     }
 }
 
-// -------
+struct MainViewWrapper: View {
+    let document: ImageFlowDocument
+    @State var flow: Flow = .init(.init())
+    @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @Environment(\.undoManager) var undoManager
 
-import CanvasFeature
-import CommonUtils
-import NodeDataStore
-import NodeSelectionStore
-
-extension UTType {
-    static var imageFlowDocument: UTType {
-        .init(exportedAs: "com.dmbfm.imageFlowDocument")
+    init(_ document: ImageFlowDocument) {
+        self.document = document
     }
-}
 
-struct Flow: Sendable, Equatable, Codable {
-    var canvas: CanvasFeatureState = .init()
-    var nodeData: NodeDataStore = .init()
-    var nodeSelection: NodeSelectionStore = .init()
-}
-
-extension Flow {
-    static var sample: Self {
-        let ids = [UUID(), UUID(), UUID()]
-        var nodeData = NodeDataStore()
-        nodeData.addNode(.init(id: ids[0], kind: .valueNode(.float)))
-        nodeData.addNode(.init(id: ids[1], kind: .valueNode(.float)))
-        nodeData.addNode(.init(id: ids[2], kind: .addNode(.float)))
-        _ = try! nodeData.addEdge(.init(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!)
-            .get()
-        _ = try! nodeData.addEdge(.init(.init(node: ids[1], port: .output(0)), .init(node: ids[2], port: .input(1)))!)
-            .get()
-        let offset: CGPoint = .init(x: 100, y: 100)
-        return .init(
-            canvas: .init(
-                viewport: .init(),
-                nodePositions: [
-                    ids[0]: .init(x: 0, y: 0) + offset,
-                    ids[1]: .init(x: 0, y: 200) + offset,
-                    ids[2]: .init(x: 200, y: 100) + offset,
-                ]
-            ),
-            nodeData: nodeData,
-            nodeSelection: .init()
+    func observeViewport() {
+        withObservationTracking(
+            {
+                _ = self.flow.canvas.viewport
+            },
+            onChange: {
+                Task { @MainActor in
+                    self.document.data.withLock { data in
+                        data.canvas.viewport = self.flow.canvas.viewport
+                    }
+                    self.observeViewport()
+                }
+            }
         )
     }
-}
 
-final class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
-
-    @Published var flow: Flow = .init()
-
-    static var readableContentTypes: [UTType] { [.imageFlowDocument] }
-
-    init(_ flow: Flow = .init()) {
-        self.flow = flow
+    func observeNodePositions() {
+        withObservationTracking(
+            {
+                _ = self.flow.canvas.nodePositions
+            },
+            onChange: {
+                Task { @MainActor in
+                    self.document.data.withLock { data in
+                        data.canvas.nodePositions = self.flow.canvas.nodePositions
+                    }
+                    self.observeNodePositions()
+                }
+            }
+        )
     }
 
-    required init(configuration: ReadConfiguration) throws {
-        self.flow = .init()
+    func observeNodes() {
+        withObservationTracking(
+            {
+                _ = self.flow.nodeDataStore.nodes
+            },
+            onChange: {
+                Task { @MainActor in
+                    self.document.data.withLock { data in
+                        data.nodeDataStore.nodes = self.flow.nodeDataStore.nodes
+                    }
+                    self.observeNodes()
+                }
+            }
+        )
     }
 
-    func snapshot(contentType: UTType) throws -> Flow {
-        self.flow
+    func observeEdges() {
+        withObservationTracking(
+            {
+                _ = self.flow.nodeDataStore.edges
+            },
+            onChange: {
+                Task { @MainActor in
+                    self.document.data.withLock { data in
+                        data.nodeDataStore.edges = self.flow.nodeDataStore.edges
+                    }
+                    self.observeEdges()
+                }
+            }
+        )
     }
 
-    func fileWrapper(snapshot: Flow, configuration: WriteConfiguration) throws -> FileWrapper {
-        return .init(directoryWithFileWrappers: [:])
+    func loadSample() {
     }
 
+    func dispatch(_ action: Action) {
+        self.flow.dispatch(action, canvasCenter: self.canvasCenter.value, undoManager: self.undoManager)
+    }
+
+    var body: some View {
+        Group {
+            MainViewMac(
+                canvas: flow.canvas,
+                nodeDataStore: flow.nodeDataStore,
+                nodeSelectionStore: flow.nodeSelectionStore,
+                canvasCenter: self.$canvasCenter,
+            )
+            .environment(\.dispatch, self.dispatch)
+        }
+        .onAppear {
+            let data = Flow.sample.snapshot()
+            self.flow.restore(data)
+            self.observeViewport()
+            self.observeNodePositions()
+            self.observeNodes()
+            self.observeEdges()
+        }
+    }
 }
 
 #endif  // canImport(AppKit)

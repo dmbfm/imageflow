@@ -10,35 +10,37 @@ import Values
 
 import struct Models.Edge
 
-extension NodeDataStore: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case nodes
-        case edges
-    }
-}
-
-extension NodeDataStore: Equatable {
-    public static func == (lhs: NodeDataStore, rhs: NodeDataStore) -> Bool {
-        lhs.edges == rhs.edges && lhs.nodes == rhs.nodes
-    }
-}
-
-public struct NodeDataStore: Sendable {
+@Observable
+@MainActor
+public final class NodeDataStore: Sendable {
 
     // MARK: - Public Properties
 
-    /// The nodes
-    public var nodes: [UUID: FlowNode] = [:] {
-        didSet {
-            self.validateEdgesCache.clear()
-        }
-    }
+    public var nodes: [UUID: FlowNode]
 
-    /// The edges
-    public var edges: Set<Edge> = [] {
-        didSet {
-            self.validateEdgesCache.clear()
-            // self.edgesPublisher.send(oldValue)
+    public var edges: Set<Edge>
+
+    // MARK: - Public Types
+
+    public enum Action {
+        case createEdge(Edge, ActionUndoData? = nil)
+        case deleteEdge(Edge, ActionUndoData? = nil)
+        case setInputVale(SetInputValue, ActionUndoData? = nil)
+        case createNode(FlowNode, ActionUndoData? = nil)
+        case deleteNode(UUID, ActionUndoData? = nil)
+
+        public struct SetInputValue {
+            public var node: UUID
+            public var portIndex: Int
+            public var value: Value
+            public var previousOverride: Value?
+
+            public init(node: UUID, portIndex: Int, value: Value, previousOverride: Value? = nil) {
+                self.node = node
+                self.portIndex = portIndex
+                self.value = value
+                self.previousOverride = previousOverride
+            }
         }
     }
 
@@ -47,6 +49,30 @@ public struct NodeDataStore: Sendable {
     public init(_ nodes: [UUID: FlowNode] = [:], edges: Set<Edge> = []) {
         self.nodes = nodes
         self.edges = edges
+    }
+
+    // MARK: - Public Methods
+
+    public func perform(_ action: Action) {
+        switch action {
+        case let .createEdge(edge, um):
+            _ = try! self.createEdge(edge, undoManager: um?.undoManager, undoTitle: um?.title).get()
+        case let .deleteEdge(edge, um):
+            _ = try! self.deleteEdge(edge, undoManager: um?.undoManager, undoTitle: um?.title).get()
+        case let .setInputVale(data, um):
+            _ = try! self.setInputValue(
+                data.node,
+                data.portIndex,
+                data.value,
+                previousOverride: data.previousOverride,
+                undoManager: um?.undoManager,
+                undoTitle: um?.title
+            ).get()
+        case let .createNode(node, um):
+            self.createNode(node, undoManager: um?.undoManager, undoTitle: um?.title)
+        case let .deleteNode(id, um):
+            self.deleteNode(id, undoManager: um?.undoManager, undoTitle: um?.title)
+        }
     }
 
     // MARK: - Edges
@@ -153,11 +179,7 @@ public struct NodeDataStore: Sendable {
     /// the connections.
     ///
     /// - Returns: The `ValidateEdgesResult` value.
-    public mutating func validateEdges() -> ValidateEdgesResult {
-
-        if let validateEdgesCache = self.validateEdgesCache.get() {
-            return validateEdgesCache
-        }
+    public func validateEdges() -> ValidateEdgesResult {
 
         let result: ValidateEdgesResult? = {
             for edge in self.edges {
@@ -205,8 +227,6 @@ public struct NodeDataStore: Sendable {
             return .ok
         }()
 
-        self.validateEdgesCache.set(result)
-
         return result!
     }
 
@@ -223,31 +243,6 @@ public struct NodeDataStore: Sendable {
         // Too few edges (zero) are outgoing from this port slot.
         case tooFewOutgointEdges(PortLocation)
     }
-
-    class ValidateEdgesCache: @unchecked Sendable {
-        let value: Mutex<ValidateEdgesResult?> = .init(nil)
-
-        func clear() {
-            self.set(nil)
-        }
-
-        func set(_ newValue: ValidateEdgesResult?) {
-            self.value.withLock { value in
-                value = newValue
-            }
-        }
-
-        func get() -> ValidateEdgesResult? {
-            var result: ValidateEdgesResult? = nil
-            self.value.withLock { value in
-                result = value
-            }
-            return result
-        }
-    }
-
-    /// We cache the validation results and invalidate when the store is changed.
-    private var validateEdgesCache = ValidateEdgesCache()
 
     public func canAddEdge(_ edge: Edge) -> Result<(), AddEdgeError> {
         // First, check if the edge is valid in principle
@@ -306,23 +301,73 @@ public struct NodeDataStore: Sendable {
         return .success(())
     }
 
-    /// Adds an edge between two node slots to the store. A number of checks are
-    /// made to see if the edge is valid before inserting.
+    public func addEdge(
+        _ edge: Edge,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = nil
+    ) {
+        if !self.edges.contains(edge) {
+            self.edges.insert(edge)
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.removeEdge(edge, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
+        }
+    }
+
+    public func removeEdge(
+        _ edge: Edge,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "New Edge"
+    ) {
+        if let _ = self.edges.remove(edge) {
+            self.edges.remove(edge)
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.addEdge(edge, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
+        }
+    }
+
+    /// Adds an edge between two node slots to the store, marking the connecting
+    /// ports of the nodes as connected. A number of checks are made to see if the
+    //  edge is valid before inserting.
     ///
     /// - Parameter edge: The edge to be added.
     /// - Returns: The added edge (same as the input) or an `AddEdgeError` value.
-    public mutating func addEdge(_ edge: Edge) -> Result<Edge, AddEdgeError> {
+    public func createEdge(
+        _ edge: Edge,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "New Edge"
+    ) -> Result<Edge, AddEdgeError> {
 
         if case let .failure(reason) = self.canAddEdge(edge) {
             return .failure(reason)
         }
 
-        // Set the slots as connected
-        self.nodes[edge.from.node]![connectedAt: edge.from.slot] = true
-        self.nodes[edge.to.node]![connectedAt: edge.to.slot] = true
+        um?.beginUndoGrouping()
+
+        self.setPortConnected(edge.from, true, undoManager: um)
+        self.setPortConnected(edge.to, true, undoManager: um)
 
         // Add the edge to the set
-        self.edges.insert(edge)
+        self.addEdge(edge, undoManager: um)
+
+        um?.endUndoGrouping()
+
+        if let undoTitle {
+            um?.setActionName(undoTitle)
+        }
 
         // Make sure we are in a valid state
         if self.validateEdges() != .ok {
@@ -349,7 +394,11 @@ public struct NodeDataStore: Sendable {
     ///
     /// - Parameter edge: The edge to be removed.
     /// - Returns: In case of failure, a `RemoveEdgeError` and a `Void` if successful.
-    public mutating func removeEdge(_ edge: Edge) -> Result<(), RemoveEdgeError> {
+    public func deleteEdge(
+        _ edge: Edge,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "Delete Edge"
+    ) -> Result<(), DeleteEdgeError> {
 
         // Check if edge is present
         if !self.edges.contains(edge) {
@@ -376,6 +425,8 @@ public struct NodeDataStore: Sendable {
             return .failure(.invalidDestinationPortSlot)
         }
 
+        um?.beginUndoGrouping()
+
         // Check how many edges are outgoing from the source.
         switch self.edges(from: edge.from).count {
         case 0:
@@ -386,11 +437,22 @@ public struct NodeDataStore: Sendable {
             if self.edges(from: edge.from).first! != edge {
                 return .failure(.unreachable)
             }
-            // Since only the edge we are removing is connetced to the source,
-            // attempt to disconect it.
-            if case .notConnected = self.nodes[edge.from.node]!.disconnect(edge.from.slot) {
-                return .failure(.sourceNotConnected)
+
+            switch self.getPortConnected(edge.from) {
+            case .failure:
+                return .failure(.missingDestinationNode)
+            case .success(false):
+                return .failure(.destinationNotConnected)
+            default:
+                break
             }
+
+            self.setPortConnected(edge.from, false, undoManager: um)
+        // Since only the edge we are removing is connetced to the source,
+        // attempt to disconect it.
+        // if case .notConnected = self.nodes[edge.from.node]!.disconnect(edge.from.slot) {
+        //     return .failure(.sourceNotConnected)
+        // }
         default:
             // Since there are other edges coming out of the source, just check if
             // the `connected` property is valid.
@@ -400,12 +462,27 @@ public struct NodeDataStore: Sendable {
         }
 
         // Attempt to disconnect the destination port slot
-        if case .notConnected = self.nodes[edge.to.node]!.disconnect(edge.to.slot) {
+
+        switch self.getPortConnected(edge.to) {
+        case .failure:
+            return .failure(.missingDestinationNode)
+        case .success(false):
             return .failure(.destinationNotConnected)
+        default:
+            break
         }
 
+        self.setPortConnected(edge.to, false, undoManager: um)
+
         // Remove the edge from the set
-        self.edges.remove(edge)
+        // self.edges.remove(edge)
+        self.removeEdge(edge, undoManager: um)
+
+        um?.endUndoGrouping()
+
+        if let undoTitle {
+            um?.setActionName(undoTitle)
+        }
 
         // Check if we are in a valid state
         if self.validateEdges() != .ok {
@@ -415,7 +492,7 @@ public struct NodeDataStore: Sendable {
         return .success(())
     }
 
-    public enum RemoveEdgeError: Error {
+    public enum DeleteEdgeError: Error {
         case edgeNotPresent
         case missingSourceNode
         case missingDestinationNode
@@ -463,7 +540,14 @@ public struct NodeDataStore: Sendable {
     ///
     /// - Returns: The previous `Value` if successful, a `SetInputValueError` otherwise.
     @discardableResult
-    public mutating func setInputValue(_ id: UUID, _ port: Int, _ value: Value) -> Result<Value, SetInputValueError> {
+    public func setInputValue(
+        _ id: UUID,
+        _ port: Int,
+        _ value: Value,
+        previousOverride: Value? = nil,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "Value Change"
+    ) -> Result<Value, SetInputValueError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID)
         }
@@ -472,14 +556,26 @@ public struct NodeDataStore: Sendable {
             return .failure(.invalidPort)
         }
 
-        let oldValue = self.nodes[id]!.inputs[port].value
+        let oldValue = previousOverride ?? self.nodes[id]!.inputs[port].value
 
         if !oldValue.is(sameTypeAs: value) {
             return .failure(.typeMismatch(old: oldValue.type, new: value.type))
         }
 
         if oldValue != value {
+
             self.nodes[id]!.inputs[port].value = value
+
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.setInputValue(id, port, oldValue, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
         }
 
         return .success(oldValue)
@@ -500,9 +596,11 @@ public struct NodeDataStore: Sendable {
     /// - Returns: The previous value if successful or the failure reason via
     ///            `SetPortConnectedError` on failure.
     @discardableResult
-    public mutating func setPortConnected(
+    public func setPortConnected(
         _ port: PortLocation,
-        _ connected: Bool
+        _ connected: Bool,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = nil
     ) -> Result<Bool, SetPortConnectedError> {
         if self.nodes[port.node] == nil {
             return .failure(.invalidNodeID)
@@ -515,7 +613,19 @@ public struct NodeDataStore: Sendable {
         let oldValue = self.nodes[port.node]![connectedAt: port.slot]
 
         if connected != oldValue {
+
             self.nodes[port.node]![connectedAt: port.slot] = connected
+
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.setPortConnected(port, oldValue, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
         }
 
         return .success(oldValue)
@@ -552,6 +662,37 @@ public struct NodeDataStore: Sendable {
 
     // MARK: - Nodes
 
+    public func addNodeUnchecked(_ node: FlowNode, undoManager um: UndoManager? = nil, undoTitle: String? = nil) {
+        if self.nodes[node.id] == nil {
+            self.nodes[node.id] = node
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.removeNodeUnchecked(node.id, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
+        }
+    }
+
+    public func removeNodeUnchecked(_ id: UUID, undoManager um: UndoManager? = nil, undoTitle: String? = nil) {
+        if let node = self.nodes.removeValue(forKey: id) {
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.addNodeUnchecked(node, undoManager: um, undoTitle: undoTitle)
+                }
+            )
+
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
+        }
+    }
+
     /// Attempts to add the given `node` to the store. Fails if
     ///   - the a node with the same `id` is alrady in the store, or,
     ///   - the `node` has any of its slots set to `connected`.
@@ -561,7 +702,11 @@ public struct NodeDataStore: Sendable {
     ///
     /// - Returns: The result of the operation.
     @discardableResult
-    public mutating func addNode(_ node: FlowNode) -> Result<(), AddNodeError> {
+    public func createNode(
+        _ node: FlowNode,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "Create Node"
+    ) -> Result<(), AddNodeError> {
         if self.nodes[node.id] != nil {
             return .failure(.repeatedNodeID(node.id))
         }
@@ -572,7 +717,7 @@ public struct NodeDataStore: Sendable {
             return .failure(.addingConnectedNode)
         }
 
-        self.nodes[node.id] = node
+        self.addNodeUnchecked(node, undoManager: um, undoTitle: undoTitle)
 
         return .success(())
     }
@@ -588,39 +733,121 @@ public struct NodeDataStore: Sendable {
     /// - Parameter id: The id of the node.
     /// - Returns: The result of the operation.
     @discardableResult
-    public mutating func removeNode(_ id: UUID) -> Result<(), RemoveNodeError> {
+    public func deleteNode(
+        _ id: UUID,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = "Delete Node"
+    ) -> Result<(), DeleteNodeError> {
         if self.nodes[id] == nil {
             return .failure(.invalidNodeID(id))
         }
 
+        um?.beginUndoGrouping()
+
         for edge in self.edges(ofNode: id) {
-            if case let .failure(err) = self.removeEdge(edge) {
+            if case let .failure(err) = self.deleteEdge(edge, undoManager: um) {
                 return .failure(.removeEdge(err))
             }
         }
 
-        self.nodes.removeValue(forKey: id)
+        self.removeNodeUnchecked(id, undoManager: um)
+
+        um?.endUndoGrouping()
+
+        if let undoTitle {
+            um?.setActionName(undoTitle)
+        }
 
         return .success(())
     }
 
-    public enum RemoveNodeError: Error {
+    public enum DeleteNodeError: Error {
         case invalidNodeID(UUID)
-        case removeEdge(RemoveEdgeError)
+        case removeEdge(DeleteEdgeError)
+    }
+
+    public func setExistingNode(
+        _ node: FlowNode,
+        undoManager um: UndoManager?,
+        undoTitle: String? = "Node Change"
+    ) throws(SetExistingNodeError) {
+        guard let prev = self.nodes[node.id] else {
+            throw .nodeNotFound
+        }
+
+        if prev == node { return }
+
+        log("setting \(prev) to \(node)", level: .debug)
+
+        self.nodes[node.id] = node
+
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                try! this.setExistingNode(prev, undoManager: um, undoTitle: undoTitle)
+            }
+        )
+    }
+
+    public enum SetExistingNodeError: Error {
+        case nodeNotFound
+    }
+
+    public func convertNode(
+        _ id: UUID,
+        toVariation kind: NodeKind,
+        undoManager um: UndoManager? = nil,
+        undoTitle: String? = nil
+    ) throws(ConvertNodeError) {
+        if var node = self.nodes[id] {
+            if !node.convert(toVariation: kind) {
+                throw .invalidNodeKind
+            }
+
+            do {
+                try self.setExistingNode(node, undoManager: um, undoTitle: undoTitle)
+            } catch {
+                throw .nodeNotFound
+            }
+        }
+    }
+
+    public enum ConvertNodeError: Error {
+        case invalidNodeKind
+        case nodeNotFound
     }
 }
 
 extension NodeDataStore: Storable {
-    public typealias StorableData = NodeDataStore
+    public typealias StorableData = Store
 
-    public init(_ data: NodeDataStore) {
-        self = data
-        self.validateEdgesCache.clear()
+    public struct Store: Sendable, Codable, Equatable {
+
+        public var nodes: [UUID: FlowNode] = [:]
+        public var edges: Set<Edge> = []
+
+        public init(nodes: [UUID: FlowNode] = [:], edges: Set<Edge> = []) {
+            self.nodes = nodes
+            self.edges = edges
+        }
     }
 
-    public func snapshot() async throws -> NodeDataStore {
-        let snap = self
-        snap.validateEdgesCache.clear()
-        return snap
+    public convenience init(_ data: Store) {
+        self.init(data.nodes, edges: data.edges)
+    }
+
+    public func snapshot() -> Store {
+        .init(nodes: self.nodes, edges: self.edges)
+    }
+
+    public func restore(_ snapshot: Store) {
+        self.nodes = snapshot.nodes
+        self.edges = snapshot.edges
+    }
+}
+
+extension NodeDataStore: @MainActor Equatable {
+    public static func == (lhs: NodeDataStore, rhs: NodeDataStore) -> Bool {
+        lhs.nodes == rhs.nodes && lhs.edges == rhs.edges
     }
 }

@@ -30,7 +30,7 @@ public struct CanvasView: PlatformViewRepresentable {
     let edgeLayers: [EdgeLayer]
 
     /// This is used to set a reference to the underlying `NSView` or `UIView` to be used upwards in the view chain.
-    let canvasPlatformViewRef: PlatformViewRef
+    let canvasPlatformViewRef: any PlatformViewRefStore
 
     /// A closure that provides node views for a give node UUID.
     let viewForNode: (UUID) -> (any CanvasNodeView)?
@@ -52,7 +52,7 @@ public struct CanvasView: PlatformViewRepresentable {
         _ viewport: Binding<CanvasViewport>,
         _ nodePositions: [UUID: CGPoint],
         _ edges: [EdgeLayer],
-        _ canvasPlatformViewRef: PlatformViewRef,
+        _ canvasPlatformViewRef: any PlatformViewRefStore,
         _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         _ onEvent: ((CanvasView.Event) -> ())? = nil
     ) {

@@ -40,6 +40,10 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         self.platformInit()
     }
 
+    static func empty(width: CGFloat) -> AnnotationView {
+        .init(.init(), .init(title: "", message: "", maxWidth: width, type: .regular))
+    }
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
