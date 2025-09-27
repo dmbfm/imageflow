@@ -3,9 +3,10 @@ import CoreGraphics
 import Foundation
 import Testing
 import Values
-@testable import Models
 
 import struct Models.Edge
+
+@testable import Models
 
 @MainActor
 private func makeNode(
@@ -44,7 +45,7 @@ private func makeEdge(
 ) -> Edge {
     let output = PortLocation(node: source.id, port: .output(0))
     let input = PortLocation(node: destination.id, port: .input(0))
-    return Edge(output, input)! // construction is validated by PortLocation.canConnectWith
+    return Edge(output, input)!  // construction is validated by PortLocation.canConnectWith
 }
 
 private func expectValidationError(
@@ -401,7 +402,7 @@ func validateNodeGraphRejectsMultipleEdgesPerInput() throws {
         nodes: [
             sourceA.id: sourceA,
             sourceB.id: sourceB,
-            destination.id: destination
+            destination.id: destination,
         ],
         edges: Set([edgeA, edgeB])
     )
@@ -460,7 +461,7 @@ func validateNodeGraphRejectsDisconnectedDestinationPort() throws {
     let flow = Flow(
         nodes: [
             source.id: source,
-            destination.id: destination
+            destination.id: destination,
         ],
         edges: Set([edge])
     )
@@ -495,7 +496,7 @@ func validateNodeGraphRejectsDisconnectedSourcePort() throws {
     let flow = Flow(
         nodes: [
             source.id: source,
-            destination.id: destination
+            destination.id: destination,
         ],
         edges: Set([edge])
     )
@@ -573,6 +574,75 @@ func validateNodeGraphRejectsMissingDestinationNode() throws {
             switch validationError {
             case let .destinationNodeMissingForEdge(missingEdge):
                 #expect(missingEdge == edge)
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects simple cycles")
+func validateNodeGraphRejectsSimpleCycle() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 120, y: 0))
+
+    let edgeAB = makeEdge(from: nodeA, to: nodeB)
+    let edgeBA = makeEdge(from: nodeB, to: nodeA)
+
+    try flow.addEdgeConnectingNodes(edgeAB)
+    try flow.addEdgeConnectingNodes(edgeBA)
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected graphHasCycles error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case .graphHasCycles:
+                break
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects longer cycles")
+func validateNodeGraphRejectsLongerCycle() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    let nodeC = makeNode(name: "C")
+    let nodeD = makeNode(name: "D")
+
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 120, y: 0))
+    try flow.addNode(nodeC, at: CGPoint(x: 240, y: 0))
+    try flow.addNode(nodeD, at: CGPoint(x: 360, y: 0))
+
+    let edgeAB = makeEdge(from: nodeA, to: nodeB)
+    let edgeBC = makeEdge(from: nodeB, to: nodeC)
+    let edgeCA = makeEdge(from: nodeC, to: nodeA)
+    let edgeCD = makeEdge(from: nodeC, to: nodeD)
+
+    try flow.addEdgeConnectingNodes(edgeAB)
+    try flow.addEdgeConnectingNodes(edgeBC)
+    try flow.addEdgeConnectingNodes(edgeCA)
+    try flow.addEdgeConnectingNodes(edgeCD)
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected graphHasCycles error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case .graphHasCycles:
+                break
             default:
                 #expect(Bool(false), "Unexpected error: \(validationError)")
             }

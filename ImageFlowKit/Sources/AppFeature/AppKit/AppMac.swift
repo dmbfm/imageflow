@@ -28,6 +28,4 @@ public struct ImageFlowApp: App {
     }
 }
 
-
-
 #endif  // canImport(AppKit)

@@ -1,17 +1,17 @@
 import Foundation
 import SwiftGraph
 
-final class FlowGraph {
+public final class FlowGraph {
 
     private let messageStore: MessageStore
     fileprivate var graph: _FlowGraph
 
-    init(_ messageStore: MessageStore) {
+    public init(_ messageStore: MessageStore) {
         self.graph = .init(vertices: [])
         self.messageStore = messageStore
     }
 
-    func addEdge(_ e: Edge) {
+    public func addEdge(_ e: Edge) {
         guard let srcNodeIndex = self.graph.indexOfVertex(e.from.node),
             let dstNodeIndex = self.graph.indexOfVertex(e.to.node)
         else {
@@ -19,7 +19,6 @@ final class FlowGraph {
             return
         }
         self.addEdge(
-
             .init(
                 start: .init(nodeIndex: srcNodeIndex, slot: e.from.index),
                 end: .init(nodeIndex: dstNodeIndex, slot: e.to.index)
@@ -36,11 +35,11 @@ final class FlowGraph {
         }
     }
 
-    func addNode(_ id: UUID) {
+    public func addNode(_ id: UUID) {
         _ = self.graph.addVertex(id)
     }
 
-    func detectCycles() -> DetectCyclesResult {
+    public func detectCycles() -> DetectCyclesResult {
         let edges = self.graph.detectCyclesAsEdges()
 
         if edges.isEmpty {
@@ -69,12 +68,12 @@ final class FlowGraph {
         return .hasCycles
     }
 
-    enum DetectCyclesResult {
+    public enum DetectCyclesResult {
         case ok
         case hasCycles
     }
 
-    func sortedNodes() -> [Int]? {
+    public func sortedNodes() -> [Int]? {
         self.graph.topologicalSort()?.map { graph.indexOfVertex($0)! }
     }
 

@@ -137,6 +137,7 @@ let package = Package(
                 "Values",
                 "Backend",
                 "ColorUtils",
+                "SwiftGraph",
             ],
         ),
         .target(
@@ -237,7 +238,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "Backend",
-                "Values"
+                "Values",
             ]
         ),
     ]

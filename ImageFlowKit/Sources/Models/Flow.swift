@@ -1,3 +1,4 @@
+import Backend
 import Foundation
 import Logging
 
@@ -471,11 +472,11 @@ extension Flow {
 
 extension Flow {
     /// Validates the flow graph, ensuring that:
-    ///   - Each edge is connected to an existing node, and the port is marked as connected. 
+    ///   - Each edge is connected to an existing node, and the port is marked as connected.
     ///   - Each node port marked as connected belongs to a edge.
     ///   - Each node port marked as disconnected does not belong to a edge.
     ///   - Each input port is connected to at most one edge.
-    /// 
+    ///
     /// - Parameters:
     ///
     /// - Throws:
@@ -497,7 +498,7 @@ extension Flow {
                 if node[connectedAt: slot] {
                     if edgeCount <= 0 {
                         throw .connectedPortWithoutEdge(location)
-                    } 
+                    }
                 } else {
                     if edgeCount > 0 {
                         throw .disconnectedPortWithEdge(location)
@@ -525,6 +526,22 @@ extension Flow {
             }
         }
 
+        let graph = FlowGraph(.init())
+        for (id, _) in nodes {
+            graph.addNode(id)
+        }
+        for edge in self.edges {
+            graph.addEdge(
+                .init(
+                    from: .init(node: edge.from.node, slot: edge.from.slot.index),
+                    end: .init(node: edge.to.node, slot: edge.to.slot.index)
+                )
+            )
+        }
+
+        if graph.detectCycles() == .hasCycles {
+            throw .graphHasCycles
+        }
     }
 
     public enum FlowValidationError: Error {
@@ -535,6 +552,7 @@ extension Flow {
         case destinationNodeMissingForEdge(Edge)
         case edgeSourceNotConnected(Edge)
         case edgeDestinationNotConnected(Edge)
+        case graphHasCycles
     }
 }
 
@@ -649,7 +667,6 @@ extension Flow {
 // MARK: - Errors and Result Types
 
 extension Flow {
-
 
     /// Errors thrown by the flow graph operations.
     public enum FlowError: Error {
