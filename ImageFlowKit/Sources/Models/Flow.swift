@@ -362,9 +362,9 @@ extension Flow {
             case .invalidSourcePortSlot:
                 throw .edgeInvalidSourcePort
             case .missingDestinationNode:
-                throw .missingEdgeSourceNode
-            case .missingSourceNode:
                 throw .missingEdgeDestinationNode
+            case .missingSourceNode:
+                throw .missingEdgeSourceNode
             case .typeMismatch(let fix):
                 throw .edgeTypeError(fix)
             }
@@ -458,8 +458,89 @@ extension Flow {
         return result
     }
 
-    public func addEdgeConnectingNodesConvertingIfNeeded() {
+    public func addEdgeConnectingNodesConvertingIfNeeded(_ edge: Edge) throws(FlowError) -> AddEdgeReplaceNode {
+        var result: AddEdgeReplaceNode = .none
+        do {
+            try self.addEdgeConnectingNodes(edge)
+        } catch {
+            switch error {
+            case .edgeTypeError(let fix):
+                switch fix {
+                case .cantFix:
+                    throw error
+                case .fixConvertingDestTo(let kind):
+                    let node = self.nodes[edge.to.node]!
+                    result = .dest(node)
+                    if !self.nodes[edge.to.node]!.convert(toVariation: kind) {
+                        throw .failedToConvertNode(from: node.kind, to: kind)
+                    }
+                case .fixConvertingSourceTo(let kind):
+                    let node = self.nodes[edge.from.node]!
+                    result = .source(node)
+                    if !self.nodes[edge.from.node]!.convert(toVariation: kind) {
+                        throw .failedToConvertNode(from: node.kind, to: kind)
+                    }
+                }
+                break
+            default:
+                throw error
+            }
+        }
 
+        if result != .none {
+            try self.addEdgeConnectingNodes(edge)
+        }
+
+        return result
+    }
+
+    private func restoreNode(_ node: FlowNode, undoManager um: UndoManager?) throws(FlowError) {
+        guard let prev = self.nodes[node.id] else {
+            throw .nodeNotFound
+        }
+
+        if prev != node {
+            self.nodes[node.id] = node
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    do {
+                        try this.restoreNode(prev, undoManager: um)
+                    } catch {
+                        log("\(error)", level: .error)
+                    }
+                }
+            )
+        }
+    }
+
+    public func addEdgeConnectingNodesConvertingIfNeeded(
+        _ edge: Edge,
+        undoManager um: UndoManager?
+    ) throws(FlowError) -> AddEdgeReplaceNode {
+        let result = try addEdgeConnectingNodesConvertingIfNeeded(edge)
+
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                do {
+                    switch result {
+                    case .none:
+                        try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
+                    case .dest(let node), .source(let node):
+                        um?.beginUndoGrouping()
+                        try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
+                        try this.restoreNode(node, undoManager: um)
+                        um?.endUndoGrouping()
+                        break
+                    }
+                } catch {
+                    log("\(error)", level: .error)
+                }
+            }
+        )
+
+        return result
     }
 
     /// Inserts a node and recreates the supplied edges, ensuring port state is consistent.
@@ -837,6 +918,7 @@ extension Flow {
         case edgeInvalidDestPort
         case edgeInvalidSourcePort
         case edgeTypeError(CanAddEdgeResult.TypeMismatch)
+        case failedToConvertNode(from: NodeKind, to: NodeKind)
     }
 
     /// Errors thrown while attempting to disconnect an edge from its ports.
@@ -853,5 +935,11 @@ extension Flow {
         var position: CGPoint
         /// Edges that were connected to the node at removal time.
         var edges: [Edge]
+    }
+
+    public enum AddEdgeReplaceNode: Equatable {
+        case none
+        case source(FlowNode)
+        case dest(FlowNode)
     }
 }
