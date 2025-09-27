@@ -338,7 +338,7 @@ public struct CanvasFeatureView: View {
                 self.state.nodePositions[id] = pos
             }
         case .ended:
-            self.state.move(
+            try! self.state.move(
                 nodes: self.state.nodePositions.filter({ self.scratch.nodePositionsAtDragStart[$0.key] != nil }),
                 previousOverride: self.scratch.nodePositionsAtDragStart,
                 undoManager: self.scratch.undoManager,

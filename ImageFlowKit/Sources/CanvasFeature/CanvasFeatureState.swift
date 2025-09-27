@@ -16,87 +16,23 @@ public final class CanvasFeatureState {
     public var viewport: CanvasViewport = .init()
     public var nodePositions: [UUID: CGPoint] = .init()
 
-    public enum Action {
-        case addNode(AddNode, ActionUndoData?)
-        case removeNode(UUID, ActionUndoData?)
-        case moveNode(MoveNode, ActionUndoData?)
-        case moveNodes(ModeNodes, ActionUndoData?)
-
-        public struct AddNode {
-            public var id: UUID
-            public var position: CGPoint
-            public init(id: UUID, position: CGPoint) {
-                self.id = id
-                self.position = position
-            }
-        }
-
-        public struct MoveNode {
-            public var id: UUID
-            public var position: CGPoint
-            public var previousOverride: CGPoint? = nil
-
-            public init(id: UUID, position: CGPoint, previousOverride: CGPoint? = nil) {
-                self.id = id
-                self.position = position
-                self.previousOverride = previousOverride
-            }
-
-        }
-
-        public struct ModeNodes {
-            public var positions: [UUID: CGPoint]
-            public var previousOverride: [UUID: CGPoint]? = nil
-
-            public init(positions: [UUID: CGPoint], previousOverride: [UUID: CGPoint]? = nil) {
-                self.positions = positions
-                self.previousOverride = previousOverride
-            }
-
-        }
-    }
+    @ObservationIgnored
+    private var tempNodePositions: [UUID: CGPoint] = [:]
 
     public init(viewport: CanvasViewport = .init(), nodePositions: [UUID: CGPoint] = .init()) {
         self.viewport = viewport
         self.nodePositions = nodePositions
     }
 
-    public func perform(_ action: Action) throws {
-        switch action {
-        case let .moveNode(data, um):
-            self.move(
-                node: data.id,
-                to: data.position,
-                previousOverride: data.previousOverride,
-                undoManager: um?.undoManager,
-                undoTitle: um?.title
-            )
-
-        case let .moveNodes(moveNodes, um):
-            self.move(
-                nodes: moveNodes.positions,
-                previousOverride: moveNodes.previousOverride,
-                undoManager: um?.undoManager,
-                undoTitle: um?.title
-            )
-
-        case let .addNode(addNode, um):
-            try self.addNode(addNode.id, at: addNode.position, undoManager: um?.undoManager, undoTitle: um?.title)
-
-        case let .removeNode(id, um):
-            try self.removeNode(id, undoManager: um?.undoManager, undoTitle: um?.title)
-        }
-    }
-
     public func move(
         nodes: [UUID: CGPoint],
         previousOverride previous: [UUID: CGPoint]?,
         undoManager um: UndoManager? = nil,
-        undoTitle: String? = "Mode Nodes"
-    ) {
+        undoTitle: String? = "Move Nodes"
+    ) throws(NodeNotFoundError) {
         um?.beginUndoGrouping()
         for (id, pos) in nodes {
-            self.move(node: id, to: pos, previousOverride: previous?[id], undoManager: um, undoTitle: nil)
+            try self.move(node: id, to: pos, previousOverride: previous?[id], undoManager: um, undoTitle: nil)
         }
         um?.endUndoGrouping()
         if let undoTitle {
@@ -110,10 +46,9 @@ public final class CanvasFeatureState {
         previousOverride previous: CGPoint? = nil,
         undoManager um: UndoManager? = nil,
         undoTitle: String? = "Move Node"
-    ) {
+    ) throws(NodeNotFoundError) {
         guard let current = self.nodePositions[id] else {
-            log("Node \(id) not found!")
-            return
+            throw .init(id: id)
         }
 
         let prev = previous ?? current
@@ -122,7 +57,7 @@ public final class CanvasFeatureState {
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                this.move(node: id, to: prev, undoManager: um, undoTitle: undoTitle)
+                try! this.move(node: id, to: prev, undoManager: um, undoTitle: undoTitle)
             }
         )
 
@@ -166,7 +101,7 @@ public final class CanvasFeatureState {
     public func removeNode(
         _ id: UUID,
         undoManager um: UndoManager? = nil,
-        undoTitle: String? = "Create Node"
+        undoTitle: String? = "Delete Node"
     ) throws(RemoveNodeError) {
 
         guard let pos = self.nodePositions.removeValue(forKey: id) else {
