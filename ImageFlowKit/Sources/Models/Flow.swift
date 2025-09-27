@@ -25,7 +25,50 @@ final class Flow {
 // MARK: - Nodes, Ports and Edges
 
 extension Flow {
-    func edges(ofNode id: UUID) -> [Edge] {
+    public enum SelectionMode {
+        case replace
+        case union
+    }
+
+    public func isNodeSelected(_ id: UUID) -> Bool {
+        self.selection.contains(id)
+    }
+
+    public func select(node id: UUID, mode: SelectionMode = .replace) {
+        self.select(nodes: [id], mode: mode)
+    }
+
+    public func select<NodeIDs: Sequence>(nodes ids: NodeIDs, mode: SelectionMode = .replace)
+        where NodeIDs.Element == UUID
+    {
+        let validNodes = Set(ids.filter { self.nodes[$0] != nil })
+
+        switch mode {
+        case .replace:
+            self.selection = validNodes
+        case .union:
+            self.selection.formUnion(validNodes)
+        }
+    }
+
+    public func deselect(node id: UUID) {
+        self.selection.remove(id)
+    }
+
+    public func deselect<NodeIDs: Sequence>(nodes ids: NodeIDs) where NodeIDs.Element == UUID {
+        let validNodes = ids.filter { self.nodes[$0] != nil }
+        self.selection.subtract(validNodes)
+    }
+
+    public func selectAll() {
+        self.selection = Set(self.nodes.keys)
+    }
+
+    public func selectNone() {
+        self.selection.removeAll()
+    }
+
+    public func edges(ofNode id: UUID) -> [Edge] {
         self.edges.filter({ edge in edge.from.node == id || edge.to.node == id })
     }
 
@@ -33,7 +76,7 @@ extension Flow {
     //     self.edges.filter({ edge in edge.from == port || edge.to == port })
     // }
 
-    func numberOfEdges(ofPort port: PortLocation) -> Int {
+    public func numberOfEdges(ofPort port: PortLocation) -> Int {
         self.edges.count(where: { edge in edge.from == port || edge.to == port })
     }
 
@@ -48,7 +91,7 @@ extension Flow {
     ///   - position: The position to place it.
     ///
     /// - Throws: `RepeatedNodeIdError` if the node's ID is already used.
-    func addNode(_ node: FlowNode, at position: CGPoint) throws(FlowError) {
+    public func addNode(_ node: FlowNode, at position: CGPoint) throws(FlowError) {
         if self.nodes[node.id] != nil || self.nodePositions[node.id] != nil {
             throw .repeatedNodeId
         }
@@ -67,7 +110,7 @@ extension Flow {
     /// - Throws: `NodeNotFoundError` when the id is missing.
     /// - Returns: The `FlowNode` data and position for the removed node.
     @discardableResult
-    func deleteNode(_ id: UUID) throws(FlowError) -> (FlowNode, CGPoint) {
+    public func deleteNode(_ id: UUID) throws(FlowError) -> (FlowNode, CGPoint) {
         guard let node = self.nodes.removeValue(forKey: id), let pos = self.nodePositions.removeValue(forKey: id) else {
             throw .nodeNotFound
         }
@@ -88,7 +131,7 @@ extension Flow {
     ///   - undoTitle: The title to use for the undo operation.
     ///
     /// - Throws: `RepeatedNodeIdError` if the node's ID is already used.
-    func addNode(
+    public func addNode(
         _ node: FlowNode,
         at position: CGPoint,
         undoManager um: UndoManager?,
@@ -121,7 +164,7 @@ extension Flow {
     ///
     /// - Throws: `NodeNotFoundError` when the id is missing.
     /// - Returns: The `FlowNode` data and position for the removed node.
-    func deleteNode(
+    public func deleteNode(
         _ id: UUID,
         undoManager um: UndoManager?,
         undoTitle: String = "Delete Node"
@@ -145,7 +188,7 @@ extension Flow {
     ///
     /// - Parameter edge: The `Edge` to be added.
     /// - Throws: `EdgeAlreadyExistsError` if the edge is already present in the graph.
-    func addEdge(_ edge: Edge) throws(FlowError) {
+    public func addEdge(_ edge: Edge) throws(FlowError) {
         if self.edges.contains(edge) {
             throw .edgeAlreadyExists
         }
@@ -158,7 +201,7 @@ extension Flow {
     ///
     /// - Parameter edge:
     /// - Throws:
-    func deleteEdge(_ edge: Edge) throws(FlowError) {
+    public func deleteEdge(_ edge: Edge) throws(FlowError) {
         guard let _ = self.edges.remove(edge) else {
             throw .edgeNotFound
         }
@@ -174,7 +217,7 @@ extension Flow {
     ///   - undoTitle:
     ///
     /// - Throws:
-    func addEdge(
+    public func addEdge(
         _ edge: Edge,
         undoManager um: UndoManager?,
         undoTitle: String = "Create Edge"
@@ -203,7 +246,7 @@ extension Flow {
     ///   - undoTitle:
     ///
     /// - Throws:
-    func deleteEdge(
+    public func deleteEdge(
         _ edge: Edge,
         undoManager um: UndoManager?,
         undoTitle: String = "Delete Edge"
@@ -223,7 +266,7 @@ extension Flow {
     }
 
     @discardableResult
-    func setNodePortConnected(_ port: PortLocation, _ value: Bool) throws(FlowError) -> Bool {
+    public func setNodePortConnected(_ port: PortLocation, _ value: Bool) throws(FlowError) -> Bool {
         if self.nodes[port.node] == nil {
             throw .nodeNotFound
         }
@@ -238,7 +281,7 @@ extension Flow {
     }
 
     @discardableResult
-    func setNodePortConnected(
+    public func setNodePortConnected(
         _ port: PortLocation,
         _ value: Bool,
         undoManager um: UndoManager?
@@ -261,7 +304,7 @@ extension Flow {
         return prev
     }
 
-    func deleteEdgeDisconnectingNodes(_ edge: Edge) throws(FlowError) {
+    public func deleteEdgeDisconnectingNodes(_ edge: Edge) throws(FlowError) {
         if !self.edges.contains(edge) {
             throw .edgeNotFound
         }
@@ -291,7 +334,7 @@ extension Flow {
         self.nodes[edge.to.node]![connectedAt: edge.to.slot] = false
     }
 
-    func deleteEdgeDisconnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
+    public func deleteEdgeDisconnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
         try self.deleteEdgeDisconnectingNodes(edge)
         um?.registerUndo(
             withTarget: self,
@@ -305,7 +348,7 @@ extension Flow {
         )
     }
 
-    func addEdgeConnectingNodes(_ edge: Edge) throws(FlowError) {
+    public func addEdgeConnectingNodes(_ edge: Edge) throws(FlowError) {
         if self.edges.contains(edge) {
             throw .edgeAlreadyExists
         }
@@ -327,7 +370,7 @@ extension Flow {
         self.nodes[edge.to.node]![connectedAt: edge.to.slot] = true
     }
 
-    func addEdgeConnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
+    public func addEdgeConnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
         try self.addEdgeConnectingNodes(edge)
         um?.registerUndo(
             withTarget: self,
@@ -341,7 +384,7 @@ extension Flow {
         )
     }
 
-    func deleteNodeRemovingEdges(_ id: UUID) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
+    public func deleteNodeRemovingEdges(_ id: UUID) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
         let edges = self.edges(ofNode: id)
 
         for edge in edges {
@@ -354,7 +397,7 @@ extension Flow {
     }
 
     @discardableResult
-    func deleteNodeRemovingEdges(
+    public func deleteNodeRemovingEdges(
         _ id: UUID,
         undoManager um: UndoManager?
     ) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
@@ -379,7 +422,7 @@ extension Flow {
         return result
     }
 
-    func addNodeWithEdges(_ node: FlowNode, at position: CGPoint, withEdges edges: Set<Edge>) throws(FlowError) {
+    public func addNodeWithEdges(_ node: FlowNode, at position: CGPoint, withEdges edges: Set<Edge>) throws(FlowError) {
         try self.addNode(node, at: position)
 
         for edge in edges {
@@ -387,7 +430,7 @@ extension Flow {
         }
     }
 
-    func addNodeWithEdges(
+    public func addNodeWithEdges(
         _ node: FlowNode,
         at position: CGPoint,
         withEdges edges: Set<Edge>,
@@ -411,6 +454,12 @@ extension Flow {
 
 extension Flow {
 
+}
+
+// MARK: - Selection 
+ 
+extension Flow {
+    
 }
 
 // MARK: - Errors and Result Types

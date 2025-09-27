@@ -198,6 +198,7 @@ func undoRedoDeleteEdgeDisconnectingNodes() throws {
     try flow.addNode(source, at: .zero)
     try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
     let edge = makeEdge(from: source, to: destination)
+
     undoManager.beginUndoGrouping()
     try flow.addEdgeConnectingNodes(edge, undoManager: undoManager)
     undoManager.endUndoGrouping()
@@ -216,4 +217,72 @@ func undoRedoDeleteEdgeDisconnectingNodes() throws {
     #expect(!flow.edges.contains(edge))
     #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
     #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
+}
+
+@MainActor
+@Test("Selecting nodes replaces by default")
+func selectionReplaceMode() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
+
+    flow.select(node: nodeA.id)
+    #expect(flow.selection == Set([nodeA.id]))
+
+    flow.select(node: nodeB.id)
+    #expect(flow.selection == Set([nodeB.id]))
+}
+
+@MainActor
+@Test("Union selection keeps existing nodes and ignores missing ones")
+func selectionUnionModeIgnoresMissing() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
+    let missing = UUID()
+
+    flow.select(node: nodeA.id)
+    flow.select(nodes: [nodeB.id, missing], mode: .union)
+
+    #expect(flow.selection == Set([nodeA.id, nodeB.id]))
+    #expect(!flow.selection.contains(missing))
+}
+
+@MainActor
+@Test("Selecting all and none updates selection set")
+func selectionAllAndNone() throws {
+    let flow = Flow()
+    let nodes = (0..<3).map { index in
+        makeNode(name: "Node \(index)")
+    }
+    for (offset, node) in nodes.enumerated() {
+        try flow.addNode(node, at: CGPoint(x: offset * 10, y: 0))
+    }
+
+    flow.selectAll()
+    #expect(flow.selection == Set(nodes.map(\.id)))
+
+    flow.selectNone()
+    #expect(flow.selection.isEmpty)
+}
+
+@MainActor
+@Test("Deselect operations drop nodes from the selection")
+func selectionDeselectNodes() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
+
+    flow.selectAll()
+    flow.deselect(node: nodeA.id)
+    #expect(flow.selection == Set([nodeB.id]))
+
+    flow.deselect(nodes: [nodeB.id, UUID()])
+    #expect(flow.selection.isEmpty)
 }
