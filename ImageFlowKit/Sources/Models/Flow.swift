@@ -3,13 +3,16 @@ import Logging
 
 @Observable
 @MainActor
-final class Flow {
+public final class Flow {
     public var nodes: [UUID: FlowNode]
     public var nodePositions: [UUID: CGPoint]
     public var selection: Set<UUID>
     public var edges: Set<Edge>
 
-    init(
+    @ObservationIgnored
+    private var liveSelectionSnapshot: Set<UUID>? = nil
+
+    public init(
         nodes: [UUID: FlowNode] = [:],
         nodePositions: [UUID: CGPoint] = [:],
         selection: Set<UUID> = [],
@@ -66,6 +69,39 @@ extension Flow {
 
     public func selectNone() {
         self.selection.removeAll()
+    }
+
+    public func beginLiveSelection() {
+        self.liveSelectionSnapshot = self.selection
+    }
+
+    public func updateLiveSelection<NodeIDs: Sequence>(nodes ids: NodeIDs, mode: SelectionMode)
+        where NodeIDs.Element == UUID
+    {
+        let validNodes = Set(ids.filter { self.nodes[$0] != nil })
+
+        guard let snapshot = self.liveSelectionSnapshot else {
+            self.select(nodes: validNodes, mode: mode)
+            return
+        }
+
+        switch mode {
+        case .replace:
+            self.selection = validNodes
+        case .union:
+            self.selection = snapshot.union(validNodes)
+        }
+    }
+
+    public func endLiveSelection() {
+        self.liveSelectionSnapshot = nil
+    }
+
+    public func cancelLiveSelection() {
+        if let snapshot = self.liveSelectionSnapshot {
+            self.selection = snapshot
+        }
+        self.liveSelectionSnapshot = nil
     }
 
     public func edges(ofNode id: UUID) -> [Edge] {

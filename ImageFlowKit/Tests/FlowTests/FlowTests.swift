@@ -286,3 +286,67 @@ func selectionDeselectNodes() throws {
     flow.deselect(nodes: [nodeB.id, UUID()])
     #expect(flow.selection.isEmpty)
 }
+
+@MainActor
+@Test("Live selection replace mode commits new selection on end")
+func liveSelectionReplaceModeCommit() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 12, y: 0))
+
+    flow.select(node: nodeA.id)
+
+    flow.beginLiveSelection()
+    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
+    #expect(flow.selection == Set([nodeB.id]))
+
+    flow.endLiveSelection()
+    flow.cancelLiveSelection()
+    #expect(flow.selection == Set([nodeB.id]))
+}
+
+@MainActor
+@Test("Cancelling live selection restores snapshot for union mode")
+func liveSelectionCancelRestoresSnapshot() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 18, y: 0))
+    flow.select(node: nodeA.id)
+
+    flow.beginLiveSelection()
+    flow.updateLiveSelection(nodes: [nodeB.id, UUID()], mode: .union)
+    #expect(flow.selection == Set([nodeA.id, nodeB.id]))
+
+    flow.cancelLiveSelection()
+    #expect(flow.selection == Set([nodeA.id]))
+}
+
+@MainActor
+@Test("Live selection responds to dynamic mode changes")
+func liveSelectionDynamicModeSwitch() throws {
+    let flow = Flow()
+    let nodeA = makeNode(name: "A")
+    let nodeB = makeNode(name: "B")
+    let nodeC = makeNode(name: "C")
+    try flow.addNode(nodeA, at: .zero)
+    try flow.addNode(nodeB, at: CGPoint(x: 15, y: 0))
+    try flow.addNode(nodeC, at: CGPoint(x: 30, y: 0))
+
+    flow.select(node: nodeA.id)
+
+    flow.beginLiveSelection()
+    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
+    #expect(flow.selection == Set([nodeB.id]))
+
+    flow.updateLiveSelection(nodes: [nodeC.id], mode: .union)
+    #expect(flow.selection == Set([nodeA.id, nodeC.id]))
+
+    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
+    #expect(flow.selection == Set([nodeB.id]))
+
+    flow.endLiveSelection()
+}
