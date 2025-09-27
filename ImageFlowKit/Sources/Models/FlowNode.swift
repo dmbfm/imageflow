@@ -179,6 +179,11 @@ public struct FlowNode: Sendable, Equatable, Codable {
             }
     }
 
+    /// Returns `true` if this node has any connected port slots.
+    public var hasConnectedSlots: Bool {
+        self.numConnectedSlots > 0
+    }
+
     /// Attemps to disconnect a givent port slot.
     /// - Parameter slot: The `PortSlot`
     /// - Returns: `DisconnectResult.notConnected` if the port is not connected,

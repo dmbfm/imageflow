@@ -47,6 +47,18 @@ private func makeEdge(
     return Edge(output, input)! // construction is validated by PortLocation.canConnectWith
 }
 
+private func expectValidationError(
+    _ error: Error,
+    handler: (Models.Flow.FlowValidationError) -> Void
+) {
+    guard let validationError = error as? Models.Flow.FlowValidationError else {
+        #expect(Bool(false), "Unexpected error: \(error)")
+        return
+    }
+
+    handler(validationError)
+}
+
 @MainActor
 @Test("Adding a node stores node data and its position")
 func addNodeStoresState() throws {
@@ -349,4 +361,221 @@ func liveSelectionDynamicModeSwitch() throws {
     #expect(flow.selection == Set([nodeB.id]))
 
     flow.endLiveSelection()
+}
+
+// MARK: - Validation
+
+@MainActor
+@Test("Validation accepts consistent graph state")
+func validateNodeGraphAcceptsConsistentGraph() throws {
+    let flow = Flow()
+    let source = makeNode(name: "Source")
+    let destination = makeNode(name: "Destination")
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
+    let edge = makeEdge(from: source, to: destination)
+
+    try flow.addEdgeConnectingNodes(edge)
+
+    try flow.validateNodeGraph()
+}
+
+@MainActor
+@Test("Validation rejects multiple edges per input")
+func validateNodeGraphRejectsMultipleEdgesPerInput() throws {
+    var sourceA = makeNode(name: "Producer A")
+    var sourceB = makeNode(name: "Producer B")
+    var destination = makeNode(name: "Consumer")
+
+    sourceA[connectedAt: .output(0)] = true
+    sourceB[connectedAt: .output(0)] = true
+    destination[connectedAt: .input(0)] = true
+
+    let edgeA = makeEdge(from: sourceA, to: destination)
+    let edgeB = Edge(
+        PortLocation(node: sourceB.id, port: .output(0)),
+        PortLocation(node: destination.id, port: .input(0))
+    )!
+
+    let flow = Flow(
+        nodes: [
+            sourceA.id: sourceA,
+            sourceB.id: sourceB,
+            destination.id: destination
+        ],
+        edges: Set([edgeA, edgeB])
+    )
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected tooManyEdgesForInput error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .tooManyEdgesForInput(nodeId, index):
+                #expect(nodeId == destination.id)
+                #expect(index == 0)
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects connected ports without edges")
+func validateNodeGraphRejectsConnectedPortWithoutEdge() throws {
+    var node = makeNode(name: "Lonely")
+    node[connectedAt: .input(0)] = true
+
+    let flow = Flow(nodes: [node.id: node])
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected connectedPortWithoutEdge error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .connectedPortWithoutEdge(location):
+                #expect(location.node == node.id)
+                #expect(location.slot == PortSlot.input(0))
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects disconnected destination ports with edges")
+func validateNodeGraphRejectsDisconnectedDestinationPort() throws {
+    var source = makeNode(name: "Source")
+    var destination = makeNode(name: "Destination")
+
+    source[connectedAt: .output(0)] = true
+    destination[connectedAt: .input(0)] = false
+
+    let edge = makeEdge(from: source, to: destination)
+
+    let flow = Flow(
+        nodes: [
+            source.id: source,
+            destination.id: destination
+        ],
+        edges: Set([edge])
+    )
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected disconnectedPortWithEdge error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .disconnectedPortWithEdge(location):
+                #expect(location.node == destination.id)
+                #expect(location.slot == PortSlot.input(0))
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects disconnected source ports with edges")
+func validateNodeGraphRejectsDisconnectedSourcePort() throws {
+    var source = makeNode(name: "Source")
+    var destination = makeNode(name: "Destination")
+
+    source[connectedAt: .output(0)] = false
+    destination[connectedAt: .input(0)] = true
+
+    let edge = makeEdge(from: source, to: destination)
+
+    let flow = Flow(
+        nodes: [
+            source.id: source,
+            destination.id: destination
+        ],
+        edges: Set([edge])
+    )
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected disconnectedPortWithEdge error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .disconnectedPortWithEdge(location):
+                #expect(location.node == source.id)
+                #expect(location.slot == PortSlot.output(0))
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects edges with missing source nodes")
+func validateNodeGraphRejectsMissingSourceNode() throws {
+    var destination = makeNode(name: "Destination")
+    destination[connectedAt: .input(0)] = true
+
+    let missingSource = UUID()
+    let edge = Edge(
+        PortLocation(node: missingSource, port: .output(0)),
+        PortLocation(node: destination.id, port: .input(0))
+    )!
+
+    let flow = Flow(
+        nodes: [destination.id: destination],
+        edges: Set([edge])
+    )
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected sourceNodeMissingForEdge error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .sourceNodeMissingForEdge(missingEdge):
+                #expect(missingEdge == edge)
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
+}
+
+@MainActor
+@Test("Validation rejects edges with missing destination nodes")
+func validateNodeGraphRejectsMissingDestinationNode() throws {
+    var source = makeNode(name: "Source")
+    source[connectedAt: .output(0)] = true
+
+    let missingDestination = UUID()
+    let edge = Edge(
+        PortLocation(node: source.id, port: .output(0)),
+        PortLocation(node: missingDestination, port: .input(0))
+    )!
+
+    let flow = Flow(
+        nodes: [source.id: source],
+        edges: Set([edge])
+    )
+
+    do {
+        try flow.validateNodeGraph()
+        #expect(Bool(false), "Expected destinationNodeMissingForEdge error")
+    } catch let error {
+        expectValidationError(error) { validationError in
+            switch validationError {
+            case let .destinationNodeMissingForEdge(missingEdge):
+                #expect(missingEdge == edge)
+            default:
+                #expect(Bool(false), "Unexpected error: \(validationError)")
+            }
+        }
+    }
 }
