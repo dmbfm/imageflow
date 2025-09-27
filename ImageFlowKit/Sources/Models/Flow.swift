@@ -60,6 +60,10 @@ extension Flow {
         self.edges.count(where: { edge in edge.from == port || edge.to == port })
     }
 
+    public func numberOfEdges(withSameDestinationAs edge: Edge) -> Int {
+        self.edges.count(where: { $0.to == edge.to })
+    }
+
     /// Inserts a node into the flow graph. The node is expected to have all of its ports set as not connected.
     /// - Parameters:
     ///   - node: Node model to insert.
@@ -480,10 +484,24 @@ extension Flow {
     /// - Parameters:
     ///
     /// - Throws:
-    func validateNodeGraph() throws(FlowValidationError) {
+    public func validateNodeGraph() throws(FlowValidationError) {
+
+        // Check that to every `nodePositions` entry there is a corresponding `nodes`
+        // entry.
+        for (id, _) in self.nodePositions {
+            if self.nodes[id] == nil {
+                throw .nodeWithNoData
+            }
+        }
 
         // For every node
         for (_, node) in self.nodes {
+
+            // Check that the node position exists
+            if self.nodePositions[node.id] == nil {
+                throw .nodeWithNoPosition
+            }
+
             // Check that every input has at most one edge
             for (idx, _) in node.inputs.enumerated() {
                 if self.numberOfEdges(ofPort: .init(node: node.id, port: .input(idx))) > 1 {
@@ -526,6 +544,26 @@ extension Flow {
             }
         }
 
+        if self.hasCycles() {
+            throw .graphHasCycles
+        }
+    }
+
+    public enum FlowValidationError: Error {
+        case nodeWithNoPosition
+        case nodeWithNoData
+        case tooManyEdgesForInput(UUID, Int)
+        case connectedPortWithoutEdge(PortLocation)
+        case disconnectedPortWithEdge(PortLocation)
+        case sourceNodeMissingForEdge(Edge)
+        case destinationNodeMissingForEdge(Edge)
+        case edgeSourceNotConnected(Edge)
+        case edgeDestinationNotConnected(Edge)
+        case graphHasCycles
+    }
+
+    /// Detects if the flow graph has any cycles in it.
+    private func hasCycles(addingEdge edge: Edge? = nil) -> Bool {
         let graph = FlowGraph(.init())
         for (id, _) in nodes {
             graph.addNode(id)
@@ -539,21 +577,102 @@ extension Flow {
             )
         }
 
-        if graph.detectCycles() == .hasCycles {
-            throw .graphHasCycles
+        if let edge {
+            graph.addEdge(
+                .init(
+                    from: .init(node: edge.from.node, slot: edge.from.slot.index),
+                    end: .init(node: edge.to.node, slot: edge.to.slot.index)
+                )
+            )
+        }
+
+        return graph.detectCycles() == .hasCycles
+    }
+
+    /// Checkes if the given edge can be safely added to the graph; if not, returns
+    /// the reason it can't be added.
+    /// - Parameter edge:
+    /// - Returns:
+    public func canAddEdge(_ edge: Edge) -> CanAddEdgeResult {
+        // Check if the edge already exists
+        if self.edges.contains(edge) {
+            return .failure(.duplicateEdge)
+        }
+
+        // Check if another edge has the same destination
+        if self.numberOfEdges(withSameDestinationAs: edge) > 0 {
+            return .failure(.edgeWithSameDestinationAlreadyExists)
+        }
+
+        // Check if source node exists.
+        guard let sourceNode = self.nodes[edge.from.node] else {
+            return .failure(.missingSourceNode)
+        }
+
+        // Check if destination node exists.
+        guard let destNode = self.nodes[edge.to.node] else {
+            return .failure(.missingDestinationNode)
+        }
+
+        // Check if source port exists
+        if !sourceNode.isValidPortSlot(edge.from.slot) {
+            return .failure(.invalidSourcePortSlot)
+        }
+
+        // Check if destination port exists
+        if !destNode.isValidPortSlot(edge.to.slot) {
+            return .failure(.invalidDestinationPortSlot)
+        }
+
+        // Check if destination port is already connected
+        if destNode[connectedAt: edge.to.slot] {
+            return .failure(.destinationPortAlreadyConnected)
+        }
+
+        // Typecheck the ports
+        let sourceType = self.nodes[edge.from.node]![valueTypeAt: edge.from.slot]
+        let destType = self.nodes[edge.to.node]![valueTypeAt: edge.to.slot]
+        if sourceType != destType {
+            if let variation = destNode.variation(soThatSlot: edge.to.slot, hasType: sourceType) {
+                return .failure(.typeMismatch(.fixConvertingDestTo(variation)))
+            } else if let variation = sourceNode.variation(soThatSlot: edge.from.slot, hasType: destType) {
+                return .failure(.typeMismatch(.fixConvertingSourceTo(variation)))
+            } else {
+                return .failure(.typeMismatch(.cantFix))
+            }
+        }
+
+        // Check if a cycle is created
+        if self.hasCycles(addingEdge: edge) {
+            return .failure(.causesCycle)
+        }
+
+        return .ok
+    }
+
+    public enum CanAddEdgeResult {
+        case ok
+        case failure(Failure)
+
+        public enum Failure {
+            case duplicateEdge
+            case edgeWithSameDestinationAlreadyExists
+            case missingSourceNode
+            case missingDestinationNode
+            case invalidSourcePortSlot
+            case invalidDestinationPortSlot
+            case destinationPortAlreadyConnected
+            case causesCycle
+            case typeMismatch(TypeMismatch)
+        }
+
+        public enum TypeMismatch {
+            case cantFix
+            case fixConvertingDestTo(NodeKind)
+            case fixConvertingSourceTo(NodeKind)
         }
     }
 
-    public enum FlowValidationError: Error {
-        case tooManyEdgesForInput(UUID, Int)
-        case connectedPortWithoutEdge(PortLocation)
-        case disconnectedPortWithEdge(PortLocation)
-        case sourceNodeMissingForEdge(Edge)
-        case destinationNodeMissingForEdge(Edge)
-        case edgeSourceNotConnected(Edge)
-        case edgeDestinationNotConnected(Edge)
-        case graphHasCycles
-    }
 }
 
 // MARK: - Selection

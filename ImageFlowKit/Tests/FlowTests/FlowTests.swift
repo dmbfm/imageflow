@@ -48,6 +48,29 @@ private func makeEdge(
     return Edge(output, input)!  // construction is validated by PortLocation.canConnectWith
 }
 
+private func makeEdge(
+    from source: FlowNode,
+    sourceSlot: PortSlot,
+    to destination: FlowNode,
+    destSlot: PortSlot
+) -> Edge {
+    Edge(
+        PortLocation(node: source.id, port: sourceSlot),
+        PortLocation(node: destination.id, port: destSlot)
+    )!
+}
+
+@MainActor
+private func makeFlow(nodes: [FlowNode], edges: Set<Edge> = []) -> Models.Flow {
+    let nodeMap = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
+    let positions = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, CGPoint.zero) })
+    return Models.Flow(
+        nodes: nodeMap,
+        nodePositions: positions,
+        edges: edges
+    )
+}
+
 private func expectValidationError(
     _ error: Error,
     handler: (Models.Flow.FlowValidationError) -> Void
@@ -398,14 +421,7 @@ func validateNodeGraphRejectsMultipleEdgesPerInput() throws {
         PortLocation(node: destination.id, port: .input(0))
     )!
 
-    let flow = Flow(
-        nodes: [
-            sourceA.id: sourceA,
-            sourceB.id: sourceB,
-            destination.id: destination,
-        ],
-        edges: Set([edgeA, edgeB])
-    )
+    let flow = makeFlow(nodes: [sourceA, sourceB, destination], edges: Set([edgeA, edgeB]))
 
     do {
         try flow.validateNodeGraph()
@@ -429,7 +445,7 @@ func validateNodeGraphRejectsConnectedPortWithoutEdge() throws {
     var node = makeNode(name: "Lonely")
     node[connectedAt: .input(0)] = true
 
-    let flow = Flow(nodes: [node.id: node])
+    let flow = makeFlow(nodes: [node])
 
     do {
         try flow.validateNodeGraph()
@@ -458,13 +474,7 @@ func validateNodeGraphRejectsDisconnectedDestinationPort() throws {
 
     let edge = makeEdge(from: source, to: destination)
 
-    let flow = Flow(
-        nodes: [
-            source.id: source,
-            destination.id: destination,
-        ],
-        edges: Set([edge])
-    )
+    let flow = makeFlow(nodes: [source, destination], edges: Set([edge]))
 
     do {
         try flow.validateNodeGraph()
@@ -493,13 +503,7 @@ func validateNodeGraphRejectsDisconnectedSourcePort() throws {
 
     let edge = makeEdge(from: source, to: destination)
 
-    let flow = Flow(
-        nodes: [
-            source.id: source,
-            destination.id: destination,
-        ],
-        edges: Set([edge])
-    )
+    let flow = makeFlow(nodes: [source, destination], edges: Set([edge]))
 
     do {
         try flow.validateNodeGraph()
@@ -529,10 +533,7 @@ func validateNodeGraphRejectsMissingSourceNode() throws {
         PortLocation(node: destination.id, port: .input(0))
     )!
 
-    let flow = Flow(
-        nodes: [destination.id: destination],
-        edges: Set([edge])
-    )
+    let flow = makeFlow(nodes: [destination], edges: Set([edge]))
 
     do {
         try flow.validateNodeGraph()
@@ -561,10 +562,7 @@ func validateNodeGraphRejectsMissingDestinationNode() throws {
         PortLocation(node: missingDestination, port: .input(0))
     )!
 
-    let flow = Flow(
-        nodes: [source.id: source],
-        edges: Set([edge])
-    )
+    let flow = makeFlow(nodes: [source], edges: Set([edge]))
 
     do {
         try flow.validateNodeGraph()
@@ -647,5 +645,212 @@ func validateNodeGraphRejectsLongerCycle() throws {
                 #expect(Bool(false), "Unexpected error: \(validationError)")
             }
         }
+    }
+}
+
+// MARK: - canAddEdge
+
+@MainActor
+@Test("canAddEdge allows valid connection")
+func canAddEdgeAcceptsValidEdge() throws {
+    let source = makeNode(name: "Source")
+    let dest = makeNode(name: "Dest")
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .ok:
+        break
+    case .failure(let failure):
+        #expect(Bool(false), "Expected .ok, got failure: \(failure)")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects duplicate edge")
+func canAddEdgeRejectsDuplicateEdge() throws {
+    var source = makeNode(name: "Source")
+    var dest = makeNode(name: "Dest")
+    source[connectedAt: .output(0)] = true
+    dest[connectedAt: .input(0)] = true
+    let existing = makeEdge(from: source, to: dest)
+    let flow = makeFlow(nodes: [source, dest], edges: Set([existing]))
+
+    switch flow.canAddEdge(existing) {
+    case .failure(.duplicateEdge):
+        break
+    default:
+        #expect(Bool(false), "Expected duplicateEdge failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects edges targeting occupied input")
+func canAddEdgeRejectsEdgeWithSameDestination() throws {
+    var nodeA = makeNode(name: "A")
+    var nodeB = makeNode(name: "B")
+    let nodeC = makeNode(name: "C")
+    nodeA[connectedAt: .output(0)] = true
+    nodeB[connectedAt: .input(0)] = true
+    let existing = makeEdge(from: nodeA, to: nodeB)
+    let flow = makeFlow(nodes: [nodeA, nodeB, nodeC], edges: Set([existing]))
+    let candidate = makeEdge(from: nodeC, to: nodeB)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.edgeWithSameDestinationAlreadyExists):
+        break
+    default:
+        #expect(Bool(false), "Expected edgeWithSameDestinationAlreadyExists failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects unknown source nodes")
+func canAddEdgeRejectsMissingSourceNode() throws {
+    let source = makeNode(name: "Missing")
+    let dest = makeNode(name: "Present")
+    let flow = makeFlow(nodes: [dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.missingSourceNode):
+        break
+    default:
+        #expect(Bool(false), "Expected missingSourceNode failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects unknown destination nodes")
+func canAddEdgeRejectsMissingDestinationNode() throws {
+    let source = makeNode(name: "Present")
+    let dest = makeNode(name: "Missing")
+    let flow = makeFlow(nodes: [source])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.missingDestinationNode):
+        break
+    default:
+        #expect(Bool(false), "Expected missingDestinationNode failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects invalid source slots")
+func canAddEdgeRejectsInvalidSourcePortSlot() throws {
+    let source = makeNode(name: "Source")
+    let dest = makeNode(name: "Dest")
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, sourceSlot: .output(3), to: dest, destSlot: .input(0))
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.invalidSourcePortSlot):
+        break
+    default:
+        #expect(Bool(false), "Expected invalidSourcePortSlot failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects invalid destination slots")
+func canAddEdgeRejectsInvalidDestinationPortSlot() throws {
+    let source = makeNode(name: "Source")
+    let dest = makeNode(name: "Dest")
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, sourceSlot: .output(0), to: dest, destSlot: .input(5))
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.invalidDestinationPortSlot):
+        break
+    default:
+        #expect(Bool(false), "Expected invalidDestinationPortSlot failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects already connected destination ports")
+func canAddEdgeRejectsConnectedDestinationPort() throws {
+    let source = makeNode(name: "Source")
+    var dest = makeNode(name: "Dest")
+    dest[connectedAt: .input(0)] = true
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.destinationPortAlreadyConnected):
+        break
+    default:
+        #expect(Bool(false), "Expected destinationPortAlreadyConnected failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge suggests converting destination variation")
+func canAddEdgeSuggestsDestVariation() throws {
+    let source = makeNode(name: "Source", valueType: .float)
+    let dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.typeMismatch(.fixConvertingDestTo(let variation))):
+        #expect(variation == NodeKind.valueNode(.float))
+    default:
+        #expect(Bool(false), "Expected typeMismatch.fixConvertingDestTo failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge suggests converting source variation")
+func canAddEdgeSuggestsSourceVariation() throws {
+    let source = makeNode(name: "Source", valueType: .float)
+    var dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
+    dest.outputs[0].connected = true
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.typeMismatch(.fixConvertingSourceTo(let variation))):
+        #expect(variation == NodeKind.valueNode(.int))
+    default:
+        #expect(Bool(false), "Expected typeMismatch.fixConvertingSourceTo failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge detects unresolvable type mismatches")
+func canAddEdgeRejectsUnfixableTypeMismatch() throws {
+    var source = makeNode(name: "Source", valueType: .float)
+    var dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
+    source.outputs[0].connected = true
+    dest.outputs[0].connected = true
+    let flow = makeFlow(nodes: [source, dest])
+    let candidate = makeEdge(from: source, to: dest)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.typeMismatch(.cantFix)):
+        break
+    default:
+        #expect(Bool(false), "Expected typeMismatch.cantFix failure")
+    }
+}
+
+@MainActor
+@Test("canAddEdge rejects edges that introduce cycles")
+func canAddEdgeRejectsCycle() throws {
+    var nodeA = makeNode(name: "A")
+    var nodeB = makeNode(name: "B")
+    nodeB[connectedAt: .output(0)] = true
+    nodeA[connectedAt: .input(0)] = true
+    let existing = makeEdge(from: nodeB, to: nodeA)
+    let flow = makeFlow(nodes: [nodeA, nodeB], edges: Set([existing]))
+    let candidate = makeEdge(from: nodeA, to: nodeB)
+
+    switch flow.canAddEdge(candidate) {
+    case .failure(.causesCycle):
+        break
+    default:
+        #expect(Bool(false), "Expected causesCycle failure")
     }
 }
