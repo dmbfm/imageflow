@@ -284,7 +284,7 @@ extension Flow {
 
         try self.deleteEdge(edge)
 
-        if self.numberOfEdges(ofPort: edge.from) == 1 {
+        if self.numberOfEdges(ofPort: edge.from) < 2 {
             self.nodes[edge.from.node]![connectedAt: edge.from.slot] = false
         }
 
@@ -344,11 +344,11 @@ extension Flow {
     func deleteNodeRemovingEdges(_ id: UUID) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
         let edges = self.edges(ofNode: id)
 
-        let (node, pos) = try self.deleteNode(id)
-
         for edge in edges {
             try self.deleteEdgeDisconnectingNodes(edge)
         }
+
+        let (node, pos) = try self.deleteNode(id)
 
         return .init(node: node, position: pos, edges: edges)
     }

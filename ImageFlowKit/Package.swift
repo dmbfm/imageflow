@@ -232,6 +232,14 @@ let package = Package(
                 "NodeSelectionStore"
             ]
         ),
+        .testTarget(
+            name: "FlowTests",
+            dependencies: [
+                "Models",
+                "Backend",
+                "Values"
+            ]
+        ),
     ]
 )
 
