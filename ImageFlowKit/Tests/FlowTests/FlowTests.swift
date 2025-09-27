@@ -582,17 +582,18 @@ func validateNodeGraphRejectsMissingDestinationNode() throws {
 @MainActor
 @Test("Validation rejects simple cycles")
 func validateNodeGraphRejectsSimpleCycle() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 120, y: 0))
+    var nodeA = makeNode(name: "A")
+    var nodeB = makeNode(name: "B")
 
     let edgeAB = makeEdge(from: nodeA, to: nodeB)
     let edgeBA = makeEdge(from: nodeB, to: nodeA)
 
-    try flow.addEdgeConnectingNodes(edgeAB)
-    try flow.addEdgeConnectingNodes(edgeBA)
+    nodeA[connectedAt: .output(0)] = true
+    nodeA[connectedAt: .input(0)] = true
+    nodeB[connectedAt: .output(0)] = true
+    nodeB[connectedAt: .input(0)] = true
+
+    let flow = makeFlow(nodes: [nodeA, nodeB], edges: Set([edgeAB, edgeBA]))
 
     do {
         try flow.validateNodeGraph()
@@ -612,26 +613,25 @@ func validateNodeGraphRejectsSimpleCycle() throws {
 @MainActor
 @Test("Validation rejects longer cycles")
 func validateNodeGraphRejectsLongerCycle() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    let nodeC = makeNode(name: "C")
-    let nodeD = makeNode(name: "D")
-
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 120, y: 0))
-    try flow.addNode(nodeC, at: CGPoint(x: 240, y: 0))
-    try flow.addNode(nodeD, at: CGPoint(x: 360, y: 0))
+    var nodeA = makeNode(name: "A")
+    var nodeB = makeNode(name: "B")
+    var nodeC = makeNode(name: "C")
+    var nodeD = makeNode(name: "D")
 
     let edgeAB = makeEdge(from: nodeA, to: nodeB)
     let edgeBC = makeEdge(from: nodeB, to: nodeC)
     let edgeCA = makeEdge(from: nodeC, to: nodeA)
     let edgeCD = makeEdge(from: nodeC, to: nodeD)
 
-    try flow.addEdgeConnectingNodes(edgeAB)
-    try flow.addEdgeConnectingNodes(edgeBC)
-    try flow.addEdgeConnectingNodes(edgeCA)
-    try flow.addEdgeConnectingNodes(edgeCD)
+    nodeA[connectedAt: .output(0)] = true
+    nodeA[connectedAt: .input(0)] = true
+    nodeB[connectedAt: .output(0)] = true
+    nodeB[connectedAt: .input(0)] = true
+    nodeC[connectedAt: .output(0)] = true
+    nodeC[connectedAt: .input(0)] = true
+    nodeD[connectedAt: .input(0)] = true
+
+    let flow = makeFlow(nodes: [nodeA, nodeB, nodeC, nodeD], edges: Set([edgeAB, edgeBC, edgeCA, edgeCD]))
 
     do {
         try flow.validateNodeGraph()

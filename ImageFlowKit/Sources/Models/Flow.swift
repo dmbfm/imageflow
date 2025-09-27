@@ -343,6 +343,33 @@ extension Flow {
     /// - Parameter edge: Edge to insert.
     /// - Throws: `FlowError` when the edge already exists or references invalid ports.
     public func addEdgeConnectingNodes(_ edge: Edge) throws(FlowError) {
+
+        switch self.canAddEdge(edge) {
+        case .ok:
+            break
+        case .failure(let failure):
+            switch failure {
+            case .causesCycle:
+                throw .edgeCausesCycle
+            case .destinationPortAlreadyConnected:
+                throw .edgeDestinationPortAlreadyConnected
+            case .duplicateEdge:
+                throw .edgeAlreadyExists
+            case .edgeWithSameDestinationAlreadyExists:
+                throw .edgeDestinationPortAlreadyConnected
+            case .invalidDestinationPortSlot:
+                throw .edgeInvalidDestPort
+            case .invalidSourcePortSlot:
+                throw .edgeInvalidSourcePort
+            case .missingDestinationNode:
+                throw .missingEdgeSourceNode
+            case .missingSourceNode:
+                throw .missingEdgeDestinationNode
+            case .typeMismatch(let fix):
+                throw .edgeTypeError(fix)
+            }
+        }
+
         if self.edges.contains(edge) {
             throw .edgeAlreadyExists
         }
@@ -429,6 +456,10 @@ extension Flow {
         )
 
         return result
+    }
+
+    public func addEdgeConnectingNodesConvertingIfNeeded() {
+
     }
 
     /// Inserts a node and recreates the supplied edges, ensuring port state is consistent.
@@ -666,7 +697,7 @@ extension Flow {
             case typeMismatch(TypeMismatch)
         }
 
-        public enum TypeMismatch {
+        public enum TypeMismatch: Sendable {
             case cantFix
             case fixConvertingDestTo(NodeKind)
             case fixConvertingSourceTo(NodeKind)
@@ -796,12 +827,16 @@ extension Flow {
         case repeatedNodeId
         case edgeAlreadyExists
         case edgeNotFound
+        case edgeCausesCycle
         case missingEdgeSourceNode
         case missingEdgeDestinationNode
         case portAlreadyDisconnected
         case edgeSourcePortNotConnected
         case edgeDestinationPortNotConnected
         case edgeDestinationPortAlreadyConnected
+        case edgeInvalidDestPort
+        case edgeInvalidSourcePort
+        case edgeTypeError(CanAddEdgeResult.TypeMismatch)
     }
 
     /// Errors thrown while attempting to disconnect an edge from its ports.
