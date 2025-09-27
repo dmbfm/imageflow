@@ -7,23 +7,6 @@ public final class NodeSelectionStore {
 
     public var selection: Set<UUID> = []
 
-    public enum Action {
-        case deselectAll(ActionUndoData?)
-        case select(Select, ActionUndoData?)
-        case deselect(Set<UUID>, ActionUndoData?)
-
-        public struct Select {
-            public var nodes: Set<UUID>
-            public var prevOverride: Set<UUID>?
-            public var mode: SelectionMode
-
-            public init(nodes: Set<UUID>, prevOverride: Set<UUID>?, mode: NodeSelectionStore.SelectionMode) {
-                self.nodes = nodes
-                self.mode = mode
-            }
-        }
-    }
-
     public enum SelectionMode {
         case union
         case replace
@@ -31,27 +14,6 @@ public final class NodeSelectionStore {
 
     public init(selection: Set<UUID> = []) {
         self.selection = selection
-    }
-
-    public func perform(_ action: Action) {
-        switch action {
-        case .deselectAll(let um):
-            self.deselectAll(undoManager: um?.undoManager, undoTitle: um?.title)
-        case .select(let select, let um):
-            self.select(
-                nodes: select.nodes,
-                mode: select.mode,
-                previousOverride: select.prevOverride,
-                undoManager: um?.undoManager,
-                undoTitle: um?.title
-            )
-        case .deselect(let ids, let um):
-            self.deselectNodes(
-                nodes: ids,
-                undoManager: um?.undoManager,
-                undoTitle: um?.title
-            )
-        }
     }
 
     public func isSelected(_ node: UUID) -> Bool {

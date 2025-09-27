@@ -180,6 +180,7 @@ public final class CanvasUIView: UIView {
     }
 
     func gridViewDraw() {
+        self.gridView.draw(viewport: self.viewport, edges: self.edgeLayers)
     }
 
     // MARK: - ContentView Methods

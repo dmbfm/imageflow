@@ -27,9 +27,6 @@ struct MainViewMac: View {
         } else {
             {
                 self.deleteNodes(self.nodeSelectionStore.selection)
-                // self.deleteNodes(self.nodeDataStore.selection)
-                // self.flow.deleteNodes(self.flow.selection, undoManager: self.undoManager, undoTitle: "Delete Node")
-                // log("deleting nodes: \(self.flow.selection)", level: .debug)
             }
         }
     }
@@ -39,8 +36,11 @@ struct MainViewMac: View {
     }
 
     func onAppear() {
-        // self.dispatcher.listen { self.dispatch($0) }
         self.dismissWindow(id: WindowID.welcome.rawValue)
+    }
+
+    func onChangeOfFocus() {
+        log("focus: \(String(describing: self.focus))", level: .debug)
     }
 
     var body: some View {
@@ -49,7 +49,7 @@ struct MainViewMac: View {
             .focusable()
             .focused(self.$focus, equals: .global)
             .onDeleteCommand(perform: self.onDeleteCommandHandler)
-            .onChange(of: self.focus, { log("focus: \(String(describing: self.focus))", level: .debug) })
+            .onChange(of: self.focus, { self.onChangeOfFocus() })
     }
 
     @ViewBuilder

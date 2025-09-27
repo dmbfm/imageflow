@@ -8,7 +8,6 @@
 #if canImport(AppKit)
 
 import AppKit
-import Logging
 import CommonUtils
 
 // MARK: - NodeTitleNSView
@@ -136,7 +135,6 @@ extension NSImageView {
         let image = NSImage(systemSymbolName: name, accessibilityDescription: nil)!
             .withSymbolConfiguration(.init(pointSize: size, weight: weight))!
         self.image = image
-        // let iconView = NSImageView()
     }
 }
 

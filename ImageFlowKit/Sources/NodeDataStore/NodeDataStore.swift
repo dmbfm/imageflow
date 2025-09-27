@@ -20,30 +20,6 @@ public final class NodeDataStore: Sendable {
 
     public var edges: Set<Edge>
 
-    // MARK: - Public Types
-
-    public enum Action {
-        case createEdge(Edge, ActionUndoData? = nil)
-        case deleteEdge(Edge, ActionUndoData? = nil)
-        case setInputVale(SetInputValue, ActionUndoData? = nil)
-        case createNode(FlowNode, ActionUndoData? = nil)
-        case deleteNode(UUID, ActionUndoData? = nil)
-
-        public struct SetInputValue {
-            public var node: UUID
-            public var portIndex: Int
-            public var value: Value
-            public var previousOverride: Value?
-
-            public init(node: UUID, portIndex: Int, value: Value, previousOverride: Value? = nil) {
-                self.node = node
-                self.portIndex = portIndex
-                self.value = value
-                self.previousOverride = previousOverride
-            }
-        }
-    }
-
     // MARK: - Initialization
 
     public init(_ nodes: [UUID: FlowNode] = [:], edges: Set<Edge> = []) {
@@ -52,28 +28,6 @@ public final class NodeDataStore: Sendable {
     }
 
     // MARK: - Public Methods
-
-    public func perform(_ action: Action) {
-        switch action {
-        case let .createEdge(edge, um):
-            _ = try! self.createEdge(edge, undoManager: um?.undoManager, undoTitle: um?.title).get()
-        case let .deleteEdge(edge, um):
-            _ = try! self.deleteEdge(edge, undoManager: um?.undoManager, undoTitle: um?.title).get()
-        case let .setInputVale(data, um):
-            _ = try! self.setInputValue(
-                data.node,
-                data.portIndex,
-                data.value,
-                previousOverride: data.previousOverride,
-                undoManager: um?.undoManager,
-                undoTitle: um?.title
-            ).get()
-        case let .createNode(node, um):
-            self.createNode(node, undoManager: um?.undoManager, undoTitle: um?.title)
-        case let .deleteNode(id, um):
-            self.deleteNode(id, undoManager: um?.undoManager, undoTitle: um?.title)
-        }
-    }
 
     // MARK: - Edges
 
