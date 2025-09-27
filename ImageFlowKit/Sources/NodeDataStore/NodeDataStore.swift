@@ -78,8 +78,8 @@ public final class NodeDataStore: Sendable {
 
         let destType: ValueType
         switch self.getPortType(edge.to) {
-        case .missingNode: return .missingNode(edge.from.node)
-        case .invalidSlot: return .invalidPort(edge.from)
+        case .missingNode: return .missingNode(edge.to.node)
+        case .invalidSlot: return .invalidPort(edge.to)
         case .ok(let type): destType = type
         }
 
@@ -280,7 +280,6 @@ public final class NodeDataStore: Sendable {
         undoTitle: String? = "New Edge"
     ) {
         if let _ = self.edges.remove(edge) {
-            self.edges.remove(edge)
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in
@@ -379,7 +378,7 @@ public final class NodeDataStore: Sendable {
             return .failure(.invalidDestinationPortSlot)
         }
 
-        um?.beginUndoGrouping()
+        var needsDisconnectSourcePort = false
 
         // Check how many edges are outgoing from the source.
         switch self.edges(from: edge.from).count {
@@ -401,12 +400,7 @@ public final class NodeDataStore: Sendable {
                 break
             }
 
-            self.setPortConnected(edge.from, false, undoManager: um)
-        // Since only the edge we are removing is connetced to the source,
-        // attempt to disconect it.
-        // if case .notConnected = self.nodes[edge.from.node]!.disconnect(edge.from.slot) {
-        //     return .failure(.sourceNotConnected)
-        // }
+            needsDisconnectSourcePort = true
         default:
             // Since there are other edges coming out of the source, just check if
             // the `connected` property is valid.
@@ -426,17 +420,20 @@ public final class NodeDataStore: Sendable {
             break
         }
 
+        um?.beginUndoGrouping()
+        defer {
+            um?.endUndoGrouping()
+            if let undoTitle { um?.setActionName(undoTitle) }
+        }
+
         self.setPortConnected(edge.to, false, undoManager: um)
 
-        // Remove the edge from the set
-        // self.edges.remove(edge)
-        self.removeEdge(edge, undoManager: um)
-
-        um?.endUndoGrouping()
-
-        if let undoTitle {
-            um?.setActionName(undoTitle)
+        if needsDisconnectSourcePort {
+            self.setPortConnected(edge.from, false, undoManager: um)
         }
+
+        // Remove the edge from the set
+        self.removeEdge(edge, undoManager: um)
 
         // Check if we are in a valid state
         if self.validateEdges() != .ok {
@@ -697,27 +694,34 @@ public final class NodeDataStore: Sendable {
         }
 
         um?.beginUndoGrouping()
+        defer {
+            um?.endUndoGrouping()
+
+            if let undoTitle {
+                um?.setActionName(undoTitle)
+            }
+        }
+
+        var deleteEdgeErrors = [DeleteEdgeError]()
 
         for edge in self.edges(ofNode: id) {
             if case let .failure(err) = self.deleteEdge(edge, undoManager: um) {
-                return .failure(.removeEdge(err))
+                deleteEdgeErrors.append(err)
             }
         }
 
         self.removeNodeUnchecked(id, undoManager: um)
 
-        um?.endUndoGrouping()
-
-        if let undoTitle {
-            um?.setActionName(undoTitle)
+        if deleteEdgeErrors.isEmpty {
+            return .success(())
+        } else {
+            return .failure(.removeEdge(deleteEdgeErrors))
         }
-
-        return .success(())
     }
 
     public enum DeleteNodeError: Error {
         case invalidNodeID(UUID)
-        case removeEdge(DeleteEdgeError)
+        case removeEdge([DeleteEdgeError])
     }
 
     public func setExistingNode(
@@ -738,7 +742,11 @@ public final class NodeDataStore: Sendable {
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                try! this.setExistingNode(prev, undoManager: um, undoTitle: undoTitle)
+                do {
+                    try this.setExistingNode(prev, undoManager: um, undoTitle: undoTitle)
+                } catch {
+                    log("Undo failed: \(error)")
+                }
             }
         )
     }
