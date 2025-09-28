@@ -113,26 +113,16 @@ extension Flow {
     ///   - node: Node model to insert.
     ///   - position: Canvas position for the node.
     ///   - um: Optional undo manager that will remove the node on undo.
-    ///   - undoTitle: Human readable action name.
     /// - Throws: `FlowError.repeatedNodeId` when a node with the same identifier already exists.
     public func addNode(
         _ node: FlowNode,
         at position: CGPoint,
         undoManager um: UndoManager?,
-        undoTitle: String = "Create Node"
     ) throws(FlowError) {
         try self.addNode(node, at: position)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try this.deleteNode(node.id, undoManager: um)
-                } catch {
-                    log("Failed to undo `deleteNode`: \(error)")
-                }
-            }
-        )
-        um?.setActionName(undoTitle)
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.deleteNode(node.id, undoManager: um)
+        }
     }
 
     /// Removes a node and returns its model and position. If the node belongs
@@ -144,25 +134,15 @@ extension Flow {
     /// - Parameters:
     ///   - id: Node identifier to remove.
     ///   - um: Optional undo manager used to restore the node.
-    ///   - undoTitle: Human readable action name.
     /// - Throws: `FlowError.nodeNotFound` if the node does not exist.
     public func deleteNode(
         _ id: UUID,
         undoManager um: UndoManager?,
-        undoTitle: String = "Delete Node"
     ) throws(FlowError) {
         let (node, pos) = try self.deleteNode(id)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try this.addNode(node, at: pos, undoManager: um)
-                } catch {
-                    log("Failed to undo `deleteNode`: \(error)")
-                }
-            }
-        )
-        um?.setActionName(undoTitle)
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.addNode(node, at: pos, undoManager: um)
+        }
     }
 
     /// Inserts an edge into the graph without touching port flags.
@@ -189,50 +169,30 @@ extension Flow {
     /// - Parameters:
     ///   - edge: Edge to insert.
     ///   - um: Optional undo manager.
-    ///   - undoTitle: Human readable action name.
     /// - Throws: `FlowError.edgeAlreadyExists` if the edge already exists.
     public func addEdge(
         _ edge: Edge,
         undoManager um: UndoManager?,
-        undoTitle: String = "Create Edge"
     ) throws(FlowError) {
         try self.addEdge(edge)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try self.deleteEdge(edge, undoManager: um)
-                } catch {
-                    log("Failed to undo `deleteNode`: \(error)")
-                }
-            }
-        )
-        um?.setActionName(undoTitle)
+        um?.registerUndo(target: self) { [weak um] this in
+            try self.deleteEdge(edge, undoManager: um)
+        }
     }
 
     /// Removes an edge and registers an undo action that re-inserts it.
     /// - Parameters:
     ///   - edge: Edge to remove.
     ///   - um: Optional undo manager.
-    ///   - undoTitle: Human readable action name.
     /// - Throws: `FlowError.edgeNotFound` if the edge does not exist.
     public func deleteEdge(
         _ edge: Edge,
         undoManager um: UndoManager?,
-        undoTitle: String = "Delete Edge"
     ) throws(FlowError) {
         try self.deleteEdge(edge)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try self.addEdge(edge, undoManager: um)
-                } catch {
-                    log("Failed to undo `deleteNode`: \(error)")
-                }
-            }
-        )
-        um?.setActionName(undoTitle)
+        um?.registerUndo(target: self) { [weak um] this in
+            try self.addEdge(edge, undoManager: um)
+        }
     }
 
     /// Updates the `connected` flag for a given port slot without registering undo support.
@@ -272,16 +232,9 @@ extension Flow {
         let prev = try self.setNodePortConnected(port, value)
 
         if prev != value {
-            um?.registerUndo(
-                withTarget: self,
-                handler: { [weak um] this in
-                    do {
-                        try this.setNodePortConnected(port, prev, undoManager: um)
-                    } catch {
-                        log("Failed to undo `setPortConnected`: \(error)")
-                    }
-                }
-            )
+            um?.registerUndo(target: self) { [weak um] this in
+                try this.setNodePortConnected(port, prev, undoManager: um)
+            }
         }
 
         return prev
@@ -327,16 +280,9 @@ extension Flow {
     /// - Throws: `FlowError` when the edge or referenced ports are invalid.
     public func deleteEdgeDisconnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
         try self.deleteEdgeDisconnectingNodes(edge)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try this.addEdgeConnectingNodes(edge, undoManager: um)
-                } catch {
-                    log("\(error)", level: .error)
-                }
-            }
-        )
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.addEdgeConnectingNodes(edge, undoManager: um)
+        }
     }
 
     /// Inserts an edge and marks both ports as connected.
@@ -398,16 +344,9 @@ extension Flow {
     /// - Throws: `FlowError` when the edge already exists or references invalid ports.
     public func addEdgeConnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
         try self.addEdgeConnectingNodes(edge)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try self.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-                } catch {
-                    log("\(error)", level: .error)
-                }
-            }
-        )
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
+        }
     }
 
     /// Removes a node together with all of its connected edges.
@@ -439,21 +378,14 @@ extension Flow {
     ) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
         let result = try self.deleteNodeRemovingEdges(id)
 
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try this.addNodeWithEdges(
-                        result.node,
-                        at: result.position,
-                        withEdges: Set(result.edges),
-                        undoManager: um
-                    )
-                } catch {
-                    log("\(error)", level: .error)
-                }
-            }
-        )
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.addNodeWithEdges(
+                result.node,
+                at: result.position,
+                withEdges: Set(result.edges),
+                undoManager: um
+            )
+        }
 
         return result
     }
@@ -503,16 +435,9 @@ extension Flow {
 
         if prev != node {
             self.nodes[node.id] = node
-            um?.registerUndo(
-                withTarget: self,
-                handler: { [weak um] this in
-                    do {
-                        try this.restoreNode(prev, undoManager: um)
-                    } catch {
-                        log("\(error)", level: .error)
-                    }
-                }
-            )
+            um?.registerUndo(target: self) { [weak um] this in
+                try this.restoreNode(prev, undoManager: um)
+            }
         }
     }
 
@@ -522,25 +447,17 @@ extension Flow {
     ) throws(FlowError) -> AddEdgeReplaceNode {
         let result = try addEdgeConnectingNodesConvertingIfNeeded(edge)
 
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    switch result {
-                    case .none:
-                        try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-                    case .dest(let node), .source(let node):
-                        um?.beginUndoGrouping()
-                        try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-                        try this.restoreNode(node, undoManager: um)
-                        um?.endUndoGrouping()
-                        break
-                    }
-                } catch {
-                    log("\(error)", level: .error)
-                }
+        um?.registerUndo(target: self) { [weak um] this in
+            switch result {
+            case .none:
+                try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
+            case .dest(let node), .source(let node):
+                um?.beginUndoGrouping()
+                try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
+                try this.restoreNode(node, undoManager: um)
+                um?.endUndoGrouping()
             }
-        )
+        }
 
         return result
     }
@@ -573,16 +490,9 @@ extension Flow {
         undoManager um: UndoManager?
     ) throws(FlowError) {
         try self.addNodeWithEdges(node, at: position, withEdges: edges)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                do {
-                    try self.deleteNodeRemovingEdges(node.id, undoManager: um)
-                } catch {
-                    log("\(error)", level: .error)
-                }
-            }
-        )
+        um?.registerUndo(target: self) { [weak um] this in
+            try this.deleteNodeRemovingEdges(node.id, undoManager: um)
+        }
     }
 }
 
@@ -943,5 +853,23 @@ extension Flow {
         case none
         case source(FlowNode)
         case dest(FlowNode)
+    }
+}
+
+extension UndoManager {
+    func registerUndo<T: AnyObject>(
+        target: T,
+        throwingHandler handler: @escaping (T) throws -> ()
+    ) {
+        self.registerUndo(
+            withTarget: target,
+            handler: { target in
+                do {
+                    try handler(target)
+                } catch {
+                    log("\(error)", level: .error)
+                }
+            }
+        )
     }
 }
