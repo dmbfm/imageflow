@@ -809,7 +809,7 @@ func canAddEdgeRejectsDuplicateEdge() throws {
     let flow = makeFlow(nodes: [source, dest], edges: Set([existing]))
 
     switch flow.canAddEdge(existing) {
-    case .failure(.duplicateEdge):
+    case .failure(.edgeAlreadyExists):
         break
     default:
         #expect(Bool(false), "Expected duplicateEdge failure")
