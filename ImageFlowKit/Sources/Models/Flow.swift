@@ -9,8 +9,6 @@ import Logging
 public final class Flow {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode]
-    /// Canvas positions for each node identifier.
-    public var nodePositions: [UUID: CGPoint]
     /// The set of node identifiers that are currently selected.
     public var selection: Set<UUID>
     /// All edges currently present in the graph.
@@ -27,808 +25,145 @@ public final class Flow {
     ///   - edges: Initial edge set.
     public init(
         nodes: [UUID: FlowNode] = [:],
-        nodePositions: [UUID: CGPoint] = [:],
         selection: Set<UUID> = [],
         edges: Set<Edge> = []
     ) {
         self.nodes = nodes
-        self.nodePositions = nodePositions
         self.selection = selection
         self.edges = edges
     }
 }
 
-// MARK: - Nodes, Ports and Edges
+// MARK: - Nodes, Ports and Edges - Querying
 
 extension Flow {
-    public func nodeExists(_ id: UUID) -> Bool {
-        self.nodes[id] != nil && self.nodePositions[id] != nil
+    func hasNode(_ id: UUID) -> Bool {
+        self.nodes[id] != nil
     }
+}
 
-    /// Returns all edges that originate from or terminate at the supplied node identifier.
-    /// - Parameter id: The node identifier.
-    /// - Returns: All edges touching the node.
-    public func edges(ofNode id: UUID) -> [Edge] {
-        self.edges.filter({ edge in edge.from.node == id || edge.to.node == id })
-    }
+// MARK: - Nodes, Ports and Edges - Atomic Operations
 
-    /// Returns the number of edges of the given node.
-    /// - Parameter id: The node's id.
-    /// - Returns: The number of edges.
-    public func numberOfEdges(ofNode id: UUID) -> Int {
-        self.edges.count(where: { edge in edge.from.node == id || edge.to.node == id })
-    }
-
-    /// Returns the number of edges that touch a specific port location.
-    /// - Parameter port: The port to inspect.
-    /// - Returns: The number of edges whose start or end matches the port.
-    public func numberOfEdges(ofPort port: PortLocation) -> Int {
-        self.edges.count(where: { edge in edge.from == port || edge.to == port })
-    }
-
-    /// Returns how many edges already terminate at the same destination as the supplied edge.
-    /// - Parameter edge: Edge whose destination should be compared.
-    /// - Returns: Number of edges that clash with the destination port.
-    public func numberOfEdges(withSameDestinationAs edge: Edge) -> Int {
-        self.edges.count(where: { $0.to == edge.to })
-    }
-
-    /// Inserts a node into the flow graph. The node is expected to have all of its ports set as not connected.
-    /// - Parameters:
-    ///   - node: Node model to insert.
-    ///   - position: Canvas position for the node.
-    /// - Throws: `FlowError.repeatedNodeId` when a node with the same identifier already exists, or `addingNodeWithConnectedPorts`
-    ///            when trying to add a node with connected ports.
-    public func addNode(_ node: FlowNode, at position: CGPoint) throws(FlowError) {
-        if self.nodes[node.id] != nil || self.nodePositions[node.id] != nil {
-            throw .repeatedNodeId
+extension Flow {
+    @discardableResult
+    func addNode(_ node: FlowNode) -> Bool {
+        if !self.hasNode(node.id) {
+            self.nodes[node.id] = node
+            return true
+        } else {
+            return false
         }
+    }
 
-        if node.hasConnectedSlots {
-            throw .addingNodeWithConnectedPorts
+    @discardableResult
+    func removeNode(_ id: UUID) -> FlowNode? {
+        self.nodes.removeValue(forKey: id)
+    }
+
+    @discardableResult
+    func updateNode(_ node: FlowNode) -> FlowNode? {
+        guard let previous = self.nodes.removeValue(forKey: node.id) else {
+            return nil
         }
 
         self.nodes[node.id] = node
-        self.nodePositions[node.id] = position
+
+        return previous
     }
 
-    /// Inserts a node into the flow graph. The node is expected to have all of its ports set as not connected.
-    /// If an `UndoManager` is provided, registers an undo action that removes the node again.
-    /// - Parameters:
-    ///   - node: Node model to insert.
-    ///   - position: Canvas position for the node.
-    ///   - um: Optional undo manager that will remove the node on undo.
-    /// - Throws: `FlowError.repeatedNodeId` when a node with the same identifier already exists.
-    public func addNode(
-        _ node: FlowNode,
-        at position: CGPoint,
-        undoManager um: UndoManager?,
-    ) throws(FlowError) {
-        try self.addNode(node, at: position)
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.deleteNode(node.id, undoManager: um)
-        }
-    }
-
-    /// Inserts a node and recreates the supplied edges, ensuring port state is consistent.
-    /// - Parameters:
-    ///   - node: Node model to insert.
-    ///   - position: Canvas position for the node.
-    ///   - edges: Edges to reconnect after the node is inserted.
-    /// - Throws: `FlowError` when any operation fails.
-    public func addNodeWithEdges(_ node: FlowNode, at position: CGPoint, withEdges edges: Set<Edge>) throws(FlowError) {
-        try self.addNode(node, at: position)
-
-        for edge in edges {
-            try self.addEdgeConnectingNodes(edge)
-        }
-    }
-
-    /// Inserts a node with edges and registers an undo action that removes them again.
-    /// - Parameters:
-    ///   - node: Node model to insert.
-    ///   - position: Canvas position for the node.
-    ///   - edges: Edges to reconnect after the node is inserted.
-    ///   - um: Optional undo manager.
-    /// - Throws: `FlowError` when any operation fails.
-    public func addNodeWithEdges(
-        _ node: FlowNode,
-        at position: CGPoint,
-        withEdges edges: Set<Edge>,
-        undoManager um: UndoManager?
-    ) throws(FlowError) {
-        try self.addNodeWithEdges(node, at: position, withEdges: edges)
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.deleteNodeRemovingEdges(node.id, undoManager: um)
-        }
-    }
-
-    /// Removes a node and returns its model and position. If the node participates in any edges,
-    /// `removedNodeWithExistingEdges` is thrown; if any of its ports are still marked connected,
-    /// `removedNodeWithConnectedPorts` is thrown.
-    /// - Parameter id: Node identifier to remove.
-    /// - Returns: The removed node and its previous position.
-    /// - Throws: `FlowError.nodeNotFound` if the node does not exist.
     @discardableResult
-    public func deleteNode(_ id: UUID) throws(FlowError) -> (FlowNode, CGPoint) {
-        guard let node = self.nodes[id], let pos = self.nodePositions[id] else {
-            throw .nodeNotFound
-        }
-
-        if self.numberOfEdges(ofNode: node.id) > 0 {
-            throw .removedNodeWithExistingEdges
-        }
-
-        if node.hasConnectedSlots {
-            throw .removedNodeWithConnectedPorts
-        }
-
-        self.nodes.removeValue(forKey: id)
-        self.nodePositions.removeValue(forKey: id)
-
-        return (node, pos)
-    }
-
-    /// Removes a node and registers an undo action that restores it on demand.
-    /// - Parameters:
-    ///   - id: Node identifier to remove.
-    ///   - um: Optional undo manager used to reinsert the node and its position.
-    /// - Throws: Any error produced by `deleteNode(_:)`.
-    public func deleteNode(
-        _ id: UUID,
-        undoManager um: UndoManager?,
-    ) throws(FlowError) {
-        let (node, pos) = try self.deleteNode(id)
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.addNode(node, at: pos, undoManager: um)
-        }
-    }
-
-    /// Removes a node together with all of its connected edges.
-    /// - Parameter id: Node identifier to remove.
-    /// - Returns: A snapshot containing the node, its position, and the removed edges.
-    /// - Throws: `FlowError` when the node or one of its edges cannot be removed.
-    public func deleteNodeRemovingEdges(_ id: UUID) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
-        let edges = self.edges(ofNode: id)
-
-        for edge in edges {
-            try self.deleteEdgeDisconnectingNodes(edge)
-        }
-
-        let (node, pos) = try self.deleteNode(id)
-
-        return .init(node: node, position: pos, edges: edges)
-    }
-
-    /// Removes a node and its edges, recording an undo action that re-inserts everything.
-    /// - Parameters:
-    ///   - id: Node identifier to remove.
-    ///   - um: Optional undo manager.
-    /// - Returns: A snapshot containing the node, its position, and the removed edges.
-    /// - Throws: `FlowError` when the node or one of its edges cannot be removed.
-    @discardableResult
-    public func deleteNodeRemovingEdges(
-        _ id: UUID,
-        undoManager um: UndoManager?
-    ) throws(FlowError) -> DeleteNodeRemovingEdgesResult {
-        let result = try self.deleteNodeRemovingEdges(id)
-
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.addNodeWithEdges(
-                result.node,
-                at: result.position,
-                withEdges: Set(result.edges),
-                undoManager: um
-            )
-        }
-
-        return result
-    }
-
-    /// Inserts an edge into the graph without touching port flags.
-    /// - Parameter edge: Edge to insert.
-    /// - Throws: `FlowError.edge(.repeated)` if the same edge is already present.
-    public func addEdge(_ edge: Edge) throws(FlowError) {
-        if self.edges.contains(edge) {
-            throw .edge(.repeated)
-        }
-
-        self.edges.insert(edge)
-    }
-
-    /// Inserts an edge and registers an undo action that removes it again.
-    /// - Parameters:
-    ///   - edge: Edge to insert.
-    ///   - um: Optional undo manager.
-    /// - Throws: `FlowError.edge(.repeated)` if the edge already exists.
-    public func addEdge(
-        _ edge: Edge,
-        undoManager um: UndoManager?,
-    ) throws(FlowError) {
-        try self.addEdge(edge)
-        um?.registerUndo(target: self) { [weak um] this in
-            try self.deleteEdge(edge, undoManager: um)
-        }
-    }
-
-    /// Inserts an edge and marks both ports as connected.
-    /// - Parameter edge: Edge to insert.
-    /// - Throws: `FlowError` when the edge already exists or references invalid ports.
-    public func addEdgeConnectingNodes(_ edge: Edge) throws(FlowError) {
-
-        switch self.canAddEdge(edge) {
-        case .success:
-            break
-        case .failure(let error):
-            throw .edge(error)
-        }
-
-        try self.addEdge(edge)
-        self.nodes[edge.from.node]![connectedAt: edge.from.slot] = true
-        self.nodes[edge.to.node]![connectedAt: edge.to.slot] = true
-    }
-
-    /// Inserts an edge, marks ports as connected, and registers an undo action that disconnects it again.
-    /// - Parameters:
-    ///   - edge: Edge to insert.
-    ///   - um: Optional undo manager.
-    /// - Throws: `FlowError` when the edge already exists or references invalid ports.
-    public func addEdgeConnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
-        try self.addEdgeConnectingNodes(edge)
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-        }
-    }
-
-    /// Adds an edge, attempting to convert either endpoint to a compatible variation when a type mismatch occurs.
-    /// - Parameter edge: Edge to add.
-    /// - Returns: Which node was replaced during conversion, if any.
-    /// - Throws: `FlowError` when the edge cannot be added or a conversion fails.
-    public func addEdgeConnectingNodesConvertingIfNeeded(_ edge: Edge) throws(FlowError) -> AddEdgeReplaceNode {
-
-        var result: AddEdgeReplaceNode = .none
-        do {
-            try self.addEdgeConnectingNodes(edge)
-        } catch {
-            switch error {
-            case .edge(.typeMismatch(let fix)):
-                switch fix {
-                case .cantFix:
-                    throw error
-                case .fixConvertingDestTo(let kind):
-                    result = .dest(try convert(node: edge.to.node, toKind: kind))
-                case .fixConvertingSourceTo(let kind):
-                    result = .source(try convert(node: edge.from.node, toKind: kind))
-                }
-            default:
-                throw error
-            }
-        }
-
-        if result != .none {
-            do {
-                try self.addEdgeConnectingNodes(edge)
-            } catch {
-                switch result {
-                case .none:
-                    break
-                case .dest(let node), .source(let node):
-                    try self.restoreNode(node, undoManager: nil)
-                }
-            }
-        }
-
-        return result
-    }
-
-    /// Adds an edge with optional node conversion and registers an undo stack entry mirroring the conversion work.
-    /// - Parameters:
-    ///   - edge: Edge to add.
-    ///   - um: Optional undo manager.
-    /// - Returns: Which node was replaced during conversion, if any.
-    /// - Throws: `FlowError` when the edge cannot be added or conversion fails.
-    public func addEdgeConnectingNodesConvertingIfNeeded(
-        _ edge: Edge,
-        undoManager um: UndoManager?
-    ) throws(FlowError) -> AddEdgeReplaceNode {
-        let result = try addEdgeConnectingNodesConvertingIfNeeded(edge)
-
-        um?.registerUndo(target: self) { [weak um] this in
-            switch result {
-            case .none:
-                try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-            case .dest(let node), .source(let node):
-                um?.beginUndoGrouping()
-                try this.deleteEdgeDisconnectingNodes(edge, undoManager: um)
-                try this.restoreNode(node, undoManager: um)
-                um?.endUndoGrouping()
-            }
-        }
-
-        return result
-    }
-
-    /// Removes an edge from the graph without touching port flags.
-    /// - Parameter edge: Edge to remove.
-    /// - Throws: `FlowError.edgeNotFound` if the edge does not exist.
-    public func deleteEdge(_ edge: Edge) throws(FlowError) {
-        guard let _ = self.edges.remove(edge) else {
-            throw .edge(.notFound)
-        }
-    }
-
-    /// Removes an edge and registers an undo action that re-inserts it.
-    /// - Parameters:
-    ///   - edge: Edge to remove.
-    ///   - um: Optional undo manager.
-    /// - Throws: `FlowError.edgeNotFound` if the edge does not exist.
-    public func deleteEdge(
-        _ edge: Edge,
-        undoManager um: UndoManager?,
-    ) throws(FlowError) {
-        try self.deleteEdge(edge)
-        um?.registerUndo(target: self) { [weak um] this in
-            try self.addEdge(edge, undoManager: um)
-        }
-    }
-
-    /// Removes an edge and clears the `connected` flags for the involved ports.
-    /// - Parameter edge: Edge to remove.
-    /// - Throws: `FlowError` when the edge or referenced ports are invalid.
-    public func deleteEdgeDisconnectingNodes(_ edge: Edge) throws(FlowError) {
+    func addEdge(_ edge: Edge) -> Bool {
         if !self.edges.contains(edge) {
-            throw .edge(.notFound)
+            self.edges.insert(edge)
+            return true
         }
 
-        if !self.nodeExists(edge.from.node) {
-            throw .edge(.missingSourceNode)
-        }
-
-        if !self.nodeExists(edge.to.node) {
-            throw .edge(.missingDestNode)
-        }
-
-        if !(try self.getNodePortConnected(edge.from)) {
-            throw .edge(.sourcePortNotConnected)
-        }
-
-        if !(try self.getNodePortConnected(edge.to)) {
-            throw .edge(.destPortNotConnected)
-        }
-
-        try self.deleteEdge(edge)
-
-        if self.numberOfEdges(ofPort: edge.from) <= 0 {
-            try self.setNodePortConnected(edge.from, false)
-        }
-
-        try self.setNodePortConnected(edge.to, false)
+        return false
     }
 
-    /// Removes an edge, clears port flags, and registers an undo action that restores the previous connection.
-    /// - Parameters:
-    ///   - edge: Edge to remove.
-    ///   - um: Optional undo manager.
-    /// - Throws: `FlowError` when the edge or referenced ports are invalid.
-    public func deleteEdgeDisconnectingNodes(_ edge: Edge, undoManager um: UndoManager?) throws(FlowError) {
-        try self.deleteEdgeDisconnectingNodes(edge)
-        um?.registerUndo(target: self) { [weak um] this in
-            try this.addEdgeConnectingNodes(edge, undoManager: um)
-        }
-    }
-
-    // MARK: - Utils
-
-    /// Converts the node identified by `id` to the supplied kind, if a variation exists.
-    /// - Parameters:
-    ///   - id: Identifier of the node to convert.
-    ///   - kind: Target node kind.
-    /// - Returns: The previous node instance so callers can restore it later if needed.
-    /// - Throws: `FlowError.failedToConvertNode` when the conversion cannot be satisfied.
-    public func convert(node id: UUID, toKind kind: NodeKind) throws(FlowError) -> FlowNode {
-        guard let prev = self.nodes[id] else {
-            throw .nodeNotFound
-        }
-        if let node = prev.variation(kind) {
-            self.nodes[id] = node
-            return prev
-        } else {
-            throw .failedToConvertNode(from: prev.kind, to: kind)
-        }
-    }
-
-    /// Restores the provided node instance, registering an undo action for the prior value when appropriate.
-    private func restoreNode(_ node: FlowNode, undoManager um: UndoManager?) throws(FlowError) {
-        guard let prev = self.nodes[node.id] else {
-            throw .nodeNotFound
-        }
-
-        if prev != node {
-            self.nodes[node.id] = node
-            um?.registerUndo(target: self) { [weak um] this in
-                try this.restoreNode(prev, undoManager: um)
-            }
-        }
-    }
-
-    private func setNodePortConnected(_ port: PortLocation, _ value: Bool) throws(FlowError) {
-        if var node = self.nodes[port.node] {
-            node[connectedAt: port.slot] = value
-            self.nodes[port.node] = node
-        } else {
-            throw .nodeNotFound
-        }
-    }
-
-    private func getNodePortConnected(_ port: PortLocation) throws(FlowError) -> Bool {
-        if let node = self.nodes[port.node] {
-            return node[connectedAt: port.slot]
-        } else {
-            throw .nodeNotFound
-        }
-    }
-}
-
-// MARK: - Validation
-
-extension Flow {
-    /// Validates the flow graph, ensuring that:
-    ///   - Each edge references existing nodes and the associated ports are marked as connected.
-    ///   - Each port flagged as connected has a matching edge and disconnected ports have none.
-    ///   - Each input port is connected to at most one edge.
-    /// - Throws: `FlowValidationError` describing the first inconsistency encountered.
-    public func validateNodeGraph() throws(FlowValidationError) {
-
-        // Check that to every `nodePositions` entry there is a corresponding `nodes`
-        // entry.
-        for (id, _) in self.nodePositions {
-            if self.nodes[id] == nil {
-                throw .nodeWithNoData
-            }
-        }
-
-        // For every node
-        for (_, node) in self.nodes {
-
-            // Check that the node position exists
-            if self.nodePositions[node.id] == nil {
-                throw .nodeWithNoPosition
-            }
-
-            // Check that every input has at most one edge
-            for (idx, _) in node.inputs.enumerated() {
-                if self.numberOfEdges(ofPort: .init(node: node.id, port: .input(idx))) > 1 {
-                    throw .tooManyEdgesForInput(node.id, idx)
-                }
-            }
-
-            // Chech that every port slot that is connected has a corresponding edge; and that disconnected slots have no edge.
-            for slot in node.slots {
-                let location = PortLocation(node: node.id, port: slot)
-                let edgeCount = self.numberOfEdges(ofPort: location)
-                if node[connectedAt: slot] {
-                    if edgeCount <= 0 {
-                        throw .connectedPortWithoutEdge(location)
-                    }
-                } else {
-                    if edgeCount > 0 {
-                        throw .disconnectedPortWithEdge(location)
-                    }
-                }
-            }
-        }
-
-        // For every edge
-        for edge in self.edges {
-            guard let from = self.nodes[edge.from.node] else {
-                throw .sourceNodeMissingForEdge(edge)
-            }
-
-            guard let to = self.nodes[edge.to.node] else {
-                throw .destinationNodeMissingForEdge(edge)
-            }
-
-            if !from[connectedAt: edge.from.slot] {
-                throw .edgeSourceNotConnected(edge)
-            }
-
-            if !to[connectedAt: edge.to.slot] {
-                throw .edgeDestinationNotConnected(edge)
-            }
-        }
-
-        if self.hasCycles() {
-            throw .graphHasCycles
-        }
-    }
-    /// Detects if the flow graph has any cycles in it.
-    private func hasCycles(addingEdge edge: Edge? = nil) -> Bool {
-        let graph = FlowGraph(.init())
-        for (id, _) in nodes {
-            graph.addNode(id)
-        }
-        for edge in self.edges {
-            graph.addEdge(
-                .init(
-                    from: .init(node: edge.from.node, slot: edge.from.slot.index),
-                    end: .init(node: edge.to.node, slot: edge.to.slot.index)
-                )
-            )
-        }
-
-        if let edge {
-            graph.addEdge(
-                .init(
-                    from: .init(node: edge.from.node, slot: edge.from.slot.index),
-                    end: .init(node: edge.to.node, slot: edge.to.slot.index)
-                )
-            )
-        }
-
-        return graph.detectCycles() == .hasCycles
-    }
-
-    /// Checks whether the given edge can be safely added to the graph without mutating state.
-    /// - Parameter edge: Proposed edge to validate.
-    /// - Returns: `.success` when the edge is allowed, or `.failure` carrying the reason it cannot be added.
-    public func canAddEdge(_ edge: Edge) -> Result<(), EdgeError> {
-        // Check if the edge already exists
+    @discardableResult
+    func removeEdge(_ edge: Edge) -> Bool {
         if self.edges.contains(edge) {
-            return .failure(.repeated)
+            self.edges.remove(edge)
+            return true
         }
 
-        // Check if another edge has the same destination
-        if self.numberOfEdges(withSameDestinationAs: edge) > 0 {
-            return .failure(.repeatedDestination)
-        }
-
-        // Check if source node exists.
-        guard let sourceNode = self.nodes[edge.from.node] else {
-            return .failure(.missingSourceNode)
-        }
-
-        // Check if destination node exists.
-        guard let destNode = self.nodes[edge.to.node] else {
-            return .failure(.missingDestNode)
-        }
-
-        // Check if source port exists
-        if !sourceNode.isValidPortSlot(edge.from.slot) {
-            return .failure(.missingSourcePort)
-        }
-
-        // Check if destination port exists
-        if !destNode.isValidPortSlot(edge.to.slot) {
-            return .failure(.missingDestPort)
-        }
-
-        // Check if destination port is already connected
-        if destNode[connectedAt: edge.to.slot] {
-            return .failure(.destPortAlreadyConnected)
-        }
-
-        // Typecheck the ports
-        let sourceType = self.nodes[edge.from.node]![valueTypeAt: edge.from.slot]
-        let destType = self.nodes[edge.to.node]![valueTypeAt: edge.to.slot]
-        if sourceType != destType {
-            if let variation = destNode.variation(soThatSlot: edge.to.slot, hasType: sourceType) {
-                return .failure(.typeMismatch(.fixConvertingDestTo(variation)))
-            } else if let variation = sourceNode.variation(soThatSlot: edge.from.slot, hasType: destType) {
-                return .failure(.typeMismatch(.fixConvertingSourceTo(variation)))
-            } else {
-                return .failure(.typeMismatch(.cantFix))
-            }
-        }
-
-        // Check if a cycle is created
-        if self.hasCycles(addingEdge: edge) {
-            return .failure(.causesCycle)
-        }
-
-        return .success(())
+        return false
     }
-
 }
 
-// MARK: - Selection
+// MARK: - Nodes, Ports and Edges - Atomic Operations (Undo)
 
 extension Flow {
-
-    /// Modes available for selection changes.
-    public enum SelectionMode {
-        /// Replace the existing selection with the provided identifiers.
-        case replace
-        /// Merge the provided identifiers into the existing selection.
-        case union
-    }
-
-    /// Returns whether the supplied node identifier is currently selected.
-    /// - Parameter id: Node identifier to test.
-    public func isNodeSelected(_ id: UUID) -> Bool {
-        self.selection.contains(id)
-    }
-
-    /// Selects a single node using the supplied mode.
-    /// - Parameters:
-    ///   - id: Node identifier to select.
-    ///   - mode: Selection behavior (`replace` by default).
-    public func select(node id: UUID, mode: SelectionMode = .replace) {
-        self.select(nodes: [id], mode: mode)
-    }
-
-    /// Selects a collection of nodes using the supplied mode.
-    /// Nodes that do not exist in the graph are ignored.
-    /// - Parameters:
-    ///   - ids: Node identifiers to select.
-    ///   - mode: Selection behavior (`replace` by default).
-    public func select<NodeIDs: Sequence>(nodes ids: NodeIDs, mode: SelectionMode = .replace)
-    where NodeIDs.Element == UUID {
-        let validNodes = Set(ids.filter { self.nodes[$0] != nil })
-
-        switch mode {
-        case .replace:
-            self.selection = validNodes
-        case .union:
-            self.selection.formUnion(validNodes)
-        }
-    }
-
-    /// Removes the supplied node from the selection (if present).
-    /// - Parameter id: Node identifier to deselect.
-    public func deselect(node id: UUID) {
-        self.selection.remove(id)
-    }
-
-    /// Removes a collection of nodes from the selection, ignoring nodes that do not exist.
-    /// - Parameter ids: Node identifiers to deselect.
-    public func deselect<NodeIDs: Sequence>(nodes ids: NodeIDs) where NodeIDs.Element == UUID {
-        let validNodes = ids.filter { self.nodes[$0] != nil }
-        self.selection.subtract(validNodes)
-    }
-
-    /// Selects all known nodes.
-    public func selectAll() {
-        self.selection = Set(self.nodes.keys)
-    }
-
-    /// Clears the current selection.
-    public func selectNone() {
-        self.selection.removeAll()
-    }
-
-    /// Captures the current selection so that live selection updates can be previewed and cancelled.
-    /// Call `updateLiveSelection(nodes:mode:)` to preview changes followed by either
-    /// `endLiveSelection()` to commit or `cancelLiveSelection()` to roll back.
-    public func beginLiveSelection() {
-        self.liveSelectionSnapshot = self.selection
-    }
-
-    /// Updates the selection while a live-selection gesture is active.
-    /// - Parameters:
-    ///   - ids: Node identifiers currently inside the drag rectangle.
-    ///   - mode: Selection behavior to apply for this update.
-    public func updateLiveSelection<NodeIDs: Sequence>(nodes ids: NodeIDs, mode: SelectionMode)
-    where NodeIDs.Element == UUID {
-        let validNodes = Set(ids.filter { self.nodes[$0] != nil })
-
-        guard let snapshot = self.liveSelectionSnapshot else {
-            self.select(nodes: validNodes, mode: mode)
-            return
-        }
-
-        switch mode {
-        case .replace:
-            self.selection = validNodes
-        case .union:
-            self.selection = snapshot.union(validNodes)
-        }
-    }
-
-    /// Commits the current live-selection preview and clears the snapshot.
-    public func endLiveSelection() {
-        self.liveSelectionSnapshot = nil
-    }
-
-    /// Restores the selection snapshot captured at the start of a live-selection gesture.
-    public func cancelLiveSelection() {
-        if let snapshot = self.liveSelectionSnapshot {
-            self.selection = snapshot
-        }
-        self.liveSelectionSnapshot = nil
-    }
-}
-
-// MARK: - Errors and Result Types
-
-extension Flow {
-
-    /// Errors thrown by the flow graph operations.
-    public enum FlowError: Error {
-        case addingNodeWithConnectedPorts
-        case removedNodeWithConnectedPorts
-        case removedNodeWithExistingEdges
-        case nodeNotFound
-        case repeatedNodeId
-        case portAlreadyDisconnected
-        case edge(EdgeError)
-        case failedToConvertNode(from: NodeKind, to: NodeKind)
-    }
-
-    public enum EdgeError: Error {
-        case repeated
-        case repeatedDestination
-        case notFound
-        case missingSourceNode
-        case missingDestNode
-        case missingSourcePort
-        case missingDestPort
-        case sourcePortNotConnected
-        case destPortNotConnected
-        case causesCycle
-        case destPortAlreadyConnected
-        case typeMismatch(TypeMismatch)
-    }
-
-    public enum TypeMismatch: Sendable {
-        case cantFix
-        case fixConvertingDestTo(NodeKind)
-        case fixConvertingSourceTo(NodeKind)
-    }
-
-    public enum FlowValidationError: Error {
-        case nodeWithNoPosition
-        case nodeWithNoData
-        case tooManyEdgesForInput(UUID, Int)
-        case connectedPortWithoutEdge(PortLocation)
-        case disconnectedPortWithEdge(PortLocation)
-        case sourceNodeMissingForEdge(Edge)
-        case destinationNodeMissingForEdge(Edge)
-        case edgeSourceNotConnected(Edge)
-        case edgeDestinationNotConnected(Edge)
-        case graphHasCycles
-    }
-
-    /// Errors thrown while attempting to disconnect an edge from its ports.
-    public enum DeleteEdgeDisconnectingNodesError: Error {
-        case missingSourceNode
-        case missingDestinationNode
-    }
-
-    /// Snapshot describing the node and edges removed by `deleteNodeRemovingEdges`.
-    public struct DeleteNodeRemovingEdgesResult {
-        /// Node that was removed from the flow.
-        var node: FlowNode
-        /// Position the node occupied before removal.
-        var position: CGPoint
-        /// Edges that were connected to the node at removal time.
-        var edges: [Edge]
-    }
-
-    /// Describes which node, if any, was replaced while reconciling an edge addition.
-    public enum AddEdgeReplaceNode: Equatable {
-        /// No conversion was necessary.
-        case none
-        /// The source node was replaced to satisfy the edge.
-        case source(FlowNode)
-        /// The destination node was replaced to satisfy the edge.
-        case dest(FlowNode)
-    }
-}
-
-extension UndoManager {
-    func registerUndo<T: AnyObject>(
-        target: T,
-        throwingHandler handler: @escaping (T) throws -> ()
-    ) {
-        self.registerUndo(
-            withTarget: target,
-            handler: { target in
-                do {
-                    try handler(target)
-                } catch {
-                    log("\(error)", level: .error)
+    func addNode(_ node: FlowNode, undoManager um: UndoManager?) {
+        if self.addNode(node) {
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.removeNode(node.id, undoManager: um)
                 }
+            )
+        }
+    }
+
+    @discardableResult
+    func removeNode(_ id: UUID, undoManager um: UndoManager?) -> FlowNode? {
+        guard let previous = self.removeNode(id) else {
+            return nil
+        }
+
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                this.addNode(previous, undoManager: um)
             }
         )
+
+        return previous
+    }
+
+    @discardableResult
+    func updateNode(_ node: FlowNode, undoManager um: UndoManager?) -> FlowNode? {
+        guard let previous = self.updateNode(node) else {
+            return nil
+        }
+
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                self.updateNode(previous, undoManager: um)
+            }
+        )
+        return previous
+    }
+
+    @discardableResult
+    func addEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
+        if self.addEdge(edge) {
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.removeEdge(edge, undoManager: um)
+                }
+            )
+            return true
+        }
+
+        return false
+    }
+
+    @discardableResult
+    func removeEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
+        if self.removeEdge(edge) {
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.addEdge(edge, undoManager: um)
+                }
+            )
+            return true
+        }
+
+        return false
     }
 }

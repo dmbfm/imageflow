@@ -15,8 +15,10 @@ public struct FlowNode: Sendable, Equatable, Codable {
     public var kind: NodeKind
     /// The node's inputs
     public var inputs: [Input]
-    // /// The node's outputs
+    /// The node's outputs
     public var outputs: [Output]
+    /// The node's position
+    public var position: CGPoint
 
     // MARK: - Public Types
 
@@ -60,12 +62,14 @@ public struct FlowNode: Sendable, Equatable, Codable {
         kind: NodeKind,
         inputs: [Input],
         outputs: [Output],
+        position: CGPoint = .zero,
     ) {
         self.id = id
         self.name = name
         self.kind = kind
         self.inputs = inputs
         self.outputs = outputs
+        self.position = position
     }
 
     /// Creates a node that is build according to the given `NodeKind` schema.
@@ -74,7 +78,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
     ///   - id: The node's unique identifier.
     ///   - kind: The `NodeKind` of the node.
     ///   - name: The node's name.
-    public init(id: UUID = UUID(), kind: NodeKind, name: String? = nil, ) {
+    public init(id: UUID = UUID(), kind: NodeKind, name: String? = nil, position: CGPoint = .zero) {
         self.id = id
         self.name = name ?? kind.displayName
         self.kind = kind
@@ -90,6 +94,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
         self.outputs = kind.schema.outputs.enumerated().map { (index, output) in
             .init(label: output.name, index: index, type: output.type, connected: false)
         }
+        self.position = position
     }
 
     // MARK: - Subscripts

@@ -8,1009 +8,235 @@ import struct Models.Edge
 
 @testable import Models
 
-@MainActor
-private func makeNode(
-    id: UUID = UUID(),
-    name: String = "Node",
-    value: Value? = nil,
-    valueType: ValueType = .float
-) -> FlowNode {
-    FlowNode(
-        id: id,
-        name: name,
-        kind: .valueNode(valueType),
-        inputs: [
-            .init(
-                label: "input",
-                index: 0,
-                value: value ?? Value.defaultValue(forType: valueType),
-                semantics: .default,
-                connected: false
-            )
-        ],
-        outputs: [
-            .init(
-                label: "output",
-                index: 0,
-                type: valueType,
-                connected: false
-            )
-        ]
-    )
-}
-
-private func makeEdge(
-    from source: FlowNode,
-    to destination: FlowNode
-) -> Edge {
-    let output = PortLocation(node: source.id, port: .output(0))
-    let input = PortLocation(node: destination.id, port: .input(0))
-    return Edge(output, input)!  // construction is validated by PortLocation.canConnectWith
-}
-
-private func makeEdge(
-    from source: FlowNode,
-    sourceSlot: PortSlot,
-    to destination: FlowNode,
-    destSlot: PortSlot
-) -> Edge {
-    Edge(
-        PortLocation(node: source.id, port: sourceSlot),
-        PortLocation(node: destination.id, port: destSlot)
-    )!
-}
+// MARK: - Helpers
 
 @MainActor
-private func makeGaussianBlurNode(id: UUID = UUID()) -> FlowNode {
-    FlowNode(id: id, kind: .coreImageFilterNode(.blur(.CIGaussianBlur)))
-}
+let um: UndoManager = {
+    let um = UndoManager()
+    um.groupsByEvent = false
+    return um
+}()
 
-@MainActor
-private func makeFlow(nodes: [FlowNode], edges: Set<Edge> = []) -> Models.Flow {
-    let nodeMap = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
-    let positions = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, CGPoint.zero) })
-    return Models.Flow(
-        nodes: nodeMap,
-        nodePositions: positions,
-        edges: edges
-    )
-}
-
-private func expectValidationError(
-    _ error: Error,
-    handler: (Models.Flow.FlowValidationError) -> Void
-) {
-    guard let validationError = error as? Models.Flow.FlowValidationError else {
-        #expect(Bool(false), "Unexpected error: \(error)")
-        return
+extension UndoManager {
+    func withGroup(_ perform: () -> ()) {
+        self.beginUndoGrouping()
+        perform()
+        self.endUndoGrouping()
     }
-
-    handler(validationError)
 }
 
+// MARK: - Nodes, Ports and Edges - Atomic Operations
+
 @MainActor
-@Test("Adding a node stores node data and its position")
-func addNodeStoresState() throws {
+@Test("`addNode` should correctly add one node to `nodes`")
+func testAddNode() {
     let flow = Flow()
-    let node = makeNode(name: "Source")
-    let position = CGPoint(x: 42, y: -7)
-
-    try flow.addNode(node, at: position)
-
+    let node = FlowNode(kind: .valueNode(.float))
+    flow.addNode(node)
+    #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node.id] == node)
-    #expect(flow.nodePositions[node.id] == position)
 }
 
 @MainActor
-@Test("Connecting nodes inserts the edge and marks both ports connected")
-func addEdgeConnectingNodesMarksPorts() throws {
+@Test("`removeNode` should correctly remove one node from `nodes`")
+func testRemoveNode() {
     let flow = Flow()
-    let source = makeNode(name: "Producer")
-    let destination = makeNode(name: "Consumer")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    try flow.addEdgeConnectingNodes(edge)
-
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == true)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
+    let node1 = FlowNode(kind: .valueNode(.float))
+    let node2 = FlowNode(kind: .valueNode(.float))
+    flow.addNode(node1)
+    flow.addNode(node2)
+    #expect(flow.nodes.count == 2)
+    flow.removeNode(node2.id)
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
 }
 
 @MainActor
-@Test("Removing an edge disconnects the destination port and drops the edge")
-func deleteEdgeDisconnectingNodesClearsDestinationPort() throws {
+@Test("`updateNode` should correctly modify a node from `nodes`")
+func testUpdateNode() {
     let flow = Flow()
-    let source = makeNode(name: "Producer")
-    let destination = makeNode(name: "Consumer")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-    try flow.addEdgeConnectingNodes(edge)
-
-    try flow.deleteEdgeDisconnectingNodes(edge)
-
-    #expect(!flow.edges.contains(edge))
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
-}
-
-@MainActor
-@Test("Deleting a node with edges removes connected edges and returns snapshot")
-func deleteNodeRemovingEdgesRemovesState() throws {
-    let flow = Flow()
-    let source = makeNode(name: "Producer")
-    let destination = makeNode(name: "Consumer")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 64, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-    try flow.addEdgeConnectingNodes(edge)
-
-    let result = try flow.deleteNodeRemovingEdges(destination.id)
-
-    #expect(flow.nodes[destination.id] == nil)
-    #expect(!flow.edges.contains(edge))
-    #expect(result.node == destination)
-    #expect(result.position == CGPoint(x: 64, y: 0))
-    #expect(result.edges == [edge])
-}
-
-@MainActor
-@Test("Undoing addNode removes the node and redoing restores it")
-func undoRedoAddNode() throws {
-    let flow = Flow()
-    let undoManager = UndoManager()
-    undoManager.groupsByEvent = false
-    let node = makeNode(name: "Undoable")
-    let position = CGPoint(x: 10, y: 20)
-
-    undoManager.beginUndoGrouping()
-    try flow.addNode(node, at: position, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-    #expect(flow.nodes[node.id] != nil)
-
-    undoManager.undo()
-    #expect(flow.nodes[node.id] == nil)
-
-    undoManager.redo()
-    #expect(flow.nodes[node.id] == node)
-    #expect(flow.nodePositions[node.id] == position)
-}
-
-@MainActor
-@Test("Undoing deleteNode restores the node and position")
-func undoRedoDeleteNode() throws {
-    let flow = Flow()
-    let undoManager = UndoManager()
-    undoManager.groupsByEvent = false
-    let node = makeNode(name: "UndoDelete")
-    let position = CGPoint(x: -30, y: 80)
-    try flow.addNode(node, at: position)
-
-    undoManager.beginUndoGrouping()
-    try flow.deleteNode(node.id, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-    #expect(flow.nodes[node.id] == nil)
-
-    undoManager.undo()
-    #expect(flow.nodes[node.id] == node)
-    #expect(flow.nodePositions[node.id] == position)
-
-    undoManager.redo()
-    #expect(flow.nodes[node.id] == nil)
-}
-
-@MainActor
-@Test("Undoing addEdgeConnectingNodes restores connection state after redo")
-func undoRedoAddEdgeConnectingNodes() throws {
-    let flow = Flow()
-    let undoManager = UndoManager()
-    undoManager.groupsByEvent = false
-    let source = makeNode(name: "Producer")
-    let destination = makeNode(name: "Consumer")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    undoManager.beginUndoGrouping()
-    try flow.addEdgeConnectingNodes(edge, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-    #expect(flow.edges.contains(edge))
-
-    undoManager.undo()
-    #expect(!flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
-
-    undoManager.redo()
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == true)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
-}
-
-@MainActor
-@Test("Undoing deleteEdgeDisconnectingNodes reinstates the edge and port flags")
-func undoRedoDeleteEdgeDisconnectingNodes() throws {
-    let flow = Flow()
-    let undoManager = UndoManager()
-    undoManager.groupsByEvent = false
-    let source = makeNode(name: "Producer")
-    let destination = makeNode(name: "Consumer")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    undoManager.beginUndoGrouping()
-    try flow.addEdgeConnectingNodes(edge, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-
-    undoManager.beginUndoGrouping()
-    try flow.deleteEdgeDisconnectingNodes(edge, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-    #expect(!flow.edges.contains(edge))
-
-    undoManager.undo()
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == true)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
-
-    undoManager.redo()
-    #expect(!flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
-}
-
-@MainActor
-@Test("addEdgeConnectingNodesConvertingIfNeeded returns .none when types already match")
-func addEdgeConnectingNodesConvertingIfNeededReturnsNone() throws {
-    let flow = Flow()
-    let source = makeNode(name: "Source", valueType: .float)
-    let destination = makeNode(name: "Destination", valueType: .float)
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
-
-    #expect(result == .none)
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == true)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
-    #expect(flow.nodes[destination.id]?.kind == destination.kind)
-}
-
-@MainActor
-@Test("addEdgeConnectingNodesConvertingIfNeeded converts destination node when variation matches source type")
-func addEdgeConnectingNodesConvertingIfNeededConvertsDestination() throws {
-    let flow = Flow()
-    let source = makeNode(name: "Source", valueType: .float)
-    let destination = makeNode(name: "Destination", valueType: .int)
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
-
-    #expect(result == .dest(destination))
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
-}
-
-@MainActor
-@Test("addEdgeConnectingNodesConvertingIfNeeded converts source node when destination cannot vary")
-func addEdgeConnectingNodesConvertingIfNeededConvertsSource() throws {
-    let flow = Flow()
-    let source = makeNode(name: "Source", valueType: .color3)
-    let destination = makeGaussianBlurNode()
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(
-        from: source,
-        sourceSlot: .output(0),
-        to: destination,
-        destSlot: .input(1)
-    )
-
-    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
-
-    #expect(result == .source(source))
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[source.id]?.kind == .valueNode(.float))
-    #expect(flow.nodes[destination.id]?.kind == destination.kind)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(1)] == true)
-}
-
-@MainActor
-@Test("addEdgeConnectingNodesConvertingIfNeeded registers undo that restores converted destination nodes")
-func addEdgeConnectingNodesConvertingIfNeededUndoRestoresNode() throws {
-    let flow = Flow()
-    let undoManager = UndoManager()
-    undoManager.groupsByEvent = false
-    let source = makeNode(name: "Source", valueType: .float)
-    let destination = makeNode(name: "Destination", valueType: .int)
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    undoManager.beginUndoGrouping()
-    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge, undoManager: undoManager)
-    undoManager.endUndoGrouping()
-
-    #expect(result == .dest(destination))
-    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
-    #expect(flow.edges.contains(edge))
-
-    undoManager.undo()
-
-    #expect(!flow.edges.contains(edge))
-    #expect(flow.nodes[destination.id]?.kind == destination.kind)
-    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
-    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
-
-    undoManager.redo()
-
-    #expect(flow.edges.contains(edge))
-    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
-}
-
-@MainActor
-@Test("addEdgeConnectingNodesConvertingIfNeeded throws when types cannot be reconciled")
-func addEdgeConnectingNodesConvertingIfNeededCantFix() throws {
-    let flow = Flow()
-    let source = makeGaussianBlurNode()
-    let destination = makeGaussianBlurNode()
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 180, y: 0))
-    let edge = makeEdge(
-        from: source,
-        sourceSlot: .output(0),
-        to: destination,
-        destSlot: .input(1)
-    )
-
-    do {
-        _ = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
-        #expect(Bool(false), "Expected type mismatch to throw")
-    } catch let error {
-        switch error {
-        case .edge(.typeMismatch(let mismatch)):
-            switch mismatch {
-            case .cantFix:
-                break
-            default:
-                #expect(Bool(false), "Unexpected mismatch: \(mismatch)")
-            }
-        default:
-            #expect(Bool(false), "Unexpected error: \(error)")
-        }
-    }
-}
-
-@MainActor
-@Test("Selecting nodes replaces by default")
-func selectionReplaceMode() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
-
-    flow.select(node: nodeA.id)
-    #expect(flow.selection == Set([nodeA.id]))
-
-    flow.select(node: nodeB.id)
-    #expect(flow.selection == Set([nodeB.id]))
-}
-
-@MainActor
-@Test("Union selection keeps existing nodes and ignores missing ones")
-func selectionUnionModeIgnoresMissing() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
-    let missing = UUID()
-
-    flow.select(node: nodeA.id)
-    flow.select(nodes: [nodeB.id, missing], mode: .union)
-
-    #expect(flow.selection == Set([nodeA.id, nodeB.id]))
-    #expect(!flow.selection.contains(missing))
-}
-
-@MainActor
-@Test("Selecting all and none updates selection set")
-func selectionAllAndNone() throws {
-    let flow = Flow()
-    let nodes = (0..<3).map { index in
-        makeNode(name: "Node \(index)")
-    }
-    for (offset, node) in nodes.enumerated() {
-        try flow.addNode(node, at: CGPoint(x: offset * 10, y: 0))
-    }
-
-    flow.selectAll()
-    #expect(flow.selection == Set(nodes.map(\.id)))
-
-    flow.selectNone()
-    #expect(flow.selection.isEmpty)
-}
-
-@MainActor
-@Test("Deselect operations drop nodes from the selection")
-func selectionDeselectNodes() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 10, y: 0))
-
-    flow.selectAll()
-    flow.deselect(node: nodeA.id)
-    #expect(flow.selection == Set([nodeB.id]))
-
-    flow.deselect(nodes: [nodeB.id, UUID()])
-    #expect(flow.selection.isEmpty)
-}
-
-@MainActor
-@Test("Live selection replace mode commits new selection on end")
-func liveSelectionReplaceModeCommit() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 12, y: 0))
-
-    flow.select(node: nodeA.id)
-
-    flow.beginLiveSelection()
-    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
-    #expect(flow.selection == Set([nodeB.id]))
-
-    flow.endLiveSelection()
-    flow.cancelLiveSelection()
-    #expect(flow.selection == Set([nodeB.id]))
-}
-
-@MainActor
-@Test("Cancelling live selection restores snapshot for union mode")
-func liveSelectionCancelRestoresSnapshot() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 18, y: 0))
-    flow.select(node: nodeA.id)
-
-    flow.beginLiveSelection()
-    flow.updateLiveSelection(nodes: [nodeB.id, UUID()], mode: .union)
-    #expect(flow.selection == Set([nodeA.id, nodeB.id]))
-
-    flow.cancelLiveSelection()
-    #expect(flow.selection == Set([nodeA.id]))
-}
-
-@MainActor
-@Test("Live selection responds to dynamic mode changes")
-func liveSelectionDynamicModeSwitch() throws {
-    let flow = Flow()
-    let nodeA = makeNode(name: "A")
-    let nodeB = makeNode(name: "B")
-    let nodeC = makeNode(name: "C")
-    try flow.addNode(nodeA, at: .zero)
-    try flow.addNode(nodeB, at: CGPoint(x: 15, y: 0))
-    try flow.addNode(nodeC, at: CGPoint(x: 30, y: 0))
-
-    flow.select(node: nodeA.id)
-
-    flow.beginLiveSelection()
-    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
-    #expect(flow.selection == Set([nodeB.id]))
-
-    flow.updateLiveSelection(nodes: [nodeC.id], mode: .union)
-    #expect(flow.selection == Set([nodeA.id, nodeC.id]))
-
-    flow.updateLiveSelection(nodes: [nodeB.id], mode: .replace)
-    #expect(flow.selection == Set([nodeB.id]))
-
-    flow.endLiveSelection()
-}
-
-// MARK: - Validation
-
-@MainActor
-@Test("Validation accepts consistent graph state")
-func validateNodeGraphAcceptsConsistentGraph() throws {
-    let flow = Flow()
-    let source = makeNode(name: "Source")
-    let destination = makeNode(name: "Destination")
-    try flow.addNode(source, at: .zero)
-    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
-    let edge = makeEdge(from: source, to: destination)
-
-    try flow.addEdgeConnectingNodes(edge)
-
-    try flow.validateNodeGraph()
-}
-
-@MainActor
-@Test("Validation rejects multiple edges per input")
-func validateNodeGraphRejectsMultipleEdgesPerInput() throws {
-    var sourceA = makeNode(name: "Producer A")
-    var sourceB = makeNode(name: "Producer B")
-    var destination = makeNode(name: "Consumer")
-
-    sourceA[connectedAt: .output(0)] = true
-    sourceB[connectedAt: .output(0)] = true
-    destination[connectedAt: .input(0)] = true
-
-    let edgeA = makeEdge(from: sourceA, to: destination)
-    let edgeB = Edge(
-        PortLocation(node: sourceB.id, port: .output(0)),
-        PortLocation(node: destination.id, port: .input(0))
-    )!
-
-    let flow = makeFlow(nodes: [sourceA, sourceB, destination], edges: Set([edgeA, edgeB]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected tooManyEdgesForInput error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .tooManyEdgesForInput(nodeId, index):
-                #expect(nodeId == destination.id)
-                #expect(index == 0)
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects connected ports without edges")
-func validateNodeGraphRejectsConnectedPortWithoutEdge() throws {
-    var node = makeNode(name: "Lonely")
-    node[connectedAt: .input(0)] = true
-
-    let flow = makeFlow(nodes: [node])
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected connectedPortWithoutEdge error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .connectedPortWithoutEdge(location):
-                #expect(location.node == node.id)
-                #expect(location.slot == PortSlot.input(0))
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects disconnected destination ports with edges")
-func validateNodeGraphRejectsDisconnectedDestinationPort() throws {
-    var source = makeNode(name: "Source")
-    var destination = makeNode(name: "Destination")
-
-    source[connectedAt: .output(0)] = true
-    destination[connectedAt: .input(0)] = false
-
-    let edge = makeEdge(from: source, to: destination)
-
-    let flow = makeFlow(nodes: [source, destination], edges: Set([edge]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected disconnectedPortWithEdge error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .disconnectedPortWithEdge(location):
-                #expect(location.node == destination.id)
-                #expect(location.slot == PortSlot.input(0))
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects disconnected source ports with edges")
-func validateNodeGraphRejectsDisconnectedSourcePort() throws {
-    var source = makeNode(name: "Source")
-    var destination = makeNode(name: "Destination")
-
-    source[connectedAt: .output(0)] = false
-    destination[connectedAt: .input(0)] = true
-
-    let edge = makeEdge(from: source, to: destination)
-
-    let flow = makeFlow(nodes: [source, destination], edges: Set([edge]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected disconnectedPortWithEdge error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .disconnectedPortWithEdge(location):
-                #expect(location.node == source.id)
-                #expect(location.slot == PortSlot.output(0))
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects edges with missing source nodes")
-func validateNodeGraphRejectsMissingSourceNode() throws {
-    var destination = makeNode(name: "Destination")
-    destination[connectedAt: .input(0)] = true
-
-    let missingSource = UUID()
-    let edge = Edge(
-        PortLocation(node: missingSource, port: .output(0)),
-        PortLocation(node: destination.id, port: .input(0))
-    )!
-
-    let flow = makeFlow(nodes: [destination], edges: Set([edge]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected sourceNodeMissingForEdge error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .sourceNodeMissingForEdge(missingEdge):
-                #expect(missingEdge == edge)
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects edges with missing destination nodes")
-func validateNodeGraphRejectsMissingDestinationNode() throws {
-    var source = makeNode(name: "Source")
-    source[connectedAt: .output(0)] = true
-
-    let missingDestination = UUID()
-    let edge = Edge(
-        PortLocation(node: source.id, port: .output(0)),
-        PortLocation(node: missingDestination, port: .input(0))
-    )!
-
-    let flow = makeFlow(nodes: [source], edges: Set([edge]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected destinationNodeMissingForEdge error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case let .destinationNodeMissingForEdge(missingEdge):
-                #expect(missingEdge == edge)
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects simple cycles")
-func validateNodeGraphRejectsSimpleCycle() throws {
-    var nodeA = makeNode(name: "A")
-    var nodeB = makeNode(name: "B")
-
-    let edgeAB = makeEdge(from: nodeA, to: nodeB)
-    let edgeBA = makeEdge(from: nodeB, to: nodeA)
-
-    nodeA[connectedAt: .output(0)] = true
-    nodeA[connectedAt: .input(0)] = true
-    nodeB[connectedAt: .output(0)] = true
-    nodeB[connectedAt: .input(0)] = true
-
-    let flow = makeFlow(nodes: [nodeA, nodeB], edges: Set([edgeAB, edgeBA]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected graphHasCycles error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case .graphHasCycles:
-                break
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-@MainActor
-@Test("Validation rejects longer cycles")
-func validateNodeGraphRejectsLongerCycle() throws {
-    var nodeA = makeNode(name: "A")
-    var nodeB = makeNode(name: "B")
-    var nodeC = makeNode(name: "C")
-    var nodeD = makeNode(name: "D")
-
-    let edgeAB = makeEdge(from: nodeA, to: nodeB)
-    let edgeBC = makeEdge(from: nodeB, to: nodeC)
-    let edgeCA = makeEdge(from: nodeC, to: nodeA)
-    let edgeCD = makeEdge(from: nodeC, to: nodeD)
-
-    nodeA[connectedAt: .output(0)] = true
-    nodeA[connectedAt: .input(0)] = true
-    nodeB[connectedAt: .output(0)] = true
-    nodeB[connectedAt: .input(0)] = true
-    nodeC[connectedAt: .output(0)] = true
-    nodeC[connectedAt: .input(0)] = true
-    nodeD[connectedAt: .input(0)] = true
-
-    let flow = makeFlow(nodes: [nodeA, nodeB, nodeC, nodeD], edges: Set([edgeAB, edgeBC, edgeCA, edgeCD]))
-
-    do {
-        try flow.validateNodeGraph()
-        #expect(Bool(false), "Expected graphHasCycles error")
-    } catch let error {
-        expectValidationError(error) { validationError in
-            switch validationError {
-            case .graphHasCycles:
-                break
-            default:
-                #expect(Bool(false), "Unexpected error: \(validationError)")
-            }
-        }
-    }
-}
-
-// MARK: - canAddEdge
-
-@MainActor
-@Test("canAddEdge allows valid connection")
-func canAddEdgeAcceptsValidEdge() throws {
-    let source = makeNode(name: "Source")
-    let dest = makeNode(name: "Dest")
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .success:
-        break
-    case .failure(let failure):
-        #expect(Bool(false), "Expected success, got failure: \(failure)")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects duplicate edge")
-func canAddEdgeRejectsDuplicateEdge() throws {
-    var source = makeNode(name: "Source")
-    var dest = makeNode(name: "Dest")
-    source[connectedAt: .output(0)] = true
-    dest[connectedAt: .input(0)] = true
-    let existing = makeEdge(from: source, to: dest)
-    let flow = makeFlow(nodes: [source, dest], edges: Set([existing]))
-
-    switch flow.canAddEdge(existing) {
-    case .failure(.repeated):
-        break
-    default:
-        #expect(Bool(false), "Expected repeated failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects edges targeting occupied input")
-func canAddEdgeRejectsEdgeWithSameDestination() throws {
-    var nodeA = makeNode(name: "A")
-    var nodeB = makeNode(name: "B")
-    let nodeC = makeNode(name: "C")
-    nodeA[connectedAt: .output(0)] = true
-    nodeB[connectedAt: .input(0)] = true
-    let existing = makeEdge(from: nodeA, to: nodeB)
-    let flow = makeFlow(nodes: [nodeA, nodeB, nodeC], edges: Set([existing]))
-    let candidate = makeEdge(from: nodeC, to: nodeB)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.repeatedDestination):
-        break
-    default:
-        #expect(Bool(false), "Expected repeatedDestination failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects unknown source nodes")
-func canAddEdgeRejectsMissingSourceNode() throws {
-    let source = makeNode(name: "Missing")
-    let dest = makeNode(name: "Present")
-    let flow = makeFlow(nodes: [dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.missingSourceNode):
-        break
-    default:
-        #expect(Bool(false), "Expected missingSourceNode failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects unknown destination nodes")
-func canAddEdgeRejectsMissingDestinationNode() throws {
-    let source = makeNode(name: "Present")
-    let dest = makeNode(name: "Missing")
-    let flow = makeFlow(nodes: [source])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.missingDestNode):
-        break
-    default:
-        #expect(Bool(false), "Expected missingDestNode failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects invalid source slots")
-func canAddEdgeRejectsInvalidSourcePortSlot() throws {
-    let source = makeNode(name: "Source")
-    let dest = makeNode(name: "Dest")
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, sourceSlot: .output(3), to: dest, destSlot: .input(0))
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.missingSourcePort):
-        break
-    default:
-        #expect(Bool(false), "Expected missingSourcePort failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects invalid destination slots")
-func canAddEdgeRejectsInvalidDestinationPortSlot() throws {
-    let source = makeNode(name: "Source")
-    let dest = makeNode(name: "Dest")
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, sourceSlot: .output(0), to: dest, destSlot: .input(5))
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.missingDestPort):
-        break
-    default:
-        #expect(Bool(false), "Expected missingDestPort failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects already connected destination ports")
-func canAddEdgeRejectsConnectedDestinationPort() throws {
-    let source = makeNode(name: "Source")
-    var dest = makeNode(name: "Dest")
-    dest[connectedAt: .input(0)] = true
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.destPortAlreadyConnected):
-        break
-    default:
-        #expect(Bool(false), "Expected destPortAlreadyConnected failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge suggests converting destination variation")
-func canAddEdgeSuggestsDestVariation() throws {
-    let source = makeNode(name: "Source", valueType: .float)
-    let dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.typeMismatch(.fixConvertingDestTo(let variation))):
-        #expect(variation == NodeKind.valueNode(.float))
-    default:
-        #expect(Bool(false), "Expected typeMismatch.fixConvertingDestTo failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge suggests converting source variation")
-func canAddEdgeSuggestsSourceVariation() throws {
-    let source = makeNode(name: "Source", valueType: .float)
-    var dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
-    dest.outputs[0].connected = true
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.typeMismatch(.fixConvertingSourceTo(let variation))):
-        #expect(variation == NodeKind.valueNode(.int))
-    default:
-        #expect(Bool(false), "Expected typeMismatch.fixConvertingSourceTo failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge detects unresolvable type mismatches")
-func canAddEdgeRejectsUnfixableTypeMismatch() throws {
-    var source = makeNode(name: "Source", valueType: .float)
-    var dest = makeNode(name: "Dest", value: .int(0), valueType: .int)
-    source.outputs[0].connected = true
-    dest.outputs[0].connected = true
-    let flow = makeFlow(nodes: [source, dest])
-    let candidate = makeEdge(from: source, to: dest)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.typeMismatch(.cantFix)):
-        break
-    default:
-        #expect(Bool(false), "Expected typeMismatch.cantFix failure")
-    }
-}
-
-@MainActor
-@Test("canAddEdge rejects edges that introduce cycles")
-func canAddEdgeRejectsCycle() throws {
-    var nodeA = makeNode(name: "A")
-    var nodeB = makeNode(name: "B")
-    nodeB[connectedAt: .output(0)] = true
-    nodeA[connectedAt: .input(0)] = true
-    let existing = makeEdge(from: nodeB, to: nodeA)
-    let flow = makeFlow(nodes: [nodeA, nodeB], edges: Set([existing]))
-    let candidate = makeEdge(from: nodeA, to: nodeB)
-
-    switch flow.canAddEdge(candidate) {
-    case .failure(.causesCycle):
-        break
-    default:
-        #expect(Bool(false), "Expected causesCycle failure")
-    }
-}
-
-@MainActor
-@Test("convert should correctly covert .valueNode(.float) -> .valueNode(.int)")
-func convertValid() throws {
     let id = UUID()
-    let flow = makeFlow(nodes: [.init(id: id, kind: .valueNode(.float))])
-    let prev = try flow.convert(node: id, toKind: .valueNode(.int))
-    #expect(prev.kind == .valueNode(.float))
-    #expect(flow.nodes[id]!.kind == .valueNode(.int))
+    let node = FlowNode(kind: .addNode(.vector2))
+    let node1 = FlowNode(id: id, kind: .valueNode(.float))
+    let node2 = FlowNode(id: id, kind: .valueNode(.int))
+    flow.addNode(node)
+    flow.addNode(node1)
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node1)
+    #expect(flow.nodes[node.id] == node)
+    flow.updateNode(node2)
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node2)
+    #expect(flow.nodes[node.id] == node)
 }
 
 @MainActor
-@Test("convert should throw an error when coverting .valueNode(.float) -> .addNode(.float)")
-func convertInvalid() throws {
+@Test("`addEdge` should correctly add an edge")
+func testAddEdge() {
+    let flow = Flow()
+    #expect(flow.edges.isEmpty)
+    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    flow.addEdge(edge)
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+}
+
+@MainActor
+@Test("`removeEdge` should correctly add an edge")
+func testRemoveEdge() {
+    let flow = Flow()
+    #expect(flow.edges.isEmpty)
+    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    flow.addEdge(edge)
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+    flow.removeEdge(edge)
+    #expect(flow.edges.isEmpty)
+}
+
+// MARK: - Nodes, Ports and Edges - Atomic Operations (Undo)
+
+@MainActor
+@Test("`addNode` should correctly add one node to `nodes`, remove with `undo` and add again with `redo`.")
+func testAddNodeUndoRedo() {
+    let flow = Flow()
+    let node = FlowNode(kind: .valueNode(.float))
+    um.withGroup { flow.addNode(node, undoManager: um) }
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node.id] == node)
+    um.undo()
+    #expect(flow.nodes.count == 0)
+    #expect(flow.nodes[node.id] == nil)
+    um.redo()
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node.id] == node)
+}
+
+@MainActor
+@Test(
+    "`removeNode` should correctly remove one node from `nodes`, add the node again with `undo` and remove again with `redo`."
+)
+func testRemoveNodeUndoRedo() {
+    let flow = Flow()
+    let node1 = FlowNode(kind: .valueNode(.float))
+    let node2 = FlowNode(kind: .valueNode(.float))
+    um.withGroup { flow.addNode(node1, undoManager: um) }
+    um.withGroup { flow.addNode(node2, undoManager: um) }
+    #expect(flow.nodes.count == 2)
+    um.withGroup { flow.removeNode(node2.id, undoManager: um) }
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+    um.undo()
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == node2)
+    um.redo()
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+}
+
+@MainActor
+@Test("`addNode` and `removeNode` mixed undo operations")
+func testAddRemoveNodeUndoRedo() {
+    let flow = Flow()
+    let node1 = FlowNode(kind: .valueNode(.float))
+    let node2 = FlowNode(kind: .valueNode(.float))
+    um.withGroup { flow.addNode(node1, undoManager: um) }
+    um.withGroup { flow.addNode(node2, undoManager: um) }
+    #expect(flow.nodes.count == 2)
+    um.withGroup { flow.removeNode(node2.id, undoManager: um) }
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+    um.undo()
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == node2)
+    um.redo()
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+    um.undo()
+    um.undo()
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+    um.undo()
+    #expect(flow.nodes.count == 0)
+    um.redo()
+    #expect(flow.nodes.count == 1)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == nil)
+    um.redo()
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[node1.id] == node1)
+    #expect(flow.nodes[node2.id] == node2)
+}
+
+@MainActor
+@Test(
+    "`updateNode` should correctly modify a node from `nodes`, `undo` should restore the previous value, and `redo` update again."
+)
+func testUpdateNodeUndoRedo() {
+    let flow = Flow()
     let id = UUID()
-    let flow = makeFlow(nodes: [.init(id: id, kind: .valueNode(.float))])
-    do {
-        let _ = try flow.convert(node: id, toKind: .addNode(.float))
-    } catch {
-        switch error {
-        case let .failedToConvertNode(from: from, to: to):
-            #expect(from == .valueNode(.float))
-            #expect(to == .addNode(.float))
-        default:
-            #expect(Bool(false), "Unexpected error: \(error)")
-        }
-    }
+    let node = FlowNode(kind: .addNode(.vector2))
+    let node1 = FlowNode(id: id, kind: .valueNode(.float))
+    let node2 = FlowNode(id: id, kind: .valueNode(.int))
+    um.withGroup { flow.addNode(node, undoManager: um) }
+    um.withGroup { flow.addNode(node1, undoManager: um) }
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node1)
+    #expect(flow.nodes[node.id] == node)
+    um.withGroup { flow.updateNode(node2, undoManager: um) }
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node2)
+    #expect(flow.nodes[node.id] == node)
+    um.undo()
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node1)
+    #expect(flow.nodes[node.id] == node)
+    um.redo()
+    #expect(flow.nodes.count == 2)
+    #expect(flow.nodes[id] == node2)
+    #expect(flow.nodes[node.id] == node)
+}
+
+@MainActor
+@Test("`addEdge` should correctly add an edge, and `undo` should remove it.")
+func testAddEdgeUndo() {
+    let flow = Flow()
+    #expect(flow.edges.isEmpty)
+    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    um.withGroup { flow.addEdge(edge, undoManager: um) }
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+    um.undo()
+    #expect(flow.edges.isEmpty)
+}
+
+@MainActor
+@Test("`removeEdge` should correctly add an edge")
+func testRemoveEdgeUndo() {
+    let flow = Flow()
+    #expect(flow.edges.isEmpty)
+    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    um.withGroup { flow.addEdge(edge, undoManager: um) }
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+    um.withGroup { flow.removeEdge(edge, undoManager: um) }
+    #expect(flow.edges.isEmpty)
+    um.undo()
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+    um.redo()
+    #expect(flow.edges.isEmpty)
+    um.undo()
+    #expect(flow.edges.count == 1)
+    #expect(flow.edges.contains(edge))
+    um.undo()
+    #expect(flow.edges.isEmpty)
 }
