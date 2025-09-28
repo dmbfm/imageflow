@@ -374,7 +374,7 @@ func addEdgeConnectingNodesConvertingIfNeededCantFix() throws {
         #expect(Bool(false), "Expected type mismatch to throw")
     } catch let error {
         switch error {
-        case .edgeTypeError(let mismatch):
+        case .edge(.typeMismatch(let mismatch)):
             switch mismatch {
             case .cantFix:
                 break
@@ -791,10 +791,10 @@ func canAddEdgeAcceptsValidEdge() throws {
     let candidate = makeEdge(from: source, to: dest)
 
     switch flow.canAddEdge(candidate) {
-    case .ok:
+    case .success:
         break
     case .failure(let failure):
-        #expect(Bool(false), "Expected .ok, got failure: \(failure)")
+        #expect(Bool(false), "Expected success, got failure: \(failure)")
     }
 }
 
@@ -809,10 +809,10 @@ func canAddEdgeRejectsDuplicateEdge() throws {
     let flow = makeFlow(nodes: [source, dest], edges: Set([existing]))
 
     switch flow.canAddEdge(existing) {
-    case .failure(.edgeAlreadyExists):
+    case .failure(.repeated):
         break
     default:
-        #expect(Bool(false), "Expected duplicateEdge failure")
+        #expect(Bool(false), "Expected repeated failure")
     }
 }
 
@@ -829,10 +829,10 @@ func canAddEdgeRejectsEdgeWithSameDestination() throws {
     let candidate = makeEdge(from: nodeC, to: nodeB)
 
     switch flow.canAddEdge(candidate) {
-    case .failure(.edgeWithSameDestinationAlreadyExists):
+    case .failure(.repeatedDestination):
         break
     default:
-        #expect(Bool(false), "Expected edgeWithSameDestinationAlreadyExists failure")
+        #expect(Bool(false), "Expected repeatedDestination failure")
     }
 }
 
@@ -861,10 +861,10 @@ func canAddEdgeRejectsMissingDestinationNode() throws {
     let candidate = makeEdge(from: source, to: dest)
 
     switch flow.canAddEdge(candidate) {
-    case .failure(.missingDestinationNode):
+    case .failure(.missingDestNode):
         break
     default:
-        #expect(Bool(false), "Expected missingDestinationNode failure")
+        #expect(Bool(false), "Expected missingDestNode failure")
     }
 }
 
@@ -877,10 +877,10 @@ func canAddEdgeRejectsInvalidSourcePortSlot() throws {
     let candidate = makeEdge(from: source, sourceSlot: .output(3), to: dest, destSlot: .input(0))
 
     switch flow.canAddEdge(candidate) {
-    case .failure(.invalidSourcePortSlot):
+    case .failure(.missingSourcePort):
         break
     default:
-        #expect(Bool(false), "Expected invalidSourcePortSlot failure")
+        #expect(Bool(false), "Expected missingSourcePort failure")
     }
 }
 
@@ -893,10 +893,10 @@ func canAddEdgeRejectsInvalidDestinationPortSlot() throws {
     let candidate = makeEdge(from: source, sourceSlot: .output(0), to: dest, destSlot: .input(5))
 
     switch flow.canAddEdge(candidate) {
-    case .failure(.invalidDestinationPortSlot):
+    case .failure(.missingDestPort):
         break
     default:
-        #expect(Bool(false), "Expected invalidDestinationPortSlot failure")
+        #expect(Bool(false), "Expected missingDestPort failure")
     }
 }
 
@@ -910,10 +910,10 @@ func canAddEdgeRejectsConnectedDestinationPort() throws {
     let candidate = makeEdge(from: source, to: dest)
 
     switch flow.canAddEdge(candidate) {
-    case .failure(.destinationPortAlreadyConnected):
+    case .failure(.destPortAlreadyConnected):
         break
     default:
-        #expect(Bool(false), "Expected destinationPortAlreadyConnected failure")
+        #expect(Bool(false), "Expected destPortAlreadyConnected failure")
     }
 }
 
