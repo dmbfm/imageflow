@@ -458,7 +458,18 @@ extension Flow {
         return result
     }
 
+    public func convert(node id: UUID, toKind kind: NodeKind) throws(FlowError) -> FlowNode {
+        let prev = self.nodes[id]!
+        if let node = prev.variation(kind) {
+            self.nodes[id] = node
+            return prev
+        } else {
+            throw .failedToConvertNode(from: prev.kind, to: kind)
+        }
+    }
+
     public func addEdgeConnectingNodesConvertingIfNeeded(_ edge: Edge) throws(FlowError) -> AddEdgeReplaceNode {
+
         var result: AddEdgeReplaceNode = .none
         do {
             try self.addEdgeConnectingNodes(edge)
@@ -469,19 +480,10 @@ extension Flow {
                 case .cantFix:
                     throw error
                 case .fixConvertingDestTo(let kind):
-                    let node = self.nodes[edge.to.node]!
-                    result = .dest(node)
-                    if !self.nodes[edge.to.node]!.convert(toVariation: kind) {
-                        throw .failedToConvertNode(from: node.kind, to: kind)
-                    }
+                    result = .dest(try convert(node: edge.to.node, toKind: kind))
                 case .fixConvertingSourceTo(let kind):
-                    let node = self.nodes[edge.from.node]!
-                    result = .source(node)
-                    if !self.nodes[edge.from.node]!.convert(toVariation: kind) {
-                        throw .failedToConvertNode(from: node.kind, to: kind)
-                    }
+                    result = .source(try convert(node: edge.from.node, toKind: kind))
                 }
-                break
             default:
                 throw error
             }

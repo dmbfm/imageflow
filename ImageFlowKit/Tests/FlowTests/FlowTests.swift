@@ -12,7 +12,7 @@ import struct Models.Edge
 private func makeNode(
     id: UUID = UUID(),
     name: String = "Node",
-    value: Value = .float(0.0),
+    value: Value? = nil,
     valueType: ValueType = .float
 ) -> FlowNode {
     FlowNode(
@@ -23,7 +23,7 @@ private func makeNode(
             .init(
                 label: "input",
                 index: 0,
-                value: value,
+                value: value ?? Value.defaultValue(forType: valueType),
                 semantics: .default,
                 connected: false
             )
@@ -58,6 +58,11 @@ private func makeEdge(
         PortLocation(node: source.id, port: sourceSlot),
         PortLocation(node: destination.id, port: destSlot)
     )!
+}
+
+@MainActor
+private func makeGaussianBlurNode(id: UUID = UUID()) -> FlowNode {
+    FlowNode(id: id, kind: .coreImageFilterNode(.blur(.CIGaussianBlur)))
 }
 
 @MainActor
@@ -253,6 +258,133 @@ func undoRedoDeleteEdgeDisconnectingNodes() throws {
     #expect(!flow.edges.contains(edge))
     #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
     #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
+}
+
+@MainActor
+@Test("addEdgeConnectingNodesConvertingIfNeeded returns .none when types already match")
+func addEdgeConnectingNodesConvertingIfNeededReturnsNone() throws {
+    let flow = Flow()
+    let source = makeNode(name: "Source", valueType: .float)
+    let destination = makeNode(name: "Destination", valueType: .float)
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
+    let edge = makeEdge(from: source, to: destination)
+
+    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
+
+    #expect(result == .none)
+    #expect(flow.edges.contains(edge))
+    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == true)
+    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
+    #expect(flow.nodes[destination.id]?.kind == destination.kind)
+}
+
+@MainActor
+@Test("addEdgeConnectingNodesConvertingIfNeeded converts destination node when variation matches source type")
+func addEdgeConnectingNodesConvertingIfNeededConvertsDestination() throws {
+    let flow = Flow()
+    let source = makeNode(name: "Source", valueType: .float)
+    let destination = makeNode(name: "Destination", valueType: .int)
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
+    let edge = makeEdge(from: source, to: destination)
+
+    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
+
+    #expect(result == .dest(destination))
+    #expect(flow.edges.contains(edge))
+    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
+    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == true)
+}
+
+@MainActor
+@Test("addEdgeConnectingNodesConvertingIfNeeded converts source node when destination cannot vary")
+func addEdgeConnectingNodesConvertingIfNeededConvertsSource() throws {
+    let flow = Flow()
+    let source = makeNode(name: "Source", valueType: .color3)
+    let destination = makeGaussianBlurNode()
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 120, y: 0))
+    let edge = makeEdge(
+        from: source,
+        sourceSlot: .output(0),
+        to: destination,
+        destSlot: .input(1)
+    )
+
+    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
+
+    #expect(result == .source(source))
+    #expect(flow.edges.contains(edge))
+    #expect(flow.nodes[source.id]?.kind == .valueNode(.float))
+    #expect(flow.nodes[destination.id]?.kind == destination.kind)
+    #expect(flow.nodes[destination.id]?[connectedAt: .input(1)] == true)
+}
+
+@MainActor
+@Test("addEdgeConnectingNodesConvertingIfNeeded registers undo that restores converted destination nodes")
+func addEdgeConnectingNodesConvertingIfNeededUndoRestoresNode() throws {
+    let flow = Flow()
+    let undoManager = UndoManager()
+    undoManager.groupsByEvent = false
+    let source = makeNode(name: "Source", valueType: .float)
+    let destination = makeNode(name: "Destination", valueType: .int)
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 80, y: 0))
+    let edge = makeEdge(from: source, to: destination)
+
+    undoManager.beginUndoGrouping()
+    let result = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge, undoManager: undoManager)
+    undoManager.endUndoGrouping()
+
+    #expect(result == .dest(destination))
+    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
+    #expect(flow.edges.contains(edge))
+
+    undoManager.undo()
+
+    #expect(!flow.edges.contains(edge))
+    #expect(flow.nodes[destination.id]?.kind == destination.kind)
+    #expect(flow.nodes[destination.id]?[connectedAt: .input(0)] == false)
+    #expect(flow.nodes[source.id]?[connectedAt: .output(0)] == false)
+
+    undoManager.redo()
+
+    #expect(flow.edges.contains(edge))
+    #expect(flow.nodes[destination.id]?.kind == .valueNode(.float))
+}
+
+@MainActor
+@Test("addEdgeConnectingNodesConvertingIfNeeded throws when types cannot be reconciled")
+func addEdgeConnectingNodesConvertingIfNeededCantFix() throws {
+    let flow = Flow()
+    let source = makeGaussianBlurNode()
+    let destination = makeGaussianBlurNode()
+    try flow.addNode(source, at: .zero)
+    try flow.addNode(destination, at: CGPoint(x: 180, y: 0))
+    let edge = makeEdge(
+        from: source,
+        sourceSlot: .output(0),
+        to: destination,
+        destSlot: .input(1)
+    )
+
+    do {
+        _ = try flow.addEdgeConnectingNodesConvertingIfNeeded(edge)
+        #expect(Bool(false), "Expected type mismatch to throw")
+    } catch let error {
+        switch error {
+        case .edgeTypeError(let mismatch):
+            switch mismatch {
+            case .cantFix:
+                break
+            default:
+                #expect(Bool(false), "Unexpected mismatch: \(mismatch)")
+            }
+        default:
+            #expect(Bool(false), "Unexpected error: \(error)")
+        }
+    }
 }
 
 @MainActor
@@ -852,5 +984,33 @@ func canAddEdgeRejectsCycle() throws {
         break
     default:
         #expect(Bool(false), "Expected causesCycle failure")
+    }
+}
+
+@MainActor
+@Test("convert should correctly covert .valueNode(.float) -> .valueNode(.int)")
+func convertValid() throws {
+    let id = UUID()
+    let flow = makeFlow(nodes: [.init(id: id, kind: .valueNode(.float))])
+    let prev = try flow.convert(node: id, toKind: .valueNode(.int))
+    #expect(prev.kind == .valueNode(.float))
+    #expect(flow.nodes[id]!.kind == .valueNode(.int))
+}
+
+@MainActor
+@Test("convert should throw an error when coverting .valueNode(.float) -> .addNode(.float)")
+func convertInvalid() throws {
+    let id = UUID()
+    let flow = makeFlow(nodes: [.init(id: id, kind: .valueNode(.float))])
+    do {
+        let _ = try flow.convert(node: id, toKind: .addNode(.float))
+    } catch {
+        switch error {
+        case let .failedToConvertNode(from: from, to: to):
+            #expect(from == .valueNode(.float))
+            #expect(to == .addNode(.float))
+        default:
+            #expect(Bool(false), "Unexpected error: \(error)")
+        }
     }
 }
