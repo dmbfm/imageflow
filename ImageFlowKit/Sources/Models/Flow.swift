@@ -2,6 +2,8 @@ import Backend
 import Foundation
 import Logging
 
+/// Observable model backing the node-based flow editor, responsible for nodes,
+/// edges, selection state, and related graph validation utilities.
 @Observable
 @MainActor
 public final class Flow {
@@ -60,6 +62,9 @@ extension Flow {
         self.edges.count(where: { edge in edge.from == port || edge.to == port })
     }
 
+    /// Returns how many edges already terminate at the same destination as the supplied edge.
+    /// - Parameter edge: Edge whose destination should be compared.
+    /// - Returns: Number of edges that clash with the destination port.
     public func numberOfEdges(withSameDestinationAs edge: Edge) -> Int {
         self.edges.count(where: { $0.to == edge.to })
     }
@@ -84,7 +89,7 @@ extension Flow {
     }
 
     /// Inserts a node into the flow graph. The node is expected to have all of its ports set as not connected.
-    /// If a `UndoManager` is provider, registers a undo action.
+    /// If an `UndoManager` is provided, registers an undo action that removes the node again.
     /// - Parameters:
     ///   - node: Node model to insert.
     ///   - position: Canvas position for the node.
@@ -134,10 +139,9 @@ extension Flow {
         }
     }
 
-    /// Removes a node and returns its model and position. If the node belongs
-    /// to any edges, a `removedNodeWithExistingEdges` error is thrown; it it has any
-    /// ports set as connected a `removedNodeWithConnectedPorts`
-    /// error is thrown.
+    /// Removes a node and returns its model and position. If the node participates in any edges,
+    /// `removedNodeWithExistingEdges` is thrown; if any of its ports are still marked connected,
+    /// `removedNodeWithConnectedPorts` is thrown.
     /// - Parameter id: Node identifier to remove.
     /// - Returns: The removed node and its previous position.
     /// - Throws: `FlowError.nodeNotFound` if the node does not exist.
@@ -163,7 +167,7 @@ extension Flow {
     /// ports set as connected a `removedNodeWithConnectedPorts`
     /// error is thrown.
     ///
-    /// If a `UndoManager` is provider, registers a undo action.
+    /// When an `UndoManager` is provided, registers an undo action that restores the node.
     /// - Parameters:
     ///   - id: Node identifier to remove.
     ///   - um: Optional undo manager used to restore the node.
@@ -221,7 +225,7 @@ extension Flow {
 
     /// Inserts an edge into the graph without touching port flags.
     /// - Parameter edge: Edge to insert.
-    /// - Throws: `FlowError.edgeAlreadyExists` if the same edge is already present.
+    /// - Throws: `FlowError.edge(.repeated)` if the same edge is already present.
     public func addEdge(_ edge: Edge) throws(FlowError) {
         if self.edges.contains(edge) {
             throw .edge(.repeated)
@@ -234,7 +238,7 @@ extension Flow {
     /// - Parameters:
     ///   - edge: Edge to insert.
     ///   - um: Optional undo manager.
-    /// - Throws: `FlowError.edgeAlreadyExists` if the edge already exists.
+    /// - Throws: `FlowError.edge(.repeated)` if the edge already exists.
     public func addEdge(
         _ edge: Edge,
         undoManager um: UndoManager?,
@@ -290,6 +294,10 @@ extension Flow {
         }
     }
 
+    /// Adds an edge, attempting to convert either endpoint to a compatible variation when a type mismatch occurs.
+    /// - Parameter edge: Edge to add.
+    /// - Returns: Which node was replaced during conversion, if any.
+    /// - Throws: `FlowError` when the edge cannot be added or a conversion fails.
     public func addEdgeConnectingNodesConvertingIfNeeded(_ edge: Edge) throws(FlowError) -> AddEdgeReplaceNode {
 
         var result: AddEdgeReplaceNode = .none
@@ -318,6 +326,12 @@ extension Flow {
         return result
     }
 
+    /// Adds an edge with optional node conversion and registers an undo stack entry mirroring the conversion work.
+    /// - Parameters:
+    ///   - edge: Edge to add.
+    ///   - um: Optional undo manager.
+    /// - Returns: Which node was replaced during conversion, if any.
+    /// - Throws: `FlowError` when the edge cannot be added or conversion fails.
     public func addEdgeConnectingNodesConvertingIfNeeded(
         _ edge: Edge,
         undoManager um: UndoManager?
@@ -410,6 +424,12 @@ extension Flow {
 
     // MARK: - Utils
 
+    /// Converts the node identified by `id` to the supplied kind, if a variation exists.
+    /// - Parameters:
+    ///   - id: Identifier of the node to convert.
+    ///   - kind: Target node kind.
+    /// - Returns: The previous node instance so callers can restore it later if needed.
+    /// - Throws: `FlowError.failedToConvertNode` when the conversion cannot be satisfied.
     public func convert(node id: UUID, toKind kind: NodeKind) throws(FlowError) -> FlowNode {
         let prev = self.nodes[id]!
         if let node = prev.variation(kind) {
@@ -420,6 +440,7 @@ extension Flow {
         }
     }
 
+    /// Restores the provided node instance, registering an undo action for the prior value when appropriate.
     private func restoreNode(_ node: FlowNode, undoManager um: UndoManager?) throws(FlowError) {
         guard let prev = self.nodes[node.id] else {
             throw .nodeNotFound
@@ -438,14 +459,10 @@ extension Flow {
 
 extension Flow {
     /// Validates the flow graph, ensuring that:
-    ///   - Each edge is connected to an existing node, and the port is marked as connected.
-    ///   - Each node port marked as connected belongs to a edge.
-    ///   - Each node port marked as disconnected does not belong to a edge.
+    ///   - Each edge references existing nodes and the associated ports are marked as connected.
+    ///   - Each port flagged as connected has a matching edge and disconnected ports have none.
     ///   - Each input port is connected to at most one edge.
-    ///
-    /// - Parameters:
-    ///
-    /// - Throws:
+    /// - Throws: `FlowValidationError` describing the first inconsistency encountered.
     public func validateNodeGraph() throws(FlowValidationError) {
 
         // Check that to every `nodePositions` entry there is a corresponding `nodes`
@@ -551,10 +568,9 @@ extension Flow {
         return graph.detectCycles() == .hasCycles
     }
 
-    /// Checkes if the given edge can be safely added to the graph; if not, returns
-    /// the reason it can't be added.
-    /// - Parameter edge:
-    /// - Returns:
+    /// Checks whether the given edge can be safely added to the graph without mutating state.
+    /// - Parameter edge: Proposed edge to validate.
+    /// - Returns: `.success` when the edge is allowed, or `.failure` carrying the reason it cannot be added.
     public func canAddEdge(_ edge: Edge) -> Result<(), EdgeError> {
         // Check if the edge already exists
         if self.edges.contains(edge) {
@@ -775,9 +791,13 @@ extension Flow {
         var edges: [Edge]
     }
 
+    /// Describes which node, if any, was replaced while reconciling an edge addition.
     public enum AddEdgeReplaceNode: Equatable {
+        /// No conversion was necessary.
         case none
+        /// The source node was replaced to satisfy the edge.
         case source(FlowNode)
+        /// The destination node was replaced to satisfy the edge.
         case dest(FlowNode)
     }
 }
