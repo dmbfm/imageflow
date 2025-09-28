@@ -41,6 +41,10 @@ public final class Flow {
 // MARK: - Nodes, Ports and Edges
 
 extension Flow {
+    public func nodeExists(_ id: UUID) -> Bool {
+        self.nodes[id] != nil && self.nodePositions[id] != nil
+    }
+
     /// Returns all edges that originate from or terminate at the supplied node identifier.
     /// - Parameter id: The node identifier.
     /// - Returns: All edges touching the node.
@@ -147,7 +151,7 @@ extension Flow {
     /// - Throws: `FlowError.nodeNotFound` if the node does not exist.
     @discardableResult
     public func deleteNode(_ id: UUID) throws(FlowError) -> (FlowNode, CGPoint) {
-        guard let node = self.nodes.removeValue(forKey: id), let pos = self.nodePositions.removeValue(forKey: id) else {
+        guard let node = self.nodes[id], let pos = self.nodePositions[id] else {
             throw .nodeNotFound
         }
 
@@ -159,19 +163,17 @@ extension Flow {
             throw .removedNodeWithConnectedPorts
         }
 
+        self.nodes.removeValue(forKey: id)
+        self.nodePositions.removeValue(forKey: id)
+
         return (node, pos)
     }
 
-    /// Removes a node and returns its model and position. If the node belongs
-    /// to any edges, a `removedNodeWithExistingEdges` error is thrown; it it has any
-    /// ports set as connected a `removedNodeWithConnectedPorts`
-    /// error is thrown.
-    ///
-    /// When an `UndoManager` is provided, registers an undo action that restores the node.
+    /// Removes a node and registers an undo action that restores it on demand.
     /// - Parameters:
     ///   - id: Node identifier to remove.
-    ///   - um: Optional undo manager used to restore the node.
-    /// - Throws: `FlowError.nodeNotFound` if the node does not exist.
+    ///   - um: Optional undo manager used to reinsert the node and its position.
+    /// - Throws: Any error produced by `deleteNode(_:)`.
     public func deleteNode(
         _ id: UUID,
         undoManager um: UndoManager?,
@@ -261,22 +263,6 @@ extension Flow {
             throw .edge(error)
         }
 
-        if self.edges.contains(edge) {
-            throw .edge(.repeated)
-        }
-
-        if self.nodes[edge.from.node] == nil {
-            throw .edge(.missingSourceNode)
-        }
-
-        if self.nodes[edge.to.node] == nil {
-            throw .edge(.missingDestNode)
-        }
-
-        if self.nodes[edge.to.node]![connectedAt: edge.to.slot] {
-            throw .edge(.destPortAlreadyConnected)
-        }
-
         try self.addEdge(edge)
         self.nodes[edge.from.node]![connectedAt: edge.from.slot] = true
         self.nodes[edge.to.node]![connectedAt: edge.to.slot] = true
@@ -320,7 +306,16 @@ extension Flow {
         }
 
         if result != .none {
-            try self.addEdgeConnectingNodes(edge)
+            do {
+                try self.addEdgeConnectingNodes(edge)
+            } catch {
+                switch result {
+                case .none:
+                    break
+                case .dest(let node), .source(let node):
+                    try self.restoreNode(node, undoManager: nil)
+                }
+            }
         }
 
         return result
@@ -385,29 +380,29 @@ extension Flow {
             throw .edge(.notFound)
         }
 
-        if self.nodes[edge.from.node] == nil {
+        if !self.nodeExists(edge.from.node) {
             throw .edge(.missingSourceNode)
         }
 
-        if self.nodes[edge.to.node] == nil {
+        if !self.nodeExists(edge.to.node) {
             throw .edge(.missingDestNode)
         }
 
-        if !self.nodes[edge.from.node]![connectedAt: edge.from.slot] {
+        if !(try self.getNodePortConnected(edge.from)) {
             throw .edge(.sourcePortNotConnected)
         }
 
-        if !self.nodes[edge.to.node]![connectedAt: edge.to.slot] {
+        if !(try self.getNodePortConnected(edge.to)) {
             throw .edge(.destPortNotConnected)
         }
 
         try self.deleteEdge(edge)
 
-        if self.numberOfEdges(ofPort: edge.from) < 2 {
-            self.nodes[edge.from.node]![connectedAt: edge.from.slot] = false
+        if self.numberOfEdges(ofPort: edge.from) <= 0 {
+            try self.setNodePortConnected(edge.from, false)
         }
 
-        self.nodes[edge.to.node]![connectedAt: edge.to.slot] = false
+        try self.setNodePortConnected(edge.to, false)
     }
 
     /// Removes an edge, clears port flags, and registers an undo action that restores the previous connection.
@@ -431,7 +426,9 @@ extension Flow {
     /// - Returns: The previous node instance so callers can restore it later if needed.
     /// - Throws: `FlowError.failedToConvertNode` when the conversion cannot be satisfied.
     public func convert(node id: UUID, toKind kind: NodeKind) throws(FlowError) -> FlowNode {
-        let prev = self.nodes[id]!
+        guard let prev = self.nodes[id] else {
+            throw .nodeNotFound
+        }
         if let node = prev.variation(kind) {
             self.nodes[id] = node
             return prev
@@ -451,6 +448,23 @@ extension Flow {
             um?.registerUndo(target: self) { [weak um] this in
                 try this.restoreNode(prev, undoManager: um)
             }
+        }
+    }
+
+    private func setNodePortConnected(_ port: PortLocation, _ value: Bool) throws(FlowError) {
+        if var node = self.nodes[port.node] {
+            node[connectedAt: port.slot] = value
+            self.nodes[port.node] = node
+        } else {
+            throw .nodeNotFound
+        }
+    }
+
+    private func getNodePortConnected(_ port: PortLocation) throws(FlowError) -> Bool {
+        if let node = self.nodes[port.node] {
+            return node[connectedAt: port.slot]
+        } else {
+            throw .nodeNotFound
         }
     }
 }
@@ -527,20 +541,6 @@ extension Flow {
             throw .graphHasCycles
         }
     }
-
-    public enum FlowValidationError: Error {
-        case nodeWithNoPosition
-        case nodeWithNoData
-        case tooManyEdgesForInput(UUID, Int)
-        case connectedPortWithoutEdge(PortLocation)
-        case disconnectedPortWithEdge(PortLocation)
-        case sourceNodeMissingForEdge(Edge)
-        case destinationNodeMissingForEdge(Edge)
-        case edgeSourceNotConnected(Edge)
-        case edgeDestinationNotConnected(Edge)
-        case graphHasCycles
-    }
-
     /// Detects if the flow graph has any cycles in it.
     private func hasCycles(addingEdge edge: Edge? = nil) -> Bool {
         let graph = FlowGraph(.init())
@@ -773,6 +773,19 @@ extension Flow {
         case cantFix
         case fixConvertingDestTo(NodeKind)
         case fixConvertingSourceTo(NodeKind)
+    }
+
+    public enum FlowValidationError: Error {
+        case nodeWithNoPosition
+        case nodeWithNoData
+        case tooManyEdgesForInput(UUID, Int)
+        case connectedPortWithoutEdge(PortLocation)
+        case disconnectedPortWithEdge(PortLocation)
+        case sourceNodeMissingForEdge(Edge)
+        case destinationNodeMissingForEdge(Edge)
+        case edgeSourceNotConnected(Edge)
+        case edgeDestinationNotConnected(Edge)
+        case graphHasCycles
     }
 
     /// Errors thrown while attempting to disconnect an edge from its ports.
