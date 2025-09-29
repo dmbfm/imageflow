@@ -9,7 +9,6 @@
 import AppKit
 import SwiftUI
 
-
 class ShadowTest: NSView {
 
     lazy var inner: InnerView = {

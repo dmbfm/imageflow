@@ -8,7 +8,6 @@
 import Foundation
 import Helpers
 
-
 struct Layout {
 
     enum Alignment {

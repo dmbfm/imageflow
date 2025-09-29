@@ -1,5 +1,5 @@
-import Logging
 import Helpers
+import Logging
 
 #if canImport(AppKit)
 import AppKit

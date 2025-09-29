@@ -2,7 +2,6 @@
 
 import AppKit
 
-
 final class NodeOutputBlockNSView: NSView, NodeOutputBlockViewProtocol {
 
     public var outputs: [FlowNode.Output] {

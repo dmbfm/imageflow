@@ -8,7 +8,6 @@
 import CoreGraphics
 import Foundation
 
-
 struct Design {
     var portSize: CGFloat
     var portStrokeWidth: CGFloat = 1.0

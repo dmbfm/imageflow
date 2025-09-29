@@ -131,7 +131,7 @@ public struct CanvasFeatureView: View {
 
     private func onCanvasClickBackground() {
         fatalError("TODO")
-//        self.flow.deselectAll()
+        //        self.flow.deselectAll()
     }
 
     // MARK: - Node Methods
@@ -188,7 +188,7 @@ public struct CanvasFeatureView: View {
     }
 
     func onNodeClick(_ id: UUID) {
-//        self.flow.select(nodes: [id], mode: self.isShiftDown ? .union : .replace)
+        //        self.flow.select(nodes: [id], mode: self.isShiftDown ? .union : .replace)
         self.focus.wrappedValue = .global
         fatalError("TODO")
     }
@@ -281,7 +281,8 @@ public struct CanvasFeatureView: View {
         return self.scratch.canvasPlatformView?.convert(frame, from: nil)
     }
 
-    func portFrameCenter(_ location: PortLocation, _ coordinateSpace: CanvasView.CoordinateSpace = .canvas) -> CGPoint? {
+    func portFrameCenter(_ location: PortLocation, _ coordinateSpace: CanvasView.CoordinateSpace = .canvas) -> CGPoint?
+    {
         guard let frame = self.portFrame(location) else { return nil }
         return self.state.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
@@ -302,7 +303,7 @@ public struct CanvasFeatureView: View {
     func updateSelection() {
         for (id, view) in self.nodeViews {
             fatalError("TODO")
-//            view.isSelected = self.nodeSelectionStore.isSelected(id)
+            //            view.isSelected = self.nodeSelectionStore.isSelected(id)
         }
     }
 

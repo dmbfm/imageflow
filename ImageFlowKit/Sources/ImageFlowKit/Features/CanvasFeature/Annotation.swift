@@ -1,7 +1,6 @@
 import Foundation
 import Helpers
 
-
 struct Annotation: Equatable {
     public var title: String
     public var message: String

@@ -12,7 +12,7 @@ extension CanvasView {
         public var id: UUID
         public var src: CGPoint
         public var dst: CGPoint
-        
+
         public init(_ id: UUID = UUID(), src: CGPoint, dst: CGPoint) {
             self.id = id
             self.src = src

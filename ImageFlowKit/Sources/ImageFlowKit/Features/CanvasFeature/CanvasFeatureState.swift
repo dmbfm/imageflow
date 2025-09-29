@@ -23,14 +23,14 @@ final class CanvasFeatureState {
         undoManager um: UndoManager? = nil,
         undoTitle: String? = "Move Nodes"
     ) throws {
-//        um?.beginUndoGrouping()
-//        for (id, pos) in nodes {
-//            try self.move(node: id, to: pos, previousOverride: previous?[id], undoManager: um, undoTitle: nil)
-//        }
-//        um?.endUndoGrouping()
-//        if let undoTitle {
-//            um?.setActionName(undoTitle)
-//        }
+        //        um?.beginUndoGrouping()
+        //        for (id, pos) in nodes {
+        //            try self.move(node: id, to: pos, previousOverride: previous?[id], undoManager: um, undoTitle: nil)
+        //        }
+        //        um?.endUndoGrouping()
+        //        if let undoTitle {
+        //            um?.setActionName(undoTitle)
+        //        }
     }
 
     public func move(
@@ -40,23 +40,23 @@ final class CanvasFeatureState {
         undoManager um: UndoManager? = nil,
         undoTitle: String? = "Move Node"
     ) throws {
-//        guard let current = self.nodePositions[id] else {
-//            throw .init(id: id)
-//        }
-//
-//        let prev = previous ?? current
-//        self.nodePositions[id] = position
-//
-//        um?.registerUndo(
-//            withTarget: self,
-//            handler: { [weak um] this in
-//                try! this.move(node: id, to: prev, undoManager: um, undoTitle: undoTitle)
-//            }
-//        )
-//
-//        if let undoTitle {
-//            um?.setActionName(undoTitle)
-//        }
+        //        guard let current = self.nodePositions[id] else {
+        //            throw .init(id: id)
+        //        }
+        //
+        //        let prev = previous ?? current
+        //        self.nodePositions[id] = position
+        //
+        //        um?.registerUndo(
+        //            withTarget: self,
+        //            handler: { [weak um] this in
+        //                try! this.move(node: id, to: prev, undoManager: um, undoTitle: undoTitle)
+        //            }
+        //        )
+        //
+        //        if let undoTitle {
+        //            um?.setActionName(undoTitle)
+        //        }
     }
 
     public func addNode(

@@ -6,7 +6,7 @@
 //
 
 extension CanvasView {
-        enum CoordinateSpace: Sendable, Hashable {
+    enum CoordinateSpace: Sendable, Hashable {
         /// This is the coordinate space of the view, that is, relative to the
         /// view's bounds.
         case screen

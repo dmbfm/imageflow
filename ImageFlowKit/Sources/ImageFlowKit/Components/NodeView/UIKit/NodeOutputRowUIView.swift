@@ -8,14 +8,6 @@
 
 #if canImport(UIKit)
 
-
-
-
-
-
-
-
-
 import SwiftUI
 
 final class NodeOutputRowUIView: UIView, NodeOutputRowViewProtocol {

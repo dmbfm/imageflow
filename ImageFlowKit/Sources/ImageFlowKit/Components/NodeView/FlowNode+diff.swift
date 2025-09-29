@@ -5,8 +5,6 @@
 //  Created by Daniel Fortes on 11/08/25.
 //
 
-
-
 extension FlowNode {
     enum DiffItem {
         case kind

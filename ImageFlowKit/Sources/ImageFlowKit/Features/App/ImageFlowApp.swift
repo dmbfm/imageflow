@@ -5,11 +5,11 @@
 //  Created by Daniel Fortes on 29/09/25.
 //
 
-
-import SwiftUI
 //import AppKit
 import Logging
+import SwiftUI
 import UniformTypeIdentifiers
+
 //import CommonUtils
 
 //import enum Models.Action
@@ -20,7 +20,7 @@ public struct ImageFlowApp: App {
 
     public var body: some Scene {
         DocumentGroup(newDocument: { FlowDocument() }) { configuration in
-//            DocumentView(configuration.document)
+            //            DocumentView(configuration.document)
         }
         #if os(macOS)
         .defaultWindowPlacement { root, context in
@@ -31,7 +31,7 @@ public struct ImageFlowApp: App {
         .defaultLaunchBehavior(.suppressed)
         #endif
 
-//        WelcomeWindow("Image Flow")
-//            .defaultLaunchBehavior(.presented)
+        //        WelcomeWindow("Image Flow")
+        //            .defaultLaunchBehavior(.presented)
     }
 }
