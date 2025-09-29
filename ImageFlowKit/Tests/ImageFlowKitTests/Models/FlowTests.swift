@@ -4,10 +4,10 @@ import Foundation
 import Testing
 import Values
 
-@testable import ImageFlowKit
-
 import struct ImageFlowKit.Edge
 import class ImageFlowKit.Flow
+
+@testable import ImageFlowKit
 
 // MARK: - Helpers
 
@@ -82,12 +82,14 @@ extension Collection where Element == UUID, Index == Int {
 @Test("nodePositions should correctly return the positions of the nodes")
 func testNodePositions() {
     let ids: [UUID] = (0..<5).map { _ in UUID() }
-    let positions = [CGPoint(x: 0, y: 0), .init(x: 100, y: 0), .init(x: 200, y: 0), .init(x: 300, y: 0), .init(x: 400, y: 0)]
+    let positions = [
+        CGPoint(x: 0, y: 0), .init(x: 100, y: 0), .init(x: 200, y: 0), .init(x: 300, y: 0), .init(x: 400, y: 0),
+    ]
     let flow = Flow()
     for (index, id) in ids.enumerated() {
         flow.addNode(.init(id: id, kind: .valueNode(.float), position: positions[index]))
     }
-    
+
     #expect(flow.nodePositions == .init(uniqueKeysWithValues: zip(ids, positions)))
 }
 
@@ -432,6 +434,7 @@ func testRemoveEdgeUndo() {
 @MainActor
 @Test("`newNodeAction` should create a new node and register undo item")
 func newNodeActionShouldCreateNewNode() {
+    um.removeAllActions()
     let flow = Flow()
     um.withGroup {
         flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
@@ -443,6 +446,7 @@ func newNodeActionShouldCreateNewNode() {
 @MainActor
 @Test("`newNodeAction` should be able to undo its operation")
 func newNodeActionShouldUndo() {
+    um.removeAllActions()
     let flow = Flow()
     um.withGroup {
         flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
@@ -456,6 +460,7 @@ func newNodeActionShouldUndo() {
 @MainActor
 @Test("`newNodeAction` should be able to undo its operation then redo it")
 func newNodeActionShouldUndoThenRedo() {
+    um.removeAllActions()
     let flow = Flow()
     um.withGroup {
         flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
@@ -473,6 +478,7 @@ func newNodeActionShouldUndoThenRedo() {
 @MainActor
 @Test("`deleteNodeAction` should delete a node and register a undo item")
 func deletNodeActionShouldDeleteNode() {
+    um.removeAllActions()
     let flow = Flow()
     let id = UUID()
     flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
@@ -487,6 +493,7 @@ func deletNodeActionShouldDeleteNode() {
 @MainActor
 @Test("`deleteNodeAction` should be able to undo its operation.")
 func deletNodeActionShouldUndo() {
+    um.removeAllActions()
     let flow = Flow()
     let id = UUID()
     flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
@@ -503,6 +510,7 @@ func deletNodeActionShouldUndo() {
 @MainActor
 @Test("`deleteNodeAction` should be able to undo its operation and then redo it.")
 func deletNodeActionShouldUndoThenRedo() {
+    um.removeAllActions()
     let flow = Flow()
     let id = UUID()
     flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
@@ -521,6 +529,7 @@ func deletNodeActionShouldUndoThenRedo() {
 @MainActor
 @Test("`deleteEdgeAction` should delete an edge and register a undo item.")
 func deleteEdgeActionShouldRegisterUndo() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
@@ -537,6 +546,7 @@ func deleteEdgeActionShouldRegisterUndo() {
 @MainActor
 @Test("`deleteEdgeAction` should corretly undo")
 func deleteEdgeActionShouldUndo() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
@@ -555,6 +565,7 @@ func deleteEdgeActionShouldUndo() {
 @MainActor
 @Test("`deleteEdgeAction` should corretly undo")
 func deleteEdgeActionShouldUndoThenRedo() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
@@ -575,6 +586,7 @@ func deleteEdgeActionShouldUndoThenRedo() {
 @MainActor
 @Test("`newEdgeAction` should create a new edge, mark ports as connected, and register an undo item.")
 func newEdgeActionShouldCreateNewEdge() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
@@ -595,6 +607,7 @@ func newEdgeActionShouldCreateNewEdge() {
 @MainActor
 @Test("`newEdgeAction` should corretly undo.")
 func newEdgeActionShouldUndo() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
@@ -619,6 +632,7 @@ func newEdgeActionShouldUndo() {
 @MainActor
 @Test("`newEdgeAction` should corretly undo then redo.")
 func newEdgeActionShouldUndoThenRedo() {
+    um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
@@ -1101,4 +1115,225 @@ func setPortConnectedUndoTest() {
     um.undo()
     #expect(!flow.getPortConnected(.init(node: ids[0], port: .input(0))))
     #expect(flow.getPortConnected(.init(node: ids[0], port: .output(0))))
+}
+
+// MARK: - Selection (Undo)
+
+@MainActor
+@Test("select a single node")
+func selectASingleNodeTest() {
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    #expect(flow.selection.isEmpty)
+    flow.select([ids[5]])
+    #expect(flow.selection.count == 1)
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("select a single should undo")
+func selectASingleNodeUndoTest() {
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    #expect(flow.selection.isEmpty)
+    um.withGroup {
+        flow.select([ids[5]], undoManager: um)
+    }
+    #expect(flow.selection.count == 1)
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.isEmpty)
+    um.redo()
+    #expect(flow.selection.count == 1)
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("select a single node (union)")
+func selectASingleNodeUnionTest() {
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+    um.withGroup {
+        flow.select([ids[5]], mode: .union, undoManager: um)
+    }
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    um.redo()
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("select multiple nodes")
+func selectMultipleNodesTest() {
+
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+    um.withGroup {
+        flow.select([ids[5], ids[7], ids[9]], mode: .replace, undoManager: um)
+    }
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    um.redo()
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("select multiple nodes (union)")
+func selectMultipleNodesUnionTest() {
+
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+    um.withGroup {
+        flow.select([ids[5], ids[7], ids[9]], mode: .union, undoManager: um)
+    }
+    #expect(flow.selection.count == 5)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    um.redo()
+    #expect(flow.selection.count == 5)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("live select replace")
+func liveSelectTest() {
+
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+
+    flow.liveSelectStart()
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
+    flow.liveSelectUpdate([], mode: .replace)
+    flow.liveSelectUpdate([ids[4], ids[5], ids[6]], mode: .replace)
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
+    um.withGroup {
+        flow.liveSelectEnd(undoManager: um)
+    }
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    um.redo()
+    #expect(flow.selection.count == 3)
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("live select union")
+func liveSelectUnionTest() {
+
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+
+    flow.liveSelectStart()
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
+    flow.liveSelectUpdate([], mode: .replace)
+    flow.liveSelectUpdate([ids[4], ids[5], ids[6]], mode: .replace)
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .union)
+    um.withGroup {
+        flow.liveSelectEnd(undoManager: um)
+    }
+    #expect(flow.selection.count == 5)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+    um.undo()
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    um.redo()
+    #expect(flow.selection.count == 5)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
+    #expect(flow.selection.contains(ids[9]))
+    #expect(flow.selection.contains(ids[7]))
+    #expect(flow.selection.contains(ids[5]))
+}
+
+@MainActor
+@Test("live select cancel")
+func liveSelectCancelTest() {
+
+    um.removeAllActions()
+
+    let ids = (0..<10).map { _ in UUID() }
+    let flow = Flow()
+    for id in ids {
+        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+    }
+    flow.selection = [ids[0], ids[1]]
+
+    flow.liveSelectStart()
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
+    flow.liveSelectUpdate([], mode: .replace)
+    flow.liveSelectUpdate([ids[4], ids[5], ids[6]], mode: .replace)
+    flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
+    flow.liveSelectCancel()
+    #expect(!um.canUndo)
+    #expect(flow.selection.count == 2)
+    #expect(flow.selection.contains(ids[0]))
+    #expect(flow.selection.contains(ids[1]))
 }
