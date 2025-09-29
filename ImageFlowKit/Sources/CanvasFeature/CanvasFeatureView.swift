@@ -378,7 +378,6 @@ public struct CanvasFeatureView: View {
                         return nil
                     }
                     return Edge(
-                        edge.id,
                         src: src,
                         dst: dst
                     )

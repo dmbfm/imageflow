@@ -2,7 +2,7 @@ import Backend
 import Foundation
 
 public struct Edge: Hashable, Sendable, Identifiable, Codable {
-    public var id: UUID = UUID()
+    public var id: Self { self }
     let a: PortLocation
     let b: PortLocation
 
