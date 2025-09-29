@@ -66,6 +66,10 @@ extension Flow {
 // MARK: - Nodes, Ports and Edges - Atomic Operations
 
 extension Flow {
+    /// Adds the given `node` to the flow graph.
+    /// - Parameter node: The node to add.
+    /// - Returns: `true` if the node was added; `false` if there was another node
+    /// with the same `id`, in which case nothing is done.
     @discardableResult
     func addNode(_ node: FlowNode) -> Bool {
         if !self.hasNode(node.id) {
@@ -103,13 +107,8 @@ extension Flow {
     }
 
     @discardableResult
-    func removeEdge(_ edge: Edge) -> Bool {
-        if self.edges.contains(edge) {
-            self.edges.remove(edge)
-            return true
-        }
-
-        return false
+    func removeEdge(_ edge: Edge) -> Edge? {
+        self.edges.remove(edge)
     }
 }
 
@@ -178,18 +177,18 @@ extension Flow {
     }
 
     @discardableResult
-    func removeEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
-        if self.removeEdge(edge) {
+    func removeEdge(_ edge: Edge, undoManager um: UndoManager?) -> Edge? {
+        if let edge = self.removeEdge(edge) {
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in
                     this.addEdge(edge, undoManager: um)
                 }
             )
-            return true
+            return edge
         }
 
-        return false
+        return nil
     }
 }
 

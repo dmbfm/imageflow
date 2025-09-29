@@ -7,16 +7,10 @@
 
 import Foundation
 
-extension UndoManager {
-    public func registerUndo<V: Sendable>(withValue value: V, handler action: @escaping @MainActor (V) -> Void) {
-        let box = UnsafeSendableBox(value)
-        self.registerUndo(
-            withTarget: box,
-            handler: { _ in
-                Task { @MainActor in
-                    action(box.value)
-                }
-            }
-        )
+public extension UndoManager {
+    func withGroup(_ perform: () -> ()) {
+        self.beginUndoGrouping()
+        perform()
+        self.endUndoGrouping()
     }
 }

@@ -39,7 +39,7 @@ let package = Package(
         .library(name: "MainViewFeature"),
     ],
     dependencies: [
-        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
+        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
