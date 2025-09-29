@@ -76,6 +76,20 @@ extension Collection where Element == UUID, Index == Int {
         .init(.init(node: self[src.0], port: .output(src.1)), .init(node: self[dst.0], port: .input(dst.1)))!
     }
 }
+// MARK: - Node Positions
+
+@MainActor
+@Test("nodePositions should correctly return the positions of the nodes")
+func testNodePositions() {
+    let ids: [UUID] = (0..<5).map { _ in UUID() }
+    let positions = [CGPoint(x: 0, y: 0), .init(x: 100, y: 0), .init(x: 200, y: 0), .init(x: 300, y: 0), .init(x: 400, y: 0)]
+    let flow = Flow()
+    for (index, id) in ids.enumerated() {
+        flow.addNode(.init(id: id, kind: .valueNode(.float), position: positions[index]))
+    }
+    
+    #expect(flow.nodePositions == .init(uniqueKeysWithValues: zip(ids, positions)))
+}
 
 // MARK: - Nodes, Ports and Edges - Querying
 

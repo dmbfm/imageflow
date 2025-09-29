@@ -35,6 +35,16 @@ public final class Flow {
     }
 }
 
+// MARK: - Node Positions
+
+extension Flow {
+    var nodePositions: [UUID: CGPoint] {
+        nodes.reduce(into: [:]) { result, pair in
+            result[pair.key] = pair.value.position
+        }
+    }
+}
+
 // MARK: - Nodes, Ports and Edges - Querying
 
 extension Flow {
