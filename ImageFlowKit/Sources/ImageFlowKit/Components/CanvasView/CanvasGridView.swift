@@ -60,7 +60,7 @@ final class CanvasGridView: PlatformView {
     ///
     /// - Parameter viewport: The viewport state.
     /// - Parameter edges: The list of edges to be drawn.
-    // func draw(viewport: CanvasViewport, edges: [EdgeLayer]) {
+    // func draw(viewport: CanvasView.Viewport, edges: [EdgeLayer]) {
     func draw(viewport: CanvasView.Viewport, edges: [CanvasView.EdgeLayer]) {
         self.viewport = viewport
         self.edgesLayersToDraw = edges

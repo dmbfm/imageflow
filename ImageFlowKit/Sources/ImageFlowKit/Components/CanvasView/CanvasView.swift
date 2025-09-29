@@ -16,7 +16,7 @@ import UIKit
 @MainActor
 struct CanvasView: PlatformViewRepresentable {
 
-    /// A binding to the `CanvasViewport`. This view will freely modify the
+    /// A binding to the `CanvasView.Viewport`. This view will freely modify the
     /// viewport according to user input.
     @Binding var viewport: Viewport
 
