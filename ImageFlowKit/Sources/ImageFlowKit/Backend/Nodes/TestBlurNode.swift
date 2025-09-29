@@ -2,9 +2,9 @@
 @preconcurrency import CoreImage.CIFilterBuiltins
 import Foundation
 
-extension Nodes {
-    public struct TestBlurNode: NodeImplProvider {
-        static func impl(_ param: ()) -> NodeImpl {
+extension Backend.Nodes {
+    public struct TestBlurNode: Backend.NodeImplProvider {
+        static func impl(_ param: ()) -> Backend.NodeImpl {
 
             let schema = NodeSchema(
                 name: "Blur Node (Test)",

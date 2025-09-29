@@ -38,7 +38,7 @@ public struct Edge: Hashable, Sendable, Identifiable, Codable {
         self.a.slot.isInput ? self.a : self.b
     }
 
-    public var backendEdge: BackendEdge {
+    public var backendEdge: Backend.Edge {
         .init(
             from: .init(node: self.from.node, slot: self.from.slot.index),
             end: .init(node: self.to.node, slot: self.to.slot.index)

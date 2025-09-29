@@ -1,8 +1,8 @@
 import Foundation
 
-extension Nodes {
-    public struct AddNode: NodeImplProvider {
-        static func impl(_ type: NumericValueType) -> NodeImpl {
+extension Backend.Nodes {
+    public struct AddNode: Backend.NodeImplProvider {
+        static func impl(_ type: NumericValueType) -> Backend.NodeImpl {
             let schema = NodeSchema(
                 name: "Add (\(type))",
                 inputs: [
@@ -14,7 +14,7 @@ extension Nodes {
                 ]
             )
 
-            return NodeImpl(
+            return .init(
                 schema: schema,
             ) { node, context in
                 node.outputs[0] = node.inputs[0] + node.inputs[1]

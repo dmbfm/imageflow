@@ -2,6 +2,10 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 import Foundation
 
+public typealias NodeImpl = Backend.NodeImpl
+typealias NodeImplProvider = Backend.NodeImplProvider
+public typealias Nodes = Backend.Nodes
+
 public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     case blur(BlurNodeKind)
     case colorAdjustment(ColoradjustmentNodeKind)

@@ -320,7 +320,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
 
     // MARK: - Backend
 
-    public var backendNode: BackendNode {
+    public var backendNode: Backend.Node {
         .init(
             id: self.id,
             kind: self.kind,

@@ -278,7 +278,7 @@ extension Flow {
     }
 
     public func hasCycles(addingEdge edge: Edge? = nil) -> Bool {
-        let flow = FlowGraph(.init())
+        let flow = Backend.FlowGraph(.init())
         for (node, _) in self.nodes {
             flow.addNode(node)
         }
@@ -419,7 +419,7 @@ extension Flow {
 
 // MARK: - Helpers
 
-extension BackendEdge {
+extension Backend.Edge {
     init(edge: Edge) {
         self.init(
             from: .init(node: edge.from.node, slot: edge.from.slot.index),

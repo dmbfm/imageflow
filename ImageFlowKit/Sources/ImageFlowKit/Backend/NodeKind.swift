@@ -10,14 +10,14 @@ public enum NodeKind: Sendable, Hashable, Codable {
 }
 
 extension NodeKind {
-    public var impl: NodeImpl {
+    public var impl: Backend.NodeImpl {
         switch self {
         case .addNode(let type):
-            Nodes.AddNode.impl(type)
+            Backend.Nodes.AddNode.impl(type)
         case .valueNode(let type):
-            Nodes.ValueNode.impl(type)
+            Backend.Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
-            Nodes.PassthroughNode.impl(type)
+            Backend.Nodes.PassthroughNode.impl(type)
         case .coreImageFilterNode(let type):
             type.impl
         }

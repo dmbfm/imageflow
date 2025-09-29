@@ -1,8 +1,8 @@
 import Foundation
 
-extension Nodes {
-    public struct AngleNode: NodeImplProvider {
-        static func impl(_: ()) -> NodeImpl {
+extension Backend.Nodes {
+    public struct AngleNode: Backend.NodeImplProvider {
+        static func impl(_: ()) -> Backend.NodeImpl {
             let schema = NodeSchema(
                 name: "Angle",
                 inputs: [.init(name: "Value", type: .float, semantics: .angle)],

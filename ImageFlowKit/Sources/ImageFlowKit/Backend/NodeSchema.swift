@@ -38,7 +38,7 @@ extension NodeSchema {
     /// - Parameter node: The backend node instance being validated.
     /// - Returns: The result of the validation. If it is `ValidateNodeResult.ok`
     ///            then the node is valid.
-    public func validate(node: BackendNode) -> ValidateNodeResult {
+    public func validate(node: Backend.Node) -> ValidateNodeResult {
         if node.inputs.count != self.inputs.count {
             return .inputCountMismatch
         }

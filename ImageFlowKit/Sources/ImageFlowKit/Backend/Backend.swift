@@ -1,18 +1,18 @@
 import Foundation
 
-public struct BackendFlow {
+public struct Backend {
 
-    public var nodes: [BackendNode] = []
-    public var edges: [BackendEdge] = []
-    public var imageProvider: any FlowImageProvider
+    public var nodes: [Node] = []
+    public var edges: [Edge] = []
+    public var imageProvider: any ImageProvider
 
-    public init(nodes: [BackendNode] = [], edges: [BackendEdge] = [], _ imageProvider: some FlowImageProvider) {
+    public init(nodes: [Node] = [], edges: [Edge] = [], _ imageProvider: some ImageProvider) {
         self.nodes = nodes
         self.edges = edges
         self.imageProvider = imageProvider
     }
 
-    public init?(nodes: [BackendNode] = [], validatingEdges: [BackendEdge] = [], _ imageProvider: some FlowImageProvider) {
+    public init?(nodes: [Node] = [], validatingEdges: [Edge] = [], _ imageProvider: some ImageProvider) {
         fatalError("TODO: Implement this")
     }
 
