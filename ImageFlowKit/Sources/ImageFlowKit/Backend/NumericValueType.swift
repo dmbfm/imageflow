@@ -1,0 +1,23 @@
+import Foundation
+
+public enum NumericValueType: Sendable, Equatable, Codable, CaseIterable {
+    case float
+    case int
+    case vector2
+    case vector3
+    case vector4
+    case color3
+    case color4
+
+    public var valueType: ValueType {
+        switch self {
+        case .float: .float
+        case .int: .int
+        case .vector2: .vector2
+        case .vector3: .vector3
+        case .vector4: .vector4
+        case .color3: .color3
+        case .color4: .color4
+        }
+    }
+}

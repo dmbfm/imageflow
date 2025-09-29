@@ -1,0 +1,112 @@
+#if canImport(AppKit)
+
+import AppKit
+
+// MARK: - NodeInputBlockNSView
+
+final class NodeInputBlockNSView: NSView, NodeInputBlockViewProtocol {
+
+    public var inputs: [FlowNode.Input] {
+        didSet {
+            if self.inputs != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    public private(set) var rows: [NodeInputRowView] = []
+
+    public var onEvent: ((Event) -> ())?
+
+    init(_ inputs: [FlowNode.Input]) {
+        self.inputs = inputs
+
+        super.init(frame: .zero)
+
+        self.populateRows()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    private func update() {
+        assert(self.inputs.count == self.rows.count, "Changing the number of inputs is not supported")
+
+        for (idx, input) in self.inputs.enumerated() {
+            if input != self.rows[idx].input {
+                self.rows[idx].input = input
+            }
+        }
+    }
+
+    private func populateRows() {
+        assert(self.rows.isEmpty)
+
+        for input in self.inputs {
+            let row = NodeInputRowView(input)
+            row.onEvent = { [weak self] event in
+                guard let self else { return }
+                switch event {
+                case .sizeDidChange:
+                    self.needsLayout = true
+                    self.invalidateIntrinsicContentSize()
+                    self.onEvent?(.sizeDidChange)
+                case .valueDidChange(let value):
+                    self.onEvent?(.valueDidChange(input.id, value))
+                case .dragPort(let data):
+                    self.onEvent?(.dragPort(input.id, data))
+                }
+            }
+            self.addSubview(row)
+            self.rows.append(row)
+            // row.border(.init(color: .systemBlue, width: 1))
+        }
+
+        self.needsLayout = true
+        self.invalidateIntrinsicContentSize()
+        self.onEvent?(.sizeDidChange)
+    }
+}
+
+// MARK: - Layout
+
+extension NodeInputBlockNSView {
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override var intrinsicContentSize: NSSize {
+        let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
+        let height = Design.default.nodeRowHeight * CGFloat(self.rows.count)
+        return .init(width: width, height: height)
+    }
+
+    override func layout() {
+        for (idx, row) in self.rows.enumerated() {
+            row.frame = .init(
+                x: 0,
+                y: Design.default.nodeRowHeight * CGFloat(idx),
+                width: self.bounds.width,
+                height: Design.default.nodeRowHeight
+            )
+        }
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        for row in self.rows {
+            let point = row.convert(point, from: self.superview)
+            if let view = row.controlView.hitTest(point) {
+                return view
+            }
+            if let view = row.portView.hitTest(point) {
+                return view
+            }
+        }
+
+        return nil
+    }
+}
+
+#endif

@@ -5,8 +5,8 @@
 //  Created by Daniel Fortes on 11/07/25.
 //
 
-import AppFeature
 import SwiftUI
+import ImageFlowKit
 
 @main
 extension ImageFlowApp {}

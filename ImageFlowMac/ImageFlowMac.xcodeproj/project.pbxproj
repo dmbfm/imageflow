@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AE36FF3C2E5509FF009F5EFF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AE36FF3B2E5509FF009F5EFF /* AppFeature */; };
+		AE8A59D32E8AC4C500C85B54 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AE8A59D22E8AC4C500C85B54 /* ImageFlowKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE36FF3C2E5509FF009F5EFF /* AppFeature in Frameworks */,
+				AE8A59D32E8AC4C500C85B54 /* ImageFlowKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,7 +138,7 @@
 			);
 			name = ImageFlowMac;
 			packageProductDependencies = (
-				AE36FF3B2E5509FF009F5EFF /* AppFeature */,
+				AE8A59D22E8AC4C500C85B54 /* ImageFlowKit */,
 			);
 			productName = ImageFlowMac;
 			productReference = AE596D012E21C2AE005F49B2 /* Image Flow.app */;
@@ -602,9 +602,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AE36FF3B2E5509FF009F5EFF /* AppFeature */ = {
+		AE8A59D22E8AC4C500C85B54 /* ImageFlowKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = AppFeature;
+			productName = ImageFlowKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

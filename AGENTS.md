@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `imageflow.xcworkspace` aggregates all apps and shared packages; open it in Xcode for end-to-end work.
-- `ImageFlowKit/` is the Swift package used across platforms (`Sources/` for feature modules, `Tests/` for package-level XCTest suites).
+- `ImageFlowKit/` is the shared Swift package. Production code now lives under `Sources/ImageFlowKit/` (feature folders inside the module), while package tests reside in `Tests/ImageFlowKitTests/`.
 - `ImageFlowMac/`, `ImageFlowIPad/`, and `ImageFlowPreviews/` host platform-specific apps, UI tests, and preview scaffolding.
 - `ImageFlowCodeGen/` contains helper tooling (`gen-filters.sh`) that regenerates filter definitions; run it when backend node metadata changes.
 
@@ -19,7 +19,7 @@
 
 ## Testing Guidelines
 - XCTest powers both package tests and Xcode test targets; prefer behavior-driven names such as `testAddEdgeRejectsMismatchedTypes`.
-- Mirror production module structure under `ImageFlowKit/Tests/<ModuleName>Tests` and keep fixtures lightweight.
+- Mirror feature folders inside `ImageFlowKit/Tests/ImageFlowKitTests/` and keep fixtures lightweight.
 - Capture coverage expectations (≥80 % for touched modules) in PR descriptions when gaps exist; document any skipped UI coverage.
 
 ## Commit & Pull Request Guidelines

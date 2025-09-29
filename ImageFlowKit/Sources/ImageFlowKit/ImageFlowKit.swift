@@ -1,10 +1,2 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
-
-#if os(macOS)
-@_exported import MacApp
-#endif
-
-#if os(iOS)
-@_exported import IPadApp
-#endif
+/// Top-level namespace helpers for the unified ImageFlowKit module.
+public enum ImageFlowKitModule {}
