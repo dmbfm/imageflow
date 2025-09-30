@@ -247,7 +247,7 @@ extension Flow {
         um?.endUndoGrouping()
     }
 
-    func newEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
+    func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
         precondition(self.isValidPort(edge.from))
         precondition(self.isValidPort(edge.to))
 

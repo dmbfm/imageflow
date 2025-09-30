@@ -20,6 +20,8 @@ extension Flow: Storable {
     public func restore(_ snapshot: StorableData) {
         self.nodes = snapshot.nodes
         self.edges = snapshot.edges
+        self.liveMoveNodesSnapshot = nil
+        self.liveSelectSnapshot = nil
     }
 
     public convenience init(_ data: StorableData) {
