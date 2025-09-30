@@ -1,16 +1,14 @@
 import Backend
-import Models
-import NodePaletteService
 import SwiftUI
 
-public struct SidebarFeatureView: View {
+struct SidebarFeatureView: View {
 
     let focusBinding: FocusState<Focus?>.Binding
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
 
-    @Environment(\.dispatch) var dispatch
+    // @Environment(\.dispatch) var dispatch
 
     public init(_ focusState: FocusState<Focus?>.Binding) {
         self.focusBinding = focusState
@@ -36,7 +34,7 @@ public struct SidebarFeatureView: View {
     }
 
     func itemDoubleTapHandler(_ item: NodePaletteItem) {
-        self.dispatch?(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
+        // self.dispatch?(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
     }
 
     public var body: some View {

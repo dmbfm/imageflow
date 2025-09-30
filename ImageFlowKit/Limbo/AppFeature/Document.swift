@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 final class ImageFlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
     public let data: Mutex<Flow.StorableData>
+    public let canvas: Mutex<CanvasFeatureState>
 
     static var readableContentTypes: [UTType] { [.imageFlowDocument] }
 

@@ -18,9 +18,11 @@ public struct ImageFlowApp: App {
 
     public init() {}
 
+    private let showWelcomeWindow: Bool = false
+
     public var body: some Scene {
         DocumentGroup(newDocument: { FlowDocument() }) { configuration in
-            //            DocumentView(configuration.document)
+            MainView(document: configuration.document)
         }
         #if os(macOS)
         .defaultWindowPlacement { root, context in
@@ -28,9 +30,10 @@ public struct ImageFlowApp: App {
             let ratio = 0.7
             return .init(.center, width: ratio * screenRect.width, height: ratio * screenRect.height)
         }
-        .defaultLaunchBehavior(.suppressed)
+        .defaultLaunchBehavior( self.showWelcomeWindow ? .suppressed : .automatic)
         #endif
 
+        // TODO:
         //        WelcomeWindow("Image Flow")
         //            .defaultLaunchBehavior(.presented)
     }

@@ -7,23 +7,17 @@ import Values
 @MainActor
 final class Scratchpad {
     weak var canvasPlatformView: PlatformView? = nil
-    var selectionAtRectDragStart: Set<UUID> = []
     var viewportAtDragStart: CanvasView.Viewport = .init()
-    var nodePositionsAtDragStart: [UUID: CGPoint] = [:]
     var edgeToRemove: Edge? = nil
     var undoManager: UndoManager?
 
     init(
         canvasPlatformView: PlatformView? = nil,
-        selectionAtRectDragStart: Set<UUID> = [],
         viewportAtDragStart: CanvasView.Viewport = .init(),
-        nodePositionsAtDragStart: [UUID: CGPoint] = [:],
         undoManager: UndoManager? = nil
     ) {
         self.canvasPlatformView = canvasPlatformView
-        self.selectionAtRectDragStart = selectionAtRectDragStart
         self.viewportAtDragStart = viewportAtDragStart
-        self.nodePositionsAtDragStart = nodePositionsAtDragStart
         self.undoManager = undoManager
     }
 }
@@ -112,21 +106,21 @@ public struct CanvasFeatureView: View {
     }
 
     private func onCanvasRectSelect(_ state: CanvasPlatformView.Event.RectSelect) {
-        switch state {
-        case .started:
-            self.scratch.selectionAtRectDragStart = self.flow.selection
-            break
-        case let .modified(shiftDown: shiftDown, rect: rect):
-            var nodes = Set<UUID>()
-            for (id, view) in self.nodeViews {
-                if view.frame.intersects(rect) {
-                    nodes.insert(id)
-                }
-            }
-            self.flow.selection = shiftDown ? nodes.union(self.scratch.selectionAtRectDragStart) : nodes
-        case .ended:
-            break
-        }
+        // switch state {
+        // case .started:
+        //     self.scratch.selectionAtRectDragStart = self.flow.selection
+        //     break
+        // case let .modified(shiftDown: shiftDown, rect: rect):
+        //     var nodes = Set<UUID>()
+        //     for (id, view) in self.nodeViews {
+        //         if view.frame.intersects(rect) {
+        //             nodes.insert(id)
+        //         }
+        //     }
+        //     self.flow.selection = shiftDown ? nodes.union(self.scratch.selectionAtRectDragStart) : nodes
+        // case .ended:
+        //     break
+        // }
     }
 
     private func onCanvasClickBackground() {
@@ -209,7 +203,7 @@ public struct CanvasFeatureView: View {
 
     func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
         self.annotationView.annotation = annotation
-        self.state.nodePositions[self.annotationView.id] = point
+        self.flow.moveNode(self.annotationView.id, to: point)
         self.annotationView.isHidden = false
     }
 
@@ -295,7 +289,7 @@ public struct CanvasFeatureView: View {
 
         let id = UUID()
         self.flow.newNodeAction(.init(id: id, kind: item.kind), undoManager: self.undoManager)
-        self.state.nodePositions[id] = self.state.viewport.convert(point, from: .screen, to: .canvas)
+        self.flow.moveNode(id, to: self.state.viewport.convert(point, from: .screen, to: .canvas))
 
         return true
     }
@@ -307,12 +301,18 @@ public struct CanvasFeatureView: View {
         }
     }
 
+    private var nodePositions: [UUID: CGPoint] {
+        self.flow.nodePositionsWithLiveMove
+    }
+
     public var body: some View {
         ZStack(alignment: .topLeading) {
+
+
             @Bindable var state = self.state
             CanvasView(
                 $state.viewport,
-                self.state.nodePositions,
+                self.nodePositions,
                 self.edgeLayers,
                 self.scratch,
                 self.viewForNode,
@@ -320,7 +320,7 @@ public struct CanvasFeatureView: View {
             )
             .dropDestination(for: NodeKindDragItem.self, action: self.dropDestinationHandler(_:_:))
             .onChange(of: self.flow.edges, initial: true) { self.updateEdges() }
-            .onChange(of: self.state.nodePositions, initial: true) { self.updateEdges() }
+            .onChange(of: self.nodePositions, initial: true) { self.updateEdges() }
             .onChange(of: self.flow.nodes, initial: true) { self.updateNodeData() }
             .onChange(of: self.flow.selection, initial: true) { self.updateSelection() }
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
