@@ -1337,3 +1337,124 @@ func liveSelectCancelTest() {
     #expect(flow.selection.contains(ids[0]))
     #expect(flow.selection.contains(ids[1]))
 }
+
+// MARK: - Flow + Move Nodes
+
+@MainActor
+@Test("moveNode should change a node's position")
+func moveNodeShouldChangeNodePosition() {
+    let (flow, ids) = makeFlow([.valueNode(.float)])
+    #expect(flow.nodePositions[ids[0]] == .zero)
+    flow.moveNode(ids[0], to: .init(x: 200, y: 300))
+    #expect(flow.nodePositions[ids[0]] == CGPoint(x: 200, y: 300))
+}
+
+@MainActor
+@Test("moveNode should undo a change a node's position")
+func moveNodeShouldUndoChangeNodePosition() {
+    let (flow, ids) = makeFlow([.valueNode(.float)])
+    #expect(flow.nodePositions[ids[0]] == .zero)
+    um.withGroup {
+        flow.moveNode(ids[0], to: .init(x: 200, y: 300), undoManager: um)
+    }
+    #expect(flow.nodePositions[ids[0]] == CGPoint(x: 200, y: 300))
+    um.undo()
+    #expect(flow.nodePositions[ids[0]] == .zero)
+    um.redo()
+    #expect(flow.nodePositions[ids[0]] == CGPoint(x: 200, y: 300))
+}
+
+@MainActor
+@Test
+func testLiveMoveNodes() {
+    let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })
+    let movedNodes = Set(ids.dropLast(5))
+
+    var pos = flow.liveMoveNodesStart(movedNodes)
+    #expect(pos == movedNodes.reduce(into: [:], { acc, e in acc[e] = .zero }))
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    flow.liveMoveNodesEnd(undoManager: nil)
+    #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
+}
+
+@MainActor
+@Test
+func testLiveMoveNodesCancel() {
+    let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })
+    let movedNodes = Set(ids.dropLast(5))
+
+    let initialPos = flow.nodePositions
+
+    var pos = flow.liveMoveNodesStart(movedNodes)
+    #expect(pos == movedNodes.reduce(into: [:], { acc, e in acc[e] = .zero }))
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    flow.liveMoveNodesCancel()
+    #expect(flow.nodePositions == initialPos)
+    #expect(flow.liveMoveNodesSnapshot == nil)
+}
+
+@MainActor
+@Test
+func testLiveMoveNodesUndo() {
+    um.removeAllActions()
+
+    let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })
+    let movedNodes = Set(ids.dropLast(5))
+
+    let initialPos = flow.nodePositions
+
+    var pos = flow.liveMoveNodesStart(movedNodes)
+    #expect(pos == movedNodes.reduce(into: [:], { acc, e in acc[e] = .zero }))
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    pos = pos.reduce(into: ([:], 0)) { acc, e in
+        let hash = e.key.hashValue
+        acc.0[e.key] = CGPoint(x: Double(hash), y: (e.value.y + 0.1) * Double(hash))
+        acc.1 += 1
+    }.0
+    flow.liveMoveNodesUpdate(pos)
+    #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
+    um.withGroup {
+        flow.liveMoveNodesEnd(undoManager: um)
+    }
+    #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
+    um.undo()
+    #expect(flow.nodePositions == initialPos)
+    um.redo()
+    #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
+    um.undo()
+    #expect(flow.nodePositions == initialPos)
+    um.redo()
+    #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
+}
