@@ -308,7 +308,6 @@ public struct CanvasFeatureView: View {
     public var body: some View {
         ZStack(alignment: .topLeading) {
 
-
             @Bindable var state = self.state
             CanvasView(
                 $state.viewport,

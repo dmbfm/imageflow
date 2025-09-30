@@ -53,11 +53,14 @@ extension Flow {
             fatalError("called `liveMoveNodesEnd` before calling `liveMoveNodesStart` ")
         }
 
-        self.liveMoveNodesSnapshot = positions.reduce(into: [:], {acc, item in
-            if prev[item.key] != nil {
-                acc[item.key] = item.value
+        self.liveMoveNodesSnapshot = positions.reduce(
+            into: [:],
+            { acc, item in
+                if prev[item.key] != nil {
+                    acc[item.key] = item.value
+                }
             }
-        })
+        )
 
         return prev
     }

@@ -30,7 +30,7 @@ public struct ImageFlowApp: App {
             let ratio = 0.7
             return .init(.center, width: ratio * screenRect.width, height: ratio * screenRect.height)
         }
-        .defaultLaunchBehavior( self.showWelcomeWindow ? .suppressed : .automatic)
+        .defaultLaunchBehavior(self.showWelcomeWindow ? .suppressed : .automatic)
         #endif
 
         // TODO:

@@ -27,7 +27,7 @@ struct MainView: View {
             },
             onChange: {
                 Task { @MainActor in
-                    self.document.canvas.withLock{
+                    self.document.canvas.withLock {
                         $0.viewport = self.canvas.viewport
                     }
                     self.observeViewport()
@@ -72,7 +72,6 @@ struct MainView: View {
             flow[keyPath: kpa] = self.flow[keyPath: kpb]
         }
     }
-  
 
     var body: some View {
         MainViewContentView(flow: self.flow, canvas: self.canvas)
