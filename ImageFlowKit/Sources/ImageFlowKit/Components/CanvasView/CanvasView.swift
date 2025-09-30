@@ -68,20 +68,11 @@ struct CanvasView: PlatformViewRepresentable {
             viewForNode: self.viewForNode
         )
 
-        view.onEvent = { event in
-            switch event {
-            case .viewportDidChange(let viewport):
-                self.viewport = viewport
-            case .rectSelect(let event):
-                self.onEvent?(.rectSelect(event))
-            case .clickBackground:
-                self.onEvent?(.clickBackground)
-            case .didMoveToSuperview:
-                self.onEvent?(.didMoveToSuperview)
-            }
-        }
-
         view.edgeLayers = self.edgeLayers
+
+        context.coordinator.viewport = self._viewport
+        context.coordinator.onEvent = self.onEvent
+        view.onEvent = context.coordinator.onEventHandler
 
         self.canvasPlatformViewRef.view = view
 
@@ -90,6 +81,10 @@ struct CanvasView: PlatformViewRepresentable {
 
     public func updateView(_ view: ViewType, context: Context) {
 
+        context.coordinator.viewport = self._viewport
+        context.coordinator.onEvent = self.onEvent
+
+        view.onEvent = context.coordinator.onEventHandler
         view.viewForNode = self.viewForNode
 
         if view.viewport != self.viewport {
@@ -102,6 +97,33 @@ struct CanvasView: PlatformViewRepresentable {
 
         if view.edgeLayers != self.edgeLayers {
             view.edgeLayers = self.edgeLayers
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(viewport: self.$viewport)
+    }
+
+    class Coordinator {
+        init(viewport: Binding<CanvasView.Viewport>, onEvent: ((CanvasView.Event) -> ())? = nil) {
+            self.viewport = viewport
+            self.onEvent = onEvent
+        }
+
+        var onEvent: ((CanvasView.Event) -> ())? = nil
+        var viewport: Binding<CanvasView.Viewport>
+
+        func onEventHandler(_ event: CanvasPlatformView.Event) {
+            switch event {
+            case .viewportDidChange(let viewport):
+                self.viewport.wrappedValue = viewport
+            case .rectSelect(let event):
+                self.onEvent?(.rectSelect(event))
+            case .clickBackground:
+                self.onEvent?(.clickBackground)
+            case .didMoveToSuperview:
+                self.onEvent?(.didMoveToSuperview)
+            }
         }
     }
 }
