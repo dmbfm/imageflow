@@ -106,21 +106,20 @@ public struct CanvasFeatureView: View {
     }
 
     private func onCanvasRectSelect(_ state: CanvasPlatformView.Event.RectSelect) {
-        // switch state {
-        // case .started:
-        //     self.scratch.selectionAtRectDragStart = self.flow.selection
-        //     break
-        // case let .modified(shiftDown: shiftDown, rect: rect):
-        //     var nodes = Set<UUID>()
-        //     for (id, view) in self.nodeViews {
-        //         if view.frame.intersects(rect) {
-        //             nodes.insert(id)
-        //         }
-        //     }
-        //     self.flow.selection = shiftDown ? nodes.union(self.scratch.selectionAtRectDragStart) : nodes
-        // case .ended:
-        //     break
-        // }
+        switch state {
+        case .started:
+            self.flow.liveSelectStart()
+        case let .modified(shiftDown: shiftDown, rect: rect):
+            var nodes = Set<UUID>()
+            for (id, view) in self.nodeViews {
+                if view.frame.intersects(rect) {
+                    nodes.insert(id)
+                }
+            }
+            self.flow.liveSelectUpdate(nodes, mode: shiftDown ? .union : .replace)
+        case .ended:
+            self.flow.liveSelectEnd(undoManager: nil)
+        }
     }
 
     private func onCanvasClickBackground() {
