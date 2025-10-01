@@ -197,7 +197,7 @@ public struct CanvasFeatureView: View {
                 self.flow.liveMoveNodesUpdate([id: nextPos])
             }
         case .ended:
-            self.flow.liveMoveNodesEnd(undoManager: nil)
+            self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
         }
     }
 
