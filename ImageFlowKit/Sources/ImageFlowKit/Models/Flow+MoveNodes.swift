@@ -34,6 +34,7 @@ extension Flow {
         return prev
     }
 
+    @discardableResult
     func liveMoveNodesStart(_ nodes: Set<UUID>) -> [UUID: CGPoint] {
         self.liveMoveNodesSnapshot = nodes.reduce(
             into: [:],

@@ -186,7 +186,19 @@ public struct CanvasFeatureView: View {
     }
 
     func onNodeDragGesture(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
-        fatalError("TODO")
+        switch gesture.phase {
+        case .began:
+            self.flow.liveMoveNodesStart([id])
+        case .cancelled:
+            self.flow.liveMoveNodesCancel()
+        case .changed:
+            if let snap = self.flow.liveMoveNodesSnapshot, let pos = snap[id] {
+                let nextPos = pos + .init(x: gesture.dx, y: gesture.dy)
+                self.flow.liveMoveNodesUpdate([id: nextPos])
+            }
+        case .ended:
+            self.flow.liveMoveNodesEnd(undoManager: nil)
+        }
     }
 
     func updateNodeData() {

@@ -15,11 +15,11 @@ public final class Flow {
     /// All edges currently present in the graph.
     public var edges: Set<Edge>
 
+    public var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
+
     @ObservationIgnored
     internal var liveSelectSnapshot: Set<UUID>? = nil
 
-    @ObservationIgnored
-    internal var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
 
     /// Creates a new flow model.
     /// - Parameters:
