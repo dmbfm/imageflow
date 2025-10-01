@@ -10,10 +10,15 @@ import Foundation
 // MARK: - Flow - Selection Methods
 
 extension Flow {
+    func isSelected(_ id: UUID) -> Bool {
+        self.selection.contains(id)
+    }
+
     func selectAll(undoManager um: UndoManager? = nil) -> Set<UUID>? {
         self.select(Set(self.nodes.keys), undoManager: um)
     }
 
+    @discardableResult
     func selectNone(undoManager um: UndoManager? = nil) -> Set<UUID>? {
         self.select([], undoManager: um)
     }
