@@ -20,7 +20,6 @@ public final class Flow {
     @ObservationIgnored
     internal var liveSelectSnapshot: Set<UUID>? = nil
 
-
     /// Creates a new flow model.
     /// - Parameters:
     ///   - nodes: Initial node map.

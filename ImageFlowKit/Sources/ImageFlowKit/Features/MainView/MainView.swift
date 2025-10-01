@@ -1,5 +1,5 @@
-import SwiftUI
 import Logging
+import SwiftUI
 
 struct MainView: View {
 

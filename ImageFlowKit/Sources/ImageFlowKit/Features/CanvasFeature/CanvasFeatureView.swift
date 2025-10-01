@@ -201,9 +201,7 @@ public struct CanvasFeatureView: View {
             if let snap = self.flow.liveMoveNodesSnapshot {
                 let next = snap.reduce(
                     into: [:],
-                    { acc, e in
-                        acc[e.key] = e.value + .init(x: gesture.dx, y: gesture.dy)
-                    }
+                    { acc, e in acc[e.key] = e.value + .init(x: gesture.dx, y: gesture.dy) }
                 )
                 self.flow.liveMoveNodesUpdate(next)
             }
