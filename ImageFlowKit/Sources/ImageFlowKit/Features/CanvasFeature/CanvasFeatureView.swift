@@ -188,13 +188,24 @@ public struct CanvasFeatureView: View {
     func onNodeDragGesture(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
         switch gesture.phase {
         case .began:
-            self.flow.liveMoveNodesStart([id])
+            let nodes =
+                if self.flow.isSelected(id) {
+                    self.flow.selection
+                } else {
+                    Set([id])
+                }
+            self.flow.liveMoveNodesStart(nodes)
         case .cancelled:
             self.flow.liveMoveNodesCancel()
         case .changed:
-            if let snap = self.flow.liveMoveNodesSnapshot, let pos = snap[id] {
-                let nextPos = pos + .init(x: gesture.dx, y: gesture.dy)
-                self.flow.liveMoveNodesUpdate([id: nextPos])
+            if let snap = self.flow.liveMoveNodesSnapshot {
+                let next = snap.reduce(
+                    into: [:],
+                    { acc, e in
+                        acc[e.key] = e.value + .init(x: gesture.dx, y: gesture.dy)
+                    }
+                )
+                self.flow.liveMoveNodesUpdate(next)
             }
         case .ended:
             self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
