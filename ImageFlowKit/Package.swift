@@ -14,224 +14,23 @@ let package = Package(
     platforms: [.macOS(.v15), .iOS(.v18)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(name: "AppKitUtils"),
         .library(name: "Backend"),
-        .library(name: "ColorUtils"),
-        .library(name: "CommonUtils"),
-        .library(name: "Design"),
-        .library(name: "Easing"),
-        .library(name: "EventEmitter"),
-        .library(name: "Logging"),
-        .library(name: "Models"),
-        .library(name: "NodeControls"),
-        .library(name: "NodeView"),
-        .library(name: "PlatformUtils"),
-        .library(name: "SwiftUIUtils"),
         .library(name: "Values"),
-        .library(name: "CanvasView"),
-        .library(name: "CanvasFeature"),
-        .library(name: "NodeDataStore"),
-        .library(name: "NodeSelectionStore"),
-        .library(name: "SidebarFeature"),
-        .library(name: "NodePaletteService"),
-        .library(name: "NodePaletteListFeature"),
-        .library(name: "AppFeature"),
-        .library(name: "MainViewFeature"),
+        .library(name: "ImageFlowKit"),
+        .library(name: "Helpers"),
+        .library(name: "Logging"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "AppFeature",
-            dependencies: [
-                "Backend",
-                "CommonUtils",
-                "CanvasFeature",
-                "NodeDataStore",
-                "NodePaletteService",
-                "NodePaletteListFeature",
-                "NodeSelectionStore",
-                "SidebarFeature",
-                "Models",
-            ],
-            // swiftSettings: [
-            //     .defaultIsolation(MainActor.self)
-            // ],
-        ),
-        .target(
-            name: "MainViewFeature",
-            dependencies: [],
-        ),
-        .target(
-            name: "NodePaletteListFeature",
-            dependencies: [
-                "NodePaletteService",
-                "Models",
-                "Logging",
-            ]
-        ),
-        .target(
-            name: "SidebarFeature",
-            dependencies: [
-                "Backend",
-                "Models",
-                "NodePaletteService",
-            ],
-        ),
-        .target(
-            name: "NodePaletteService",
-            dependencies: [
-                "Backend",
-                "Values",
-                "Models",
-            ],
-        ),
-        .target(
-            name: "AppKitUtils",
-            dependencies: [
-                "CommonUtils"
-            ],
-        ),
-        .target(
-            name: "Backend",
-            dependencies: [
-                "SwiftGraph",
-                "Values",
-                "CommonUtils",
-            ],
-        ),
-        .target(
-            name: "ColorUtils",
-            dependencies: [
-                "Easing",
-                "CommonUtils",
-            ],
-        ),
-        .target(
-            name: "CommonUtils"
-        ),
-        .target(
-            name: "Design",
-            dependencies: [
-                "ColorUtils"
-            ]
-        ),
-        .target(
-            name: "Easing",
-            dependencies: [],
-        ),
-        .target(
-            name: "EventEmitter",
-            dependencies: [],
-        ),
-        .target(
-            name: "Logging",
-        ),
-        .target(
-            name: "Models",
-            dependencies: [
-                "Logging",
-                "Values",
-                "Backend",
-                "ColorUtils",
-            ],
-        ),
-        .target(
-            name: "NodeControls",
-            dependencies: [
-                "CommonUtils",
-                "SwiftUIUtils",
-                "Logging",
-                "Models",
-                "Design",
-                "PlatformUtils",
-                "ColorUtils",
-                "Values",
-            ],
-        ),
-        .target(
-            name: "NodeView",
-            dependencies: [
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
-                "CommonUtils",
-                "SwiftUIUtils",
-                "PlatformUtils",
-                "Logging",
-                "Models",
-                "Design",
-                "NodeControls",
-                "CanvasView",
-            ],
-        ),
-        .target(
-            name: "PlatformUtils",
-            dependencies: [
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
-                "ColorUtils",
-            ],
-        ),
-        .target(
-            name: "SwiftUIUtils",
-            dependencies: [
-                "Logging",
-                "CommonUtils",
-            ],
-        ),
-        .target(
-            name: "Values",
-        ),
-        .target(
-            name: "CanvasView",
-            dependencies: [
-                "Logging",
-                "Design",
-                "CommonUtils",
-                "EventEmitter",
-                "PlatformUtils",
-                "SwiftUIUtils",
-                "ColorUtils",
-                "Models",
-                .target(name: "AppKitUtils", condition: .when(platforms: [.macOS])),
-            ]
-        ),
-        .target(
-            name: "CanvasFeature",
-            dependencies: [
-                "Backend",
-                "Logging",
-                "CanvasView",
-                "Models",
-                "NodeView",
-                "NodeDataStore",
-                "NodeSelectionStore",
-                "SwiftUIUtils",
-            ],
-        ),
-        .target(
-            name: "NodeDataStore",
-            dependencies: [
-                "Backend",
-                "Models",
-                "Values",
-                "CommonUtils",
-            ],
-        ),
-        .target(
-            name: "NodeSelectionStore",
-            dependencies: [
-                "Models"
-            ]
-        ),
-        // Test targets
-        .testTarget(
-            name: "NodeSelectionStoreTests",
-            dependencies: [
-                "NodeSelectionStore"
-            ]
-        ),
+        .target(name: "Values"),
+        .target(name: "Helpers"),
+        .target(name: "Logging"),
+        .target(name: "Backend", dependencies: ["Values", "SwiftGraph"]),
+        .target(name: "ImageFlowKit", dependencies: ["Values", "Backend", "Helpers", "Logging"]),
+        .testTarget(name: "ImageFlowKitTests", dependencies: ["ImageFlowKit", "Backend", "Values"]),
+
     ]
 )
 

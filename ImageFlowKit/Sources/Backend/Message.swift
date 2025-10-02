@@ -72,8 +72,10 @@ struct NodeMessage: Sendable {
     }
 }
 
-class MessageStore {
+public final class MessageStore {
     var messages: [Message] = []
+
+    public init() {}
 
     func message(_ message: Message) {
         self.messages.append(message)

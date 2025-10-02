@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AE36FF402E550FAA009F5EFF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AE36FF3F2E550FAA009F5EFF /* AppFeature */; };
-		AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEE87D4E2E21EA5C00BFC36F /* NodeView */; };
+		AEE2C6D72E8B07FD002B0057 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,8 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEE87D4F2E21EA5C00BFC36F /* NodeView in Frameworks */,
-				AE36FF402E550FAA009F5EFF /* AppFeature in Frameworks */,
+				AEE2C6D72E8B07FD002B0057 /* ImageFlowKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,8 +138,7 @@
 			);
 			name = ImageFlowIPad;
 			packageProductDependencies = (
-				AEE87D4E2E21EA5C00BFC36F /* NodeView */,
-				AE36FF3F2E550FAA009F5EFF /* AppFeature */,
+				AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */,
 			);
 			productName = ImageFlowIPad;
 			productReference = AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */;
@@ -425,7 +422,7 @@
 		AE596D572E21C2D3005F49B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "icon-proto-05";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -459,7 +456,7 @@
 		AE596D582E21C2D3005F49B2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "icon-proto-05";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -604,13 +601,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AE36FF3F2E550FAA009F5EFF /* AppFeature */ = {
+		AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = AppFeature;
-		};
-		AEE87D4E2E21EA5C00BFC36F /* NodeView */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NodeView;
+			productName = ImageFlowKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
