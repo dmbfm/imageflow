@@ -45,13 +45,12 @@ final class NodeNSView: NSView, CanvasNodeView, NodeViewProtocol {
                 self.emitter.emit(.dragGesture(drag))
             }
         }
-        view.shadow(
-            .init(
-                radius: Design.default.shadowRadius,
-                opacity: CGFloat(Design.default.shadowOpacity),
-                offset: Design.default.shadowOffset
-            )
-        )
+        view.shadow = NSShadow()
+        view.wantsLayer = true
+        view.layer?.shadowColor = Design.default.shadowColor
+        view.layer?.shadowRadius = Design.default.shadowRadius
+        view.layer?.shadowOpacity = Design.default.shadowOpacity
+        view.layer?.shadowOffset = Design.default.shadowOffset
         return view
     }()
 

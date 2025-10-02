@@ -5,43 +5,57 @@ import Logging
 
 extension Flow {
 
-    struct DrawPortAsConnected: Equatable, Sendable {
-        var port: PortLocation
-        var value: Bool
+    public var partialEdge: PartialEdge? {
+        self.portDraggingState.dragging?.partialEdge
     }
 
     enum PortDraggingState: Equatable {
         case idle
-        case dragging(PortLocation, removedEdge: Edge? = nil)
+        case dragging(Dragging)
+
+        mutating func dragging(partialEdge: PartialEdge, removedEdge: Edge? = nil, edgeToCreate: Edge? = nil) {
+            self = .dragging(
+                .init(
+                    partialEdge: partialEdge,
+                    removedEdge: removedEdge,
+                    edgeToCreate: edgeToCreate
+                )
+            )
+        }
+
+        struct Dragging: Equatable {
+            var partialEdge: PartialEdge
+            var removedEdge: Edge? = nil
+            var edgeToCreate: Edge? = nil
+        }
 
         var isIdle: Bool {
-            self == .idle
-        }
-
-        var isDragging: Bool {
-            self != .idle
-        }
-
-        var port: PortLocation? {
             switch self {
-            case .idle: nil
-            case .dragging(let port, _): port
+            case .idle: true
+            default: false
             }
         }
 
-        var removedEdge: Edge? {
+        var isDragging: Bool {
             switch self {
-            case .idle: nil
-            case .dragging(_, removedEdge: let edge): edge
+            case .dragging: true
+            default: false
+            }
+        }
+
+        var dragging: Dragging? {
+            switch self {
+            case .dragging(let dragging): dragging
+            default: nil
             }
         }
     }
 
-    func portDragStart(port: PortLocation) {
+    func portDragStart(_ port: PortLocation, _ pointer: CGPoint) {
         precondition(self.portDraggingState == .idle)
 
         let isInput = port.slot.isInput
-        let isConnected = self.getPortConnected(port)  // self.nodeDataStore.getPortConnected(port) == .success(true)
+        let isConnected = self.getPortConnected(port)
 
         if isInput && isConnected {
             guard let edgeToRemove = self.edges(ofPort: port).first else {  //self.nodeDataStore.edges(to: port).first else {
@@ -50,76 +64,64 @@ extension Flow {
             }
 
             self.deleteEdgeAction(edgeToRemove, undoManager: nil)
-            self.portDraggingState = .dragging(port, removedEdge: edgeToRemove)
+            self.portDraggingState.dragging(partialEdge: .init(port: port, pointer: pointer), removedEdge: edgeToRemove)
         } else {
-            self.portDraggingState = .dragging(port)
+            self.portDraggingState.dragging(partialEdge: .init(port: port, pointer: pointer))
         }
-
-        self.drawPortAsConnected = .init(port: port, value: true)
-
-        log("\(self.portDraggingState)")
     }
 
     func portDragUpdate(_ pointer: CGPoint, _ hoveredPort: PortLocation?) {
-        precondition(self.portDraggingState.isDragging)
-        self.partialEdge = .init(port: self.portDraggingState.port!, pointer: pointer)
+
+        guard case var .dragging(state) = self.portDraggingState else {
+            fatalError("portDragUpdate: invalid 'idle' state")
+        }
+
+        state.partialEdge.pointer = pointer
+
         if let hoveredPort {
-            if let edge = Edge(self.portDraggingState.port!, hoveredPort) {
+            if let edge = Edge(state.partialEdge.port, hoveredPort) {
                 switch self.canCreateEdge(edge) {
                 case .success:
-                    self.partialEdge?.state = .canConnect
+                    state.partialEdge.state = .canConnect
+                    state.edgeToCreate = edge
                 case .failure(let reason):
                     log("\(reason)")
-                    self.partialEdge?.state = .cantConnect
+                    state.partialEdge.state = .cantConnect
                 }
             } else {
-                self.partialEdge?.state = .cantConnect
+                state.partialEdge.state = .cantConnect
             }
         } else {
-            self.partialEdge?.state = .default
+            state.partialEdge.state = .default
         }
+
+        self.portDraggingState = .dragging(state)
     }
 
     func portDragEnd(_ pointer: CGPoint, undoManager um: UndoManager?) {
-        precondition(self.portDraggingState.isDragging)
-        self.drawPortAsConnected = .init(port: self.portDraggingState.port!, value: false)
-        self.portDragStateRestore()
+        guard case let .dragging(state) = self.portDraggingState else {
+            fatalError("portDragUpdate: invalid 'idle' state")
+        }
+
+        if let edge = state.edgeToCreate {
+            self.newEdgeAction(edge, undoManager: um)
+        } else if let edge = state.removedEdge {
+            self.newEdgeAction(edge)
+            self.deleteEdgeAction(edge, undoManager: um)
+        }
+
         self.portDraggingState = .idle
-        self.partialEdge = nil
     }
 
     func portDragCancel() {
-        precondition(self.portDraggingState.isDragging)
-        self.drawPortAsConnected = .init(port: self.portDraggingState.port!, value: false)
-        self.portDragStateRestore()
-        self.portDraggingState = .idle
-        self.partialEdge = nil
-    }
+        guard case let .dragging(state) = self.portDraggingState else {
+            fatalError("portDragUpdate: invalid 'idle' state")
+        }
 
-    private func portDragStateRestore() {
-        precondition(self.portDraggingState.isDragging)
-        if let edge = self.portDraggingState.removedEdge {
+        if let edge = state.removedEdge {
             self.newEdgeAction(edge)
         }
-        // switch self.portDraggingState.restoreData! {
-        // case .nothing:
-        //     break
-        // case .connected:
-        //     self.setNodePortConnected(self.portDraggingState.port!, false)
-        // case .removedEdge(let edge):
-        //     self.setNodePortConnected(self.portDraggingState.port!, false)
-        //     self.newEdgeAction(edge)
-        // }
+
+        self.portDraggingState = .idle
     }
-
-    // private func canDropPort(_ port: PortLocation) -> Result<(), CanDropPortError> {
-    //     return .success(())
-    // }
-
-    // enum CanDropPortError: Error {
-    //     case noPort
-    //     case samePort
-    //     case invalidEdge
-    //     case createEdgeError(CanAddEdgeError)
-    // }
 }

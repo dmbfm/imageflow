@@ -160,13 +160,16 @@ public struct CanvasFeatureView: View {
 
         switch gesture.phase {
         case .began:
-            self.flow.portDragStart(port: port)
-        case .cancelled:
-            self.flow.portDragCancel()
+            self.flow.portDragStart(port, pointer)
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
         case .changed:
             self.flow.portDragUpdate(pointer, hoveredPort)
+        case .cancelled:
+            self.flow.portDragCancel()
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         case .ended:
             self.flow.portDragEnd(pointer, undoManager: self.undoManager)
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         }
     }
 
@@ -205,12 +208,6 @@ public struct CanvasFeatureView: View {
             if let view = self.nodeViews[id] {
                 view.node = node
             }
-        }
-    }
-
-    func updateDrawPortAsConnected() {
-        if let data = self.flow.drawPortAsConnected {
-            self.nodeViews[data.port.node]?.setDrawPortAsConnected(data.port.slot, data.value)
         }
     }
 
@@ -339,7 +336,6 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.flow.selection, initial: true) { self.updateSelection() }
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
-            .onChange(of: self.flow.drawPortAsConnected) { self.updateDrawPortAsConnected() }
         }
     }
 }
