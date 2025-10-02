@@ -29,20 +29,6 @@ extension Flow {
             var edgeToCreate: Edge? = nil
         }
 
-        var isIdle: Bool {
-            switch self {
-            case .idle: true
-            default: false
-            }
-        }
-
-        var isDragging: Bool {
-            switch self {
-            case .dragging: true
-            default: false
-            }
-        }
-
         var dragging: Dragging? {
             switch self {
             case .dragging(let dragging): dragging
