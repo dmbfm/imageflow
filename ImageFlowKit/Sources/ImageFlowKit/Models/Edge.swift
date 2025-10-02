@@ -1,5 +1,6 @@
 import Backend
 import Foundation
+import Helpers
 
 public struct Edge: Hashable, Sendable, Identifiable, Codable {
     public var id: Self { self }
@@ -45,4 +46,28 @@ public struct Edge: Hashable, Sendable, Identifiable, Codable {
             end: .init(node: self.to.node, slot: self.to.slot.index)
         )
     }
+}
+
+struct PartialEdge: Sendable, Equatable {
+    var port: PortLocation
+    var pointer: CGPoint
+    var state: State = .default
+
+    enum State: Equatable {
+        case `default`
+        case cantConnect
+        case canConnect
+    }
+
+    var color: PlatformColor {
+        switch self.state {
+        case .default:
+            Colors.portConnected.platformColor
+        case .canConnect:
+            Colors.edgeWithSuccess.platformColor
+        case .cantConnect:
+            Colors.edgeWithError.platformColor
+        }
+    }
+
 }

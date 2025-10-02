@@ -7,7 +7,7 @@ import Values
 /// edges, selection state, and related graph validation utilities.
 @Observable
 @MainActor
-public final class Flow {
+final class Flow {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode]
     /// The set of node identifiers that are currently selected.
@@ -15,10 +15,17 @@ public final class Flow {
     /// All edges currently present in the graph.
     public var edges: Set<Edge>
 
+    public var partialEdge: PartialEdge?
+
     public var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
+
+    public var drawPortAsConnected: DrawPortAsConnected? = nil
 
     @ObservationIgnored
     internal var liveSelectSnapshot: Set<UUID>? = nil
+
+    @ObservationIgnored
+    internal var portDraggingState: PortDraggingState = .idle
 
     /// Creates a new flow model.
     /// - Parameters:
@@ -335,7 +342,7 @@ extension Flow {
         return .failure(.cantFix)
     }
 
-    public func canCreateEdge(_ edge: Edge) -> Result<(), CanAddeEdgeError> {
+    public func canCreateEdge(_ edge: Edge) -> Result<(), CanAddEdgeError> {
         if !self.isValidPort(edge.from) {
             return .failure(.invalidPort(edge.from))
         }
@@ -362,7 +369,7 @@ extension Flow {
         return .success(())
     }
 
-    public enum CanAddeEdgeError: Error, Equatable {
+    public enum CanAddEdgeError: Error, Equatable {
         case invalidPort(PortLocation)
         case destPortAlreadyConnected
         case graphCycle

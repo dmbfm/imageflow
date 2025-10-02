@@ -5,10 +5,9 @@ import SwiftUI
 import Values
 
 @MainActor
-final class Scratchpad {
+private final class Scratchpad {
     weak var canvasPlatformView: PlatformView? = nil
     var viewportAtDragStart: CanvasView.Viewport = .init()
-    var edgeToRemove: Edge? = nil
     var undoManager: UndoManager?
 
     init(
@@ -42,7 +41,6 @@ public struct CanvasFeatureView: View {
     let state: CanvasFeatureState
     let flow: Flow
 
-    @State private var partialEdge: PartialEdge? = nil
     @State private var edgeLayers: [CanvasView.EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
     @State private var annotationView: AnnotationView = .empty(width: 280)
@@ -51,30 +49,6 @@ public struct CanvasFeatureView: View {
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
     // MARK: - Types
-
-    struct PartialEdge: Sendable, Equatable {
-        var port: PortLocation
-        var pointer: CGPoint
-        var state: State = .default
-
-        enum State: Equatable {
-            case `default`
-            case cantConnect
-            case canConnect
-        }
-
-        var color: PlatformColor {
-            switch self.state {
-            case .default:
-                Colors.portConnected.platformColor
-            case .canConnect:
-                Colors.edgeWithSuccess.platformColor
-            case .cantConnect:
-                Colors.edgeWithError.platformColor
-            }
-        }
-
-    }
 
     // MARK: - Initializers
 
@@ -178,6 +152,22 @@ public struct CanvasFeatureView: View {
     }
 
     func onNodePortDrag(_ port: PortLocation, _ gesture: PortView.DragData, undoManager um: UndoManager? = nil) {
+        let viewPos =
+            self.scratch.canvasPlatformView?.convert(gesture.locationInWindow, from: nil) ?? gesture.locationInWindow
+        let pointer = self.state.viewport.convert(viewPos, from: .screen, to: .canvas)
+
+        let hoveredPort = self.portHitTest(locationInWindow: gesture.locationInWindow)
+
+        switch gesture.phase {
+        case .began:
+            self.flow.portDragStart(port: port)
+        case .cancelled:
+            self.flow.portDragCancel()
+        case .changed:
+            self.flow.portDragUpdate(pointer, hoveredPort)
+        case .ended:
+            self.flow.portDragEnd(pointer, undoManager: self.undoManager)
+        }
     }
 
     func onNodeClick(_ id: UUID) {
@@ -218,6 +208,12 @@ public struct CanvasFeatureView: View {
         }
     }
 
+    func updateDrawPortAsConnected() {
+        if let data = self.flow.drawPortAsConnected {
+            self.nodeViews[data.port.node]?.setDrawPortAsConnected(data.port.slot, data.value)
+        }
+    }
+
     // MARK: - Annotations
 
     func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
@@ -248,14 +244,15 @@ public struct CanvasFeatureView: View {
             )
         ]
 
-        if let e = self.partialEdge {
+        if let e = self.flow.partialEdge {
 
-            let point = self.state.viewport.convert(
-                self.scratch.canvasPlatformView!.convert(e.pointer, from: nil),
-                //self.converter.convertFromWindow(e.point),
-                from: .screen,
-                to: .canvas
-            )
+            // let point = self.state.viewport.convert(
+            //     self.scratch.canvasPlatformView!.convert(e.pointer, from: nil),
+            //     //self.converter.convertFromWindow(e.point),
+            //     from: .screen,
+            //     to: .canvas
+            // )
+            let point = e.pointer
             let (src, dst) =
                 switch e.port.slot {
                 case .input:
@@ -341,6 +338,8 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.flow.nodes, initial: true) { self.updateNodeData() }
             .onChange(of: self.flow.selection, initial: true) { self.updateSelection() }
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
+            .onChange(of: self.flow.partialEdge) { self.updateEdges() }
+            .onChange(of: self.flow.drawPortAsConnected) { self.updateDrawPortAsConnected() }
         }
     }
 }
