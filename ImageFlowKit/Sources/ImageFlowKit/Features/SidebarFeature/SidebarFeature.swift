@@ -4,14 +4,15 @@ import SwiftUI
 struct SidebarFeatureView: View {
 
     let focusBinding: FocusState<Focus?>.Binding
+    let onDoubleClickItem: ((NodePaletteItem) -> ())?
+
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
 
-    // @Environment(\.dispatch) var dispatch
-
-    public init(_ focusState: FocusState<Focus?>.Binding) {
+    public init(_ focusState: FocusState<Focus?>.Binding, _ onDoubleClickItem: ((NodePaletteItem) -> ())? = nil) {
         self.focusBinding = focusState
+        self.onDoubleClickItem = onDoubleClickItem
     }
 
     func isExpandedBinding(_ name: NodePaletteCategoryName) -> Binding<Bool> {
@@ -34,7 +35,7 @@ struct SidebarFeatureView: View {
     }
 
     func itemDoubleTapHandler(_ item: NodePaletteItem) {
-        // self.dispatch?(.addNode(.init(id: UUID(), kind: item.nodeKind, position: .center)))
+        self.onDoubleClickItem?(item)
     }
 
     public var body: some View {

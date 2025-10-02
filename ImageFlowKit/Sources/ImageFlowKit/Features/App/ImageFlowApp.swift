@@ -31,6 +31,12 @@ public struct ImageFlowApp: App {
         .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .suppressed : .automatic)
         #endif
 
+        #if os(iOS)
+        DocumentGroupLaunchScene {
+
+        }
+        #endif
+
         // TODO:
         //        WelcomeWindow("Image Flow")
         //            .defaultLaunchBehavior(.presented)

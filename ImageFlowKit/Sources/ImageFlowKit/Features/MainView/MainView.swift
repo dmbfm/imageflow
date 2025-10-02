@@ -77,7 +77,7 @@ struct MainView: View {
     }
 
     var body: some View {
-        MainViewContentView(flow: self.flow, canvas: self.canvas)
+        MainContentView(flow: self.flow, canvas: self.canvas)
             .onAppear(perform: self.onAppear)
     }
 }
