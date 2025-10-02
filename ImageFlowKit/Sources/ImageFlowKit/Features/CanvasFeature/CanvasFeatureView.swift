@@ -191,10 +191,15 @@ public struct CanvasFeatureView: View {
         case .cancelled:
             self.flow.liveMoveNodesCancel()
         case .changed:
+            let delta = self.state.viewport.convert(
+                .init(width: gesture.dx, height: gesture.dy),
+                from: .screen,
+                to: .canvas
+            )
             if let snap = self.flow.liveMoveNodesSnapshot {
                 let next = snap.reduce(
                     into: [:],
-                    { acc, e in acc[e.key] = e.value + .init(x: gesture.dx, y: gesture.dy) }
+                    { acc, e in acc[e.key] = e.value + delta.cgPoint }
                 )
                 self.flow.liveMoveNodesUpdate(next)
             }
