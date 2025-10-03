@@ -24,8 +24,14 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     required init(configuration: ReadConfiguration) throws {
-        self.flow = .init(.init())
-        self.canvas = .init(.init())
+        guard let flowFile = configuration.file.fileWrappers?["flow.json"], let flowFileData = flowFile.regularFileContents else {
+            throw Errors.flowJsonNotFound
+        }
+
+        let snapshot = try JSONDecoder().decode(StorableData.self, from: flowFileData)
+
+        self.flow = .init(snapshot.flow)
+        self.canvas = .init(snapshot.canvas)
     }
 
     func snapshot(contentType: UTType) throws -> StorableData {
@@ -33,7 +39,14 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     func fileWrapper(snapshot: StorableData, configuration: WriteConfiguration) throws -> FileWrapper {
-        return .init(directoryWithFileWrappers: [:])
+        let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
+        return .init(directoryWithFileWrappers: ["flow.json": flow])
+    }
+}
+
+extension FlowDocument {
+    enum Errors: Error {
+        case flowJsonNotFound
     }
 }
 
