@@ -5,6 +5,8 @@
 //  Created by Daniel Fortes on 02/10/25.
 //
 
+#if os(macOS)
+
 import Helpers
 import SwiftUI
 
@@ -60,3 +62,5 @@ fileprivate struct DetailView: View {
         }
     }
 }
+
+#endif
