@@ -97,6 +97,12 @@ final class CanvasUIView: UIView {
         nil
     }
 
+    // MARK: - UIView
+    
+    override func didMoveToSuperview() {
+        self.onEvent?(.didMoveToSuperview)
+    }
+
     // MARK: - GridView Methods
 
     func setupGridView() {
