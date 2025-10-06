@@ -4,10 +4,15 @@ import SwiftUI
 struct MainView: View {
 
     let document: FlowDocument
+
     @State var flow: Flow = .init()
     @State var canvas: CanvasFeatureState = .init()
 
+    @Environment(\.dismissWindow) var dismissWindow
+
     func onAppear() {
+        self.dismissWindow(id: WindowID.welcome.rawValue)
+
         self.document.flow.withLock { data in
             self.flow.restore(data)
         }

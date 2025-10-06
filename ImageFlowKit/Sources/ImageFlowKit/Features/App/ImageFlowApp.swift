@@ -21,6 +21,23 @@ public struct ImageFlowApp: App {
     public var body: some Scene {
         DocumentGroup(newDocument: { FlowDocument() }) { configuration in
             MainView(document: configuration.document)
+                .onAppear {
+                    log("url: \(configuration.fileURL, default: "no URL!!")")
+                    if let url = configuration.fileURL {
+                        try! "Hello!".write(to: url.appending(path: "Hello.txt"), atomically: true, encoding: .utf8)
+                    }
+                }
+        }
+        .commands {
+
+            #if os(macOS)
+            CommandGroup(replacing: .newItem) {
+                Button("New...") {
+                    createNewDocumentWithSavePanel()
+                }
+                .keyboardShortcut("n")
+            }
+            #endif
         }
         #if os(macOS)
         .defaultWindowPlacement { root, context in
@@ -37,8 +54,40 @@ public struct ImageFlowApp: App {
         }
         #endif
 
-        // TODO:
-        //        WelcomeWindow("Image Flow")
-        //            .defaultLaunchBehavior(.presented)
+        WelcomeWindow("Image Flow")
+            .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .presented : .suppressed)
     }
 }
+
+#if os(macOS)
+@MainActor
+func createNewDocumentWithSavePanel() {
+    let panel = NSSavePanel()
+    panel.canCreateDirectories = true
+    panel.allowedContentTypes = [.imageFlowDocument]
+    panel.isExtensionHidden = false
+
+    panel.begin { response in
+        guard response == .OK, let url = panel.url else { return }
+
+        let doc = FlowDocument()
+
+        do {
+            let snap = try doc.snapshot(contentType: .imageFlowDocument)
+            let fw = try doc.fileWrapper(snapshot: snap)
+            try fw.write(to: url, options: [.atomic], originalContentsURL: nil)
+
+            NSDocumentController.shared.openDocument(
+                withContentsOf: url,
+                display: true,
+                completionHandler: { _, _, err in
+                    if let err { NSApp.presentError(err) }
+                }
+            )
+        } catch {
+            NSApp.presentError(error)
+
+        }
+    }
+}
+#endif

@@ -9,6 +9,7 @@
 
 import Helpers
 import SwiftUI
+import Logging
 
 struct MainContentViewMacOS: View {
 
@@ -18,8 +19,10 @@ struct MainContentViewMacOS: View {
     @FocusState var focus: Focus?
 
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @State var showAssetBrowser: Bool = false
 
     @Environment(\.undoManager) var undoManager
+    @Environment(\.dismiss) var dismiss
 
     init(flow: Flow, canvas: CanvasFeatureState) {
         self.flow = flow
@@ -31,16 +34,35 @@ struct MainContentViewMacOS: View {
     }
 
     var body: some View {
-        #if os(macOS)
         NavigationSplitView {
             SidebarFeatureView(self.$focus, self.onDoubleClick(nodePaletteItem:))
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
         } detail: {
             DetailView(flow: self.flow, canvas: self.canvas, focus: self.$focus, canvasCenter: self.canvasCenter)
         }
-        #else
-        DetailView(flow: self.flow, canvas: self.canvas, focus: self.$focus)
-        #endif
+        .sheet(
+            isPresented: self.$showAssetBrowser,
+            content: {
+                AssetBrowserView(
+                    assetProvider: AssetBrowserView.PreviewAssetProvider(ids: [UUID()]),
+                    onChooseAsset: { id in
+                        log("id: \(id)", level: .debug)
+                    }
+                )
+            }
+        )
+        .toolbar { self.toolbarContent }
+    }
+
+    @ToolbarContentBuilder
+    var toolbarContent: some ToolbarContent {
+        ToolbarItemGroup {
+            Button {
+                self.showAssetBrowser = true
+            } label: {
+                Image(systemName: "photo.badge.plus")
+            }
+        }
     }
 }
 
