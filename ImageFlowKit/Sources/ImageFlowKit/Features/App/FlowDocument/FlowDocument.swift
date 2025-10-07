@@ -41,6 +41,8 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         }
         let snapshot = try JSONDecoder().decode(StorableData.self, from: flowFileData)
 
+        log("loaded snapshot: \(snapshot)")
+
         self.flow = .init(snapshot.flow)
         self.canvas = .init(snapshot.canvas)
         self.assetStore = .init(snapshot.assets)
@@ -61,19 +63,17 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         do {
             for (_, asset) in snapshot.assets.images {
                 switch asset.source {
-                case .file(.temp(let filename)):
-                    let url =
-                        FileManager.default.temporaryDirectory.appending(path: "ImageFlowAssets").appending(
-                            path: self.id.uuidString
-                        ).appending(
-                            path: filename
+                case .file(let filename):
+                    let url = AssetManager.tempAssetURL(documentID: self.id, filename: filename)
+                    log("url: \(url.path)")
+                    if FileManager.default.fileExists(atPath: url.path) {
+                        log("exists!!!")
+                        let fw = try FileWrapper(
+                            url: url
                         )
-                    let fw = try FileWrapper(
-                        url: url
-                    )
-                    assetsFws[filename] = fw
-                    urls.append(url)
-                    // try FileManager.default.removeItem(at: url)
+                        assetsFws[filename] = fw
+                        urls.append(url)
+                    }
                 default:
                     break
                 }
@@ -84,6 +84,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         }
         let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
         let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
+        log("urls: \(urls)")
         Task.detached {
             try await Task.sleep(for: .seconds(0.1))
             for url in urls {

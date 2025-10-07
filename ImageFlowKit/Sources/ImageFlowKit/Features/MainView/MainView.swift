@@ -8,7 +8,7 @@ extension EnvironmentValues {
 struct MainView: View {
 
     let document: FlowDocument
-    let documentID: UUID
+    let documentInfo: DocumentInfo
 
     @State var flow: Flow = .init()
     @State var canvas: CanvasFeatureState = .init()
@@ -26,6 +26,10 @@ struct MainView: View {
             self.canvas.restore(canvas)
         }
 
+        self.document.assetStore.withLock { assetStore in
+            self.assetStore.restore(assetStore)
+        }
+
         self.observeNodes()
         self.observeEdges()
         self.observeViewport()
@@ -34,8 +38,6 @@ struct MainView: View {
         if RunConfiguration.useSampleData {
             loadSampleData()
         }
-
-        self.assetStore.setDocumentID(self.documentID)
     }
 
     func observeImageAssets() {
@@ -48,6 +50,7 @@ struct MainView: View {
                     self.document.assetStore.withLock {
                         $0.images = self.assetStore.images
                     }
+                    self.observeImageAssets()
                 }
             }
         )
@@ -106,8 +109,13 @@ struct MainView: View {
         }
     }
 
+    func onChangeOfDocumentInfo() {
+        self.assetStore.setDocumentInfo(self.documentInfo)
+    }
+
     var body: some View {
         MainContentView(flow: self.flow, canvas: self.canvas, assetStore: self.assetStore)
+            .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
             .onAppear(perform: self.onAppear)
     }
 }

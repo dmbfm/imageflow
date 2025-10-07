@@ -8,7 +8,7 @@ public enum AssetBrowserType {
 }
 
 struct AssetBrowserView: View {
-    let assetProvider: any AssetProvider
+    let assetStore: AssetStore
     var onChooseAsset: (UUID) -> ()
     var addImageFiles: (([URL]) -> Void)?
     let type: AssetBrowserType
@@ -22,14 +22,14 @@ struct AssetBrowserView: View {
 
     init(
         type: AssetBrowserType = .picker,
-        assetProvider: any AssetProvider,
+        assetStore: AssetStore,
         showFileImporter: Bool = false,
         selected: UUID? = nil,
         onChooseAsset: @escaping (UUID) -> Void,
         addImageFiles: (([URL]) -> Void)? = nil
     ) {
         self.type = type
-        self.assetProvider = assetProvider
+        self.assetStore = assetStore
         self.showFileImporter = showFileImporter
         self.selected = selected
         self.onChooseAsset = onChooseAsset
@@ -88,7 +88,15 @@ struct AssetBrowserView: View {
     }
 
     var sortedImages: [ImageAssetInfo] {
-        self.assetProvider.images.sorted(by: { $0.added < $1.added }).map { $0 }
+        self.assetStore.images.values.filter { $0.source.isFile }.compactMap { asset in
+            let state: ImageAssetInfo.State =
+                switch self.assetStore.thumbs[asset.id] {
+                case .loaded: .loaded
+                case .loading, .notLoaded: .loading
+                case .failed, .none: .failed
+                }
+            return .init(id: asset.id, name: asset.source.filename!, added: asset.added, state: state)
+        }
     }
 
     @ViewBuilder
@@ -101,7 +109,7 @@ struct AssetBrowserView: View {
                 ) {
                     ForEach(self.sortedImages) { info in
                         GridItemView(
-                            assetProvider: self.assetProvider,
+                            assetStore: self.assetStore,
                             selected: self.selected == info.id,
                             info: info
                         )
@@ -173,12 +181,12 @@ struct AssetBrowserView: View {
     }
 }
 
-#Preview {
-    let ids = (0..<10).map { _ in UUID() }
-    VStack {
-        AssetBrowserView(
-            assetProvider: AssetBrowserView.PreviewAssetProvider(ids: ids),
-            onChooseAsset: { _ in }
-        )
-    }
-}
+// #Preview {
+//     let ids = (0..<10).map { _ in UUID() }
+//     VStack {
+//         AssetBrowserView(
+//             assetProvider: AssetBrowserView.PreviewAssetProvider(ids: ids),
+//             onChooseAsset: { _ in }
+//         )
+//     }
+// }

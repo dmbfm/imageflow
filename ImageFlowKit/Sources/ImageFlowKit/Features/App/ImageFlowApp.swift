@@ -14,7 +14,28 @@ import UniformTypeIdentifiers
 
 //import enum Models.Action
 
+#if canImport(AppKit)
+import AppKit
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillTerminate(_ notification: Notification) {
+        log("Removing temporary files...")
+        do {
+            if FileManager.default.fileExists(atPath: AssetManager.tempAssetsDirectory.path) {
+                try FileManager.default.removeItem(at: AssetManager.tempAssetsDirectory)
+            }
+        } catch {
+            log("Error: \(error)", level: .error)
+        }
+    }
+}
+#endif
+
 public struct ImageFlowApp: App {
+
+    #if canImport(AppKit)
+    @NSApplicationDelegateAdaptor var appDelegate: AppDelegate
+    #endif
 
     public init() {}
 
@@ -22,19 +43,8 @@ public struct ImageFlowApp: App {
         DocumentGroup(newDocument: { FlowDocument() }) { configuration in
             MainView(
                 document: configuration.document,
-                documentID: configuration.document.id
+                documentInfo: .init(id: configuration.document.id, url: configuration.fileURL)
             )
-        }
-        .commands {
-
-            #if os(macOS)
-            CommandGroup(replacing: .newItem) {
-                Button("New...") {
-                    createNewDocumentWithSavePanel()
-                }
-                .keyboardShortcut("n")
-            }
-            #endif
         }
         #if os(macOS)
         .defaultWindowPlacement { root, context in
@@ -56,35 +66,35 @@ public struct ImageFlowApp: App {
     }
 }
 
-#if os(macOS)
-@MainActor
-func createNewDocumentWithSavePanel() {
-    let panel = NSSavePanel()
-    panel.canCreateDirectories = true
-    panel.allowedContentTypes = [.imageFlowDocument]
-    panel.isExtensionHidden = false
+// #if os(macOS)
+// @MainActor
+// func createNewDocumentWithSavePanel() {
+//     let panel = NSSavePanel()
+//     panel.canCreateDirectories = true
+//     panel.allowedContentTypes = [.imageFlowDocument]
+//     panel.isExtensionHidden = false
 
-    panel.begin { response in
-        guard response == .OK, let url = panel.url else { return }
+//     panel.begin { response in
+//         guard response == .OK, let url = panel.url else { return }
 
-        let doc = FlowDocument()
+//         let doc = FlowDocument()
 
-        do {
-            let snap = try doc.snapshot(contentType: .imageFlowDocument)
-            let fw = try doc.fileWrapper(snapshot: snap)
-            try fw.write(to: url, options: [.atomic], originalContentsURL: nil)
+//         do {
+//             let snap = try doc.snapshot(contentType: .imageFlowDocument)
+//             let fw = try doc.fileWrapper(snapshot: snap)
+//             try fw.write(to: url, options: [.atomic], originalContentsURL: nil)
 
-            NSDocumentController.shared.openDocument(
-                withContentsOf: url,
-                display: true,
-                completionHandler: { _, _, err in
-                    if let err { NSApp.presentError(err) }
-                }
-            )
-        } catch {
-            NSApp.presentError(error)
+//             NSDocumentController.shared.openDocument(
+//                 withContentsOf: url,
+//                 display: true,
+//                 completionHandler: { _, _, err in
+//                     if let err { NSApp.presentError(err) }
+//                 }
+//             )
+//         } catch {
+//             NSApp.presentError(error)
 
-        }
-    }
-}
-#endif
+//         }
+//     }
+// }
+// #endif

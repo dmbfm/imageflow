@@ -46,7 +46,7 @@ struct MainContentViewMacOS: View {
             isPresented: self.$showAssetBrowser,
             content: {
                 AssetBrowserView(
-                    assetProvider: AssetBrowserView.PreviewAssetProvider(ids: [UUID()]),
+                    assetStore: self.assetStore,
                     onChooseAsset: { id in
                         log("id: \(id)", level: .debug)
                     },

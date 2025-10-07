@@ -8,7 +8,7 @@ struct ImageAsset: Identifiable, Equatable, Codable {
 
     enum Source: Equatable, Codable {
         case generated(node: UUID, port: Int)
-        case file(FileLocation)
+        case file(String)
 
         var isFile: Bool {
             if case .file = self {
@@ -18,9 +18,12 @@ struct ImageAsset: Identifiable, Equatable, Codable {
             }
         }
 
-        enum FileLocation: Equatable, Codable {
-            case temp(String)
-            case document(String)
+        var filename: String? {
+            if case let .file(filename) = self {
+                filename
+            } else {
+                nil
+            }
         }
     }
 }

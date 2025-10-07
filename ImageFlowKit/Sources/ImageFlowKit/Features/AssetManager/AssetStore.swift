@@ -8,6 +8,12 @@ final class AssetStore {
     private(set) var images: [UUID: ImageAsset] = [:]
     private(set) var thumbs: [UUID: ResourceState<CGImage, AssetManagerError.ThumbError>] = [:]
 
+    var fileAssets: [ImageAsset] {
+        self.images.values.filter { asset in
+            asset.source.isFile
+        }
+    }
+
     let assetManager: AssetManager = .init()
 
     init() {
@@ -18,9 +24,9 @@ final class AssetStore {
         }
     }
 
-    func setDocumentID(_ id: UUID) {
+    func setDocumentInfo(_ info: DocumentInfo) {
         Task {
-            await self.assetManager.setDocumentID(id)
+            await self.assetManager.setDocumentInfo(info)
         }
     }
 
@@ -28,9 +34,13 @@ final class AssetStore {
         try await self.assetManager.addImageAsset(fromURL: url)
     }
 
-    func startLoadingThum(forImage id: UUID) {
+    func startLoadingThumb(forImage id: UUID) {
         Task.detached {
-            _ = try await self.assetManager.getThumb(forImageAsset: id)
+            do {
+                _ = try await self.assetManager.getThumb(forImageAsset: id)
+            } catch {
+                log("failed to load thumb \(id): \(error)")
+            }
         }
     }
 
@@ -52,7 +62,11 @@ extension AssetStore: Storable {
     }
 
     func restore(_ snapshot: StorableData) {
-        self.images = snapshot.images
+        self.images = [:]
+        self.thumbs = [:]
+        Task {
+            await self.assetManager.restore(snapshot.images)
+        }
     }
 
     func snapshot() -> StorableData {

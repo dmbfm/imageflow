@@ -15,38 +15,21 @@ extension AssetBrowserView {
             case failed
         }
     }
-
-    protocol AssetProvider {
-        func getThumb(id: UUID, width: Int, height: Int) async throws -> CGImage
-        var images: [ImageAssetInfo] { get }
-    }
-
-    class PreviewAssetProvider: AssetProvider {
-        let ids: [UUID]
-        internal init(ids: [UUID]) {
-            self.ids = ids
-        }
-
-        func getThumb(id: UUID, width: Int, height: Int) async throws -> CGImage {
-            makeTestPatternCGImage(width: width, height: height)!
-        }
-
-        var images: [ImageAssetInfo] {
-            self.ids.map { id in
-                .init(id: id, name: id.uuidString, added: .now, state: .loaded)
-            }
-        }
-    }
 }
 
 extension AssetBrowserView {
     struct GridItemView: View {
-        // let assetManager: AssetManager
-        let assetProvider: any AssetProvider
+        let assetStore: AssetStore
         let selected: Bool
 
-        @State var image: CGImage?
         let info: ImageAssetInfo
+
+        var image: CGImage? {
+            switch self.assetStore.thumbs[info.id] {
+                case .loaded(let image): image
+                default: nil
+            }
+        }
 
         var body: some View {
             GridItemInnerView(
@@ -57,33 +40,25 @@ extension AssetBrowserView {
             )
             .onChange(of: self.info, initial: true) {
                 Task {
-                    await self.fetchImage()
+                    self.assetStore.startLoadingThumb(forImage: self.info.id)
                 }
-            }
-        }
-
-        func fetchImage() async {
-            do {
-                self.image = try await self.assetProvider.getThumb(id: self.info.id, width: 110 * 2, height: 110 * 2)
-            } catch {
-                log("Failed to fetch image: \(error)", level: .error)
             }
         }
     }
 }
 
-#Preview {
-    let id = UUID()
-    AssetBrowserView.GridItemView(
-        assetProvider: AssetBrowserView.PreviewAssetProvider(ids: [id]),
-        selected: false,
-        image: nil,
-        info: .init(id: id, name: "", added: .now)
-    )
-    .frame(width: 146, height: 146)
-    .background(.white)
-    .padding(10)
-}
+// #Preview {
+//     let id = UUID()
+//     AssetBrowserView.GridItemView(
+//         assetProvider: AssetBrowserView.PreviewAssetProvider(ids: [id]),
+//         selected: false,
+//         image: nil,
+//         info: .init(id: id, name: "", added: .now)
+//     )
+//     .frame(width: 146, height: 146)
+//     .background(.white)
+//     .padding(10)
+// }
 
 /// Creates an 8-bpc sRGB, premultiplied-alpha CGImage test pattern.
 /// Pattern: top = color bars, middle = checkerboard, bottom = grayscale ramp, with crosshair & rings.
