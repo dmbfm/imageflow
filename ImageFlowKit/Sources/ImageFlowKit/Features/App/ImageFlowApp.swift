@@ -20,13 +20,10 @@ public struct ImageFlowApp: App {
 
     public var body: some Scene {
         DocumentGroup(newDocument: { FlowDocument() }) { configuration in
-            MainView(document: configuration.document)
-                .onAppear {
-                    log("url: \(configuration.fileURL, default: "no URL!!")")
-                    if let url = configuration.fileURL {
-                        try! "Hello!".write(to: url.appending(path: "Hello.txt"), atomically: true, encoding: .utf8)
-                    }
-                }
+            MainView(
+                document: configuration.document,
+                documentID: configuration.document.id
+            )
         }
         .commands {
 

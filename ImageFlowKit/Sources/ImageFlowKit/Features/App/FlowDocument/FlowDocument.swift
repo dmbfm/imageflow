@@ -12,17 +12,17 @@ import UniformTypeIdentifiers
 
 @preconcurrency
 final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
-
+    public let id: UUID = UUID()
     public let flow: Mutex<Flow.StorableData>
     public let canvas: Mutex<CanvasFeatureState.StorableData>
-    public let assetStore: FlowDocumentAssetStoreContainer
+    public let assetStore: Mutex<AssetStore.StorableData>
 
     static var readableContentTypes: [UTType] { [.imageFlowDocument] }
 
     init(
         _ data: Flow.StorableData = .init(),
         _ canvas: CanvasFeatureState.StorableData = .init(),
-        _ assets: FlowDocumentAssetStore = .init()
+        _ assets: AssetStore.StorableData = .init()
     ) {
         self.flow = .init(data)
         self.canvas = .init(canvas)
@@ -34,61 +34,62 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             throw Errors.missingFileWrappers
         }
 
-        for fw in fws {
-            log("----------> fw: \(fw.key)")
-        }
-
         guard let flowFile = fws["flow.json"],
             let flowFileData = flowFile.regularFileContents
         else {
             throw Errors.flowJsonNotFound
         }
-
-        guard let metadataFile = fws["metadata.json"],
-            let metadataFileData = metadataFile.regularFileContents
-        else {
-            throw Errors.metadataJsonNotFound
-        }
-
-        let metadata = try JSONDecoder().decode(FlowDocumentAssetStore.MetadataMap.self, from: metadataFileData)
         let snapshot = try JSONDecoder().decode(StorableData.self, from: flowFileData)
-
-        var assets = FlowDocumentAssetStore()
-
-        for (id, metadata) in metadata.metadata {
-            guard let file = fws[id.uuidString], let fileData = file.regularFileContents else {
-                throw Errors.missingFile(metadata)
-            }
-            assets.assets[id] = .init(metadata: metadata, data: fileData)
-        }
 
         self.flow = .init(snapshot.flow)
         self.canvas = .init(snapshot.canvas)
-        self.assetStore = .init(assets)
-        log("--> \(assets)")
+        self.assetStore = .init(snapshot.assets)
     }
 
     func snapshot(contentType: UTType) throws -> StorableData {
         .init(
             flow: self.flow.withLock({ $0 }),
             canvas: self.canvas.withLock({ $0 }),
+            assets: self.assetStore.withLock({ $0 })
         )
     }
 
     func fileWrapper(snapshot: StorableData) throws -> FileWrapper {
-        let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
-
-        var fws: [String: FileWrapper] = ["flow.json": flow]
-
-        try self.assetStore.store.withLock({ assets in
-            for asset in assets.assets {
-                fws[asset.key.uuidString] = .init(regularFileWithContents: asset.value.data)
+        log("snapshot: \(snapshot)")
+        var assetsFws = [String: FileWrapper]()
+        var urls = [URL]()
+        do {
+            for (_, asset) in snapshot.assets.images {
+                switch asset.source {
+                case .file(.temp(let filename)):
+                    let url =
+                        FileManager.default.temporaryDirectory.appending(path: "ImageFlowAssets").appending(
+                            path: self.id.uuidString
+                        ).appending(
+                            path: filename
+                        )
+                    let fw = try FileWrapper(
+                        url: url
+                    )
+                    assetsFws[filename] = fw
+                    urls.append(url)
+                    // try FileManager.default.removeItem(at: url)
+                default:
+                    break
+                }
             }
-            let metadataMap = assets.metadataMap
-            let metadataJson = try JSONEncoder().encode(metadataMap)
-            fws["metadata.json"] = .init(regularFileWithContents: metadataJson)
-        })
-
+        } catch {
+            log("error: \(error)")
+            throw error
+        }
+        let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
+        let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
+        Task.detached {
+            try await Task.sleep(for: .seconds(0.1))
+            for url in urls {
+                try FileManager.default.removeItem(at: url)
+            }
+        }
         return .init(directoryWithFileWrappers: fws)
     }
 
@@ -102,7 +103,6 @@ extension FlowDocument {
         case flowJsonNotFound
         case metadataJsonNotFound
         case missingFileWrappers
-        case missingFile(FlowDocumentAsset.Metadata)
     }
 }
 
@@ -116,5 +116,6 @@ extension FlowDocument {
     struct StorableData: Sendable, Codable {
         var flow: Flow.StorableData
         var canvas: CanvasFeatureState.StorableData
+        var assets: AssetStore.StorableData
     }
 }

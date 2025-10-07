@@ -1,9 +1,9 @@
 import CoreGraphics
-import Logging
 import SwiftUI
+import Logging
 
 extension AssetBrowserView {
-    struct ImageAssetInfo: Equatable, Identifiable{
+    struct ImageAssetInfo: Equatable, Identifiable {
         var id: UUID
         var name: String
         var added: Date
@@ -33,7 +33,7 @@ extension AssetBrowserView {
 
         var images: [ImageAssetInfo] {
             self.ids.map { id in
-                    .init(id: id, name: id.uuidString, added: .now, state: .loaded)
+                .init(id: id, name: id.uuidString, added: .now, state: .loaded)
             }
         }
     }

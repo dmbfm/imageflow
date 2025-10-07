@@ -1,4 +1,3 @@
-@MainActor
 public final class EventEmitter<T> {
     private var listeners: [(T) -> ()] = []
 

@@ -10,7 +10,7 @@ typealias MainContentView = MainContentViewIPadOS
 #endif
 
 protocol MainContentViewProtocol: View {
-    init(flow: Flow, canvas: CanvasFeatureState)
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore)
 }
 
 extension MainContentView: MainContentViewProtocol {}

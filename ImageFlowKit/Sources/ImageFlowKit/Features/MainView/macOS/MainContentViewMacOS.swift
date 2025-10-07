@@ -15,6 +15,7 @@ struct MainContentViewMacOS: View {
 
     let flow: Flow
     let canvas: CanvasFeatureState
+    let assetStore: AssetStore
 
     @FocusState var focus: Focus?
 
@@ -24,9 +25,10 @@ struct MainContentViewMacOS: View {
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
-    init(flow: Flow, canvas: CanvasFeatureState) {
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
         self.flow = flow
         self.canvas = canvas
+        self.assetStore = assetStore
     }
 
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
@@ -47,6 +49,17 @@ struct MainContentViewMacOS: View {
                     assetProvider: AssetBrowserView.PreviewAssetProvider(ids: [UUID()]),
                     onChooseAsset: { id in
                         log("id: \(id)", level: .debug)
+                    },
+                    addImageFiles: { urls in
+                        log("add image files: \(urls)", level: .debug)
+                        for url in urls {
+                            Task {
+                                try await self.assetStore.addImage(fromURL: url)
+                            }
+                            // Task.detached {
+                            //     try! await self.assetManager?.addImageAsset(fromURL: url)
+                            // }
+                        }
                     }
                 )
             }

@@ -1,12 +1,18 @@
 import Logging
 import SwiftUI
 
+extension EnvironmentValues {
+    @Entry var assetManager: AssetManager? = nil
+}
+
 struct MainView: View {
 
     let document: FlowDocument
+    let documentID: UUID
 
     @State var flow: Flow = .init()
     @State var canvas: CanvasFeatureState = .init()
+    @State var assetStore: AssetStore = .init()
 
     @Environment(\.dismissWindow) var dismissWindow
 
@@ -19,13 +25,32 @@ struct MainView: View {
         self.document.canvas.withLock { canvas in
             self.canvas.restore(canvas)
         }
+
         self.observeNodes()
         self.observeEdges()
         self.observeViewport()
+        self.observeImageAssets()
 
         if RunConfiguration.useSampleData {
             loadSampleData()
         }
+
+        self.assetStore.setDocumentID(self.documentID)
+    }
+
+    func observeImageAssets() {
+        withObservationTracking(
+            {
+                _ = self.assetStore.images
+            },
+            onChange: {
+                Task { @MainActor in
+                    self.document.assetStore.withLock {
+                        $0.images = self.assetStore.images
+                    }
+                }
+            }
+        )
     }
 
     func observeViewport() {
@@ -82,7 +107,7 @@ struct MainView: View {
     }
 
     var body: some View {
-        MainContentView(flow: self.flow, canvas: self.canvas)
+        MainContentView(flow: self.flow, canvas: self.canvas, assetStore: self.assetStore)
             .onAppear(perform: self.onAppear)
     }
 }
