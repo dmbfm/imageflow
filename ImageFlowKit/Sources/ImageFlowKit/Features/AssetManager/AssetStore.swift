@@ -6,7 +6,6 @@ import SwiftUI
 final class AssetStore {
 
     private(set) var images: [UUID: ImageAsset] = [:]
-    private(set) var thumbs: [UUID: ResourceState<CGImage, AssetManagerError.ThumbError>] = [:]
 
     var fileAssets: [ImageAsset] {
         self.images.values.filter { asset in
@@ -34,23 +33,14 @@ final class AssetStore {
         try await self.assetManager.addImageAsset(fromURL: url)
     }
 
-    func startLoadingThumb(forImage id: UUID) {
-        Task.detached {
-            do {
-                _ = try await self.assetManager.getThumb(forImageAsset: id)
-            } catch {
-                log("failed to load thumb \(id): \(error)")
-            }
-        }
+    func getThumb(forImageAsset id: UUID) async throws -> CGImage {
+        try await self.assetManager.getThumb(forImageAsset: id)
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {
         switch event {
         case .imageAssetsDidChange:
             self.images = await self.assetManager.imageAssets
-            log("imageAssetsDidChange: \(self.images)")
-        case .thumbsDidChange:
-            self.thumbs = await self.assetManager.thumbs
         }
     }
 }
@@ -58,12 +48,13 @@ final class AssetStore {
 extension AssetStore: Storable {
     convenience init(_ data: StorableData) {
         self.init()
-        self.images = data.images
+        Task {
+            await self.assetManager.restore(data.images)
+        }
     }
 
     func restore(_ snapshot: StorableData) {
         self.images = [:]
-        self.thumbs = [:]
         Task {
             await self.assetManager.restore(snapshot.images)
         }

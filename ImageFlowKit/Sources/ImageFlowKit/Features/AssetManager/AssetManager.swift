@@ -6,41 +6,43 @@ import Synchronization
 
 actor AssetManager {
 
+    // MARK: - Exposed Properties
+
     var imageAssets: [UUID: ImageAsset] = [:] {
         didSet {
-            log("imageAssets didSet")
             if oldValue != self.imageAssets {
-                log("emit!")
                 self.emit(.imageAssetsDidChange)
             }
         }
     }
 
-    var thumbs: [UUID: ResourceState<CGImage, AssetManagerError.ThumbError>] = [:] {
-        didSet {
-            if oldValue != self.thumbs {
-                self.emit(.thumbsDidChange)
-            }
-        }
-    }
+    var thumbs: [UUID: Resource<CGImage, AssetManagerError.ThumbError>] = [:]
 
-    var ciImages: [UUID: ResourceState<CIImage, ()>] = [:]
+    var ciImages: [UUID: Resource<CIImage, ()>] = [:]
 
     var documentInfo: DocumentInfo?
 
     @MainActor
     var emitter: EventEmitter<Event> = .init()
 
-    enum Event {
-        case imageAssetsDidChange
-        case thumbsDidChange
-    }
+    // MARK: -  Private Properties
 
-    func emit(_ event: Event) {
-        Task { @MainActor in
-            self.emitter.emit(event)
+    private var imageAssetNames: [String] {
+        self.imageAssets.values.compactMap {
+            switch $0.source {
+            case .file(let name): name
+            default: nil
+            }
         }
     }
+
+    // MARK: - Exposed Types
+
+    enum Event {
+        case imageAssetsDidChange
+    }
+
+    // MARK: - Exposed Methods
 
     func reset() {
         self.imageAssets = [:]
@@ -60,12 +62,132 @@ actor AssetManager {
         self.documentInfo = info
     }
 
-    private var imageAssetNames: [String] {
-        self.imageAssets.values.compactMap {
-            switch $0.source {
-            case .file(let name): name
-            default: nil
+    // MARK: Assset Management
+
+    func addImageAsset(fromURL url: URL) async throws -> UUID {
+
+        guard let documentID = self.documentInfo?.id else {
+            throw AssetManagerError.missingBaseURL
+        }
+
+        guard url.startAccessingSecurityScopedResource() else {
+            throw AssetManagerError.accessError
+        }
+        defer { url.stopAccessingSecurityScopedResource() }
+
+        let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
+        try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
+
+        let assetFilename = self.name(forAssetAt: url)
+        let assetURL = assetsDir.appending(path: assetFilename)
+
+        try FileManager.default.copyItem(at: url, to: assetURL)
+
+        let id = UUID()
+
+        self.imageAssets[id] = .init(
+            id: id,
+            source: .file(assetFilename),
+            added: .now,
+            res: .init(thumb: .notLoaded, ciImage: .notLoaded)
+        )
+        self.thumbs[id] = .notLoaded
+        self.ciImages[id] = .notLoaded
+
+        return id
+    }
+
+    func getThumb(forImageAsset id: UUID) async throws -> CGImage {
+        guard let asset = self.imageAssets[id] else {
+            throw AssetManagerError.missingImageAsset(id)
+        }
+        guard let res = self.thumbs[id] else {
+            throw AssetManagerError.missingThumbResource(id)
+        }
+
+        let fm = FileManager.default
+
+        var task: Task<CGImage, any Error>? = nil
+
+        switch res {
+        case .failed(let err):
+            throw err
+        case .loaded(let image):
+            log("returning cached image!", level: .debug)
+            return image
+        case .loading(let t):
+            task = t
+        case .notLoaded:
+            task = Task { try await doLoad() }
+            self.setThumbResource(id, .loading(task!))
+        }
+
+        do {
+            let value = try await task!.value
+            self.setThumbResource(id, .loaded(value))
+            return value
+        } catch {
+            self.setThumbResource(id, .failed(.createThumbFailed))
+            throw AssetManagerError.thumbCreation(.createThumbFailed)
+        }
+
+        func doLoad() async throws -> CGImage {
+            switch asset.source {
+            case .file(let filename):
+                try await doLoadFile(filename: filename)
+            case .generated:
+                fatalError("TODO: Not implemented")
             }
+        }
+
+        func doLoadFile(filename: String) async throws -> CGImage {
+            let maybeDocumentImageURL = self.documentAssetURL(filename: filename)
+
+            let tempImageURL = self.tempAssetURL(filename: filename)!
+
+            let imageURL =
+                if let documentImageURL = maybeDocumentImageURL, fm.fileExists(atPath: documentImageURL.path) {
+                    documentImageURL
+                } else if fm.fileExists(atPath: tempImageURL.path) {
+                    tempImageURL
+                } else {
+                    throw AssetManagerError.thumbCreation(.createThumbFailed)
+                }
+
+            let opts =
+                [
+                    kCGImageSourceCreateThumbnailWithTransform: true,
+                    kCGImageSourceCreateThumbnailFromImageAlways: true,
+                    kCGImageSourceShouldCacheImmediately: true,
+                    kCGImageSourceThumbnailMaxPixelSize: 256,
+                ] as CFDictionary
+            guard
+                let source = CGImageSourceCreateWithURL(
+                    imageURL as CFURL,
+                    [kCGImageSourceShouldCache: false] as CFDictionary
+                )
+            else {
+                throw AssetManagerError.thumbCreation(.imageSourceCreationFailed)
+            }
+
+            guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
+                throw AssetManagerError.thumbCreation(.createThumbFailed)
+            }
+
+            return thumb
+        }
+    }
+
+    // MARK: - Private Methods
+
+    private func setThumbResource(_ id: UUID, _ res: Resource<CGImage, AssetManagerError.ThumbError>) {
+        self.thumbs[id] = res
+        self.imageAssets[id]?.res.thumb = res.state
+    }
+
+    private func emit(_ event: Event) {
+        Task { @MainActor in
+            self.emitter.emit(event)
         }
     }
 
@@ -97,107 +219,18 @@ actor AssetManager {
         }
     }
 
-    static var tempAssetsDirectory: URL {
-        FileManager.default.temporaryDirectory.appending(path: "ImageFlowAssets")
-    }
+    // MARK: - URLs
 
-    static func tempAssetsDirectory(forDocument id: UUID) -> URL {
-        Self.tempAssetsDirectory.appending(path: id.uuidString)
-    }
-
-    static func tempAssetURL(documentID id: UUID, filename: String) -> URL {
-        Self.tempAssetsDirectory.appending(path: id.uuidString).appending(path: filename)
-    }
-
-    func addImageAsset(fromURL url: URL) async throws -> UUID {
-
-        guard let documentID = self.documentInfo?.id else {
-            throw AssetManagerError.missingBaseURL
-        }
-
-        guard url.startAccessingSecurityScopedResource() else {
-            throw AssetManagerError.accessError
-        }
-        defer { url.stopAccessingSecurityScopedResource() }
-
-        let assetsDir = Self.tempAssetsDirectory(forDocument: documentID)
-        try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
-
-        let assetFilename = self.name(forAssetAt: url)
-        let assetURL = assetsDir.appending(path: assetFilename)
-
-        try FileManager.default.copyItem(at: url, to: assetURL)
-
-        let id = UUID()
-
-        self.imageAssets[id] = .init(id: id, source: .file(assetFilename), added: .now)
-        self.thumbs[id] = .notLoaded
-        self.ciImages[id] = .notLoaded
-
-        return id
-    }
-
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage {
-        guard let asset = self.imageAssets[id] else {
-            throw AssetManagerError.missingImageAsset(id)
-        }
-        guard let res = self.thumbs[id] else {
-            throw AssetManagerError.missingThumbResource(id)
-        }
-        if case let .loaded(image) = res {
-            return image
-        }
-        guard let documentInfo = self.documentInfo else {
-            throw AssetManagerError.missingBaseURL
-        }
-
-        let fm = FileManager.default
-
-        if case let .file(filename) = asset.source {
-
-            let maybeDocumentImageURL = documentInfo.url?.appending(path: "Assets").appending(path: filename)
-            let tempImageURL = Self.tempAssetsDirectory(forDocument: documentInfo.id).appending(path: filename)
-
-            let imageURL =
-                if let documentImageURL = maybeDocumentImageURL, fm.fileExists(atPath: documentImageURL.path) {
-                    documentImageURL
-                } else if fm.fileExists(atPath: tempImageURL.path) {
-                    tempImageURL
-
-                } else {
-                    fatalError()
-                }
-
-            self.thumbs[id] = .loading
-            let opts =
-                [
-                    kCGImageSourceCreateThumbnailWithTransform: true,
-                    kCGImageSourceCreateThumbnailFromImageAlways: true,
-                    kCGImageSourceShouldCacheImmediately: true,
-                    kCGImageSourceThumbnailMaxPixelSize: 256,
-                ] as CFDictionary
-            guard
-                let source = CGImageSourceCreateWithURL(
-                    imageURL as CFURL,
-                    [kCGImageSourceShouldCache: false] as CFDictionary
-                )
-            else {
-                self.thumbs[id] = .failed(.imageSourceCreationFailed)
-                throw AssetManagerError.thumbCreation(.imageSourceCreationFailed)
-            }
-
-            guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
-                self.thumbs[id] = .failed(.createThumbFailed)
-                throw AssetManagerError.thumbCreation(.createThumbFailed)
-            }
-
-            self.thumbs[id] = .loaded(thumb)
-
-            return thumb
-
+    private func tempAssetURL(filename: String) -> URL? {
+        if let id = self.documentInfo?.id {
+            .tempAssetURL(forDocument: id, filename: filename)
         } else {
-            fatalError()
+            nil
         }
+    }
+
+    private func documentAssetURL(filename: String) -> URL? {
+        self.documentInfo?.url?.appending(path: "Assets").appending(path: filename)
     }
 }
 

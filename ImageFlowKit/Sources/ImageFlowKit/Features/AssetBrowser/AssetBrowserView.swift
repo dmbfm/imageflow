@@ -90,10 +90,10 @@ struct AssetBrowserView: View {
     var sortedImages: [ImageAssetInfo] {
         self.assetStore.images.values.filter { $0.source.isFile }.compactMap { asset in
             let state: ImageAssetInfo.State =
-                switch self.assetStore.thumbs[asset.id] {
+                switch asset.res.thumb {
                 case .loaded: .loaded
                 case .loading, .notLoaded: .loading
-                case .failed, .none: .failed
+                case .failed: .failed
                 }
             return .init(id: asset.id, name: asset.source.filename!, added: asset.added, state: state)
         }

@@ -5,6 +5,12 @@ struct ImageAsset: Identifiable, Equatable, Codable {
     var id: UUID
     var source: Source
     var added: Date
+    var res: Resources
+
+    struct Resources: Equatable, Codable {
+        var thumb: ResourceState
+        var ciImage: ResourceState
+    }
 
     enum Source: Equatable, Codable {
         case generated(node: UUID, port: Int)

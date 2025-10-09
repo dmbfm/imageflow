@@ -64,7 +64,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             for (_, asset) in snapshot.assets.images {
                 switch asset.source {
                 case .file(let filename):
-                    let url = AssetManager.tempAssetURL(documentID: self.id, filename: filename)
+                    let url: URL = .tempAssetURL(forDocument: self.id, filename: filename)
                     log("url: \(url.path)")
                     if FileManager.default.fileExists(atPath: url.path) {
                         log("exists!!!")

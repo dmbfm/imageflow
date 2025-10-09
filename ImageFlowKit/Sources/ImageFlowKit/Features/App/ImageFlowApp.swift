@@ -21,8 +21,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         log("Removing temporary files...")
         do {
-            if FileManager.default.fileExists(atPath: AssetManager.tempAssetsDirectory.path) {
-                try FileManager.default.removeItem(at: AssetManager.tempAssetsDirectory)
+            let url: URL = .tempAssetsDirectory
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
             }
         } catch {
             log("Error: \(error)", level: .error)
