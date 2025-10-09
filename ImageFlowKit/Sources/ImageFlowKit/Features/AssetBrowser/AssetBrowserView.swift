@@ -2,17 +2,22 @@ import Logging
 import SwiftUI
 import UniformTypeIdentifiers
 
-public enum AssetBrowserType {
-    case picker
+public enum AssetBrowserType: Equatable {
+    case picker(PortLocation)
     case browser
+}
+
+public enum AssetBrowserResult {
+    case cancel
+    case pick(UUID)
+    case create(UUID)
 }
 
 struct AssetBrowserView: View {
     let assetStore: AssetStore
-    var onChooseAsset: (UUID) -> ()
-    var addImageFiles: (([URL]) -> Void)?
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
+    let onDismiss: (AssetBrowserResult) -> ()
 
     @State var showFileImporter = false
     @State var selected: UUID? = nil
@@ -21,19 +26,17 @@ struct AssetBrowserView: View {
     @Environment(\.dismiss) var dismiss
 
     init(
-        type: AssetBrowserType = .picker,
+        type: AssetBrowserType = .browser,
         assetStore: AssetStore,
         showFileImporter: Bool = false,
         selected: UUID? = nil,
-        onChooseAsset: @escaping (UUID) -> Void,
-        addImageFiles: (([URL]) -> Void)? = nil
+        onDismiss: @escaping (AssetBrowserResult) -> Void,
     ) {
         self.type = type
         self.assetStore = assetStore
         self.showFileImporter = showFileImporter
         self.selected = selected
-        self.onChooseAsset = onChooseAsset
-        self.addImageFiles = addImageFiles
+        self.onDismiss = onDismiss
     }
 
     var body: some View {
@@ -64,7 +67,9 @@ struct AssetBrowserView: View {
 
         }
         .onModifierKeysChanged({ old, new in
-            self.createNodeOnSelect = new == .command
+            if self.type == .browser {
+                self.createNodeOnSelect = new == .command
+            }
         })
     }
 
@@ -130,6 +135,15 @@ struct AssetBrowserView: View {
         }
     }
 
+    var cancelButtonText: LocalizedStringResource {
+        switch self.type {
+        case .picker:
+            LocalizedStringResource("cancel", defaultValue: "Cancel")
+        case .browser:
+            LocalizedStringResource("close", defaultValue: "Cloce")
+        }
+    }
+
     @ViewBuilder
     var footerView: some View {
 
@@ -137,36 +151,41 @@ struct AssetBrowserView: View {
         HStack {
             Spacer()
 
-            switch self.type {
-            case .picker:
-                Button("Cancel") {
-                    self.dismiss()
-                }
+            Button(self.cancelButtonText) {
+                self.onDismiss(.cancel)
+                self.dismiss()
+            }
 
-                Button(self.selectButtonText) {
-                    log("select click")
-                    if let selected = self.selected {
-                        self.onChooseAsset(selected)
-                        self.dismiss()
-                    }
-                }
-                .disabled(self.selected == nil)
-
-            case .browser:
-                Button("Close") {
+            Button(self.selectButtonText) {
+                log("select click")
+                if let selected = self.selected {
+                    self.onDismiss(self.createNodeOnSelect ? .create(selected) : .pick(selected))
                     self.dismiss()
                 }
             }
+            .disabled(self.selected == nil)
         }
         .padding(.horizontal)
         .padding(.bottom)
         .padding(.top, 4)
     }
 
+    func addImages(_ urls: [URL]) {
+        Task {
+            for url in urls {
+                do {
+                    try await self.assetStore.addImage(fromURL: url)
+                } catch {
+                    log("Failed to add image at \(url): \(error)", level: .error)
+                }
+            }
+        }
+    }
+
     func fileImporterHandler(_ result: Result<[URL], any Error>) {
         switch result {
         case .success(let urls):
-            self.addImageFiles?(urls)
+            self.addImages(urls)
         case .failure(let error):
             log("Error: \(error)", level: .error)
             break

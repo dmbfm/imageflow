@@ -29,6 +29,7 @@ final class AssetStore {
         }
     }
 
+    @discardableResult
     func addImage(fromURL url: URL) async throws -> UUID {
         try await self.assetManager.addImageAsset(fromURL: url)
     }

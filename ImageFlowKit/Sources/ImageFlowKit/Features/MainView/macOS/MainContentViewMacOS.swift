@@ -20,6 +20,7 @@ struct MainContentViewMacOS: View {
     @FocusState var focus: Focus?
 
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @State var assetBrowserType:AssetBrowserType = .browser
     @State var showAssetBrowser: Bool = false
 
     @Environment(\.undoManager) var undoManager
@@ -46,21 +47,9 @@ struct MainContentViewMacOS: View {
             isPresented: self.$showAssetBrowser,
             content: {
                 AssetBrowserView(
+                    type: self.assetBrowserType,
                     assetStore: self.assetStore,
-                    onChooseAsset: { id in
-                        log("id: \(id)", level: .debug)
-                    },
-                    addImageFiles: { urls in
-                        log("add image files: \(urls)", level: .debug)
-                        for url in urls {
-                            Task {
-                                try await self.assetStore.addImage(fromURL: url)
-                            }
-                            // Task.detached {
-                            //     try! await self.assetManager?.addImageAsset(fromURL: url)
-                            // }
-                        }
-                    }
+                    onDismiss: self.onAssetBrowserDismiss(_:),
                 )
             }
         )

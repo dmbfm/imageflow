@@ -89,43 +89,43 @@ extension AssetBrowserView {
 // let previewImage = Bundle.m
 
 
-#Preview("Loading") {
-    @Previewable @State var selected: Bool = false
-    @Previewable @State var failed: Bool = false
-    @Previewable @State var image: CGImage? = nil
-    // @Previewable @State var image: GridItemInnerView.ImageContent? = nil
-    VStack {
-        AssetBrowserView
-            .GridItemInnerView(
-                image: image,
-                name: "Preview Image",
-                selected: selected,
-                failed: failed
-            )
-        // GridItemInnerView(
-        //     image: image,
-        //     name: "Example",
-        //     selected: selected,
-        //     failed: failed
-        // )
-         .padding(20)
-         .frame(width: 200, height: 200)
+// #Preview("Loading") {
+//     @Previewable @State var selected: Bool = false
+//     @Previewable @State var failed: Bool = false
+//     @Previewable @State var image: CGImage? = nil
+//     // @Previewable @State var image: GridItemInnerView.ImageContent? = nil
+//     VStack {
+//         AssetBrowserView
+//             .GridItemInnerView(
+//                 image: image,
+//                 name: "Preview Image",
+//                 selected: selected,
+//                 failed: failed
+//             )
+//         // GridItemInnerView(
+//         //     image: image,
+//         //     name: "Example",
+//         //     selected: selected,
+//         //     failed: failed
+//         // )
+//          .padding(20)
+//          .frame(width: 200, height: 200)
 
-         Toggle("Selected", isOn: $selected)
-             .padding()
+//          Toggle("Selected", isOn: $selected)
+//              .padding()
 
-         Toggle("Failed", isOn: $failed)
-             .padding()
+//          Toggle("Failed", isOn: $failed)
+//              .padding()
 
-         Button(image == nil ? "Set Image" : "Clear Image") {
-             if image == nil {
-                 image = makeTestPatternCGImage(width: 110 * 2, height: 110 * 2)
-             } else {
-                 image = nil
-             }
-         }
+//          Button(image == nil ? "Set Image" : "Clear Image") {
+//              if image == nil {
+//                  image = makeTestPatternCGImage(width: 110 * 2, height: 110 * 2)
+//              } else {
+//                  image = nil
+//              }
+//          }
 
-    }
-    .padding()
-    .background(.white)
-}
+//     }
+//     .padding()
+//     .background(.white)
+// }

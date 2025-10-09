@@ -1,5 +1,6 @@
 import Helpers
 import SwiftUI
+import Logging
 
 #if os(macOS)
 typealias MainContentView = MainContentViewMacOS
@@ -17,7 +18,12 @@ extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
     func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) {
-        var node = FlowNode(kind: item.nodeKind)
+        let node = FlowNode(kind: item.nodeKind)
+        self.createNodeAtCanvasCenter(node)
+    }
+
+    func createNodeAtCanvasCenter(_ node: FlowNode) {
+        var node = node
         let pos: CGPoint = {
             let view = NodeView(node)
             let size = view.intrinsicContentSize
@@ -27,5 +33,18 @@ extension MainContentView {
         node.position = pos
         self.flow.newNodeAction(node, undoManager: self.undoManager)
         self.flow.select([node.id])
+    }
+
+    func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
+        log("asset browser result: \(result), type: \(self.assetBrowserType)")
+
+        switch result {
+            case .create(let id):
+                var node = FlowNode(id: .init(), kind: .valueNode(.image))
+                node.inputs[0].value = .image(.asset(id))
+                self.createNodeAtCanvasCenter(node)
+            default: 
+                break
+        }
     }
 }
