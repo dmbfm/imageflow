@@ -56,18 +56,15 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         )
     }
 
-    func fileWrapper(snapshot: StorableData) throws -> FileWrapper {
-        log("snapshot: \(snapshot)")
-        var assetsFws = [String: FileWrapper]()
+    func fileWrapper(snapshot: StorableData, configuration: WriteConfiguration) throws -> FileWrapper {
+        var assetsFws = configuration.existingFile?.fileWrappers?["Assets"]?.fileWrappers ?? [String: FileWrapper]()
         var urls = [URL]()
         do {
             for (_, asset) in snapshot.assets.images {
                 switch asset.source {
                 case .file(let filename):
                     let url: URL = .tempAssetURL(forDocument: self.id, filename: filename)
-                    log("url: \(url.path)")
                     if FileManager.default.fileExists(atPath: url.path) {
-                        log("exists!!!")
                         let fw = try FileWrapper(
                             url: url
                         )
@@ -82,6 +79,16 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             log("error: \(error)")
             throw error
         }
+
+        // Exclude any unlisted assets
+        assetsFws = assetsFws.filter { asset in
+            if !snapshot.assets.images.contains(where: { e in e.value.source.filename == asset.key }) {
+                false
+            } else {
+                true
+            }
+        }
+
         let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
         let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
         log("urls: \(urls)")
@@ -92,10 +99,6 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             }
         }
         return .init(directoryWithFileWrappers: fws)
-    }
-
-    func fileWrapper(snapshot: StorableData, configuration: WriteConfiguration) throws -> FileWrapper {
-        try self.fileWrapper(snapshot: snapshot)
     }
 }
 
