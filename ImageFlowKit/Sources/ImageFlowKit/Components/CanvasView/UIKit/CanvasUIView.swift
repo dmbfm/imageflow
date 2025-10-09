@@ -98,7 +98,7 @@ final class CanvasUIView: UIView {
     }
 
     // MARK: - UIView
-    
+
     override func didMoveToSuperview() {
         self.onEvent?(.didMoveToSuperview)
     }

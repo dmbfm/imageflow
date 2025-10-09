@@ -20,7 +20,7 @@ struct MainContentViewMacOS: View {
     @FocusState var focus: Focus?
 
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State var assetBrowserType:AssetBrowserType = .browser
+    @State var assetBrowserType: AssetBrowserType = .browser
     @State var showAssetBrowser: Bool = false
 
     @Environment(\.undoManager) var undoManager

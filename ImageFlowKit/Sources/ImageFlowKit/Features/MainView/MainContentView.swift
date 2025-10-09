@@ -1,6 +1,6 @@
 import Helpers
-import SwiftUI
 import Logging
+import SwiftUI
 
 #if os(macOS)
 typealias MainContentView = MainContentViewMacOS
@@ -39,12 +39,12 @@ extension MainContentView {
         log("asset browser result: \(result), type: \(self.assetBrowserType)")
 
         switch result {
-            case .create(let id):
-                var node = FlowNode(id: .init(), kind: .valueNode(.image))
-                node.inputs[0].value = .image(.asset(id))
-                self.createNodeAtCanvasCenter(node)
-            default: 
-                break
+        case .create(let id):
+            var node = FlowNode(id: .init(), kind: .valueNode(.image))
+            node.inputs[0].value = .image(.asset(id))
+            self.createNodeAtCanvasCenter(node)
+        default:
+            break
         }
     }
 }
