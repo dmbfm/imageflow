@@ -22,6 +22,7 @@ struct MainContentViewMacOS: View {
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
     @State var assetBrowserType: AssetBrowserType = .browser
     @State var showAssetBrowser: Bool = false
+    @State var showFileImporter: Bool = false
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -49,11 +50,25 @@ struct MainContentViewMacOS: View {
                 AssetBrowserView(
                     type: self.assetBrowserType,
                     assetStore: self.assetStore,
-                    onDismiss: self.onAssetBrowserDismiss(_:),
+                    delegate: .init(
+                        onDismiss: { _ in },
+                        openFileImporter: {
+                            self.showAssetBrowser = false
+                            self.showFileImporter = true
+                        }
+                    )
+                    //                    onDismiss: self.onAssetBrowserDismiss(_:),
                 )
             }
         )
+        .photosPicker(isPresented: self.$showFileImporter, selection: .constant(nil))
         .toolbar { self.toolbarContent }
+        .onChange(of: self.undoManager, initial: true) { self.assetStore.undoManager = self.undoManager }
+        .onChange(of: self.showFileImporter, initial: false) {
+            if !self.showFileImporter {
+                self.showAssetBrowser = true
+            }
+        }
     }
 
     @ToolbarContentBuilder

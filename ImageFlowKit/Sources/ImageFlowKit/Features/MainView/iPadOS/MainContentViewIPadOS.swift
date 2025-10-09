@@ -3,21 +3,28 @@
 import Helpers
 import Logging
 import SwiftUI
+import PhotosUI
 
 struct MainContentViewIPadOS: View {
 
     let flow: Flow
     let canvas: CanvasFeatureState
+    let assetStore: AssetStore
     @FocusState var focus: Focus?
 
     @State var showNodePaletteModal: Bool = false
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
+    @State var showAssetBrowser: Bool = false
+    @State var assetBrowserType: AssetBrowserType = .browser
+    @State var showFileImporter: Bool = false
+    @State var showPhotoPicker: Bool = false
 
     @Environment(\.undoManager) var undoManager
 
-    init(flow: Flow, canvas: CanvasFeatureState) {
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
         self.flow = flow
         self.canvas = canvas
+        self.assetStore = assetStore
     }
 
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
@@ -40,15 +47,46 @@ struct MainContentViewIPadOS: View {
             .sheet(isPresented: self.$showNodePaletteModal) {
                 NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
             }
-            .onAppear { self.onAppear() }
+            .sheet(isPresented: self.$showAssetBrowser) {
+                AssetBrowserView(
+                    type: self.assetBrowserType,
+                    assetStore: self.assetStore,
+                    delegate: self.assetBrowserDelegate,
+                )
+            }
+            .fileImporter(
+                isPresented: self.$showFileImporter,
+                allowedContentTypes: [.image],
+                allowsMultipleSelection: true,
+                onCompletion: self.fileImporterCompletionHandler(_:)
+            )
+            .photosPicker(
+                isPresented: self.$showPhotoPicker,
+                selection: .constant(nil)
+            )
+            .onAppear {
+                self.onAppear()
+            }
+            .onChange(of: self.showFileImporter, initial: false) {
+                if !self.showFileImporter {
+                    self.showAssetBrowser = true
+                }
+            }
+            .onChange(of: self.showPhotoPicker, initial: false) {
+                if !self.showPhotoPicker {
+                    self.showAssetBrowser = true
+                }
+            }
     }
 
     @ViewBuilder
     var content: some View {
-        if #available(iOS 26, *) {
-            self.contentIOS26
-        } else {
-            self.contentIOS18
+        Group {
+            if #available(iOS 26, *) {
+                self.contentIOS26
+            } else {
+                self.contentIOS18
+            }
         }
     }
 
@@ -78,6 +116,7 @@ struct MainContentViewIPadOS: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { self.toolbarContent }
             .toolbarRole(.editor)
+
     }
 
     @ViewBuilder
@@ -90,42 +129,32 @@ struct MainContentViewIPadOS: View {
                     self.canvasCenter.value = newValue
                 }
         }
+
     }
 
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-
-        if #available(iOS 26, *) {
-            ToolbarItem(placement: .secondaryAction) {
-                Button {
-                    self.showNodePaletteModal = true
-                } label: {
-                    Image(systemName: "plus")
-                }
+        ToolbarItem(placement: .secondaryAction) {
+            Button {
+                self.showNodePaletteModal = true
+            } label: {
+                Image(systemName: "plus")
             }
+        }
 
-            ToolbarItem(placement: .secondaryAction) {
-                Button {
+        ToolbarItem(placement: .secondaryAction) {
+            Button {
 
-                } label: {
-                    Image(systemName: "paperclip")
-                }
+            } label: {
+                Image(systemName: "paperclip")
             }
-        } else {
-            ToolbarItem(placement: .secondaryAction) {
-                Button {
-                    self.showNodePaletteModal = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
+        }
 
-            ToolbarItem(placement: .secondaryAction) {
-                Button {
-
-                } label: {
-                    Image(systemName: "paperclip")
-                }
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                self.showAssetBrowser = true
+            } label: {
+                Image(systemName: "square.and.arrow.down.fill")
             }
         }
     }

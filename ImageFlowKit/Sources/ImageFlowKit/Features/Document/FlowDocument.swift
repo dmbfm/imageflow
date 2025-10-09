@@ -49,11 +49,13 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     func snapshot(contentType: UTType) throws -> StorableData {
-        .init(
+        let snap = StorableData(
             flow: self.flow.withLock({ $0 }),
             canvas: self.canvas.withLock({ $0 }),
             assets: self.assetStore.withLock({ $0 })
         )
+        log("generated snapshot: \(snap)", level: .debug)
+        return snap
     }
 
     func fileWrapper(snapshot: StorableData, configuration: WriteConfiguration) throws -> FileWrapper {

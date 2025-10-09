@@ -64,7 +64,7 @@ actor AssetManager {
 
     // MARK: Assset Management
 
-    func addImageAsset(fromURL url: URL) async throws -> UUID {
+    func addImageAsset(fromURL url: URL, overrideID: UUID? = nil) async throws -> UUID {
 
         guard let documentID = self.documentInfo?.id else {
             throw AssetManagerError.missingBaseURL
@@ -83,7 +83,7 @@ actor AssetManager {
 
         try FileManager.default.copyItem(at: url, to: assetURL)
 
-        let id = UUID()
+        let id = overrideID ?? UUID()
 
         self.imageAssets[id] = .init(
             id: id,
@@ -95,6 +95,14 @@ actor AssetManager {
         self.ciImages[id] = .notLoaded
 
         return id
+    }
+
+    func registerImage(_ asset: ImageAsset) {
+        self.imageAssets[asset.id] = asset
+    }
+
+    func removeImage(_ id: UUID) -> ImageAsset? {
+        self.imageAssets.removeValue(forKey: id)
     }
 
     func getThumb(forImageAsset id: UUID) async throws -> CGImage {

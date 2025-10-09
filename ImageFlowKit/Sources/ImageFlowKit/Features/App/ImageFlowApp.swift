@@ -62,8 +62,10 @@ public struct ImageFlowApp: App {
         }
         #endif
 
+        #if os(macOS)
         WelcomeWindow("Image Flow")
             .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .presented : .suppressed)
+        #endif
     }
 }
 

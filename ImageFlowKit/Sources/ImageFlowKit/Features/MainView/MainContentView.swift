@@ -17,6 +17,21 @@ protocol MainContentViewProtocol: View {
 extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
+
+    var assetBrowserDelegate: AssetBrowserView.Delegate {
+        .init(
+            onDismiss: self.onAssetBrowserDismiss(_:),
+            openFileImporter: {
+                self.showAssetBrowser = false
+                self.showFileImporter = true
+            },
+            openPhotoPicker: {
+                self.showAssetBrowser = false
+                self.showPhotoPicker = true
+            }
+        )
+    }
+
     func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) {
         let node = FlowNode(kind: item.nodeKind)
         self.createNodeAtCanvasCenter(node)
@@ -37,7 +52,6 @@ extension MainContentView {
 
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
         log("asset browser result: \(result), type: \(self.assetBrowserType)")
-
         switch result {
         case .create(let id):
             var node = FlowNode(id: .init(), kind: .valueNode(.image))
@@ -45,6 +59,20 @@ extension MainContentView {
             self.createNodeAtCanvasCenter(node)
         default:
             break
+        }
+    }
+
+    func fileImporterCompletionHandler(_ res: Result<[URL], any Error>) {
+        guard case let .success(urls) = res else { return }
+
+        Task {
+            for url in urls {
+                do {
+                    try await self.assetStore.addImage(fromURL: url, undoManager: self.undoManager)
+                } catch {
+                    log("failed to import file: \(url): \(error)")
+                }
+            }
         }
     }
 }

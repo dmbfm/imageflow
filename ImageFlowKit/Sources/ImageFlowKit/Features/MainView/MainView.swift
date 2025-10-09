@@ -17,7 +17,9 @@ struct MainView: View {
     @Environment(\.dismissWindow) var dismissWindow
 
     func onAppear() {
+        #if os(masOS)
         self.dismissWindow(id: WindowID.welcome.rawValue)
+        #endif
 
         self.document.flow.withLock { data in
             self.flow.restore(data)

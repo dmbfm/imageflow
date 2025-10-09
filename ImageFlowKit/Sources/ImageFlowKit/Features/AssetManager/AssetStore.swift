@@ -30,8 +30,44 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImage(fromURL url: URL) async throws -> UUID {
-        try await self.assetManager.addImageAsset(fromURL: url)
+    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws -> UUID {
+        let id = try await self.assetManager.addImageAsset(fromURL: url)
+        log("Registering undo!! \(id), is undo nil? \(um == nil)")
+        um?.beginUndoGrouping()
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                this.removeImage(id, undoManager: um)
+            }
+        )
+        um?.endUndoGrouping()
+        return id
+    }
+
+    private func registerImage(_ asset: ImageAsset, undoManager um: UndoManager? = nil) {
+        Task {
+            await self.assetManager.registerImage(asset)
+        }
+
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                self.removeImage(asset.id, undoManager: um)
+            }
+        )
+    }
+
+    func removeImage(_ id: UUID, undoManager um: UndoManager? = nil) {
+        guard let asset = self.images[id] else { return }
+        Task {
+            await self.assetManager.removeImage(id)
+        }
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                this.registerImage(asset, undoManager: um)
+            }
+        )
     }
 
     func getThumb(forImageAsset id: UUID) async throws -> CGImage {

@@ -17,37 +17,53 @@ struct AssetBrowserView: View {
     let assetStore: AssetStore
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
-    let onDismiss: (AssetBrowserResult) -> ()
+    let delegate: Delegate
+
+    struct Delegate {
+        var onDismiss: (AssetBrowserResult) -> ()
+        var openFileImporter: () -> ()
+        var openPhotoPicker: () -> ()
+    }
 
     @State var showFileImporter = false
     @State var selected: UUID? = nil
     @State var createNodeOnSelect: Bool = false
 
+    @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
     init(
         type: AssetBrowserType = .browser,
         assetStore: AssetStore,
-        showFileImporter: Bool = false,
-        selected: UUID? = nil,
-        onDismiss: @escaping (AssetBrowserResult) -> Void,
+        delegate: Delegate,
     ) {
         self.type = type
         self.assetStore = assetStore
-        self.showFileImporter = showFileImporter
-        self.selected = selected
-        self.onDismiss = onDismiss
+        self.delegate = delegate
+    }
+
+    var sortedImages: [ImageAssetInfo] {
+        self.assetStore.images.values.filter { $0.source.isFile }.compactMap { asset in
+            let state: ImageAssetInfo.State =
+                switch asset.res.thumb {
+                case .loaded: .loaded
+                case .loading, .notLoaded: .loading
+                case .failed: .failed
+                }
+            return .init(id: asset.id, name: asset.source.filename!, added: asset.added, state: state)
+        }
+    }
+
+    func onTapItem(_ info: ImageAssetInfo) {
+        log("info: \(info)")
+        if info.state == .loaded {
+            self.selected = info.id
+        }
     }
 
     var body: some View {
         self.content
             .frame(width: 800, height: 600)
-            .fileImporter(
-                isPresented: self.$showFileImporter,
-                allowedContentTypes: [.image],
-                allowsMultipleSelection: true,
-                onCompletion: self.fileImporterHandler(_:)
-            )
     }
 
     @ViewBuilder
@@ -66,22 +82,32 @@ struct AssetBrowserView: View {
             self.footerView
 
         }
+        #if os(macOS)
         .onModifierKeysChanged({ old, new in
             if self.type == .browser {
                 self.createNodeOnSelect = new == .command
             }
         })
+        #endif
     }
 
     @ViewBuilder
     var toolbarView: some View {
-        HStack {
+        HStack(alignment: .center) {
             Button {
-                self.showFileImporter = true
+                self.delegate.openFileImporter()
             } label: {
                 Image(systemName: "square.and.arrow.down")
             }
             .buttonStyle(.borderless)
+
+            Button {
+                self.delegate.openPhotoPicker()
+            } label: {
+                Image(systemName: "photo.badge.plus.fill")
+            }
+            .buttonStyle(.borderless)
+
             Spacer()
             TextField("", text: .constant("search"))
                 .frame(width: 120)
@@ -89,19 +115,8 @@ struct AssetBrowserView: View {
         }
         .padding(.top, 6)
         .padding(.horizontal, 14)
-        Divider()
-    }
 
-    var sortedImages: [ImageAssetInfo] {
-        self.assetStore.images.values.filter { $0.source.isFile }.compactMap { asset in
-            let state: ImageAssetInfo.State =
-                switch asset.res.thumb {
-                case .loaded: .loaded
-                case .loading, .notLoaded: .loading
-                case .failed: .failed
-                }
-            return .init(id: asset.id, name: asset.source.filename!, added: asset.added, state: state)
-        }
+        Divider()
     }
 
     @ViewBuilder
@@ -140,7 +155,7 @@ struct AssetBrowserView: View {
         case .picker:
             LocalizedStringResource("cancel", defaultValue: "Cancel")
         case .browser:
-            LocalizedStringResource("close", defaultValue: "Cloce")
+            LocalizedStringResource("close", defaultValue: "Close")
         }
     }
 
@@ -152,14 +167,14 @@ struct AssetBrowserView: View {
             Spacer()
 
             Button(self.cancelButtonText) {
-                self.onDismiss(.cancel)
+                self.delegate.onDismiss(.cancel)
                 self.dismiss()
             }
 
             Button(self.selectButtonText) {
                 log("select click")
                 if let selected = self.selected {
-                    self.onDismiss(self.createNodeOnSelect ? .create(selected) : .pick(selected))
+                    self.delegate.onDismiss(self.createNodeOnSelect ? .create(selected) : .pick(selected))
                     self.dismiss()
                 }
             }
@@ -168,35 +183,6 @@ struct AssetBrowserView: View {
         .padding(.horizontal)
         .padding(.bottom)
         .padding(.top, 4)
-    }
-
-    func addImages(_ urls: [URL]) {
-        Task {
-            for url in urls {
-                do {
-                    try await self.assetStore.addImage(fromURL: url)
-                } catch {
-                    log("Failed to add image at \(url): \(error)", level: .error)
-                }
-            }
-        }
-    }
-
-    func fileImporterHandler(_ result: Result<[URL], any Error>) {
-        switch result {
-        case .success(let urls):
-            self.addImages(urls)
-        case .failure(let error):
-            log("Error: \(error)", level: .error)
-            break
-        }
-    }
-
-    func onTapItem(_ info: ImageAssetInfo) {
-        log("info: \(info)")
-        if info.state == .loaded {
-            self.selected = info.id
-        }
     }
 }
 
