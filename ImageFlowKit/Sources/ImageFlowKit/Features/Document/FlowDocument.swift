@@ -93,13 +93,13 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
         let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
         let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
-        log("urls: \(urls)")
-        Task.detached {
-            try await Task.sleep(for: .seconds(0.1))
-            for url in urls {
-                try FileManager.default.removeItem(at: url)
-            }
-        }
+        // log("urls: \(urls)")
+        // Task.detached {
+        //     try await Task.sleep(for: .seconds(0.1))
+        //     for url in urls {
+        //         try FileManager.default.removeItem(at: url)
+        //     }
+        // }
         return .init(directoryWithFileWrappers: fws)
     }
 }

@@ -1,5 +1,6 @@
 import Logging
 import SwiftUI
+import Photos
 
 @Observable
 @MainActor
@@ -33,6 +34,20 @@ final class AssetStore {
     func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws -> UUID {
         let id = try await self.assetManager.addImageAsset(fromURL: url)
         log("Registering undo!! \(id), is undo nil? \(um == nil)")
+        um?.beginUndoGrouping()
+        um?.registerUndo(
+            withTarget: self,
+            handler: { [weak um] this in
+                this.removeImage(id, undoManager: um)
+            }
+        )
+        um?.endUndoGrouping()
+        return id
+    }
+
+    @discardableResult
+    func addImageAsset(fromPHAsset asset: PHAsset, undoManager um: UndoManager? = nil) async throws -> UUID {
+        let id = try await self.assetManager.addImageAsset(fromPHAsset: asset)
         um?.beginUndoGrouping()
         um?.registerUndo(
             withTarget: self,

@@ -23,13 +23,29 @@ extension MainContentView {
             onDismiss: self.onAssetBrowserDismiss(_:),
             openFileImporter: {
                 self.showAssetBrowser = false
-                self.showFileImporter = true
+                Task { @MainActor in
+                    self.showFileImporter = true
+                }
             },
             openPhotoPicker: {
                 self.showAssetBrowser = false
-                self.showPhotoPicker = true
+                Task { @MainActor in 
+                    self.showPhotoPicker = true
+                }
             }
         )
+    }
+
+    func onChangeOfShowFileImporter() {
+        if !self.showFileImporter {
+            self.showAssetBrowser = true
+        }
+    }
+
+    func onChangeOfShowPhotoPicker() {
+        if !self.showPhotoPicker {
+            self.showAssetBrowser = true
+        }
     }
 
     func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) {
@@ -69,6 +85,7 @@ extension MainContentView {
             for url in urls {
                 do {
                     try await self.assetStore.addImage(fromURL: url, undoManager: self.undoManager)
+                    self.undoManager?.setActionName("Import Asset")
                 } catch {
                     log("failed to import file: \(url): \(error)")
                 }

@@ -62,21 +62,15 @@ struct MainContentViewIPadOS: View {
             )
             .photosPicker(
                 isPresented: self.$showPhotoPicker,
-                selection: .constant(nil)
+                selection: .constant(nil),
+                matching: .images,
+                photoLibrary: .shared(),
             )
             .onAppear {
                 self.onAppear()
             }
-            .onChange(of: self.showFileImporter, initial: false) {
-                if !self.showFileImporter {
-                    self.showAssetBrowser = true
-                }
-            }
-            .onChange(of: self.showPhotoPicker, initial: false) {
-                if !self.showPhotoPicker {
-                    self.showAssetBrowser = true
-                }
-            }
+            .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
+            .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
     }
 
     @ViewBuilder

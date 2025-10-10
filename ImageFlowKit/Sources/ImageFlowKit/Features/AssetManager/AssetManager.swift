@@ -2,7 +2,9 @@ import CoreImage
 import Foundation
 import Helpers
 import Logging
+import Photos
 import Synchronization
+import UniformTypeIdentifiers
 
 actor AssetManager {
 
@@ -64,7 +66,72 @@ actor AssetManager {
 
     // MARK: Assset Management
 
-    func addImageAsset(fromURL url: URL, overrideID: UUID? = nil) async throws -> UUID {
+    func addImageAsset(fromPHAsset asset: PHAsset) async throws -> UUID {
+
+        guard let documentID = self.documentInfo?.id else {
+            throw AssetManagerError.missingBaseURL
+        }
+
+        guard let resource = PHAssetResource.assetResources(for: asset).first else {
+            throw AssetManagerError.missingPHResource
+        }
+
+        let filename = resource.originalFilename
+
+        let image: CGImage? = await withCheckedContinuation { (cont: CheckedContinuation<CGImage?, Never>) in
+            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: nil) {
+                data,
+                dataUTI,
+                orientation,
+                info in
+
+                var result: CGImage? = nil
+
+                guard let data, info?[PHImageErrorKey] == nil, info?[PHImageCancelledKey] as? Bool != true else {
+                    cont.resume(returning: result)
+                    return
+                }
+
+                guard let ci = CIImage(data: data)?.oriented(orientation) else {
+                    cont.resume(returning: result)
+                    return
+                }
+
+                let context = CIContext()
+                result = context.createCGImage(ci, from: ci.extent)
+
+                cont.resume(returning: result)
+
+            }
+        }
+
+        guard let image else {
+            throw AssetManagerError.failedToCreateCGImageFromPHAsset
+        }
+
+        let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
+        try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
+
+        let assetFilename = self.name(forAssetWithFilename: filename)
+        let assetURL = assetsDir.appending(path: assetFilename)
+
+        try image.write(to: assetURL)
+
+        let id = UUID()
+
+        self.imageAssets[id] = .init(
+            id: id,
+            source: .file(assetFilename),
+            added: .now,
+            res: .init(thumb: .notLoaded, ciImage: .notLoaded)
+        )
+        self.thumbs[id] = .notLoaded
+        self.ciImages[id] = .notLoaded
+
+        return id
+    }
+
+    func addImageAsset(fromURL url: URL) async throws -> UUID {
 
         guard let documentID = self.documentInfo?.id else {
             throw AssetManagerError.missingBaseURL
@@ -83,7 +150,7 @@ actor AssetManager {
 
         try FileManager.default.copyItem(at: url, to: assetURL)
 
-        let id = overrideID ?? UUID()
+        let id = UUID()
 
         self.imageAssets[id] = .init(
             id: id,
@@ -227,6 +294,10 @@ actor AssetManager {
         }
     }
 
+    private func name(forAssetWithFilename name: String) -> String {
+        self.name(forAssetAt: .init(filePath: name))
+    }
+
     // MARK: - URLs
 
     private func tempAssetURL(filename: String) -> URL? {
@@ -242,7 +313,32 @@ actor AssetManager {
     }
 }
 
+extension CGImage {
+    enum WriteError: Error {
+        case failedToCreateDestination
+        case failedToWriteToDestination
+    }
+
+    func write(to url: URL) throws {
+        log("CGImage.write to: \(url)")
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
+        else {
+            throw WriteError.failedToCreateDestination
+        }
+
+        CGImageDestinationAddImage(destination, self, nil)
+
+        if !CGImageDestinationFinalize(destination) {
+            throw WriteError.failedToWriteToDestination
+        }
+
+        log("done!")
+    }
+}
+
 enum AssetManagerError: Error, Equatable {
+    case missingPHResource
+    case failedToCreateCGImageFromPHAsset
     case missingBaseURL
     case ciImageCreateError
     case accessError
