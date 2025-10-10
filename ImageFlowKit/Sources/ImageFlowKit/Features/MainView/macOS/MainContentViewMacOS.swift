@@ -26,6 +26,7 @@ struct MainContentViewMacOS: View {
     @State var showAssetBrowser: Bool = false
     @State var showFileImporter: Bool = false
     @State var showPhotoPicker: Bool = false
+    @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -39,8 +40,6 @@ struct MainContentViewMacOS: View {
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
         self.createNodeAtCanvasCenter(fromPaletteItem: item)
     }
-
-    @State var photoItems: [PhotosPickerItem] = []
 
     var body: some View {
         NavigationSplitView {
@@ -62,7 +61,7 @@ struct MainContentViewMacOS: View {
         )
         .photosPicker(
             isPresented: self.$showPhotoPicker,
-            selection: self.$photoItems,
+            selection: self.$selectedPhotoPickerItems,
             matching: .images,
             photoLibrary: .shared(),
         )
@@ -75,34 +74,7 @@ struct MainContentViewMacOS: View {
         .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
         .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
         // .onChange(of: self.photoItems, initial: false, { log("photoItems: \(self.photoItems)") })
-        .onChange(of: self.photoItems, initial: false, self.onChangeOfPhotoPickerItems)
-    }
-
-    func onChangeOfPhotoPickerItems() {
-        Task {
-            for item in self.photoItems {
-                guard let data = try await item.loadTransferable(type: Data.self) else { continue }
-                log("data \(item.itemIdentifier, default: "no name"): \(data)")
-                let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
-                if status == .authorized {
-                    let result = PHAsset.fetchAssets(withLocalIdentifiers: [item.itemIdentifier!], options: nil)
-                    if let asset = result.firstObject {
-                        try await self.assetStore.addImageAsset(fromPHAsset: asset, undoManager: self.undoManager)
-                    }
-                    // if let obj = result.firstObject {
-                    //     let res = PHAssetResource.assetResources(for: obj)
-                    //     log("res: \(res)")
-                    //     log("filename: \(res.first?.originalFilename, default: "[no filename]")")
-                    //     PHImageManager.default().requestImage(for: obj, targetSize: .init(width: obj.pixelWidth, height: obj.pixelHeight), contentMode: .default, options: nil) { image, _ in
-                    //         log("image: \(image)")
-                    //         let cgImage = image?.cgImage(forProposedRect: nil, context: nil, hints: nil)
-                    //         log("cgImage: \(cgImage)")
-                    //     }
-                    // }
-                }
-                // TODO: use asset manager to import using data
-            }
-        }
+        .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)
     }
 
     @ToolbarContentBuilder

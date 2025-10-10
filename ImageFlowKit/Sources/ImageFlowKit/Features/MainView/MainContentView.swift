@@ -1,5 +1,6 @@
 import Helpers
 import Logging
+import Photos
 import SwiftUI
 
 #if os(macOS)
@@ -29,7 +30,7 @@ extension MainContentView {
             },
             openPhotoPicker: {
                 self.showAssetBrowser = false
-                Task { @MainActor in 
+                Task { @MainActor in
                     self.showPhotoPicker = true
                 }
             }
@@ -88,6 +89,24 @@ extension MainContentView {
                     self.undoManager?.setActionName("Import Asset")
                 } catch {
                     log("failed to import file: \(url): \(error)")
+                }
+            }
+        }
+    }
+
+    func onChangeOfPhotoPickerItems() {
+        Task {
+            for item in self.selectedPhotoPickerItems {
+                guard let data = try await item.loadTransferable(type: Data.self) else { continue }
+                log("data \(item.itemIdentifier, default: "no name"): \(data)")
+                let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+                if status == .authorized {
+                    let result = PHAsset.fetchAssets(withLocalIdentifiers: [item.itemIdentifier!], options: nil)
+                    if let asset = result.firstObject {
+                        try await self.assetStore.addImageAsset(fromPHAsset: asset, undoManager: self.undoManager)
+                    }
+                } else {
+                    log("[TODO: Handle Error] PHPhotoLibrary: not authorized!", level: .error)
                 }
             }
         }

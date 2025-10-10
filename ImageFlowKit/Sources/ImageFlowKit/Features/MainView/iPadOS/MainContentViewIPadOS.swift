@@ -18,6 +18,7 @@ struct MainContentViewIPadOS: View {
     @State var assetBrowserType: AssetBrowserType = .browser
     @State var showFileImporter: Bool = false
     @State var showPhotoPicker: Bool = false
+    @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
 
     @Environment(\.undoManager) var undoManager
 
@@ -62,7 +63,7 @@ struct MainContentViewIPadOS: View {
             )
             .photosPicker(
                 isPresented: self.$showPhotoPicker,
-                selection: .constant(nil),
+                selection: self.$selectedPhotoPickerItems,
                 matching: .images,
                 photoLibrary: .shared(),
             )
@@ -71,6 +72,7 @@ struct MainContentViewIPadOS: View {
             }
             .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
             .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
+            .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)
     }
 
     @ViewBuilder
