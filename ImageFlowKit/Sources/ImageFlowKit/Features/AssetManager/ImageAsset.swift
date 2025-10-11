@@ -3,13 +3,22 @@ import Foundation
 
 struct ImageAsset: Identifiable, Equatable, Codable {
     var id: UUID
-    var source: Source
+    var state: State
     var added: Date
-    var res: Resources
 
-    struct Resources: Equatable, Codable {
-        var thumb: ResourceState
-        var ciImage: ResourceState
+    /// Describes the current loading state of the asset.
+    enum State: Equatable, Codable {
+        /// The asset is being loaded, (e.g., copied from a source file on disk, or being imported from the photo library.)
+        case loading
+        /// The asset is fully loaded into the document in the manner indicated by the `Source` payload.
+        case loaded(Source)
+    }
+
+    var source: Source? {
+        switch self.state {
+        case .loading: nil
+        case .loaded(let source): source
+        }
     }
 
     enum Source: Equatable, Codable {

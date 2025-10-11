@@ -30,6 +30,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     required init(configuration: ReadConfiguration) throws {
+        log("!!!! opening")
         guard let fws = configuration.file.fileWrappers else {
             throw Errors.missingFileWrappers
         }
@@ -84,7 +85,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
         // Exclude any unlisted assets
         assetsFws = assetsFws.filter { asset in
-            if !snapshot.assets.images.contains(where: { e in e.value.source.filename == asset.key }) {
+            if !snapshot.assets.images.contains(where: { e in e.value.source?.filename == asset.key }) {
                 false
             } else {
                 true

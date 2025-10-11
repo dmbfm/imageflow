@@ -57,9 +57,8 @@ public struct ImageFlowApp: App {
         #endif
 
         #if os(iOS)
-        DocumentGroupLaunchScene {
-
-        }
+        /// NOTE: We need this to avoid two title bars appearing
+        DocumentGroupLaunchScene {}
         #endif
 
         #if os(macOS)

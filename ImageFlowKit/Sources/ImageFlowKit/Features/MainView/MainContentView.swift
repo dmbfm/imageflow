@@ -86,7 +86,7 @@ extension MainContentView {
             for url in urls {
                 do {
                     try await self.assetStore.addImage(fromURL: url, undoManager: self.undoManager)
-                    self.undoManager?.setActionName("Import Asset")
+                    self.undoManager?.setActionName("Import Image")
                 } catch {
                     log("failed to import file: \(url): \(error)")
                 }
@@ -104,6 +104,7 @@ extension MainContentView {
                     let result = PHAsset.fetchAssets(withLocalIdentifiers: [item.itemIdentifier!], options: nil)
                     if let asset = result.firstObject {
                         try await self.assetStore.addImageAsset(fromPHAsset: asset, undoManager: self.undoManager)
+                        self.undoManager?.setActionName("Import Photo")
                     }
                 } else {
                     log("[TODO: Handle Error] PHPhotoLibrary: not authorized!", level: .error)

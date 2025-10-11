@@ -42,22 +42,16 @@ struct AssetBrowserView: View {
         self.delegate = delegate
     }
 
-    var sortedImages: [ImageAssetInfo] {
-        self.assetStore.images.values.filter { $0.source.isFile }.compactMap { asset in
-            let state: ImageAssetInfo.State =
-                switch asset.res.thumb {
-                case .loaded: .loaded
-                case .loading, .notLoaded: .loading
-                case .failed: .failed
-                }
-            return .init(id: asset.id, name: asset.source.filename!, added: asset.added, state: state)
-        }
+    var sortedImages: [ImageAsset] {
+        self.assetStore.fileAssets.sorted(by: { $0.added < $1.added })
     }
 
-    func onTapItem(_ info: ImageAssetInfo) {
-        log("info: \(info)")
-        if info.state == .loaded {
+    func onTapItem(_ info: ImageAsset) {
+        switch info.state {
+        case .loaded:
             self.selected = info.id
+        case .loading:
+            break
         }
     }
 
@@ -127,14 +121,14 @@ struct AssetBrowserView: View {
                     columns: Array(repeating: GridItem(.fixed(self.gridImageSize)), count: 5),
                     spacing: 16
                 ) {
-                    ForEach(self.sortedImages) { info in
+                    ForEach(self.sortedImages) { asset in
                         GridItemView(
+                            asset: asset,
                             assetStore: self.assetStore,
-                            selected: self.selected == info.id,
-                            info: info
+                            selected: self.selected == asset.id,
                         )
                         .onTapGesture {
-                            self.onTapItem(info)
+                            self.onTapItem(asset)
                         }
                     }
                 }
