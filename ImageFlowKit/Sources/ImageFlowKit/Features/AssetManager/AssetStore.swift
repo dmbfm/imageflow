@@ -31,7 +31,7 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws -> UUID {
+    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
         let id = try await self.assetManager.addImageAsset(fromURL: url)
         um?.registerUndo(
             withTarget: self,
@@ -43,7 +43,7 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImageAsset(fromPHAsset asset: PHAsset, undoManager um: UndoManager? = nil) async throws -> UUID {
+    func addImageAsset(fromPHAsset asset: PHAsset, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
         let id = try await self.assetManager.addImageAsset(fromPHAsset: asset)
         um?.registerUndo(
             withTarget: self,
@@ -56,7 +56,7 @@ final class AssetStore {
 
     private func registerImage(_ asset: ImageAsset, undoManager um: UndoManager? = nil) {
         Task {
-            await self.assetManager.registerImage(asset)
+            await self.assetManager.registerImageAsset(asset)
         }
 
         um?.registerUndo(
@@ -70,7 +70,7 @@ final class AssetStore {
     func removeImage(_ id: UUID, undoManager um: UndoManager? = nil) {
         guard let asset = self.images[id] else { return }
         Task {
-            await self.assetManager.removeImage(id)
+            await self.assetManager.removeImageAsset(id)
         }
         um?.registerUndo(
             withTarget: self,

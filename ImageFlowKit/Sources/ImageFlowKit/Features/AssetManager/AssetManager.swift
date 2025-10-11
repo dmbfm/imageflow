@@ -18,14 +18,20 @@ actor AssetManager {
         }
     }
 
-    var thumbs: [UUID: Resource<CGImage, AssetManagerError.ThumbError>] = [:]
+    var thumbs: [UUID: Resource<CGImage, AssetManagerError>] = [:]
 
-    var ciImages: [UUID: Resource<CIImage, ()>] = [:]
+    var ciImages: [UUID: Resource<CIImage, AssetManagerError>] = [:]
 
     var documentInfo: DocumentInfo?
 
     @MainActor
     var emitter: EventEmitter<Event> = .init()
+
+    // MARK: - Exposed Types
+
+    enum Event {
+        case imageAssetsDidChange
+    }
 
     // MARK: -  Private Properties
 
@@ -43,19 +49,7 @@ actor AssetManager {
         }
     }
 
-    // MARK: - Exposed Types
-
-    enum Event {
-        case imageAssetsDidChange
-    }
-
     // MARK: - Exposed Methods
-
-    func reset() {
-        self.imageAssets = [:]
-        self.thumbs = [:]
-        self.ciImages = [:]
-    }
 
     func restore(_ images: [UUID: ImageAsset]) {
         for (id, image) in images {
@@ -71,24 +65,26 @@ actor AssetManager {
 
     // MARK: Assset Management
 
-    func addImageAsset(fromPHAsset asset: PHAsset) async throws -> UUID {
+    func addImageAsset(fromPHAsset asset: PHAsset) async throws(AssetManagerError) -> UUID {
 
         guard let documentID = self.documentInfo?.id else {
-            throw AssetManagerError.missingBaseURL
+            throw .missingDocumentInfo
         }
 
         let id = UUID()
 
-        self.imageAssets.removeValue(forKey: id)
-        self.imageAssets[id] = .init(
-            id: id,
-            state: .loading,
-            added: .now,
+        self.removeImageAsset(id)
+        self.registerImageAsset(
+            .init(
+                id: id,
+                state: .loading,
+                added: .now,
+            )
         )
 
         do {
             guard let resource = PHAssetResource.assetResources(for: asset).first else {
-                throw AssetManagerError.missingPHResource
+                throw AssetManagerError.assestLoadingError(.missingPHAssetResource)
             }
 
             let filename = resource.originalFilename
@@ -121,7 +117,7 @@ actor AssetManager {
             }
 
             guard let image else {
-                throw AssetManagerError.failedToCreateCGImageFromPHAsset
+                throw AssetManagerError.assestLoadingError(.cgImageCreationFailed)
             }
 
             let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
@@ -130,39 +126,42 @@ actor AssetManager {
             let assetFilename = self.name(forAssetWithFilename: filename)
             let assetURL = assetsDir.appending(path: assetFilename)
 
-            try image.write(to: assetURL)
+            try image.write(to: assetURL, type: .png)
 
-            // let id = UUID()
-
-            self.imageAssets[id] = .init(
-                id: id,
-                state: .loaded(.file(assetFilename)),
-                added: .now,
+            self.registerImageAsset(
+                .init(
+                    id: id,
+                    state: .loaded(.file(assetFilename)),
+                    added: .now,
+                )
             )
-            self.thumbs[id] = .notLoaded
-            self.ciImages[id] = .notLoaded
 
             return id
         } catch {
-            self.imageAssets.removeValue(forKey: id)
-            throw error
+            self.removeImageAsset(id)
+
+            if let err = error as? AssetManagerError {
+                throw err
+            } else {
+                throw .assestLoadingError(.other(error))
+            }
         }
     }
 
-    func addImageAsset(fromURL url: URL) async throws -> UUID {
+    func addImageAsset(fromURL url: URL) async throws(AssetManagerError) -> UUID {
 
         guard let documentID = self.documentInfo?.id else {
-            throw AssetManagerError.missingBaseURL
+            throw AssetManagerError.missingDocumentInfo
         }
 
         let id = UUID()
 
-        self.imageAssets.removeValue(forKey: id)
-        self.imageAssets[id] = .init(id: id, state: .loading, added: .now)
+        self.removeImageAsset(id)
+        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
 
         do {
             guard url.startAccessingSecurityScopedResource() else {
-                throw AssetManagerError.accessError
+                throw AssetManagerError.assestLoadingError(.URLAccessError)
             }
             defer { url.stopAccessingSecurityScopedResource() }
 
@@ -174,40 +173,48 @@ actor AssetManager {
 
             try FileManager.default.copyItem(at: url, to: assetURL)
 
-            self.imageAssets[id] = .init(
-                id: id,
-                state: .loaded(.file(assetFilename)),
-                added: .now,
+            self.registerImageAsset(
+                .init(
+                    id: id,
+                    state: .loaded(.file(assetFilename)),
+                    added: .now,
+                )
             )
-            self.thumbs[id] = .notLoaded
-            self.ciImages[id] = .notLoaded
 
             return id
         } catch {
-            self.imageAssets.removeValue(forKey: id)
-            throw error
+            self.removeImageAsset(id)
+
+            if let err = error as? AssetManagerError {
+                throw err
+            } else {
+                throw .assestLoadingError(.other(error))
+            }
         }
     }
 
-    func registerImage(_ asset: ImageAsset) {
+    func registerImageAsset(_ asset: ImageAsset) {
         self.imageAssets[asset.id] = asset
+        self.thumbs[asset.id] = .notLoaded
+        self.ciImages[asset.id] = .notLoaded
     }
 
-    func removeImage(_ id: UUID) -> ImageAsset? {
-        self.imageAssets.removeValue(forKey: id)
+    @discardableResult
+    func removeImageAsset(_ id: UUID) -> ImageAsset? {
+        self.thumbs[id] = nil
+        self.ciImages[id] = nil
+        return self.imageAssets.removeValue(forKey: id)
     }
 
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
+    func getThumb(forImageAsset id: UUID) async throws(AssetManagerError) -> CGImage {
         guard let asset = self.imageAssets[id] else {
-            throw AssetManagerError.missingImageAsset(id)
+            throw AssetManagerError.thumbnailLoadingError(.assetNotFound(id))
         }
 
-        guard let res = self.thumbs[id] else {
-            throw AssetManagerError.missingThumbResource(id)
-        }
+        let res = self.thumbs[id, default: .notLoaded]
 
         guard asset.state != .loading else {
-            return nil
+            throw .thumbnailLoadingError(.assetStillLoading(id))
         }
 
         let fm = FileManager.default
@@ -218,25 +225,29 @@ actor AssetManager {
         case .failed(let err):
             throw err
         case .loaded(let image):
-            log("returning cached image!", level: .debug)
             return image
         case .loading(let t):
             task = t
         case .notLoaded:
             task = Task { try await doLoad() }
-            self.setThumbResource(id, .loading(task!))
+            self.thumbs[id] = .loading(task!)
         }
 
         do {
             let value = try await task!.value
-            self.setThumbResource(id, .loaded(value))
+            self.thumbs[id] = .loaded(value)
             return value
         } catch {
-            self.setThumbResource(id, .failed(.createThumbFailed))
-            throw AssetManagerError.thumbCreation(.createThumbFailed)
+            if let err = error as? AssetManagerError {
+                self.thumbs[id] = .failed(err)
+                throw err
+            } else {
+                self.thumbs[id] = .failed(.thumbnailLoadingError(.other(error)))
+                throw .thumbnailLoadingError(.other(error))
+            }
         }
 
-        func doLoad() async throws -> CGImage {
+        func doLoad() async throws(AssetManagerError) -> CGImage {
             precondition(asset.source != nil)
             switch asset.source {
             case .file(let filename):
@@ -248,7 +259,7 @@ actor AssetManager {
             }
         }
 
-        func doLoadFile(filename: String) async throws -> CGImage {
+        func doLoadFile(filename: String) async throws(AssetManagerError) -> CGImage {
             let maybeDocumentImageURL = self.documentAssetURL(filename: filename)
 
             let tempImageURL = self.tempAssetURL(filename: filename)!
@@ -259,7 +270,9 @@ actor AssetManager {
                 } else if fm.fileExists(atPath: tempImageURL.path) {
                     tempImageURL
                 } else {
-                    throw AssetManagerError.thumbCreation(.createThumbFailed)
+                    throw AssetManagerError.thumbnailLoadingError(
+                        .fileNotFound(document: maybeDocumentImageURL, temp: tempImageURL)
+                    )
                 }
 
             let opts =
@@ -275,11 +288,11 @@ actor AssetManager {
                     [kCGImageSourceShouldCache: false] as CFDictionary
                 )
             else {
-                throw AssetManagerError.thumbCreation(.imageSourceCreationFailed)
+                throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateWithURLError)
             }
 
             guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
-                throw AssetManagerError.thumbCreation(.createThumbFailed)
+                throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateThumbnailError)
             }
 
             return thumb
@@ -287,10 +300,6 @@ actor AssetManager {
     }
 
     // MARK: - Private Methods
-
-    private func setThumbResource(_ id: UUID, _ res: Resource<CGImage, AssetManagerError.ThumbError>) {
-        self.thumbs[id] = res
-    }
 
     private func emit(_ event: Event) {
         Task { @MainActor in
@@ -345,41 +354,3 @@ actor AssetManager {
     }
 }
 
-extension CGImage {
-    enum WriteError: Error {
-        case failedToCreateDestination
-        case failedToWriteToDestination
-    }
-
-    func write(to url: URL) throws {
-        log("CGImage.write to: \(url)")
-        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
-        else {
-            throw WriteError.failedToCreateDestination
-        }
-
-        CGImageDestinationAddImage(destination, self, nil)
-
-        if !CGImageDestinationFinalize(destination) {
-            throw WriteError.failedToWriteToDestination
-        }
-
-        log("done!")
-    }
-}
-
-enum AssetManagerError: Error, Equatable {
-    case missingPHResource
-    case failedToCreateCGImageFromPHAsset
-    case missingBaseURL
-    case ciImageCreateError
-    case accessError
-    case missingImageAsset(UUID)
-    case missingThumbResource(UUID)
-    case thumbCreation(ThumbError)
-
-    enum ThumbError: Error, Equatable {
-        case imageSourceCreationFailed
-        case createThumbFailed
-    }
-}
