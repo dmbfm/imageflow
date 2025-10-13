@@ -3,6 +3,8 @@ import Foundation
 import Helpers
 import Logging
 import Photos
+import PhotosUI
+import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
 
@@ -65,99 +67,65 @@ actor AssetManager {
 
     // MARK: Assset Management
 
-    func addImageAsset(fromPHAsset asset: PHAsset) async throws(AssetManagerError) -> UUID {
-
+    func addImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
         guard let documentID = self.documentInfo?.id else {
             throw .missingDocumentInfo
         }
 
         let id = UUID()
 
-        self.removeImageAsset(id)
-        self.registerImageAsset(
-            .init(
-                id: id,
-                state: .loading,
-                added: .now,
-            )
-        )
+        self.loadingStart(id)
 
         do {
+
+            guard let identifier = item.itemIdentifier else {
+                throw AssetManagerError.assestLoadingError(.photosMissingIdentifier)
+            }
+
+            guard let data = try await item.loadTransferable(type: Data.self) else {
+                throw AssetManagerError.assestLoadingError(.photosDataIsNil)
+            }
+
+            let fetchAssetResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+
+            guard let asset = fetchAssetResult.firstObject else {
+                throw AssetManagerError.assestLoadingError(.photosMissingIdentifier)
+            }
+
             guard let resource = PHAssetResource.assetResources(for: asset).first else {
                 throw AssetManagerError.assestLoadingError(.missingPHAssetResource)
             }
 
             let filename = resource.originalFilename
-
-            let image: CGImage? = await withCheckedContinuation { (cont: CheckedContinuation<CGImage?, Never>) in
-                PHImageManager.default().requestImageDataAndOrientation(for: asset, options: nil) {
-                    data,
-                    dataUTI,
-                    orientation,
-                    info in
-
-                    var result: CGImage? = nil
-
-                    guard let data, info?[PHImageErrorKey] == nil, info?[PHImageCancelledKey] as? Bool != true else {
-                        cont.resume(returning: result)
-                        return
-                    }
-
-                    guard let ci = CIImage(data: data)?.oriented(orientation) else {
-                        cont.resume(returning: result)
-                        return
-                    }
-
-                    let context = CIContext()
-                    result = context.createCGImage(ci, from: ci.extent)
-
-                    cont.resume(returning: result)
-
-                }
-            }
-
-            guard let image else {
-                throw AssetManagerError.assestLoadingError(.cgImageCreationFailed)
-            }
+            let assetFilename = self.name(forAssetWithFilename: filename)
 
             let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
             try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
-
-            let assetFilename = self.name(forAssetWithFilename: filename)
             let assetURL = assetsDir.appending(path: assetFilename)
 
-            try image.write(to: assetURL, type: .png)
+            try data.write(to: assetURL)
 
-            self.registerImageAsset(
-                .init(
-                    id: id,
-                    state: .loaded(.file(assetFilename)),
-                    added: .now,
-                )
-            )
+            self.loadingEnd(id, filename: assetFilename)
 
             return id
         } catch {
-            self.removeImageAsset(id)
-
+            self.loadingCancel(id)
+            log("error: \(error)", level: .error)
             if let err = error as? AssetManagerError {
                 throw err
-            } else {
-                throw .assestLoadingError(.other(error))
             }
+            throw .assestLoadingError(.other(error))
         }
     }
 
     func addImageAsset(fromURL url: URL) async throws(AssetManagerError) -> UUID {
-
         guard let documentID = self.documentInfo?.id else {
             throw AssetManagerError.missingDocumentInfo
         }
 
         let id = UUID()
 
-        self.removeImageAsset(id)
-        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
+        self.loadingStart(id)
 
         do {
             guard url.startAccessingSecurityScopedResource() else {
@@ -173,17 +141,11 @@ actor AssetManager {
 
             try FileManager.default.copyItem(at: url, to: assetURL)
 
-            self.registerImageAsset(
-                .init(
-                    id: id,
-                    state: .loaded(.file(assetFilename)),
-                    added: .now,
-                )
-            )
+            self.loadingEnd(id, filename: assetFilename)
 
             return id
         } catch {
-            self.removeImageAsset(id)
+            self.loadingCancel(id)
 
             if let err = error as? AssetManagerError {
                 throw err
@@ -303,8 +265,28 @@ actor AssetManager {
 
     private func emit(_ event: Event) {
         Task { @MainActor in
+            log("emit: \(event)", level: .debug)
             self.emitter.emit(event)
         }
+    }
+
+    private func loadingStart(_ id: UUID) {
+        self.removeImageAsset(id)
+        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
+    }
+
+    private func loadingEnd(_ id: UUID, filename: String) {
+        self.registerImageAsset(
+            .init(
+                id: id,
+                state: .loaded(.file(filename)),
+                added: self.imageAssets[id]?.added ?? .now
+            )
+        )
+    }
+
+    private func loadingCancel(_ id: UUID) {
+        self.removeImageAsset(id)
     }
 
     private func name(forAssetAt url: URL) -> String {
@@ -353,4 +335,3 @@ actor AssetManager {
         self.documentInfo?.url?.appending(path: "Assets").appending(path: filename)
     }
 }
-

@@ -2,6 +2,14 @@ import Foundation
 
 enum AssetManagerError: Error {
 
+    static func fromAny(_ err: any Error) -> Self {
+        if let err = err as? Self {
+            return err
+        } else {
+            return .other(err)
+        }
+    }
+
     case missingDocumentInfo
 
     case assestLoadingError(AssetLoadingError)
@@ -10,6 +18,7 @@ enum AssetManagerError: Error {
 
     case ciImageLoadingError(CIImageLoadingError)
 
+    case other(any Error)
 
     enum ThumbnailLoadingError {
         case assetNotFound(UUID)
@@ -21,6 +30,8 @@ enum AssetManagerError: Error {
     }
 
     enum AssetLoadingError {
+        case photosMissingIdentifier
+        case photosDataIsNil
         case missingPHAssetResource
         case cgImageCreationFailed
         case URLAccessError

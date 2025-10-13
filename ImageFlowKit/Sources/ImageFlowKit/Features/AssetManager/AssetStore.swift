@@ -1,5 +1,6 @@
 import Logging
 import Photos
+import PhotosUI
 import SwiftUI
 
 @Observable
@@ -9,9 +10,7 @@ final class AssetStore {
     private(set) var images: [UUID: ImageAsset] = [:]
 
     var fileAssets: [ImageAsset] {
-        self.images.values.filter { asset in
-            asset.source?.isFile ?? false
-        }
+        self.images.values.filter { $0.isFileAsset }
     }
 
     let assetManager: AssetManager = .init()
@@ -31,8 +30,39 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addImageAsset(fromURL: url)
+    nonisolated func addImageAssets(
+        fromPhotosPickerItems items: [PhotosPickerItem],
+        undoManager um: UndoManager? = nil
+    ) async throws(AssetManagerError) -> [UUID] {
+        do {
+            return try await withThrowingTaskGroup(of: UUID.self, returning: [UUID].self) { group in
+                for item in items {
+                    group.addTask {
+                        try await self.addImageAsset(
+                            fromPhotosPickerItem: item,
+                            undoManager: um
+                        )
+                    }
+                }
+
+                return try await group.reduce(
+                    into: [UUID](),
+                    { acc, id in
+                        acc.append(id)
+                    }
+                )
+            }
+        } catch {
+            throw .fromAny(error)
+        }
+    }
+
+    @discardableResult
+    func addImageAsset(
+        fromPhotosPickerItem item: PhotosPickerItem,
+        undoManager um: UndoManager? = nil
+    ) async throws(AssetManagerError) -> UUID {
+        let id = try await self.assetManager.addImageAsset(fromPhotosPickerItem: item)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
@@ -43,8 +73,8 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImageAsset(fromPHAsset asset: PHAsset, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addImageAsset(fromPHAsset: asset)
+    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
+        let id = try await self.assetManager.addImageAsset(fromURL: url)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
@@ -85,6 +115,7 @@ final class AssetStore {
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {
+        log("event: \(event)", level: .debug)
         switch event {
         case .imageAssetsDidChange:
             self.images = await self.assetManager.imageAssets

@@ -95,21 +95,20 @@ extension MainContentView {
     }
 
     func onChangeOfPhotoPickerItems() {
-        Task {
-            for item in self.selectedPhotoPickerItems {
-                guard let data = try await item.loadTransferable(type: Data.self) else { continue }
-                log("data \(item.itemIdentifier, default: "no name"): \(data)")
-                let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
-                if status == .authorized {
-                    let result = PHAsset.fetchAssets(withLocalIdentifiers: [item.itemIdentifier!], options: nil)
-                    if let asset = result.firstObject {
-                        try await self.assetStore.addImageAsset(fromPHAsset: asset, undoManager: self.undoManager)
-                        self.undoManager?.setActionName("Import Photo")
-                    }
-                } else {
-                    log("[TODO: Handle Error] PHPhotoLibrary: not authorized!", level: .error)
-                }
+        if self.selectedPhotoPickerItems.isEmpty {
+            return
+        }
+
+        let items = self.selectedPhotoPickerItems
+        self.selectedPhotoPickerItems.removeAll()
+
+        Task.detached {
+            let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+            if status != .authorized {
+                log("Auth error!", level: .error)
+                return
             }
+            try await self.assetStore.addImageAssets(fromPhotosPickerItems: items, undoManager: self.undoManager)
         }
     }
 }

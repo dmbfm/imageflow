@@ -12,7 +12,7 @@ import UniformTypeIdentifiers
 
 @preconcurrency
 final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
-    public let id: UUID = UUID()
+    public var id: UUID
     public let flow: Mutex<Flow.StorableData>
     public let canvas: Mutex<CanvasFeatureState.StorableData>
     public let assetStore: Mutex<AssetStore.StorableData>
@@ -24,13 +24,15 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         _ canvas: CanvasFeatureState.StorableData = .init(),
         _ assets: AssetStore.StorableData = .init()
     ) {
+        self.id = UUID()
         self.flow = .init(data)
         self.canvas = .init(canvas)
         self.assetStore = .init(assets)
     }
 
     required init(configuration: ReadConfiguration) throws {
-        log("!!!! opening")
+        log("init:configuration:\(configuration)")
+
         guard let fws = configuration.file.fileWrappers else {
             throw Errors.missingFileWrappers
         }
@@ -44,6 +46,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
         log("loaded snapshot: \(snapshot)")
 
+        self.id = snapshot.id
         self.flow = .init(snapshot.flow)
         self.canvas = .init(snapshot.canvas)
         self.assetStore = .init(snapshot.assets)
@@ -51,6 +54,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
     func snapshot(contentType: UTType) throws -> StorableData {
         let snap = StorableData(
+            id: self.id,
             flow: self.flow.withLock({ $0 }),
             canvas: self.canvas.withLock({ $0 }),
             assets: self.assetStore.withLock({ $0 })
@@ -121,6 +125,7 @@ extension UTType {
 
 extension FlowDocument {
     struct StorableData: Sendable, Codable {
+        var id: UUID
         var flow: Flow.StorableData
         var canvas: CanvasFeatureState.StorableData
         var assets: AssetStore.StorableData

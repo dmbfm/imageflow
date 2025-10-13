@@ -14,6 +14,17 @@ struct ImageAsset: Identifiable, Equatable, Codable {
         case loaded(Source)
     }
 
+    var isFileAsset: Bool {
+        switch self.state {
+        case .loading: true
+        case .loaded(let source):
+            switch source {
+            case .file: true
+            case .generated: false
+            }
+        }
+    }
+
     var source: Source? {
         switch self.state {
         case .loading: nil
@@ -24,14 +35,6 @@ struct ImageAsset: Identifiable, Equatable, Codable {
     enum Source: Equatable, Codable {
         case generated(node: UUID, port: Int)
         case file(String)
-
-        var isFile: Bool {
-            if case .file = self {
-                true
-            } else {
-                false
-            }
-        }
 
         var filename: String? {
             if case let .file(filename) = self {

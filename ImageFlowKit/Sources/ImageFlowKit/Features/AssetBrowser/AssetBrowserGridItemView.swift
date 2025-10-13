@@ -28,7 +28,7 @@ extension AssetBrowserView {
         var body: some View {
             GridItemInnerView(
                 image: self.image,
-                name: asset.source?.filename ?? "[no name]",
+                name: asset.source?.filename,
                 selected: self.selected,
                 failed: self.failed,
             )

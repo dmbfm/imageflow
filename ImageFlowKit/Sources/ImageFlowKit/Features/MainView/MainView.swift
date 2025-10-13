@@ -17,6 +17,9 @@ struct MainView: View {
     @Environment(\.dismissWindow) var dismissWindow
 
     func onAppear() {
+
+        log("documentInfo: \(documentInfo)")
+
         #if os(masOS)
         self.dismissWindow(id: WindowID.welcome.rawValue)
         #endif
@@ -112,7 +115,13 @@ struct MainView: View {
     }
 
     func onChangeOfDocumentInfo() {
+        log("documentInfo: \(self.documentInfo)")
         self.assetStore.setDocumentInfo(self.documentInfo)
+        Task {
+            let info = await self.assetStore.assetManager.documentInfo
+            log("assetManager.documenInfo: \(info, default: "nil")")
+        }
+        // log("assetStore.documentInfo: \(self.assetStore.document)")
     }
 
     var body: some View {

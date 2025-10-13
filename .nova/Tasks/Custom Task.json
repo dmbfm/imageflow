@@ -1,8 +1,0 @@
-{
-  "actions" : {
-    "run" : {
-      "enabled" : true,
-      "script" : " xcodebuild -workspace imageflow.xcworkspace -scheme \"ImageFlowMac\" -configuration Debug -derivedDataPath .build\n \n open .\/.build\/Build\/Products\/Debug\/Image\\ Flow.app"
-    }
-  }
-}

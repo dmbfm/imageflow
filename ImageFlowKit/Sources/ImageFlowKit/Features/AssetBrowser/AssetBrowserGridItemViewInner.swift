@@ -5,7 +5,7 @@ extension AssetBrowserView {
     struct GridItemInnerView: View {
         let size: CGFloat = 146
         let image: CGImage?
-        let name: String
+        let name: String?
         var selected: Bool = false
         var failed: Bool = false
 
@@ -76,11 +76,12 @@ extension AssetBrowserView {
         }
 
         var labelView: some View {
-            Text(self.name)
+            Text(self.name ?? "")
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-
     }
 
 }
