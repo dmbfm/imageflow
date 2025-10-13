@@ -252,8 +252,7 @@ extension AssetManager {
     }
 }
 
-
-// MARK: - Load Image Representations for Assets 
+// MARK: - Load Image Representations for Assets
 
 extension AssetManager {
     func getThumb(forImageAsset id: UUID) async throws(AssetManagerError) -> CGImage {
@@ -349,7 +348,6 @@ extension AssetManager {
         }
     }
 }
-
 
 // MARK: - URLs
 
