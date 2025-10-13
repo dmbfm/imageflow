@@ -10,8 +10,6 @@ import UniformTypeIdentifiers
 
 actor AssetManager {
 
-    // MARK: - Exposed Properties
-
     var imageAssets: [UUID: ImageAsset] = [:] {
         didSet {
             if oldValue != self.imageAssets {
@@ -28,32 +26,33 @@ actor AssetManager {
 
     @MainActor
     var emitter: EventEmitter<Event> = .init()
+}
 
-    // MARK: - Exposed Types
+// MARK: - Event
 
+extension AssetManager {
     enum Event {
         case imageAssetsDidChange
     }
 
-    // MARK: -  Private Properties
-
-    private var imageAssetNames: [String] {
-        self.imageAssets.values.compactMap { asset in
-            switch asset.state {
-            case .loading:
-                nil
-            case .loaded(let source):
-                switch source {
-                case .file(let filename): filename
-                case .generated: nil
-                }
-            }
+    private func emit(_ event: Event) {
+        Task { @MainActor in
+            log("emit: \(event)", level: .debug)
+            self.emitter.emit(event)
         }
     }
+}
 
-    // MARK: - Exposed Methods
+extension AssetManager {
+
+    func clear() {
+        self.imageAssets.removeAll()
+        self.thumbs.removeAll()
+        self.ciImages.removeAll()
+    }
 
     func restore(_ images: [UUID: ImageAsset]) {
+        self.clear()
         for (id, image) in images {
             self.thumbs[id] = .notLoaded
             self.ciImages[id] = .notLoaded
@@ -64,20 +63,19 @@ actor AssetManager {
     func setDocumentInfo(_ info: DocumentInfo) {
         self.documentInfo = info
     }
+}
 
-    // MARK: Assset Management
+// MARK: - Image Importing
 
+extension AssetManager {
+
+    /// Import an image from an photo from the user's photo libray, chosen by the user from a `PhotosPicker`.
+    ///
+    /// - Parameter item: The `PhotosPickerItem` represengint the selected photo.
+    /// - Throws:
+    /// - Returns: The identifier of the imported asset.
     func addImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
-        guard let documentID = self.documentInfo?.id else {
-            throw .missingDocumentInfo
-        }
-
-        let id = UUID()
-
-        self.loadingStart(id)
-
-        do {
-
+        try await self.addImageAsset { assetsDir in
             guard let identifier = item.itemIdentifier else {
                 throw AssetManagerError.assestLoadingError(.photosMissingIdentifier)
             }
@@ -99,13 +97,72 @@ actor AssetManager {
             let filename = resource.originalFilename
             let assetFilename = self.name(forAssetWithFilename: filename)
 
-            let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
             try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
             let assetURL = assetsDir.appending(path: assetFilename)
 
             try data.write(to: assetURL)
 
-            self.loadingEnd(id, filename: assetFilename)
+            return assetFilename
+        }
+    }
+
+    /// Imports an imgage from the givel `URL` as an image asset.
+    ///
+    /// - Parameter url: The `URL` of the image.
+    /// - Throws:
+    /// - Returns:
+    func addImageAsset(fromURL url: URL) async throws(AssetManagerError) -> UUID {
+        try await self.addImageAsset { assetsDir in
+            guard url.startAccessingSecurityScopedResource() else {
+                throw AssetManagerError.assestLoadingError(.URLAccessError)
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            let assetFilename = self.name(forAssetAt: url)
+            let assetURL = assetsDir.appending(path: assetFilename)
+
+            try FileManager.default.copyItem(at: url, to: assetURL)
+
+            return assetFilename
+        }
+    }
+
+    func registerImageAsset(_ asset: ImageAsset) {
+        self.imageAssets[asset.id] = asset
+        self.thumbs[asset.id] = .notLoaded
+        self.ciImages[asset.id] = .notLoaded
+    }
+
+    /// A helper used by other `addImageAsset` methods. It takes an optional ID and a `loader` closure, which
+    /// takes a `assetsDir` URL, actually does the importing of the asset, and returns the name/filename of
+    /// the imported asset. This method then either returns the assets ID or throws an error.
+    ///
+    /// - Parameters:
+    ///   - id: The optional ID of the asset that will be created/imported.
+    ///   - loader: The loader closure.
+    ///
+    /// - Throws:
+    /// - Returns: The asset ID.
+    private func addImageAsset(
+        _ id: UUID = UUID(),
+        _ loader: (_ assetsDir: URL) async throws -> String
+    ) async throws(AssetManagerError) -> UUID {
+
+        guard let documentID = self.documentInfo?.id else {
+            throw .missingDocumentInfo
+        }
+
+        let id = UUID()
+
+        self.loadingStart(id)
+
+        do {
+            let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
+            try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
+
+            let filename = try await loader(assetsDir)
+
+            self.loadingEnd(id, filename: filename)
 
             return id
         } catch {
@@ -118,56 +175,87 @@ actor AssetManager {
         }
     }
 
-    func addImageAsset(fromURL url: URL) async throws(AssetManagerError) -> UUID {
-        guard let documentID = self.documentInfo?.id else {
-            throw AssetManagerError.missingDocumentInfo
+    private func loadingStart(_ id: UUID) {
+        self.removeImageAsset(id)
+        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
+    }
+
+    private func loadingEnd(_ id: UUID, filename: String) {
+        self.registerImageAsset(
+            .init(
+                id: id,
+                state: .loaded(.file(filename)),
+                added: self.imageAssets[id]?.added ?? .now
+            )
+        )
+    }
+
+    private func loadingCancel(_ id: UUID) {
+        self.removeImageAsset(id)
+    }
+
+    private func name(forAssetAt url: URL) -> String {
+        let name = url.lastPathComponent
+        let basename = url.deletingPathExtension().lastPathComponent
+        let ext = url.pathExtension
+
+        let names = self.imageAssetNames
+
+        var modifiedName: String? = nil
+
+        if names.contains(name) {
+            for i in 2...10000 {
+                let attempt = basename + "(\(i))." + ext
+                if !names.contains(attempt) {
+                    modifiedName = attempt
+                    break
+                }
+            }
+        } else {
+            return name
         }
 
-        let id = UUID()
-
-        self.loadingStart(id)
-
-        do {
-            guard url.startAccessingSecurityScopedResource() else {
-                throw AssetManagerError.assestLoadingError(.URLAccessError)
-            }
-            defer { url.stopAccessingSecurityScopedResource() }
-
-            let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
-            try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
-
-            let assetFilename = self.name(forAssetAt: url)
-            let assetURL = assetsDir.appending(path: assetFilename)
-
-            try FileManager.default.copyItem(at: url, to: assetURL)
-
-            self.loadingEnd(id, filename: assetFilename)
-
-            return id
-        } catch {
-            self.loadingCancel(id)
-
-            if let err = error as? AssetManagerError {
-                throw err
-            } else {
-                throw .assestLoadingError(.other(error))
-            }
+        if let modifiedName {
+            return modifiedName
+        } else {
+            return basename + "\(UUID().uuidString)." + ext
         }
     }
 
-    func registerImageAsset(_ asset: ImageAsset) {
-        self.imageAssets[asset.id] = asset
-        self.thumbs[asset.id] = .notLoaded
-        self.ciImages[asset.id] = .notLoaded
+    private func name(forAssetWithFilename name: String) -> String {
+        self.name(forAssetAt: .init(filePath: name))
     }
 
+    private var imageAssetNames: [String] {
+        self.imageAssets.values.compactMap { asset in
+            switch asset.state {
+            case .loading:
+                nil
+            case .loaded(let source):
+                switch source {
+                case .file(let filename): filename
+                case .generated: nil
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Asset Deletion
+
+extension AssetManager {
     @discardableResult
     func removeImageAsset(_ id: UUID) -> ImageAsset? {
         self.thumbs[id] = nil
         self.ciImages[id] = nil
         return self.imageAssets.removeValue(forKey: id)
     }
+}
 
+
+// MARK: - Load Image Representations for Assets 
+
+extension AssetManager {
     func getThumb(forImageAsset id: UUID) async throws(AssetManagerError) -> CGImage {
         guard let asset = self.imageAssets[id] else {
             throw AssetManagerError.thumbnailLoadingError(.assetNotFound(id))
@@ -260,69 +348,12 @@ actor AssetManager {
             return thumb
         }
     }
+}
 
-    // MARK: - Private Methods
 
-    private func emit(_ event: Event) {
-        Task { @MainActor in
-            log("emit: \(event)", level: .debug)
-            self.emitter.emit(event)
-        }
-    }
+// MARK: - URLs
 
-    private func loadingStart(_ id: UUID) {
-        self.removeImageAsset(id)
-        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
-    }
-
-    private func loadingEnd(_ id: UUID, filename: String) {
-        self.registerImageAsset(
-            .init(
-                id: id,
-                state: .loaded(.file(filename)),
-                added: self.imageAssets[id]?.added ?? .now
-            )
-        )
-    }
-
-    private func loadingCancel(_ id: UUID) {
-        self.removeImageAsset(id)
-    }
-
-    private func name(forAssetAt url: URL) -> String {
-        let name = url.lastPathComponent
-        let basename = url.deletingPathExtension().lastPathComponent
-        let ext = url.pathExtension
-
-        let names = self.imageAssetNames
-
-        var modifiedName: String? = nil
-
-        if names.contains(name) {
-            for i in 1...10000 {
-                let attempt = basename + "(\(i))." + ext
-                if !names.contains(attempt) {
-                    modifiedName = attempt
-                    break
-                }
-            }
-        } else {
-            return name
-        }
-
-        if let modifiedName {
-            return modifiedName
-        } else {
-            return basename + "\(UUID().uuidString)." + ext
-        }
-    }
-
-    private func name(forAssetWithFilename name: String) -> String {
-        self.name(forAssetAt: .init(filePath: name))
-    }
-
-    // MARK: - URLs
-
+extension AssetManager {
     private func tempAssetURL(filename: String) -> URL? {
         if let id = self.documentInfo?.id {
             .tempAssetURL(forDocument: id, filename: filename)

@@ -29,8 +29,11 @@ let package = Package(
         .target(name: "Logging"),
         .target(name: "Backend", dependencies: ["Values", "SwiftGraph"]),
         .target(name: "ImageFlowKit", dependencies: ["Values", "Backend", "Helpers", "Logging"]),
-        .testTarget(name: "ImageFlowKitTests", dependencies: ["ImageFlowKit", "Backend", "Values"]),
-
+        .testTarget(
+            name: "ImageFlowKitTests",
+            dependencies: ["ImageFlowKit", "Backend", "Values"],
+            resources: [.copy("Fixtures")]
+        ),
     ]
 )
 
