@@ -86,46 +86,44 @@ extension AssetBrowserView {
 
 }
 
-// @MainActor
-// let previewImage = Bundle.m
+#Preview("Loading") {
+    @Previewable @State var selected: Bool = false
+    @Previewable @State var failed: Bool = false
+    @Previewable @State var image: CGImage? = nil
 
-// #Preview("Loading") {
-//     @Previewable @State var selected: Bool = false
-//     @Previewable @State var failed: Bool = false
-//     @Previewable @State var image: CGImage? = nil
-//     // @Previewable @State var image: GridItemInnerView.ImageContent? = nil
-//     VStack {
-//         AssetBrowserView
-//             .GridItemInnerView(
-//                 image: image,
-//                 name: "Preview Image",
-//                 selected: selected,
-//                 failed: failed
-//             )
-//         // GridItemInnerView(
-//         //     image: image,
-//         //     name: "Example",
-//         //     selected: selected,
-//         //     failed: failed
-//         // )
-//          .padding(20)
-//          .frame(width: 200, height: 200)
+    let gradientImage: CGImage = .verticalGradientImage(
+        width: 256,
+        height: 256,
+        topColor: .init(red: 0.412, green: 0.562, blue: 0.875, alpha: 1.0),
+        bottomColor: .init(red: 0.71, green: 0.784, blue: 0.937, alpha: 1.0)
+    )!
 
-//          Toggle("Selected", isOn: $selected)
-//              .padding()
+    VStack {
+        AssetBrowserView
+            .GridItemInnerView(
+                image: image,
+                name: "Preview Image",
+                selected: selected,
+                failed: failed
+            )
+            .padding(20)
+            .frame(width: 200, height: 200)
 
-//          Toggle("Failed", isOn: $failed)
-//              .padding()
+        Toggle("Selected", isOn: $selected)
+            .padding()
 
-//          Button(image == nil ? "Set Image" : "Clear Image") {
-//              if image == nil {
-//                  image = makeTestPatternCGImage(width: 110 * 2, height: 110 * 2)
-//              } else {
-//                  image = nil
-//              }
-//          }
+        Toggle("Failed", isOn: $failed)
+            .padding()
 
-//     }
-//     .padding()
-//     .background(.white)
-// }
+        Button(image == nil ? "Set Image" : "Clear Image") {
+            if image == nil {
+                image = gradientImage
+            } else {
+                image = nil
+            }
+        }
+
+    }
+    .padding()
+    .background(.white)
+}
