@@ -2,19 +2,25 @@ import Logging
 import SwiftUI
 import UniformTypeIdentifiers
 
-public enum AssetBrowserType: Equatable {
+protocol AssetBrowserAssetsProvider: AssetBrowserThumbProvider {
+    @MainActor var fileAssets: [ImageAsset] { get }
+}
+
+extension AssetStore: AssetBrowserAssetsProvider {}
+
+enum AssetBrowserType: Equatable {
     case picker(PortLocation)
     case browser
 }
 
-public enum AssetBrowserResult {
+enum AssetBrowserResult {
     case cancel
     case pick(UUID)
     case create(UUID)
 }
 
 struct AssetBrowserView: View {
-    let assetStore: AssetStore
+    let assetsProvider: any AssetBrowserAssetsProvider
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
     let delegate: Delegate
@@ -34,16 +40,16 @@ struct AssetBrowserView: View {
 
     init(
         type: AssetBrowserType = .browser,
-        assetStore: AssetStore,
+        assetsProvider: any AssetBrowserAssetsProvider,
         delegate: Delegate,
     ) {
         self.type = type
-        self.assetStore = assetStore
+        self.assetsProvider = assetsProvider
         self.delegate = delegate
     }
 
     var sortedImages: [ImageAsset] {
-        self.assetStore.fileAssets.sorted(by: { $0.added < $1.added })
+        self.assetsProvider.fileAssets.sorted(by: { $0.added < $1.added })
     }
 
     func onTapItem(_ info: ImageAsset) {
@@ -124,7 +130,7 @@ struct AssetBrowserView: View {
                     ForEach(self.sortedImages) { asset in
                         GridItemView(
                             asset: asset,
-                            thumbProvider: self.assetStore,
+                            thumbProvider: self.assetsProvider,
                             selected: self.selected == asset.id,
                         )
                         .onTapGesture {
@@ -180,12 +186,25 @@ struct AssetBrowserView: View {
     }
 }
 
-// #Preview {
-//     let ids = (0..<10).map { _ in UUID() }
-//     VStack {
-//         AssetBrowserView(
-//             assetProvider: AssetBrowserView.PreviewAssetProvider(ids: ids),
-//             onChooseAsset: { _ in }
-//         )
-//     }
-// }
+@Observable
+@MainActor
+private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
+    var fileAssets: [ImageAsset] = (0...25).map { _ in
+        .init(id: .init(), state: .loaded(.file("")), added: .now)
+    }
+
+    func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
+        nil
+    }
+}
+
+#Preview {
+    @Previewable @State var provider = PreviewAssetsProvider()
+    VStack {
+        AssetBrowserView(
+            type: .browser,
+            assetsProvider: provider,
+            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
+        )
+    }
+}

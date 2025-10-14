@@ -54,7 +54,7 @@ struct MainContentViewMacOS: View {
             content: {
                 AssetBrowserView(
                     type: self.assetBrowserType,
-                    assetStore: self.assetStore,
+                    assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )
             }

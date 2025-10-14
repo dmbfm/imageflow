@@ -51,7 +51,7 @@ struct MainContentViewIPadOS: View {
             .sheet(isPresented: self.$showAssetBrowser) {
                 AssetBrowserView(
                     type: self.assetBrowserType,
-                    assetStore: self.assetStore,
+                    assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )
             }
