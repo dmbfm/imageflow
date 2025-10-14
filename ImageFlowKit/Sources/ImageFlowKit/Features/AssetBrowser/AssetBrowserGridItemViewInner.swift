@@ -77,6 +77,7 @@ extension AssetBrowserView {
 
         var labelView: some View {
             Text(self.name ?? "")
+                .help(self.name ?? "")
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .font(.caption)
