@@ -34,6 +34,7 @@ struct AssetBrowserView: View {
     @State var showFileImporter = false
     @State var selected: UUID? = nil
     @State var createNodeOnSelect: Bool = false
+    @State var searchText: String = ""
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -50,6 +51,14 @@ struct AssetBrowserView: View {
 
     var sortedImages: [ImageAsset] {
         self.assetsProvider.fileAssets.sorted(by: { $0.added < $1.added })
+    }
+    
+    var filteredImages: [ImageAsset] {
+        if self.searchText.isEmpty {
+            self.sortedImages
+        } else {
+            self.sortedImages.filter({ $0.source?.filename?.contains(self.searchText) ?? false})
+        }
     }
 
     func onTapItem(_ info: ImageAsset) {
@@ -93,28 +102,45 @@ struct AssetBrowserView: View {
 
     @ViewBuilder
     var toolbarView: some View {
-        HStack(alignment: .center) {
+        
+        #if os(macOS)
+        let buttonSize: CGFloat = 16
+        let photoButtonBaselineOffset: CGFloat = -4
+        let horizontalPadding: CGFloat = self.isMacOS26 || self.isIOS26 ? 22 : 14
+        #else
+        let buttonSize: CGFloat = 16
+        let photoButtonBaselineOffset: CGFloat = -4
+        let horizontalPadding: CGFloat = self.isMacOS26 || self.isIOS26 ? 22 : 14
+        #endif
+        
+        HStack(alignment: .bottom, spacing: 10) {
             Button {
                 self.delegate.openFileImporter()
             } label: {
-                Image(systemName: "square.and.arrow.down")
+                Text("\(Image(systemName: "square.and.arrow.down"))")
+                    .font(.system(size: buttonSize))
             }
             .buttonStyle(.borderless)
+            .help("Import Image File")
 
             Button {
                 self.delegate.openPhotoPicker()
             } label: {
-                Image(systemName: "photo.badge.plus.fill")
+                Text("\(Image(systemName: "photo.badge.plus.fill"))")
+                    .font(.system(size: buttonSize))
+                    .baselineOffset(photoButtonBaselineOffset)
             }
             .buttonStyle(.borderless)
+            .help("Import Photo")
 
             Spacer()
-            TextField("", text: .constant("search"))
+            TextField("Search...", text: self.$searchText)
                 .frame(width: 120)
                 .textFieldStyle(.roundedBorder)
+                .padding(.leading, 4)
         }
         .padding(.top, 6)
-        .padding(.horizontal, 14)
+        .padding(.horizontal, horizontalPadding)
 
         Divider()
     }
@@ -127,7 +153,7 @@ struct AssetBrowserView: View {
                     columns: Array(repeating: GridItem(.fixed(self.gridImageSize)), count: 5),
                     spacing: 16
                 ) {
-                    ForEach(self.sortedImages) { asset in
+                    ForEach(self.filteredImages) { asset in
                         GridItemView(
                             asset: asset,
                             thumbProvider: self.assetsProvider,
@@ -263,7 +289,23 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
             assetsProvider: provider,
             delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
         )
-
-        Divider()
     }
+}
+
+#Preview("Sheet") {
+    @Previewable @State var provider = PreviewAssetsProvider()
+    @Previewable @State var isPresented: Bool = false
+    ZStack {
+        Color.teal
+        Button("Show Asset Browser") {
+            isPresented = true
+        }
+    }
+    .sheet(isPresented: .constant(true), content: {
+        AssetBrowserView(
+            type: .browser,
+            assetsProvider: provider,
+            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
+        )
+    })
 }
