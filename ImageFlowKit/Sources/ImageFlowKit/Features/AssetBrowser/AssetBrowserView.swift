@@ -189,12 +189,69 @@ struct AssetBrowserView: View {
 @Observable
 @MainActor
 private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
-    var fileAssets: [ImageAsset] = (0...25).map { _ in
-        .init(id: .init(), state: .loaded(.file("")), added: .now)
+    var fileAssets: [ImageAsset]
+
+    let gradientImage: CGImage = .verticalGradientImage(
+        width: 256,
+        height: 256,
+        topColor: .init(red: 0.412, green: 0.562, blue: 0.875, alpha: 1.0),
+        bottomColor: .init(red: 0.71, green: 0.784, blue: 0.937, alpha: 1.0)
+    )!
+
+    @ObservationIgnored
+    var ids: [UUID]
+
+    @ObservationIgnored
+    var delays: [UUID: Int]
+
+    static let filenames: [String] = [
+        "",  // empty
+        "a.txt",
+        "b",
+        "notes.md",
+        "data.json",
+        "config.yml",
+        "archive.tar.gz",
+        "image.png",
+        "video.mov",
+        "document.pdf",
+        "presentation.key",
+        "spreadsheet.xlsx",
+        "backup_2025_10_13.zip",
+        "report_final_v2.docx",
+        "swift_testing_example.swift",
+        "My Great App.app",
+        "very_long_filename_that_keeps_going_and_going.txt",
+        "🎨_emoji_filename_😀.png",
+        "spaces in name.txt",
+        "UPPERCASEFILE.MP3",
+        "mixed_Case_Name.DAT",
+        "filename-with-dashes-and_numbers-12345.csv",
+        "file_with_underscores_and_long_extension.template.backup",
+        "超長いファイル名テスト用の文字列です.txt",
+        "another_really_really_long_filename_that_is_probably_too_long_but_still_valid_in_most_file_systems_because_why_not_really_there_is_no_reason_not_to_make_it_long.json",
+        "z_last.txt",
+    ]
+
+    init() {
+        let ids = (0...25).map { _ in UUID() }
+        self.fileAssets = ids.enumerated().map { (idx, id) in
+            .init(id: id, state: .loaded(.file(Self.filenames[idx])), added: .now)
+        }
+        self.ids = ids
+        self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
     }
 
     func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
-        nil
+        try await Task.sleep(for: .seconds(self.delays[id]!))
+        return gradientImage
+    }
+
+    func reload() {
+        let ids = (0...25).map { _ in UUID() }
+        self.fileAssets = ids.map { id in .init(id: id, state: .loaded(.file("")), added: .now) }
+        self.ids = ids
+        self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
     }
 }
 
@@ -206,5 +263,7 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
             assetsProvider: provider,
             delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
         )
+
+        Divider()
     }
 }
