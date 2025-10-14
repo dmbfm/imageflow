@@ -124,7 +124,7 @@ struct AssetBrowserView: View {
                     ForEach(self.sortedImages) { asset in
                         GridItemView(
                             asset: asset,
-                            assetStore: self.assetStore,
+                            thumbProvider: self.assetStore,
                             selected: self.selected == asset.id,
                         )
                         .onTapGesture {
