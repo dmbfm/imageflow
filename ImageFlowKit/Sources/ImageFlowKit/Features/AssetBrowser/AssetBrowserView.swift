@@ -105,11 +105,13 @@ struct AssetBrowserView: View {
     // MARK: - Body
 
     var body: some View {
+        #if os(macOS)
         self.content
-            #if os(macOS)
-        .frame(minHeight: 600)
-            #endif
+            .frame(minHeight: 600)
+        #else
+        self.content
             .ignoresSafeArea(.keyboard)
+        #endif
     }
 
     // MARK: - Content
@@ -137,6 +139,54 @@ struct AssetBrowserView: View {
 
     // MARK: - Toolbar
 
+    #if os(macOS)
+    @ViewBuilder
+    var toolbarView: some View {
+
+        let buttonSize: CGFloat = 18
+
+        HStack(alignment: .center, spacing: 0) {
+            HStack(spacing: 14) {
+                Button {
+                    self.delegate.openFileImporter()
+                } label: {
+                    Text("\(Image(systemName: "square.and.arrow.down"))")
+                        .font(.system(size: buttonSize))
+                }
+                .buttonStyle(.borderless)
+
+                Button {
+                    self.delegate.openPhotoPicker()
+                } label: {
+                    Text("\(Image(systemName: "photo.badge.plus.fill"))")
+                        .font(.system(size: buttonSize))
+                        .baselineOffset(-4)
+                }
+                .buttonStyle(.borderless)
+            }
+            .frame(height: 42)
+            .padding(.horizontal, 14)
+            //            .padding(.vertical, 8)
+            .glassEffect(.regular, in: Capsule())
+
+            Spacer()
+
+            HStack {
+                TextField("Search...", text: self.$searchText)
+                    .textFieldStyle(.plain)
+                    .frame(width: 150)
+                    .padding(.leading, 20)
+                    .padding(.trailing, 10)
+            }
+            .frame(height: 42)
+            .glassEffect(.regular, in: Capsule())
+        }
+        .padding(.horizontal, 22)
+        .padding(.top, 10)
+    }
+    #endif
+
+    #if os(iOS)
     @ViewBuilder
     var toolbarView: some View {
         HStack(alignment: style.toolbar.alignment, spacing: style.toolbar.spacing) {
@@ -179,6 +229,7 @@ struct AssetBrowserView: View {
         .padding(.horizontal, style.toolbar.horizontalPadding)
         .padding(.bottom, style.toolbar.paddingBottom)
     }
+    #endif
 
     // MARK: - Grid
 
@@ -204,7 +255,12 @@ struct AssetBrowserView: View {
                 .padding(.horizontal, style.fileArea.horizontalPadding)
             }
         }
+        #if os(macOS)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .scrollEdgeEffectStyle(.hard, for: .bottom)
+        #else
         .scrollEdgeEffectStyle(.soft, for: .all)
+        #endif
     }
 
     // MARK: - Footer
@@ -232,7 +288,7 @@ struct AssetBrowserView: View {
         }
         .padding(.horizontal)
         .padding(.bottom)
-        .padding(.top, 4)
+        .padding(.top, style.footer.paddingTop)
     }
 }
 
@@ -250,6 +306,7 @@ private struct Style: With {
 
     struct Footer: With {
         var spacing: CGFloat
+        var paddingTop: CGFloat
     }
 
     struct Toolbar: With {
@@ -266,6 +323,8 @@ private struct Style: With {
 
     static var macos: Self {
         self.ipad
+            .with(\.footer.paddingTop, 12)
+            .with(\.toolbar.buttonSize, 14)
     }
 
     static var ipad: Self {
@@ -282,7 +341,7 @@ private struct Style: With {
                 searchTextFieldStyle: .automatic,
             ),
             fileArea: .init(horizontalPadding: 16),
-            footer: .init(spacing: 26)
+            footer: .init(spacing: 26, paddingTop: 4)
         )
     }
 
