@@ -27,6 +27,9 @@ struct AssetBrowserViewDelegate {
 }
 
 struct AssetBrowserView: View {
+
+    // MARK: - State
+
     let assetsProvider: any AssetBrowserAssetsProvider
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
@@ -41,6 +44,8 @@ struct AssetBrowserView: View {
 
     @Namespace var toolbasNS
 
+    // MARK: - Init
+
     init(
         type: AssetBrowserType = .browser,
         assetsProvider: any AssetBrowserAssetsProvider,
@@ -49,6 +54,12 @@ struct AssetBrowserView: View {
         self.type = type
         self.assetsProvider = assetsProvider
         self.delegate = delegate
+    }
+
+    // MARK: - Computed vars
+
+    fileprivate var style: Style {
+        .default
     }
 
     var sortedImages: [ImageAsset] {
@@ -63,6 +74,25 @@ struct AssetBrowserView: View {
         }
     }
 
+    var selectButtonText: String {
+        if self.createNodeOnSelect {
+            "Select and Create Node"
+        } else {
+            "Select"
+        }
+    }
+
+    var cancelButtonText: LocalizedStringResource {
+        switch self.type {
+        case .picker:
+            LocalizedStringResource("cancel", defaultValue: "Cancel")
+        case .browser:
+            LocalizedStringResource("close", defaultValue: "Close")
+        }
+    }
+
+    // MARK: - Methods
+
     func onTapItem(_ info: ImageAsset) {
         switch info.state {
         case .loaded:
@@ -72,6 +102,8 @@ struct AssetBrowserView: View {
         }
     }
 
+    // MARK: - Body
+
     var body: some View {
         self.content
             #if os(macOS)
@@ -80,10 +112,12 @@ struct AssetBrowserView: View {
             .ignoresSafeArea(.keyboard)
     }
 
+    // MARK: - Content
+
     @ViewBuilder
     var content: some View {
         VStack {
-            self.scrollabeImageGridView
+            self.gridView
                 .onTapGesture {
                     self.selected = nil
                 }
@@ -101,9 +135,7 @@ struct AssetBrowserView: View {
         #endif
     }
 
-    fileprivate var style: Style {
-        .default
-    }
+    // MARK: - Toolbar
 
     @ViewBuilder
     var toolbarView: some View {
@@ -148,8 +180,10 @@ struct AssetBrowserView: View {
         .padding(.bottom, style.toolbar.paddingBottom)
     }
 
+    // MARK: - Grid
+
     @ViewBuilder
-    var scrollabeImageGridView: some View {
+    var gridView: some View {
         ScrollView {
             VStack {
                 LazyVGrid(
@@ -173,22 +207,7 @@ struct AssetBrowserView: View {
         .scrollEdgeEffectStyle(.soft, for: .all)
     }
 
-    var selectButtonText: String {
-        if self.createNodeOnSelect {
-            "Select and Create Node"
-        } else {
-            "Select"
-        }
-    }
-
-    var cancelButtonText: LocalizedStringResource {
-        switch self.type {
-        case .picker:
-            LocalizedStringResource("cancel", defaultValue: "Cancel")
-        case .browser:
-            LocalizedStringResource("close", defaultValue: "Close")
-        }
-    }
+    // MARK: - Footer
 
     @ViewBuilder
     var footerView: some View {
@@ -216,6 +235,8 @@ struct AssetBrowserView: View {
         .padding(.top, 4)
     }
 }
+
+// MARK: - Style
 
 private struct Style: With {
 
@@ -245,21 +266,6 @@ private struct Style: With {
 
     static var macos: Self {
         self.ipad
-        //        .init(
-        //            toolbar: .init(
-        //                spacing: 10,
-        //                buttonSize: 16,
-        //                photoButtonBaselineOffset: -4,
-        //                horizontalPadding: 22,
-        //                paddingTop: 8,
-        //                paddingBottom: 0,
-        //                alignment: .bottom,
-        //                searchWidth: 120,
-        //                searchTextFieldStyle: .roundedBorder,
-        //            ),
-        //            fileArea: .init(horizontalPadding: 16),
-        //            footer: .init(spacing: 0)
-        //        )
     }
 
     static var ipad: Self {
@@ -278,14 +284,6 @@ private struct Style: With {
             fileArea: .init(horizontalPadding: 16),
             footer: .init(spacing: 26)
         )
-    }
-
-    static var macosLegacy: Self {
-        self.macos.with(\.toolbar.horizontalPadding, 14)
-    }
-
-    static var ipadLegacy: Self {
-        self.macos.with(\.toolbar.horizontalPadding, 14)
     }
 
     static var `default`: Self {
