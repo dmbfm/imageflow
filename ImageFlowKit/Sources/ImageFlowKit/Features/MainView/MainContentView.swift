@@ -19,7 +19,7 @@ extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
 
-    var assetBrowserDelegate: AssetBrowserView.Delegate {
+    var assetBrowserDelegate: AssetBrowserViewDelegate {
         .init(
             onDismiss: self.onAssetBrowserDismiss(_:),
             openFileImporter: {

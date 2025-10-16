@@ -1,3 +1,4 @@
+import Helpers
 import Logging
 import SwiftUI
 import UniformTypeIdentifiers
@@ -7,6 +8,44 @@ protocol AssetBrowserAssetsProvider: AssetBrowserThumbProvider {
 }
 
 extension AssetStore: AssetBrowserAssetsProvider {}
+
+extension View {
+    @ViewBuilder
+    public func glassButton() -> some View {
+        if #available(macOS 26, iOS 26, *) {
+            self.buttonStyle(.glass)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    public func glassProeminentButton() -> some View {
+        if #available(macOS 26, iOS 26, *) {
+            self.buttonStyle(.glassProminent)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    public func glassEffectUnionEx(id: String, namespace: Namespace.ID) -> some View {
+        if #available(macOS 26, iOS 26, *) {
+            self.glassEffectUnion(id: id, namespace: namespace)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    public func glassEffectEx() -> some View {
+        if #available(macOS 26, iOS 26, *) {
+            self.glassEffect(.regular, in: .circle)
+        } else {
+            self
+        }
+    }
+}
 
 enum AssetBrowserType: Equatable {
     case picker(PortLocation)
@@ -18,18 +57,41 @@ enum AssetBrowserResult {
     case pick(UUID)
     case create(UUID)
 }
-
 struct AssetBrowserView: View {
     let assetsProvider: any AssetBrowserAssetsProvider
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
-    let delegate: Delegate
+    let delegate: AssetBrowserViewDelegate
 
     struct Delegate {
         var onDismiss: (AssetBrowserResult) -> ()
         var openFileImporter: () -> ()
         var openPhotoPicker: () -> ()
     }
+
+    init(
+        type: AssetBrowserType = .browser,
+        assetsProvider: any AssetBrowserAssetsProvider,
+        delegate: AssetBrowserViewDelegate,
+    ) {
+        self.type = type
+        self.assetsProvider = assetsProvider
+        self.delegate = delegate
+    }
+    var body: some View {
+        if #available(iOS 26, macOS 26, *) {
+            AssetBrowserView26(type: self.type, assetsProvider: self.assetsProvider, delegate: self.delegate)
+        } else {
+            AssetBrowserViewLegacy(type: self.type, assetsProvider: self.assetsProvider, delegate: self.delegate)
+        }
+    }
+}
+
+struct AssetBrowserViewLegacy: View {
+    let assetsProvider: any AssetBrowserAssetsProvider
+    let type: AssetBrowserType
+    let gridImageSize: CGFloat = 146.0
+    let delegate: AssetBrowserViewDelegate
 
     @State var showFileImporter = false
     @State var selected: UUID? = nil
@@ -39,10 +101,48 @@ struct AssetBrowserView: View {
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
+    @Namespace var toolbasNS
+
     init(
         type: AssetBrowserType = .browser,
         assetsProvider: any AssetBrowserAssetsProvider,
-        delegate: Delegate,
+        delegate: AssetBrowserViewDelegate,
+    ) {
+        self.type = type
+        self.assetsProvider = assetsProvider
+        self.delegate = delegate
+    }
+    var body: some View {
+        ContentUnavailableView("TODO", image: "exclamationmark.triangle.fill")
+    }
+}
+
+struct AssetBrowserViewDelegate {
+    var onDismiss: (AssetBrowserResult) -> ()
+    var openFileImporter: () -> ()
+    var openPhotoPicker: () -> ()
+}
+
+@available(macOS 26, iOS 26, *)
+struct AssetBrowserView26: View {
+    let assetsProvider: any AssetBrowserAssetsProvider
+    let type: AssetBrowserType
+    let gridImageSize: CGFloat = 146.0
+    let delegate: AssetBrowserViewDelegate
+    @State var showFileImporter = false
+    @State var selected: UUID? = nil
+    @State var createNodeOnSelect: Bool = false
+    @State var searchText: String = ""
+
+    @Environment(\.undoManager) var undoManager
+    @Environment(\.dismiss) var dismiss
+
+    @Namespace var toolbasNS
+
+    init(
+        type: AssetBrowserType = .browser,
+        assetsProvider: any AssetBrowserAssetsProvider,
+        delegate: AssetBrowserViewDelegate,
     ) {
         self.type = type
         self.assetsProvider = assetsProvider
@@ -52,12 +152,12 @@ struct AssetBrowserView: View {
     var sortedImages: [ImageAsset] {
         self.assetsProvider.fileAssets.sorted(by: { $0.added < $1.added })
     }
-    
+
     var filteredImages: [ImageAsset] {
         if self.searchText.isEmpty {
             self.sortedImages
         } else {
-            self.sortedImages.filter({ $0.source?.filename?.contains(self.searchText) ?? false})
+            self.sortedImages.filter({ $0.source?.filename?.contains(self.searchText) ?? false })
         }
     }
 
@@ -72,25 +172,37 @@ struct AssetBrowserView: View {
 
     var body: some View {
         self.content
-            .frame(width: 800, height: 600)
+            #if os(macOS)
+        .frame(minHeight: 600)
+            #endif
+            .ignoresSafeArea(.keyboard)
     }
 
     @ViewBuilder
     var content: some View {
         VStack {
 
-            self.toolbarView
-
-            self.scrollabeImageGridView
+            let grid = self.scrollabeImageGridView
                 .onTapGesture {
                     self.selected = nil
                 }
 
-            Spacer()
+            if #available(iOS 26, macOS 26, *) {
+                grid
+                    .safeAreaBar(edge: .top) { self.toolbarView }
+                    .safeAreaBar(edge: .bottom) { self.footerView }
+            } else {
+                grid
+            }
 
-            self.footerView
+            //                self.toolbarView
+
+            //            Spacer()
+
+            //            self.footerView
 
         }
+        .ignoresSafeArea(.keyboard)
         #if os(macOS)
         .onModifierKeysChanged({ old, new in
             if self.type == .browser {
@@ -100,53 +212,66 @@ struct AssetBrowserView: View {
         #endif
     }
 
-    @ViewBuilder
-    var toolbarView: some View {
-        
-        #if os(macOS)
-        let buttonSize: CGFloat = 16
-        let photoButtonBaselineOffset: CGFloat = -4
-        let horizontalPadding: CGFloat = self.isMacOS26 || self.isIOS26 ? 22 : 14
-        #else
-        let buttonSize: CGFloat = 16
-        let photoButtonBaselineOffset: CGFloat = -4
-        let horizontalPadding: CGFloat = self.isMacOS26 || self.isIOS26 ? 22 : 14
-        #endif
-        
-        HStack(alignment: .bottom, spacing: 10) {
-            Button {
-                self.delegate.openFileImporter()
-            } label: {
-                Text("\(Image(systemName: "square.and.arrow.down"))")
-                    .font(.system(size: buttonSize))
-            }
-            .buttonStyle(.borderless)
-            .help("Import Image File")
-
-            Button {
-                self.delegate.openPhotoPicker()
-            } label: {
-                Text("\(Image(systemName: "photo.badge.plus.fill"))")
-                    .font(.system(size: buttonSize))
-                    .baselineOffset(photoButtonBaselineOffset)
-            }
-            .buttonStyle(.borderless)
-            .help("Import Photo")
-
-            Spacer()
-            TextField("Search...", text: self.$searchText)
-                .frame(width: 120)
-                .textFieldStyle(.roundedBorder)
-                .padding(.leading, 4)
-        }
-        .padding(.top, 6)
-        .padding(.horizontal, horizontalPadding)
-
-        Divider()
+    fileprivate var style: Style {
+        .default
     }
 
     @ViewBuilder
-    var scrollabeImageGridView: some View {
+    var toolbarView: some View {
+        HStack(alignment: style.toolbar.alignment, spacing: style.toolbar.spacing) {
+
+            let buttons = HStack {
+                Button {
+                    self.delegate.openFileImporter()
+                } label: {
+                    Text("\(Image(systemName: "square.and.arrow.down"))")
+                        .font(.system(size: style.toolbar.buttonSize))
+                }
+                .glassButton()
+                .glassEffectUnionEx(id: "import", namespace: self.toolbasNS)
+                .help("Import Image File")
+
+                Button {
+                    self.delegate.openPhotoPicker()
+                } label: {
+                    Text("\(Image(systemName: "photo.badge.plus.fill"))")
+                        .font(.system(size: style.toolbar.buttonSize))
+                        .baselineOffset(style.toolbar.photoButtonBaselineOffset)
+
+                }
+                .glassButton()
+                .glassEffectUnionEx(id: "import", namespace: self.toolbasNS)
+                .help("Import Photo")
+            }
+
+            if #available(iOS 26, macOS 26, *) {
+                GlassEffectContainer {
+                    buttons
+                }
+            } else {
+                buttons
+            }
+
+            Spacer()
+
+            TextField("Search...", text: self.$searchText)
+                .frame(width: style.toolbar.searchWidth)
+                .textFieldStyle(kind: style.toolbar.searchTextFieldStyle)
+                .padding(.vertical, 4)
+                .padding(.leading, 12)
+                .glassEffectEx()
+        }
+        .padding(.top, style.toolbar.paddingTop)
+        .padding(.horizontal, style.toolbar.horizontalPadding)
+        .padding(.bottom, style.toolbar.paddingBottom)
+
+        if !isAppleOS26() {
+            Divider()
+        }
+    }
+
+    @ViewBuilder
+    var _scrollabeImageGridView: some View {
         ScrollView {
             VStack {
                 LazyVGrid(
@@ -154,7 +279,7 @@ struct AssetBrowserView: View {
                     spacing: 16
                 ) {
                     ForEach(self.filteredImages) { asset in
-                        GridItemView(
+                        AssetBrowserGridItemView(
                             asset: asset,
                             thumbProvider: self.assetsProvider,
                             selected: self.selected == asset.id,
@@ -164,7 +289,18 @@ struct AssetBrowserView: View {
                         }
                     }
                 }
+                .padding(.horizontal, style.fileArea.horizontalPadding)
             }
+        }
+    }
+
+    @ViewBuilder
+    var scrollabeImageGridView: some View {
+        if #available(iOS 26, macOS 26, *) {
+            self._scrollabeImageGridView
+                .scrollEdgeEffectStyle(.soft, for: .all)
+        } else {
+            self._scrollabeImageGridView
         }
     }
 
@@ -188,14 +324,17 @@ struct AssetBrowserView: View {
     @ViewBuilder
     var footerView: some View {
 
-        Divider()
-        HStack {
+        if !isAppleOS26() {
+            Divider()
+        }
+        HStack(spacing: style.footer.spacing) {
             Spacer()
 
             Button(self.cancelButtonText) {
                 self.delegate.onDismiss(.cancel)
                 self.dismiss()
             }
+            .glassButton()
 
             Button(self.selectButtonText) {
                 log("select click")
@@ -205,12 +344,103 @@ struct AssetBrowserView: View {
                 }
             }
             .disabled(self.selected == nil)
+            .glassProeminentButton()
         }
         .padding(.horizontal)
         .padding(.bottom)
         .padding(.top, 4)
     }
 }
+
+private struct Style: With {
+
+    var toolbar: Toolbar
+    var fileArea: FileArea
+    var footer: Footer
+
+    struct FileArea: With {
+        var horizontalPadding: CGFloat
+    }
+
+    struct Footer: With {
+        var spacing: CGFloat
+    }
+
+    struct Toolbar: With {
+        var spacing: CGFloat
+        var buttonSize: CGFloat
+        var photoButtonBaselineOffset: CGFloat
+        var horizontalPadding: CGFloat
+        var paddingTop: CGFloat
+        var paddingBottom: CGFloat
+        var alignment: VerticalAlignment
+        var searchWidth: CGFloat
+        var searchTextFieldStyle: TextFieldStyleKind
+    }
+
+    static var macos: Self {
+        self.ipad
+        //        .init(
+        //            toolbar: .init(
+        //                spacing: 10,
+        //                buttonSize: 16,
+        //                photoButtonBaselineOffset: -4,
+        //                horizontalPadding: 22,
+        //                paddingTop: 8,
+        //                paddingBottom: 0,
+        //                alignment: .bottom,
+        //                searchWidth: 120,
+        //                searchTextFieldStyle: .roundedBorder,
+        //            ),
+        //            fileArea: .init(horizontalPadding: 16),
+        //            footer: .init(spacing: 0)
+        //        )
+    }
+
+    static var ipad: Self {
+        .init(
+            toolbar: .init(
+                spacing: 10,
+                buttonSize: 22,
+                photoButtonBaselineOffset: -6,
+                horizontalPadding: 22,
+                paddingTop: 10,
+                paddingBottom: 8,
+                alignment: .center,
+                searchWidth: 120,
+                searchTextFieldStyle: .automatic,
+            ),
+            fileArea: .init(horizontalPadding: 16),
+            footer: .init(spacing: 26)
+        )
+    }
+
+    static var macosLegacy: Self {
+        self.macos.with(\.toolbar.horizontalPadding, 14)
+    }
+
+    static var ipadLegacy: Self {
+        self.macos.with(\.toolbar.horizontalPadding, 14)
+    }
+
+    static var `default`: Self {
+        #if os(macOS)
+        if isAppleOS26() {
+            return .macos
+        } else {
+            return .macosLegacy
+        }
+        #else
+        if isAppleOS26() {
+            return .ipad
+        } else {
+            return .ipadLegacy
+        }
+        #endif
+    }
+}
+
+// MARK: - Previews
 
 @Observable
 @MainActor
@@ -301,11 +531,14 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
             isPresented = true
         }
     }
-    .sheet(isPresented: .constant(true), content: {
-        AssetBrowserView(
-            type: .browser,
-            assetsProvider: provider,
-            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
-        )
-    })
+    .sheet(
+        isPresented: .constant(true),
+        content: {
+            AssetBrowserView(
+                type: .browser,
+                assetsProvider: provider,
+                delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
+            )
+        }
+    )
 }

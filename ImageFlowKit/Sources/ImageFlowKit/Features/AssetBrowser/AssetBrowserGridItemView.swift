@@ -8,39 +8,37 @@ protocol AssetBrowserThumbProvider {
 
 extension AssetStore: AssetBrowserThumbProvider {}
 
-extension AssetBrowserView {
-    struct GridItemView: View {
-        let asset: ImageAsset
-        let thumbProvider: any AssetBrowserThumbProvider
-        let selected: Bool
+struct AssetBrowserGridItemView: View {
+    let asset: ImageAsset
+    let thumbProvider: any AssetBrowserThumbProvider
+    let selected: Bool
 
-        @State var failed: Bool = false
+    @State var failed: Bool = false
 
-        @State var image: CGImage?
+    @State var image: CGImage?
 
-        func load() {
-            Task {
-                do {
-                    self.image = try await self.thumbProvider.getThumb(forImageAsset: self.asset.id)
-                } catch {
-                    self.failed = true
-                    log("Failed to get thumbnail: \(error)", level: .error)
-                }
-
-                self.failed = false
+    func load() {
+        Task {
+            do {
+                self.image = try await self.thumbProvider.getThumb(forImageAsset: self.asset.id)
+            } catch {
+                self.failed = true
+                log("Failed to get thumbnail: \(error)", level: .error)
             }
+
+            self.failed = false
         }
+    }
 
-        var body: some View {
-            GridItemInnerView(
-                image: self.image,
-                name: asset.source?.filename,
-                selected: self.selected,
-                failed: self.failed,
-            )
-            .onChange(of: self.asset, initial: true) {
-                self.load()
-            }
+    var body: some View {
+        AssetBrowserGridItemInnerView(
+            image: self.image,
+            name: asset.source?.filename,
+            selected: self.selected,
+            failed: self.failed,
+        )
+        .onChange(of: self.asset, initial: true) {
+            self.load()
         }
     }
 }
@@ -64,7 +62,7 @@ private class PreviewThumbProvider: AssetBrowserThumbProvider {
     @Previewable @State var selected = false
 
     VStack {
-        AssetBrowserView.GridItemView(asset: asset, thumbProvider: tp, selected: selected)
+        AssetBrowserGridItemView(asset: asset, thumbProvider: tp, selected: selected)
             .onTapGesture {
                 selected.toggle()
             }
