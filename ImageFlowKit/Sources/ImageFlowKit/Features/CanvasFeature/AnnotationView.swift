@@ -91,16 +91,10 @@ final class AnnotationView: PlatformView, CanvasNodeView {
 
     lazy var visualEffectView: UIVisualEffectView = {
         let view = UIVisualEffectView()
-        if #available(iOS 26, *) {
-            let glassEffect = UIGlassEffect()
-            glassEffect.tintColor = self.style.backgroundColor
-            view.effect = glassEffect
-            view.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
-        } else {
-            view.effect = UIBlurEffect(style: .systemMaterial)
-            view.layer.cornerRadius = self.style.cornerRadius
-        }
-
+        let glassEffect = UIGlassEffect()
+        glassEffect.tintColor = self.style.backgroundColor
+        view.effect = glassEffect
+        view.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -173,12 +167,10 @@ final class AnnotationView: PlatformView, CanvasNodeView {
 
             self.backgroundView.backgroundColor = self.style.backgroundColor
             self.backgroundView.layer.cornerRadius = self.style.cornerRadius
-            if #available(iOS 26, *) {
-                (self.visualEffectView.effect as? UIGlassEffect)?.tintColor = self.style.backgroundColor
-                self.visualEffectView.cornerConfiguration = .corners(
-                    radius: .init(floatLiteral: self.style.cornerRadius)
-                )
-            }
+            (self.visualEffectView.effect as? UIGlassEffect)?.tintColor = self.style.backgroundColor
+            self.visualEffectView.cornerConfiguration = .corners(
+                radius: .init(floatLiteral: self.style.cornerRadius)
+            )
         }
 
         self.invalidateIntrinsicContentSize()

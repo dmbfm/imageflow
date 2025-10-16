@@ -2,13 +2,8 @@ import SwiftUI
 
 struct NodePaletteSheetView: View {
     var onTapItem: ((NodePaletteItem) -> ())?
-    var topPadding: CGFloat {
-        if #available(iOS 26, *) {
-            -50
-        } else {
-            0
-        }
-    }
+    let topPadding: CGFloat = -50
+
     var body: some View {
         NavigationStack {
             NodePaletteListView() { self.onTapItem?($0) }

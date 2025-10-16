@@ -9,44 +9,6 @@ protocol AssetBrowserAssetsProvider: AssetBrowserThumbProvider {
 
 extension AssetStore: AssetBrowserAssetsProvider {}
 
-extension View {
-    @ViewBuilder
-    public func glassButton() -> some View {
-        if #available(macOS 26, iOS 26, *) {
-            self.buttonStyle(.glass)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    public func glassProeminentButton() -> some View {
-        if #available(macOS 26, iOS 26, *) {
-            self.buttonStyle(.glassProminent)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    public func glassEffectUnionEx(id: String, namespace: Namespace.ID) -> some View {
-        if #available(macOS 26, iOS 26, *) {
-            self.glassEffectUnion(id: id, namespace: namespace)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    public func glassEffectEx() -> some View {
-        if #available(macOS 26, iOS 26, *) {
-            self.glassEffect(.regular, in: .circle)
-        } else {
-            self
-        }
-    }
-}
-
 enum AssetBrowserType: Equatable {
     case picker(PortLocation)
     case browser
@@ -57,65 +19,6 @@ enum AssetBrowserResult {
     case pick(UUID)
     case create(UUID)
 }
-struct AssetBrowserView: View {
-    let assetsProvider: any AssetBrowserAssetsProvider
-    let type: AssetBrowserType
-    let gridImageSize: CGFloat = 146.0
-    let delegate: AssetBrowserViewDelegate
-
-    struct Delegate {
-        var onDismiss: (AssetBrowserResult) -> ()
-        var openFileImporter: () -> ()
-        var openPhotoPicker: () -> ()
-    }
-
-    init(
-        type: AssetBrowserType = .browser,
-        assetsProvider: any AssetBrowserAssetsProvider,
-        delegate: AssetBrowserViewDelegate,
-    ) {
-        self.type = type
-        self.assetsProvider = assetsProvider
-        self.delegate = delegate
-    }
-    var body: some View {
-        if #available(iOS 26, macOS 26, *) {
-            AssetBrowserView26(type: self.type, assetsProvider: self.assetsProvider, delegate: self.delegate)
-        } else {
-            AssetBrowserViewLegacy(type: self.type, assetsProvider: self.assetsProvider, delegate: self.delegate)
-        }
-    }
-}
-
-struct AssetBrowserViewLegacy: View {
-    let assetsProvider: any AssetBrowserAssetsProvider
-    let type: AssetBrowserType
-    let gridImageSize: CGFloat = 146.0
-    let delegate: AssetBrowserViewDelegate
-
-    @State var showFileImporter = false
-    @State var selected: UUID? = nil
-    @State var createNodeOnSelect: Bool = false
-    @State var searchText: String = ""
-
-    @Environment(\.undoManager) var undoManager
-    @Environment(\.dismiss) var dismiss
-
-    @Namespace var toolbasNS
-
-    init(
-        type: AssetBrowserType = .browser,
-        assetsProvider: any AssetBrowserAssetsProvider,
-        delegate: AssetBrowserViewDelegate,
-    ) {
-        self.type = type
-        self.assetsProvider = assetsProvider
-        self.delegate = delegate
-    }
-    var body: some View {
-        ContentUnavailableView("TODO", image: "exclamationmark.triangle.fill")
-    }
-}
 
 struct AssetBrowserViewDelegate {
     var onDismiss: (AssetBrowserResult) -> ()
@@ -123,8 +26,7 @@ struct AssetBrowserViewDelegate {
     var openPhotoPicker: () -> ()
 }
 
-@available(macOS 26, iOS 26, *)
-struct AssetBrowserView26: View {
+struct AssetBrowserView: View {
     let assetsProvider: any AssetBrowserAssetsProvider
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
@@ -181,25 +83,12 @@ struct AssetBrowserView26: View {
     @ViewBuilder
     var content: some View {
         VStack {
-
-            let grid = self.scrollabeImageGridView
+            self.scrollabeImageGridView
                 .onTapGesture {
                     self.selected = nil
                 }
-
-            if #available(iOS 26, macOS 26, *) {
-                grid
-                    .safeAreaBar(edge: .top) { self.toolbarView }
-                    .safeAreaBar(edge: .bottom) { self.footerView }
-            } else {
-                grid
-            }
-
-            //                self.toolbarView
-
-            //            Spacer()
-
-            //            self.footerView
+                .safeAreaBar(edge: .top) { self.toolbarView }
+                .safeAreaBar(edge: .bottom) { self.footerView }
 
         }
         .ignoresSafeArea(.keyboard)
@@ -220,15 +109,15 @@ struct AssetBrowserView26: View {
     var toolbarView: some View {
         HStack(alignment: style.toolbar.alignment, spacing: style.toolbar.spacing) {
 
-            let buttons = HStack {
+            HStack {
                 Button {
                     self.delegate.openFileImporter()
                 } label: {
                     Text("\(Image(systemName: "square.and.arrow.down"))")
                         .font(.system(size: style.toolbar.buttonSize))
                 }
-                .glassButton()
-                .glassEffectUnionEx(id: "import", namespace: self.toolbasNS)
+                .buttonStyle(.glass)
+                .glassEffectUnion(id: "import", namespace: self.toolbasNS)
                 .help("Import Image File")
 
                 Button {
@@ -239,17 +128,9 @@ struct AssetBrowserView26: View {
                         .baselineOffset(style.toolbar.photoButtonBaselineOffset)
 
                 }
-                .glassButton()
-                .glassEffectUnionEx(id: "import", namespace: self.toolbasNS)
+                .buttonStyle(.glass)
+                .glassEffectUnion(id: "import", namespace: self.toolbasNS)
                 .help("Import Photo")
-            }
-
-            if #available(iOS 26, macOS 26, *) {
-                GlassEffectContainer {
-                    buttons
-                }
-            } else {
-                buttons
             }
 
             Spacer()
@@ -259,19 +140,15 @@ struct AssetBrowserView26: View {
                 .textFieldStyle(kind: style.toolbar.searchTextFieldStyle)
                 .padding(.vertical, 4)
                 .padding(.leading, 12)
-                .glassEffectEx()
+                .glassEffect()
         }
         .padding(.top, style.toolbar.paddingTop)
         .padding(.horizontal, style.toolbar.horizontalPadding)
         .padding(.bottom, style.toolbar.paddingBottom)
-
-        if !isAppleOS26() {
-            Divider()
-        }
     }
 
     @ViewBuilder
-    var _scrollabeImageGridView: some View {
+    var scrollabeImageGridView: some View {
         ScrollView {
             VStack {
                 LazyVGrid(
@@ -292,16 +169,7 @@ struct AssetBrowserView26: View {
                 .padding(.horizontal, style.fileArea.horizontalPadding)
             }
         }
-    }
-
-    @ViewBuilder
-    var scrollabeImageGridView: some View {
-        if #available(iOS 26, macOS 26, *) {
-            self._scrollabeImageGridView
-                .scrollEdgeEffectStyle(.soft, for: .all)
-        } else {
-            self._scrollabeImageGridView
-        }
+        .scrollEdgeEffectStyle(.soft, for: .all)
     }
 
     var selectButtonText: String {
@@ -324,9 +192,8 @@ struct AssetBrowserView26: View {
     @ViewBuilder
     var footerView: some View {
 
-        if !isAppleOS26() {
-            Divider()
-        }
+        Divider()
+
         HStack(spacing: style.footer.spacing) {
             Spacer()
 
@@ -334,7 +201,7 @@ struct AssetBrowserView26: View {
                 self.delegate.onDismiss(.cancel)
                 self.dismiss()
             }
-            .glassButton()
+            .buttonStyle(.glass)
 
             Button(self.selectButtonText) {
                 log("select click")
@@ -343,8 +210,8 @@ struct AssetBrowserView26: View {
                     self.dismiss()
                 }
             }
+            .buttonStyle(.glassProminent)
             .disabled(self.selected == nil)
-            .glassProeminentButton()
         }
         .padding(.horizontal)
         .padding(.bottom)
@@ -425,17 +292,9 @@ private struct Style: With {
 
     static var `default`: Self {
         #if os(macOS)
-        if isAppleOS26() {
-            return .macos
-        } else {
-            return .macosLegacy
-        }
+        return .macos
         #else
-        if isAppleOS26() {
-            return .ipad
-        } else {
-            return .ipadLegacy
-        }
+        return .ipad
         #endif
     }
 }

@@ -43,21 +43,12 @@ struct AnnotationStyle: Equatable, With {
             cornerRadius: 10.0
         )
         #else
-        if #available(iOS 26, *) {
-            .init(
-                backgroundStyle: .material,
-                titleColor: .label,
-                messageColor: .secondaryLabel,
-                cornerRadius: 18.0
-            )
-        } else {
-            .init(
-                backgroundStyle: .material,
-                titleColor: .label,
-                messageColor: .secondaryLabel,
-                cornerRadius: 10.0
-            )
-        }
+        .init(
+            backgroundStyle: .material,
+            titleColor: .label,
+            messageColor: .secondaryLabel,
+            cornerRadius: 18.0
+        )
         #endif
     }
 
@@ -71,23 +62,13 @@ struct AnnotationStyle: Equatable, With {
             cornerRadius: 10.0
         )
         #else
-        if #available(iOS 26, *) {
-            .init(
-                backgroundStyle: .material,
-                backgroundColor: .red,
-                titleColor: .white,
-                messageColor: .white,
-                cornerRadius: 18.0
-            )
-        } else {
-            .init(
-                backgroundStyle: .color,
-                backgroundColor: .red,
-                titleColor: .white,
-                messageColor: .white,
-                cornerRadius: 10.0
-            )
-        }
+        .init(
+            backgroundStyle: .material,
+            backgroundColor: .red,
+            titleColor: .white,
+            messageColor: .white,
+            cornerRadius: 18.0
+        )
         #endif
     }
 }

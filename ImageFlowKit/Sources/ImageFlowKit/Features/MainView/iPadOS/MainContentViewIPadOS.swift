@@ -34,15 +34,6 @@ struct MainContentViewIPadOS: View {
         self.createNodeAtCanvasCenter(fromPaletteItem: item)
     }
 
-    func onAppear() {
-        if #unavailable(iOS 26) {
-            let appearance = UINavigationBarAppearance()
-            appearance.backgroundEffect = .init(style: .systemChromeMaterial)
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        }
-    }
-
     var body: some View {
         self.content
             .sheet(isPresented: self.$showNodePaletteModal) {
@@ -77,18 +68,6 @@ struct MainContentViewIPadOS: View {
 
     @ViewBuilder
     var content: some View {
-        Group {
-            if #available(iOS 26, *) {
-                self.contentIOS26
-            } else {
-                self.contentIOS18
-            }
-        }
-    }
-
-    @ViewBuilder
-    @available(iOS 26, *)
-    var contentIOS26: some View {
         NavigationStack {
             GeometryReader { proxy in
                 ScrollView([.vertical]) {
@@ -103,16 +82,6 @@ struct MainContentViewIPadOS: View {
             .toolbar { self.toolbarContent }
             .toolbarRole(.editor)
         }
-    }
-
-    @ViewBuilder
-    var contentIOS18: some View {
-        self.canvasView
-            .ignoresSafeArea()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { self.toolbarContent }
-            .toolbarRole(.editor)
-
     }
 
     @ViewBuilder
