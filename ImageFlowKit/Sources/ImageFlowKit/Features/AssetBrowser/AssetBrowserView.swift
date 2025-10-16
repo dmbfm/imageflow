@@ -108,29 +108,30 @@ struct AssetBrowserView: View {
     @ViewBuilder
     var toolbarView: some View {
         HStack(alignment: style.toolbar.alignment, spacing: style.toolbar.spacing) {
+            GlassEffectContainer {
+                HStack {
+                    Button {
+                        self.delegate.openFileImporter()
+                    } label: {
+                        Text("\(Image(systemName: "square.and.arrow.down"))")
+                            .font(.system(size: style.toolbar.buttonSize))
+                    }
+                    .buttonStyle(.glass)
+                    .glassEffectUnion(id: "import", namespace: self.toolbasNS)
+                    .help("Import Image File")
 
-            HStack {
-                Button {
-                    self.delegate.openFileImporter()
-                } label: {
-                    Text("\(Image(systemName: "square.and.arrow.down"))")
-                        .font(.system(size: style.toolbar.buttonSize))
+                    Button {
+                        self.delegate.openPhotoPicker()
+                    } label: {
+                        Text("\(Image(systemName: "photo.badge.plus.fill"))")
+                            .font(.system(size: style.toolbar.buttonSize))
+                            .baselineOffset(style.toolbar.photoButtonBaselineOffset)
+
+                    }
+                    .buttonStyle(.glass)
+                    .glassEffectUnion(id: "import", namespace: self.toolbasNS)
+                    .help("Import Photo")
                 }
-                .buttonStyle(.glass)
-                .glassEffectUnion(id: "import", namespace: self.toolbasNS)
-                .help("Import Image File")
-
-                Button {
-                    self.delegate.openPhotoPicker()
-                } label: {
-                    Text("\(Image(systemName: "photo.badge.plus.fill"))")
-                        .font(.system(size: style.toolbar.buttonSize))
-                        .baselineOffset(style.toolbar.photoButtonBaselineOffset)
-
-                }
-                .buttonStyle(.glass)
-                .glassEffectUnion(id: "import", namespace: self.toolbasNS)
-                .help("Import Photo")
             }
 
             Spacer()
@@ -191,9 +192,6 @@ struct AssetBrowserView: View {
 
     @ViewBuilder
     var footerView: some View {
-
-        Divider()
-
         HStack(spacing: style.footer.spacing) {
             Spacer()
 
