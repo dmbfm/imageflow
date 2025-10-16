@@ -73,7 +73,6 @@ struct MainContentViewMacOS: View {
         )
         .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
         .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
-        // .onChange(of: self.photoItems, initial: false, { log("photoItems: \(self.photoItems)") })
         .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)
     }
 

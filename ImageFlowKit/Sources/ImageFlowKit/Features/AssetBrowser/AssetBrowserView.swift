@@ -24,6 +24,7 @@ struct AssetBrowserViewDelegate {
     var onDismiss: (AssetBrowserResult) -> ()
     var openFileImporter: () -> ()
     var openPhotoPicker: () -> ()
+    var deleteImageAsset: (ImageAsset) -> ()
 }
 
 struct AssetBrowserView: View {
@@ -99,6 +100,19 @@ struct AssetBrowserView: View {
         case .loading:
             break
         }
+    }
+
+    func deleteCommandHandler(_ asset: ImageAsset) {
+        if asset.isLoaded {
+            self.deleteButtonHandler(asset)
+        }
+    }
+
+    func deleteButtonHandler(_ asset: ImageAsset) {
+        if self.selected == asset.id {
+            self.selected = nil
+        }
+        self.delegate.deleteImageAsset(asset)
     }
 
     // MARK: - Body
@@ -239,8 +253,17 @@ struct AssetBrowserView: View {
                             thumbProvider: self.assetsProvider,
                             selected: self.selected == asset.id,
                         )
+                        .focusable()
+                        .focusEffectDisabled()
+                        .onDeleteCommand {
+                            self.deleteButtonHandler(asset)
+                        }
                         .onTapGesture {
                             self.onTapItem(asset)
+                        }
+                        .contextMenu {
+                            Button("Delete") { self.deleteButtonHandler(asset) }
+                                .disabled(!asset.isLoaded)
                         }
                     }
                 }
@@ -353,6 +376,10 @@ private struct Style: With {
 private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
     var fileAssets: [ImageAsset]
 
+    func removeImage(_ id: UUID, undoManager um: UndoManager?) {
+
+    }
+
     let gradientImage: CGImage = .verticalGradientImage(
         width: 256,
         height: 256,
@@ -423,7 +450,7 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
         AssetBrowserView(
             type: .browser,
             assetsProvider: provider,
-            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
+            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {}, deleteImageAsset: { _ in })
         )
     }
 }
@@ -443,7 +470,12 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
             AssetBrowserView(
                 type: .browser,
                 assetsProvider: provider,
-                delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {})
+                delegate: .init(
+                    onDismiss: { _ in },
+                    openFileImporter: {},
+                    openPhotoPicker: {},
+                    deleteImageAsset: { _ in }
+                )
             )
         }
     )

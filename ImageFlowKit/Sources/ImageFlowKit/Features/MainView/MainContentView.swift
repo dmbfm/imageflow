@@ -33,6 +33,10 @@ extension MainContentView {
                 Task { @MainActor in
                     self.showPhotoPicker = true
                 }
+            },
+            deleteImageAsset: { asset in
+                self.assetStore.removeImage(asset.id, undoManager: self.undoManager)
+                self.undoManager?.setActionName("Delete Image")
             }
         )
     }

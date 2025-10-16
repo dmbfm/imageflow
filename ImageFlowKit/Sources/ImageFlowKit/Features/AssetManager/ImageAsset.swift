@@ -25,6 +25,13 @@ struct ImageAsset: Identifiable, Equatable, Codable {
         }
     }
 
+    var isLoaded: Bool {
+        switch self.state {
+        case .loaded: true
+        case .loading: false
+        }
+    }
+
     var source: Source? {
         switch self.state {
         case .loading: nil
