@@ -36,7 +36,6 @@ struct AssetBrowserView: View {
     let delegate: AssetBrowserViewDelegate
     @State var showFileImporter = false
     @State var selected: UUID? = nil
-    @State var createNodeOnSelect: Bool = false
     @State var searchText: String = ""
 
     @Environment(\.undoManager) var undoManager
@@ -74,20 +73,20 @@ struct AssetBrowserView: View {
         }
     }
 
-    var selectButtonText: String {
-        if self.createNodeOnSelect {
-            "Select and Create Node"
+    var selectButtonText: LocalizedStringResource {
+        if self.type == .browser {
+            LocalizedStringResource("ab:create-node-btn", defaultValue: "Create Node")
         } else {
-            "Select"
+            LocalizedStringResource("ab:select-btn", defaultValue: "Select")
         }
     }
 
     var cancelButtonText: LocalizedStringResource {
         switch self.type {
         case .picker:
-            LocalizedStringResource("cancel", defaultValue: "Cancel")
+            LocalizedStringResource("ab:cancel-btn", defaultValue: "Cancel")
         case .browser:
-            LocalizedStringResource("close", defaultValue: "Close")
+            LocalizedStringResource("ab:close-btn", defaultValue: "Close")
         }
     }
 
@@ -128,13 +127,6 @@ struct AssetBrowserView: View {
 
         }
         .ignoresSafeArea(.keyboard)
-        #if os(macOS)
-        .onModifierKeysChanged({ old, new in
-            if self.type == .browser {
-                self.createNodeOnSelect = new == .command
-            }
-        })
-        #endif
     }
 
     // MARK: - Toolbar
@@ -279,7 +271,7 @@ struct AssetBrowserView: View {
             Button(self.selectButtonText) {
                 log("select click")
                 if let selected = self.selected {
-                    self.delegate.onDismiss(self.createNodeOnSelect ? .create(selected) : .pick(selected))
+                    self.delegate.onDismiss(self.type == .browser ? .create(selected) : .pick(selected))
                     self.dismiss()
                 }
             }
