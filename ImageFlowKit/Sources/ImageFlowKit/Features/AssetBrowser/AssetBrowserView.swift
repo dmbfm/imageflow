@@ -35,9 +35,12 @@ struct AssetBrowserView: View {
     let type: AssetBrowserType
     let gridImageSize: CGFloat = 146.0
     let delegate: AssetBrowserViewDelegate
+
     @State var showFileImporter = false
     @State var selected: UUID? = nil
     @State var searchText: String = ""
+    @State var showDeleteConfirmationDialog = false
+    @State var imageAssetToDelete: ImageAsset? = nil
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -103,16 +106,37 @@ struct AssetBrowserView: View {
     }
 
     func deleteCommandHandler(_ asset: ImageAsset) {
-        if asset.isLoaded {
-            self.deleteButtonHandler(asset)
-        }
+        self.confirmImageAssetDelete(asset)
     }
 
     func deleteButtonHandler(_ asset: ImageAsset) {
-        if self.selected == asset.id {
-            self.selected = nil
+        self.confirmImageAssetDelete(asset)
+    }
+
+    func confirmImageAssetDelete(_ asset: ImageAsset) {
+        self.showDeleteConfirmationDialog = true
+        self.imageAssetToDelete = asset
+    }
+
+    func confirmationDialogTitle(_ asset: ImageAsset) -> String {
+        #if os(macOS)
+        if let name = asset.source?.filename {
+            "Do you want to remove the image \(name)?"
+        } else {
+            "Do you want to remove this image?"
         }
-        self.delegate.deleteImageAsset(asset)
+        #else
+        "Do you want to remove this image?"
+        #endif
+    }
+
+    func delete(_ asset: ImageAsset) {
+        if asset.isLoaded {
+            if self.selected == asset.id {
+                self.selected = nil
+            }
+            self.delegate.deleteImageAsset(asset)
+        }
     }
 
     // MARK: - Body
@@ -255,9 +279,11 @@ struct AssetBrowserView: View {
                         )
                         .focusable()
                         .focusEffectDisabled()
+                        #if os(macOS)
                         .onDeleteCommand {
                             self.deleteButtonHandler(asset)
                         }
+                        #endif
                         .onTapGesture {
                             self.onTapItem(asset)
                         }
@@ -265,6 +291,13 @@ struct AssetBrowserView: View {
                             Button("Delete") { self.deleteButtonHandler(asset) }
                                 .disabled(!asset.isLoaded)
                         }
+                        .confirmationDialog(
+                            self.confirmationDialogTitle(asset),
+                            isPresented: self.$showDeleteConfirmationDialog,
+                            titleVisibility: .visible,
+                            actions: { self.confirmationDialogActions },
+                            message: { self.confirmationDialogMessage },
+                        )
                     }
                 }
                 .padding(.horizontal, style.fileArea.horizontalPadding)
@@ -276,6 +309,25 @@ struct AssetBrowserView: View {
         #else
         .scrollEdgeEffectStyle(.soft, for: .all)
         #endif
+    }
+
+    @ViewBuilder
+    var confirmationDialogActions: some View {
+        Button("Delete", role: .destructive) {
+            if let asset = self.imageAssetToDelete {
+                self.delete(asset)
+            }
+        }
+        Button("Cancel", role: .cancel) {
+            self.imageAssetToDelete = nil
+        }
+    }
+
+    @ViewBuilder
+    var confirmationDialogMessage: some View {
+        Text(
+            "You can undo this action later. The file will remain in temporary storage until the document is closed."
+        )
     }
 
     // MARK: - Footer
