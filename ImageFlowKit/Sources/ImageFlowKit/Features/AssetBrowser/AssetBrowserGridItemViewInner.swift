@@ -8,6 +8,16 @@ struct AssetBrowserGridItemInnerView: View {
     var selected: Bool = false
     var failed: Bool = false
 
+    @Environment(\.colorScheme) var colorScheme
+
+    var backgroundColor: Color {
+        if self.colorScheme == .dark {
+            Color(white: 0.1)
+        } else {
+            Color(white: 0.9)
+        }
+    }
+
     struct Style {
         static let cornerRadiusInner: CGFloat = 6.0
         static let cornerRadiusOuter: CGFloat = 8.0
@@ -17,7 +27,8 @@ struct AssetBrowserGridItemInnerView: View {
     var body: some View {
         VStack {
             ZStack {
-                Color(white: 0.9, opacity: self.image == nil ? 1.0 : 1.0)
+
+                self.backgroundColor
 
                 self.content
                     .padding(10)
@@ -122,5 +133,7 @@ struct AssetBrowserGridItemInnerView: View {
 
     }
     .padding()
-    .background(.white)
+    .background {
+        Color.teal.opacity(0.5)
+    }
 }
