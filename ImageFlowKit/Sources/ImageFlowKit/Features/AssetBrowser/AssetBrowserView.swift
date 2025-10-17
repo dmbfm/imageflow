@@ -183,7 +183,7 @@ struct AssetBrowserView: View {
                     Text("\(Image(systemName: "square.and.arrow.down"))")
                         .font(.system(size: buttonSize))
                 }
-                .buttonStyle(.borderless)
+                .buttonStyle(.primaryBorderless)
 
                 Button {
                     self.delegate.openPhotoPicker()
@@ -192,7 +192,7 @@ struct AssetBrowserView: View {
                         .font(.system(size: buttonSize))
                         .baselineOffset(-4)
                 }
-                .buttonStyle(.borderless)
+                .buttonStyle(.primaryBorderless)
             }
             .frame(height: 42)
             .padding(.horizontal, 14)
@@ -303,12 +303,7 @@ struct AssetBrowserView: View {
                 .padding(.horizontal, style.fileArea.horizontalPadding)
             }
         }
-        #if os(macOS)
-        .scrollEdgeEffectStyle(.soft, for: .top)
-        .scrollEdgeEffectStyle(.hard, for: .bottom)
-        #else
         .scrollEdgeEffectStyle(.soft, for: .all)
-        #endif
     }
 
     @ViewBuilder
@@ -337,21 +332,36 @@ struct AssetBrowserView: View {
         HStack(spacing: style.footer.spacing) {
             Spacer()
 
-            Button(self.cancelButtonText) {
+            Button {
                 self.delegate.onDismiss(.cancel)
                 self.dismiss()
+            } label: {
+                Text(self.cancelButtonText)
+                    #if os(macOS)
+                .padding(.vertical, 2)
+                    #endif
             }
             .buttonStyle(.glass)
+            #if os(macOS)
+            .buttonBorderShape(.capsule)
+            #endif
 
-            Button(self.selectButtonText) {
-                log("select click")
+            Button {
                 if let selected = self.selected {
                     self.delegate.onDismiss(self.type == .browser ? .create(selected) : .pick(selected))
                     self.dismiss()
                 }
+            } label: {
+                Text(self.selectButtonText)
+                    #if os(macOS)
+                .padding(.vertical, 2)
+                    #endif
             }
             .buttonStyle(.glassProminent)
             .disabled(self.selected == nil)
+            #if os(macOS)
+            .buttonBorderShape(.capsule)
+            #endif
         }
         .padding(.horizontal)
         .padding(.bottom)
