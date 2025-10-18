@@ -18,6 +18,13 @@ struct WelcomeWindow: Scene {
             window.isOpaque = false
             window.backgroundColor = .clear
             window.isMovableByWindowBackground = true
+
+            // NOTE: This seems to fix the issue of the welcome window
+            // showing up when the application is restored by macos
+            // (e.g., when you stop and the run the app on Xcode)
+            if !NSDocumentController.shared.documents.isEmpty {
+                window.close()
+            }
         }
     }
 
