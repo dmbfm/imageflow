@@ -45,10 +45,13 @@ struct MainContentViewMacOS: View {
         NavigationSplitView {
             SidebarFeatureView(self.$focus, self.onDoubleClick(nodePaletteItem:))
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
+                .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {
             DetailView(flow: self.flow, canvas: self.canvas, focus: self.$focus, canvasCenter: self.canvasCenter)
+                .ignoresSafeArea(.all, edges: [.top, .horizontal])
         }
         .toolbar { self.toolbarContent }
+        .toolbarRole(.editor)
         .sheet(
             isPresented: self.$showAssetBrowser,
             content: {
@@ -95,15 +98,35 @@ fileprivate struct DetailView: View {
     let focus: FocusState<Focus?>.Binding
     let canvasCenter: Box<CGPoint>
 
+    @Environment(\.colorScheme) var cs
+
+    var topGradientColors: [Color] {
+        let c = Colors.canvasBackground.color
+        return [
+            c.opacity(0.8),
+            c.opacity(0.98),
+            c.opacity(0.8),
+            .clear,
+        ]
+    }
+
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             CanvasFeatureView(self.canvas, self.flow, self.focus)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in
                     self.canvasCenter.value = newValue
                 }
+
+            self.topGradient
         }
+    }
+
+    var topGradient: some View {
+        Rectangle()
+            .fill(LinearGradient(colors: topGradientColors, startPoint: .top, endPoint: .bottom))
+            .frame(height: 60)
     }
 }
 

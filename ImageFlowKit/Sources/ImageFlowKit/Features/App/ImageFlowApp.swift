@@ -46,6 +46,9 @@ public struct ImageFlowApp: App {
                 document: configuration.document,
                 documentInfo: .init(id: configuration.document.id, url: configuration.fileURL)
             )
+            #if os(macOS)
+            .windowTransparentTitlebar()
+            #endif
         }
         #if os(macOS)
         .defaultWindowPlacement { root, context in
