@@ -17,7 +17,7 @@ protocol NodeInputBlockViewProtocol {
     var inputs: [FlowNode.Input] { get set }
     var rows: [NodeInputRowView] { get }
     var onEvent: ((NodeInputBlockView.Event) -> ())? { get set }
-    init(_ inputs: [FlowNode.Input])
+    init(_ inputs: [FlowNode.Input], style: NodeInputBlockView.Style)
 }
 
 extension NodeInputBlockView {
@@ -25,6 +25,14 @@ extension NodeInputBlockView {
         case sizeDidChange
         case valueDidChange(Int, Value)
         case dragPort(Int, PortView.DragData)
+    }
+    
+    public struct Style: Sendable, Hashable {
+        var rowHeight: CGFloat
+        
+        static var `default`: Self {
+            .init(rowHeight: Design.default.nodeRowHeight)
+        }
     }
 }
 

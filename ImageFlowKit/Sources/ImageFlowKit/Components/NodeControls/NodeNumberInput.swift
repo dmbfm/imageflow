@@ -52,7 +52,7 @@ final class NodeNumberInput: PlatformView, NodeControl {
     lazy var locale: Locale = { .init(identifier: "en-US") }()
 
     lazy var textField: NodeTextField = {
-        let view = NodeTextField(self.value.float.formatted(.nodeNumber), borderColor: self.tint)
+        let view = NodeTextField(self.value.float.formatted(.nodeNumber), style: .default.with(\.borderColor, self.tint))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.onEvent = { [weak self] event in
             switch event {

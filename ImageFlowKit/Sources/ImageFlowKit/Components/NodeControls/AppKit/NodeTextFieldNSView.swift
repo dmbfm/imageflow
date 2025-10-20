@@ -29,32 +29,27 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     public var onEvent: ((NodeTextFieldEvent) -> ())?
 
-    public var borderColor: NSColor {
-        didSet {
-            self.setNeedsDisplay()
-        }
-    }
-    public var nodeTextFieldFont: NodeTextFieldFont = .mono {
-        didSet {
-            self.textField.font = self.font
-            self.label.font = self.font
-        }
-    }
+    public var style: NodeTextFieldStyle
 
-    var font: NSFont {
-        .monospacedSystemFont(ofSize: 10, weight: .regular)
-    }
+    lazy var font: NSFont = {
+        switch self.style.fontDesign {
+        case .monospaced:
+            .monospacedSystemFont(ofSize: self.style.fontSize, weight: .regular)
+        case .regular:
+            .systemFont(ofSize: self.style.fontSize)
+        }
+    }()
 
     lazy var label: NSTextField = {
         let label = NSTextField(labelWithString: self.text)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = self.font  //.monospacedSystemFont(ofSize: 10, weight: .regular) //.systemFont(ofSize: 10)
+        label.font = self.font  
         return label
     }()
 
     lazy var textField: NSTextField = {
         let view = NSTextField()
-        view.font = self.font  //.systemFont(ofSize: 10)
+        view.font = self.font  
         view.translatesAutoresizingMaskIntoConstraints = false
         view.stringValue = self.text
         view.isBezeled = false
@@ -70,37 +65,30 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
-        view.layer?.backgroundColor = Colors.numberInputBackground.cgColor
-        view.layer?.cornerRadius = 4
+        view.layer?.backgroundColor = self.style.backgroundColor.cgColor
+        view.layer?.cornerRadius = self.style.innerCornerRadius
         view.layer?.cornerCurve = .continuous
         return view
     }()
 
-    struct Style {
-        var backgroundInsets: NSEdgeInsets = .init(top: 2, left: 2, bottom: 2, right: 2)
-        var labelInsets: NSEdgeInsets = .init(top: 4, left: 6, bottom: 4, right: 6)
-    }
-
-    var style = Style()
-
-    init(_ text: String, borderColor: NSColor) {
+    init(_ text: String, style: NodeTextFieldStyle = .default) {
         self.text = text
-        self.borderColor = borderColor
+        self.style = style
         super.init(frame: .zero)
 
         self.addSubview(self.backgroundView)
-        self.backgroundView.constraintToFill(self, edgeInsets: style.backgroundInsets)
+        self.backgroundView.constraintToFill(self, edgeInsets: style.backgroundInsets.platformEdgeInsets)
         self.addSubview(self.label)
-        self.label.constraintToFill(self, edgeInsets: style.labelInsets)
+        self.label.constraintToFill(self, edgeInsets: style.textInsets.platformEdgeInsets)
         self.addSubview(self.textField)
-        self.textField.constraintToFill(self, edgeInsets: style.labelInsets)
+        self.textField.constraintToFill(self, edgeInsets: style.textInsets.platformEdgeInsets)
         self.textField.isHidden = true
 
         self.wantsLayer = true
-        self.layer?.cornerRadius = 6
+        self.layer?.cornerRadius = self.style.outerCornerRadius
         self.layer?.cornerCurve = .continuous
         self.layer?.delegate = self
-        self.layer?.borderColor = self.borderColor.cgColor
+        self.layer?.borderColor = self.style.borderColor.cgColor
         self.layer?.borderWidth = 0
         self.clipsToBounds = false
 
@@ -124,7 +112,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     }
 
     public override var intrinsicContentSize: NSSize {
-        self.label.intrinsicContentSize + style.labelInsets.size
+        self.label.intrinsicContentSize + style.textInsets.platformEdgeInsets.size
     }
 
     public override func mouseDown(with event: NSEvent) {
@@ -143,9 +131,8 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
             self.label.isHidden = true
             self.textField.isHidden = false
             self.window?.makeFirstResponder(self.textField)
+            self.layer?.borderWidth = self.style.borderWidth
             self.state = .editing
-            self.layer?.borderWidth = 2
-            //self.shadow(.init(radius: 4, opacity: 0.75, offset: .init(width: 0, height: -2)))
         }
     }
 
@@ -154,7 +141,6 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
             self.label.isHidden = false
             self.textField.isHidden = true
             self.layer?.borderWidth = 0
-            self.shadow(nil)
             self.state = .idle
             self.label.stringValue = self.text
             self.textField.stringValue = self.text

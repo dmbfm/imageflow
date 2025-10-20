@@ -39,7 +39,7 @@ final class NodeIntegerInput: PlatformView, NodeControl {
     public var tint: PlatformColor = .systemBlue
 
     lazy var textField: NodeTextField = {
-        let view = NodeTextField(self.value.int.formatted(.nodeInterger), borderColor: self.tint)
+        let view = NodeTextField(self.value.int.formatted(.nodeInterger), style: .default.with(\.borderColor, self.tint))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.onEvent = { [weak self] event in
             switch event {

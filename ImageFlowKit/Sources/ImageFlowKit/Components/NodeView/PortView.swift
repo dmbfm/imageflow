@@ -106,7 +106,10 @@ public final class PortView: PlatformView {
 
         if self.connected {
             Colors.portConnected.platformColor.setFill()
+            Colors.portConnected.platformColor.setStroke()
             path.fill()
+            path.lineWidth = w
+            path.stroke()
         } else {
             Colors.portEmpty.platformColor.setFill()
             Colors.portConnected.platformColor.setStroke()

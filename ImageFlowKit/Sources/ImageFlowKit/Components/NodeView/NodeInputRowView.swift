@@ -3,14 +3,201 @@ import Logging
 import SwiftUI
 import Values
 
-#if canImport(AppKit)
-import AppKit
-typealias NodeInputRowView = NodeInputRowNSView
+final class NodeInputRowView: PlatformView {
+    public var input: FlowNode.Input {
+        didSet {
+            if self.input != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    public var drawPortAsConnected: Bool = false {
+        didSet {
+            self.portView.connected = self.drawPortAsConnected || self.input.connected
+        }
+    }
+
+    public var onEvent: ((Event) -> ())?
+
+    // MARK: - Private
+
+    #if os(macOS)
+    lazy var portView: PortView = {
+        let view = PortView()
+        view.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let data):
+                self?.onEvent?(.dragPort(data))
+            }
+        }
+        return view
+    }()
+
+    lazy var labelView: NSTextField = {
+        NSTextField(nodeRowLabelWithString: "")
+    }()
+    #endif
+
+    lazy var controlView: any NodeControl = {
+        let view: any NodeControl =
+            switch self.input.value.type {
+            case .float:
+                NodeNumberInput(self.input.value)
+            default:
+                StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
+            }
+        view.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .sizeDidChange:
+                self.invalidateIntrinsicContentSize()
+                #if os(macOS)
+                self.needsLayout = true
+                #endif
+                self.onEvent?(.sizeDidChange)
+                break
+            case .valueDidChange(let value):
+                self.onEvent?(.valueDidChange(value))
+                break
+            }
+        }
+        return view
+    }()
+
+    #if os(iOS)
+    lazy var portView: PortView = {
+        let view = PortView()
+        return view
+    }()
+
+    lazy var labelView: UILabel = {
+        let view = UILabel(nodeRowLabelWithString: "")
+        return view
+    }()
+    #endif
+
+    #if os(macOS)
+    private static let labelSafetyMargin: CGFloat = 2.0
+    #else
+    private static let labelSafetyMargin: CGFloat = 2.0
+    #endif
+
+    // MARK: - Initializers
+
+    init(_ input: FlowNode.Input) {
+        self.input = input
+
+        super.init(frame: .zero)
+
+        self.addSubview(self.portView)
+        self.addSubview(self.labelView)
+        self.addSubview(self.controlView)
+
+        self.update()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Updating
+
+    private func update() {
+        self.portView.connected = self.drawPortAsConnected || self.input.connected
+
+        if self.input.label != self.labelView.text {
+            self.labelView.text = self.input.label
+            self.updateSize()
+        }
+
+        if self.input.value != self.controlView.value {
+            self.controlView.value = self.input.value
+        }
+    }
+
+    private func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    // MARK: - Layout
+
+    #if os(macOS)
+
+    override var isFlipped: Bool {
+        true
+    }     
+    
+    override func layout() {
+        self.doLayout()
+    }
+    #endif
+
+    #if os(iOS)
+    override func layoutSubviews() {
+        self.doLayout()
+    }
+    #endif
+
+    private func doLayout() {
+        let labelSize = self.labelView.intrinsicContentSize + .init(width: Self.labelSafetyMargin, height: 0)
+
+        self.portView.frame = .init(origin: .zero, size: self.portView.intrinsicContentSize)
+
+        self.labelView.frame = .init(
+            origin: .init(x: self.portView.frame.maxX + Design.default.portLabelSpacing, y: 0),
+            size: labelSize
+        )
+
+        controlView.frame = CGRect(
+            origin: .init(x: self.bounds.maxX - controlView.intrinsicContentSize.width, y: 0),
+            size: controlView.intrinsicContentSize
+        )
+
+        Layout.align(
+            views: [self.portView, self.labelView, controlView],
+            alignment: .verticalCenter,
+            guide: .constant(self.bounds.midY)
+        )
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let portSize = self.portView.intrinsicContentSize
+        let labelSize = self.labelView.intrinsicContentSize + .init(width: Self.labelSafetyMargin, height: 0)
+        let controlSize = self.controlView.intrinsicContentSize
+
+        let width =
+            portSize.width + labelSize.width + controlSize.width + Design.default.portLabelSpacing
+            + Design.default.labelControlSpacing
+        let height = max(portSize.height, labelSize.height, controlSize.height)
+
+        return .init(width: width, height: height)
+    }
+}
+
+#if os(macOS)
+extension NSTextField {
+    convenience init(nodeRowLabelWithString label: String) {
+        self.init(labelWithString: label)
+        self.font = .systemFont(ofSize: 14)
+//        self.textColor = .secondaryLabelColor
+        self.maximumNumberOfLines = 1
+    }
+}
 #endif
 
-#if canImport(UIKit)
+#if os(iOS)
 import UIKit
-typealias NodeInputRowView = NodeInputRowUIView
+extension UILabel {
+    convenience init(nodeRowLabelWithString text: String) {
+        self.init()
+        self.text = text
+        self.font = .systemFont(ofSize: 14)
+        self.textColor = .label
+    }
+}
 #endif
 
 @MainActor
@@ -57,7 +244,7 @@ extension NodeInputRowView {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    VStack {
+    VStack(alignment: .leading, spacing: 0) {
         NodeInputRowView.Preview()
             .border(.gray.opacity(0.12))
         NodeInputRowView.Preview()

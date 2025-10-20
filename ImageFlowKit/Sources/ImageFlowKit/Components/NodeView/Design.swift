@@ -31,14 +31,15 @@ struct Design {
     }
 
     static var macOS: Self {
-        .init(
-            portSize: 8,
-            portLabelSpacing: 4,
-            titleBottom: 14,
-            nodeRowHeight: 24,
-            inputBlockBottomPadding: 4,
-            outputBlockBottomPadding: 8
-        )
+        .iOS
+        // .init(
+        //     portSize: 8,
+        //     portLabelSpacing: 4,
+        //     titleBottom: 14,
+        //     nodeRowHeight: 24,
+        //     inputBlockBottomPadding: 4,
+        //     outputBlockBottomPadding: 8
+        // )
     }
 
     #if os(macOS)
@@ -50,14 +51,4 @@ struct Design {
     #endif
 }
 
-#if os(iOS)
-import UIKit
-extension UILabel {
-    convenience init(nodeRowLabelWithString text: String) {
-        self.init()
-        self.text = text
-        self.font = .systemFont(ofSize: 14)
-        self.textColor = .label
-    }
-}
-#endif
+

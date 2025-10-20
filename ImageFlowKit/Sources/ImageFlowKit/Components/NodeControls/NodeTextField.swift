@@ -9,6 +9,9 @@ import Helpers
 import Logging
 import SwiftUI
 
+import struct Helpers.EdgeInsets
+import struct Helpers.ShadowStyle
+
 #if os(macOS)
 typealias NodeTextField = NodeTextFieldNSView
 #endif
@@ -20,8 +23,7 @@ typealias NodeTextField = NodeTextFieldUIView
 protocol NodeTextFieldProtocol: PlatformView {
     var text: String { get set }
     var onEvent: ((NodeTextFieldEvent) -> ())? { get set }
-    var borderColor: PlatformColor { get set }
-    var nodeTextFieldFont: NodeTextFieldFont { get set }
+    init(_ text: String, style: NodeTextFieldStyle)
 }
 
 enum NodeTextFieldEvent {
@@ -30,15 +32,51 @@ enum NodeTextFieldEvent {
     case drag(GesturePhase, CGFloat, CGFloat)
 }
 
-enum NodeTextFieldFont {
-    case mono
-    case system
+struct NodeTextFieldStyle: Sendable, Hashable, With {
+    var fontSize: CGFloat
+    var fontDesign: FontDesign
+    var textColor: PlatformColor
+    var innerCornerRadius: CGFloat
+    var outerCornerRadius: CGFloat
+    var textInsets: EdgeInsets
+    var backgroundInsets: EdgeInsets
+    var backgroundColor: PlatformColor
+    var borderColor: PlatformColor
+    var borderWidth: CGFloat
+    var shadowStyle: ShadowStyle
+
+    enum FontDesign: Sendable, Hashable {
+        case regular
+        case monospaced
+    }
+
+    #if os(macOS)
+    static let defaultTextColor: PlatformColor = .textColor
+    #else
+    static let defaultTextColor: PlatformColor = .label
+    #endif
+
+    static var `default`: Self {
+        .init(
+            fontSize: 14,
+            fontDesign: .regular,
+            textColor: defaultTextColor,
+            innerCornerRadius: 8,
+            outerCornerRadius: 10,
+            textInsets: .init(top: 6, bottom: 8, left: 6, right: 8),
+            backgroundInsets: .init(top: 2, bottom: 2, left: 2, right: 2),
+            backgroundColor: Colors.numberInputBackground.platformColor,
+            borderColor: Colors.numberInputBorder.platformColor,
+            borderWidth: 2,
+            shadowStyle: .init(radius: 4, color: .black, opacity: 0.6, offset: .init(width: 0, height: 2))
+        )
+    }
 }
 
 extension NodeTextField {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> NodeTextField {
-            let view = NodeTextField("Hello!", borderColor: .systemBlue)
+            let view = NodeTextField("Hello!", style: .default.with(\.borderColor, .systemBlue))
             view.onEvent = { event in
                 log("event: \(event)")
             }

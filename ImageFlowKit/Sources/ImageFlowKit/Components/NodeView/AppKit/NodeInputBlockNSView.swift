@@ -19,9 +19,12 @@ final class NodeInputBlockNSView: NSView, NodeInputBlockViewProtocol {
     public private(set) var rows: [NodeInputRowView] = []
 
     public var onEvent: ((Event) -> ())?
+    
+    private var style: Style
 
-    init(_ inputs: [FlowNode.Input]) {
+    init(_ inputs: [FlowNode.Input], style: Style = .default) {
         self.inputs = inputs
+        self.style = style
 
         super.init(frame: .zero)
 
@@ -81,7 +84,7 @@ extension NodeInputBlockNSView {
 
     override var intrinsicContentSize: NSSize {
         let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
-        let height = Design.default.nodeRowHeight * CGFloat(self.rows.count)
+        let height = style.rowHeight * CGFloat(self.rows.count)
         return .init(width: width, height: height)
     }
 
@@ -89,9 +92,9 @@ extension NodeInputBlockNSView {
         for (idx, row) in self.rows.enumerated() {
             row.frame = .init(
                 x: 0,
-                y: Design.default.nodeRowHeight * CGFloat(idx),
+                y: style.rowHeight * CGFloat(idx),
                 width: self.bounds.width,
-                height: Design.default.nodeRowHeight
+                height: style.rowHeight
             )
         }
     }
