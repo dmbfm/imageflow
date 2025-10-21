@@ -136,7 +136,7 @@ final class NodeTitleView: PlatformCommonView {
         self.subtitleView.textRect(forBounds: .infinite, limitedToNumberOfLines: 1).size
         #endif
     }
-    
+
     public override var intrinsicContentSize: CGSize {
         let size = CGSize(
             width: style.iconSize + self.style.iconTitleSpacing

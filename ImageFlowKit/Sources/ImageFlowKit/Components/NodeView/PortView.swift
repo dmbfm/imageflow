@@ -16,11 +16,11 @@ import AppKit
 import UIKit
 #endif
 
-public final class PortView: PlatformView {
+final class PortView: PlatformView {
 
     // MARK: - State
 
-    public var connected: Bool {
+    var connected: Bool {
         didSet {
             if self.connected != oldValue {
                 self.setNeedsDisplay()
@@ -28,35 +28,42 @@ public final class PortView: PlatformView {
         }
     }
 
-    public var onEvent: ((Event) -> ())?
+    var onEvent: ((Event) -> ())?
 
-    public enum Event {
+    enum Event {
         case drag(DragData)
     }
 
-    public struct DragData {
+    struct DragData {
         public var phase: GesturePhase
         public var locationInWindow: CGPoint
     }
 
     // MARK: - Style
 
-    struct Style {
+    private var style: Style
+
+    struct Style: Sendable, Hashable, With {
         var size: CGFloat
+        var connectedColor: PlatformColor
+        var emptyColor: PlatformColor
+        var strokeWidth: CGFloat
 
-        static var iOS: Self {
-            .init(size: Design.default.portSize)
-        }
-
-        static var macOS: Self {
-            .init(size: Design.default.portSize)
+        static var `default`: Style {
+            .init(
+                size: 12,
+                connectedColor: Colors.portConnected.platformColor,
+                emptyColor: Colors.portEmpty.platformColor,
+                strokeWidth: 2
+            )
         }
     }
 
     // MARK: - Initializers
 
-    init(connected: Bool = false) {
+    init(connected: Bool = false, style: Style = .default) {
         self.connected = connected
+        self.style = style
 
         super.init(frame: .zero)
 
@@ -75,8 +82,6 @@ public final class PortView: PlatformView {
 
     // MARK: - iOS
     #if os(iOS)
-    var style: Style = .iOS
-
     func platformInit() {
         self.backgroundColor = .clear
         self.clipsToBounds = false
@@ -95,7 +100,7 @@ public final class PortView: PlatformView {
     }
 
     public override func draw(_ rect: CGRect) {
-        let w = Design.default.portStrokeWidth
+        let w = style.strokeWidth
         let rect: CGRect = .init(x: 0, y: 0, width: self.style.size, height: self.style.size).insetBy(
             dx: w * 0.5,
             dy: w * 0.5
@@ -117,16 +122,12 @@ public final class PortView: PlatformView {
             path.lineWidth = w
             path.stroke()
         }
-
-        //        UIBezierPath(ovalIn: .init(x: 0, y: 0, width: self.style.size, height: self.style.size)).fill()
     }
 
     #endif
 
     // MARK: - macOS
     #if os(macOS)
-    var style: Style = .macOS
-
     func platformInit() {
         let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
         self.addGestureRecognizer(panGesture)
@@ -142,7 +143,10 @@ public final class PortView: PlatformView {
     }
 
     public override func draw(_ dirtyRect: NSRect) {
-        let rect = CGRect(x: 0, y: 0, width: self.style.size, height: self.style.size).insetBy(dx: 0.5, dy: 0.5)
+        let rect = CGRect(x: 0, y: 0, width: self.style.size, height: self.style.size).insetBy(
+            dx: style.strokeWidth * 0.5,
+            dy: style.strokeWidth * 0.5
+        )
         let path = NSBezierPath(ovalIn: rect)
 
         if self.connected {
@@ -154,6 +158,7 @@ public final class PortView: PlatformView {
             Colors.portEmpty.platformColor.setFill()
             Colors.portConnected.platformColor.setStroke()
             path.fill()
+            path.lineWidth = style.strokeWidth
             path.stroke()
         }
     }
@@ -168,13 +173,13 @@ public final class PortView: PlatformView {
 // MARK: - Previews
 
 extension PortView {
+
     struct Preview: PlatformViewRepresentable {
         var connected: Bool = false
+        var style: PortView.Style? = nil
         func makeView(context: Context) -> PortView {
-            let view = PortView()
-            view.connected = self.connected
+            let view = PortView(connected: self.connected, style: self.style ?? .default)
             view.translatesAutoresizingMaskIntoConstraints = false
-            // view.frame = .init(x: 0, y: 0, width: 16, height: 16)
             return view
         }
 
@@ -188,10 +193,38 @@ extension PortView {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    HStack {
-        PortView.Preview()
-        //            .border(.gray.opacity(0.25))
-        PortView.Preview(connected: true)
+    VStack {
+        HStack {
+            PortView.Preview(style: .default.with(\.size, 8).with(\.strokeWidth, 1))
+                .border(.gray.opacity(0.25))
+            PortView.Preview(connected: true, style: .default.with(\.size, 8).with(\.strokeWidth, 1))
+                .border(.gray.opacity(0.25))
+        }
+
+        HStack {
+            PortView.Preview()
+                .border(.gray.opacity(0.25))
+            PortView.Preview(connected: true)
+                .border(.gray.opacity(0.25))
+        }
+        HStack {
+            PortView.Preview(style: .default.with(\.size, 12).with(\.strokeWidth, 1))
+                .border(.gray.opacity(0.25))
+            PortView.Preview(connected: true, style: .default.with(\.size, 12).with(\.strokeWidth, 1))
+                .border(.gray.opacity(0.25))
+        }
+        HStack {
+            PortView.Preview(style: .default.with(\.size, 12))
+                .border(.gray.opacity(0.25))
+            PortView.Preview(connected: true, style: .default.with(\.size, 12))
+                .border(.gray.opacity(0.25))
+        }
+        HStack {
+            PortView.Preview(style: .default.with(\.size, 16).with(\.strokeWidth, 3))
+                .border(.gray.opacity(0.25))
+            PortView.Preview(connected: true, style: .default.with(\.size, 16).with(\.strokeWidth, 3))
+                .border(.gray.opacity(0.25))
+        }
     }
     .padding()
 }

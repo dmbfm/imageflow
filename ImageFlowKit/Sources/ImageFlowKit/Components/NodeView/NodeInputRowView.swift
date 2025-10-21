@@ -179,10 +179,14 @@ final class NodeInputRowView: PlatformView {
 
 #if os(macOS)
 extension NSTextField {
-    convenience init(nodeRowLabelWithString label: String) {
+    convenience init(
+        nodeRowLabelWithString label: String,
+        font: NSFont = .systemFont(ofSize: 14),
+        color: NSColor = .secondaryLabelColor
+    ) {
         self.init(labelWithString: label)
-        self.font = .systemFont(ofSize: 14)
-        //        self.textColor = .secondaryLabelColor
+        self.font = font
+        self.textColor = color
         self.maximumNumberOfLines = 1
     }
 }
@@ -191,11 +195,15 @@ extension NSTextField {
 #if os(iOS)
 import UIKit
 extension UILabel {
-    convenience init(nodeRowLabelWithString text: String) {
+    convenience init(
+        nodeRowLabelWithString text: String,
+        font: UIFont = .systemFont(ofSize: 14),
+        color: UIColor = .label
+    ) {
         self.init()
         self.text = text
-        self.font = .systemFont(ofSize: 14)
-        self.textColor = .label
+        self.font = font
+        self.textColor = color
     }
 }
 #endif
