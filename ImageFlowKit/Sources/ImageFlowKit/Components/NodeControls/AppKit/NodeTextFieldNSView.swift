@@ -43,13 +43,13 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     lazy var label: NSTextField = {
         let label = NSTextField(labelWithString: self.text)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = self.font  
+        label.font = self.font
         return label
     }()
 
     lazy var textField: NSTextField = {
         let view = NSTextField()
-        view.font = self.font  
+        view.font = self.font
         view.translatesAutoresizingMaskIntoConstraints = false
         view.stringValue = self.text
         view.isBezeled = false

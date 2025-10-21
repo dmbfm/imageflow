@@ -29,9 +29,9 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     }
 
     public var onEvent: ((NodeTextFieldEvent) -> ())?
-    
+
     private var style: NodeTextFieldStyle
-    
+
     lazy var font: UIFont = {
         switch self.style.fontDesign {
         case .regular:
@@ -131,7 +131,8 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     }
 
     public override var intrinsicContentSize: CGSize {
-        self.label.intrinsicContentSize.max(self.dummyLabel.intrinsicContentSize) + self.style.textInsets.platformEdgeInsets.size
+        self.label.intrinsicContentSize.max(self.dummyLabel.intrinsicContentSize)
+            + self.style.textInsets.platformEdgeInsets.size
     }
 
     enum State {

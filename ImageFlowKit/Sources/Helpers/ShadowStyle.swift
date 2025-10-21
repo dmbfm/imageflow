@@ -1,5 +1,5 @@
-import Foundation
 import CoreGraphics
+import Foundation
 
 public struct ShadowStyle: Sendable, Hashable {
     public var radius: CGFloat

@@ -50,5 +50,3 @@ struct Design {
     static let `default`: Self = .iOS
     #endif
 }
-
-

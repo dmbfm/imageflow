@@ -128,8 +128,8 @@ final class NodeInputRowView: PlatformView {
 
     override var isFlipped: Bool {
         true
-    }     
-    
+    }
+
     override func layout() {
         self.doLayout()
     }
@@ -182,7 +182,7 @@ extension NSTextField {
     convenience init(nodeRowLabelWithString label: String) {
         self.init(labelWithString: label)
         self.font = .systemFont(ofSize: 14)
-//        self.textColor = .secondaryLabelColor
+        //        self.textColor = .secondaryLabelColor
         self.maximumNumberOfLines = 1
     }
 }

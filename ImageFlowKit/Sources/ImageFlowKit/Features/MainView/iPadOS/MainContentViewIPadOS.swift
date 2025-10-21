@@ -58,9 +58,9 @@ struct MainContentViewIPadOS: View {
                 matching: .images,
                 photoLibrary: .shared(),
             )
-//            .onAppear {
-//                self.onAppear()
-//            }
+            //            .onAppear {
+            //                self.onAppear()
+            //            }
             .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
             .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
             .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)

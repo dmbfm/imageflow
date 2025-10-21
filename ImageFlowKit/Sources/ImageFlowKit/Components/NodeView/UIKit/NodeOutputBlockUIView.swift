@@ -16,7 +16,7 @@ final class NodeOutputBlockUIView: PlatformView, NodeOutputBlockViewProtocol {
     public private(set) var rows: [NodeOutputRowView] = []
 
     public var onEvent: ((Event) -> ())?
-    
+
     public init(_ outputs: [FlowNode.Output]) {
         self.outputs = outputs
 

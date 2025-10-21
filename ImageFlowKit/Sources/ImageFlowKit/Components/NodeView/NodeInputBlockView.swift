@@ -2,22 +2,147 @@ import Helpers
 import SwiftUI
 import Values
 
-#if canImport(AppKit)
-import AppKit
-typealias NodeInputBlockView = NodeInputBlockNSView
-#endif
+// #if canImport(AppKit)
+// import AppKit
+// typealias NodeInputBlockView = NodeInputBlockNSView
+// #endif
 
-#if canImport(UIKit)
-import UIKit
-typealias NodeInputBlockView = NodeInputBlockUIView
-#endif
+// #if canImport(UIKit)
+// import UIKit
+// typealias NodeInputBlockView = NodeInputBlockUIView
+// #endif
 
-@MainActor
-protocol NodeInputBlockViewProtocol {
-    var inputs: [FlowNode.Input] { get set }
-    var rows: [NodeInputRowView] { get }
-    var onEvent: ((NodeInputBlockView.Event) -> ())? { get set }
-    init(_ inputs: [FlowNode.Input], style: NodeInputBlockView.Style)
+// @MainActor
+// protocol NodeInputBlockViewProtocol {
+//     var inputs: [FlowNode.Input] { get set }
+//     var rows: [NodeInputRowView] { get }
+//     var onEvent: ((NodeInputBlockView.Event) -> ())? { get set }
+//     init(_ inputs: [FlowNode.Input], style: NodeInputBlockView.Style)
+// }
+
+final class NodeInputBlockView: PlatformCommonView {
+
+    public var inputs: [FlowNode.Input] {
+        didSet {
+            if self.inputs != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    public private(set) var rows: [NodeInputRowView] = []
+
+    public var onEvent: ((Event) -> ())?
+
+    private var style: Style
+
+    init(_ inputs: [FlowNode.Input], style: Style = .default) {
+        self.inputs = inputs
+        self.style = style
+
+        super.init(frame: .zero)
+
+        self.populateRows()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Updating
+
+    private func update() {
+        assert(self.inputs.count == self.rows.count, "Changing the number of inputs is not supported")
+
+        for (idx, input) in self.inputs.enumerated() {
+            if input != self.rows[idx].input {
+                self.rows[idx].input = input
+            }
+        }
+    }
+
+    func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    // MARK: - Rows
+
+    func populateRows() {
+        for input in inputs {
+            let row = NodeInputRowView(input)
+            row.onEvent = { [weak self] event in
+                switch event {
+                case .valueDidChange(let value):
+                    self?.onEvent?(.valueDidChange(input.index, value))
+                case .dragPort(let data):
+                    self?.onEvent?(.dragPort(input.index, data))
+                case .sizeDidChange:
+                    self?.updateSize()
+                }
+            }
+            self.rows.append(row)
+            self.addSubview(row)
+        }
+
+        self.updateSize()
+    }
+
+    // MARK: - Layout
+
+    override var intrinsicContentSize: CGSize {
+        let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
+        let height = style.rowHeight * CGFloat(self.rows.count)
+        return .init(width: width, height: height)
+    }
+
+    override func doLayout() {
+        super.doLayout()
+
+        for (idx, row) in self.rows.enumerated() {
+            row.frame = .init(
+                x: 0,
+                y: style.rowHeight * CGFloat(idx),
+                width: self.bounds.width,
+                height: style.rowHeight
+            )
+        }
+    }
+
+    // MARK: - Interaction
+
+    #if os(macOS)
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        for row in self.rows {
+            let point = row.convert(point, from: self.superview)
+            if let view = row.controlView.hitTest(point) {
+                return view
+            }
+            if let view = row.portView.hitTest(point) {
+                return view
+            }
+        }
+
+        return nil
+    }
+    #endif
+
+    #if os(iOS)
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let p = self.convert(point, to: nil)
+        for row in rows {
+            if let view = row.portView.hitTest(row.portView.convert(p, from: nil), with: event) {
+                return view
+            }
+
+            if let view = row.controlView.hitTest(row.controlView.convert(p, from: nil), with: event) {
+                return view
+            }
+        }
+        return nil
+    }
+    #endif
 }
 
 extension NodeInputBlockView {
@@ -26,10 +151,10 @@ extension NodeInputBlockView {
         case valueDidChange(Int, Value)
         case dragPort(Int, PortView.DragData)
     }
-    
+
     public struct Style: Sendable, Hashable {
         var rowHeight: CGFloat
-        
+
         static var `default`: Self {
             .init(rowHeight: Design.default.nodeRowHeight)
         }
