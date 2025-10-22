@@ -2,26 +2,114 @@ import Helpers
 import Logging
 import SwiftUI
 
-#if canImport(AppKit)
-import AppKit
-typealias NodeOutputBlockView = NodeOutputBlockNSView
-#endif
+final class NodeOutputBlockView: PlatformCommonView {
+    var outputs: [FlowNode.Output] {
+        didSet {
+            if self.outputs != oldValue {
+                self.update()
+            }
+        }
+    }
 
-#if canImport(UIKit)
-import UIKit
-typealias NodeOutputBlockView = NodeOutputBlockUIView
-#endif
+    private(set) var rows: [NodeOutputRowView] = []
 
-@MainActor
-protocol NodeOutputBlockViewProtocol {
-    var outputs: [FlowNode.Output] { get set }
-    var rows: [NodeOutputRowView] { get }
-    var onEvent: ((NodeOutputBlockView.Event) -> ())? { get set }
-    init(_ outputs: [FlowNode.Output])
+    var onEvent: ((Event) -> ())?
+
+    private var style: NodeOutputRowView.Style
+
+    public init(_ outputs: [FlowNode.Output], style: NodeOutputRowView.Style = .default) {
+        self.outputs = outputs
+        self.style = style
+
+        super.init(frame: .zero)
+
+        self.populateRows()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    private func populateRows() {
+        for output in outputs {
+            let row = NodeOutputRowView(output, style: self.style)
+            row.onEvent = { [weak self] event in
+                switch event {
+                case .sizeDidChange:
+                    self?.updateSize()
+                case .dragPort(let data):
+                    self?.onEvent?(.dragPort(output.id, data))
+                }
+            }
+            self.addSubview(row)
+            self.rows.append(row)
+        }
+
+        self.updateSize()
+    }
+
+    private func update() {
+        assert(self.outputs.count == self.rows.count, "Changing the number of inputs is not supported")
+        for (idx, output) in outputs.enumerated() {
+            if output != self.rows[idx].output {
+                self.rows[idx].output = output
+            }
+        }
+    }
+
+    private func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    
+    override var intrinsicContentSize: CGSize {
+        let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
+        let height = self.style.rowHeight * CGFloat(self.rows.count)
+        return .init(width: width, height: height)
+    }
+
+    override func doLayout() {
+        for (idx, row) in self.rows.enumerated() {
+            row.frame = .init(
+                x: 0,
+                y: self.style.rowHeight * CGFloat(idx),
+                width: self.bounds.width,
+                height: self.style.rowHeight
+            )
+        }
+    }
+
+    #if os(macOS)
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        for row in self.rows {
+            let point = row.convert(point, from: self.superview)
+            if let view = row.portView.hitTest(point) {
+                return view
+            }
+        }
+
+        return nil
+    }
+    #endif
+
+    #if os(iOS)
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let p = self.convert(point, to: nil)
+        for row in rows {
+            if let view = row.portView.hitTest(row.portView.convert(p, from: nil), with: event) {
+                return view
+            }
+        }
+        return nil
+    }
+    #endif
 }
 
 extension NodeOutputBlockView {
-    public enum Event {
+    enum Event {
         case sizeDidChange
         case dragPort(Int, PortView.DragData)
     }
