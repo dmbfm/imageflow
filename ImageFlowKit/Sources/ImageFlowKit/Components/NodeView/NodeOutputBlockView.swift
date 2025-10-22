@@ -64,7 +64,6 @@ final class NodeOutputBlockView: PlatformCommonView {
         self.onEvent?(.sizeDidChange)
     }
 
-    
     override var intrinsicContentSize: CGSize {
         let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
         let height = self.style.rowHeight * CGFloat(self.rows.count)
