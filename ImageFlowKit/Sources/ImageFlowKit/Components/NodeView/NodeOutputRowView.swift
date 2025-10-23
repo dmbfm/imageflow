@@ -130,7 +130,7 @@ extension NodeOutputRowView {
 }
 
 extension NodeOutputRowView {
-    struct Style: Sendable, Hashable {
+    struct Style: Sendable, Hashable, With {
 
         var labelFont: FontStyle
         var labelColor: PlatformColor

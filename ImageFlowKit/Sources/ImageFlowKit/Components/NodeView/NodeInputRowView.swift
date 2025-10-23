@@ -171,7 +171,7 @@ final class NodeInputRowView: PlatformView {
 }
 
 extension NodeInputRowView {
-    struct Style: Sendable, Hashable {
+    struct Style: Sendable, Hashable, With {
         var port: PortView.Style
         var portLabelSpacing: CGFloat
         var rowHeight: CGFloat

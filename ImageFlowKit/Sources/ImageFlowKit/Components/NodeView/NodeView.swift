@@ -3,24 +3,229 @@ import Logging
 import SwiftUI
 import Values
 
-#if canImport(AppKit)
-import AppKit
-typealias NodeView = NodeNSView
-#endif
+final class NodeView: PlatformCommonView, CanvasNodeView {
 
-#if canImport(UIKit)
-import UIKit
-typealias NodeView = NodeUIView
-#endif
+    // MARK: - Exposed properties
 
-// MARK: - Event
+    var node: FlowNode {
+        didSet {
+            if self.node != oldValue {
+                self.update()
+            }
+        }
+    }
 
-@MainActor
-protocol NodeViewProtocol {
-    var node: FlowNode { get set }
-    var isSelected: Bool { get set }
-    var emitter: EventEmitter<CanvasNodeEvent<NodeView.Event>> { get }
-    init(_ node: FlowNode, _ isSelected: Bool)
+    var isSelected: Bool {
+        didSet {
+            if self.isSelected != oldValue {
+                self.updateBorder()
+            }
+        }
+    }
+
+    var emitter: EventEmitter<CanvasNodeEvent<Event>> = .init()
+
+    var id: UUID { self.node.id }
+
+    // MARK: - Private properties
+
+    private var titleModel: NodeTitleView.ViewModel {
+        .init(
+            title: self.node.name,
+            subtitle: self.node.kind.displayName,
+            icon: self.node.kind.icon,
+            color: self.node.kind.frontendNodeColor
+        )
+    }
+
+    private var style: Style
+
+    // MARK: - Subviews
+
+    lazy var backgroundView: BackgroundView = {
+        let view = BackgroundView(style: self.style.background)
+        view.clipsToBounds = false
+        view.onEvent = { [weak self] event in
+            switch event {
+            case .drag(let drag):
+                self?.emitter.emit(.dragGesture(drag))
+            case .tap:
+                self?.emitter.emit(.click)
+            }
+        }
+        return view
+    }()
+
+    lazy var titleView: NodeTitleView = {
+        let titleView = NodeTitleView(self.titleModel, style: self.style.title)
+        return titleView
+    }()
+
+    lazy var inputBlockView: NodeInputBlockView = {
+        let view = NodeInputBlockView(self.node.inputs, style: self.style.inputRow)
+        view.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .sizeDidChange:
+                self.updateSize()
+            case let .dragPort(index, data):
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .input(index)), data)))
+            case let .valueDidChange(index, value):
+                self.emitter.emit(.other(.valueDidChange(index, value)))
+            }
+        }
+        return view
+    }()
+
+    lazy var outputBlockView: NodeOutputBlockView = {
+        let view = NodeOutputBlockView(self.node.outputs, style: self.style.outputRow)
+        view.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .sizeDidChange:
+                self.updateSize()
+            case let .dragPort(index, data):
+                self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .output(index)), data)))
+            }
+        }
+        return view
+    }()
+
+    // MARK: - Init
+
+    public init(_ node: FlowNode, _ isSelected: Bool = false, style: Style = .default) {
+        self.node = node
+        self.isSelected = isSelected
+        self.style = style
+
+        super.init(frame: .zero)
+
+        self.addSubview(self.backgroundView)
+        self.addSubview(self.titleView)
+        self.addSubview(self.inputBlockView)
+        self.addSubview(self.outputBlockView)
+    }
+
+    public required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Updates
+
+    private func update() {
+        self.titleView.vm = self.titleModel
+        self.inputBlockView.inputs = self.node.inputs
+        self.outputBlockView.outputs = self.node.outputs
+    }
+
+    private func updateBorder() {
+        if self.isSelected {
+            self.backgroundView.showBorder()
+        } else {
+            self.backgroundView.hideBorder()
+        }
+    }
+
+    private func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.emitter.emit(.sizeChanged)
+    }
+
+    // MARK: - Layout
+
+    public override var intrinsicContentSize: CGSize {
+        let titleSize = self.titleView.intrinsicContentSize
+        let portSize = max(self.style.inputRow.port.size, self.style.outputRow.port.size)
+        let titleContainerSize =
+            titleSize
+            + .init(
+                width: self.style.titleLeft + portSize + self.style.titleRight,
+                height: self.style.titleTop
+            )
+        let inputBlockSize: CGSize = self.inputBlockView.intrinsicContentSize
+        let outputBlockSize: CGSize = self.outputBlockView.intrinsicContentSize
+
+        let height =
+            titleContainerSize.height
+            + self.style.titleBottom
+            + inputBlockSize.height
+            + self.style.inputBlockBottomPadding
+            + outputBlockSize.height
+            + self.style.outputBlockBottomPadding
+
+        let width = max(
+            inputBlockSize.width + portSize + self.style.inputRow.portLabelSpacing,
+            titleContainerSize.width,
+            outputBlockSize.width
+        )
+
+        return .init(width: width, height: height)
+    }
+
+    override func doLayout() {
+        let portSize = max(self.style.inputRow.port.size, self.style.outputRow.port.size)
+        let titleSize = self.titleView.intrinsicContentSize
+        let inputBlockSize: CGSize = self.inputBlockView.intrinsicContentSize
+        let outputBlockSize: CGSize = self.outputBlockView.intrinsicContentSize
+
+        self.backgroundView.frame = .init(
+            x: portSize * 0.5,
+            y: 0,
+            width: self.bounds.width - portSize,
+            height: self.bounds.height
+        )
+        self.titleView.frame = .init(
+            x: self.style.titleLeft,
+            y: self.style.titleTop,
+            width: titleSize.width,
+            height: titleSize.height
+        )
+
+        self.inputBlockView.frame = .init(
+            x: 0,
+            y: self.titleView.frame.maxY + self.style.titleBottom,
+            width: self.bounds.width - portSize - self.style.inputRow.portLabelSpacing,
+            height: inputBlockSize.height
+        )
+
+        self.outputBlockView.frame = .init(
+            x: portSize * 0.5,
+            y: self.inputBlockView.frame.maxY + self.style.inputBlockBottomPadding,
+            width: self.bounds.width - portSize * 0.5,
+            height: outputBlockSize.height
+        )
+    }
+}
+
+extension NodeView {
+    struct Style: Sendable, Hashable, With {
+        var title: NodeTitleView.Style
+        var inputRow: NodeInputRowView.Style
+        var outputRow: NodeOutputRowView.Style
+        var background: BackgroundView.Style
+        var titleLeft: CGFloat
+        var titleRight: CGFloat
+        var titleTop: CGFloat
+        var titleBottom: CGFloat
+        var inputBlockBottomPadding: CGFloat
+        var outputBlockBottomPadding: CGFloat
+
+        static var `default`: Self {
+            .init(
+                title: .default,
+                inputRow: .default,
+                outputRow: .default,
+                background: .default,
+                titleLeft: 16,
+                titleRight: 26,
+                titleTop: 14,
+                titleBottom: 22,
+                inputBlockBottomPadding: 12,
+                outputBlockBottomPadding: 10,
+            )
+        }
+    }
 }
 
 extension NodeView {
@@ -100,6 +305,7 @@ extension NodeView {
         }
         public func makeView(context: Context) -> some PlatformView {
             let view = NodeView(node)
+            view.clipsToBounds = false
             view.emitter.on { event in
                 log("event: \(event)")
             }
