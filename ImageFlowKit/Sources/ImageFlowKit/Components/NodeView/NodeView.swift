@@ -43,7 +43,11 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     // MARK: - Subviews
 
     lazy var backgroundView: BackgroundView = {
-        let view = BackgroundView(style: self.style.background)
+        let view = BackgroundView(
+            style: self.style.background
+                .with(\.color, self.node.kind.frontendNodeColor.platformColor)
+                .with(\.selectedBorderColor, self.node.kind.frontendNodeColor.platformColor)
+        )
         view.clipsToBounds = false
         view.onEvent = { [weak self] event in
             switch event {
