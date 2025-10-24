@@ -22,9 +22,23 @@ final class NodeInputRowView: PlatformView {
 
     // MARK: - Private
 
+    private var style: Style
+
     #if os(macOS)
+    lazy var labelView: NSTextField = {
+        NSTextField(nodeRowLabelWithString: "", font: self.style.labelFont.font, color: self.style.labelColor)
+    }()
+    #endif
+
+    #if os(iOS)
+    lazy var labelView: UILabel = {
+        let view = UILabel(nodeRowLabelWithString: "", font: self.style.labelFont.font, color: self.style.labelColor)
+        return view
+    }()
+    #endif
+
     lazy var portView: PortView = {
-        let view = PortView()
+        let view = PortView(connected: self.input.connected, style: self.style.port)
         view.onEvent = { [weak self] event in
             switch event {
             case .drag(let data):
@@ -33,11 +47,6 @@ final class NodeInputRowView: PlatformView {
         }
         return view
     }()
-
-    lazy var labelView: NSTextField = {
-        NSTextField(nodeRowLabelWithString: "")
-    }()
-    #endif
 
     lazy var controlView: any NodeControl = {
         let view: any NodeControl =
@@ -65,28 +74,11 @@ final class NodeInputRowView: PlatformView {
         return view
     }()
 
-    #if os(iOS)
-    lazy var portView: PortView = {
-        let view = PortView()
-        return view
-    }()
-
-    lazy var labelView: UILabel = {
-        let view = UILabel(nodeRowLabelWithString: "")
-        return view
-    }()
-    #endif
-
-    #if os(macOS)
-    private static let labelSafetyMargin: CGFloat = 2.0
-    #else
-    private static let labelSafetyMargin: CGFloat = 2.0
-    #endif
-
     // MARK: - Initializers
 
-    init(_ input: FlowNode.Input) {
+    init(_ input: FlowNode.Input, style: Style = .default) {
         self.input = input
+        self.style = style
 
         super.init(frame: .zero)
 
@@ -142,12 +134,12 @@ final class NodeInputRowView: PlatformView {
     #endif
 
     private func doLayout() {
-        let labelSize = self.labelView.intrinsicContentSize + .init(width: Self.labelSafetyMargin, height: 0)
+        let labelSize = self.labelView.intrinsicContentSize + .init(width: style.labelSafetyMargin, height: 0)
 
         self.portView.frame = .init(origin: .zero, size: self.portView.intrinsicContentSize)
 
         self.labelView.frame = .init(
-            origin: .init(x: self.portView.frame.maxX + Design.default.portLabelSpacing, y: 0),
+            origin: .init(x: self.portView.frame.maxX + style.portLabelSpacing, y: 0),
             size: labelSize
         )
 
@@ -165,15 +157,40 @@ final class NodeInputRowView: PlatformView {
 
     override var intrinsicContentSize: CGSize {
         let portSize = self.portView.intrinsicContentSize
-        let labelSize = self.labelView.intrinsicContentSize + .init(width: Self.labelSafetyMargin, height: 0)
+        let labelSize = self.labelView.intrinsicContentSize + .init(width: style.labelSafetyMargin, height: 0)
         let controlSize = self.controlView.intrinsicContentSize
 
         let width =
-            portSize.width + labelSize.width + controlSize.width + Design.default.portLabelSpacing
-            + Design.default.labelControlSpacing
-        let height = max(portSize.height, labelSize.height, controlSize.height)
+            portSize.width + labelSize.width + controlSize.width + style.portLabelSpacing
+            + style.labelControlSpacing
+        // let height = max(portSize.height, labelSize.height, controlSize.height)
+        let height = self.style.rowHeight
 
         return .init(width: width, height: height)
+    }
+}
+
+extension NodeInputRowView {
+    struct Style: Sendable, Hashable {
+        var port: PortView.Style
+        var portLabelSpacing: CGFloat
+        var rowHeight: CGFloat
+        var labelControlSpacing: CGFloat
+        var labelSafetyMargin: CGFloat
+        var labelFont: FontStyle
+        var labelColor: PlatformColor
+
+        static var `default`: Self {
+            .init(
+                port: .default,
+                portLabelSpacing: 8.0,
+                rowHeight: 32.0,
+                labelControlSpacing: 18.0,
+                labelSafetyMargin: 2.0,
+                labelFont: .systemFont(size: 14, weight: .regular),
+                labelColor: .secondaryLabel
+            )
+        }
     }
 }
 

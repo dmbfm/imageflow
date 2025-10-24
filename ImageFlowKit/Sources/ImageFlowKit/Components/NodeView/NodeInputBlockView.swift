@@ -2,24 +2,6 @@ import Helpers
 import SwiftUI
 import Values
 
-// #if canImport(AppKit)
-// import AppKit
-// typealias NodeInputBlockView = NodeInputBlockNSView
-// #endif
-
-// #if canImport(UIKit)
-// import UIKit
-// typealias NodeInputBlockView = NodeInputBlockUIView
-// #endif
-
-// @MainActor
-// protocol NodeInputBlockViewProtocol {
-//     var inputs: [FlowNode.Input] { get set }
-//     var rows: [NodeInputRowView] { get }
-//     var onEvent: ((NodeInputBlockView.Event) -> ())? { get set }
-//     init(_ inputs: [FlowNode.Input], style: NodeInputBlockView.Style)
-// }
-
 final class NodeInputBlockView: PlatformCommonView {
 
     public var inputs: [FlowNode.Input] {
@@ -34,9 +16,9 @@ final class NodeInputBlockView: PlatformCommonView {
 
     public var onEvent: ((Event) -> ())?
 
-    private var style: Style
+    private var style: NodeInputRowView.Style
 
-    init(_ inputs: [FlowNode.Input], style: Style = .default) {
+    init(_ inputs: [FlowNode.Input], style: NodeInputRowView.Style = .default) {
         self.inputs = inputs
         self.style = style
 
@@ -71,7 +53,7 @@ final class NodeInputBlockView: PlatformCommonView {
 
     func populateRows() {
         for input in inputs {
-            let row = NodeInputRowView(input)
+            let row = NodeInputRowView(input, style: self.style)
             row.onEvent = { [weak self] event in
                 switch event {
                 case .valueDidChange(let value):
@@ -150,14 +132,6 @@ extension NodeInputBlockView {
         case sizeDidChange
         case valueDidChange(Int, Value)
         case dragPort(Int, PortView.DragData)
-    }
-
-    public struct Style: Sendable, Hashable {
-        var rowHeight: CGFloat
-
-        static var `default`: Self {
-            .init(rowHeight: Design.default.nodeRowHeight)
-        }
     }
 }
 
