@@ -141,6 +141,10 @@ public struct CanvasFeatureView: View {
             case let .valueDidChange(index, value):
                 self.onNodeValueChange(id, index, value)
                 break
+            case .didRepopulateInputRows:
+                self.nodeViews[id]?.setNeedsLayout()
+                self.nodeViews[id]?.layoutIfNeeded()
+                self.updateEdges()
             }
         case .sizeChanged:
             break

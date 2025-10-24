@@ -76,6 +76,8 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
                 self.emitter.emit(.other(.dragPort(.init(node: self.id, port: .input(index)), data)))
             case let .valueDidChange(index, value):
                 self.emitter.emit(.other(.valueDidChange(index, value)))
+            case .didRepopulateRows:
+                self.emitter.emit(.other(.didRepopulateInputRows))
             }
         }
         return view
@@ -236,6 +238,7 @@ extension NodeView {
     public enum Event {
         case valueDidChange(Int, Value)
         case dragPort(PortLocation, PortView.DragData)
+        case didRepopulateInputRows
     }
 
     public var ports: [(PortLocation, PortView)] {

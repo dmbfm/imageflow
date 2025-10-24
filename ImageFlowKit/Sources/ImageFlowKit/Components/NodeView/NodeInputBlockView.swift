@@ -34,7 +34,14 @@ final class NodeInputBlockView: PlatformCommonView {
     // MARK: - Updating
 
     private func update() {
-        assert(self.inputs.count == self.rows.count, "Changing the number of inputs is not supported")
+        if self.inputs.count != self.rows.count
+            || self.inputs
+                .enumerated()
+                .first(where: { $0.element.value.type != self.rows[$0.offset].input.value.type }) != nil
+        {
+            self.repopulateRows()
+
+        }
 
         for (idx, input) in self.inputs.enumerated() {
             if input != self.rows[idx].input {
@@ -50,6 +57,15 @@ final class NodeInputBlockView: PlatformCommonView {
     }
 
     // MARK: - Rows
+
+    func repopulateRows() {
+        for row in self.rows {
+            row.removeFromSuperview()
+        }
+        self.rows.removeAll()
+        self.populateRows()
+        self.onEvent?(.didRepopulateRows)
+    }
 
     func populateRows() {
         for input in inputs {
@@ -132,6 +148,7 @@ extension NodeInputBlockView {
         case sizeDidChange
         case valueDidChange(Int, Value)
         case dragPort(Int, PortView.DragData)
+        case didRepopulateRows
     }
 }
 

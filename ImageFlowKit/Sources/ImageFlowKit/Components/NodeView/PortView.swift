@@ -179,7 +179,6 @@ extension PortView {
         var style: PortView.Style? = nil
         func makeView(context: Context) -> PortView {
             let view = PortView(connected: self.connected, style: self.style ?? .default)
-            view.translatesAutoresizingMaskIntoConstraints = false
             return view
         }
 
