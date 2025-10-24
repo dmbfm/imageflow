@@ -261,7 +261,7 @@ extension Flow {
         um?.endUndoGrouping()
     }
 
-    func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix?, undoManager um: UndoManager?) {
+    func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoManager um: UndoManager?) {
         precondition(self.isValidPort(edge.from))
         precondition(self.isValidPort(edge.to))
 
@@ -275,8 +275,6 @@ extension Flow {
             (edge.to, kind)
         case .canFixConvertingSourceNodeTo(let kind):
             (edge.from, kind)
-        case .none:
-            nil
         } {
             let converted = self.nodes[portToFix.node]!.convert(toVariation: kind)
             precondition(converted)
