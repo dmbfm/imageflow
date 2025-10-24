@@ -224,8 +224,8 @@ extension NodeView {
                 titleLeft: 16,
                 titleRight: 26,
                 titleTop: 14,
-                titleBottom: 22,
-                inputBlockBottomPadding: 12,
+                titleBottom: 10,
+                inputBlockBottomPadding: 4,
                 outputBlockBottomPadding: 10,
             )
         }

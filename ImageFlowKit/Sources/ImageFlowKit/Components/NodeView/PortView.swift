@@ -54,7 +54,7 @@ final class PortView: PlatformView {
                 size: 12,
                 connectedColor: Colors.portConnected.platformColor,
                 emptyColor: Colors.portEmpty.platformColor,
-                strokeWidth: 2
+                strokeWidth: 1.5
             )
         }
     }

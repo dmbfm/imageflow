@@ -225,7 +225,7 @@ extension NodeTitleView {
         var iconTitleSpacing: CGFloat = 10
         var titleSubtitleSpacing: CGFloat = 0
         var iconSize: CGFloat = 24
-        var iconPointSize: CGFloat = 12
+        var iconPointSize: CGFloat = 18
         var minTitleWidth: CGFloat = 80
         var titleFont: FontStyle = .systemFont(size: 14, weight: .medium)
         var subtitleFont: FontStyle = .systemFont(size: 12, weight: .regular)
