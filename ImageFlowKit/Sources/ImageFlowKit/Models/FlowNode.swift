@@ -250,7 +250,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
             return nil
         }
 
-        var node = FlowNode(id: self.id, kind: variation, name: self.name)
+        var node = FlowNode(id: self.id, kind: variation, name: self.name, position: self.position)
 
         for idx in node.inputs.indices {
             if self.inputs.indices.contains(idx) {
