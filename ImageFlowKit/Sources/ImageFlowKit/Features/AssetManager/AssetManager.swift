@@ -37,7 +37,6 @@ extension AssetManager {
 
     private func emit(_ event: Event) {
         Task { @MainActor in
-            log("emit: \(event)", level: .debug)
             self.emitter.emit(event)
         }
     }
