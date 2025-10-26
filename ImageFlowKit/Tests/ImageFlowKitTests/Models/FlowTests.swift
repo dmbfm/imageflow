@@ -544,6 +544,47 @@ func deleteEdgeActionShouldRegisterUndo() {
 }
 
 @MainActor
+@Test("`deleteEdgeAction` should disconnect node ports")
+func deleteEdgeActionShouldDisconnectPorts() {
+    um.removeAllActions()
+    let (flow, ids) = makeFlow(
+        [.valueNode(.float), .valueNode(.float)],
+        [((0, 0), (1, 0))]
+    )
+    let src = PortLocation(node: ids[0], port: .output(0))
+    let dst = PortLocation(node: ids[1], port: .input(0))
+    let edge = Edge(src, dst)!
+    #expect(flow.edges.contains(edge))
+    flow.deleteEdgeAction(edge, undoManager: nil)
+    #expect(flow.edges.isEmpty)
+    #expect(!flow.getPortConnected(src))
+    #expect(!flow.getPortConnected(dst))
+}
+
+@MainActor
+@Test("`deleteEdgeAction` should not disconnect output port with remaining edge")
+func deleteEdgeActionShouldDisconnectPortsV2() {
+    um.removeAllActions()
+    let (flow, ids) = makeFlow(
+        [.valueNode(.float), .valueNode(.float), .valueNode(.float)],
+        [((0, 0), (1, 0)), ((0, 0), (2, 0))]
+    )
+    let src = PortLocation(node: ids[0], port: .output(0))
+    let dst1 = PortLocation(node: ids[1], port: .input(0))
+    let dst2 = PortLocation(node: ids[2], port: .input(0))
+    let edge1 = Edge(src, dst1)!
+    let edge2 = Edge(src, dst2)!
+    #expect(flow.edges.contains(edge1))
+    #expect(flow.edges.contains(edge2))
+    flow.deleteEdgeAction(edge1, undoManager: nil)
+    #expect(!flow.edges.contains(edge1))
+    #expect(flow.edges.contains(edge2))
+    #expect(flow.getPortConnected(src))
+    #expect(flow.getPortConnected(dst2))
+    #expect(!flow.getPortConnected(dst1))
+}
+
+@MainActor
 @Test("`deleteEdgeAction` should corretly undo")
 func deleteEdgeActionShouldUndo() {
     um.removeAllActions()
