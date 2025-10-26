@@ -15,12 +15,14 @@ final class Flow {
     /// All edges currently present in the graph.
     public var edges: Set<Edge>
 
-    public var portDraggingState: PortDraggingState = .idle
-
-    public var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
+    public var partialEdge: PartialEdge? = nil
 
     @ObservationIgnored
-    internal var liveSelectSnapshot: Set<UUID>? = nil
+    var portDraggingState: PortDraggingState = .idle
+
+    var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
+
+    var liveSelectSnapshot: Set<UUID>? = nil
 
     /// Creates a new flow model.
     /// - Parameters:

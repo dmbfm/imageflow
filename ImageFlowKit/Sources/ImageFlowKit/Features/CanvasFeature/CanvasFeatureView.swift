@@ -168,7 +168,7 @@ public struct CanvasFeatureView: View {
             self.flow.portDragCancel()
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         case .ended:
-            self.flow.portDragEnd(pointer, undoManager: self.undoManager)
+            self.flow.portDragEnd(undoManager: self.undoManager)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         }
     }
