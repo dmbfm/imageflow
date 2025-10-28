@@ -13,7 +13,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeBooleanInput: PlatformView, NodeControl {
+final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
     public var value: Value {
         didSet {
@@ -39,7 +39,6 @@ final class NodeBooleanInput: PlatformView, NodeControl {
     lazy var toggle: NSButton = {
         let view = NSButton(checkboxWithTitle: "", target: self, action: #selector(Self.onToggleChange))
         view.contentTintColor = .red
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.focusRingType = .exterior
         view.state = self.value.bool ? .on : .off
         return view
@@ -60,7 +59,6 @@ final class NodeBooleanInput: PlatformView, NodeControl {
     lazy var toggle: UISwitch = {
         let view = UISwitch()
         view.isOn = self.value.bool
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.addTarget(self, action: #selector(Self.onToggleChange), for: .valueChanged)
         return view
     }()
@@ -81,7 +79,6 @@ final class NodeBooleanInput: PlatformView, NodeControl {
         super.init(frame: .zero)
 
         self.addSubview(self.toggle)
-        self.toggle.constraintToFill(self)
     }
 
     public required init?(coder: NSCoder) {
@@ -90,6 +87,11 @@ final class NodeBooleanInput: PlatformView, NodeControl {
 
     public override var intrinsicContentSize: CGSize {
         self.toggle.intrinsicContentSize
+    }
+
+    override func doLayout() {
+        self.toggle.frame.origin = .zero
+        self.toggle.frame.size = self.toggle.intrinsicContentSize
     }
 
     func setValue(_ value: Bool) {

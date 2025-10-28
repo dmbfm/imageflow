@@ -25,7 +25,7 @@ extension FormatStyle where Self == NodeIntegerInputFormat {
     }
 }
 
-final class NodeIntegerInput: PlatformView, NodeControl {
+final class NodeIntegerInput: PlatformCommonView, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var value: Value {
@@ -43,7 +43,6 @@ final class NodeIntegerInput: PlatformView, NodeControl {
             self.value.int.formatted(.nodeInterger),
             style: .default.with(\.borderColor, self.tint)
         )
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.onEvent = { [weak self] event in
             switch event {
             case .textDidChange(let value):
@@ -76,7 +75,6 @@ final class NodeIntegerInput: PlatformView, NodeControl {
         self.clipsToBounds = false
 
         self.addSubview(self.textField)
-        self.textField.constraintToFill(self)
     }
 
     public required init?(coder: NSCoder) {
@@ -85,6 +83,11 @@ final class NodeIntegerInput: PlatformView, NodeControl {
 
     public override var intrinsicContentSize: CGSize {
         self.textField.intrinsicContentSize
+    }
+
+    override func doLayout() {
+        self.textField.frame.origin = .zero
+        self.textField.frame.size = self.textField.intrinsicContentSize
     }
 
     func setValue(_ value: Int) {
@@ -110,7 +113,6 @@ extension NodeIntegerInput {
 
         func makeView(context: Context) -> NodeIntegerInput {
             let view = NodeIntegerInput(self.value)
-            view.translatesAutoresizingMaskIntoConstraints = false
             view.onEvent = { event in
                 switch event {
                 case .valueDidChange(let value): self.value = value

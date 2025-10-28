@@ -30,7 +30,7 @@ extension FormatStyle where Self == NodeNumberInputFormat {
     }
 }
 
-final class NodeNumberInput: PlatformView, NodeControl {
+final class NodeNumberInput: PlatformCommonView, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var value: Value {
@@ -56,7 +56,6 @@ final class NodeNumberInput: PlatformView, NodeControl {
             self.value.float.formatted(.nodeNumber),
             style: .default.with(\.borderColor, self.tint)
         )
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.onEvent = { [weak self] event in
             switch event {
             case .textDidChange(let value):
@@ -89,11 +88,6 @@ final class NodeNumberInput: PlatformView, NodeControl {
         self.clipsToBounds = false
 
         self.addSubview(self.textField)
-
-        NSLayoutConstraint.activate([
-            self.textField.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.textField.topAnchor.constraint(equalTo: self.topAnchor),
-        ])
     }
 
     public required init?(coder: NSCoder) {
@@ -103,6 +97,11 @@ final class NodeNumberInput: PlatformView, NodeControl {
     public override var intrinsicContentSize: CGSize {
         let result = self.textField.intrinsicContentSize
         return result
+    }
+
+    override func doLayout() {
+        self.textField.frame.origin = .zero
+        self.textField.frame.size = self.textField.intrinsicContentSize
     }
 
     func setValue(_ value: Double) {
@@ -148,7 +147,6 @@ extension NodeNumberInput {
 
         public func makeView(context: Context) -> NodeNumberInput {
             let view = NodeNumberInput(self.value)
-            view.translatesAutoresizingMaskIntoConstraints = false
             view.onEvent = { event in
                 switch event {
                 case .valueDidChange(let value): self.value = value

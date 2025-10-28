@@ -9,7 +9,7 @@ import AppKit
 import UIKit
 #endif
 
-public final class StaticLabelNodeControl: PlatformView, NodeControl {
+public final class StaticLabelNodeControl: PlatformCommonView, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var text: String
@@ -23,7 +23,6 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
         let view = NSTextField(labelWithString: self.text)
         view.textColor = .secondaryLabelColor
         view.font = .systemFont(ofSize: 10)
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
@@ -39,7 +38,6 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
         let label = UILabel()
         label.text = self.text
         label.font = .preferredFont(forTextStyle: .caption2)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = self.text
         return label
     }()
@@ -57,7 +55,6 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
         super.init(frame: .zero)
 
         self.addSubview(self.labelView)
-        self.labelView.constraintToFill(self, edgeInsets: .init(top: 1, left: 2, bottom: 1, right: 2))
 
         self.platformInit()
     }
@@ -68,6 +65,11 @@ public final class StaticLabelNodeControl: PlatformView, NodeControl {
 
     public override var intrinsicContentSize: CGSize {
         self.labelView.intrinsicContentSize + .init(width: 4, height: 2)
+    }
+
+    public override func doLayout() {
+        self.labelView.frame.origin = .zero
+        self.labelView.frame.size = self.intrinsicContentSize
     }
 
 }

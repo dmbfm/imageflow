@@ -42,7 +42,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     lazy var label: NSTextField = {
         let label = NSTextField(labelWithString: self.text)
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.maximumNumberOfLines = 1
         label.font = self.font
         return label
     }()
@@ -50,7 +50,6 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     lazy var textField: NSTextField = {
         let view = NSTextField()
         view.font = self.font
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.stringValue = self.text
         view.isBezeled = false
         view.drawsBackground = false
@@ -63,7 +62,6 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     lazy var backgroundView: NSView = {
         let view = NSView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
         view.layer?.backgroundColor = self.style.backgroundColor.cgColor
         view.layer?.cornerRadius = self.style.innerCornerRadius
@@ -77,11 +75,8 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         super.init(frame: .zero)
 
         self.addSubview(self.backgroundView)
-        self.backgroundView.constraintToFill(self, edgeInsets: style.backgroundInsets.platformEdgeInsets)
         self.addSubview(self.label)
-        self.label.constraintToFill(self, edgeInsets: style.textInsets.platformEdgeInsets)
         self.addSubview(self.textField)
-        self.textField.constraintToFill(self, edgeInsets: style.textInsets.platformEdgeInsets)
         self.textField.isHidden = true
 
         self.wantsLayer = true
@@ -112,7 +107,26 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     }
 
     public override var intrinsicContentSize: NSSize {
-        self.label.intrinsicContentSize + style.textInsets.platformEdgeInsets.size
+        let str = NSAttributedString(
+            string: self.label.text,
+            attributes: [
+                NSAttributedString.Key.font: self.label.font as Any
+            ]
+        )
+        let size = str.size() + .init(width: 4, height: 0)
+        return size + style.textInsets.platformEdgeInsets.size
+    }
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override func layout() {
+        let size = self.intrinsicContentSize
+        let rect = CGRect(origin: .zero, size: size)
+        self.backgroundView.frame = rect.insetted(by: self.style.backgroundInsets.platformEdgeInsets)
+        self.label.frame = rect.insetted(by: self.style.textInsets.platformEdgeInsets)
+        self.textField.frame = rect.insetted(by: self.style.textInsets.platformEdgeInsets)
     }
 
     public override func mouseDown(with event: NSEvent) {
