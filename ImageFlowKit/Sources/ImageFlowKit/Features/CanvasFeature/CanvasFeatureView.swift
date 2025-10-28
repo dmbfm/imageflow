@@ -147,7 +147,9 @@ public struct CanvasFeatureView: View {
                 self.updateEdges()
             }
         case .sizeChanged:
-            break
+            Task { @MainActor in
+                self.updateEdges()
+            }
         }
     }
 
