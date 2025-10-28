@@ -53,6 +53,8 @@ final class NodeInputRowView: PlatformView {
             switch self.input.value.type {
             case .float:
                 NodeNumberInput(self.input.value)
+            case .bool:
+                NodeBooleanInput(self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }

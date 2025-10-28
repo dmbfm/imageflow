@@ -27,18 +27,15 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
     public var tint: PlatformColor = .systemBlue {
         didSet {
-            #if os(macOS)
-            self.toggle.contentTintColor = self.tint
-            #else
+            #if os(iOS)
             self.toggle.onTintColor = self.tint
             #endif
         }
     }
 
     #if os(macOS)
-    lazy var toggle: NSButton = {
-        let view = NSButton(checkboxWithTitle: "", target: self, action: #selector(Self.onToggleChange))
-        view.contentTintColor = .red
+    lazy var toggle: NSSwitch = {
+        let view = NSSwitch()
         view.focusRingType = .exterior
         view.state = self.value.bool ? .on : .off
         return view
