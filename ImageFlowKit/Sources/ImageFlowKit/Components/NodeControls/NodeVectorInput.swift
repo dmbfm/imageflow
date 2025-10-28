@@ -78,7 +78,6 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         }
     }
 
-
     private var valueAtDragStart: CGFloat = 0.0
 
     public init(_ value: Value) {
@@ -159,18 +158,18 @@ extension Value {
     fileprivate subscript(_ idx: Int) -> Double {
         get {
             switch self.type {
-                case .vector2: self.vector2[idx]
-                case .vector3: self.vector3[idx]
-                case .vector4: self.vector4[idx]
-                default: fatalError()
+            case .vector2: self.vector2[idx]
+            case .vector3: self.vector3[idx]
+            case .vector4: self.vector4[idx]
+            default: fatalError()
             }
         }
         set {
             switch self.type {
-                case .vector2: self.vector2[idx] = newValue
-                case .vector3: self.vector3[idx] = newValue
-                case .vector4: self.vector4[idx] = newValue
-                default: fatalError()
+            case .vector2: self.vector2[idx] = newValue
+            case .vector3: self.vector3[idx] = newValue
+            case .vector4: self.vector4[idx] = newValue
+            default: fatalError()
             }
         }
     }

@@ -19,6 +19,17 @@ extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
 
+    var canvasFeatureViewDelegate: CanvasFeatureView.Delegate {
+        .init(
+            openAssetPicker: { id, portIndex in
+                self.openAssetPicker(.init(node: id, port: .input(portIndex)))
+            },
+            fetchImageAsset: { id in
+                self.assetStore.images[id]
+            }
+        )
+    }
+
     var assetBrowserDelegate: AssetBrowserViewDelegate {
         .init(
             onDismiss: self.onAssetBrowserDismiss(_:),
@@ -73,12 +84,20 @@ extension MainContentView {
 
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
         log("asset browser result: \(result), type: \(self.assetBrowserType)")
+
         switch result {
         case .create(let id):
             var node = FlowNode(id: .init(), kind: .valueNode(.image))
             node.inputs[0].value = .image(.asset(id))
             self.createNodeAtCanvasCenter(node)
-        default:
+        case .pick(let assetId):
+            switch self.assetBrowserType {
+            case .browser:
+                break
+            case .picker(let loc):
+                self.flow.nodes[loc.node]![valueAt: loc.slot] = .image(.asset(assetId))
+            }
+        case .cancel:
             break
         }
     }
@@ -113,6 +132,19 @@ extension MainContentView {
                 return
             }
             try await self.assetStore.addImageAssets(fromPhotosPickerItems: items, undoManager: self.undoManager)
+        }
+    }
+
+    func openAssetBrowser() {
+        self.assetBrowserType = .browser
+        self.showAssetBrowser = true
+    }
+
+    func openAssetPicker(_ port: PortLocation) {
+        self.showAssetBrowser = true
+        Task { @MainActor in
+            try! await Task.sleep(for: .milliseconds(1))
+            self.assetBrowserType = .picker(port)
         }
     }
 }

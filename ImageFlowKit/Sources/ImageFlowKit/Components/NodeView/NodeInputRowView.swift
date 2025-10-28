@@ -4,7 +4,7 @@ import SwiftUI
 import Values
 
 final class NodeInputRowView: PlatformView {
-    public var input: FlowNode.Input {
+    var input: FlowNode.Input {
         didSet {
             if self.input != oldValue {
                 self.update()
@@ -12,13 +12,15 @@ final class NodeInputRowView: PlatformView {
         }
     }
 
-    public var drawPortAsConnected: Bool = false {
+    var drawPortAsConnected: Bool = false {
         didSet {
             self.portView.connected = self.drawPortAsConnected || self.input.connected
         }
     }
 
-    public var onEvent: ((Event) -> ())?
+    var onEvent: ((Event) -> ())?
+
+    private var imageInputDelegate: NodeImageInput.Delegate?
 
     // MARK: - Private
 
@@ -57,6 +59,8 @@ final class NodeInputRowView: PlatformView {
                 NodeBooleanInput(self.input.value)
             case .vector2, .vector3, .vector4:
                 NodeVectorInput(self.input.value)
+            case .image:
+                NodeImageInput(self.input.value, delegate: self.imageInputDelegate)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
@@ -81,9 +85,10 @@ final class NodeInputRowView: PlatformView {
 
     // MARK: - Initializers
 
-    init(_ input: FlowNode.Input, style: Style = .default) {
+    init(_ input: FlowNode.Input, imageInputDelegate: NodeImageInput.Delegate? = nil, style: Style = .default) {
         self.input = input
         self.style = style
+        self.imageInputDelegate = imageInputDelegate
 
         super.init(frame: .zero)
 
@@ -248,9 +253,7 @@ extension NodeInputRowView {
             connected: false
         )
         func makeView(context: Context) -> NodeInputRowView {
-            let view = NodeInputRowView(
-                self.input
-            )
+            let view = NodeInputRowView(self.input)
             view.onEvent = { log("event: \($0)") }
             return view
         }

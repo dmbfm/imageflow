@@ -27,6 +27,8 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     var id: UUID { self.node.id }
 
+    private var inputBlockDelegate: NodeInputBlockView.Delegate?
+
     // MARK: - Private properties
 
     private var titleModel: NodeTitleView.ViewModel {
@@ -66,7 +68,7 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     }()
 
     lazy var inputBlockView: NodeInputBlockView = {
-        let view = NodeInputBlockView(self.node.inputs, style: self.style.inputRow)
+        let view = NodeInputBlockView(self.node.inputs, delegate: self.inputBlockDelegate, style: self.style.inputRow)
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
@@ -100,10 +102,16 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     // MARK: - Init
 
-    public init(_ node: FlowNode, _ isSelected: Bool = false, style: Style = .default) {
+    public init(
+        _ node: FlowNode,
+        _ isSelected: Bool = false,
+        inputBlockDelegate: NodeInputBlockView.Delegate? = nil,
+        style: Style = .default
+    ) {
         self.node = node
         self.isSelected = isSelected
         self.style = style
+        self.inputBlockDelegate = inputBlockDelegate
 
         super.init(frame: .zero)
 
@@ -308,6 +316,7 @@ extension NodeView {
 extension NodeView {
     public struct Preview: PlatformViewRepresentable {
         let node: FlowNode
+
         public init(node: FlowNode) {
             self.node = node
         }

@@ -161,16 +161,16 @@ final class BackgroundView: PlatformView {
             [.lightness]
         }
     }
-    
+
     func showBorder() {
         self.layer.borderWidth = self.style.selectedBorderWidth
         self.layer.borderColor = self.style.selectedBorderColor.cgColor
     }
-    
+
     func hideBorder() {
         self.layer.borderWidth = 0
     }
-    
+
     override func draw(_ rect: CGRect) {
         self.draw()
     }
@@ -214,7 +214,7 @@ extension BackgroundView {
         var gradientHeight: CGFloat
         var borderAnimationDuration: CGFloat
         var selectedBorderWidth: CGFloat
-        var selectedBorderColor: PlatformColor 
+        var selectedBorderColor: PlatformColor
 
         static var `default`: Self {
             .init(

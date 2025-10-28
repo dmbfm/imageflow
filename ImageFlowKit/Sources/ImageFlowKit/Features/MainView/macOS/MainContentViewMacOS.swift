@@ -47,8 +47,14 @@ struct MainContentViewMacOS: View {
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
                 .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {
-            DetailView(flow: self.flow, canvas: self.canvas, focus: self.$focus, canvasCenter: self.canvasCenter)
-                .ignoresSafeArea(.all, edges: [.top, .horizontal])
+            DetailView(
+                flow: self.flow,
+                canvas: self.canvas,
+                focus: self.$focus,
+                canvasCenter: self.canvasCenter,
+                delegate: self.canvasFeatureViewDelegate
+            )
+            .ignoresSafeArea(.all, edges: [.top, .horizontal])
         }
         .toolbar { self.toolbarContent }
         .toolbarRole(.editor)
@@ -83,7 +89,7 @@ struct MainContentViewMacOS: View {
     var toolbarContent: some ToolbarContent {
         ToolbarItemGroup {
             Button {
-                self.showAssetBrowser = true
+                self.openAssetBrowser()
             } label: {
                 Image(systemName: "photo.badge.plus")
             }
@@ -97,6 +103,7 @@ fileprivate struct DetailView: View {
     let canvas: CanvasFeatureState
     let focus: FocusState<Focus?>.Binding
     let canvasCenter: Box<CGPoint>
+    let delegate: CanvasFeatureView.Delegate
 
     @Environment(\.colorScheme) var cs
 
@@ -112,7 +119,7 @@ fileprivate struct DetailView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            CanvasFeatureView(self.canvas, self.flow, self.focus)
+            CanvasFeatureView(self.canvas, self.flow, self.focus, delegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in

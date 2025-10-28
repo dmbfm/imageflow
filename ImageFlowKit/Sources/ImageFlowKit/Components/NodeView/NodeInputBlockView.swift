@@ -1,10 +1,11 @@
 import Helpers
+import Logging
 import SwiftUI
 import Values
 
 final class NodeInputBlockView: PlatformCommonView {
 
-    public var inputs: [FlowNode.Input] {
+    var inputs: [FlowNode.Input] {
         didSet {
             if self.inputs != oldValue {
                 self.update()
@@ -12,15 +13,27 @@ final class NodeInputBlockView: PlatformCommonView {
         }
     }
 
-    public private(set) var rows: [NodeInputRowView] = []
+    private(set) var rows: [NodeInputRowView] = []
 
-    public var onEvent: ((Event) -> ())?
+    var onEvent: ((Event) -> ())?
+
+    struct Delegate {
+        var openAssetBrowser: (Int) -> ()
+        var titleForAsset: (UUID) -> String?
+    }
+
+    private var delegate: Delegate?
 
     private var style: NodeInputRowView.Style
 
-    init(_ inputs: [FlowNode.Input], style: NodeInputRowView.Style = .default) {
+    init(
+        _ inputs: [FlowNode.Input],
+        delegate: Delegate? = nil,
+        style: NodeInputRowView.Style = .default,
+    ) {
         self.inputs = inputs
         self.style = style
+        self.delegate = delegate
 
         super.init(frame: .zero)
 
@@ -68,8 +81,16 @@ final class NodeInputBlockView: PlatformCommonView {
     }
 
     func populateRows() {
-        for input in inputs {
-            let row = NodeInputRowView(input, style: self.style)
+        for (idx, input) in inputs.enumerated() {
+            let delegate = NodeImageInput.Delegate(
+                openAssetBrowser: {
+                    self.delegate?.openAssetBrowser(idx)
+                },
+                titleForAsset: { id in
+                    self.delegate?.titleForAsset(id)
+                }
+            )
+            let row = NodeInputRowView(input, imageInputDelegate: delegate, style: self.style)
             row.clipsToBounds = false
             row.onEvent = { [weak self] event in
                 switch event {

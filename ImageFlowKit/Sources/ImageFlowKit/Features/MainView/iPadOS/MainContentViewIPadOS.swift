@@ -87,7 +87,7 @@ struct MainContentViewIPadOS: View {
     @ViewBuilder
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.canvas, self.flow, self.$focus)
+            CanvasFeatureView(self.canvas, self.flow, self.$focus, self.canvasFeatureViewDelegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in
@@ -117,7 +117,7 @@ struct MainContentViewIPadOS: View {
 
         ToolbarItem(placement: .primaryAction) {
             Button {
-                self.showAssetBrowser = true
+                self.openAssetBrowser()
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
             }

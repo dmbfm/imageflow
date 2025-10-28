@@ -31,17 +31,17 @@ public struct Vector2: Sendable, Hashable, Codable {
     public subscript(_ index: Int) -> Double {
         get {
             switch index {
-                case 0: self.x
-                case 1: self.y
-                default: fatalError("Out of range")
+            case 0: self.x
+            case 1: self.y
+            default: fatalError("Out of range")
             }
         }
 
         set {
             switch index {
-                case 0: self.x = newValue
-                case 1: self.y = newValue
-                default: fatalError("Out of range")
+            case 0: self.x = newValue
+            case 1: self.y = newValue
+            default: fatalError("Out of range")
             }
         }
     }
@@ -75,19 +75,19 @@ public struct Vector3: Sendable, Hashable, Codable {
     public subscript(_ index: Int) -> Double {
         get {
             switch index {
-                case 0: self.x
-                case 1: self.y
-                case 2: self.z
-                default: fatalError("Out of range")
+            case 0: self.x
+            case 1: self.y
+            case 2: self.z
+            default: fatalError("Out of range")
             }
         }
 
         set {
             switch index {
-                case 0: self.x = newValue
-                case 1: self.y = newValue
-                case 2: self.z = newValue
-                default: fatalError("Out of range")
+            case 0: self.x = newValue
+            case 1: self.y = newValue
+            case 2: self.z = newValue
+            default: fatalError("Out of range")
             }
         }
     }
@@ -123,21 +123,21 @@ public struct Vector4: Sendable, Hashable, Codable {
     public subscript(_ index: Int) -> Double {
         get {
             switch index {
-                case 0: self.x
-                case 1: self.y
-                case 2: self.z
-                case 3: self.w
-                default: fatalError("Out of range")
+            case 0: self.x
+            case 1: self.y
+            case 2: self.z
+            case 3: self.w
+            default: fatalError("Out of range")
             }
         }
 
         set {
             switch index {
-                case 0: self.x = newValue
-                case 1: self.y = newValue
-                case 2: self.z = newValue
-                case 3: self.w = newValue
-                default: fatalError("Out of range")
+            case 0: self.x = newValue
+            case 1: self.y = newValue
+            case 2: self.z = newValue
+            case 3: self.w = newValue
+            default: fatalError("Out of range")
             }
         }
     }

@@ -32,6 +32,7 @@ extension CGSize {
         case max
         case ours
         case theirs
+        case sum
 
         func callAsFunction(_ a: CGFloat, _ b: CGFloat) -> CGFloat {
             switch self {
@@ -43,6 +44,8 @@ extension CGSize {
                 a
             case .theirs:
                 b
+            case .sum:
+                a + b
             }
         }
     }

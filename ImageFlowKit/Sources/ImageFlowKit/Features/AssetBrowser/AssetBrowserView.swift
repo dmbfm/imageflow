@@ -50,7 +50,7 @@ struct AssetBrowserView: View {
     // MARK: - Init
 
     init(
-        type: AssetBrowserType = .browser,
+        type: AssetBrowserType,
         assetsProvider: any AssetBrowserAssetsProvider,
         delegate: AssetBrowserViewDelegate,
     ) {
@@ -165,6 +165,12 @@ struct AssetBrowserView: View {
 
         }
         .ignoresSafeArea(.keyboard)
+        .onAppear {
+            log("!!!!!!!!-?!-)?=(!&-)=?(&!-)=?(): \(self.type)")
+        }
+        .onChange(of: self.type, initial: true) {
+            log("change of type: \(self.type)")
+        }
     }
 
     // MARK: - Toolbar

@@ -87,7 +87,9 @@ func portDragConnectedInputShouldDelete() {
     #expect(flow.getPortConnected(dst) == true)
 }
 
-@Test("Dragging the output port of a int node to the input port of a float node should convert the float node to an int node")
+@Test(
+    "Dragging the output port of a int node to the input port of a float node should convert the float node to an int node"
+)
 @MainActor
 func portDragConvertNode() {
     let (flow, ids) = makeFlow([.valueNode(.int), .valueNode(.float)], [])
