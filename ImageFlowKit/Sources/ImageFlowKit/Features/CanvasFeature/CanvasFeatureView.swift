@@ -251,13 +251,6 @@ public struct CanvasFeatureView: View {
         ]
 
         if let e = self.flow.partialEdge {
-
-            // let point = self.state.viewport.convert(
-            //     self.scratch.canvasPlatformView!.convert(e.pointer, from: nil),
-            //     //self.converter.convertFromWindow(e.point),
-            //     from: .screen,
-            //     to: .canvas
-            // )
             let point = e.pointer
             let (src, dst) =
                 switch e.port.slot {
