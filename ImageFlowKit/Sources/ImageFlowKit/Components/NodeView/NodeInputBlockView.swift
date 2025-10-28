@@ -70,6 +70,7 @@ final class NodeInputBlockView: PlatformCommonView {
     func populateRows() {
         for input in inputs {
             let row = NodeInputRowView(input, style: self.style)
+            row.clipsToBounds = false
             row.onEvent = { [weak self] event in
                 switch event {
                 case .valueDidChange(let value):

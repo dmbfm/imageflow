@@ -80,6 +80,7 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
                 self.emitter.emit(.other(.didRepopulateInputRows))
             }
         }
+        view.clipsToBounds = false
         return view
     }()
 

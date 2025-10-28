@@ -60,6 +60,7 @@ final class NodeInputRowView: PlatformView {
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
+        view.clipsToBounds = false
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
