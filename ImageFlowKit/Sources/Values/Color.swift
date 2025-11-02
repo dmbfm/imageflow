@@ -61,6 +61,44 @@ public struct Color4: Sendable, Hashable, Codable {
     }
 }
 
+#if canImport(UIKit)
+import UIKit
+extension Color3 {
+    public init?(uiColor: UIColor) {
+        var red: CGFloat = 0.0
+        var green: CGFloat = 0.0
+        var blue: CGFloat = 0.0
+
+        if uiColor.getRed(&red, green: &green, blue: &blue, alpha: nil) {
+            self.init(red: red, green: green, blue: blue)
+        } else {
+            return nil
+        }
+    }
+    
+    public var uiColor: UIColor {
+        .init(red: self.red, green: self.green, blue: self.blue, alpha: 1.0)
+    }
+}
+extension Color4 {
+    public init?(uiColor: UIColor) {
+        var red: CGFloat = 0.0
+        var green: CGFloat = 0.0
+        var blue: CGFloat = 0.0
+        var alpha: CGFloat = 0.0
+
+        if uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            self.init(red: red, green: green, blue: blue, alpha: alpha)
+        } else {
+            return nil
+        }
+    }
+    public var uiColor: UIColor {
+        .init(red: self.red, green: self.green, blue: self.blue, alpha: self.alpha)
+    }
+}
+#endif
+
 #if canImport(AppKit)
 
 import AppKit

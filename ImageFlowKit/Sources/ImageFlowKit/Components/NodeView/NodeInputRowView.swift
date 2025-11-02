@@ -61,6 +61,8 @@ final class NodeInputRowView: PlatformView {
                 NodeVectorInput(self.input.value)
             case .image:
                 NodeImageInput(self.input.value, delegate: self.imageInputDelegate)
+            case .color3, .color4:
+                NodeColorInput(self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
