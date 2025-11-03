@@ -67,6 +67,8 @@ final class NodeInputRowView: PlatformView {
                 NodeColorInput(self.input.value)
             case .rect:
                 NodeRectInput(self.input.value)
+            case .string:
+                NodeStringInput(self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
