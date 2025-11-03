@@ -182,12 +182,12 @@ extension NodeVectorInput {
         let value: Value
         func makeView(context: Context) -> some NSView {
             let view = NodeVectorInput(self.value)
-            view.onEvent = { event in log("event: \(event)")}
+            view.onEvent = { event in log("event: \(event)") }
             return view
         }
 
         func updateView(_ view: ViewType, context: Context) {
-        
+
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {

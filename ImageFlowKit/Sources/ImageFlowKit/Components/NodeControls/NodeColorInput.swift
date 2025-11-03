@@ -29,12 +29,12 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 
     var platformColor: PlatformColor {
         switch self.value {
-            case .color3(let color):
-                return color.platformColor
-            case .color4(let color):
-                return color.platformColor
-            default:
-                fatalError("Invalid type!")
+        case .color3(let color):
+            return color.platformColor
+        case .color4(let color):
+            return color.platformColor
+        default:
+            fatalError("Invalid type!")
         }
     }
 
@@ -61,20 +61,20 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         nil
     }
 
-    private func update() { }
+    private func update() {}
 
     private func setValue(_ color: PlatformColor) {
         switch self.value.type {
-            case .color3:
-                if let color = Color3(platformColor: color) {
-                    self.value = .color3(color)
-                }
-            case .color4:
-                if let color = Color4(platformColor: color) {
-                    self.value = .color4(color)
-                }
-            default:
-                fatalError("Invalid type")
+        case .color3:
+            if let color = Color3(platformColor: color) {
+                self.value = .color3(color)
+            }
+        case .color4:
+            if let color = Color4(platformColor: color) {
+                self.value = .color4(color)
+            }
+        default:
+            fatalError("Invalid type")
         }
         self.emit(.valueDidChange(self.value))
     }
@@ -128,16 +128,16 @@ extension Color4 {
 
 extension NodeColorInput {
     fileprivate struct Preview: PlatformViewRepresentable {
-        
+
         let value: Value
-        
+
         func makeView(context: Context) -> NodeColorInput {
             let view = NodeColorInput(self.value)
             return view
         }
 
         func updateView(_ view: NodeColorInput, context: Context) {
-        
+
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: NodeColorInput, context: Context) -> CGSize? {
@@ -150,7 +150,7 @@ extension NodeColorInput {
     VStack {
         NodeColorInput.Preview(value: .color3(.init(red: 1, green: 0, blue: 0)))
         NodeColorInput.Preview(value: .color4(.init(red: 1, green: 0, blue: 0, alpha: 0.5)))
-        
+
         NodeView.Preview(node: .init(kind: .valueNode(.color4)))
     }
     .frame(minWidth: 500, minHeight: 500)

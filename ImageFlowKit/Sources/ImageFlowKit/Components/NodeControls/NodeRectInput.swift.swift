@@ -58,7 +58,7 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
 
         return view
     }()
-    
+
     func setValue(_ vec: Vector4) {
         let value: Value = .rect(.init(x: vec.x, y: vec.y, width: vec.z, height: vec.w))
 
@@ -110,10 +110,10 @@ extension NodeRectInput {
             }
             return view
         }
-        
+
         func updateView(_ view: NodeRectInput, context: Context) {
         }
-        
+
         func sizeThatFits(_ proposal: ProposedViewSize, view: NodeRectInput, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }

@@ -15,7 +15,7 @@ import SwiftUI
 import AppKit
 
 final class NodeColorPicker: NSView {
-    
+
     // MARK: - Exposed Properties
 
     var color: NSColor = .red {
@@ -27,13 +27,13 @@ final class NodeColorPicker: NSView {
     var showsAlpha: Bool = true
 
     var colorDidChange: ((NSColor) -> ())?
-    
+
     // MARK: - Private Properties
-    
+
     private let style: Style = .default
-    
+
     private var trackingArea: NSTrackingArea?
-    
+
     // MARK: - Subviews
 
     lazy var bgView: NSView = {
@@ -53,7 +53,7 @@ final class NodeColorPicker: NSView {
         view.layer?.cornerCurve = .continuous
         return view
     }()
-    
+
     // MARK: - Init
 
     init() {
@@ -64,26 +64,26 @@ final class NodeColorPicker: NSView {
         self.addSubview(self.bgView)
         self.addSubview(self.fgView)
     }
-    
+
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     // MARK: - Drawing
 
     override var wantsUpdateLayer: Bool {
         true
     }
-    
+
     override func updateLayer() {
         super.updateLayer()
         self.fgView.layer?.backgroundColor = self.color.cgColor
-        self.fgView.layer?.compositingFilter = self.effectiveAppearance.isDarkMode ? self.style.darkBlendMode : self.style.lightBlendMode
+        self.fgView.layer?.compositingFilter =
+            self.effectiveAppearance.isDarkMode ? self.style.darkBlendMode : self.style.lightBlendMode
         self.bgView.layer?.borderColor = self.style.borderColor.cgColor
         self.bgView.layer?.backgroundColor = self.effectiveAppearance.isDarkMode ? .black : .white
     }
-   
-    
+
     // MARK: - Layout
 
     override var isFlipped: Bool {
@@ -99,9 +99,9 @@ final class NodeColorPicker: NSView {
         self.bgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
         self.fgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
     }
-    
+
     // MARK: - User Interaction
-    
+
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
 
@@ -126,7 +126,7 @@ final class NodeColorPicker: NSView {
         // Add the new tracking area
         addTrackingArea(trackingArea!)
     }
-    
+
     func animBorder(to value: CGFloat, duration: CGFloat = 0.2) {
         let anim = CABasicAnimation()
         anim.timingFunction = .init(name: .easeInEaseOut)
@@ -144,14 +144,14 @@ final class NodeColorPicker: NSView {
     override func mouseExited(with event: NSEvent) {
         self.animBorder(to: self.style.borderWidthDefault)
     }
-    
+
     private var isMouseDown: Bool = true
-    
+
     override func mouseDown(with event: NSEvent) {
         self.isMouseDown = true
         self.animBorder(to: 6, duration: 0.1)
     }
-    
+
     override func mouseUp(with event: NSEvent) {
         let pos = self.convert(event.locationInWindow, from: nil)
         if self.isMouseDown && self.bounds.contains(pos) {
@@ -162,7 +162,7 @@ final class NodeColorPicker: NSView {
         }
         self.isMouseDown = false
     }
-    
+
     @objc
     func clickHandler() {
         let cp = NSColorPanel.shared
@@ -204,7 +204,7 @@ final class NodeColorPicker: UIView {
     var colorDidChange: ((UIColor) -> ())?
 
     // MARK: - Private Properties
-    
+
     private var style: Style = .default
 
     private var isDarkMode: Bool {
@@ -354,12 +354,12 @@ extension NodeColorPicker {
         var radius: CGFloat
         var lightBlendMode: String
         var darkBlendMode: String
-        
 
         static var `default`: Style {
             .init(
                 size: .init(width: 40, height: 25),
-                borderColor: DynamicColor(light: .init(white: 0.8, alpha: 1), dark: .init(white: 0.32, alpha: 1)), borderWidthDefault: 2,
+                borderColor: DynamicColor(light: .init(white: 0.8, alpha: 1), dark: .init(white: 0.32, alpha: 1)),
+                borderWidthDefault: 2,
                 borderWidthHover: 4,
                 borderWidthTouch: 5,
                 radius: 10,

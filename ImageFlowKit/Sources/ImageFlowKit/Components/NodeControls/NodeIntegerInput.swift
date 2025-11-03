@@ -96,16 +96,15 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         view.addTarget(self, action: #selector(Self.stepperHandler), for: .valueChanged)
         return view
     }()
-    
-    
+
     #endif
-    
-@objc func stepperHandler() {
+
+    @objc func stepperHandler() {
         log("step! \(self.stepper.value)")
         self.value = .int(Int(self.stepper.value))
         self.emit(.valueDidChange(self.value))
     }
-    
+
     init(_ value: Value) {
         self.value = value
 

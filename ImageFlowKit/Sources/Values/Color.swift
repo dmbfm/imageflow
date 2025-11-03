@@ -75,7 +75,7 @@ extension Color3 {
             return nil
         }
     }
-    
+
     public var uiColor: UIColor {
         .init(red: self.red, green: self.green, blue: self.blue, alpha: 1.0)
     }
