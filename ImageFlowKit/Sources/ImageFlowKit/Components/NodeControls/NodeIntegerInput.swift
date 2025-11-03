@@ -26,9 +26,9 @@ extension FormatStyle where Self == NodeIntegerInputFormat {
 }
 
 final class NodeIntegerInput: PlatformCommonView, NodeControl {
-    public var onEvent: ((NodeControlEvent) -> ())?
+    var onEvent: ((NodeControlEvent) -> ())?
 
-    public var value: Value {
+    var value: Value {
         didSet {
             if self.value != oldValue {
                 self.update()
@@ -36,7 +36,9 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    var tint: PlatformColor = .systemBlue
+
+    private var style: Style = .default
 
     lazy var textField: NodeTextField = {
         let view = NodeTextField(
@@ -60,13 +62,50 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
             case .drag:
-                // TODO: Handle drag
+                // NOTE: We don't use dragging for integer inputs currently
                 break
             }
         }
         return view
     }()
 
+    #if os(macOS)
+    lazy var stepper: NSStepper = {
+        let view = NSStepper()
+        view.value = Double(self.value.int)
+        view.minValue = -.infinity
+        view.maxValue = .infinity
+        view.increment = 1
+        view.autorepeat = true
+        view.isContinuous = true
+        view.target = self
+        view.action = #selector(Self.stepperHandler)
+        return view
+    }()
+    #endif
+
+    #if os(iOS)
+    lazy var stepper: UIStepper = {
+        let view = UIStepper()
+        view.value = Double(self.value.int)
+        view.minimumValue = -.infinity
+        view.maximumValue = .infinity
+        view.stepValue = 1
+        view.autorepeat = true
+        view.isContinuous = true
+        view.addTarget(self, action: #selector(Self.stepperHandler), for: .valueChanged)
+        return view
+    }()
+    
+    
+    #endif
+    
+@objc func stepperHandler() {
+        log("step! \(self.stepper.value)")
+        self.value = .int(Int(self.stepper.value))
+        self.emit(.valueDidChange(self.value))
+    }
+    
     init(_ value: Value) {
         self.value = value
 
@@ -75,6 +114,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         self.clipsToBounds = false
 
         self.addSubview(self.textField)
+        self.addSubview(self.stepper)
     }
 
     public required init?(coder: NSCoder) {
@@ -82,12 +122,24 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     }
 
     public override var intrinsicContentSize: CGSize {
-        self.textField.intrinsicContentSize
+        self.textField.intrinsicContentSize.minMax(self.stepper.intrinsicContentSize, width: .sum, height: .max)
+            + .init(width: self.style.textFieldStepperPadding, height: 0)
     }
 
     override func doLayout() {
         self.textField.frame.origin = .zero
         self.textField.frame.size = self.textField.intrinsicContentSize
+        self.stepper.frame.origin = .init(x: self.textField.frame.maxX + self.style.textFieldStepperPadding, y: 0)
+        self.stepper.frame.size = self.stepper.intrinsicContentSize
+
+        Layout.align(
+            views: [
+                self.textField,
+                self.stepper,
+            ],
+            alignment: .verticalCenter,
+            guide: .constant(self.bounds.midY)
+        )
     }
 
     func setValue(_ value: Int) {
@@ -97,14 +149,47 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     func update() {
         self.textField.text = self.value.int.formatted(.nodeInterger)
+        self.stepper.value = Double(self.value.int)
         self.invalidateIntrinsicContentSize()
+        self.emit(.sizeDidChange)
     }
 }
 
 #if os(macOS)
-extension NodeIntegerInput: NSTextFieldDelegate {
+extension NSStepper {
+    var value: Double {
+        get {
+            self.doubleValue
+        }
+        set {
+            self.doubleValue = newValue
+        }
+    }
 }
 #endif
+
+extension NodeIntegerInput {
+    struct Style: Sendable, Equatable, With {
+        var textFieldStepperPadding: CGFloat
+
+        static var iOS: Self {
+            .init(textFieldStepperPadding: 4)
+        }
+
+        static var macOS: Self {
+            Self.iOS.with(\.textFieldStepperPadding, 4)
+        }
+
+        static var `default`: Self {
+            #if os(macOS)
+            .macOS
+            #else
+            .iOS
+            #endif
+        }
+    }
+
+}
 
 extension NodeIntegerInput {
     fileprivate struct Preview: PlatformViewRepresentable {
@@ -141,8 +226,11 @@ extension NodeIntegerInput {
         Text("\(value.description)")
             .font(.caption2)
             .fontDesign(.monospaced)
+
+        NodeView.Preview(node: .init(kind: .valueNode(.int)))
+
     }
     .frame(minWidth: 500)
-    .frame(height: 500)
+    .frame(minHeight: 500)
     .background(.white)
 }

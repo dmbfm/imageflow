@@ -55,6 +55,8 @@ final class NodeInputRowView: PlatformView {
             switch self.input.value.type {
             case .float:
                 NodeNumberInput(self.input.value)
+            case .int:
+                NodeIntegerInput(self.input.value)
             case .bool:
                 NodeBooleanInput(self.input.value)
             case .vector2, .vector3, .vector4:
