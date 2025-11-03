@@ -130,6 +130,8 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         default:
             fatalError("invalid type: \(self.value.type)")
         }
+
+        self.emit(.valueDidChange(self.value))
     }
 
     private func update() {
