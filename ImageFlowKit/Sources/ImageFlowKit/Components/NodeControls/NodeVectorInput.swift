@@ -180,7 +180,7 @@ extension Value {
 extension NodeVectorInput {
     struct Preview: PlatformViewRepresentable {
         let value: Value
-        func makeView(context: Context) -> some NSView {
+        func makeView(context: Context) -> NodeVectorInput {
             let view = NodeVectorInput(self.value)
             view.onEvent = { event in log("event: \(event)") }
             return view
