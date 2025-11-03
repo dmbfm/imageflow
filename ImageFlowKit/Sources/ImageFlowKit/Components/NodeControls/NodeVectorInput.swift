@@ -176,3 +176,29 @@ extension Value {
         }
     }
 }
+
+extension NodeVectorInput {
+    struct Preview: PlatformViewRepresentable {
+        let value: Value
+        func makeView(context: Context) -> some NSView {
+            let view = NodeVectorInput(self.value)
+            view.onEvent = { event in log("event: \(event)")}
+            return view
+        }
+
+        func updateView(_ view: ViewType, context: Context) {
+        
+        }
+
+        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+            view.intrinsicContentSize
+        }
+    }
+}
+
+#Preview {
+    VStack {
+        NodeVectorInput.Preview(value: .vector4(.zero))
+    }
+    .padding(80)
+}
