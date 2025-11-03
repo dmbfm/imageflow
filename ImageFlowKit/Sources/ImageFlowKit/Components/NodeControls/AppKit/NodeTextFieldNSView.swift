@@ -13,23 +13,48 @@ import Logging
 import Helpers
 
 final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
-    public var text: String {
+
+    // MARK: - Exposed Properties
+
+    var text: String {
         didSet {
+            var needsResize = false
+
             if self.label.stringValue != self.text {
                 self.label.stringValue = self.text
-                self.invalidateIntrinsicContentSize()
+                needsResize = true
             }
 
             if self.textField.stringValue != self.text {
                 self.textField.stringValue = self.text
-                self.invalidateIntrinsicContentSize()
+                needsResize = true
+            }
+
+            self.updateIdleLabel(checkIfIdle: true)
+
+            if needsResize {
+                self.resize()
             }
         }
     }
 
-    public var onEvent: ((NodeTextFieldEvent) -> ())?
+    var placeholder: String?
 
-    public var style: NodeTextFieldStyle
+    var onEvent: ((NodeTextFieldEvent) -> ())?
+
+    var style: NodeTextFieldStyle
+
+    // MARK: - Private Properties
+
+    fileprivate var state: State = .`init`
+
+    fileprivate enum State {
+        case `init`
+        case idle
+        case editing
+    }
+
+    // MARK: - Subviews and Lazy vars
 
     lazy var font: NSFont = {
         switch self.style.fontDesign {
@@ -69,41 +94,98 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         return view
     }()
 
-    init(_ text: String, style: NodeTextFieldStyle = .default) {
+    // MARK: - Init
+
+    init(_ text: String, placeholder: String? = nil, style: NodeTextFieldStyle = .default) {
         self.text = text
         self.style = style
+        self.placeholder = placeholder
+
         super.init(frame: .zero)
 
         self.addSubview(self.backgroundView)
         self.addSubview(self.label)
         self.addSubview(self.textField)
-        self.textField.isHidden = true
 
         self.wantsLayer = true
-        self.layer?.cornerRadius = self.style.outerCornerRadius
-        self.layer?.cornerCurve = .continuous
         self.layer?.delegate = self
-        self.layer?.borderColor = self.style.borderColor.cgColor
-        self.layer?.borderWidth = 0
         self.clipsToBounds = false
 
         let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
         self.addGestureRecognizer(panGesture)
-    }
 
-    @objc
-    func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
-        let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
+        self.transition(to: .idle)
     }
 
     public required init?(coder: NSCoder) {
         nil
     }
 
-    public override func invalidateIntrinsicContentSize() {
-        super.invalidateIntrinsicContentSize()
-        self.onEvent?(.sizeDidChange)
+    // MARK: - Updates
+
+    fileprivate func transition(to newState: State) {
+        switch self.state {
+        case .`init`:
+            switch newState {
+            case .`init`:
+                fatalError()
+            case .editing:
+                fatalError()
+            case .idle:
+                self.textField.isHidden = true
+                self.layer?.borderColor = self.style.borderColor.cgColor
+                self.layer?.borderWidth = 0
+                self.layer?.cornerRadius = self.style.outerCornerRadius
+                self.label.text = self.text
+                self.updateIdleLabel()
+                self.resize()
+            }
+            break
+        case .idle:
+            switch newState {
+            case .`init`:
+                fatalError()
+            case .idle:
+                break
+            case .editing:
+                self.label.stringValue = self.text
+                self.label.isHidden = true
+                self.textField.isHidden = false
+                self.layer?.borderWidth = self.style.borderWidth
+                self.window?.makeFirstResponder(self.textField)
+                self.resize()
+            }
+        case .editing:
+            switch newState {
+            case .`init`: fatalError()
+            case .editing: break
+            case .idle:
+                self.label.isHidden = false
+                self.textField.isHidden = true
+                self.layer?.borderColor = self.style.borderColor.cgColor
+                self.layer?.borderWidth = 0
+                self.label.text = self.text
+                self.updateIdleLabel()
+                self.resize()
+            }
+        }
+
+        self.state = newState
+    }
+
+    func updateIdleLabel(checkIfIdle: Bool = false) {
+        if self.label.text == "", let placeholder = self.placeholder, !checkIfIdle || self.state == .idle {
+            self.label.text = placeholder
+            self.label.textColor = .tertiaryLabel
+        } else {
+            self.label.textColor = .label
+        }
+    }
+
+    // MARK: - Layout
+
+    override var isFlipped: Bool {
+        true
     }
 
     public override var intrinsicContentSize: NSSize {
@@ -117,10 +199,6 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         return size + style.textInsets.platformEdgeInsets.size
     }
 
-    override var isFlipped: Bool {
-        true
-    }
-
     override func layout() {
         let size = self.intrinsicContentSize
         let rect = CGRect(origin: .zero, size: size)
@@ -129,66 +207,54 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         self.textField.frame = rect.insetted(by: self.style.textInsets.platformEdgeInsets)
     }
 
-    public override func mouseDown(with event: NSEvent) {
-        self.beginEditing()
-    }
-
-    enum State {
-        case idle
-        case editing
-    }
-
-    var state = State.idle
-
-    func beginEditing() {
-        if self.state == .idle {
-            self.label.isHidden = true
-            self.textField.isHidden = false
-            self.window?.makeFirstResponder(self.textField)
-            self.layer?.borderWidth = self.style.borderWidth
-            self.state = .editing
-        }
-    }
-
-    func endEditing() {
-        if self.state == .editing {
-            self.label.isHidden = false
-            self.textField.isHidden = true
-            self.layer?.borderWidth = 0
-            self.state = .idle
-            self.label.stringValue = self.text
-            self.textField.stringValue = self.text
-        }
-    }
-
-    func cancelEditing() {
-        self.endEditing()
+    func resize() {
         self.invalidateIntrinsicContentSize()
+        self.needsLayout = true
+        self.onEvent?(.sizeDidChange)
+    }
+
+    // MARK: - User Interaction
+
+    @objc
+    func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
+        let t = gesture.translation(in: nil)
+        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
+    }
+
+    public override func mouseDown(with event: NSEvent) {
+        if self.state == .idle {
+            self.transition(to: .editing)
+        }
     }
 }
+
+// MARK: - NSTextFieldDelegate
 
 extension NodeTextFieldNSView: NSTextFieldDelegate {
     public func controlTextDidChange(_ obj: Notification) {
         self.label.stringValue = self.textField.stringValue
-        self.invalidateIntrinsicContentSize()
+        self.resize()
     }
 
     public func controlTextDidEndEditing(_ obj: Notification) {
+        if self.state == .idle { return }
         self.text = self.textField.stringValue
         self.onEvent?(.textDidChange(self.text))
-        self.endEditing()
+        self.transition(to: .idle)
     }
 
     public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
             self.textField.abortEditing()
-            self.cancelEditing()
+            self.transition(to: .idle)
             return true
         }
 
         return false
     }
 }
+
+// MARK: - CALayerDelegate
 
 extension NodeTextFieldNSView: @preconcurrency CALayerDelegate {
     public func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {
@@ -199,12 +265,6 @@ extension NodeTextFieldNSView: @preconcurrency CALayerDelegate {
         }
 
         return nil
-    }
-}
-
-extension NSEdgeInsets {
-    var size: CGSize {
-        .init(width: self.left + self.right, height: self.top + self.bottom)
     }
 }
 

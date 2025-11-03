@@ -23,7 +23,8 @@ typealias NodeTextField = NodeTextFieldUIView
 protocol NodeTextFieldProtocol: PlatformView {
     var text: String { get set }
     var onEvent: ((NodeTextFieldEvent) -> ())? { get set }
-    init(_ text: String, style: NodeTextFieldStyle)
+    var placeholder: String? { get set }
+    init(_ text: String, placeholder: String?, style: NodeTextFieldStyle)
 }
 
 enum NodeTextFieldEvent {
@@ -75,16 +76,27 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
 
 extension NodeTextField {
     fileprivate struct Preview: PlatformViewRepresentable {
+        
+        @Binding var text: String
+        let placeholder: String?
+        
         func makeView(context: Context) -> NodeTextField {
-            let view = NodeTextField("Hello!", style: .default.with(\.borderColor, .systemBlue))
+            let view = NodeTextField(self.text, style: .default.with(\.borderColor, .systemBlue))
+            view.placeholder = self.placeholder
             view.onEvent = { event in
                 log("event: \(event)")
+                switch event {
+                case .textDidChange(let text):
+                    self.text = text
+                default:
+                    break
+                }
             }
             return view
         }
 
         func updateView(_ view: NodeTextField, context: Context) {
-
+            view.text = self.text
         }
 
         func sizeThatFits(_ proposal: ProposedViewSize, view: NodeTextField, context: Context) -> CGSize? {
@@ -94,9 +106,19 @@ extension NodeTextField {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
+    
+    @Previewable @State var text1: String = "Hello!"
+    @Previewable @State var text2: String = ""
+
     VStack {
-        NodeTextField.Preview()
-            .border(.gray.opacity(0.12))
+        NodeTextField.Preview(text: $text1, placeholder: nil)
+        Text("'\(text1)'")
+            .font(.caption)
+        NodeTextField.Preview(text: $text2, placeholder: "Insert text...")
+        Text("'\(text2)'")
+            .font(.caption)
+
+        
     }
     .frame(minWidth: 500, minHeight: 500)
     .background(.white)

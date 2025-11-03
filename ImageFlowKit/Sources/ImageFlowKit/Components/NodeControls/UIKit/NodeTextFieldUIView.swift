@@ -1,10 +1,3 @@
-//
-//  NodeTextFieldUIKit.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 06/08/25.
-//
-
 #if os(iOS)
 
 import Helpers
@@ -12,7 +5,10 @@ import SwiftUI
 import Logging
 
 final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
-    public var text: String {
+
+    // MARK: - Exposed Properties
+
+    var text: String {
         didSet {
             if self.text != self.label.text {
                 self.label.text = self.text
@@ -25,12 +21,39 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
                 self.invalidateIntrinsicContentSize()
                 self.setNeedsLayout()
             }
+
+            if self.state == .idle {
+                self.update()
+            }
         }
     }
 
-    public var onEvent: ((NodeTextFieldEvent) -> ())?
+    var onEvent: ((NodeTextFieldEvent) -> ())?
 
-    private var style: NodeTextFieldStyle
+    var style: NodeTextFieldStyle
+
+    var placeholder: String? {
+        didSet {
+            self.update()
+        }
+    }
+
+    // MARK: - Private properties
+
+    private var state: State = .idle {
+        didSet {
+            if self.state != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    enum State {
+        case idle
+        case editing
+    }
+
+    // MARK: - Subviews and Lazy Vars
 
     lazy var font: UIFont = {
         switch self.style.fontDesign {
@@ -60,14 +83,6 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         return view
     }()
 
-    @objc
-    func onTextFieldChange() {
-        self.label.text = self.textField.text
-        self.invalidateIntrinsicContentSize()
-        self.setNeedsLayout()
-        self.onEvent?(.sizeDidChange)
-    }
-
     lazy var label: UILabel = {
         let view = UILabel()
         view.text = self.text
@@ -79,16 +94,19 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     lazy var dummyLabel: UILabel = {
         let view = UILabel()
-        view.text = "X"
+        view.text = "xx"
         view.font = self.font
         view.numberOfLines = 1
         view.isUserInteractionEnabled = true
         return view
     }()
 
-    init(_ text: String, style: NodeTextFieldStyle = .default) {
+    // MARK: - Init
+
+    init(_ text: String, placeholder: String? = nil, style: NodeTextFieldStyle = .default) {
         self.text = text
         self.style = style
+        self.placeholder = placeholder
 
         super.init(frame: .zero)
 
@@ -113,7 +131,74 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler))
         self.addGestureRecognizer(panGesture)
+
+        self.update()
     }
+
+    public required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Updates
+
+    func update() {
+        switch self.state {
+        case .idle:
+            self.label.isHidden = false
+            self.textField.isHidden = true
+            self.layer.shadowOpacity = 0
+            self.layer.borderWidth = 0
+
+            if self.label.text?.isEmpty ?? true, let placeholder = self.placeholder {
+                if self.label.text != placeholder {
+                    self.label.text = placeholder
+                    self.label.textColor = .tertiaryLabel
+                    self.resize()
+                }
+            } else {
+                self.label.textColor = .label
+            }
+
+        case .editing:
+            self.label.isHidden = true
+            self.textField.keyboardType = .decimalPad
+            self.textField.isHidden = false
+            self.textField.becomeFirstResponder()
+            self.layer.borderWidth = self.style.borderWidth
+            self.label.text = self.text
+            self.resize()
+        }
+    }
+
+    @objc
+    func onTextFieldChange() {
+        self.label.text = self.textField.text
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    // MARK: - Layout
+
+    public override var intrinsicContentSize: CGSize {
+        self.label.intrinsicContentSize.max(self.dummyLabel.intrinsicContentSize)
+            + self.style.textInsets.platformEdgeInsets.size
+    }
+
+    public override func layoutSubviews() {
+        let size = self.intrinsicContentSize
+        let rect = CGRect(origin: .zero, size: size)
+        self.backgroundView.frame = rect.inset(by: self.style.backgroundInsets.platformEdgeInsets)
+        self.label.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
+        self.textField.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
+    }
+    func resize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.onEvent?(.sizeDidChange)
+    }
+
+    // MARK: - User Interaction
 
     @objc
     func onTapLabel() {
@@ -126,52 +211,9 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
     }
 
-    public required init?(coder: NSCoder) {
-        nil
-    }
-
-    public override var intrinsicContentSize: CGSize {
-        self.label.intrinsicContentSize.max(self.dummyLabel.intrinsicContentSize)
-            + self.style.textInsets.platformEdgeInsets.size
-    }
-
-    enum State {
-        case idle
-        case editing
-    }
-
-    var state: State = .idle {
-        didSet {
-            if self.state != oldValue {
-                self.update()
-            }
-        }
-    }
-
-    func update() {
-        switch self.state {
-        case .idle:
-            self.label.isHidden = false
-            self.textField.isHidden = true
-            self.layer.shadowOpacity = 0
-            self.layer.borderWidth = 0
-        case .editing:
-            self.label.isHidden = true
-            self.textField.keyboardType = .decimalPad
-            self.textField.isHidden = false
-            self.textField.becomeFirstResponder()
-            self.layer.borderWidth = self.style.borderWidth
-        }
-    }
-
-    public override func layoutSubviews() {
-        let size = self.intrinsicContentSize
-        let rect = CGRect(origin: .zero, size: size)
-        self.backgroundView.frame = rect.inset(by: self.style.backgroundInsets.platformEdgeInsets)
-        self.label.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
-        self.textField.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
-    }
 }
+
+// MARK: - UITextFieldDelegate
 
 extension NodeTextFieldUIView: UITextFieldDelegate {
     public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
