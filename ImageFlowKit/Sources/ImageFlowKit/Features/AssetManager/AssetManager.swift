@@ -1,4 +1,5 @@
 import CoreImage
+import CubeLutKit
 import Foundation
 import Helpers
 import Logging
@@ -8,19 +9,30 @@ import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
 
-actor AssetManager {
+#if canImport(AppKit)
+import AppKit
+#endif
 
-    var imageAssets: [UUID: ImageAsset] = [:] {
+#if canImport(UIKit)
+import UIKit
+#endif
+
+actor AssetManager {
+    var assets: [UUID: Asset] = [:] {
         didSet {
-            if oldValue != self.imageAssets {
-                self.emit(.imageAssetsDidChange)
+            if oldValue != self.assets {
+                self.emit(.assetsDidChange)
             }
         }
     }
 
+    var luts: [UUID: Resource<CubeLut, AssetManagerError>] = [:]
+
     var thumbs: [UUID: Resource<CGImage, AssetManagerError>] = [:]
 
     var ciImages: [UUID: Resource<CIImage, AssetManagerError>] = [:]
+
+    var assetKindThumbs: [AssetKind: Resource<CGImage, AssetManagerError>] = [:]
 
     var documentInfo: DocumentInfo?
 
@@ -28,11 +40,25 @@ actor AssetManager {
     var emitter: EventEmitter<Event> = .init()
 }
 
+extension AssetManager {
+    func assets(ofKind kind: AssetKind) -> [Asset] {
+        self.assets.values.filter({ $0.kind == kind })
+    }
+
+    var imageAssets: [Asset] {
+        self.assets(ofKind: .image)
+    }
+
+    var lutAssets: [Asset] {
+        self.assets(ofKind: .lut)
+    }
+}
+
 // MARK: - Event
 
 extension AssetManager {
     enum Event {
-        case imageAssetsDidChange
+        case assetsDidChange
     }
 
     private func emit(_ event: Event) {
@@ -43,19 +69,24 @@ extension AssetManager {
 }
 
 extension AssetManager {
-
     func clear() {
-        self.imageAssets.removeAll()
+        self.assets.removeAll()
         self.thumbs.removeAll()
         self.ciImages.removeAll()
+        self.luts.removeAll()
     }
 
-    func restore(_ images: [UUID: ImageAsset]) {
+    func restore(_ assets: [UUID: Asset]) {
         self.clear()
-        for (id, image) in images {
-            self.thumbs[id] = .notLoaded
-            self.ciImages[id] = .notLoaded
-            self.imageAssets[id] = image
+        for (id, asset) in assets {
+            self.assets[id] = asset
+            switch asset.kind {
+            case .image:
+                self.thumbs[id] = .notLoaded
+                self.ciImages[id] = .notLoaded
+            case .lut:
+                self.luts[id] = .notLoaded
+            }
         }
     }
 
@@ -64,7 +95,7 @@ extension AssetManager {
     }
 }
 
-// MARK: - Image Importing
+// MARK: - Asset Importing
 
 extension AssetManager {
 
@@ -73,8 +104,8 @@ extension AssetManager {
     /// - Parameter item: The `PhotosPickerItem` represengint the selected photo.
     /// - Throws:
     /// - Returns: The identifier of the imported asset.
-    func addImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
-        try await self.addImageAsset { assetsDir in
+    func addAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
+        try await self.addAsset(kind: .image) { assetsDir in
             guard let identifier = item.itemIdentifier else {
                 throw AssetManagerError.assestLoadingError(.photosMissingIdentifier)
             }
@@ -105,13 +136,13 @@ extension AssetManager {
         }
     }
 
-    /// Imports an imgage from the givel `URL` as an image asset.
+    /// Imports an asset of the given `kind` from the given file `URL`.
     ///
-    /// - Parameter url: The `URL` of the image.
+    /// - Parameter url: The `URL` of the asset.
     /// - Throws:
-    /// - Returns:
-    func addImageAsset(fromURL url: URL) async throws(AssetManagerError) -> UUID {
-        try await self.addImageAsset { assetsDir in
+    /// - Returns: The assets identifier.
+    func addAsset(fromURL url: URL, kind: AssetKind) async throws(AssetManagerError) -> UUID {
+        try await self.addAsset(kind: kind) { assetsDir in
             guard url.startAccessingSecurityScopedResource() else {
                 throw AssetManagerError.assestLoadingError(.URLAccessError)
             }
@@ -126,13 +157,21 @@ extension AssetManager {
         }
     }
 
-    func registerImageAsset(_ asset: ImageAsset) {
-        self.imageAssets[asset.id] = asset
-        self.thumbs[asset.id] = .notLoaded
-        self.ciImages[asset.id] = .notLoaded
+    /// Registers an empty asset without importing any data.
+    ///
+    /// - Parameter asset: The asset to be registered.
+    func registerAsset(_ asset: Asset) {
+        self.assets[asset.id] = asset
+        switch asset.kind {
+        case .image:
+            self.thumbs[asset.id] = .notLoaded
+            self.ciImages[asset.id] = .notLoaded
+        case .lut:
+            self.luts[asset.id] = .notLoaded
+        }
     }
 
-    /// A helper used by other `addImageAsset` methods. It takes an optional ID and a `loader` closure, which
+    /// A helper used by other `addAsset` methods. It takes an optional ID and a `loader` closure, which
     /// takes a `assetsDir` URL, actually does the importing of the asset, and returns the name/filename of
     /// the imported asset. This method then either returns the assets ID or throws an error.
     ///
@@ -142,9 +181,10 @@ extension AssetManager {
     ///
     /// - Throws:
     /// - Returns: The asset ID.
-    private func addImageAsset(
+    private func addAsset(
         _ id: UUID = UUID(),
-        _ loader: (_ assetsDir: URL) async throws -> String
+        kind: AssetKind,
+        loader: (_ assetsDir: URL) async throws -> String
     ) async throws(AssetManagerError) -> UUID {
 
         guard let documentID = self.documentInfo?.id else {
@@ -153,7 +193,7 @@ extension AssetManager {
 
         let id = UUID()
 
-        self.loadingStart(id)
+        self.startLoading(id, kind)
 
         do {
             let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
@@ -161,11 +201,11 @@ extension AssetManager {
 
             let filename = try await loader(assetsDir)
 
-            self.loadingEnd(id, filename: filename)
+            self.finishLoading(id, filename: filename)
 
             return id
         } catch {
-            self.loadingCancel(id)
+            self.cancelLoading(id)
             log("error: \(error)", level: .error)
             if let err = error as? AssetManagerError {
                 throw err
@@ -174,23 +214,28 @@ extension AssetManager {
         }
     }
 
-    private func loadingStart(_ id: UUID) {
-        self.removeImageAsset(id)
-        self.registerImageAsset(.init(id: id, state: .loading, added: .now))
+    private func startLoading(_ id: UUID, _ kind: AssetKind) {
+        self.removeAsset(id)
+        self.registerAsset(.init(id: id, state: .loading, added: .now, kind: kind))
     }
 
-    private func loadingEnd(_ id: UUID, filename: String) {
-        self.registerImageAsset(
+    private func finishLoading(_ id: UUID, filename: String) {
+        guard let asset = self.assets[id] else {
+            fatalError("Asset \(id) not found!")
+        }
+
+        self.registerAsset(
             .init(
                 id: id,
                 state: .loaded(.file(filename)),
-                added: self.imageAssets[id]?.added ?? .now
+                added: asset.added,
+                kind: asset.kind
             )
         )
     }
 
-    private func loadingCancel(_ id: UUID) {
-        self.removeImageAsset(id)
+    private func cancelLoading(_ id: UUID) {
+        self.removeAsset(id)
     }
 
     private func name(forAssetAt url: URL) -> String {
@@ -198,7 +243,7 @@ extension AssetManager {
         let basename = url.deletingPathExtension().lastPathComponent
         let ext = url.pathExtension
 
-        let names = self.imageAssetNames
+        let names = self.assetNames
 
         var modifiedName: String? = nil
 
@@ -225,8 +270,8 @@ extension AssetManager {
         self.name(forAssetAt: .init(filePath: name))
     }
 
-    private var imageAssetNames: [String] {
-        self.imageAssets.values.compactMap { asset in
+    private var assetNames: [String] {
+        self.assets.values.compactMap { asset in
             switch asset.state {
             case .loading:
                 nil
@@ -244,30 +289,154 @@ extension AssetManager {
 
 extension AssetManager {
     @discardableResult
-    func removeImageAsset(_ id: UUID) -> ImageAsset? {
+    func removeAsset(_ id: UUID) -> Asset? {
         self.thumbs[id] = nil
         self.ciImages[id] = nil
-        return self.imageAssets.removeValue(forKey: id)
+        self.luts[id] = nil
+        return self.assets.removeValue(forKey: id)
     }
 }
 
-// MARK: - Load Image Representations for Assets
+// MARK: - Load Asset Resources
 
 extension AssetManager {
-    func getThumb(forImageAsset id: UUID) async throws(AssetManagerError) -> CGImage {
-        guard let asset = self.imageAssets[id] else {
+    func getThumb(forAsset id: UUID) async throws(AssetManagerError) -> CGImage {
+        guard let asset = self.assets[id] else {
             throw AssetManagerError.thumbnailLoadingError(.assetNotFound(id))
         }
 
-        let res = self.thumbs[id, default: .notLoaded]
+        let value =
+            switch asset.kind {
+            case .image:
+                try await self.getThumb(forImageAsset: id)
+            case .lut:
+                try await self.getThumb(forFileAsset: id)
+            }
+        return value
+    }
 
-        guard asset.state != .loading else {
-            throw .thumbnailLoadingError(.assetStillLoading(id))
+    func getThumb(forFileAsset id: UUID) async throws(AssetManagerError) -> CGImage {
+        guard let asset = self.assets[id] else {
+            throw AssetManagerError.thumbnailLoadingError(.assetNotFound(id))
         }
 
-        let fm = FileManager.default
+        return try await self.getAssetResourceFromFile(
+            id,
+            getResource: { id, defaultValue in self.assetKindThumbs[asset.kind, default: defaultValue] },
+            setResource: { id, res in self.assetKindThumbs[asset.kind] = res },
+            load: { url in
+                #if os(macOS)
+                switch asset.kind {
+                case .image:
+                    return NSImage.init(systemSymbolName: "doc.fill", accessibilityDescription: nil)!.cgImage(forProposedRect: nil, context: nil, hints: nil)!
+                case .lut:
+                    var rect = CGRect(x: 0, y: 0, width: 128, height: 128)
+                    return NSImage(named: "file-icon-lut")!.cgImage(forProposedRect: &rect, context: nil, hints: [.interpolation: NSImageInterpolation.high])!
+                }
+                #else
+                switch asset.kind {
+                case .image:
+                    return UIImage(systemName: "doc.fill")!.cgImage!
+                case .lut:
+                    return UIImage(named: "file-icon-lut")!.cgImage!
+                }
+                #endif
+            }
+        )
+    }
 
-        var task: Task<CGImage, any Error>? = nil
+    func getThumb(forImageAsset id: UUID) async throws(AssetManagerError) -> CGImage {
+        try await self.getAssetResourceFromFile(
+            id,
+            getResource: { id, defaultValue in self.thumbs[id, default: .notLoaded] },
+            setResource: { id, res in self.thumbs[id] = res },
+            load: { url in
+                let opts =
+                    [
+                        kCGImageSourceCreateThumbnailWithTransform: true,
+                        kCGImageSourceCreateThumbnailFromImageAlways: true,
+                        kCGImageSourceShouldCacheImmediately: true,
+                        kCGImageSourceThumbnailMaxPixelSize: 256,
+                    ] as CFDictionary
+                guard
+                    let source = CGImageSourceCreateWithURL(
+                        url as CFURL,
+                        [kCGImageSourceShouldCache: false] as CFDictionary
+                    )
+                else {
+                    throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateWithURLError)
+                }
+
+                guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
+                    throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateThumbnailError)
+                }
+
+                return thumb
+            }
+        )
+    }
+
+    func getCubeLut(forAsset id: UUID) async throws(AssetManagerError) -> CubeLut {
+        try await self.getAssetResourceFromFile(
+            id,
+            isValidAssetKind: { $0 == .lut },
+            getResource: { id, defaultValue in self.luts[id, default: defaultValue] },
+            setResource: { id, res in self.luts[id] = res },
+            load: { url in
+                let data = try Data(contentsOf: url)
+                guard let source = String(data: data, encoding: .utf8) else {
+                    throw AssetManagerError.resouceLoadingError(.cubeLutStringDecode)
+                }
+                let lut = try CubeLut(source: source)
+                return lut
+            }
+        )
+    }
+
+    func getCIImage(forAsset id: UUID) async throws(AssetManagerError) -> CIImage {
+        try await self.getAssetResourceFromFile(
+            id,
+            isValidAssetKind: { $0 == .image },
+            getResource: { id, defaultValue in self.ciImages[id, default: defaultValue] },
+            setResource: { id, res in self.ciImages[id] = res },
+            load: { url in
+                let options: [CIImageOption: Any] = [
+                    .applyOrientationProperty: true,
+                    // .nearestSampling: true,
+                    // .expandToHDR: true,
+                ]
+                guard let ciImage = CIImage(contentsOf: url, options: options) else {
+                    throw AssetManagerError.resouceLoadingError(.ciImageInitError)
+                }
+                return ciImage
+            }
+        )
+    }
+
+    private func getAssetResourceFromFile<ResourceType: Sendable>(
+        _ id: UUID,
+        isValidAssetKind: ((AssetKind) -> Bool)? = nil,
+        getResource: (UUID, _ default: Resource<ResourceType, AssetManagerError>) -> Resource<
+            ResourceType, AssetManagerError
+        >,
+        setResource: (UUID, Resource<ResourceType, AssetManagerError>) -> (),
+        load: @escaping @Sendable (_ fileURL: URL) async throws -> ResourceType,
+    ) async throws(AssetManagerError) -> ResourceType {
+        guard let asset = self.assets[id] else {
+            throw AssetManagerError.thumbnailLoadingError(.assetNotFound(id))
+        }
+
+        if let isValidAssetKind, !isValidAssetKind(asset.kind) {
+            throw AssetManagerError.invalidAssetKind(asset.kind, expected: nil)
+        }
+
+        guard let filename = asset.filename else {
+            throw .resouceLoadingError(.isNotFileAsset)
+        }
+
+        let res = getResource(id, .notLoaded)
+
+        var task: Task<ResourceType, any Error>? = nil
 
         switch res {
         case .failed(let err):
@@ -277,73 +446,25 @@ extension AssetManager {
         case .loading(let t):
             task = t
         case .notLoaded:
-            task = Task { try await doLoad() }
-            self.thumbs[id] = .loading(task!)
+            let url = try self.assetURL(filename: filename)
+            task = Task {
+                try await Task.detached { try await load(url) }.value
+            }
+            setResource(id, .loading(task!))
         }
 
         do {
             let value = try await task!.value
-            self.thumbs[id] = .loaded(value)
+            setResource(id, .loaded(value))
             return value
         } catch {
             if let err = error as? AssetManagerError {
-                self.thumbs[id] = .failed(err)
+                setResource(id, .failed(err))
                 throw err
             } else {
-                self.thumbs[id] = .failed(.thumbnailLoadingError(.other(error)))
-                throw .thumbnailLoadingError(.other(error))
+                setResource(id, .failed(.resouceLoadingError(.other(error))))
+                throw .resouceLoadingError(.other(error))
             }
-        }
-
-        func doLoad() async throws(AssetManagerError) -> CGImage {
-            precondition(asset.source != nil)
-            switch asset.source {
-            case .file(let filename):
-                return try await doLoadFile(filename: filename)
-            case .generated:
-                fatalError("TODO: Not implemented")
-            case .none:
-                fatalError("Missing source (unreachable)")
-            }
-        }
-
-        func doLoadFile(filename: String) async throws(AssetManagerError) -> CGImage {
-            let maybeDocumentImageURL = self.documentAssetURL(filename: filename)
-
-            let tempImageURL = self.tempAssetURL(filename: filename)!
-
-            let imageURL =
-                if let documentImageURL = maybeDocumentImageURL, fm.fileExists(atPath: documentImageURL.path) {
-                    documentImageURL
-                } else if fm.fileExists(atPath: tempImageURL.path) {
-                    tempImageURL
-                } else {
-                    throw AssetManagerError.thumbnailLoadingError(
-                        .fileNotFound(document: maybeDocumentImageURL, temp: tempImageURL)
-                    )
-                }
-
-            let opts =
-                [
-                    kCGImageSourceCreateThumbnailWithTransform: true,
-                    kCGImageSourceCreateThumbnailFromImageAlways: true,
-                    kCGImageSourceShouldCacheImmediately: true,
-                    kCGImageSourceThumbnailMaxPixelSize: 256,
-                ] as CFDictionary
-            guard
-                let source = CGImageSourceCreateWithURL(
-                    imageURL as CFURL,
-                    [kCGImageSourceShouldCache: false] as CFDictionary
-                )
-            else {
-                throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateWithURLError)
-            }
-
-            guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
-                throw AssetManagerError.thumbnailLoadingError(.cgImageSourceCreateThumbnailError)
-            }
-
-            return thumb
         }
     }
 }
@@ -361,5 +482,26 @@ extension AssetManager {
 
     private func documentAssetURL(filename: String) -> URL? {
         self.documentInfo?.url?.appending(path: "Assets").appending(path: filename)
+    }
+
+    private func assetURL(filename: String) throws(AssetManagerError) -> URL {
+        let fm = FileManager.default
+
+        let maybeDocumentImageURL = self.documentAssetURL(filename: filename)
+
+        let tempAssetURL = self.tempAssetURL(filename: filename)!
+
+        let assetURL =
+            if let documentImageURL = maybeDocumentImageURL, fm.fileExists(atPath: documentImageURL.path) {
+                documentImageURL
+            } else if fm.fileExists(atPath: tempAssetURL.path) {
+                tempAssetURL
+            } else {
+                throw AssetManagerError.thumbnailLoadingError(
+                    .fileNotFound(document: maybeDocumentImageURL, temp: tempAssetURL)
+                )
+            }
+
+        return assetURL
     }
 }

@@ -4,6 +4,9 @@ import SwiftUI
 import Values
 
 final class NodeInputRowView: PlatformView {
+
+    // MARK: - Exposed Properties
+
     var input: FlowNode.Input {
         didSet {
             if self.input != oldValue {
@@ -20,9 +23,16 @@ final class NodeInputRowView: PlatformView {
 
     var onEvent: ((Event) -> ())?
 
-    private var imageInputDelegate: NodeImageInput.Delegate?
+    // MARK: - Exposed Types
 
-    // MARK: - Private
+    struct Delegate {
+        var openAssetBrowser: (AssetBrowserConfiguration) -> ()
+        var titleForAsset: (UUID) -> String?
+    }
+
+    // MARK: - Private Properties
+
+    private var delegate: Delegate
 
     private var style: Style
 
@@ -50,6 +60,15 @@ final class NodeInputRowView: PlatformView {
         return view
     }()
 
+    lazy var nodeImageInputDelegate: NodeImageInput.Delegate = {
+        .init(
+            openAssetBrowser: {
+                self.delegate.openAssetBrowser(.init(allowedTypes: [.image]))
+            },
+            titleForAsset: self.delegate.titleForAsset
+        )
+    }()
+
     lazy var controlView: any NodeControl = {
         let view: any NodeControl =
             switch self.input.value.type {
@@ -62,7 +81,7 @@ final class NodeInputRowView: PlatformView {
             case .vector2, .vector3, .vector4:
                 NodeVectorInput(self.input.value)
             case .image:
-                NodeImageInput(self.input.value, delegate: self.imageInputDelegate)
+                NodeImageInput(self.input.value, delegate: self.nodeImageInputDelegate)
             case .color3, .color4:
                 NodeColorInput(self.input.value)
             case .rect:
@@ -93,10 +112,10 @@ final class NodeInputRowView: PlatformView {
 
     // MARK: - Initializers
 
-    init(_ input: FlowNode.Input, imageInputDelegate: NodeImageInput.Delegate? = nil, style: Style = .default) {
+    init(_ input: FlowNode.Input, delegate: Delegate, style: Style = .default) {
         self.input = input
         self.style = style
-        self.imageInputDelegate = imageInputDelegate
+        self.delegate = delegate
 
         super.init(frame: .zero)
 
@@ -261,7 +280,10 @@ extension NodeInputRowView {
             connected: false
         )
         func makeView(context: Context) -> NodeInputRowView {
-            let view = NodeInputRowView(self.input)
+            let view = NodeInputRowView(
+                self.input,
+                delegate: .init(openAssetBrowser: { _ in }, titleForAsset: { _ in nil })
+            )
             view.onEvent = { log("event: \($0)") }
             return view
         }

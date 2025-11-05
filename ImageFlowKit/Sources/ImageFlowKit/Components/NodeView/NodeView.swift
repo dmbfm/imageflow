@@ -27,9 +27,12 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     var id: UUID { self.node.id }
 
-    private var inputBlockDelegate: NodeInputBlockView.Delegate?
+    typealias Delegate = NodeInputBlockView.Delegate
+
 
     // MARK: - Private properties
+
+    private var inputBlockDelegate: NodeInputBlockView.Delegate?
 
     private var titleModel: NodeTitleView.ViewModel {
         .init(
@@ -105,13 +108,13 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     public init(
         _ node: FlowNode,
         _ isSelected: Bool = false,
-        inputBlockDelegate: NodeInputBlockView.Delegate? = nil,
+        delegate: Delegate? = nil,
         style: Style = .default
     ) {
         self.node = node
         self.isSelected = isSelected
         self.style = style
-        self.inputBlockDelegate = inputBlockDelegate
+        self.inputBlockDelegate = delegate
 
         super.init(frame: .zero)
 

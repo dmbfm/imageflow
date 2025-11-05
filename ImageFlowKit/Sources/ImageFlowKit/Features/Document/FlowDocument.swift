@@ -67,7 +67,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         var assetsFws = configuration.existingFile?.fileWrappers?["Assets"]?.fileWrappers ?? [String: FileWrapper]()
         var urls = [URL]()
         do {
-            for (_, asset) in snapshot.assets.images {
+            for (_, asset) in snapshot.assets.assets {
                 switch asset.source {
                 case .file(let filename):
                     let url: URL = .tempAssetURL(forDocument: self.id, filename: filename)
@@ -89,7 +89,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
         // Exclude any unlisted assets
         assetsFws = assetsFws.filter { asset in
-            if !snapshot.assets.images.contains(where: { e in e.value.source?.filename == asset.key }) {
+            if !snapshot.assets.assets.contains(where: { e in e.value.source?.filename == asset.key }) {
                 false
             } else {
                 true

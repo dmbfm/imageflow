@@ -51,8 +51,8 @@ public struct CanvasFeatureView: View {
     // MARK: - Types
 
     struct Delegate {
-        var openAssetPicker: (UUID, Int) -> ()
-        var fetchImageAsset: (UUID) -> ImageAsset?
+        var openAssetPicker: (UUID, Int, AssetBrowserConfiguration) -> ()
+        var fetchAsset: (UUID) -> Asset?
     }
 
     private var delegate: Delegate
@@ -127,12 +127,12 @@ public struct CanvasFeatureView: View {
             return nil
         }
 
-        let inputBlockDelegate = NodeInputBlockView.Delegate(
-            openAssetBrowser: { idx in self.delegate.openAssetPicker(id, idx) },
-            titleForAsset: { id in self.delegate.fetchImageAsset(id)?.source?.filename }
+        let delegate = NodeView.Delegate(
+            openAssetBrowser: { idx, configuration in self.delegate.openAssetPicker(id, idx, configuration) },
+            titleForAsset: { id in self.delegate.fetchAsset(id)?.source?.filename }
         )
 
-        let view = NodeView(node, inputBlockDelegate: inputBlockDelegate)
+        let view = NodeView(node, delegate: delegate)
 
         view.emitter.on { self.onNodeEvent(id, $0) }
 

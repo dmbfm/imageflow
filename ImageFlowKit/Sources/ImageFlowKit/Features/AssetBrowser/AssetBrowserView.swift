@@ -3,12 +3,6 @@ import Logging
 import SwiftUI
 import UniformTypeIdentifiers
 
-protocol AssetBrowserAssetsProvider: AssetBrowserThumbProvider {
-    @MainActor var fileAssets: [ImageAsset] { get }
-}
-
-extension AssetStore: AssetBrowserAssetsProvider {}
-
 enum AssetBrowserType: Equatable {
     case picker(PortLocation)
     case browser
@@ -20,11 +14,15 @@ enum AssetBrowserResult {
     case create(UUID)
 }
 
+struct AssetBrowserConfiguration {
+    var allowedTypes: AssetKindSet
+}
+
 struct AssetBrowserViewDelegate {
     var onDismiss: (AssetBrowserResult) -> ()
-    var openFileImporter: () -> ()
+    var openFileImporter: ([UTType]) -> ()
     var openPhotoPicker: () -> ()
-    var deleteImageAsset: (ImageAsset) -> ()
+    var deleteAsset: (Asset) -> ()
 }
 
 struct AssetBrowserView: View {
@@ -33,14 +31,16 @@ struct AssetBrowserView: View {
 
     let assetsProvider: any AssetBrowserAssetsProvider
     let type: AssetBrowserType
+    let allowedAssetKinds: AssetKindSet
+    let allowedImportTypes: [UTType]
+    let photoPickerDisabled: Bool
     let gridImageSize: CGFloat = 146.0
     let delegate: AssetBrowserViewDelegate
 
-    @State var showFileImporter = false
     @State var selected: UUID? = nil
     @State var searchText: String = ""
     @State var showDeleteConfirmationDialog = false
-    @State var imageAssetToDelete: ImageAsset? = nil
+    @State var assetToDelete: Asset? = nil
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -51,10 +51,30 @@ struct AssetBrowserView: View {
 
     init(
         type: AssetBrowserType,
+        allowedAssetKinds: AssetKindSet,
+        allowedImportTypes: [UTType],
+        photoPickerDisabled: Bool = false,
         assetsProvider: any AssetBrowserAssetsProvider,
         delegate: AssetBrowserViewDelegate,
     ) {
         self.type = type
+        self.allowedAssetKinds = allowedAssetKinds
+        self.allowedImportTypes = allowedImportTypes
+        self.photoPickerDisabled = photoPickerDisabled
+        self.assetsProvider = assetsProvider
+        self.delegate = delegate
+    }
+
+    init(
+        type: AssetBrowserType,
+        configuration: AssetBrowserConfiguration,
+        assetsProvider: any AssetBrowserAssetsProvider,
+        delegate: AssetBrowserViewDelegate,
+    ) {
+        self.type = type
+        self.allowedAssetKinds =  configuration.allowedTypes
+        self.allowedImportTypes = configuration.allowedTypes.types
+        self.photoPickerDisabled = !configuration.allowedTypes.contains(.image)
         self.assetsProvider = assetsProvider
         self.delegate = delegate
     }
@@ -65,15 +85,16 @@ struct AssetBrowserView: View {
         .default
     }
 
-    var sortedImages: [ImageAsset] {
-        self.assetsProvider.fileAssets.sorted(by: { $0.added < $1.added })
+    var sortedAssets: [Asset] {
+        self.assetsProvider.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
+            .sorted(by: { $0.added < $1.added })
     }
 
-    var filteredImages: [ImageAsset] {
+    var filteredAssets: [Asset] {
         if self.searchText.isEmpty {
-            self.sortedImages
+            self.sortedAssets
         } else {
-            self.sortedImages.filter({ $0.source?.filename?.contains(self.searchText) ?? false })
+            self.sortedAssets.filter({ $0.source?.filename?.contains(self.searchText) ?? false })
         }
     }
 
@@ -96,7 +117,7 @@ struct AssetBrowserView: View {
 
     // MARK: - Methods
 
-    func onTapItem(_ info: ImageAsset) {
+    func onTapItem(_ info: Asset) {
         switch info.state {
         case .loaded:
             self.selected = info.id
@@ -105,37 +126,37 @@ struct AssetBrowserView: View {
         }
     }
 
-    func deleteCommandHandler(_ asset: ImageAsset) {
-        self.confirmImageAssetDelete(asset)
+    func deleteCommandHandler(_ asset: Asset) {
+        self.confirmAssetDelete(asset)
     }
 
-    func deleteButtonHandler(_ asset: ImageAsset) {
-        self.confirmImageAssetDelete(asset)
+    func deleteButtonHandler(_ asset: Asset) {
+        self.confirmAssetDelete(asset)
     }
 
-    func confirmImageAssetDelete(_ asset: ImageAsset) {
+    func confirmAssetDelete(_ asset: Asset) {
         self.showDeleteConfirmationDialog = true
-        self.imageAssetToDelete = asset
+        self.assetToDelete = asset
     }
 
-    func confirmationDialogTitle(_ asset: ImageAsset) -> String {
+    func confirmationDialogTitle(_ asset: Asset) -> String {
         #if os(macOS)
         if let name = asset.source?.filename {
-            "Do you want to remove the image \(name)?"
+            "Do you want to remove the asset '\(name)'?"
         } else {
-            "Do you want to remove this image?"
+            "Do you want to remove this asset?"
         }
         #else
-        "Do you want to remove this image?"
+        "Do you want to remove this asset?"
         #endif
     }
 
-    func delete(_ asset: ImageAsset) {
+    func delete(_ asset: Asset) {
         if asset.isLoaded {
             if self.selected == asset.id {
                 self.selected = nil
             }
-            self.delegate.deleteImageAsset(asset)
+            self.delegate.deleteAsset(asset)
         }
     }
 
@@ -184,7 +205,7 @@ struct AssetBrowserView: View {
         HStack(alignment: .center, spacing: 0) {
             HStack(spacing: 14) {
                 Button {
-                    self.delegate.openFileImporter()
+                    self.delegate.openFileImporter(self.allowedImportTypes)
                 } label: {
                     Text("\(Image(systemName: "square.and.arrow.down"))")
                         .font(.system(size: buttonSize))
@@ -196,9 +217,11 @@ struct AssetBrowserView: View {
                 } label: {
                     Text("\(Image(systemName: "photo.badge.plus.fill"))")
                         .font(.system(size: buttonSize))
+                        .foregroundStyle(self.photoPickerDisabled ? .tertiary : .primary)
                         .baselineOffset(-4)
                 }
                 .buttonStyle(.primaryBorderless)
+                .disabled(self.photoPickerDisabled)
             }
             .frame(height: 42)
             .padding(.horizontal, 14)
@@ -229,14 +252,14 @@ struct AssetBrowserView: View {
             GlassEffectContainer {
                 HStack {
                     Button {
-                        self.delegate.openFileImporter()
+                        self.delegate.openFileImporter(self.allowedImportTypes)
                     } label: {
                         Text("\(Image(systemName: "square.and.arrow.down"))")
                             .font(.system(size: style.toolbar.buttonSize))
                     }
                     .buttonStyle(.glass)
                     .glassEffectUnion(id: "import", namespace: self.toolbasNS)
-                    .help("Import Image File")
+                    .help("Import Assets")
 
                     Button {
                         self.delegate.openPhotoPicker()
@@ -277,7 +300,7 @@ struct AssetBrowserView: View {
                     columns: Array(repeating: GridItem(.fixed(self.gridImageSize)), count: 5),
                     spacing: 16
                 ) {
-                    ForEach(self.filteredImages) { asset in
+                    ForEach(self.filteredAssets) { asset in
                         AssetBrowserGridItemView(
                             asset: asset,
                             thumbProvider: self.assetsProvider,
@@ -315,12 +338,12 @@ struct AssetBrowserView: View {
     @ViewBuilder
     var confirmationDialogActions: some View {
         Button("Delete", role: .destructive) {
-            if let asset = self.imageAssetToDelete {
+            if let asset = self.assetToDelete {
                 self.delete(asset)
             }
         }
         Button("Cancel", role: .cancel) {
-            self.imageAssetToDelete = nil
+            self.assetToDelete = nil
         }
     }
 
@@ -442,7 +465,11 @@ private struct Style: With {
 @Observable
 @MainActor
 private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
-    var fileAssets: [ImageAsset]
+    var fileAssets: [Asset]
+
+    func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
+        self.fileAssets.filter({ kinds.contains($0.kind) })
+    }
 
     func removeImage(_ id: UUID, undoManager um: UndoManager?) {
 
@@ -493,20 +520,20 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
     init() {
         let ids = (0...25).map { _ in UUID() }
         self.fileAssets = ids.enumerated().map { (idx, id) in
-            .init(id: id, state: .loaded(.file(Self.filenames[idx])), added: .now)
+            .init(id: id, state: .loaded(.file(Self.filenames[idx])), added: .now, kind: .image)
         }
         self.ids = ids
         self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
     }
 
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
+    func assetBrowserGetThumb(forAsset id: UUID) async throws -> CGImage? {
         try await Task.sleep(for: .seconds(self.delays[id]!))
         return gradientImage
     }
 
     func reload() {
         let ids = (0...25).map { _ in UUID() }
-        self.fileAssets = ids.map { id in .init(id: id, state: .loaded(.file("")), added: .now) }
+        self.fileAssets = ids.map { id in .init(id: id, state: .loaded(.file("")), added: .now, kind: .image) }
         self.ids = ids
         self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
     }
@@ -517,8 +544,15 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
     VStack {
         AssetBrowserView(
             type: .browser,
+            allowedAssetKinds: [.image],
+            allowedImportTypes: [.image],
             assetsProvider: provider,
-            delegate: .init(onDismiss: { _ in }, openFileImporter: {}, openPhotoPicker: {}, deleteImageAsset: { _ in })
+            delegate: .init(
+                onDismiss: { _ in },
+                openFileImporter: { _ in },
+                openPhotoPicker: {},
+                deleteAsset: { _ in }
+            )
         )
     }
 }
@@ -537,12 +571,14 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
         content: {
             AssetBrowserView(
                 type: .browser,
+                allowedAssetKinds: .image,
+                allowedImportTypes: [.image],
                 assetsProvider: provider,
                 delegate: .init(
                     onDismiss: { _ in },
-                    openFileImporter: {},
+                    openFileImporter: { _ in },
                     openPhotoPicker: {},
-                    deleteImageAsset: { _ in }
+                    deleteAsset: { _ in }
                 )
             )
         }

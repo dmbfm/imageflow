@@ -2,9 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleTypeRole</key><string>Editor</string>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -20,6 +17,8 @@
 			<true/>
 		</dict>
 	</array>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -38,6 +37,28 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>imageflow</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Cube LUT file</string>
+			<key>UTTypeIconFiles</key>
+			<array/>
+			<key>UTTypeIdentifier</key>
+			<string>com.apple.videoapps.cube</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cube</string>
 				</array>
 			</dict>
 		</dict>

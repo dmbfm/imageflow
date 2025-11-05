@@ -5,6 +5,8 @@ import Values
 
 final class NodeInputBlockView: PlatformCommonView {
 
+    // MARK: - Exposed Properties
+
     var inputs: [FlowNode.Input] {
         didSet {
             if self.inputs != oldValue {
@@ -13,18 +15,24 @@ final class NodeInputBlockView: PlatformCommonView {
         }
     }
 
-    private(set) var rows: [NodeInputRowView] = []
-
     var onEvent: ((Event) -> ())?
 
+    private(set) var rows: [NodeInputRowView] = []
+
+    // MARK: - Exposed Types
+
     struct Delegate {
-        var openAssetBrowser: (Int) -> ()
+        var openAssetBrowser: (Int, AssetBrowserConfiguration) -> ()
         var titleForAsset: (UUID) -> String?
     }
+
+    // MARK: - Private properties
 
     private var delegate: Delegate?
 
     private var style: NodeInputRowView.Style
+
+    // MARK: - Init
 
     init(
         _ inputs: [FlowNode.Input],
@@ -82,15 +90,15 @@ final class NodeInputBlockView: PlatformCommonView {
 
     func populateRows() {
         for (idx, input) in inputs.enumerated() {
-            let delegate = NodeImageInput.Delegate(
-                openAssetBrowser: {
-                    self.delegate?.openAssetBrowser(idx)
+            let delegate = NodeInputRowView.Delegate(
+                openAssetBrowser: { configuration in
+                    self.delegate?.openAssetBrowser(idx, configuration)
                 },
                 titleForAsset: { id in
                     self.delegate?.titleForAsset(id)
                 }
             )
-            let row = NodeInputRowView(input, imageInputDelegate: delegate, style: self.style)
+            let row = NodeInputRowView(input, delegate: delegate, style: self.style)
             row.clipsToBounds = false
             row.onEvent = { [weak self] event in
                 switch event {

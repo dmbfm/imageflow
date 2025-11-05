@@ -21,14 +21,15 @@ let package = Package(
         .library(name: "Logging"),
     ],
     dependencies: [
-        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
+        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
+        .package(path: "../CubeLutKit"),
     ],
     targets: [
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
         .target(name: "Backend", dependencies: ["Values", "SwiftGraph"]),
-        .target(name: "ImageFlowKit", dependencies: ["Values", "Backend", "Helpers", "Logging"]),
+        .target(name: "ImageFlowKit", dependencies: ["Values", "Backend", "Helpers", "Logging", "CubeLutKit"]),
         .testTarget(
             name: "ImageFlowKitTests",
             dependencies: ["ImageFlowKit", "Backend", "Values"],

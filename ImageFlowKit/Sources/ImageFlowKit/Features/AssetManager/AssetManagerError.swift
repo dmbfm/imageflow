@@ -12,17 +12,18 @@ enum AssetManagerError: Error {
 
     case missingDocumentInfo
 
+    case invalidAssetKind(AssetKind, expected: AssetKind?)
+
     case assestLoadingError(AssetLoadingError)
 
     case thumbnailLoadingError(ThumbnailLoadingError)
 
-    case ciImageLoadingError(CIImageLoadingError)
+    case resouceLoadingError(ResourceLoadingError)
 
     case other(any Error)
 
     enum ThumbnailLoadingError {
         case assetNotFound(UUID)
-        case assetStillLoading(UUID)
         case fileNotFound(document: URL?, temp: URL)
         case cgImageSourceCreateWithURLError
         case cgImageSourceCreateThumbnailError
@@ -33,11 +34,14 @@ enum AssetManagerError: Error {
         case photosMissingIdentifier
         case photosDataIsNil
         case missingPHAssetResource
-        case cgImageCreationFailed
         case URLAccessError
         case other(any Error)
     }
 
-    enum CIImageLoadingError {}
-
+    enum ResourceLoadingError {
+        case isNotFileAsset
+        case cubeLutStringDecode
+        case ciImageInitError
+        case other(any Error)
+    }
 }

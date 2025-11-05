@@ -19,13 +19,17 @@ extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
 
+    struct FileImporterConfiguration {
+        var allowedContentTypes: [UTType]
+    }
+
     var canvasFeatureViewDelegate: CanvasFeatureView.Delegate {
         .init(
-            openAssetPicker: { id, portIndex in
-                self.openAssetPicker(.init(node: id, port: .input(portIndex)))
+            openAssetPicker: { id, portIndex, configuration in
+                self.openAssetPicker(.init(node: id, port: .input(portIndex)), configuration: configuration)
             },
-            fetchImageAsset: { id in
-                self.assetStore.images[id]
+            fetchAsset: { id in
+                self.assetStore.assets[id]
             }
         )
     }
@@ -33,8 +37,9 @@ extension MainContentView {
     var assetBrowserDelegate: AssetBrowserViewDelegate {
         .init(
             onDismiss: self.onAssetBrowserDismiss(_:),
-            openFileImporter: {
+            openFileImporter: { allowedTypes in
                 self.showAssetBrowser = false
+                self.fileImporterConfiguration.value = .init(allowedContentTypes: allowedTypes)
                 Task { @MainActor in
                     self.showFileImporter = true
                 }
@@ -45,8 +50,8 @@ extension MainContentView {
                     self.showPhotoPicker = true
                 }
             },
-            deleteImageAsset: { asset in
-                self.assetStore.removeImage(asset.id, undoManager: self.undoManager)
+            deleteAsset: { asset in
+                self.assetStore.removeAsset(asset.id, undoManager: self.undoManager)
                 self.undoManager?.setActionName("Delete Image")
             }
         )
@@ -83,8 +88,6 @@ extension MainContentView {
     }
 
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
-        log("asset browser result: \(result), type: \(self.assetBrowserType)")
-
         switch result {
         case .create(let id):
             var node = FlowNode(id: .init(), kind: .valueNode(.image))
@@ -108,7 +111,18 @@ extension MainContentView {
         Task {
             for url in urls {
                 do {
-                    try await self.assetStore.addImage(fromURL: url, undoManager: self.undoManager)
+                    _ = url.startAccessingSecurityScopedResource()
+                    guard let resourceValues = try? url.resourceValues(forKeys: [.contentTypeKey]),
+                        let utType = resourceValues.contentType
+                    else { continue }
+                    url.stopAccessingSecurityScopedResource()
+
+                    guard let kind = utType.assetKind else {
+                        fatalError("TOD: Handle unsupported format: \(utType)")
+                        continue
+                    }
+
+                    try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                     self.undoManager?.setActionName("Import Image")
                 } catch {
                     log("failed to import file: \(url): \(error)")
@@ -131,16 +145,18 @@ extension MainContentView {
                 log("Auth error!", level: .error)
                 return
             }
-            try await self.assetStore.addImageAssets(fromPhotosPickerItems: items, undoManager: self.undoManager)
+            try await self.assetStore.addAssets(fromPhotosPickerItems: items, undoManager: self.undoManager)
         }
     }
 
     func openAssetBrowser() {
+        self.assetBrowserConfiguration = .init(allowedTypes: .all)
         self.assetBrowserType = .browser
         self.showAssetBrowser = true
     }
 
-    func openAssetPicker(_ port: PortLocation) {
+    func openAssetPicker(_ port: PortLocation, configuration: AssetBrowserConfiguration) {
+        self.assetBrowserConfiguration = configuration
         self.showAssetBrowser = true
         Task { @MainActor in
             try! await Task.sleep(for: .milliseconds(1))

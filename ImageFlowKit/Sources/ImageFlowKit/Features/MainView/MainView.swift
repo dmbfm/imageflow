@@ -38,27 +38,26 @@ struct MainView: View {
         self.observeNodes()
         self.observeEdges()
         self.observeViewport()
-        self.observeImageAssets()
+
+        Task {
+            await self.observeImageAssets()
+        }
 
         if RunConfiguration.useSampleData {
             loadSampleData()
         }
     }
 
-    func observeImageAssets() {
-        withObservationTracking(
-            {
-                _ = self.assetStore.images
-            },
-            onChange: {
-                Task { @MainActor in
-                    self.document.assetStore.withLock {
-                        $0.images = self.assetStore.images
-                    }
-                    self.observeImageAssets()
-                }
+    func observeImageAssets() async {
+        let observation = Observations {
+            self.assetStore.assets
+        }
+
+        for await assets in observation {
+            self.document.assetStore.withLock {
+                $0.assets = assets
             }
-        )
+        }
     }
 
     func observeViewport() {

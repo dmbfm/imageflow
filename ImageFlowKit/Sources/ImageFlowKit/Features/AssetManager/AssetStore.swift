@@ -7,10 +7,10 @@ import SwiftUI
 @MainActor
 final class AssetStore {
 
-    private(set) var images: [UUID: ImageAsset] = [:]
+    private(set) var assets: [UUID: Asset] = [:]
 
-    var fileAssets: [ImageAsset] {
-        self.images.values.filter { $0.isFileAsset }
+    var fileAssets: [Asset] {
+        self.assets.values.filter { $0.isFileAsset }
     }
 
     let assetManager: AssetManager = .init()
@@ -30,7 +30,7 @@ final class AssetStore {
     }
 
     @discardableResult
-    nonisolated func addImageAssets(
+    nonisolated func addAssets(
         fromPhotosPickerItems items: [PhotosPickerItem],
         undoManager um: UndoManager? = nil
     ) async throws(AssetManagerError) -> [UUID] {
@@ -38,7 +38,7 @@ final class AssetStore {
             return try await withThrowingTaskGroup(of: UUID.self, returning: [UUID].self) { group in
                 for item in items {
                     group.addTask {
-                        try await self.addImageAsset(
+                        try await self.addAsset(
                             fromPhotosPickerItem: item,
                             undoManager: um
                         )
@@ -58,67 +58,67 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addImageAsset(
+    func addAsset(
         fromPhotosPickerItem item: PhotosPickerItem,
         undoManager um: UndoManager? = nil
     ) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addImageAsset(fromPhotosPickerItem: item)
+        let id = try await self.assetManager.addAsset(fromPhotosPickerItem: item)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                this.removeImage(id, undoManager: um)
+                this.removeAsset(id, undoManager: um)
             }
         )
         return id
     }
 
     @discardableResult
-    func addImage(fromURL url: URL, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addImageAsset(fromURL: url)
+    func addAsset(fromURL url: URL, kind: AssetKind, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
+        let id = try await self.assetManager.addAsset(fromURL: url, kind: kind)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                this.removeImage(id, undoManager: um)
+                this.removeAsset(id, undoManager: um)
             }
         )
         return id
     }
 
-    private func registerImage(_ asset: ImageAsset, undoManager um: UndoManager? = nil) {
+    private func registerAsset(_ asset: Asset, undoManager um: UndoManager? = nil) {
         Task {
-            await self.assetManager.registerImageAsset(asset)
+            await self.assetManager.registerAsset(asset)
         }
 
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                self.removeImage(asset.id, undoManager: um)
+                self.removeAsset(asset.id, undoManager: um)
             }
         )
     }
 
-    func removeImage(_ id: UUID, undoManager um: UndoManager? = nil) {
-        guard let asset = self.images[id] else { return }
+    func removeAsset(_ id: UUID, undoManager um: UndoManager? = nil) {
+        guard let asset = self.assets[id] else { return }
+        guard asset.kind == .image else { return }
         Task {
-            await self.assetManager.removeImageAsset(id)
+            await self.assetManager.removeAsset(id)
         }
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                this.registerImage(asset, undoManager: um)
+                this.registerAsset(asset, undoManager: um)
             }
         )
     }
 
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
-        try await self.assetManager.getThumb(forImageAsset: id)
+    func getThumb(forAsset id: UUID) async throws -> CGImage? {
+        try await self.assetManager.getThumb(forAsset: id)
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {
-        log("event: \(event)", level: .debug)
         switch event {
-        case .imageAssetsDidChange:
-            self.images = await self.assetManager.imageAssets
+        case .assetsDidChange:
+            self.assets = await self.assetManager.assets
         }
     }
 }
@@ -127,22 +127,22 @@ extension AssetStore: Storable {
     convenience init(_ data: StorableData) {
         self.init()
         Task {
-            await self.assetManager.restore(data.images)
+            await self.assetManager.restore(data.assets)
         }
     }
 
     func restore(_ snapshot: StorableData) {
-        self.images = [:]
+        self.assets = [:]
         Task {
-            await self.assetManager.restore(snapshot.images)
+            await self.assetManager.restore(snapshot.assets)
         }
     }
 
     func snapshot() -> StorableData {
-        .init(images: self.images)
+        .init(assets: self.assets)
     }
 
     struct StorableData: Sendable, Codable {
-        var images: [UUID: ImageAsset] = [:]
+        var assets: [UUID: Asset] = [:]
     }
 }

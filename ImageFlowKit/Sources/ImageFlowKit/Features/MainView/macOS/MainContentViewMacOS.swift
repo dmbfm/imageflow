@@ -24,7 +24,9 @@ struct MainContentViewMacOS: View {
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
     @State var assetBrowserType: AssetBrowserType = .browser
     @State var showAssetBrowser: Bool = false
+    @State var assetBrowserConfiguration: AssetBrowserConfiguration = .init(allowedTypes: .all)
     @State var showFileImporter: Bool = false
+    @State var fileImporterConfiguration: Box<FileImporterConfiguration> = .init(.init(allowedContentTypes: []))
     @State var showPhotoPicker: Bool = false
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
 
@@ -63,6 +65,7 @@ struct MainContentViewMacOS: View {
             content: {
                 AssetBrowserView(
                     type: self.assetBrowserType,
+                    configuration: self.assetBrowserConfiguration,
                     assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )
@@ -76,7 +79,7 @@ struct MainContentViewMacOS: View {
         )
         .fileImporter(
             isPresented: self.$showFileImporter,
-            allowedContentTypes: [.image],
+            allowedContentTypes: self.fileImporterConfiguration.value.allowedContentTypes,
             allowsMultipleSelection: true,
             onCompletion: self.fileImporterCompletionHandler(_:)
         )

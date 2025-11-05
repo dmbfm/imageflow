@@ -13,4 +13,7 @@
    <FileRef
       location = "group:ImageFlowKit">
    </FileRef>
+   <FileRef
+      location = "group:CubeLutKit">
+   </FileRef>
 </Workspace>

@@ -2,14 +2,8 @@ import CoreGraphics
 import Logging
 import SwiftUI
 
-protocol AssetBrowserThumbProvider {
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage?
-}
-
-extension AssetStore: AssetBrowserThumbProvider {}
-
 struct AssetBrowserGridItemView: View {
-    let asset: ImageAsset
+    let asset: Asset
     let thumbProvider: any AssetBrowserThumbProvider
     let selected: Bool
 
@@ -18,12 +12,12 @@ struct AssetBrowserGridItemView: View {
     @State var image: CGImage?
 
     func load() {
-        Task {
+        Task.immediate {
             do {
-                self.image = try await self.thumbProvider.getThumb(forImageAsset: self.asset.id)
+                self.image = try await self.thumbProvider.assetBrowserGetThumb(forAsset: self.asset.id)
             } catch {
-                self.failed = true
                 log("Failed to get thumbnail: \(error)", level: .error)
+                self.failed = true
             }
 
             self.failed = false
@@ -50,14 +44,14 @@ private class PreviewThumbProvider: AssetBrowserThumbProvider {
         topColor: .init(red: 0.412, green: 0.562, blue: 0.875, alpha: 1.0),
         bottomColor: .init(red: 0.71, green: 0.784, blue: 0.937, alpha: 1.0)
     )!
-    func getThumb(forImageAsset id: UUID) async throws -> CGImage? {
+    func assetBrowserGetThumb(forAsset id: UUID) async throws -> CGImage? {
         try await Task.sleep(for: .seconds(2))
         return self.gradientImage
     }
 }
 
 #Preview {
-    @Previewable @State var asset = ImageAsset(id: .init(), state: .loaded(.file("")), added: .now)
+    @Previewable @State var asset = Asset(id: .init(), state: .loaded(.file("")), added: .now, kind: .image)
     @Previewable @State var tp = PreviewThumbProvider()
     @Previewable @State var selected = false
 
