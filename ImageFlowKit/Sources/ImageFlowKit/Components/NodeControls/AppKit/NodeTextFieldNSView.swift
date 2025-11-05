@@ -157,7 +157,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
             }
         case .editing:
             switch newState {
-            case .`init`: 
+            case .`init`:
                 fatalError("Invalid transition: editing -> init")
             case .editing:
                 break
@@ -203,9 +203,11 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
                 NSAttributedString.Key.font: self.label.font as Any
             ]
         ).size().height
-        
-        let size = str.size().minMax(.init(width: 0, height: height), width: .ours, height: .max) + .init(width: 4, height: 0)
-        return size.minMax(.init(width: 10, height: 0), width: .max, height: .ours) + style.textInsets.platformEdgeInsets.size
+
+        let size =
+            str.size().minMax(.init(width: 0, height: height), width: .ours, height: .max) + .init(width: 4, height: 0)
+        return size.minMax(.init(width: 10, height: 0), width: .max, height: .ours)
+            + style.textInsets.platformEdgeInsets.size
     }
 
     override func layout() {

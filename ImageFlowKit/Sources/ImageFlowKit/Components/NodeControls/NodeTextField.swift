@@ -76,10 +76,10 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
 
 extension NodeTextField {
     fileprivate struct Preview: PlatformViewRepresentable {
-        
+
         @Binding var text: String
         let placeholder: String?
-        
+
         func makeView(context: Context) -> NodeTextField {
             let view = NodeTextField(self.text, style: .default.with(\.borderColor, .systemBlue))
             view.placeholder = self.placeholder
@@ -106,7 +106,7 @@ extension NodeTextField {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    
+
     @Previewable @State var text1: String = "Hello!"
     @Previewable @State var text2: String = ""
 
@@ -118,7 +118,6 @@ extension NodeTextField {
         Text("'\(text2)'")
             .font(.caption)
 
-        
     }
     .frame(minWidth: 500, minHeight: 500)
     .background(.white)

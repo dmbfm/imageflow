@@ -27,7 +27,11 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
     public var tint: PlatformColor = .systemBlue
 
     lazy var textField: NodeTextField = {
-        let view = NodeTextField(self.value.string, placeholder: "Insert text...", style: .default.with(\.borderColor, self.tint))
+        let view = NodeTextField(
+            self.value.string,
+            placeholder: "Insert text...",
+            style: .default.with(\.borderColor, self.tint)
+        )
         view.onEvent = { [weak self] event in
             switch event {
             case .sizeDidChange:
