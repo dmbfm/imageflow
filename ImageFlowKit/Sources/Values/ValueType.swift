@@ -14,7 +14,6 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case colorSpace
     case affineTransform
     case attributedString
-    case filepath
 }
 
 extension ValueType: Identifiable {
@@ -39,7 +38,6 @@ extension ValueType: CustomStringConvertible {
         case .colorSpace: return "ColorSpace"
         case .affineTransform: return "AffineTransform"
         case .attributedString: return "AttributedString"
-        case .filepath: return "Filepath"
         }
     }
 }

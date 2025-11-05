@@ -14,7 +14,6 @@ public enum Value: Sendable, Hashable, Codable {
     case color4(Color4)
     case image(ImageValue)
     case string(String)
-    case filepath(Filepath)
     case data(Data)
     case colorSpace(ColorSpace)
     case affineTransform(AffineTransform)
@@ -190,22 +189,6 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .string(newValue)
             } else {
                 fatalError("Value is not a string: \(self.type)")
-            }
-        }
-    }
-
-    public var filepath: Filepath {
-        get {
-            if case .filepath(let value) = self {
-                return value
-            }
-            fatalError("Value is not a filepath: \(self.type)")
-        }
-        set {
-            if case .filepath(_) = self {
-                self = .filepath(newValue)
-            } else {
-                fatalError("Value is not a filepath: \(self.type)")
             }
         }
     }
@@ -450,22 +433,6 @@ public enum Value: Sendable, Hashable, Codable {
         }
     }
 
-    public var maybeFilepath: Filepath? {
-        get {
-            if case .filepath(let value) = self {
-                return value
-            }
-            return nil
-        }
-        set {
-            if let newValue = newValue {
-                self = .filepath(newValue)
-            } else {
-                fatalError("Value is not a filepath: \(self.type)")
-            }
-        }
-    }
-
     public var maybeData: Data? {
         get {
             if case .data(let value) = self {
@@ -658,8 +625,6 @@ extension Value {
             return .affineTransform(.identity)
         case .attributedString:
             return .attributedString(AttributedString())
-        case .filepath:
-            return .filepath(Filepath())
         }
     }
 
@@ -695,8 +660,6 @@ extension Value {
             return .affineTransform
         case .attributedString:
             return .attributedString
-        case .filepath:
-            return .filepath
         }
     }
 }
@@ -734,8 +697,6 @@ extension Value: CustomStringConvertible {
             return "AffineTransform(\(value))"
         case let .attributedString(value):
             return "AttributedString(\(value))"
-        case let .filepath(url):
-            return "Filepath(\(String(describing: url)))"
         }
     }
 }

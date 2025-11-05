@@ -10,7 +10,6 @@ extension ValueType {
         case .color4: "Color"
         case .colorSpace: "Color Space"
         case .data: "Data"
-        case .filepath: "File Path"
         case .float: "Float"
         case .image: "Image"
         case .int: "Integer"
