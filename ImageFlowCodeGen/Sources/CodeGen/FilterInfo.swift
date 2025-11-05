@@ -13,6 +13,10 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CICoreMLModelFilter",
             "CIBarcodeGenerator",
             "CIMeshGenerator",
+            "CIAztecCodeGenerator",
+            "CICode128BarcodeGenerator",
+            "CIPDF417BarcodeGenerator",
+            "CISystemToneMap",
         ]
 
     static let overrides: [Override] = [
@@ -212,7 +216,6 @@ func defaultValue(_ type: ValueType, _ obj: Any??) -> Value? {
             return nil
         }
     case .attributedString: return nil
-    case .filepath: return nil
     case .affineTransform:
         if let transform = obj as? NSAffineTransform {
             let t = transform.transformStruct

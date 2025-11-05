@@ -133,8 +133,6 @@ extension ValueType {
             "CIVector(cgRect: \(base).rect)"
         case .string:
             "\(base).string"
-        default:
-            fatalError("\(self) not supported")
         }
     }
 }
@@ -164,8 +162,6 @@ extension Value {
                 let str = value.base64EncodedString()
                 return "Data(base64Encoded: \"\(str)\")!"
             }()
-        case .filepath(_):
-            fatalError("Not supported: \(self.type)")
         case .image(_):
             fatalError("Not supported: \(self.type)")
         case .rect(_):

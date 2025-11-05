@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ImageFlowCodeGen",
-    platforms: [.macOS(.v15), .iOS(.v18)],
+    platforms: [.macOS(.v26), .iOS(.v26)],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "601.0.1"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),

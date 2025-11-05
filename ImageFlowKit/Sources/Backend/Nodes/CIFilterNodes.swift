@@ -424,15 +424,14 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     }
     public enum GeneratorNodeKind: Sendable, Hashable, Codable, CaseIterable {
         case CIAttributedTextImageGenerator
-        case CIAztecCodeGenerator
         case CIBlurredRectangleGenerator
+        case CIBlurredRoundedRectangleGenerator
         case CICheckerboardGenerator
-        case CICode128BarcodeGenerator
         case CIConstantColorGenerator
         case CILenticularHaloGenerator
-        case CIPDF417BarcodeGenerator
         case CIQRCodeGenerator
         case CIRandomGenerator
+        case CIRoundedQRCodeGenerator
         case CIRoundedRectangleGenerator
         case CIRoundedRectangleStrokeGenerator
         case CIStarShineGenerator
@@ -443,24 +442,22 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
             switch self {
             case .CIAttributedTextImageGenerator:
                 Nodes.CIAttributedTextImageGeneratorNode.impl()
-            case .CIAztecCodeGenerator:
-                Nodes.CIAztecCodeGeneratorNode.impl()
             case .CIBlurredRectangleGenerator:
                 Nodes.CIBlurredRectangleGeneratorNode.impl()
+            case .CIBlurredRoundedRectangleGenerator:
+                Nodes.CIBlurredRoundedRectangleGeneratorNode.impl()
             case .CICheckerboardGenerator:
                 Nodes.CICheckerboardGeneratorNode.impl()
-            case .CICode128BarcodeGenerator:
-                Nodes.CICode128BarcodeGeneratorNode.impl()
             case .CIConstantColorGenerator:
                 Nodes.CIConstantColorGeneratorNode.impl()
             case .CILenticularHaloGenerator:
                 Nodes.CILenticularHaloGeneratorNode.impl()
-            case .CIPDF417BarcodeGenerator:
-                Nodes.CIPDF417BarcodeGeneratorNode.impl()
             case .CIQRCodeGenerator:
                 Nodes.CIQRCodeGeneratorNode.impl()
             case .CIRandomGenerator:
                 Nodes.CIRandomGeneratorNode.impl()
+            case .CIRoundedQRCodeGenerator:
+                Nodes.CIRoundedQRCodeGeneratorNode.impl()
             case .CIRoundedRectangleGenerator:
                 Nodes.CIRoundedRectangleGeneratorNode.impl()
             case .CIRoundedRectangleStrokeGenerator:
@@ -533,6 +530,7 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIHueSaturationValueGradient
         case CILinearGradient
         case CIRadialGradient
+        case CISignedDistanceGradientFromRedMask
         case CISmoothLinearGradient
         public var impl: NodeImpl {
             switch self {
@@ -546,6 +544,8 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CILinearGradientNode.impl()
             case .CIRadialGradient:
                 Nodes.CIRadialGradientNode.impl()
+            case .CISignedDistanceGradientFromRedMask:
+                Nodes.CISignedDistanceGradientFromRedMaskNode.impl()
             case .CISmoothLinearGradient:
                 Nodes.CISmoothLinearGradientNode.impl()
             }
@@ -575,6 +575,7 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     public enum ReductionNodeKind: Sendable, Hashable, Codable, CaseIterable {
         case CIAreaAlphaWeightedHistogram
         case CIAreaAverage
+        case CIAreaAverageMaximumRed
         case CIAreaBoundsRed
         case CIAreaHistogram
         case CIAreaLogarithmicHistogram
@@ -594,6 +595,8 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIAreaAlphaWeightedHistogramNode.impl()
             case .CIAreaAverage:
                 Nodes.CIAreaAverageNode.impl()
+            case .CIAreaAverageMaximumRed:
+                Nodes.CIAreaAverageMaximumRedNode.impl()
             case .CIAreaBoundsRed:
                 Nodes.CIAreaBoundsRedNode.impl()
             case .CIAreaHistogram:
@@ -1047,6 +1050,28 @@ extension Nodes {
         }
     }
 
+    public struct CIAreaAverageMaximumRedNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Area Average and Maximum Red",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIAreaAverageMaximumRed")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
+                node.outputs[0] = .image(await context.addImage(filter.outputImage))
+            }
+        }
+    }
+
     public struct CIAreaBoundsRedNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -1281,32 +1306,6 @@ extension Nodes {
         }
     }
 
-    public struct CIAztecCodeGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Aztec Code Generator",
-                inputs: [
-                    .init(name: "Message", type: .data, semantics: .default),
-                    .init(name: "Correction Level", defaultValue: .int(23), semantics: .integer),
-                    .init(name: "Layers", type: .int, semantics: .integer),
-                    .init(name: "Compact Style", type: .bool, semantics: .boolean),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIAztecCodeGenerator")!
-                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
-                filter.setValue(node.inputs[1].int, forKey: "inputCorrectionLevel")
-                filter.setValue(node.inputs[2].int, forKey: "inputLayers")
-                filter.setValue(node.inputs[3].bool, forKey: "inputCompactStyle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
     public struct CIBarsSwipeTransitionNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -1513,6 +1512,38 @@ extension Nodes {
         }
     }
 
+    public struct CIBlurredRoundedRectangleGeneratorNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Blurred Rounded Rectangle Generator",
+                inputs: [
+                    .init(name: "Extent", type: .rect, semantics: .rectangle),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance),
+                    .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance),
+                    .init(
+                        name: "Color",
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIBlurredRoundedRectangleGenerator")!
+                filter.setValue(CIVector(cgRect: node.inputs[0].rect), forKey: "inputExtent")
+                filter.setValue(node.inputs[1].float, forKey: "inputRadius")
+                filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
+                filter.setValue(node.inputs[3].float, forKey: "inputSigma")
+                filter.setValue(node.inputs[4].color4.ciColor, forKey: "inputColor")
+                node.outputs[0] = .image(await context.addImage(filter.outputImage))
+            }
+        }
+    }
+
     public struct CIBokehBlurNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -1654,12 +1685,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ), .init(name: "Width", defaultValue: .float(80.0), semantics: .distance),
@@ -1807,30 +1838,6 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
                 filter.setValue(node.inputs[5].float, forKey: "inputGCR")
                 filter.setValue(node.inputs[6].float, forKey: "inputUCR")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
-    public struct CICode128BarcodeGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Code 128 Barcode Generator",
-                inputs: [
-                    .init(name: "Message", type: .data, semantics: .default),
-                    .init(name: "Quiet Space", defaultValue: .int(10), semantics: .integer),
-                    .init(name: "Barcode Height", defaultValue: .int(32), semantics: .integer),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CICode128BarcodeGenerator")!
-                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
-                filter.setValue(node.inputs[1].int, forKey: "inputQuietSpace")
-                filter.setValue(node.inputs[2].int, forKey: "inputBarcodeHeight")
                 node.outputs[0] = .image(await context.addImage(filter.outputImage))
             }
         }
@@ -3302,12 +3309,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 0.3, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 1.0, green: 0.9, blue: 0.8, alpha: 1.0)),
                         semantics: .color
                     ),
@@ -3519,12 +3526,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)),
                         semantics: .color
                     ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
@@ -4252,12 +4259,12 @@ extension Nodes {
                     .init(name: "Point 0", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .position2),
                     .init(name: "Point 1", defaultValue: .vector2(.init(x: 200.0, y: 200.0)), semantics: .position2),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ),
@@ -5084,48 +5091,6 @@ extension Nodes {
         }
     }
 
-    public struct CIPDF417BarcodeGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "PDF417 Barcode Generator",
-                inputs: [
-                    .init(name: "Message", type: .data, semantics: .default),
-                    .init(name: "Min Width", type: .int, semantics: .integer),
-                    .init(name: "Max Width", type: .int, semantics: .integer),
-                    .init(name: "Min Height", type: .int, semantics: .integer),
-                    .init(name: "Max Height", type: .int, semantics: .integer),
-                    .init(name: "Data Columns", type: .int, semantics: .integer),
-                    .init(name: "Rows", type: .int, semantics: .integer),
-                    .init(name: "Preferred Aspect Ratio", type: .float, semantics: .default),
-                    .init(name: "Compaction Mode", type: .int, semantics: .integer),
-                    .init(name: "Compact Style", type: .bool, semantics: .boolean),
-                    .init(name: "Correction Level", type: .int, semantics: .integer),
-                    .init(name: "Always Specify Compaction", type: .bool, semantics: .boolean),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIPDF417BarcodeGenerator")!
-                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
-                filter.setValue(node.inputs[1].int, forKey: "inputMinWidth")
-                filter.setValue(node.inputs[2].int, forKey: "inputMaxWidth")
-                filter.setValue(node.inputs[3].int, forKey: "inputMinHeight")
-                filter.setValue(node.inputs[4].int, forKey: "inputMaxHeight")
-                filter.setValue(node.inputs[5].int, forKey: "inputDataColumns")
-                filter.setValue(node.inputs[6].int, forKey: "inputRows")
-                filter.setValue(node.inputs[7].float, forKey: "inputPreferredAspectRatio")
-                filter.setValue(node.inputs[8].int, forKey: "inputCompactionMode")
-                filter.setValue(node.inputs[9].bool, forKey: "inputCompactStyle")
-                filter.setValue(node.inputs[10].int, forKey: "inputCorrectionLevel")
-                filter.setValue(node.inputs[11].bool, forKey: "inputAlwaysSpecifyCompaction")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
     public struct CIPersonSegmentationNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -5626,12 +5591,12 @@ extension Nodes {
                     .init(name: "Radius 1", defaultValue: .float(5.0), semantics: .distance),
                     .init(name: "Radius 2", defaultValue: .float(100.0), semantics: .distance),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ),
@@ -5705,6 +5670,48 @@ extension Nodes {
         }
     }
 
+    public struct CIRoundedQRCodeGeneratorNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Rounded QR Code Generator",
+                inputs: [
+                    .init(name: "Message", type: .data, semantics: .default),
+                    .init(name: "Correction Level", defaultValue: .string("M"), semantics: .default),
+                    .init(name: "Scale", defaultValue: .float(16.0), semantics: .default),
+                    .init(name: "Rounded Markers", defaultValue: .int(1), semantics: .integer),
+                    .init(name: "Rounded Data", defaultValue: .bool(true), semantics: .boolean),
+                    .init(name: "Center Space Size", defaultValue: .float(0.25), semantics: .default),
+                    .init(
+                        name: "Color 0",
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                    .init(
+                        name: "Color 1",
+                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIRoundedQRCodeGenerator")!
+                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
+                filter.setValue(node.inputs[1].string, forKey: "inputCorrectionLevel")
+                filter.setValue(node.inputs[2].float, forKey: "inputScale")
+                filter.setValue(node.inputs[3].int, forKey: "inputRoundedMarkers")
+                filter.setValue(node.inputs[4].bool, forKey: "inputRoundedData")
+                filter.setValue(node.inputs[5].float, forKey: "inputCenterSpaceSize")
+                filter.setValue(node.inputs[6].color4.ciColor, forKey: "inputColor0")
+                filter.setValue(node.inputs[7].color4.ciColor, forKey: "inputColor1")
+                node.outputs[0] = .image(await context.addImage(filter.outputImage))
+            }
+        }
+    }
+
     public struct CIRoundedRectangleGeneratorNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -5712,6 +5719,7 @@ extension Nodes {
                 inputs: [
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
@@ -5727,7 +5735,8 @@ extension Nodes {
                 let filter = CIFilter(name: "CIRoundedRectangleGenerator")!
                 filter.setValue(CIVector(cgRect: node.inputs[0].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
+                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
                 node.outputs[0] = .image(await context.addImage(filter.outputImage))
             }
         }
@@ -5740,6 +5749,7 @@ extension Nodes {
                 inputs: [
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
@@ -5755,8 +5765,9 @@ extension Nodes {
                 let filter = CIFilter(name: "CIRoundedRectangleStrokeGenerator")!
                 filter.setValue(CIVector(cgRect: node.inputs[0].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor")
-                filter.setValue(node.inputs[3].float, forKey: "inputWidth")
+                filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
+                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[4].float, forKey: "inputWidth")
                 node.outputs[0] = .image(await context.addImage(filter.outputImage))
             }
         }
@@ -5934,6 +5945,28 @@ extension Nodes {
         }
     }
 
+    public struct CISignedDistanceGradientFromRedMaskNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Signed Distance Gradient From Red Mask",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CISignedDistanceGradientFromRedMask")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(node.inputs[1].float, forKey: "inputMaximumDistance")
+                node.outputs[0] = .image(await context.addImage(filter.outputImage))
+            }
+        }
+    }
+
     public struct CISixfoldReflectedTileNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -5994,12 +6027,12 @@ extension Nodes {
                     .init(name: "Point 0", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .position2),
                     .init(name: "Point 1", defaultValue: .vector2(.init(x: 200.0, y: 200.0)), semantics: .position2),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ),
@@ -6364,12 +6397,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(
-                        name: "Color 1",
+                        name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color
                     ),
                     .init(
-                        name: "Color 2",
+                        name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color
                     ), .init(name: "Width", defaultValue: .float(80.0), semantics: .distance),
@@ -6594,8 +6627,8 @@ extension Nodes {
                 name: "Tone Map Headroom",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Source headroom", type: .float, semantics: .default),
-                    .init(name: "Target headroom", defaultValue: .float(1.0), semantics: .default),
+                    .init(name: "Source Headroom", type: .float, semantics: .default),
+                    .init(name: "Target Headroom", defaultValue: .float(1.0), semantics: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
