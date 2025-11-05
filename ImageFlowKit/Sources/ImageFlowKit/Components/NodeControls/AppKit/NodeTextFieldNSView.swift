@@ -128,9 +128,9 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         case .`init`:
             switch newState {
             case .`init`:
-                fatalError()
+                break
             case .editing:
-                fatalError()
+                fatalError("Invalid transition: init -> editing")
             case .idle:
                 self.textField.isHidden = true
                 self.layer?.borderColor = self.style.borderColor.cgColor
@@ -144,7 +144,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         case .idle:
             switch newState {
             case .`init`:
-                fatalError()
+                fatalError("Invalid transition: idle -> init")
             case .idle:
                 break
             case .editing:
@@ -157,8 +157,10 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
             }
         case .editing:
             switch newState {
-            case .`init`: fatalError()
-            case .editing: break
+            case .`init`: 
+                fatalError("Invalid transition: editing -> init")
+            case .editing:
+                break
             case .idle:
                 self.label.isHidden = false
                 self.textField.isHidden = true
