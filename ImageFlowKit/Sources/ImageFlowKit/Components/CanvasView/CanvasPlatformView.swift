@@ -113,6 +113,5 @@ extension CanvasPlatformView {
             return
         }
         node.frame.origin = position
-        self.setNeedsLayout()
     }
 }
