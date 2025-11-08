@@ -108,6 +108,6 @@ extension CanvasPlatformView {
     }
 
     func moveNode(_ id: UUID, to position: CGPoint) {
-        self.nodeViews[id]?.setFrameOrigin(position) //frame.origin = position
+        self.nodeViews[id]?.setFrameOrigin(position)  //frame.origin = position
     }
 }

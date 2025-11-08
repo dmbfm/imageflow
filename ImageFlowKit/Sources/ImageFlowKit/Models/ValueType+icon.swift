@@ -20,6 +20,8 @@ extension ValueType {
             return "textformat"
         case .image:
             return "photo"
+        case .lut:
+            return "squareshape.split.3x3"
         case .color3, .color4:
             return "swatchpalette"
         case .rect:

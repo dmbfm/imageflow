@@ -60,10 +60,21 @@ final class NodeInputRowView: PlatformView {
         return view
     }()
 
-    lazy var nodeImageInputDelegate: NodeImageInput.Delegate = {
+    lazy var nodeImageInputDelegate: NodeAssetPicker<ImageAssetPicker>.Delegate = {
         .init(
             openAssetBrowser: {
+                log("--> image!!!!!!!!!!!!!")
                 self.delegate.openAssetBrowser(.init(allowedTypes: [.image]))
+            },
+            titleForAsset: self.delegate.titleForAsset
+        )
+    }()
+
+    lazy var nodeLutInputDelegate: NodeAssetPicker<LutAssetPicker>.Delegate = {
+        .init(
+            openAssetBrowser: {
+                log("--> lut!!!!!!!!!!!!!")
+                self.delegate.openAssetBrowser(.init(allowedTypes: [.lut]))
             },
             titleForAsset: self.delegate.titleForAsset
         )
@@ -81,13 +92,15 @@ final class NodeInputRowView: PlatformView {
             case .vector2, .vector3, .vector4:
                 NodeVectorInput(self.input.value)
             case .image:
-                NodeImageInput(self.input.value, delegate: self.nodeImageInputDelegate)
+                NodeAssetPicker<ImageAssetPicker>(self.input.value, delegate: self.nodeImageInputDelegate)
             case .color3, .color4:
                 NodeColorInput(self.input.value)
             case .rect:
                 NodeRectInput(self.input.value)
             case .string:
                 NodeStringInput(self.input.value)
+            case .lut:
+                NodeAssetPicker<LutAssetPicker>(self.input.value, delegate: self.nodeLutInputDelegate)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }

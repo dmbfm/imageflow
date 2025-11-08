@@ -1,6 +1,6 @@
 import Foundation
-import UniformTypeIdentifiers
 import Logging
+import UniformTypeIdentifiers
 
 struct AssetKindSet: OptionSet {
     let rawValue: Int
@@ -34,7 +34,7 @@ struct AssetKindSet: OptionSet {
         if self.contains(.lut) {
             result.append(.cubeLut)
         }
-        
+
         return result
     }
 }

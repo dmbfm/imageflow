@@ -29,7 +29,6 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     typealias Delegate = NodeInputBlockView.Delegate
 
-
     // MARK: - Private properties
 
     private var inputBlockDelegate: NodeInputBlockView.Delegate?

@@ -43,8 +43,8 @@ enum AssetKind: Equatable, Codable {
 
     var utType: UTType {
         switch self {
-            case .image: .image
-            case .lut: .cubeLut
+        case .image: .image
+        case .lut: .cubeLut
         }
     }
 }

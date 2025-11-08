@@ -12,6 +12,7 @@ extension ValueType {
         case .data: "Data"
         case .float: "Float"
         case .image: "Image"
+        case .lut: "LUT"
         case .int: "Integer"
         case .rect: "Rectangle"
         case .string: "String"

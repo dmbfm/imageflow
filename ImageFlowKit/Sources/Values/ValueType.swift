@@ -9,6 +9,7 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case color3
     case color4
     case image
+    case lut
     case string
     case data
     case colorSpace
@@ -33,6 +34,7 @@ extension ValueType: CustomStringConvertible {
         case .color3: return "Color3"
         case .color4: return "Color4"
         case .image: return "Image"
+        case .lut: return "LUT"
         case .string: return "String"
         case .data: return "Data"
         case .colorSpace: return "ColorSpace"

@@ -28,11 +28,30 @@ let package = Package(
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
-        .target(name: "Backend", dependencies: ["Values", "SwiftGraph"]),
-        .target(name: "ImageFlowKit", dependencies: ["Values", "Backend", "Helpers", "Logging", "CubeLutKit"]),
+        .target(
+            name: "Backend",
+            dependencies: [
+                "Values",
+                "SwiftGraph",
+            ]
+        ),
+        .target(
+            name: "ImageFlowKit",
+            dependencies: [
+                "Values",
+                "Backend",
+                "Helpers",
+                "Logging",
+                "CubeLutKit",
+            ]
+        ),
         .testTarget(
             name: "ImageFlowKitTests",
-            dependencies: ["ImageFlowKit", "Backend", "Values"],
+            dependencies: [
+                "ImageFlowKit",
+                "Backend",
+                "Values",
+            ],
             resources: [.copy("Fixtures")]
         ),
     ]

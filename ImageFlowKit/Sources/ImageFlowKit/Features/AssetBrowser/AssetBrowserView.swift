@@ -72,7 +72,7 @@ struct AssetBrowserView: View {
         delegate: AssetBrowserViewDelegate,
     ) {
         self.type = type
-        self.allowedAssetKinds =  configuration.allowedTypes
+        self.allowedAssetKinds = configuration.allowedTypes
         self.allowedImportTypes = configuration.allowedTypes.types
         self.photoPickerDisabled = !configuration.allowedTypes.contains(.image)
         self.assetsProvider = assetsProvider

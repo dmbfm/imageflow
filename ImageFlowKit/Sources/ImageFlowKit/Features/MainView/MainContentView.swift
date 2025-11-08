@@ -26,6 +26,7 @@ extension MainContentView {
     var canvasFeatureViewDelegate: CanvasFeatureView.Delegate {
         .init(
             openAssetPicker: { id, portIndex, configuration in
+                log("--> configuration: \(configuration)")
                 self.openAssetPicker(.init(node: id, port: .input(portIndex)), configuration: configuration)
             },
             fetchAsset: { id in
@@ -90,6 +91,7 @@ extension MainContentView {
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
         switch result {
         case .create(let id):
+            fatalError("TODO: Fixme: allow creating other types of assets!")
             var node = FlowNode(id: .init(), kind: .valueNode(.image))
             node.inputs[0].value = .image(.asset(id))
             self.createNodeAtCanvasCenter(node)
@@ -98,6 +100,7 @@ extension MainContentView {
             case .browser:
                 break
             case .picker(let loc):
+                fatalError("TODO: Fixme: make picker work for other assets like .lut (AssetBrowser result should carry along the configuration for that)")
                 self.flow.nodes[loc.node]![valueAt: loc.slot] = .image(.asset(assetId))
             }
         case .cancel:
