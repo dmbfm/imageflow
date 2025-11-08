@@ -108,10 +108,6 @@ extension CanvasPlatformView {
     }
 
     func moveNode(_ id: UUID, to position: CGPoint) {
-        guard let node = self.nodeViews[id] else {
-            log("Node not found: \(id)")
-            return
-        }
-        node.frame.origin = position
+        self.nodeViews[id]?.setFrameOrigin(position) //frame.origin = position
     }
 }
