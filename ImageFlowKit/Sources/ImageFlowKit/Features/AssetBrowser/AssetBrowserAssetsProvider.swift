@@ -1,5 +1,6 @@
 import CoreImage
 import Foundation
+import Logging
 
 protocol AssetBrowserAssetsProvider: AssetBrowserThumbProvider {
     @MainActor
@@ -18,6 +19,7 @@ extension AssetStore: AssetBrowserThumbProvider {
 
 extension AssetStore: AssetBrowserAssetsProvider {
     func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
-        self.fileAssets.filter({ kinds.contains($0.kind) })
+        log("--> kinds: \(kinds)")
+        return self.fileAssets.filter({ kinds.contains($0.kind) })
     }
 }

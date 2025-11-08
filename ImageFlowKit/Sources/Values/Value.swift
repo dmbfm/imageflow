@@ -18,6 +18,7 @@ public enum Value: Sendable, Hashable, Codable {
     case colorSpace(ColorSpace)
     case affineTransform(AffineTransform)
     case attributedString(AttributedString)
+    case lut(LutValue)
 
     // Accessors for every case defined above
 
@@ -173,6 +174,22 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .image(newValue)
             } else {
                 fatalError("Value is not an image: \(self.type)")
+            }
+        }
+    }
+
+    public var lut: LutValue {
+        get {
+            if case .lut(let value) = self {
+                return value
+            }
+            fatalError("Value is not an lut: \(self.type)")
+        }
+        set {
+            if case .lut(_) = self {
+                self = .lut(newValue)
+            } else {
+                fatalError("Value is not an lut: \(self.type)")
             }
         }
     }
@@ -500,6 +517,8 @@ public enum Value: Sendable, Hashable, Codable {
 
 public typealias ImageValue = Optional<ImageIdentifier>
 
+public typealias LutValue = Optional<UUID>
+
 public enum ImageIdentifier: Sendable, Hashable, Codable {
     case nodeOutput(UUID, Int)
     case asset(UUID)
@@ -611,6 +630,8 @@ extension Value {
             return .color4(Color4(red: 0, green: 0, blue: 0, alpha: 0))
         case .image:
             return .image(nil)
+        case .lut:
+            return .lut(nil)
         case .string:
             return .string("")
         case .bool:
@@ -646,6 +667,8 @@ extension Value {
             return .color4
         case .image:
             return .image
+        case .lut:
+            return .lut
         case .string:
             return .string
         case .bool:
@@ -683,6 +706,8 @@ extension Value: CustomStringConvertible {
             return "Color4(\(value.red), \(value.green), \(value.blue), \(value.alpha))"
         case let .image(value):
             return "Image(\(value == nil ? "nil" : "\(value!)"))"
+        case let .lut(value):
+            return "LUT(\(value == nil ? "nil" : "\(value!)"))"
         case let .string(value):
             return "String(\(value))"
         case let .bool(value):

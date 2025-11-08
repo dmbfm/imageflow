@@ -3,14 +3,14 @@
 import Helpers
 import AppKit
 
-extension NodeImageInput {
-    final class DefaultView: PlatformCommonView, InnerView {
+extension NodeAssetPicker {
+    final class DefaultView: PlatformCommonView, NodeAssetPickerInnerView {
 
         var onButtonClick: (() -> ())?
 
         var onRemoveButtonClick: (() -> ())?
 
-        var vm: ViewModel {
+        var vm: NodeAssetPickerInnerViewModel {
             didSet {
                 self.update()
             }
@@ -40,7 +40,7 @@ extension NodeImageInput {
             return button
         }()
 
-        init(vm: ViewModel) {
+        init(vm: NodeAssetPickerInnerViewModel) {
             self.vm = vm
 
             super.init(frame: .zero)

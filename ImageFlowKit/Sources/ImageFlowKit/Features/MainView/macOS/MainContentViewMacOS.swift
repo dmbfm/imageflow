@@ -22,13 +22,13 @@ struct MainContentViewMacOS: View {
     @FocusState var focus: Focus?
 
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State var assetBrowserType: AssetBrowserType = .browser
+    @State var assetBrowserType: AssetBrowserType = .browser(.init(assetKinds: .all))
     @State var showAssetBrowser: Bool = false
-    @State var assetBrowserConfiguration: AssetBrowserConfiguration = .init(allowedTypes: .all)
     @State var showFileImporter: Bool = false
     @State var fileImporterConfiguration: Box<FileImporterConfiguration> = .init(.init(allowedContentTypes: []))
     @State var showPhotoPicker: Bool = false
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
+    @State var error: LocalizedAlertError? = nil
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -65,7 +65,6 @@ struct MainContentViewMacOS: View {
             content: {
                 AssetBrowserView(
                     type: self.assetBrowserType,
-                    configuration: self.assetBrowserConfiguration,
                     assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )
@@ -83,6 +82,7 @@ struct MainContentViewMacOS: View {
             allowsMultipleSelection: true,
             onCompletion: self.fileImporterCompletionHandler(_:)
         )
+        .errorAlert(self.$error)
         .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
         .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
         .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)

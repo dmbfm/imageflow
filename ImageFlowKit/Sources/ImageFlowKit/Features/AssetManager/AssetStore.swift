@@ -73,7 +73,11 @@ final class AssetStore {
     }
 
     @discardableResult
-    func addAsset(fromURL url: URL, kind: AssetKind, undoManager um: UndoManager? = nil) async throws(AssetManagerError) -> UUID {
+    func addAsset(
+        fromURL url: URL,
+        kind: AssetKind,
+        undoManager um: UndoManager? = nil
+    ) async throws(AssetManagerError) -> UUID {
         let id = try await self.assetManager.addAsset(fromURL: url, kind: kind)
         um?.registerUndo(
             withTarget: self,

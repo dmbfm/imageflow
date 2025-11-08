@@ -1,5 +1,6 @@
 import Foundation
 import UniformTypeIdentifiers
+import Values
 
 struct Asset: Identifiable, Equatable, Codable {
     var id: UUID
@@ -43,8 +44,15 @@ enum AssetKind: Equatable, Codable {
 
     var utType: UTType {
         switch self {
-            case .image: .image
-            case .lut: .cubeLut
+        case .image: .image
+        case .lut: .cubeLut
+        }
+    }
+
+    var valueType: ValueType? {
+        switch self {
+        case .image: .image
+        case .lut: .lut
         }
     }
 }

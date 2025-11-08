@@ -26,7 +26,7 @@ final class NodeInputRowView: PlatformView {
     // MARK: - Exposed Types
 
     struct Delegate {
-        var openAssetBrowser: (AssetBrowserConfiguration) -> ()
+        var openAssetPicker: (AssetKind) -> ()
         var titleForAsset: (UUID) -> String?
     }
 
@@ -60,10 +60,19 @@ final class NodeInputRowView: PlatformView {
         return view
     }()
 
-    lazy var nodeImageInputDelegate: NodeImageInput.Delegate = {
+    lazy var nodeImageInputDelegate: NodeAssetPicker<ImageAssetPicker>.Delegate = {
         .init(
             openAssetBrowser: {
-                self.delegate.openAssetBrowser(.init(allowedTypes: [.image]))
+                self.delegate.openAssetPicker(.image)
+            },
+            titleForAsset: self.delegate.titleForAsset
+        )
+    }()
+
+    lazy var nodeLutInputDelegate: NodeAssetPicker<LutAssetPicker>.Delegate = {
+        .init(
+            openAssetBrowser: {
+                self.delegate.openAssetPicker(.lut)
             },
             titleForAsset: self.delegate.titleForAsset
         )
@@ -81,13 +90,15 @@ final class NodeInputRowView: PlatformView {
             case .vector2, .vector3, .vector4:
                 NodeVectorInput(self.input.value)
             case .image:
-                NodeImageInput(self.input.value, delegate: self.nodeImageInputDelegate)
+                NodeAssetPicker<ImageAssetPicker>(self.input.value, delegate: self.nodeImageInputDelegate)
             case .color3, .color4:
                 NodeColorInput(self.input.value)
             case .rect:
                 NodeRectInput(self.input.value)
             case .string:
                 NodeStringInput(self.input.value)
+            case .lut:
+                NodeAssetPicker<LutAssetPicker>(self.input.value, delegate: self.nodeLutInputDelegate)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
@@ -282,7 +293,7 @@ extension NodeInputRowView {
         func makeView(context: Context) -> NodeInputRowView {
             let view = NodeInputRowView(
                 self.input,
-                delegate: .init(openAssetBrowser: { _ in }, titleForAsset: { _ in nil })
+                delegate: .init(openAssetPicker: { _ in }, titleForAsset: { _ in nil })
             )
             view.onEvent = { log("event: \($0)") }
             return view

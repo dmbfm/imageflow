@@ -4,18 +4,44 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum AssetBrowserType: Equatable {
-    case picker(PortLocation)
-    case browser
+    case picker(Picker)
+    case browser(Browser)
+
+    struct Picker: Equatable {
+        var assetKind: AssetKind
+        var portLocation: InputPortLocation
+    }
+
+    struct Browser: Equatable {
+        var assetKinds: AssetKindSet
+    }
+
+    var allowedAssetKinds: AssetKindSet {
+        switch self {
+        case .browser(let data): data.assetKinds
+        case .picker(let data): .assetKind(data.assetKind)
+        }
+    }
+
+    var isBrowser: Bool {
+        switch self {
+        case .browser: true
+        default: false
+        }
+    }
 }
 
 enum AssetBrowserResult {
     case cancel
-    case pick(UUID)
-    case create(UUID)
-}
-
-struct AssetBrowserConfiguration {
-    var allowedTypes: AssetKindSet
+    case pick(
+        assetKind: AssetKind,
+        assetId: UUID,
+        portLocation: InputPortLocation,
+    )
+    case create(
+        assetKind: AssetKind,
+        assetId: UUID,
+    )
 }
 
 struct AssetBrowserViewDelegate {
@@ -37,7 +63,7 @@ struct AssetBrowserView: View {
     let gridImageSize: CGFloat = 146.0
     let delegate: AssetBrowserViewDelegate
 
-    @State var selected: UUID? = nil
+    @State var selected: Asset? = nil
     @State var searchText: String = ""
     @State var showDeleteConfirmationDialog = false
     @State var assetToDelete: Asset? = nil
@@ -67,14 +93,13 @@ struct AssetBrowserView: View {
 
     init(
         type: AssetBrowserType,
-        configuration: AssetBrowserConfiguration,
         assetsProvider: any AssetBrowserAssetsProvider,
         delegate: AssetBrowserViewDelegate,
     ) {
         self.type = type
-        self.allowedAssetKinds =  configuration.allowedTypes
-        self.allowedImportTypes = configuration.allowedTypes.types
-        self.photoPickerDisabled = !configuration.allowedTypes.contains(.image)
+        self.allowedAssetKinds = type.allowedAssetKinds
+        self.allowedImportTypes = type.allowedAssetKinds.types
+        self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
         self.assetsProvider = assetsProvider
         self.delegate = delegate
     }
@@ -99,7 +124,7 @@ struct AssetBrowserView: View {
     }
 
     var selectButtonText: LocalizedStringResource {
-        if self.type == .browser {
+        if case .browser = self.type {
             LocalizedStringResource("ab:create-node-btn", defaultValue: "Create Node")
         } else {
             LocalizedStringResource("ab:select-btn", defaultValue: "Select")
@@ -117,10 +142,10 @@ struct AssetBrowserView: View {
 
     // MARK: - Methods
 
-    func onTapItem(_ info: Asset) {
-        switch info.state {
+    func onTapItem(_ asset: Asset) {
+        switch asset.state {
         case .loaded:
-            self.selected = info.id
+            self.selected = asset
         case .loading:
             break
         }
@@ -153,7 +178,7 @@ struct AssetBrowserView: View {
 
     func delete(_ asset: Asset) {
         if asset.isLoaded {
-            if self.selected == asset.id {
+            if self.selected?.id == asset.id {
                 self.selected = nil
             }
             self.delegate.deleteAsset(asset)
@@ -304,7 +329,7 @@ struct AssetBrowserView: View {
                         AssetBrowserGridItemView(
                             asset: asset,
                             thumbProvider: self.assetsProvider,
-                            selected: self.selected == asset.id,
+                            selected: self.selected?.id == asset.id,
                         )
                         .focusable()
                         .focusEffectDisabled()
@@ -354,6 +379,23 @@ struct AssetBrowserView: View {
         )
     }
 
+    func selectButtonHandler() {
+        if let selected = self.selected {
+            switch self.type {
+            case .browser(let browser):
+                assert(browser.assetKinds.contains(selected.kind))
+                self.delegate.onDismiss(.create(assetKind: selected.kind, assetId: selected.id))
+                break
+            case .picker(let picker):
+                self.delegate.onDismiss(
+                    .pick(assetKind: picker.assetKind, assetId: selected.id, portLocation: picker.portLocation)
+                )
+                break
+            }
+            self.dismiss()
+        }
+    }
+
     // MARK: - Footer
 
     @ViewBuilder
@@ -376,10 +418,7 @@ struct AssetBrowserView: View {
             #endif
 
             Button {
-                if let selected = self.selected {
-                    self.delegate.onDismiss(self.type == .browser ? .create(selected) : .pick(selected))
-                    self.dismiss()
-                }
+                self.selectButtonHandler()
             } label: {
                 Text(self.selectButtonText)
                     #if os(macOS)
@@ -543,9 +582,7 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
     @Previewable @State var provider = PreviewAssetsProvider()
     VStack {
         AssetBrowserView(
-            type: .browser,
-            allowedAssetKinds: [.image],
-            allowedImportTypes: [.image],
+            type: .browser(.init(assetKinds: .all)),
             assetsProvider: provider,
             delegate: .init(
                 onDismiss: { _ in },
@@ -570,9 +607,7 @@ private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
         isPresented: .constant(true),
         content: {
             AssetBrowserView(
-                type: .browser,
-                allowedAssetKinds: .image,
-                allowedImportTypes: [.image],
+                type: .browser(.init(assetKinds: [.image])),
                 assetsProvider: provider,
                 delegate: .init(
                     onDismiss: { _ in },

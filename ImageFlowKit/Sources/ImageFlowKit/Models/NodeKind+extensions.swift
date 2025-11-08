@@ -47,8 +47,8 @@ public extension NodeKind {
             "camera.filters"
         case .passthroughNode(_):
             "arrow.right.circle.dotted"
-        case .valueNode(_):
-            "number.circle.fill"
+        case .valueNode(let valueType):
+            valueType.icon
         }
     }
 

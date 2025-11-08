@@ -10,8 +10,10 @@ import Values
 extension ValueType {
     public var icon: String {
         switch self {
-        case .float, .vector2, .vector3, .vector4:
+        case .float:
             return "number"
+        case .vector2, .vector3, .vector4:
+            return "arrow.up.forward"
         case .int:
             return "number"
         case .bool:
@@ -20,14 +22,20 @@ extension ValueType {
             return "textformat"
         case .image:
             return "photo"
+        case .lut:
+            return "squareshape.split.3x3"
         case .color3, .color4:
             return "swatchpalette"
         case .rect:
             return "square.dashed"
         case .colorSpace:
             return "paintpalette.fill"
-        default:
-            return "questionmark"
+        case .data:
+            return "externaldrive.fill"
+        case .affineTransform:
+            return "squareshape.split.2x2"
+        case .attributedString:
+            return "textformat"
         }
     }
 }

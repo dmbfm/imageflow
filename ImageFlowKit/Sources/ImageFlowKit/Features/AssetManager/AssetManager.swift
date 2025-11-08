@@ -328,10 +328,18 @@ extension AssetManager {
                 #if os(macOS)
                 switch asset.kind {
                 case .image:
-                    return NSImage.init(systemSymbolName: "doc.fill", accessibilityDescription: nil)!.cgImage(forProposedRect: nil, context: nil, hints: nil)!
+                    return NSImage.init(systemSymbolName: "doc.fill", accessibilityDescription: nil)!.cgImage(
+                        forProposedRect: nil,
+                        context: nil,
+                        hints: nil
+                    )!
                 case .lut:
                     var rect = CGRect(x: 0, y: 0, width: 128, height: 128)
-                    return NSImage(named: "file-icon-lut")!.cgImage(forProposedRect: &rect, context: nil, hints: [.interpolation: NSImageInterpolation.high])!
+                    return NSImage(named: "file-icon-lut")!.cgImage(
+                        forProposedRect: &rect,
+                        context: nil,
+                        hints: [.interpolation: NSImageInterpolation.high]
+                    )!
                 }
                 #else
                 switch asset.kind {
@@ -401,9 +409,9 @@ extension AssetManager {
             setResource: { id, res in self.ciImages[id] = res },
             load: { url in
                 let options: [CIImageOption: Any] = [
-                    .applyOrientationProperty: true,
-                    // .nearestSampling: true,
-                    // .expandToHDR: true,
+                    .applyOrientationProperty: true
+                        // .nearestSampling: true,
+                        // .expandToHDR: true,
                 ]
                 guard let ciImage = CIImage(contentsOf: url, options: options) else {
                     throw AssetManagerError.resouceLoadingError(.ciImageInitError)

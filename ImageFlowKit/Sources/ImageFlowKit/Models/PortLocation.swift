@@ -53,3 +53,13 @@ public enum PortSlot: Hashable, Sendable, Codable {
     }
 
 }
+
+public struct InputPortLocation: Hashable, Sendable, Codable {
+    var node: UUID
+    var index: Int
+}
+
+public struct OutputPortLocation: Hashable, Sendable, Codable {
+    var node: UUID
+    var index: Int
+}

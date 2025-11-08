@@ -1,7 +1,9 @@
+import Backend
 import Helpers
 import Logging
 import Photos
 import SwiftUI
+import Values
 
 #if os(macOS)
 typealias MainContentView = MainContentViewMacOS
@@ -25,8 +27,8 @@ extension MainContentView {
 
     var canvasFeatureViewDelegate: CanvasFeatureView.Delegate {
         .init(
-            openAssetPicker: { id, portIndex, configuration in
-                self.openAssetPicker(.init(node: id, port: .input(portIndex)), configuration: configuration)
+            openAssetPicker: { picker in
+                self.openAssetPicker(picker)
             },
             fetchAsset: { id in
                 self.assetStore.assets[id]
@@ -89,19 +91,28 @@ extension MainContentView {
 
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
         switch result {
-        case .create(let id):
-            var node = FlowNode(id: .init(), kind: .valueNode(.image))
-            node.inputs[0].value = .image(.asset(id))
-            self.createNodeAtCanvasCenter(node)
-        case .pick(let assetId):
-            switch self.assetBrowserType {
-            case .browser:
-                break
-            case .picker(let loc):
-                self.flow.nodes[loc.node]![valueAt: loc.slot] = .image(.asset(assetId))
-            }
         case .cancel:
             break
+        case let .pick(assetKind, assetId, portLocation):
+            if let value: Value = .init(assetKind: assetKind, assetId: assetId) {
+                assert(
+                    self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)].type == assetKind.valueType
+                )
+                self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)] = value
+            } else {
+                log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
+            }
+        case let .create(assetKind, assetId):
+            if let value: Value = .init(assetKind: assetKind, assetId: assetId), let nodeKind = assetKind.nodeKind,
+                let inputIndex = assetKind.nodeInputIndex
+            {
+                var node = FlowNode(id: .init(), kind: nodeKind)
+                assert(node.inputs[inputIndex].value.type == assetKind.valueType)
+                node.inputs[inputIndex].value = value
+                self.createNodeAtCanvasCenter(node)
+            } else {
+                log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
+            }
         }
     }
 
@@ -109,6 +120,9 @@ extension MainContentView {
         guard case let .success(urls) = res else { return }
 
         Task {
+
+            var erroredTypes = Set<UTType>()
+
             for url in urls {
                 do {
                     _ = url.startAccessingSecurityScopedResource()
@@ -118,15 +132,28 @@ extension MainContentView {
                     url.stopAccessingSecurityScopedResource()
 
                     guard let kind = utType.assetKind else {
-                        fatalError("TOD: Handle unsupported format: \(utType)")
+                        erroredTypes.insert(utType)
                         continue
                     }
+
+                    // if kind == .lut {
+                    //     erroredTypes.insert(utType)
+                    //     continue
+                    // }
 
                     try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                     self.undoManager?.setActionName("Import Image")
                 } catch {
                     log("failed to import file: \(url): \(error)")
                 }
+            }
+
+            if !erroredTypes.isEmpty {
+                #if os(macOS)
+                self.error = .init(inner: UserError.importFilesNotSupported(erroredTypes))
+                #else
+                fatalError("TODO: on iOS alerts must be placed *inside* the sheet view.")
+                #endif
             }
         }
     }
@@ -149,18 +176,78 @@ extension MainContentView {
         }
     }
 
-    func openAssetBrowser() {
-        self.assetBrowserConfiguration = .init(allowedTypes: .all)
-        self.assetBrowserType = .browser
+    func openAssetBrowser(_ allowedAssetKinds: AssetKindSet = .all) {
+        self.assetBrowserType = .browser(.init(assetKinds: allowedAssetKinds))
         self.showAssetBrowser = true
     }
 
-    func openAssetPicker(_ port: PortLocation, configuration: AssetBrowserConfiguration) {
-        self.assetBrowserConfiguration = configuration
+    func openAssetPicker(_ picker: AssetBrowserType.Picker) {
+        self.assetBrowserType = .picker(picker)
         self.showAssetBrowser = true
         Task { @MainActor in
             try! await Task.sleep(for: .milliseconds(1))
-            self.assetBrowserType = .picker(port)
+            self.assetBrowserType = .picker(picker)
         }
+    }
+}
+
+extension Value {
+    fileprivate init?(assetKind: AssetKind, assetId: UUID) {
+        self =
+            switch assetKind {
+            case .image: .image(.asset(assetId))
+            case .lut: .lut(assetId)
+            }
+    }
+}
+
+extension AssetKind {
+    fileprivate var nodeKind: NodeKind? {
+        switch self {
+        case .image: .valueNode(.image)
+        case .lut: .valueNode(.lut)
+        }
+    }
+
+    fileprivate var nodeInputIndex: Int? {
+        switch self {
+        case .image: 0
+        case .lut: 0
+        }
+    }
+}
+
+struct LocalizedAlertError: LocalizedError {
+    var inner: any LocalizedError
+
+    var errorDescription: String? {
+        self.inner.errorDescription
+    }
+
+    var failureReason: String? {
+        self.inner.failureReason
+    }
+
+    var helpAnchor: String? {
+        self.inner.helpAnchor
+    }
+
+    var recoverySuggestion: String? {
+        self.inner.recoverySuggestion
+    }
+}
+
+extension View {
+    func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
+        self
+            .alert(
+                isPresented: .constant(error.wrappedValue != nil),
+                error: error.wrappedValue,
+                actions: {
+                    Button("OK") {
+                        error.wrappedValue = nil
+                    }
+                }
+            )
     }
 }

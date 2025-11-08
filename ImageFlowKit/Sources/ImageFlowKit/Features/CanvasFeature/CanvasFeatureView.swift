@@ -51,7 +51,7 @@ public struct CanvasFeatureView: View {
     // MARK: - Types
 
     struct Delegate {
-        var openAssetPicker: (UUID, Int, AssetBrowserConfiguration) -> ()
+        var openAssetPicker: (AssetBrowserType.Picker) -> ()
         var fetchAsset: (UUID) -> Asset?
     }
 
@@ -128,7 +128,9 @@ public struct CanvasFeatureView: View {
         }
 
         let delegate = NodeView.Delegate(
-            openAssetBrowser: { idx, configuration in self.delegate.openAssetPicker(id, idx, configuration) },
+            openAssetPicker: { index, kind in
+                self.delegate.openAssetPicker(.init(assetKind: kind, portLocation: .init(node: id, index: index)))
+            },
             titleForAsset: { id in self.delegate.fetchAsset(id)?.source?.filename }
         )
 

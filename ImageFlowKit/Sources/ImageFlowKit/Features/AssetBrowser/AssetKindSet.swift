@@ -1,13 +1,19 @@
 import Foundation
-import UniformTypeIdentifiers
 import Logging
+import UniformTypeIdentifiers
 
 struct AssetKindSet: OptionSet {
     let rawValue: Int
 
+    static func assetKind(_ kind: AssetKind) -> Self {
+        switch kind {
+        case .image: [.image]
+        case .lut: [.lut]
+        }
+    }
+
     static let image = AssetKindSet(rawValue: 1 << 0)
     static let lut = AssetKindSet(rawValue: 1 << 1)
-
     static let all: AssetKindSet = [.image, .lut]
 
     var kinds: Set<AssetKind> {
@@ -34,7 +40,11 @@ struct AssetKindSet: OptionSet {
         if self.contains(.lut) {
             result.append(.cubeLut)
         }
-        
+
         return result
+    }
+
+    func contains(_ assetKind: AssetKind) -> Bool {
+        self.contains(.assetKind(assetKind))
     }
 }

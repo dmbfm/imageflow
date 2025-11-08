@@ -4,13 +4,13 @@ import Helpers
 import UIKit
 import SwiftUI
 
-extension NodeImageInput {
-    final class GlassGroupView: UIView, InnerView {
+extension NodeAssetPicker {
+    final class GlassGroupView: UIView, NodeAssetPickerInnerView {
 
         var onButtonClick: (() -> ())?
         var onRemoveButtonClick: (() -> ())?
 
-        var vm: ViewModel {
+        var vm: NodeAssetPickerInnerViewModel {
             didSet {
                 self.update()
             }
@@ -59,7 +59,7 @@ extension NodeImageInput {
             return btn
         }()
 
-        init(vm: ViewModel) {
+        init(vm: NodeAssetPickerInnerViewModel) {
             self.vm = vm
 
             super.init(frame: .zero)
@@ -107,13 +107,13 @@ extension NodeImageInput {
                 .init(vm: .init(label: "some_file.png", showRemoveButton: true))
             }
 
-            func updateUIView(_ uiView: NodeImageInput.GlassGroupView, context: Context) {
+            func updateUIView(_ uiView: NodeAssetPicker.GlassGroupView, context: Context) {
 
             }
 
             func sizeThatFits(
                 _ proposal: ProposedViewSize,
-                uiView: NodeImageInput.GlassGroupView,
+                uiView: NodeAssetPicker.GlassGroupView,
                 context: Context
             ) -> CGSize? {
                 uiView.intrinsicContentSize
@@ -124,7 +124,7 @@ extension NodeImageInput {
 
 #Preview {
     VStack {
-        NodeImageInput.GlassGroupView.Preview()
+        //        NodeAssetPicker.GlassGroupView.Preview()
     }
     .padding(100)
 }

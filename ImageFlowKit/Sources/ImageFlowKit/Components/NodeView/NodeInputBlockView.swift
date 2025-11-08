@@ -22,7 +22,7 @@ final class NodeInputBlockView: PlatformCommonView {
     // MARK: - Exposed Types
 
     struct Delegate {
-        var openAssetBrowser: (Int, AssetBrowserConfiguration) -> ()
+        var openAssetPicker: (Int, AssetKind) -> ()
         var titleForAsset: (UUID) -> String?
     }
 
@@ -91,8 +91,8 @@ final class NodeInputBlockView: PlatformCommonView {
     func populateRows() {
         for (idx, input) in inputs.enumerated() {
             let delegate = NodeInputRowView.Delegate(
-                openAssetBrowser: { configuration in
-                    self.delegate?.openAssetBrowser(idx, configuration)
+                openAssetPicker: { kind in
+                    self.delegate?.openAssetPicker(idx, kind)
                 },
                 titleForAsset: { id in
                     self.delegate?.titleForAsset(id)

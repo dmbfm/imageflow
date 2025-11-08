@@ -13,22 +13,66 @@ import AppKit
 import UIKit
 #endif
 
-extension NodeImageInput {
+protocol AssetPickerType {
+    associatedtype Identifier
+    static func resolve(_ value: Values.Value) -> Identifier?
+    static func label(_ value: Values.Value) -> AssetPickerTypeLabel
+    static var none: Value { get }
+}
 
-    protocol InnerView: PlatformView {
-        var vm: ViewModel { get set }
-        var onButtonClick: (() -> ())? { get set }
-        var onRemoveButtonClick: (() -> ())? { get set }
+enum AssetPickerTypeLabel {
+    case uuid(UUID)
+    case other(String)
+    case none
+}
 
+struct ImageAssetPicker: AssetPickerType {
+    static func resolve(_ value: Value) -> ImageIdentifier? {
+        value.image
     }
 
-    struct ViewModel {
-        var label: String
-        var showRemoveButton: Bool
+    static func label(_ value: Value) -> AssetPickerTypeLabel {
+        switch value.image {
+        case .asset(let id): .uuid(id)
+        case let .nodeOutput(id, port): .other("node:\(id):\(port)")
+        case .none: .none
+        }
+    }
+
+    static var none: Value {
+        .image(nil)
     }
 }
 
-final class NodeImageInput: PlatformCommonView, NodeControl {
+struct LutAssetPicker: AssetPickerType {
+    static func resolve(_ value: Value) -> UUID? {
+        value.lut
+    }
+
+    static func label(_ value: Value) -> AssetPickerTypeLabel {
+        switch value.lut {
+        case .some(let id): .uuid(id)
+        case .none: .none
+        }
+    }
+
+    static var none: Value {
+        .lut(nil)
+    }
+}
+
+protocol NodeAssetPickerInnerView: PlatformView {
+    var vm: NodeAssetPickerInnerViewModel { get set }
+    var onButtonClick: (() -> ())? { get set }
+    var onRemoveButtonClick: (() -> ())? { get set }
+}
+
+struct NodeAssetPickerInnerViewModel {
+    var label: String
+    var showRemoveButton: Bool
+}
+
+final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl {
 
     var onEvent: ((NodeControlEvent) -> ())?
 
@@ -50,32 +94,28 @@ final class NodeImageInput: PlatformCommonView, NodeControl {
     }
 
     var label: String {
-        switch self.value.image {
-        case .some(.asset(let id)):
-            return self.delegate?.titleForAsset(id) ?? (id.uuidString.prefix(8) + "...")
-        case .some(.nodeOutput(let node, let index)):
-            return "node:\(node.uuidString),\(index)"
-        case .none:
-            return "Select..."
+        switch T.label(self.value) {
+        case .uuid(let id):
+            self.delegate?.titleForAsset(id) ?? (id.uuidString.prefix(8) + "...")
+        case .other(let label): label
+        case .none: "Select..."
         }
     }
 
     var showRemoveButton: Bool {
-        switch self.value.image {
-        case .none: false
-        default: true
-        }
+        T.resolve(self.value) != nil
     }
 
-    var vm: ViewModel {
+    var vm: NodeAssetPickerInnerViewModel {
         .init(label: self.label, showRemoveButton: self.showRemoveButton)
     }
 
-    lazy var innerView: any InnerView = {
+    lazy var innerView: any NodeAssetPickerInnerView = {
+
         #if os(macOS)
-        let view = DefaultView(vm: self.vm)
+        let view = Self.DefaultView(vm: self.vm)
         #else
-        let view = GlassGroupView(vm: self.vm)
+        let view = Self.GlassGroupView(vm: self.vm)
         #endif
 
         view.onButtonClick = { [weak self] in
@@ -115,7 +155,7 @@ final class NodeImageInput: PlatformCommonView, NodeControl {
 
     @objc
     func removeButtonHandler() {
-        self.value.image = .none
+        self.value = T.none
         self.emit(.valueDidChange(self.value))
     }
 
@@ -134,42 +174,4 @@ final class NodeImageInput: PlatformCommonView, NodeControl {
         self.innerView.frame = .init(origin: .zero, size: self.innerView.intrinsicContentSize)
         Layout.align(views: [self.innerView], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }
-}
-
-extension NodeImageInput {
-    fileprivate struct Preview: PlatformViewRepresentable {
-        let value: Value
-        func makeView(context: Context) -> some PlatformView {
-            NodeImageInput(
-                value,
-                delegate: .init(
-                    openAssetBrowser: {
-                        log("openAssetBrowser")
-                    },
-                    titleForAsset: { _ in "some_image.png" }
-                )
-            )
-        }
-
-        func updateView(_ view: ViewType, context: Context) {
-        }
-
-        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
-            view.intrinsicContentSize
-        }
-    }
-}
-
-#Preview {
-    VStack {
-        NodeImageInput.Preview(value: .image(.none))
-        NodeImageInput.Preview(value: .image(.asset(UUID())))
-
-        NodeView.Preview(node: .init(kind: .valueNode(.image)))
-
-        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.colorEffect(.CIColorCube))))
-    }
-    .frame(minWidth: 500)
-    .frame(height: 500)
-    .background(Colors.canvasBackground.color)
 }
