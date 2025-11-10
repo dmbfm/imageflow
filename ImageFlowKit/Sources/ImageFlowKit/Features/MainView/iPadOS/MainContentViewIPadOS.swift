@@ -21,6 +21,7 @@ struct MainContentViewIPadOS: View {
     @State var showPhotoPicker: Bool = false
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
     @State var error: LocalizedAlertError? = nil
+    @State var assetBrowserError: LocalizedAlertError? = nil
 
     @Environment(\.undoManager) var undoManager
 
@@ -47,6 +48,7 @@ struct MainContentViewIPadOS: View {
                     assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )
+                .errorAlert(self.$assetBrowserError)
             }
             .fileImporter(
                 isPresented: self.$showFileImporter,

@@ -152,7 +152,7 @@ extension MainContentView {
                 #if os(macOS)
                 self.error = .init(inner: UserError.importFilesNotSupported(erroredTypes))
                 #else
-                fatalError("TODO: on iOS alerts must be placed *inside* the sheet view.")
+                self.assetBrowserError = .init(inner: UserError.importFilesNotSupported(erroredTypes))
                 #endif
             }
         }

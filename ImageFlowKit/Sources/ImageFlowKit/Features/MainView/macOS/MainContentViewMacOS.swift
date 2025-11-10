@@ -29,6 +29,7 @@ struct MainContentViewMacOS: View {
     @State var showPhotoPicker: Bool = false
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
     @State var error: LocalizedAlertError? = nil
+    @State var assetBrowserError: LocalizedAlertError? = nil
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
