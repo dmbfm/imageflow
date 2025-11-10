@@ -6,6 +6,8 @@ public struct NodePaletteService: Sendable {
 
         var result = [NodePaletteCategory]()
 
+        let blacklistedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace]
+
         // math
         result.append(
             .init(
@@ -24,7 +26,7 @@ public struct NodePaletteService: Sendable {
         result.append(
             .init(
                 name: .input,
-                items: ValueType.allCases.map { type in
+                items: ValueType.allCases.filter({ !blacklistedValueTypes.contains($0) }).map { type in
                     let kind: NodeKind = .valueNode(type)
                     return NodePaletteItem(
                         displayName: kind.displayName,
