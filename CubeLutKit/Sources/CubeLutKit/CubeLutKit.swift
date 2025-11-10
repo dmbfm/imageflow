@@ -5,16 +5,94 @@ public struct CubeLutInfo: Sendable, Equatable {
     public let domainMin: [Float32]
     public let domainMax: [Float32]
     public let dim: LutDim
+    public let format: CubeLutFormat
+
+    public init(
+        title: String? = nil,
+        domainMin: [Float32],
+        domainMax: [Float32],
+        dim: LutDim,
+        format: CubeLutFormat = .rgb
+    ) {
+        self.title = title
+        self.domainMin = domainMin
+        self.domainMax = domainMax
+        self.format = format
+        self.dim = dim
+    }
+}
+
+public enum CubeLutFormat: Sendable, Equatable {
+    case rgb
+    case rgba
 }
 
 public struct CubeLut: Sendable, Equatable {
     public let info: CubeLutInfo
     public let data: Data
+
+    public init(info: CubeLutInfo, data: Data) {
+        self.info = info
+        self.data = data
+    }
+
+    public init(lutArray: CubeLutArray) {
+        self.info = lutArray.info
+        self.data = lutArray.data.withUnsafeBufferPointer { Data(buffer: $0) }
+    }
+
+    public static let identityRGBA: Self = .init(lutArray: .identityRGBA)
+    public static let identityRGB: Self = .init(lutArray: .identityRGB)
 }
 
 public struct CubeLutArray: Sendable, Equatable {
     public let info: CubeLutInfo
     public let data: [Float32]
+
+    public init(info: CubeLutInfo, data: [Float32]) {
+        self.info = info
+        self.data = data
+    }
+
+    public static let identityRGBA: Self =
+        .init(
+            info: .init(
+                domainMin: .init(repeating: 0, count: 3),
+                domainMax: .init(repeating: 1, count: 3),
+                dim: .three(2),
+                format: .rgba
+            ),
+            data: [
+                0, 0, 0, 1,
+                1, 0, 0, 1,
+                0, 1, 0, 1,
+                1, 1, 0, 1,
+                0, 0, 1, 1,
+                1, 0, 1, 1,
+                0, 1, 1, 1,
+                1, 1, 1, 1,
+            ]
+        )
+
+    public static let identityRGB: Self =
+        .init(
+            info: .init(
+                domainMin: .init(repeating: 0, count: 3),
+                domainMax: .init(repeating: 1, count: 3),
+                dim: .three(2),
+                format: .rgb
+            ),
+            data: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                1, 1, 0,
+                0, 0, 1,
+                1, 0, 1,
+                0, 1, 1,
+                1, 1, 1,
+            ]
+        )
 }
 
 public enum LutDim: Sendable, Equatable {
@@ -23,15 +101,15 @@ public enum LutDim: Sendable, Equatable {
 }
 
 extension CubeLut {
-    public init(source: String) throws(CubeLutError) {
-        let arr = try CubeLutArray(source: source)
+    public init(source: String, format: CubeLutFormat = .rgb) throws(CubeLutError) {
+        let arr = try CubeLutArray(source: source, format: format)
         self.info = arr.info
         self.data = arr.data.withUnsafeBufferPointer { Data(buffer: $0) }
     }
 }
 
 extension CubeLutArray {
-    public init(source: String) throws(CubeLutError) {
+    public init(source: String, format: CubeLutFormat = .rgb) throws(CubeLutError) {
 
         var title: String? = nil
         var domainMin: [Float32] = .init(repeating: 0, count: 3)
@@ -111,6 +189,11 @@ extension CubeLutArray {
                 }
 
                 table.append(contentsOf: nums)
+
+                if format == .rgba {
+                    table.append(1.0)
+                }
+
             case .text:
                 throw .parseError(line)
             }
@@ -120,19 +203,25 @@ extension CubeLutArray {
             throw .missingLutSize
         }
 
+        let numComponents =
+            switch format {
+            case .rgb: 3
+            case .rgba: 4
+            }
+
         switch dim {
-            case .one(let size):
-                if table.count != 3 * size {
-                    throw .invalidTableSize(table.count, shouldBe: 3 * size)
-                }
-            case .three(let size):
-                if table.count != 3 * size * size * size {
-                    throw .invalidTableSize(table.count, shouldBe: 3 * size * size * size)
-                }
+        case .one(let size):
+            if table.count != numComponents * size {
+                throw .invalidTableSize(table.count, shouldBe: numComponents * size)
+            }
+        case .three(let size):
+            if table.count != numComponents * size * size * size {
+                throw .invalidTableSize(table.count, shouldBe: numComponents * size * size * size)
+            }
         }
 
         self.data = table
-        self.info = .init(title: title, domainMin: domainMin, domainMax: domainMax, dim: dim)
+        self.info = .init(title: title, domainMin: domainMin, domainMax: domainMax, dim: dim, format: format)
     }
 }
 

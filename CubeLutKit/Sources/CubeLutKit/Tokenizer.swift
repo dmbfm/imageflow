@@ -70,4 +70,3 @@ func tokenize(line: String) throws(TokenizerError) -> [Token] {
 
     return tokens
 }
-

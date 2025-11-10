@@ -64,4 +64,3 @@ struct Scanner {
         return result
     }
 }
-

@@ -2,6 +2,30 @@ import Testing
 
 @testable import CubeLutKit
 
+let identityLutSrc = """
+        LUT_3D_SIZE 2
+        0 0 0
+        1 0 0
+        0 1 0
+        1 1 0
+        0 0 1
+        1 0 1
+        0 1 1
+        1 1 1
+    """
+
+@Test
+func identityRgbTest() throws {
+    let lut = try CubeLut(source: identityLutSrc)
+    #expect(lut == .identityRGB)
+}
+
+@Test
+func identityRgbaTest() throws {
+    let lut = try CubeLut(source: identityLutSrc, format: .rgba)
+    #expect(lut == .identityRGBA)
+}
+
 let src = """
     TITLE "ACES Proxy 10 to ACES"
 
