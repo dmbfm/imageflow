@@ -14,9 +14,9 @@ import UIKit
 #endif
 
 final class NodeStringInput: PlatformCommonView, NodeControl {
-    public var onEvent: ((NodeControlEvent) -> ())?
+    var onEvent: ((NodeControlEvent) -> ())?
 
-    public var value: Value {
+    var value: Value {
         didSet {
             if self.value != oldValue {
                 self.update()
@@ -24,7 +24,17 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    var tint: PlatformColor = .systemBlue
+
+    var isEditable: Bool {
+        get {
+            self.textField.isEditable
+        }
+
+        set {
+            self.textField.isEditable = newValue
+        }
+    }
 
     lazy var textField: NodeTextField = {
         let view = NodeTextField(
@@ -56,10 +66,12 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         }
     }
 
-    init(_ value: Value) {
+    init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
+
+        self.textField.isEditable = isEditable
 
         self.addSubview(self.textField)
     }

@@ -23,6 +23,10 @@ final class NodeInputRowView: PlatformView {
 
     var onEvent: ((Event) -> ())?
 
+    var isEditable: Bool {
+        !self.input.connected
+    }
+
     // MARK: - Exposed Types
 
     struct Delegate {
@@ -82,23 +86,23 @@ final class NodeInputRowView: PlatformView {
         let view: any NodeControl =
             switch self.input.value.type {
             case .float:
-                NodeNumberInput(self.input.value)
+                NodeNumberInput(self.input.value, isEditable: self.isEditable)
             case .int:
-                NodeIntegerInput(self.input.value)
+                NodeIntegerInput(self.input.value, isEditable: self.isEditable)
             case .bool:
-                NodeBooleanInput(self.input.value)
+                NodeBooleanInput(self.input.value, isEditable: self.isEditable)
             case .vector2, .vector3, .vector4:
-                NodeVectorInput(self.input.value)
+                NodeVectorInput(self.input.value, isEditable: self.isEditable)
             case .image:
-                NodeAssetPicker<ImageAssetPicker>(self.input.value, delegate: self.nodeImageInputDelegate)
+                NodeAssetPicker<ImageAssetPicker>(self.input.value, isEditable: self.isEditable, delegate: self.nodeImageInputDelegate)
             case .color3, .color4:
-                NodeColorInput(self.input.value)
+                NodeColorInput(self.input.value, isEditable: self.isEditable)
             case .rect:
-                NodeRectInput(self.input.value)
+                NodeRectInput(self.input.value, isEditable: self.isEditable)
             case .string:
-                NodeStringInput(self.input.value)
+                NodeStringInput(self.input.value, isEditable: self.isEditable)
             case .lut:
-                NodeAssetPicker<LutAssetPicker>(self.input.value, delegate: self.nodeLutInputDelegate)
+                NodeAssetPicker<LutAssetPicker>(self.input.value, isEditable: self.isEditable, delegate: self.nodeLutInputDelegate)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
@@ -153,6 +157,10 @@ final class NodeInputRowView: PlatformView {
 
         if self.input.value != self.controlView.value {
             self.controlView.value = self.input.value
+        }
+
+        if self.controlView.isEditable != self.isEditable {
+            self.controlView.isEditable = self.isEditable
         }
     }
 

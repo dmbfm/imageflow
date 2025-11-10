@@ -78,14 +78,30 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var isEditable: Bool {
+        get {
+            self.textFields.any(where: { $0.isEditable })
+        }
+
+        set {
+            self.textFields.forEach { view in
+                view.isEditable = newValue
+            }
+        }
+    }
+
     private var valueAtDragStart: CGFloat = 0.0
 
-    public init(_ value: Value) {
+    public init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
 
         self.clipsToBounds = false
+
+        self.textFields.forEach { view in
+            view.isEditable = isEditable
+        }
 
         for v in self.textFields {
             self.addSubview(v)

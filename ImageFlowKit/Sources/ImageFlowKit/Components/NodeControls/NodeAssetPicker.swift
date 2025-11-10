@@ -106,6 +106,14 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         T.resolve(self.value) != nil
     }
 
+    var isEditable: Bool {
+        didSet {
+            if self.isEditable != oldValue {
+                self.update()
+            }
+        }
+    }
+
     var vm: NodeAssetPickerInnerViewModel {
         .init(label: self.label, showRemoveButton: self.showRemoveButton)
     }
@@ -129,9 +137,10 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         return view
     }()
 
-    init(_ value: Value, delegate: Delegate? = nil) {
+    init(_ value: Value, isEditable: Bool = true, delegate: Delegate? = nil) {
         self.value = value
         self.delegate = delegate
+        self.isEditable = isEditable
 
         super.init(frame: .zero)
 
@@ -160,6 +169,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
     }
 
     private func update() {
+        self.innerView.isHidden = !self.isEditable
         self.innerView.vm = self.vm
         self.setNeedsLayout()
         self.invalidateIntrinsicContentSize()
@@ -167,7 +177,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
     }
 
     override var intrinsicContentSize: CGSize {
-        return self.innerView.intrinsicContentSize
+        return self.isEditable ? self.innerView.intrinsicContentSize : .zero
     }
 
     override func doLayout() {

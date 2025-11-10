@@ -38,6 +38,20 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         }
     }
 
+    var isEditable: Bool {
+        get {
+            self.state != .nonEditable
+        }
+
+        set {
+            if !newValue {
+                self.state = .nonEditable
+            } else if self.state == .nonEditable {
+                self.state = .idle
+            }
+        }
+    }
+
     // MARK: - Private properties
 
     private var state: State = .idle {
@@ -51,6 +65,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     enum State {
         case idle
         case editing
+        case nonEditable
     }
 
     // MARK: - Subviews and Lazy Vars
@@ -66,7 +81,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     lazy var backgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.numberInputBackground.platformColor
+        view.backgroundColor = self.style.backgroundColor
         view.layer.cornerRadius = self.style.innerCornerRadius
         view.layer.cornerCurve = .continuous
         return view
@@ -103,7 +118,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     // MARK: - Init
 
-    init(_ text: String, placeholder: String? = nil, style: NodeTextFieldStyle = .default) {
+    init(_ text: String, placeholder: String? = nil, isEditable: Bool = true, style: NodeTextFieldStyle = .default) {
         self.text = text
         self.style = style
         self.placeholder = placeholder
@@ -132,6 +147,11 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler))
         self.addGestureRecognizer(panGesture)
 
+        if isEditable {
+            self.state = .idle
+        } else {
+            self.state = .nonEditable
+        }
         self.update()
     }
 
@@ -144,6 +164,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     func update() {
         switch self.state {
         case .idle:
+            self.backgroundView.backgroundColor = self.style.backgroundColor
             self.label.isHidden = false
             self.textField.isHidden = true
             self.layer.shadowOpacity = 0
@@ -160,6 +181,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             }
 
         case .editing:
+            self.backgroundView.backgroundColor = self.style.backgroundColor
             self.label.isHidden = true
             self.textField.keyboardType = .decimalPad
             self.textField.isHidden = false
@@ -167,6 +189,23 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             self.layer.borderWidth = self.style.borderWidth
             self.label.text = self.text
             self.resize()
+
+        case .nonEditable:
+            self.label.isHidden = false
+            self.textField.isHidden = true
+            self.layer.shadowOpacity = 0
+            self.layer.borderWidth = 0
+            self.backgroundView.backgroundColor = self.style.backgroundColorNonEditable
+
+            if self.label.text?.isEmpty ?? true, let placeholder = self.placeholder {
+                if self.label.text != placeholder {
+                    self.label.text = placeholder
+                    self.label.textColor = .tertiaryLabel
+                    self.resize()
+                }
+            } else {
+                self.label.textColor = .label
+            }
         }
     }
 
@@ -202,11 +241,14 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
 
     @objc
     func onTapLabel() {
+        guard self.isEditable else { return }
+
         self.state = .editing
     }
 
     @objc
     func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        guard self.isEditable else { return }
         let t = gesture.translation(in: nil)
         self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
     }

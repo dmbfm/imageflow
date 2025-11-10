@@ -48,10 +48,22 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         return picker
     }()
 
-    init(_ value: Value) {
+    var isEditable: Bool {
+        get {
+            !self.colorPicker.isLocked
+        }
+
+        set {
+            self.colorPicker.isLocked = !newValue
+        }
+    }
+
+    init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
+
+        self.colorPicker.isLocked = !isEditable
 
         self.addSubview(self.colorPicker)
     }

@@ -14,9 +14,9 @@ import UIKit
 #endif
 
 final class NodeRectInput: PlatformCommonView, NodeControl {
-    public var onEvent: ((NodeControlEvent) -> ())?
+    var onEvent: ((NodeControlEvent) -> ())?
 
-    public var value: Value {
+    var value: Value {
         didSet {
             if self.value != oldValue {
                 self.update()
@@ -24,7 +24,17 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    var tint: PlatformColor = .systemBlue
+
+    var isEditable: Bool {
+        get {
+            self.nodeVectorInput.isEditable
+        }
+
+        set {
+            self.nodeVectorInput.isEditable = newValue
+        }
+    }
 
     lazy var nodeVectorInput: NodeVectorInput = {
         let rect = self.value.rect
@@ -68,10 +78,12 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         }
     }
 
-    init(_ value: Value) {
+    init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
+
+        self.nodeVectorInput.isEditable = isEditable
 
         self.addSubview(self.nodeVectorInput)
     }

@@ -24,7 +24,7 @@ protocol NodeTextFieldProtocol: PlatformView {
     var text: String { get set }
     var onEvent: ((NodeTextFieldEvent) -> ())? { get set }
     var placeholder: String? { get set }
-    init(_ text: String, placeholder: String?, style: NodeTextFieldStyle)
+    init(_ text: String, placeholder: String?, isEditable: Bool, style: NodeTextFieldStyle)
 }
 
 enum NodeTextFieldEvent {
@@ -42,6 +42,7 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
     var textInsets: EdgeInsets
     var backgroundInsets: EdgeInsets
     var backgroundColor: PlatformColor
+    var backgroundColorNonEditable: PlatformColor
     var borderColor: PlatformColor
     var borderWidth: CGFloat
     var shadowStyle: ShadowStyle
@@ -67,6 +68,7 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
             textInsets: .init(top: 6, bottom: 8, left: 6, right: 8),
             backgroundInsets: .init(top: 2, bottom: 2, left: 2, right: 2),
             backgroundColor: Colors.numberInputBackground.platformColor,
+            backgroundColorNonEditable: Colors.numberInputBackground.platformColor.withAlphaComponent(0.25),
             borderColor: Colors.numberInputBorder.platformColor,
             borderWidth: 2,
             shadowStyle: .init(radius: 4, color: .black, opacity: 0.6, offset: .init(width: 0, height: 2))

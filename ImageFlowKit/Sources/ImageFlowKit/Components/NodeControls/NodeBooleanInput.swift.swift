@@ -15,7 +15,7 @@ import UIKit
 
 final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
-    public var value: Value {
+    var value: Value {
         didSet {
             if self.value != oldValue {
                 self.update()
@@ -23,13 +23,23 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var onEvent: ((NodeControlEvent) -> ())?
+    var onEvent: ((NodeControlEvent) -> ())?
 
-    public var tint: PlatformColor = .systemBlue {
+    var tint: PlatformColor = .systemBlue {
         didSet {
             #if os(iOS)
             self.toggle.onTintColor = self.tint
             #endif
+        }
+    }
+
+    var isEditable: Bool {
+        get {
+            self.toggle.isEnabled
+        }
+
+        set {
+            self.toggle.isEnabled = newValue
         }
     }
 
@@ -70,19 +80,21 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
     }
     #endif
 
-    public init(_ value: Value) {
+    init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
 
+        self.toggle.isEnabled = self.isEditable
+
         self.addSubview(self.toggle)
     }
 
-    public required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         nil
     }
 
-    public override var intrinsicContentSize: CGSize {
+    override var intrinsicContentSize: CGSize {
         self.toggle.intrinsicContentSize
     }
 
@@ -98,9 +110,9 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
 }
 
 extension NodeBooleanInput {
-    public struct Preview: PlatformViewRepresentable {
+    struct Preview: PlatformViewRepresentable {
         @Binding var value: Value
-        public func makeView(context: Context) -> NodeBooleanInput {
+        func makeView(context: Context) -> NodeBooleanInput {
             let view = NodeBooleanInput(self.value)
             view.tint = .systemOrange
             view.onEvent = { event in
@@ -114,13 +126,13 @@ extension NodeBooleanInput {
             return view
         }
 
-        public func updateView(_ view: NodeBooleanInput, context: Context) {
+        func updateView(_ view: NodeBooleanInput, context: Context) {
             if view.value != self.value {
                 view.value = self.value
             }
         }
 
-        public func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
     }

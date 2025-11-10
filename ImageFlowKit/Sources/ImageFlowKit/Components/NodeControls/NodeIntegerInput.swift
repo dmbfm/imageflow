@@ -105,12 +105,26 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         self.emit(.valueDidChange(self.value))
     }
 
-    init(_ value: Value) {
+    var isEditable: Bool {
+        get {
+            self.textField.isEditable
+        }
+
+        set {
+            self.textField.isEditable = newValue
+            self.stepper.isHidden = !newValue
+        }
+    }
+
+    init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
 
         self.clipsToBounds = false
+
+        self.textField.isEditable = isEditable
+        self.stepper.isHidden = !isEditable
 
         self.addSubview(self.textField)
         self.addSubview(self.stepper)
