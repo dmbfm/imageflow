@@ -8,15 +8,17 @@ struct AssetBrowserGridItemView: View {
     let selected: Bool
 
     @State var failed: Bool = false
-
     @State var image: CGImage?
+    @State var first: Bool = true
 
     func load() {
+        if !self.first { return }
+        self.first = false
+
         Task.immediate {
             do {
                 self.image = try await self.thumbProvider.assetBrowserGetThumb(forAsset: self.asset.id)
             } catch {
-                log("Failed to get thumbnail: \(error)", level: .error)
                 self.failed = true
             }
 

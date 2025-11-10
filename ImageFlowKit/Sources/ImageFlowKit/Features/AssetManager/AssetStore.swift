@@ -13,6 +13,9 @@ final class AssetStore {
         self.assets.values.filter { $0.isFileAsset }
     }
 
+    @ObservationIgnored
+    var thumbCache: [UUID:CGImage] = [:]
+
     let assetManager: AssetManager = .init()
 
     init() {
@@ -115,8 +118,19 @@ final class AssetStore {
         )
     }
 
+
     func getThumb(forAsset id: UUID) async throws -> CGImage? {
-        try await self.assetManager.getThumb(forAsset: id)
+        // NOTE: Returning the thumb that is cached in the manager has a
+        // performance penalty (I think it needs to copy the CGImage data
+        // or some mutex/locking issue). So we keep an additional cache
+        // here so we can return the thumbnail quickly.
+        if let thumb = self.thumbCache[id] {
+            return thumb
+        } else {
+            let result = try await self.assetManager.getThumb(forAsset: id)
+            self.thumbCache[id] = result
+            return result
+        }
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {

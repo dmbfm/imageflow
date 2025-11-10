@@ -19,7 +19,6 @@ extension AssetStore: AssetBrowserThumbProvider {
 
 extension AssetStore: AssetBrowserAssetsProvider {
     func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
-        log("--> kinds: \(kinds)")
         return self.fileAssets.filter({ kinds.contains($0.kind) })
     }
 }
