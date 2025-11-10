@@ -166,9 +166,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     }
     public enum ColoreffectNodeKind: Sendable, Hashable, Codable, CaseIterable {
         case CIColorCrossPolynomial
-        case CIColorCube
-        case CIColorCubesMixedWithMask
-        case CIColorCubeWithColorSpace
         case CIColorCurves
         case CIColorInvert
         case CIColorMap
@@ -202,12 +199,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
             switch self {
             case .CIColorCrossPolynomial:
                 Nodes.CIColorCrossPolynomialNode.impl()
-            case .CIColorCube:
-                Nodes.CIColorCubeNode.impl()
-            case .CIColorCubesMixedWithMask:
-                Nodes.CIColorCubesMixedWithMaskNode.impl()
-            case .CIColorCubeWithColorSpace:
-                Nodes.CIColorCubeWithColorSpaceNode.impl()
             case .CIColorCurves:
                 Nodes.CIColorCurvesNode.impl()
             case .CIColorInvert:
@@ -1988,125 +1979,6 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputRedCoefficients")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGreenCoefficients")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBlueCoefficients")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
-    public struct CIColorCubeNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Cube",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Cube Dimension", defaultValue: .int(2), semantics: .count),
-                    .init(
-                        name: "Cube Data",
-                        defaultValue: .data(
-                            Data(
-                                base64Encoded:
-                                    "AAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AACAPwAAgD8="
-                            )!
-                        ),
-                        semantics: .default
-                    ), .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorCube")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].int, forKey: "inputCubeDimension")
-                filter.setValue(node.inputs[2].data, forKey: "inputCubeData")
-                filter.setValue(node.inputs[3].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
-    public struct CIColorCubesMixedWithMaskNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Cubes Mixed With Mask",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Mask Image", type: .image, semantics: .image),
-                    .init(name: "Cube Dimension", defaultValue: .int(2), semantics: .count),
-                    .init(
-                        name: "Cube 0 Data",
-                        defaultValue: .data(
-                            Data(
-                                base64Encoded:
-                                    "AAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AACAPwAAgD8="
-                            )!
-                        ),
-                        semantics: .default
-                    ),
-                    .init(
-                        name: "Cube 1 Data",
-                        defaultValue: .data(
-                            Data(
-                                base64Encoded:
-                                    "AAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AACAPwAAgD8="
-                            )!
-                        ),
-                        semantics: .default
-                    ), .init(name: "Color Space", type: .colorSpace, semantics: .default),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorCubesMixedWithMask")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputMaskImage")
-                filter.setValue(node.inputs[2].int, forKey: "inputCubeDimension")
-                filter.setValue(node.inputs[3].data, forKey: "inputCube0Data")
-                filter.setValue(node.inputs[4].data, forKey: "inputCube1Data")
-                filter.setValue(node.inputs[5].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
-                filter.setValue(node.inputs[6].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage))
-            }
-        }
-    }
-
-    public struct CIColorCubeWithColorSpaceNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Cube with ColorSpace",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Cube Dimension", defaultValue: .int(2), semantics: .count),
-                    .init(
-                        name: "Cube Data",
-                        defaultValue: .data(
-                            Data(
-                                base64Encoded:
-                                    "AAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AACAPwAAgD8="
-                            )!
-                        ),
-                        semantics: .default
-                    ), .init(name: "Extrapolate", type: .float, semantics: .default),
-                    .init(name: "Color Space", type: .colorSpace, semantics: .default),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorCubeWithColorSpace")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].int, forKey: "inputCubeDimension")
-                filter.setValue(node.inputs[2].data, forKey: "inputCubeData")
-                filter.setValue(node.inputs[3].float, forKey: "inputExtrapolate")
-                filter.setValue(node.inputs[4].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
                 node.outputs[0] = .image(await context.addImage(filter.outputImage))
             }
         }

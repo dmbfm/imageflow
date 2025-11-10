@@ -1,4 +1,5 @@
 @preconcurrency import CoreImage
+import CubeLutKit
 import Foundation
 import Values
 
@@ -26,6 +27,23 @@ public struct NodeContext {
 
 // MARK: - Filter Node Helpers
 extension NodeContext {
+    func getLut(_ id: UUID?) async -> CubeLut {
+        guard let id else {
+            return .identityRGBA
+        }
+
+        let lut: CubeLut
+
+        do {
+            lut = try await self.imageProvider.getLut(id)
+        } catch {
+            lut = .identityRGBA
+            self.error(.imageProvider(error))
+        }
+
+        return lut
+    }
+
     func getImage(_ image: ImageValue) async -> CIImage? {
         guard let id = image else {
             return nil

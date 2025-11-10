@@ -129,6 +129,8 @@ extension ValueType {
             "\(base).data"
         case .image:
             "await context.getImage(\(base).image)"
+        case .lut:
+            "await context.getLut(\(base).lut)"
         case .rect:
             "CIVector(cgRect: \(base).rect)"
         case .string:
@@ -138,7 +140,6 @@ extension ValueType {
 }
 
 extension Value {
-
     fileprivate var expr: String {
         switch self {
         case .float(let value):
@@ -163,6 +164,8 @@ extension Value {
                 return "Data(base64Encoded: \"\(str)\")!"
             }()
         case .image(_):
+            fatalError("Not supported: \(self.type)")
+        case .lut(_):
             fatalError("Not supported: \(self.type)")
         case .rect(_):
             fatalError("Not supported: \(self.type)")

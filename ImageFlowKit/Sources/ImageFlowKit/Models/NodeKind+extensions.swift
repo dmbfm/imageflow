@@ -23,12 +23,14 @@ public extension NodeKind {
         case .passthroughNode(_): "Passthrough"
         case .coreImageFilterNode(let kind):
             kind.impl.schema.displayName
+        case .coreImageCustomNode(let kind):
+            kind.impl.schema.displayName
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
-        case .coreImageFilterNode(_):
+        case .coreImageFilterNode(_), .coreImageCustomNode(_):
             .orange
         case .valueNode(_):
             .blue
@@ -44,6 +46,8 @@ public extension NodeKind {
         case .addNode(_):
             "plus.circle.fill"
         case .coreImageFilterNode(_):
+            "camera.filters"
+        case .coreImageCustomNode(_):
             "camera.filters"
         case .passthroughNode(_):
             "arrow.right.circle.dotted"

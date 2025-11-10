@@ -62,6 +62,10 @@ public struct NodePaletteService: Sendable {
                         nodeKind: kind
                     )
                 }
+                    + CoreImageCustomNodeKind.allCases.map { type in
+                        let kind = NodeKind.coreImageCustomNode(type)
+                        return NodePaletteItem(displayName: kind.displayName, icon: kind.icon, nodeKind: kind)
+                    }
             )
         )
 

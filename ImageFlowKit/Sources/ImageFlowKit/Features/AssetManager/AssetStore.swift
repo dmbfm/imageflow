@@ -14,7 +14,7 @@ final class AssetStore {
     }
 
     @ObservationIgnored
-    var thumbCache: [UUID:CGImage] = [:]
+    var thumbCache: [UUID: CGImage] = [:]
 
     let assetManager: AssetManager = .init()
 
@@ -117,7 +117,6 @@ final class AssetStore {
             }
         )
     }
-
 
     func getThumb(forAsset id: UUID) async throws -> CGImage? {
         // NOTE: Returning the thumb that is cached in the manager has a

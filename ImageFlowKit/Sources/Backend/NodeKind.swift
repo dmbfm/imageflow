@@ -8,6 +8,18 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case valueNode(ValueType)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
+    case coreImageCustomNode(CoreImageCustomNodeKind)
+}
+
+public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case lutFilterNode
+
+    public var impl: NodeImpl {
+        switch self {
+        case .lutFilterNode:
+            Nodes.LutFilterNode.impl()
+        }
+    }
 }
 
 extension NodeKind {
@@ -20,6 +32,8 @@ extension NodeKind {
         case .passthroughNode(let type):
             Nodes.PassthroughNode.impl(type)
         case .coreImageFilterNode(let type):
+            type.impl
+        case .coreImageCustomNode(let type):
             type.impl
         }
     }

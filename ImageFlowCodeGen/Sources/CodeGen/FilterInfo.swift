@@ -17,6 +17,9 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CICode128BarcodeGenerator",
             "CIPDF417BarcodeGenerator",
             "CISystemToneMap",
+            "CIColorCube",
+            "CIColorCubesMixedWithMask",
+            "CIColorCubeWithColorSpace",
         ]
 
     static let overrides: [Override] = [
@@ -196,6 +199,7 @@ func defaultValue(_ type: ValueType, _ obj: Any??) -> Value? {
             return nil
         }
     case .image: return nil
+    case .lut: return nil
     case .string:
         if let str = obj as? String {
             return .string(str)
