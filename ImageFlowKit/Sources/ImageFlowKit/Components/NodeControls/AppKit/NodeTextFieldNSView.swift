@@ -1,10 +1,3 @@
-//
-//  NodeTextField.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 06/08/25.
-//
-
 #if os(macOS)
 
 import AppKit
@@ -44,14 +37,46 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     var style: NodeTextFieldStyle
 
+    var isEditable: Bool {
+        get {
+            self.state != .nonEditable
+        }
+
+        set {
+            guard self.isEditable != newValue else { return }
+
+            switch self.state {
+            case .idle:
+                if !newValue {
+                    self.state = .nonEditable
+                }
+            case .editing:
+                if !newValue {
+                    self.textField.abortEditing()
+                    self.state = .nonEditable
+                }
+            case .nonEditable:
+                if newValue {
+                    self.state = .idle
+                }
+            }
+        }
+    }
+
     // MARK: - Private Properties
 
-    fileprivate var state: State = .`init`
+    fileprivate var state: State {
+        didSet {
+            if self.state != oldValue {
+                self.update()
+            }
+        }
+    }
 
     fileprivate enum State {
-        case `init`
         case idle
         case editing
+        case nonEditable
     }
 
     // MARK: - Subviews and Lazy vars
@@ -96,10 +121,16 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     // MARK: - Init
 
-    init(_ text: String, placeholder: String? = nil, style: NodeTextFieldStyle = .default) {
+    init(_ text: String, placeholder: String? = nil, isEditable: Bool = true, style: NodeTextFieldStyle = .default) {
         self.text = text
         self.style = style
         self.placeholder = placeholder
+
+        if isEditable {
+            self.state = .idle
+        } else {
+            self.state = .nonEditable
+        }
 
         super.init(frame: .zero)
 
@@ -114,7 +145,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
         self.addGestureRecognizer(panGesture)
 
-        self.transition(to: .idle)
+        self.update()
     }
 
     public required init?(coder: NSCoder) {
@@ -123,56 +154,47 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     // MARK: - Updates
 
-    fileprivate func transition(to newState: State) {
-        switch self.state {
-        case .`init`:
-            switch newState {
-            case .`init`:
-                break
-            case .editing:
-                fatalError("Invalid transition: init -> editing")
-            case .idle:
-                self.textField.isHidden = true
-                self.layer?.borderColor = self.style.borderColor.cgColor
-                self.layer?.borderWidth = 0
-                self.layer?.cornerRadius = self.style.outerCornerRadius
-                self.label.text = self.text
-                self.updateIdleLabel()
-                self.resize()
-            }
-            break
-        case .idle:
-            switch newState {
-            case .`init`:
-                fatalError("Invalid transition: idle -> init")
-            case .idle:
-                break
-            case .editing:
-                self.label.stringValue = self.text
-                self.label.isHidden = true
-                self.textField.isHidden = false
-                self.layer?.borderWidth = self.style.borderWidth
-                self.window?.makeFirstResponder(self.textField)
-                self.resize()
-            }
-        case .editing:
-            switch newState {
-            case .`init`:
-                fatalError("Invalid transition: editing -> init")
-            case .editing:
-                break
-            case .idle:
-                self.label.isHidden = false
-                self.textField.isHidden = true
-                self.layer?.borderColor = self.style.borderColor.cgColor
-                self.layer?.borderWidth = 0
-                self.label.text = self.text
-                self.updateIdleLabel()
-                self.resize()
-            }
-        }
+    override var wantsUpdateLayer: Bool {
+        true
+    }
 
-        self.state = newState
+    override func updateLayer() {
+        switch self.state {
+        case .idle:
+            self.layer?.borderColor = self.style.borderColor.cgColor
+            self.layer?.borderWidth = 0
+            self.layer?.cornerRadius = self.style.outerCornerRadius
+            self.backgroundView.layer?.backgroundColor = self.style.backgroundColor.cgColor
+        case .nonEditable:
+            self.layer?.borderColor = self.style.borderColor.cgColor
+            self.layer?.borderWidth = 0
+            self.layer?.cornerRadius = self.style.outerCornerRadius
+            self.backgroundView.layer?.backgroundColor = self.style.backgroundColorNonEditable.cgColor
+        case .editing:
+            self.layer?.borderColor = self.style.borderColor.cgColor
+            self.layer?.borderWidth = self.style.borderWidth
+            self.layer?.cornerRadius = self.style.outerCornerRadius
+            self.backgroundView.layer?.backgroundColor = self.style.backgroundColor.cgColor
+            break
+        }
+    }
+
+    func update() {
+        switch self.state {
+        case .idle, .nonEditable:
+            self.textField.isHidden = true
+            self.label.isHidden = false
+            self.label.text = self.text
+            self.updateIdleLabel()
+            self.resize()
+        case .editing:
+            self.label.stringValue = self.text
+            self.label.isHidden = true
+            self.textField.isHidden = false
+            self.window?.makeFirstResponder(self.textField)
+            self.resize()
+        }
+        self.setNeedsDisplay()
     }
 
     func updateIdleLabel(checkIfIdle: Bool = false) {
@@ -228,13 +250,14 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
     @objc
     func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
+        guard self.state != .nonEditable else { return }
         let t = gesture.translation(in: nil)
         self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
     }
 
     public override func mouseDown(with event: NSEvent) {
         if self.state == .idle {
-            self.transition(to: .editing)
+            self.state = .editing
         }
     }
 }
@@ -251,13 +274,13 @@ extension NodeTextFieldNSView: NSTextFieldDelegate {
         if self.state == .idle { return }
         self.text = self.textField.stringValue
         self.onEvent?(.textDidChange(self.text))
-        self.transition(to: .idle)
+        self.state = .idle
     }
 
     public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
             self.textField.abortEditing()
-            self.transition(to: .idle)
+            self.state = .idle
             return true
         }
 

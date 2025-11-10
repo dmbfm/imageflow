@@ -51,9 +51,12 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     lazy var locale: Locale = { .init(identifier: "en-US") }()
 
-    lazy var textField: NodeTextField = {
+    var textField: NodeTextField!
+
+    func makeTextField(isEditable: Bool) -> NodeTextField {
         let view = NodeTextField(
             self.value.float.formatted(.nodeNumber),
+            isEditable: isEditable,
             style: .default.with(\.borderColor, self.tint)
         )
         view.onEvent = { [weak self] event in
@@ -78,12 +81,23 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
             }
         }
         return view
-    }()
+    }
 
-    public init(_ value: Value) {
+    var isEditable: Bool {
+        get {
+            self.textField.isEditable
+        }
+        set {
+            self.textField.isEditable = newValue
+        }
+    }
+
+    public init(_ value: Value, isEditable: Bool = true) {
         self.value = value
 
         super.init(frame: .zero)
+
+        self.textField = self.makeTextField(isEditable: isEditable)
 
         self.clipsToBounds = false
 
@@ -140,13 +154,15 @@ extension NodeNumberInput {
     public struct Preview: PlatformViewRepresentable {
 
         @Binding var value: Value
+        var isEditable: Bool = true
 
-        public init(value: Binding<Value>) {
+        public init(value: Binding<Value>, isEditable: Bool = true) {
             self._value = value
+            self.isEditable = isEditable
         }
 
         public func makeView(context: Context) -> NodeNumberInput {
-            let view = NodeNumberInput(self.value)
+            let view = NodeNumberInput(self.value, isEditable: self.isEditable)
             view.onEvent = { event in
                 switch event {
                 case .valueDidChange(let value): self.value = value
@@ -160,6 +176,8 @@ extension NodeNumberInput {
             if self.value != view.value {
                 view.value = self.value
             }
+
+            view.isEditable = self.isEditable
         }
 
         public func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
@@ -170,15 +188,23 @@ extension NodeNumberInput {
 
 #Preview {
     @Previewable @State var value: Value = .float(0.1234)
+    @Previewable @State var isEditable: Bool = true
     var formatted: String {
         value.float.formatted(.nodeNumber)
     }
     VStack {
-        NodeNumberInput.Preview(value: $value)
+        NodeNumberInput.Preview(value: $value, isEditable: isEditable)
             .border(.gray.opacity(0.2))
         Text(formatted)
             .font(.caption2)
             .fontDesign(.monospaced)
+        Toggle(
+            isOn: $isEditable,
+            label: {
+                Text("Editable")
+            }
+        )
+        .frame(width: 200)
     }
     .frame(minWidth: 500)
     .frame(height: 500)

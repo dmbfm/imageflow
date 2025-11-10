@@ -59,7 +59,6 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             canvas: self.canvas.withLock({ $0 }),
             assets: self.assetStore.withLock({ $0 })
         )
-        log("generated snapshot: \(snap)", level: .debug)
         return snap
     }
 

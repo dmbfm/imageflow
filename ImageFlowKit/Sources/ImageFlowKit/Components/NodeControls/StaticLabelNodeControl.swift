@@ -63,6 +63,10 @@ public final class StaticLabelNodeControl: PlatformCommonView, NodeControl {
         nil
     }
 
+    public func setEditable(_ value: Bool) {
+
+    }
+
     public override var intrinsicContentSize: CGSize {
         self.labelView.intrinsicContentSize + .init(width: 4, height: 2)
     }

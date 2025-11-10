@@ -23,6 +23,10 @@ final class NodeInputRowView: PlatformView {
 
     var onEvent: ((Event) -> ())?
 
+    var isEditable: Bool {
+        !self.input.connected
+    }
+
     // MARK: - Exposed Types
 
     struct Delegate {
@@ -82,7 +86,7 @@ final class NodeInputRowView: PlatformView {
         let view: any NodeControl =
             switch self.input.value.type {
             case .float:
-                NodeNumberInput(self.input.value)
+                NodeNumberInput(self.input.value, isEditable: self.isEditable)
             case .int:
                 NodeIntegerInput(self.input.value)
             case .bool:
@@ -153,6 +157,10 @@ final class NodeInputRowView: PlatformView {
 
         if self.input.value != self.controlView.value {
             self.controlView.value = self.input.value
+        }
+
+        if self.controlView.isEditable != self.isEditable {
+            self.controlView.isEditable = self.isEditable
         }
     }
 
