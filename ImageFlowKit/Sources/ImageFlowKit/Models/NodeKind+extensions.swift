@@ -25,6 +25,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .coreImageCustomNode(let kind):
             kind.impl.schema.displayName
+        case .valueCustomNode(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -32,7 +34,7 @@ public extension NodeKind {
         switch self {
         case .coreImageFilterNode(_), .coreImageCustomNode(_):
             .orange
-        case .valueNode(_):
+        case .valueNode(_), .valueCustomNode(_):
             .blue
         case .addNode(_):
             .blue
@@ -53,6 +55,11 @@ public extension NodeKind {
             "arrow.right.circle.dotted"
         case .valueNode(let valueType):
             valueType.icon
+        case .valueCustomNode(let kind):
+            switch kind {
+                case .affineTransform:
+                    ValueType.affineTransform.icon
+            }
         }
     }
 

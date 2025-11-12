@@ -6,7 +6,7 @@ public struct NodePaletteService: Sendable {
 
         var result = [NodePaletteCategory]()
 
-        let blacklistedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace]
+        let blacklistedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace, .affineTransform]
 
         // math
         result.append(
@@ -34,6 +34,13 @@ public struct NodePaletteService: Sendable {
                         nodeKind: kind
                     )
                 }
+                    + [
+                        .init(
+                            displayName: "Affine Transform",
+                            icon: NodeKind.valueCustomNode(.affineTransform).icon,
+                            nodeKind: .valueCustomNode(.affineTransform)
+                        )
+                    ]
             )
         )
 

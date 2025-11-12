@@ -3,6 +3,25 @@ import Logging
 import SwiftUI
 import Values
 
+final class EmptyControlView: PlatformCommonView, NodeControl {
+    var tint: Helpers.PlatformColor = .blue
+
+    var value: Values.Value
+
+    var onEvent: ((NodeControlEvent) -> ())?
+
+    init(value: Value) {
+        self.value = value
+        super.init(frame: .zero)
+    }
+
+    required init?(coder: NSCoder) {
+    nil
+    }
+
+    override var intrinsicContentSize: CGSize { .zero }
+}
+
 final class NodeInputRowView: PlatformView {
 
     // MARK: - Exposed Properties
@@ -103,6 +122,8 @@ final class NodeInputRowView: PlatformView {
                 NodeStringInput(self.input.value, isEditable: self.isEditable)
             case .lut:
                 NodeAssetPicker<LutAssetPicker>(self.input.value, isEditable: self.isEditable, delegate: self.nodeLutInputDelegate)
+            case .affineTransform:
+                EmptyControlView(value: self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
             }
