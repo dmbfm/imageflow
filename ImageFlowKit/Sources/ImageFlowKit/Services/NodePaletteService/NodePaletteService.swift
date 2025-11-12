@@ -63,7 +63,7 @@ public struct NodePaletteService: Sendable {
         result.append(
             .init(
                 name: .colorAdjustment,
-                items: CIFilterNodeKind.ColoradjustmentNodeKind.allCases.map { type in
+                items: (CIFilterNodeKind.ColoradjustmentNodeKind.allCases.map { type in
                     let kind = NodeKind.coreImageFilterNode(.colorAdjustment(type))
                     return NodePaletteItem(
                         displayName: kind.displayName,
@@ -71,10 +71,9 @@ public struct NodePaletteService: Sendable {
                         nodeKind: kind
                     )
                 }
-                    + CoreImageCustomNodeKind.allCases.map { type in
-                        let kind = NodeKind.coreImageCustomNode(type)
-                        return NodePaletteItem(displayName: kind.displayName, icon: kind.icon, nodeKind: kind)
-                    }
+                    + CoreImageCustomNodeKind.ColorAdjustment.allCases
+                    .map { $0.kind }
+                    .map { .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0) })
             )
         )
 
@@ -150,6 +149,9 @@ public struct NodePaletteService: Sendable {
                         nodeKind: kind
                     )
                 }
+                    + CoreImageCustomNodeKind.GeometryAdjustment.allCases
+                    .map { $0.kind }
+                    .map { .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0) }
             )
         )
 
@@ -271,7 +273,9 @@ public struct NodePaletteService: Sendable {
             )
         )
 
-        return result
+        return
+            result
+            .map { .init(name: $0.name, items: $0.items.sorted(by: { $0.displayName < $1.displayName })) }
     }()
 
     public init() {}

@@ -17,4 +17,5 @@ public enum ValueSemantics: String, Sendable, Hashable, Codable {
     case color
     case image
     case transform
+    case scaleVector
 }

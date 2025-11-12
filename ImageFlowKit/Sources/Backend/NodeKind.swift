@@ -17,19 +17,64 @@ public enum ValueCustomNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
     public var impl: NodeImpl {
         switch self {
-            case .affineTransform:
-                Nodes.AffineTransformValueNode.impl()
+        case .affineTransform:
+            Nodes.AffineTransformValueNode.impl()
         }
     }
 }
 
-public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable, CaseIterable {
-    case lutFilterNode
+public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
+
+    case geometryAdjustment(GeometryAdjustment)
+    case colorAdjustment(ColorAdjustment)
+
+    public var kind: NodeKind {
+        .coreImageCustomNode(self)
+    }
+
+    public enum GeometryAdjustment: Sendable, Hashable, Codable, CaseIterable {
+        case applyAffineTransformNode
+        case rotateNode
+        case scaleNode
+        case translateNode
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.geometryAdjustment(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .applyAffineTransformNode:
+                Nodes.CoreImageCustom.ApplyAffineTransformFilterNode.impl()
+            case .rotateNode:
+                Nodes.CoreImageCustom.RotateFilterNode.impl()
+            case .scaleNode:
+                Nodes.CoreImageCustom.ScaleFilterNode.impl()
+            case .translateNode:
+                Nodes.CoreImageCustom.TranslateFilterNode.impl()
+            }
+        }
+    }
+
+    public enum ColorAdjustment: Sendable, Hashable, Codable, CaseIterable {
+        case lutFilterNode
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.colorAdjustment(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .lutFilterNode:
+                Nodes.CoreImageCustom.LutFilterNode.impl()
+            }
+        }
+    }
 
     public var impl: NodeImpl {
         switch self {
-        case .lutFilterNode:
-            Nodes.LutFilterNode.impl()
+            case .colorAdjustment(let kind): kind.impl
+            case .geometryAdjustment(let kind): kind.impl
         }
     }
 }
