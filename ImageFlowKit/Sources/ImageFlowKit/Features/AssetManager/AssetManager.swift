@@ -1,3 +1,4 @@
+import Backend
 import CoreImage
 import CubeLutKit
 import Foundation
@@ -8,6 +9,7 @@ import PhotosUI
 import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
+import Values
 
 #if canImport(AppKit)
 import AppKit
@@ -27,13 +29,10 @@ actor AssetManager {
     }
 
     var luts: [UUID: Resource<CubeLut, AssetManagerError>] = [:]
-
     var thumbs: [UUID: Resource<CGImage, AssetManagerError>] = [:]
-
     var ciImages: [UUID: Resource<CIImage, AssetManagerError>] = [:]
-
     var assetKindThumbs: [AssetKind: Resource<CGImage, AssetManagerError>] = [:]
-
+    var nodeAssetIdMap: [OutputPortLocation: UUID] = [:]
     var documentInfo: DocumentInfo?
 
     @MainActor
@@ -74,6 +73,7 @@ extension AssetManager {
         self.thumbs.removeAll()
         self.ciImages.removeAll()
         self.luts.removeAll()
+        self.nodeAssetIdMap.removeAll()
     }
 
     func restore(_ assets: [UUID: Asset]) {
@@ -157,6 +157,30 @@ extension AssetManager {
         }
     }
 
+    func addAsset(
+        nodeGeneratedImage image: CIImage,
+        portLocation: OutputPortLocation,
+    ) -> UUID {
+        let id = self.nodeAssetIdMap[portLocation, default: UUID()]
+
+        if self.assets[id] != nil {
+            self.removeAsset(id)
+        }
+
+        self.registerAsset(
+            .init(
+                id: id,
+                state: .loaded(.generated(portLocation)),
+                added: .now,
+                kind: .image
+            )
+        )
+        self.ciImages[id] = .loaded(image)
+        self.nodeAssetIdMap[portLocation] = id
+
+        return id
+    }
+
     /// Registers an empty asset without importing any data.
     ///
     /// - Parameter asset: The asset to be registered.
@@ -206,7 +230,7 @@ extension AssetManager {
             return id
         } catch {
             self.cancelLoading(id)
-            log("error: \(error)", level: .error)
+            log("\(error)", level: .error)
             if let err = error as? AssetManagerError {
                 throw err
             }
@@ -402,23 +426,27 @@ extension AssetManager {
     }
 
     func getCIImage(forAsset id: UUID) async throws(AssetManagerError) -> CIImage {
-        try await self.getAssetResourceFromFile(
-            id,
-            isValidAssetKind: { $0 == .image },
-            getResource: { id, defaultValue in self.ciImages[id, default: defaultValue] },
-            setResource: { id, res in self.ciImages[id] = res },
-            load: { url in
-                let options: [CIImageOption: Any] = [
-                    .applyOrientationProperty: true
-                        // .nearestSampling: true,
-                        // .expandToHDR: true,
-                ]
-                guard let ciImage = CIImage(contentsOf: url, options: options) else {
-                    throw AssetManagerError.resouceLoadingError(.ciImageInitError)
+        if case let .loaded(image) = self.ciImages[id] {
+            image
+        } else {
+            try await self.getAssetResourceFromFile(
+                id,
+                isValidAssetKind: { $0 == .image },
+                getResource: { id, defaultValue in self.ciImages[id, default: defaultValue] },
+                setResource: { id, res in self.ciImages[id] = res },
+                load: { url in
+                    let options: [CIImageOption: Any] = [
+                        .applyOrientationProperty: true
+                            // .nearestSampling: true,
+                            // .expandToHDR: true,
+                    ]
+                    guard let ciImage = CIImage(contentsOf: url, options: options) else {
+                        throw AssetManagerError.resouceLoadingError(.ciImageInitError)
+                    }
+                    return ciImage
                 }
-                return ciImage
-            }
-        )
+            )
+        }
     }
 
     private func getAssetResourceFromFile<ResourceType: Sendable>(
@@ -511,5 +539,48 @@ extension AssetManager {
             }
 
         return assetURL
+    }
+}
+
+extension AssetManager: BackendAssetProvider {
+    func backendAssetProviderGetLut(_ id: UUID) async throws(Backend.BackendAssetProviderError) -> CubeLutKit.CubeLut {
+        do {
+            return try await self.getCubeLut(forAsset: id)
+        } catch {
+            log("\(error)", level: .error)
+            throw .other(error)
+        }
+    }
+
+    func backendAssetProviderGetImage(
+        _ id: Values.ImageIdentifier
+    ) async throws(Backend.BackendAssetProviderError) -> CIImage {
+        let uuid =
+            switch id {
+            case .asset(let id): id
+            case .nodeOutput(let node, let port):
+                self.nodeAssetIdMap[.init(node: node, index: port), default: .init()]
+            }
+
+        do {
+            return try await self.getCIImage(forAsset: uuid)
+        } catch {
+            log("\(error)", level: .error)
+            throw .other(error)
+        }
+    }
+
+    func backendAssetProviderAddImage(
+        _ image: CIImage,
+        id: Values.ImageIdentifier
+    ) async throws(Backend.BackendAssetProviderError) {
+        guard case let .nodeOutput(node, port) = id else {
+            log("invalidID: \(id, default: "nil")", level: .error)
+            throw .tyingToAddImageWithAssetIdentifier(id)
+        }
+
+        let portLocation = OutputPortLocation(node: node, index: port)
+
+        _ = self.addAsset(nodeGeneratedImage: image, portLocation: portLocation)
     }
 }

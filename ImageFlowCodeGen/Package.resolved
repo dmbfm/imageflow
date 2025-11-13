@@ -1,13 +1,13 @@
 {
-  "originHash" : "7a99db3f58cff81b48b6811d980c9ee07da9ef6b388c9167501889f3575688ed",
+  "originHash" : "c153b39a4bc0745af28a17ea46619e51ee21fea3a2c273c6cc9743767bac499f",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "309a47b2b1d9b5e991f36961c983ecec72275be3",
-        "version" : "1.6.1"
+        "revision" : "cdd0ef3755280949551dc26dee5de9ddeda89f54",
+        "version" : "1.6.2"
       }
     },
     {
@@ -25,7 +25,7 @@
       "location" : "https://github.com/davecom/SwiftGraph.git",
       "state" : {
         "branch" : "master",
-        "revision" : "d1de55a6e8359dbad528ec06e4924209cce5dbda"
+        "revision" : "19101a3f8cd26fe17c985f14d97f2c124e64e983"
       }
     }
   ],

@@ -33,6 +33,7 @@ func makeFlow(_ nodes: [NodeKind], _ edges: [((Int, Int), (Int, Int))] = []) -> 
     for kind in nodes {
         let id = UUID()
         flow.nodes[id] = .init(id: id, kind: kind)
+        flow.nodePositions[id] = .zero
         ids.append(id)
     }
     for edge in edges {
@@ -87,7 +88,7 @@ func testNodePositions() {
     ]
     let flow = Flow()
     for (index, id) in ids.enumerated() {
-        flow.addNode(.init(id: id, kind: .valueNode(.float), position: positions[index]))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: positions[index])
     }
 
     #expect(flow.nodePositions == .init(uniqueKeysWithValues: zip(ids, positions)))
@@ -220,7 +221,7 @@ func testNumberEdgesOfPort() {
 func testAddNode() {
     let flow = Flow()
     let node = FlowNode(kind: .valueNode(.float))
-    flow.addNode(node)
+    flow.addNode(node, at: .zero)
     #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node.id] == node)
 }
@@ -231,8 +232,8 @@ func testRemoveNode() {
     let flow = Flow()
     let node1 = FlowNode(kind: .valueNode(.float))
     let node2 = FlowNode(kind: .valueNode(.float))
-    flow.addNode(node1)
-    flow.addNode(node2)
+    flow.addNode(node1, at: .zero)
+    flow.addNode(node2, at: .zero)
     #expect(flow.nodes.count == 2)
     flow.removeNode(node2.id)
     #expect(flow.nodes.count == 1)
@@ -248,8 +249,8 @@ func testUpdateNode() {
     let node = FlowNode(kind: .addNode(.vector2))
     let node1 = FlowNode(id: id, kind: .valueNode(.float))
     let node2 = FlowNode(id: id, kind: .valueNode(.int))
-    flow.addNode(node)
-    flow.addNode(node1)
+    flow.addNode(node, at: .zero)
+    flow.addNode(node1, at: .zero)
     #expect(flow.nodes.count == 2)
     #expect(flow.nodes[id] == node1)
     #expect(flow.nodes[node.id] == node)
@@ -290,7 +291,7 @@ func testRemoveEdge() {
 func testAddNodeUndoRedo() {
     let flow = Flow()
     let node = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node, undoManager: um) }
+    um.withGroup { flow.addNode(node, at: .zero, undoManager: um) }
     #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node.id] == node)
     um.undo()
@@ -309,8 +310,8 @@ func testRemoveNodeUndoRedo() {
     let flow = Flow()
     let node1 = FlowNode(kind: .valueNode(.float))
     let node2 = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node1, undoManager: um) }
-    um.withGroup { flow.addNode(node2, undoManager: um) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node2, at: .zero, undoManager: um) }
     #expect(flow.nodes.count == 2)
     um.withGroup { flow.removeNode(node2.id, undoManager: um) }
     #expect(flow.nodes.count == 1)
@@ -332,8 +333,8 @@ func testAddRemoveNodeUndoRedo() {
     let flow = Flow()
     let node1 = FlowNode(kind: .valueNode(.float))
     let node2 = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node1, undoManager: um) }
-    um.withGroup { flow.addNode(node2, undoManager: um) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node2, at: .zero, undoManager: um) }
     #expect(flow.nodes.count == 2)
     um.withGroup { flow.removeNode(node2.id, undoManager: um) }
     #expect(flow.nodes.count == 1)
@@ -374,8 +375,8 @@ func testUpdateNodeUndoRedo() {
     let node = FlowNode(kind: .addNode(.vector2))
     let node1 = FlowNode(id: id, kind: .valueNode(.float))
     let node2 = FlowNode(id: id, kind: .valueNode(.int))
-    um.withGroup { flow.addNode(node, undoManager: um) }
-    um.withGroup { flow.addNode(node1, undoManager: um) }
+    um.withGroup { flow.addNode(node, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
     #expect(flow.nodes.count == 2)
     #expect(flow.nodes[id] == node1)
     #expect(flow.nodes[node.id] == node)
@@ -437,7 +438,7 @@ func newNodeActionShouldCreateNewNode() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -449,7 +450,7 @@ func newNodeActionShouldUndo() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -463,7 +464,7 @@ func newNodeActionShouldUndoThenRedo() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -481,7 +482,7 @@ func deletNodeActionShouldDeleteNode() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
         flow.deleteNodeAction(id, undoManager: um)
@@ -496,7 +497,7 @@ func deletNodeActionShouldUndo() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
         flow.deleteNodeAction(id, undoManager: um)
@@ -513,7 +514,7 @@ func deletNodeActionShouldUndoThenRedo() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
         flow.deleteNodeAction(id, undoManager: um)
@@ -1166,7 +1167,7 @@ func selectASingleNodeTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     #expect(flow.selection.isEmpty)
     flow.select([ids[5]])
@@ -1180,7 +1181,7 @@ func selectASingleNodeUndoTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     #expect(flow.selection.isEmpty)
     um.withGroup {
@@ -1201,7 +1202,7 @@ func selectASingleNodeUnionTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
     um.withGroup {
@@ -1229,7 +1230,7 @@ func selectMultipleNodesTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
     um.withGroup {
@@ -1257,7 +1258,7 @@ func selectMultipleNodesUnionTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
     um.withGroup {
@@ -1289,7 +1290,7 @@ func liveSelectTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
 
@@ -1323,7 +1324,7 @@ func liveSelectUnionTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
 
@@ -1363,7 +1364,7 @@ func liveSelectCancelTest() {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)))
+        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
 

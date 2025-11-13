@@ -1,5 +1,5 @@
 {
-  "originHash" : "bfb031909729e8601738a5bc201ebd13cf97128470f80735bed8ed4a22e33caf",
+  "originHash" : "619f9de896a5cad4940062429857f6cd4a22f78d2169d2a7685b2e4b22c6da4e",
   "pins" : [
     {
       "identity" : "swiftgraph",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/davecom/SwiftGraph.git",
       "state" : {
         "branch" : "master",
-        "revision" : "d1de55a6e8359dbad528ec06e4924209cce5dbda"
+        "revision" : "19101a3f8cd26fe17c985f14d97f2c124e64e983"
       }
     }
   ],

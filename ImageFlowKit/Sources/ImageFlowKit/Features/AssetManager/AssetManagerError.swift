@@ -31,6 +31,7 @@ enum AssetManagerError: Error {
     }
 
     enum AssetLoadingError {
+        case repeatedID
         case photosMissingIdentifier
         case photosDataIsNil
         case missingPHAssetResource

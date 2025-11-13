@@ -63,7 +63,7 @@ enum AssetState: Equatable, Codable {
 }
 
 enum AssetSource: Equatable, Codable {
-    case generated(node: UUID, port: Int)
+    case generated(OutputPortLocation)
     case file(String)
 
     var filename: String? {

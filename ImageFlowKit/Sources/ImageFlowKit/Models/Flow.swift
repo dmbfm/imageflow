@@ -10,6 +10,8 @@ import Values
 final class Flow {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode]
+    /// The positions of the nodes.
+    public var nodePositions: [UUID: CGPoint]
     /// The set of node identifiers that are currently selected.
     public var selection: Set<UUID>
     /// All edges currently present in the graph.
@@ -32,22 +34,31 @@ final class Flow {
     ///   - edges: Initial edge set.
     public init(
         nodes: [UUID: FlowNode] = [:],
+        nodePositions: [UUID: CGPoint] = [:],
         selection: Set<UUID> = [],
         edges: Set<Edge> = []
     ) {
         self.nodes = nodes
+        self.nodePositions = nodePositions
         self.selection = selection
         self.edges = edges
     }
-}
 
-// MARK: - Node Positions
-
-extension Flow {
-    var nodePositions: [UUID: CGPoint] {
-        nodes.reduce(into: [:]) { result, pair in
-            result[pair.key] = pair.value.position
-        }
+    /// Creates a new flow model.
+    /// - Parameters:
+    ///   - nodes: Initial node map.
+    ///   - nodePositions: Initial positions keyed by node identifier.
+    ///   - selection: Initial selection set.
+    ///   - edges: Initial edge set.
+    public init(
+        nodes: [UUID: (FlowNode, CGPoint)] = [:],
+        selection: Set<UUID> = [],
+        edges: Set<Edge> = []
+    ) {
+        self.nodes = nodes.mapValues({ $0.0 })
+        self.nodePositions = nodes.mapValues({ $0.1 })
+        self.selection = selection
+        self.edges = edges
     }
 }
 
@@ -87,9 +98,10 @@ extension Flow {
     /// - Returns: `true` if the node was added; `false` if there was another node
     /// with the same `id`, in which case nothing is done.
     @discardableResult
-    func addNode(_ node: FlowNode) -> Bool {
+    func addNode(_ node: FlowNode, at position: CGPoint) -> Bool {
         if !self.hasNode(node.id) {
             self.nodes[node.id] = node
+            self.nodePositions[node.id] = position
             return true
         } else {
             return false
@@ -97,8 +109,19 @@ extension Flow {
     }
 
     @discardableResult
-    func removeNode(_ id: UUID) -> FlowNode? {
-        self.nodes.removeValue(forKey: id)
+    func removeNode(_ id: UUID) -> (FlowNode, CGPoint)? {
+        let node = self.nodes.removeValue(forKey: id)
+        let pos = self.nodePositions.removeValue(forKey: id)
+
+        assert(node != nil && pos != nil || node == nil && pos == nil)
+
+        switch (node, pos) {
+        case let (.some(node), .some(pos)): return (node, pos)
+        case (.some(_), .none), (.none, .some(_)):
+            log("Broken invariant: node = \(node, default: "nil"), pos = \(pos, default: "nil")", level: .error)
+            return nil
+        default: return nil
+        }
     }
 
     @discardableResult
@@ -132,8 +155,8 @@ extension Flow {
 
 extension Flow {
     @discardableResult
-    func addNode(_ node: FlowNode, undoManager um: UndoManager?) -> Bool {
-        if self.addNode(node) {
+    func addNode(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) -> Bool {
+        if self.addNode(node, at:position) {
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in
@@ -147,19 +170,19 @@ extension Flow {
     }
 
     @discardableResult
-    func removeNode(_ id: UUID, undoManager um: UndoManager?) -> FlowNode? {
-        guard let previous = self.removeNode(id) else {
+    func removeNode(_ id: UUID, undoManager um: UndoManager?) -> (FlowNode, CGPoint)? {
+        guard let (previousNode, previousPos) = self.removeNode(id) else {
             return nil
         }
 
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                this.addNode(previous, undoManager: um)
+                this.addNode(previousNode, at: previousPos, undoManager: um)
             }
         )
 
-        return previous
+        return (previousNode, previousPos)
     }
 
     @discardableResult
@@ -211,10 +234,10 @@ extension Flow {
 // MARK: - Nodes, Ports and Edges - Complex Actions
 
 extension Flow {
-    func newNodeAction(_ node: FlowNode, undoManager um: UndoManager?) {
+    func newNodeAction(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) {
         precondition(node.numConnectedSlots == 0, "Can't add a node connected node.")
         precondition(!self.hasNode(node.id), "A node with the same ID already exists.")
-        let result = self.addNode(node, undoManager: um)
+        let result = self.addNode(node, at: position, undoManager: um)
         assert(result, "`addNode` unexpectedly failed.")
     }
 

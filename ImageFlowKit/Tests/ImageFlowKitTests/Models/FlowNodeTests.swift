@@ -159,7 +159,7 @@ func variationTest() {
     let node = FlowNode(kind: .valueNode(.float))
     #expect(
         node.variation(.valueNode(.int))
-            == .init(id: node.id, kind: .valueNode(.int), name: node.name, position: node.position)
+            == .init(id: node.id, kind: .valueNode(.int), name: node.name)
     )
 }
 
@@ -168,5 +168,5 @@ func convertTest() {
     let node = FlowNode(kind: .valueNode(.float))
     var converted = node
     #expect(converted.convert(toVariation: .valueNode(.int)) == true)
-    #expect(converted == .init(id: node.id, kind: .valueNode(.int), name: node.name, position: node.position))
+    #expect(converted == .init(id: node.id, kind: .valueNode(.int), name: node.name))
 }

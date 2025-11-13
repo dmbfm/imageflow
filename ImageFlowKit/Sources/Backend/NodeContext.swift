@@ -1,16 +1,17 @@
 @preconcurrency import CoreImage
 import CubeLutKit
 import Foundation
+import Logging
 import Values
 
 public struct NodeContext {
 
     let id: UUID
-    let imageProvider: any FlowImageProvider
+    let imageProvider: any BackendAssetProvider
 
     private let messageStore: MessageStore
 
-    init(id: UUID, imageProvider: any FlowImageProvider, messageStore: MessageStore) {
+    init(id: UUID, imageProvider: any BackendAssetProvider, messageStore: MessageStore) {
         self.id = id
         self.imageProvider = imageProvider
         self.messageStore = messageStore
@@ -35,7 +36,7 @@ extension NodeContext {
         let lut: CubeLut
 
         do {
-            lut = try await self.imageProvider.getLut(id)
+            lut = try await self.imageProvider.backendAssetProviderGetLut(id)
         } catch {
             lut = .identityRGBA
             self.error(.imageProvider(error))
@@ -51,7 +52,7 @@ extension NodeContext {
 
         let image: CIImage?
         do {
-            image = try await self.imageProvider.getImage(id)
+            image = try await self.imageProvider.backendAssetProviderGetImage(id)
         } catch {
             image = nil
             self.error(.imageProvider(error))
@@ -65,14 +66,18 @@ extension NodeContext {
         await self.getImage(node.inputs[input].image)
     }
 
-    func addImage(_ image: CIImage?, id: ImageIdentifier? = nil) async -> ImageIdentifier? {
+    func addImage(_ image: CIImage?, _ outputIndex: Int) async -> ImageIdentifier? {
         guard let image else { return nil }
 
+        let id = ImageIdentifier.nodeOutput(self.id, outputIndex)
+
         do {
-            return try await self.imageProvider.addImage(image, id: id)
+            try await self.imageProvider.backendAssetProviderAddImage(image, id: id)
         } catch {
             self.error(.imageProvider(error))
             return nil
         }
+
+        return id
     }
 }

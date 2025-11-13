@@ -13,7 +13,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 if type == .image {
                     let image = await context.getImage(node.inputs[0].image)
-                    node.outputs[0] = .image(await context.addImage(image, id: .nodeOutput(node.id, 0)))
+                    node.outputs[0] = .image(await context.addImage(image, 0))
                 } else {
                     node.outputs[0] = node.inputs[0]
                 }

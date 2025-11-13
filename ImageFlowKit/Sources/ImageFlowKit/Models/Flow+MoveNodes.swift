@@ -3,11 +3,10 @@ import Foundation
 extension Flow {
     var nodePositionsWithLiveMove: [UUID: CGPoint] {
         if let snapshot = self.liveMoveNodesSnapshot {
-            self.nodes.reduce(
+            self.nodePositions.reduce(
                 into: [:],
                 { acc, el in
-                    let pos = snapshot[el.key] ?? self.nodes[el.key]!.position
-                    acc[el.key] = pos
+                    acc[el.key] = snapshot[el.key] ?? el.value
                 }
             )
         } else {
@@ -17,12 +16,12 @@ extension Flow {
 
     @discardableResult
     func moveNode(_ id: UUID, to position: CGPoint, undoManager um: UndoManager? = nil) -> CGPoint? {
-        guard let prev = self.nodes[id]?.position else {
+        guard let prev = self.nodePositions[id] else {
             return nil
         }
 
         if position != prev {
-            self.nodes[id]!.position = position
+            self.nodePositions[id] = position
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in
@@ -39,7 +38,7 @@ extension Flow {
         self.liveMoveNodesSnapshot = nodes.reduce(
             into: [:],
             { acc, id in
-                if let pos = self.nodes[id]?.position {
+                if let pos = self.nodePositions[id] {
                     acc[id] = pos
                 }
             }

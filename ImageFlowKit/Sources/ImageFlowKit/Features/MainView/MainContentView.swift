@@ -77,15 +77,13 @@ extension MainContentView {
     }
 
     func createNodeAtCanvasCenter(_ node: FlowNode) {
-        var node = node
         let pos: CGPoint = {
             let view = NodeView(node)
             let size = view.intrinsicContentSize
             let pos = self.canvasCenter.value - (size * 0.5).cgPoint
             return self.canvas.viewport.convert(pos, from: .screen, to: .canvas)
         }()
-        node.position = pos
-        self.flow.newNodeAction(node, undoManager: self.undoManager)
+        self.flow.newNodeAction(node, at: pos, undoManager: self.undoManager)
         self.flow.select([node.id])
     }
 

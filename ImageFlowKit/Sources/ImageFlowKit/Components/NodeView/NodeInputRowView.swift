@@ -16,7 +16,7 @@ final class EmptyControlView: PlatformCommonView, NodeControl {
     }
 
     required init?(coder: NSCoder) {
-    nil
+        nil
     }
 
     override var intrinsicContentSize: CGSize { .zero }
@@ -113,7 +113,11 @@ final class NodeInputRowView: PlatformView {
             case .vector2, .vector3, .vector4:
                 NodeVectorInput(self.input.value, isEditable: self.isEditable)
             case .image:
-                NodeAssetPicker<ImageAssetPicker>(self.input.value, isEditable: self.isEditable, delegate: self.nodeImageInputDelegate)
+                NodeAssetPicker<ImageAssetPicker>(
+                    self.input.value,
+                    isEditable: self.isEditable,
+                    delegate: self.nodeImageInputDelegate
+                )
             case .color3, .color4:
                 NodeColorInput(self.input.value, isEditable: self.isEditable)
             case .rect:
@@ -121,7 +125,11 @@ final class NodeInputRowView: PlatformView {
             case .string:
                 NodeStringInput(self.input.value, isEditable: self.isEditable)
             case .lut:
-                NodeAssetPicker<LutAssetPicker>(self.input.value, isEditable: self.isEditable, delegate: self.nodeLutInputDelegate)
+                NodeAssetPicker<LutAssetPicker>(
+                    self.input.value,
+                    isEditable: self.isEditable,
+                    delegate: self.nodeLutInputDelegate
+                )
             case .affineTransform:
                 EmptyControlView(value: self.input.value)
             default:

@@ -321,8 +321,8 @@ public struct CanvasFeatureView: View {
         guard let item = items.first else { return false }
 
         let id = UUID()
-        self.flow.newNodeAction(.init(id: id, kind: item.kind), undoManager: self.undoManager)
-        self.flow.moveNode(id, to: self.state.viewport.convert(point, from: .screen, to: .canvas))
+        let pos = self.state.viewport.convert(point, from: .screen, to: .canvas)
+        self.flow.newNodeAction(.init(id: id, kind: item.kind), at: pos, undoManager: self.undoManager)
 
         return true
     }

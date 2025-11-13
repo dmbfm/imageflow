@@ -17,8 +17,6 @@ public struct FlowNode: Sendable, Equatable, Codable {
     public var inputs: [Input]
     /// The node's outputs
     public var outputs: [Output]
-    /// The node's position
-    public var position: CGPoint
 
     // MARK: - Public Types
 
@@ -62,14 +60,12 @@ public struct FlowNode: Sendable, Equatable, Codable {
         kind: NodeKind,
         inputs: [Input],
         outputs: [Output],
-        position: CGPoint = .zero,
     ) {
         self.id = id
         self.name = name
         self.kind = kind
         self.inputs = inputs
         self.outputs = outputs
-        self.position = position
     }
 
     /// Creates a node that is build according to the given `NodeKind` schema.
@@ -78,7 +74,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
     ///   - id: The node's unique identifier.
     ///   - kind: The `NodeKind` of the node.
     ///   - name: The node's name.
-    public init(id: UUID = UUID(), kind: NodeKind, name: String? = nil, position: CGPoint = .zero) {
+    public init(id: UUID = UUID(), kind: NodeKind, name: String? = nil) {
         self.id = id
         self.name = name ?? kind.displayName
         self.kind = kind
@@ -94,7 +90,6 @@ public struct FlowNode: Sendable, Equatable, Codable {
         self.outputs = kind.schema.outputs.enumerated().map { (index, output) in
             .init(label: output.name, index: index, type: output.type, connected: false)
         }
-        self.position = position
     }
 
     // MARK: - Subscripts
@@ -250,7 +245,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
             return nil
         }
 
-        var node = FlowNode(id: self.id, kind: variation, name: self.name, position: self.position)
+        var node = FlowNode(id: self.id, kind: variation, name: self.name)
 
         for idx in node.inputs.indices {
             if self.inputs.indices.contains(idx) {

@@ -4,15 +4,15 @@ public struct Flow {
 
     public var nodes: [Node] = []
     public var edges: [Edge] = []
-    public var imageProvider: any FlowImageProvider
+    public var imageProvider: any BackendAssetProvider
 
-    public init(nodes: [Node] = [], edges: [Edge] = [], _ imageProvider: some FlowImageProvider) {
+    public init(nodes: [Node] = [], edges: [Edge] = [], _ imageProvider: some BackendAssetProvider) {
         self.nodes = nodes
         self.edges = edges
         self.imageProvider = imageProvider
     }
 
-    public init?(nodes: [Node] = [], validatingEdges: [Edge] = [], _ imageProvider: some FlowImageProvider) {
+    public init?(nodes: [Node] = [], validatingEdges: [Edge] = [], _ imageProvider: some BackendAssetProvider) {
         fatalError("TODO: Implement this")
     }
 

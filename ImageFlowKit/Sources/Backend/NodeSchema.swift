@@ -101,7 +101,12 @@ public struct InputPropertySchema: Sendable, Hashable {
     }
 
     /// Creates a new `InputPropertySchema` with the given name, and default value.
-    public init(name: String, defaultValue: Value, semantics: ValueSemantics = .default, options: [NodeOptionSchema] = []) {
+    public init(
+        name: String,
+        defaultValue: Value,
+        semantics: ValueSemantics = .default,
+        options: [NodeOptionSchema] = []
+    ) {
         self.name = name
         self.type = defaultValue.type
         self.defaultValue = defaultValue

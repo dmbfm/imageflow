@@ -23,7 +23,7 @@ final class NodeColorPicker: NSView {
             self.needsDisplay = true
         }
     }
-    
+
     var isLocked: Bool = false {
         didSet {
             if self.isLocked != oldValue {
@@ -149,13 +149,13 @@ final class NodeColorPicker: NSView {
 
     override func mouseEntered(with event: NSEvent) {
         guard !self.isLocked else { return }
-        
+
         self.animBorder(to: self.style.borderWidthHover)
     }
 
     override func mouseExited(with event: NSEvent) {
         guard !self.isLocked else { return }
-        
+
         self.animBorder(to: self.style.borderWidthDefault)
     }
 
@@ -163,14 +163,14 @@ final class NodeColorPicker: NSView {
 
     override func mouseDown(with event: NSEvent) {
         guard !self.isLocked else { return }
-        
+
         self.isMouseDown = true
         self.animBorder(to: 6, duration: 0.1)
     }
 
     override func mouseUp(with event: NSEvent) {
         guard !self.isLocked else { return }
-        
+
         let pos = self.convert(event.locationInWindow, from: nil)
         if self.isMouseDown && self.bounds.contains(pos) {
             self.clickHandler()
@@ -184,7 +184,7 @@ final class NodeColorPicker: NSView {
     @objc
     func clickHandler() {
         guard !self.isLocked else { return }
-        
+
         let cp = NSColorPanel.shared
         cp.isContinuous = true
         cp.color = self.color
@@ -197,7 +197,7 @@ final class NodeColorPicker: NSView {
     @objc
     func colorPanelHandler(_ panel: NSColorPanel) {
         guard !self.isLocked else { return }
-        
+
         if self.color != panel.color {
             self.color = panel.color
             self.needsDisplay = true
@@ -224,7 +224,7 @@ final class NodeColorPicker: UIView {
 
     /// A closure that is called (continuously) whenever the selected color changes.
     var colorDidChange: ((UIColor) -> ())?
-    
+
     var isLocked: Bool = false {
         didSet {
             if self.isLocked != oldValue {
@@ -288,7 +288,7 @@ final class NodeColorPicker: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
-        
+
         self.animBorder(to: self.style.borderWidthTouch)
     }
 
@@ -297,14 +297,14 @@ final class NodeColorPicker: UIView {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
-        
+
         self.animBorder(to: self.style.borderWidthDefault)
         self.presentColorPicker()
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
-        
+
         self.animBorder(to: self.style.borderWidthDefault)
     }
 
@@ -371,7 +371,7 @@ extension NodeColorPicker: UIColorPickerViewControllerDelegate {
         continuously: Bool
     ) {
         guard !self.isLocked else { return }
-        
+
         self.color = color
         self.colorDidChange?(color)
         self.setNeedsDisplay()

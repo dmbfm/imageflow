@@ -34,7 +34,7 @@ extension Nodes.CoreImageCustom {
                         case .three(let n): Float(n)
                         }
                     filter.extrapolate = true
-                    node.outputs[0] = .image(await context.addImage(filter.outputImage))
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
                 }
             )
         }
@@ -60,7 +60,7 @@ extension Nodes.CoreImageCustom {
                         by: node.inputs[1].affineTransform.cgAffineTransform,
                         highQualityDownsample: true
                     )
-                    node.outputs[0] = .image(await context.addImage(outputImage))
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 }
             )
         }
@@ -101,7 +101,7 @@ extension Nodes.CoreImageCustom {
                         by: .init(rotationAngle: angle),
                         highQualityDownsample: true
                     )
-                    node.outputs[0] = .image(await context.addImage(outputImage))
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 }
             )
         }
@@ -129,7 +129,7 @@ extension Nodes.CoreImageCustom {
                         by: .init(translationX: t.x, y: t.y),
                         highQualityDownsample: true
                     )
-                    node.outputs[0] = .image(await context.addImage(outputImage))
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 }
             )
         }
@@ -157,7 +157,7 @@ extension Nodes.CoreImageCustom {
                         by: .init(scaleX: t.x, y: t.y),
                         highQualityDownsample: true
                     )
-                    node.outputs[0] = .image(await context.addImage(outputImage))
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 }
             )
         }

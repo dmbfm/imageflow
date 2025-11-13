@@ -73,8 +73,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     public var impl: NodeImpl {
         switch self {
-            case .colorAdjustment(let kind): kind.impl
-            case .geometryAdjustment(let kind): kind.impl
+        case .colorAdjustment(let kind): kind.impl
+        case .geometryAdjustment(let kind): kind.impl
         }
     }
 }

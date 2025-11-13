@@ -57,8 +57,8 @@ public extension NodeKind {
             valueType.icon
         case .valueCustomNode(let kind):
             switch kind {
-                case .affineTransform:
-                    ValueType.affineTransform.icon
+            case .affineTransform:
+                ValueType.affineTransform.icon
             }
         }
     }

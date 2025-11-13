@@ -13,6 +13,7 @@ struct MainView: View {
     @State var flow: Flow = .init()
     @State var canvas: CanvasFeatureState = .init()
     @State var assetStore: AssetStore = .init()
+    @State var backendService: BackendService? = nil
 
     @Environment(\.dismissWindow) var dismissWindow
 
@@ -35,16 +36,18 @@ struct MainView: View {
             self.assetStore.restore(assetStore)
         }
 
-        Task {
-            await self.observeImageAssets()
-            await self.observeNodes()
-            await self.observeEdges()
-            await self.observeViewport()
-        }
+        Task { await self.observeImageAssets() }
+        Task { await self.observeNodes() }
+        Task { await self.observeNodePositions() }
+        Task { await self.observeEdges() }
+        Task { await self.observeViewport() }
 
         if RunConfiguration.useSampleData {
             loadSampleData()
         }
+
+        self.backendService = .init(self.flow, self.assetStore)
+        self.backendService?.start()
     }
 
     func observeImageAssets() async {
@@ -61,7 +64,7 @@ struct MainView: View {
 
     func observeViewport() async {
         let observation = Observations {
-            self.canvas.viewport
+            return self.canvas.viewport
         }
 
         for await viewport in observation {
@@ -79,6 +82,18 @@ struct MainView: View {
         for await nodes in observation {
             self.document.flow.withLock {
                 $0.nodes = nodes
+            }
+        }
+    }
+
+    func observeNodePositions() async {
+        let observation = Observations {
+            self.flow.nodePositions
+        }
+
+        for await nodePositions in observation {
+            self.document.flow.withLock {
+                $0.nodePositions = nodePositions
             }
         }
     }
@@ -114,9 +129,9 @@ struct MainView: View {
 extension MainView {
     func loadSampleData() {
         let ids = (0...2).map { _ in UUID() }
-        self.flow.addNode(.init(id: ids[0], kind: .valueNode(.float), position: .init(x: 200, y: 200)))
-        self.flow.addNode(.init(id: ids[1], kind: .valueNode(.float), position: .init(x: 200, y: 350)))
-        self.flow.addNode(.init(id: ids[2], kind: .addNode(.float), position: .init(x: 500, y: 275)))
+        self.flow.addNode(.init(id: ids[0], kind: .valueNode(.float)), at: .init(x: 200, y: 200))
+        self.flow.addNode(.init(id: ids[1], kind: .valueNode(.float)), at: .init(x: 200, y: 350))
+        self.flow.addNode(.init(id: ids[2], kind: .addNode(.float)), at: .init(x: 500, y: 275))
         let e1 = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[2], port: .input(0)))!
         try! self.flow.canCreateEdge(e1).get()
         self.flow.newEdgeAction(e1)
