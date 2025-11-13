@@ -35,12 +35,11 @@ struct MainView: View {
             self.assetStore.restore(assetStore)
         }
 
-        self.observeNodes()
-        self.observeEdges()
-        self.observeViewport()
-
         Task {
             await self.observeImageAssets()
+            await self.observeNodes()
+            await self.observeEdges()
+            await self.observeViewport()
         }
 
         if RunConfiguration.useSampleData {
@@ -60,56 +59,39 @@ struct MainView: View {
         }
     }
 
-    func observeViewport() {
-        withObservationTracking(
-            {
-                _ = self.canvas.viewport
-            },
-            onChange: {
-                Task { @MainActor in
-                    self.document.canvas.withLock {
-                        $0.viewport = self.canvas.viewport
-                    }
-                    self.observeViewport()
-                }
+    func observeViewport() async {
+        let observation = Observations {
+            self.canvas.viewport
+        }
+
+        for await viewport in observation {
+            self.document.canvas.withLock {
+                $0.viewport = viewport
             }
-        )
+        }
     }
 
-    func observeNodes() {
-        withObservationTracking(
-            {
-                _ = self.flow.nodes
-            },
-            onChange: {
-                Task { @MainActor in
-                    self.update(\.nodes, \.nodes)
-                    self.observeNodes()
-                }
+    func observeNodes() async {
+        let observation = Observations {
+            self.flow.nodes
+        }
+
+        for await nodes in observation {
+            self.document.flow.withLock {
+                $0.nodes = nodes
             }
-        )
+        }
     }
 
-    func observeEdges() {
-        withObservationTracking(
-            {
-                _ = self.flow.edges
-            },
-            onChange: {
-                Task { @MainActor in
-                    self.update(\.edges, \.edges)
-                    self.observeEdges()
-                }
-            }
-        )
-    }
+    func observeEdges() async {
+        let observation = Observations {
+            self.flow.edges
+        }
 
-    func update<T>(
-        _ kpa: WritableKeyPath<Flow.StorableData, T>,
-        _ kpb: WritableKeyPath<Flow, T>
-    ) {
-        document.flow.withLock { data in
-            data[keyPath: kpa] = self.flow[keyPath: kpb]
+        for await edges in observation {
+            self.document.flow.withLock {
+                $0.edges = edges
+            }
         }
     }
 
@@ -120,7 +102,6 @@ struct MainView: View {
             let info = await self.assetStore.assetManager.documentInfo
             log("assetManager.documenInfo: \(info, default: "nil")")
         }
-        // log("assetStore.documentInfo: \(self.assetStore.document)")
     }
 
     var body: some View {
