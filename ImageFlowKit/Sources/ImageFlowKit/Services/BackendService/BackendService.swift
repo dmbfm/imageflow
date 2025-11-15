@@ -15,6 +15,7 @@ class BackendService {
 
     func start() {
         self.observeNodes()
+        self.run()
     }
 
     private func observeNodes() {

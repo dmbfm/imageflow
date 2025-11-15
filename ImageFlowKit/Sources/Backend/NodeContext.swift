@@ -28,7 +28,7 @@ public struct NodeContext {
 
 // MARK: - Filter Node Helpers
 extension NodeContext {
-    func getLut(_ id: UUID?) async -> CubeLut {
+    func getLut(_ id: AssetIdentifier?) async -> CubeLut {
         guard let id else {
             return .identityRGBA
         }
@@ -66,18 +66,14 @@ extension NodeContext {
         await self.getImage(node.inputs[input].image)
     }
 
-    func addImage(_ image: CIImage?, _ outputIndex: Int) async -> ImageIdentifier? {
-        guard let image else { return nil }
-
-        let id = ImageIdentifier.nodeOutput(self.id, outputIndex)
-
+    func addImage(_ image: CIImage?, _ outputIndex: Int) async -> AssetIdentifier? {
         do {
-            try await self.imageProvider.backendAssetProviderAddImage(image, id: id)
+            try await self.imageProvider.backendAssetProviderAddImage(image, node: self.id, port: outputIndex)
         } catch {
             self.error(.imageProvider(error))
             return nil
         }
 
-        return id
+        return .nodeOutput(self.id, outputIndex)
     }
 }

@@ -264,10 +264,19 @@ extension Flow {
 
         self.removeEdge(edge, undoManager: um)
 
+
         self.setNodePortConnected(edge.to, false, undoManager: um)
 
         if self.numberOfEdges(ofPort: edge.from) == 0 {
             self.setNodePortConnected(edge.from, false, undoManager: um)
+        }
+
+        if let node = self.nodes[edge.to.node] {
+            if node[valueTypeAt: edge.to.slot] == .image {
+                if case .nodeOutput = node[valueAt: edge.to.slot].image   {
+                    self.nodes[edge.to.node]![valueAt: edge.to.slot] = .image(nil)
+                }
+            } 
         }
 
         um?.endUndoGrouping()

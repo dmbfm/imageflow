@@ -25,11 +25,11 @@ final class AssetManagerTests {
         let am = await makeAssetManager()
         let url = self.fixtureImageURL
         await am.setDocumentInfo(documentInfo)
-        let id = try await am.addAsset(fromURL: url, kind: .image)
+        let id = try await am.importAsset(fromURL: url, kind: .image)
         let asset = await am.assets[id]
         #expect(asset != nil)
         #expect(asset!.id == id)
-        #expect(asset!.source == .file("rethimno.png"))
+        #expect(asset!.filename == "rethimno.png")
 
         let assetURL = URL.tempAssetsDirectory(forDocument: documentInfo.id)
             .appending(path: "rethimno.png")
@@ -44,14 +44,14 @@ final class AssetManagerTests {
         let am = await makeAssetManager()
         let url = self.fixtureImageURL
         await am.setDocumentInfo(documentInfo)
-        let _ = try await am.addAsset(fromURL: url, kind: .image)
-        let _ = try await am.addAsset(fromURL: url, kind: .image)
-        let _ = try await am.addAsset(fromURL: url, kind: .image)
-        let id = try await am.addAsset(fromURL: url, kind: .image)
+        let _ = try await am.importAsset(fromURL: url, kind: .image)
+        let _ = try await am.importAsset(fromURL: url, kind: .image)
+        let _ = try await am.importAsset(fromURL: url, kind: .image)
+        let id = try await am.importAsset(fromURL: url, kind: .image)
         let asset = await am.assets[id]
         #expect(asset != nil)
         #expect(asset!.id == id)
-        #expect(asset!.source == .file("rethimno(4).png"))
+        #expect(asset!.filename == "rethimno(4).png")
 
         let assetURL = URL.tempAssetsDirectory(forDocument: documentInfo.id)
             .appending(path: "rethimno.png")
@@ -62,38 +62,31 @@ final class AssetManagerTests {
     @Test
     func clearTest() async throws {
         let am = await makeAssetManager()
-        let id = try await am.addAsset(fromURL: self.fixtureImageURL, kind: .image)
+        let id = try await am.importAsset(fromURL: self.fixtureImageURL, kind: .image)
         await am.clear()
         #expect(await am.assets[id] == nil)
-        #expect(await am.thumbs[id] == nil)
-        #expect(await am.ciImages[id] == nil)
     }
 
     @Test
     func restoreTest() async throws {
         let am = await makeAssetManager()
-        let id = try await am.addAsset(fromURL: self.fixtureImageURL, kind: .image)
+        let id = try await am.importAsset(fromURL: self.fixtureImageURL, kind: .image)
         let other = UUID()
-        let asset = Asset(id: other, state: .loaded(.file("some_file.png")), added: .now, kind: .image)
-        await am.restore([other: asset])
+        let asset = Asset(id: other, kind: .image, timestamp: .now, state: .loaded(filename: "some_file.png"))
+        // let asset = Asset(id: other), state: .loaded("some_file.png"), added: .now, kind: .image)
+        await am.restore(assets: [other: asset])
         #expect(await am.assets[id] == nil)
-        #expect(await am.thumbs[id] == nil)
-        #expect(await am.ciImages[id] == nil)
-
         #expect(await am.assets[other] == asset)
-        #expect(await am.thumbs[other]!.state == .notLoaded)
-        #expect(await am.ciImages[other]!.state == .notLoaded)
     }
 
     @Test
     func testRegisterImageAsset() async {
         let am = await makeAssetManager()
         let id = UUID()
-        let asset = Asset(id: id, state: .loaded(.file("some_file.png")), added: .now, kind: .image)
-        await am.registerAsset(asset)
+        let asset = Asset(id: id, kind: .image, timestamp: .now, state: .loaded(filename: "some_file.png"))
+        // let asset = Asset(id: .asset(id), state: .loaded(.file("some_file.png")), added: .now, kind: .image)
+        await am.register(asset: asset)
         #expect(await am.assets[id] == asset)
-        #expect(await am.thumbs[id]!.state == .notLoaded)
-        #expect(await am.ciImages[id]!.state == .notLoaded)
     }
 
     @Test
@@ -101,11 +94,9 @@ final class AssetManagerTests {
         let am = await makeAssetManager()
         let url = self.fixtureImageURL
         await am.setDocumentInfo(documentInfo)
-        let id = try await am.addAsset(fromURL: url, kind: .image)
-        await am.removeAsset(id)
+        let id = try await am.importAsset(fromURL: url, kind: .image)
+        await am.remove(asset: id)
         #expect(await am.assets[id] == nil)
-        #expect(await am.thumbs[id] == nil)
-        #expect(await am.ciImages[id] == nil)
     }
 
     @Test
@@ -113,8 +104,8 @@ final class AssetManagerTests {
         let am = await makeAssetManager()
         let url = self.fixtureImageURL
         await am.setDocumentInfo(documentInfo)
-        let id = try await am.addAsset(fromURL: url, kind: .image)
-        let thumb = try await am.getThumb(forImageAsset: id)
+        let id = try await am.importAsset(fromURL: url, kind: .image)
+        let thumb = try await am.getAssetResource(thumbFor: id)
         #expect(thumb.width == 179)
         #expect(thumb.height == 256)
     }

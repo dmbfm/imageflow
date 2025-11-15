@@ -2,16 +2,13 @@ import Logging
 import Photos
 import PhotosUI
 import SwiftUI
+import Values
 
 @Observable
 @MainActor
 final class AssetStore {
 
     private(set) var assets: [UUID: Asset] = [:]
-
-    var fileAssets: [Asset] {
-        self.assets.values.filter { $0.isFileAsset }
-    }
 
     @ObservationIgnored
     var thumbCache: [UUID: CGImage] = [:]
@@ -56,7 +53,7 @@ final class AssetStore {
                 )
             }
         } catch {
-            throw .fromAny(error)
+            throw .from(error)
         }
     }
 
@@ -65,7 +62,7 @@ final class AssetStore {
         fromPhotosPickerItem item: PhotosPickerItem,
         undoManager um: UndoManager? = nil
     ) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addAsset(fromPhotosPickerItem: item)
+        let id = try await self.assetManager.importImageAsset(fromPhotosPickerItem: item)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
@@ -81,7 +78,7 @@ final class AssetStore {
         kind: AssetKind,
         undoManager um: UndoManager? = nil
     ) async throws(AssetManagerError) -> UUID {
-        let id = try await self.assetManager.addAsset(fromURL: url, kind: kind)
+        let id = try await self.assetManager.importAsset(fromURL: url, kind: kind)
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
@@ -93,7 +90,7 @@ final class AssetStore {
 
     private func registerAsset(_ asset: Asset, undoManager um: UndoManager? = nil) {
         Task {
-            await self.assetManager.registerAsset(asset)
+            await self.assetManager.register(asset: asset)
         }
 
         um?.registerUndo(
@@ -108,7 +105,7 @@ final class AssetStore {
         guard let asset = self.assets[id] else { return }
         guard asset.kind == .image else { return }
         Task {
-            await self.assetManager.removeAsset(id)
+            await self.assetManager.remove(asset: id)
         }
         um?.registerUndo(
             withTarget: self,
@@ -126,7 +123,7 @@ final class AssetStore {
         if let thumb = self.thumbCache[id] {
             return thumb
         } else {
-            let result = try await self.assetManager.getThumb(forAsset: id)
+            let result = try await self.assetManager.getAssetResource(thumbFor: id)
             self.thumbCache[id] = result
             return result
         }
@@ -136,22 +133,34 @@ final class AssetStore {
         switch event {
         case .assetsDidChange:
             self.assets = await self.assetManager.assets
+        case .modifiedGeneratedAsset(let location):
+            self.asyncStreamAdapterCallback?(location)
         }
     }
+
+    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> {
+        .init { continuation in
+            self.asyncStreamAdapterCallback = { loc in
+                continuation.yield(loc)
+            }
+        }
+    }
+
+    private var asyncStreamAdapterCallback: ((OutputPortLocation) -> ())?
 }
 
 extension AssetStore: Storable {
     convenience init(_ data: StorableData) {
         self.init()
         Task {
-            await self.assetManager.restore(data.assets)
+            await self.assetManager.restore(assets: data.assets)
         }
     }
 
     func restore(_ snapshot: StorableData) {
         self.assets = [:]
         Task {
-            await self.assetManager.restore(snapshot.assets)
+            await self.assetManager.restore(assets: snapshot.assets)
         }
     }
 

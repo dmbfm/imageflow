@@ -31,7 +31,11 @@ extension MainContentView {
                 self.openAssetPicker(picker)
             },
             fetchAsset: { id in
-                self.assetStore.assets[id]
+                if case let .asset(id) = id {
+                    self.assetStore.assets[id]
+                } else {
+                    nil
+                }
             }
         )
     }
@@ -92,7 +96,7 @@ extension MainContentView {
         case .cancel:
             break
         case let .pick(assetKind, assetId, portLocation):
-            if let value: Value = .init(assetKind: assetKind, assetId: assetId) {
+            if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)) {
                 assert(
                     self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)].type == assetKind.valueType
                 )
@@ -101,7 +105,7 @@ extension MainContentView {
                 log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
             }
         case let .create(assetKind, assetId):
-            if let value: Value = .init(assetKind: assetKind, assetId: assetId), let nodeKind = assetKind.nodeKind,
+            if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)), let nodeKind = assetKind.nodeKind,
                 let inputIndex = assetKind.nodeInputIndex
             {
                 var node = FlowNode(id: .init(), kind: nodeKind)
@@ -190,10 +194,10 @@ extension MainContentView {
 }
 
 extension Value {
-    fileprivate init?(assetKind: AssetKind, assetId: UUID) {
+    fileprivate init?(assetKind: AssetKind, assetId: AssetIdentifier) {
         self =
             switch assetKind {
-            case .image: .image(.asset(assetId))
+            case .image: .image(assetId)
             case .lut: .lut(assetId)
             }
     }

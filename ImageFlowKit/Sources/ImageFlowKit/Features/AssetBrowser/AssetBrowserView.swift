@@ -2,6 +2,7 @@ import Helpers
 import Logging
 import SwiftUI
 import UniformTypeIdentifiers
+import Values
 
 enum AssetBrowserType: Equatable {
     case picker(Picker)
@@ -112,14 +113,14 @@ struct AssetBrowserView: View {
 
     var sortedAssets: [Asset] {
         self.assetsProvider.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
-            .sorted(by: { $0.added < $1.added })
+            .sorted(by: { $0.timestamp < $1.timestamp })
     }
 
     var filteredAssets: [Asset] {
         if self.searchText.isEmpty {
             self.sortedAssets
         } else {
-            self.sortedAssets.filter({ $0.source?.filename?.contains(self.searchText) ?? false })
+            self.sortedAssets.filter({ $0.filename?.contains(self.searchText) ?? false })
         }
     }
 
@@ -166,7 +167,7 @@ struct AssetBrowserView: View {
 
     func confirmationDialogTitle(_ asset: Asset) -> String {
         #if os(macOS)
-        if let name = asset.source?.filename {
+        if let name = asset.filename {
             "Do you want to remove the asset '\(name)'?"
         } else {
             "Do you want to remove this asset?"
@@ -177,7 +178,7 @@ struct AssetBrowserView: View {
     }
 
     func delete(_ asset: Asset) {
-        if asset.isLoaded {
+        if case .loaded(filename: _) = asset.state {
             if self.selected?.id == asset.id {
                 self.selected = nil
             }
@@ -501,121 +502,121 @@ private struct Style: With {
 
 // MARK: - Previews
 
-@Observable
-@MainActor
-private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
-    var fileAssets: [Asset]
+// @Observable
+// @MainActor
+// private class PreviewAssetsProvider: AssetBrowserAssetsProvider {
+//     var fileAssets: [Asset]
 
-    func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
-        self.fileAssets.filter({ kinds.contains($0.kind) })
-    }
+//     func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
+//         self.fileAssets.filter({ kinds.contains($0.kind) })
+//     }
 
-    func removeImage(_ id: UUID, undoManager um: UndoManager?) {
+//     func removeImage(_ id: UUID, undoManager um: UndoManager?) {
 
-    }
+//     }
 
-    let gradientImage: CGImage = .verticalGradientImage(
-        width: 256,
-        height: 256,
-        topColor: .init(red: 0.412, green: 0.562, blue: 0.875, alpha: 1.0),
-        bottomColor: .init(red: 0.71, green: 0.784, blue: 0.937, alpha: 1.0)
-    )!
+//     let gradientImage: CGImage = .verticalGradientImage(
+//         width: 256,
+//         height: 256,
+//         topColor: .init(red: 0.412, green: 0.562, blue: 0.875, alpha: 1.0),
+//         bottomColor: .init(red: 0.71, green: 0.784, blue: 0.937, alpha: 1.0)
+//     )!
 
-    @ObservationIgnored
-    var ids: [UUID]
+//     @ObservationIgnored
+//     var ids: [AssetIdentifier]
 
-    @ObservationIgnored
-    var delays: [UUID: Int]
+//     @ObservationIgnored
+//     var delays: [AssetIdentifier: Int]
 
-    static let filenames: [String] = [
-        "",  // empty
-        "a.txt",
-        "b",
-        "notes.md",
-        "data.json",
-        "config.yml",
-        "archive.tar.gz",
-        "image.png",
-        "video.mov",
-        "document.pdf",
-        "presentation.key",
-        "spreadsheet.xlsx",
-        "backup_2025_10_13.zip",
-        "report_final_v2.docx",
-        "swift_testing_example.swift",
-        "My Great App.app",
-        "very_long_filename_that_keeps_going_and_going.txt",
-        "🎨_emoji_filename_😀.png",
-        "spaces in name.txt",
-        "UPPERCASEFILE.MP3",
-        "mixed_Case_Name.DAT",
-        "filename-with-dashes-and_numbers-12345.csv",
-        "file_with_underscores_and_long_extension.template.backup",
-        "超長いファイル名テスト用の文字列です.txt",
-        "another_really_really_long_filename_that_is_probably_too_long_but_still_valid_in_most_file_systems_because_why_not_really_there_is_no_reason_not_to_make_it_long.json",
-        "z_last.txt",
-    ]
+//     static let filenames: [String] = [
+//         "",  // empty
+//         "a.txt",
+//         "b",
+//         "notes.md",
+//         "data.json",
+//         "config.yml",
+//         "archive.tar.gz",
+//         "image.png",
+//         "video.mov",
+//         "document.pdf",
+//         "presentation.key",
+//         "spreadsheet.xlsx",
+//         "backup_2025_10_13.zip",
+//         "report_final_v2.docx",
+//         "swift_testing_example.swift",
+//         "My Great App.app",
+//         "very_long_filename_that_keeps_going_and_going.txt",
+//         "🎨_emoji_filename_😀.png",
+//         "spaces in name.txt",
+//         "UPPERCASEFILE.MP3",
+//         "mixed_Case_Name.DAT",
+//         "filename-with-dashes-and_numbers-12345.csv",
+//         "file_with_underscores_and_long_extension.template.backup",
+//         "超長いファイル名テスト用の文字列です.txt",
+//         "another_really_really_long_filename_that_is_probably_too_long_but_still_valid_in_most_file_systems_because_why_not_really_there_is_no_reason_not_to_make_it_long.json",
+//         "z_last.txt",
+//     ]
 
-    init() {
-        let ids = (0...25).map { _ in UUID() }
-        self.fileAssets = ids.enumerated().map { (idx, id) in
-            .init(id: id, state: .loaded(.file(Self.filenames[idx])), added: .now, kind: .image)
-        }
-        self.ids = ids
-        self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
-    }
+//     init() {
+//         let ids = (0...25).map { _ in AssetIdentifier.asset(UUID()) }
+//         self.fileAssets = ids.enumerated().map { (idx, id) in
+//             .init(id: id, state: .loaded(.file(Self.filenames[idx])), added: .now, kind: .image)
+//         }
+//         self.ids = ids
+//         self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
+//     }
 
-    func assetBrowserGetThumb(forAsset id: UUID) async throws -> CGImage? {
-        try await Task.sleep(for: .seconds(self.delays[id]!))
-        return gradientImage
-    }
+//     func assetBrowserGetThumb(forAsset id: AssetIdentifier) async throws -> CGImage? {
+//         try await Task.sleep(for: .seconds(self.delays[id]!))
+//         return gradientImage
+//     }
 
-    func reload() {
-        let ids = (0...25).map { _ in UUID() }
-        self.fileAssets = ids.map { id in .init(id: id, state: .loaded(.file("")), added: .now, kind: .image) }
-        self.ids = ids
-        self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
-    }
-}
+//     func reload() {
+//         let ids = (0...25).map { _ in AssetIdentifier.asset(UUID()) }
+//         self.fileAssets = ids.map { id in .init(id: id, state: .loaded(.file("")), added: .now, kind: .image) }
+//         self.ids = ids
+//         self.delays = .init(uniqueKeysWithValues: ids.map { id in (id, .random(in: 1...8)) })
+//     }
+// }
 
-#Preview {
-    @Previewable @State var provider = PreviewAssetsProvider()
-    VStack {
-        AssetBrowserView(
-            type: .browser(.init(assetKinds: .all)),
-            assetsProvider: provider,
-            delegate: .init(
-                onDismiss: { _ in },
-                openFileImporter: { _ in },
-                openPhotoPicker: {},
-                deleteAsset: { _ in }
-            )
-        )
-    }
-}
+// #Preview {
+//     @Previewable @State var provider = PreviewAssetsProvider()
+//     VStack {
+//         AssetBrowserView(
+//             type: .browser(.init(assetKinds: .all)),
+//             assetsProvider: provider,
+//             delegate: .init(
+//                 onDismiss: { _ in },
+//                 openFileImporter: { _ in },
+//                 openPhotoPicker: {},
+//                 deleteAsset: { _ in }
+//             )
+//         )
+//     }
+// }
 
-#Preview("Sheet") {
-    @Previewable @State var provider = PreviewAssetsProvider()
-    @Previewable @State var isPresented: Bool = false
-    ZStack {
-        Color.teal
-        Button("Show Asset Browser") {
-            isPresented = true
-        }
-    }
-    .sheet(
-        isPresented: .constant(true),
-        content: {
-            AssetBrowserView(
-                type: .browser(.init(assetKinds: [.image])),
-                assetsProvider: provider,
-                delegate: .init(
-                    onDismiss: { _ in },
-                    openFileImporter: { _ in },
-                    openPhotoPicker: {},
-                    deleteAsset: { _ in }
-                )
-            )
-        }
-    )
-}
+// #Preview("Sheet") {
+//     @Previewable @State var provider = PreviewAssetsProvider()
+//     @Previewable @State var isPresented: Bool = false
+//     ZStack {
+//         Color.teal
+//         Button("Show Asset Browser") {
+//             isPresented = true
+//         }
+//     }
+//     .sheet(
+//         isPresented: .constant(true),
+//         content: {
+//             AssetBrowserView(
+//                 type: .browser(.init(assetKinds: [.image])),
+//                 assetsProvider: provider,
+//                 delegate: .init(
+//                     onDismiss: { _ in },
+//                     openFileImporter: { _ in },
+//                     openPhotoPicker: {},
+//                     deleteAsset: { _ in }
+//                 )
+//             )
+//         }
+//     )
+// }

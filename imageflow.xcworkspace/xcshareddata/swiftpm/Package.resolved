@@ -1,13 +1,40 @@
 {
-  "originHash" : "406dcd177772a456f1900df45e82750c6b7999c3f9d3905a2242538b2430b7c2",
+  "originHash" : "cb1afbe285719ac5d9e512f067958a01316084e74da94b0dbbb4546074ea442f",
   "pins" : [
+    {
+      "identity" : "ciimageview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dmbfm/CIImageView.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "274c00276598db93d1d63723cdafc10953f68b0c"
+      }
+    },
+    {
+      "identity" : "coregraphicsex",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dmbfm/CoreGraphicsEx.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "10e736a1e935380bda61dc6aba4075c384294c65"
+      }
+    },
     {
       "identity" : "swiftgraph",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/davecom/SwiftGraph.git",
       "state" : {
         "branch" : "master",
-        "revision" : "d1de55a6e8359dbad528ec06e4924209cce5dbda"
+        "revision" : "19101a3f8cd26fe17c985f14d97f2c124e64e983"
+      }
+    },
+    {
+      "identity" : "xviewkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dmbfm/XViewKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "2ee8be583039664f794f4c685aa9c40b8c9fcb69"
       }
     }
   ],

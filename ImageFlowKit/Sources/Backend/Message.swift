@@ -19,7 +19,7 @@ public struct Message: Sendable {
         case edgeInCycle
         case raw(String)
         case missingNode(UUID)
-        case imageProvider(BackendAssetProviderError)
+        case imageProvider(any Error)
         case invalidOutputPort(Int)
     }
 

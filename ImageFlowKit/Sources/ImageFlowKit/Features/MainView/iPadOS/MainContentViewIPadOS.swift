@@ -89,7 +89,7 @@ struct MainContentViewIPadOS: View {
     @ViewBuilder
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.canvas, self.flow, self.$focus, self.canvasFeatureViewDelegate)
+            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.$focus, self.canvasFeatureViewDelegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in

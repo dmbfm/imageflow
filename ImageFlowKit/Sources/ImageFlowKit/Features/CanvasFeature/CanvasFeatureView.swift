@@ -40,6 +40,7 @@ public struct CanvasFeatureView: View {
     let focus: FocusState<Focus?>.Binding
     let state: CanvasFeatureState
     let flow: Flow
+    let assetStore: AssetStore
 
     @State private var edgeLayers: [CanvasView.EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -52,7 +53,7 @@ public struct CanvasFeatureView: View {
 
     struct Delegate {
         var openAssetPicker: (AssetBrowserType.Picker) -> ()
-        var fetchAsset: (UUID) -> Asset?
+        var fetchAsset: (AssetIdentifier) -> Asset?
     }
 
     private var delegate: Delegate
@@ -62,12 +63,14 @@ public struct CanvasFeatureView: View {
     init(
         _ state: CanvasFeatureState,
         _ flow: Flow,
+        _ assetStore: AssetStore,
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate
     ) {
         self.state = state
         self.focus = focus
         self.flow = flow
+        self.assetStore = assetStore
         self.delegate = delegate
     }
 
@@ -131,7 +134,7 @@ public struct CanvasFeatureView: View {
             openAssetPicker: { index, kind in
                 self.delegate.openAssetPicker(.init(assetKind: kind, portLocation: .init(node: id, index: index)))
             },
-            titleForAsset: { id in self.delegate.fetchAsset(id)?.source?.filename }
+            titleForAsset: { id in self.delegate.fetchAsset(id)?.filename }
         )
 
         let view = NodeView(node, delegate: delegate)
@@ -356,10 +359,32 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.flow.selection, initial: true) { self.updateSelection() }
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
+
+            CanvasImagePreviewView(flow: self.flow, assetStore: self.assetStore) { _ in }
         }
     }
 }
 
+fileprivate struct CanvasImagePreviewView: View {
+    let flow: Flow
+    let assetStore: AssetStore
+    let launchPreviewWindow: (AssetIdentifier) -> ()
+    var body: some View {
+        HStack {
+            Spacer()
+            VStack {
+                Spacer()
+                ImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
+                // ImagePreviewView(
+                //     self.assetStore,
+                //     self.selection
+                // )
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
+            }
+        }
+    }
+}
 // private enum PreviewData {
 //     static let id = UUID()
 // }

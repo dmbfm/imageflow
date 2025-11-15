@@ -67,8 +67,8 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         var urls = [URL]()
         do {
             for (_, asset) in snapshot.assets.assets {
-                switch asset.source {
-                case .file(let filename):
+                switch asset.state {
+                case .loaded(let filename):
                     let url: URL = .tempAssetURL(forDocument: self.id, filename: filename)
                     if FileManager.default.fileExists(atPath: url.path) {
                         let fw = try FileWrapper(
@@ -88,7 +88,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
 
         // Exclude any unlisted assets
         assetsFws = assetsFws.filter { asset in
-            if !snapshot.assets.assets.contains(where: { e in e.value.source?.filename == asset.key }) {
+            if !snapshot.assets.assets.contains(where: { e in e.value.filename == asset.key }) {
                 false
             } else {
                 true

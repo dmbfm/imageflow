@@ -14,29 +14,13 @@ import UIKit
 #endif
 
 protocol AssetPickerType {
-    associatedtype Identifier
-    static func resolve(_ value: Values.Value) -> Identifier?
-    static func label(_ value: Values.Value) -> AssetPickerTypeLabel
+    static func resolve(_ value: Values.Value) -> AssetIdentifier?
     static var none: Value { get }
 }
 
-enum AssetPickerTypeLabel {
-    case uuid(UUID)
-    case other(String)
-    case none
-}
-
 struct ImageAssetPicker: AssetPickerType {
-    static func resolve(_ value: Value) -> ImageIdentifier? {
+    static func resolve(_ value: Value) -> AssetIdentifier? {
         value.image
-    }
-
-    static func label(_ value: Value) -> AssetPickerTypeLabel {
-        switch value.image {
-        case .asset(let id): .uuid(id)
-        case let .nodeOutput(id, port): .other("node:\(id):\(port)")
-        case .none: .none
-        }
     }
 
     static var none: Value {
@@ -45,15 +29,8 @@ struct ImageAssetPicker: AssetPickerType {
 }
 
 struct LutAssetPicker: AssetPickerType {
-    static func resolve(_ value: Value) -> UUID? {
+    static func resolve(_ value: Value) -> AssetIdentifier? {
         value.lut
-    }
-
-    static func label(_ value: Value) -> AssetPickerTypeLabel {
-        switch value.lut {
-        case .some(let id): .uuid(id)
-        case .none: .none
-        }
     }
 
     static var none: Value {
@@ -90,20 +67,26 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     struct Delegate {
         var openAssetBrowser: () -> ()
-        var titleForAsset: (UUID) -> String?
+        var titleForAsset: (AssetIdentifier) -> String?
     }
 
     var label: String {
-        switch T.label(self.value) {
-        case .uuid(let id):
-            self.delegate?.titleForAsset(id) ?? (id.uuidString.prefix(8) + "...")
-        case .other(let label): label
-        case .none: "Select..."
+        let maybeID = T.resolve(self.value)
+        return switch maybeID {
+        case .nodeOutput(let node, let port):
+            self.delegate?.titleForAsset(maybeID!) ?? "[\(node):\(port)]"
+        case .asset(let uuid):
+            self.delegate?.titleForAsset(maybeID!) ?? "[\(uuid))]"
+        case .none:
+            "Select..."
         }
     }
 
     var showRemoveButton: Bool {
-        T.resolve(self.value) != nil
+        switch self.value.image {
+        case .asset: true
+        default: false
+        }
     }
 
     var isEditable: Bool {

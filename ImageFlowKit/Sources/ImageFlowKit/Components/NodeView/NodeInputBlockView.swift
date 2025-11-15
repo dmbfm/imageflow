@@ -23,7 +23,7 @@ final class NodeInputBlockView: PlatformCommonView {
 
     struct Delegate {
         var openAssetPicker: (Int, AssetKind) -> ()
-        var titleForAsset: (UUID) -> String?
+        var titleForAsset: (AssetIdentifier) -> String?
     }
 
     // MARK: - Private properties
