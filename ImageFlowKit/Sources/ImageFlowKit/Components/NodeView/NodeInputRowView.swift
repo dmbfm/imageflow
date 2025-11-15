@@ -50,7 +50,7 @@ final class NodeInputRowView: PlatformView {
 
     struct Delegate {
         var openAssetPicker: (AssetKind) -> ()
-        var titleForAsset: (UUID) -> String?
+        var titleForAsset: (AssetIdentifier) -> String?
     }
 
     // MARK: - Private Properties

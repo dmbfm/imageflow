@@ -515,34 +515,13 @@ public enum Value: Sendable, Hashable, Codable {
     }
 }
 
-public typealias ImageValue = Optional<ImageIdentifier>
+public typealias ImageValue = Optional<AssetIdentifier>
 
-public typealias LutValue = Optional<UUID>
+public typealias LutValue = Optional<AssetIdentifier>
 
-public enum ImageIdentifier: Sendable, Hashable, Codable {
+public enum AssetIdentifier: Sendable, Hashable, Codable {
     case nodeOutput(UUID, Int)
     case asset(UUID)
-
-    public var uuid: UUID {
-        switch self {
-        case .asset(let id): id
-        case .nodeOutput(let id, _): id
-        }
-    }
-
-    public var label: String {
-        switch self {
-        case let .asset(id): "\(id)"
-        case let .nodeOutput(id, idx): "\(id)-\(idx)"
-        }
-    }
-
-    public func isNodeOutput(withID nodeID: UUID) -> Bool {
-        switch self {
-        case .asset(_): false
-        case .nodeOutput(let id, _): id == nodeID
-        }
-    }
 }
 
 extension Value {

@@ -15,6 +15,7 @@ class BackendService {
 
     func start() {
         self.observeNodes()
+        self.run()
     }
 
     private func observeNodes() {
@@ -36,6 +37,7 @@ class BackendService {
     var shouldRunAgain: Bool = false
 
     private func run() {
+        log("--> run!")
         Task {
             await self._run()
         }

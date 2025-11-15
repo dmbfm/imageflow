@@ -4,25 +4,20 @@ import Foundation
 import Values
 
 public protocol BackendAssetProvider {
-    func backendAssetProviderGetLut(_ id: UUID) async throws(BackendAssetProviderError) -> CubeLut
-    func backendAssetProviderGetImage(_ id: ImageIdentifier) async throws(BackendAssetProviderError) -> CIImage
-    func backendAssetProviderAddImage(_ image: CIImage, id: ImageIdentifier) async throws(BackendAssetProviderError)
-}
-
-public enum BackendAssetProviderError: Error {
-    case tyingToAddImageWithAssetIdentifier(ImageIdentifier)
-    case other(any Error)
+    func backendAssetProviderGetLut(_ id: AssetIdentifier) async throws -> CubeLut
+    func backendAssetProviderGetImage(_ id: AssetIdentifier) async throws -> CIImage
+    func backendAssetProviderAddImage(_ image: CIImage?, node: UUID, port: Int) async throws
 }
 
 class DummyImageProvider: BackendAssetProvider {
-    func backendAssetProviderGetLut(_ id: UUID) async throws(BackendAssetProviderError) -> CubeLut {
+    func backendAssetProviderGetLut(_ id: AssetIdentifier) async throws -> CubeLut {
         .identityRGBA
     }
 
-    func backendAssetProviderGetImage(_ id: ImageIdentifier) async throws(BackendAssetProviderError) -> CIImage {
+    func backendAssetProviderGetImage(_ id: AssetIdentifier) async throws -> CIImage {
         .init()
     }
 
-    func backendAssetProviderAddImage(_ image: CIImage, id: ImageIdentifier) async throws(BackendAssetProviderError) {
+    func backendAssetProviderAddImage(_ image: CIImage?, node: UUID, port: Int) async throws {
     }
 }

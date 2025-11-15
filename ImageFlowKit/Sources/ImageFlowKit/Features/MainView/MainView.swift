@@ -111,12 +111,7 @@ struct MainView: View {
     }
 
     func onChangeOfDocumentInfo() {
-        log("documentInfo: \(self.documentInfo)")
         self.assetStore.setDocumentInfo(self.documentInfo)
-        Task {
-            let info = await self.assetStore.assetManager.documentInfo
-            log("assetManager.documenInfo: \(info, default: "nil")")
-        }
     }
 
     var body: some View {

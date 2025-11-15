@@ -1,6 +1,7 @@
 import CoreGraphics
 import Logging
 import SwiftUI
+import Values
 
 struct AssetBrowserGridItemView: View {
     let asset: Asset
@@ -29,7 +30,7 @@ struct AssetBrowserGridItemView: View {
     var body: some View {
         AssetBrowserGridItemInnerView(
             image: self.image,
-            name: asset.source?.filename,
+            name: asset.filename,
             selected: self.selected,
             failed: self.failed,
         )
@@ -53,7 +54,7 @@ private class PreviewThumbProvider: AssetBrowserThumbProvider {
 }
 
 #Preview {
-    @Previewable @State var asset = Asset(id: .init(), state: .loaded(.file("")), added: .now, kind: .image)
+    @Previewable @State var asset = Asset(id: .init(), kind: .image, timestamp: .now, state: .loaded(filename: "")) //Asset(id: .asset(id: .init()), state: .loaded(""), timestamp: .now, kind: .image)
     @Previewable @State var tp = PreviewThumbProvider()
     @Previewable @State var selected = false
 

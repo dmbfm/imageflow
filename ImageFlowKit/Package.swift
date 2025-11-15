@@ -23,6 +23,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
         .package(path: "../CubeLutKit"),
+        .package(path: "../CIImageView"),
     ],
     targets: [
         .target(name: "Values"),
@@ -45,6 +46,7 @@ let package = Package(
                 "Helpers",
                 "Logging",
                 "CubeLutKit",
+                "CIImageView",
             ]
         ),
         .testTarget(

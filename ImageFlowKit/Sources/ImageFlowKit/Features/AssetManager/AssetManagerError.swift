@@ -1,48 +1,56 @@
 import Foundation
+import Values
 
-enum AssetManagerError: Error {
+// enum AssetManagerError: Error {
 
-    static func fromAny(_ err: any Error) -> Self {
-        if let err = err as? Self {
-            return err
-        } else {
-            return .other(err)
-        }
-    }
+//     static func fromAny(_ err: any Error) -> Self {
+//         if let err = err as? Self {
+//             return err
+//         } else {
+//             return .other(err)
+//         }
+//     }
 
-    case missingDocumentInfo
+//     case missingDocumentInfo
+//     case invalidAssetKind(AssetKind, expected: AssetKind?)
+//     case assestLoadingError(AssetLoadingError)
+//     case thumbnailLoadingError(ThumbnailLoadingError)
+//     case resouceLoadingError(ResourceLoadingError)
+//     case getAssetError(GetAssetError)
+//     case other(any Error)
 
-    case invalidAssetKind(AssetKind, expected: AssetKind?)
+//     enum GetAssetError {
+//         case nodeGeneratedMissingResourceAt(OutputPortLocation)
+//         case nodeGeneratedResourceNotLoadedAt(OutputPortLocation)
+//         case missingResourceForNonGeneratedAsset(AssetIdentifier)
+//         case nonGenAssetWithGenSource
+//         case assetSourceIsNil
+//         case loaderCantLoadFromFile
+//         case assetNotFound
+//         case invalidAssetKind(AssetKind, expected: AssetKind)
+//     }
 
-    case assestLoadingError(AssetLoadingError)
+//     enum ThumbnailLoadingError {
+//         case assetNotFound(AssetIdentifier)
+//         case fileNotFound(document: URL?, temp: URL)
+//         case cgImageSourceCreateWithURLError
+//         case cgImageSourceCreateThumbnailError
+//         case other(any Error)
+//     }
 
-    case thumbnailLoadingError(ThumbnailLoadingError)
+//     enum AssetLoadingError {
+//         case repeatedID
+//         case photosMissingIdentifier
+//         case photosDataIsNil
+//         case missingPHAssetResource
+//         case URLAccessError
+//         case other(any Error)
+//     }
 
-    case resouceLoadingError(ResourceLoadingError)
-
-    case other(any Error)
-
-    enum ThumbnailLoadingError {
-        case assetNotFound(UUID)
-        case fileNotFound(document: URL?, temp: URL)
-        case cgImageSourceCreateWithURLError
-        case cgImageSourceCreateThumbnailError
-        case other(any Error)
-    }
-
-    enum AssetLoadingError {
-        case repeatedID
-        case photosMissingIdentifier
-        case photosDataIsNil
-        case missingPHAssetResource
-        case URLAccessError
-        case other(any Error)
-    }
-
-    enum ResourceLoadingError {
-        case isNotFileAsset
-        case cubeLutStringDecode
-        case ciImageInitError
-        case other(any Error)
-    }
-}
+//     enum ResourceLoadingError {
+//         case isNotFileAsset
+//         case cubeLutStringDecode
+//         case ciImageInitError
+//         case other(any Error)
+//     }
+// }

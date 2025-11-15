@@ -51,6 +51,7 @@ struct MainContentViewMacOS: View {
         } detail: {
             DetailView(
                 flow: self.flow,
+                assetStore: self.assetStore,
                 canvas: self.canvas,
                 focus: self.$focus,
                 canvasCenter: self.canvasCenter,
@@ -103,6 +104,7 @@ struct MainContentViewMacOS: View {
 fileprivate struct DetailView: View {
 
     let flow: Flow
+    let assetStore: AssetStore
     let canvas: CanvasFeatureState
     let focus: FocusState<Focus?>.Binding
     let canvasCenter: Box<CGPoint>
@@ -122,7 +124,7 @@ fileprivate struct DetailView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            CanvasFeatureView(self.canvas, self.flow, self.focus, delegate)
+            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.focus, delegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in
