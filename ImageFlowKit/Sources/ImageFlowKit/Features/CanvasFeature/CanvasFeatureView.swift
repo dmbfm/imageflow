@@ -365,6 +365,7 @@ public struct CanvasFeatureView: View {
     }
 }
 
+#if os(macOS)
 fileprivate struct CanvasImagePreviewView: View {
     let flow: Flow
     let assetStore: AssetStore
@@ -385,17 +386,16 @@ fileprivate struct CanvasImagePreviewView: View {
         }
     }
 }
-// private enum PreviewData {
-//     static let id = UUID()
-// }
+#endif
 
-// // #Preview(traits: .sizeThatFitsLayout) {
-// //     @Previewable @State var state: CanvasFeatureState = .init(nodePositions: [PreviewData.id: .zero])
-// //     @Previewable @State var nodeDataStore: NodeDataStore = .init([
-// //         PreviewData.id: .init(id: PreviewData.id, kind: .addNode(.float))
-// //     ])
-// //     @Previewable @State var nodeSelectionStore: NodeSelectionStore = .init()
-// //     VStack {
-// //         CanvasFeatureView($state, $nodeDataStore, $nodeSelectionStore)
-// //     }
-// // }
+#if os(iOS)
+fileprivate struct CanvasImagePreviewView: View {
+    let flow: Flow
+    let assetStore: AssetStore
+    let launchPreviewWindow: (AssetIdentifier) -> ()
+    var body: some View {
+        TouchImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
+    }
+}
+#endif
+

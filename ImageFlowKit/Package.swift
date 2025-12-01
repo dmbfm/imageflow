@@ -36,6 +36,7 @@ let package = Package(
                 "SwiftGraph",
                 "CubeLutKit",
                 "Helpers",
+                "Logging",
             ]
         ),
         .target(

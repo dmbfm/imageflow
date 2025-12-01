@@ -8,9 +8,9 @@ import Values
 struct ImagePreviewView: View {
 
     var state: PreviewState = .contentUnavailable(nil)
-
+    
     @Binding private var isLocked: Bool
-
+    
     @State private var size: ImagePreviewSizeIter = .init(.medium)
     @State private var hover: Bool = false
 
@@ -40,6 +40,12 @@ struct ImagePreviewView: View {
     }
 
     var delegate: Delegate?
+    
+    
+    struct Configuration {
+        
+    }
+    
 
     init(
         _ state: PreviewState = .contentUnavailable(nil),
@@ -146,8 +152,8 @@ extension ImagePreviewView {
             case .contentUnavailable(.none):
                 EmptyView()
             case .loaded(let image):
-                // CIImageScrollView(image: image, configuration: .init(), zoom: self.$zoom, action: self.$action)
-                CIImageMetalView(image: image, placement: .scaleToFit)
+                CIImageView(image: image)
+                    .placement(.fit)
             case .loading:
                 self.loadingView
             }

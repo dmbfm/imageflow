@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Float Title</title>
+    <g id="Float-Title" stroke="none" fill="none" fill-rule="evenodd">
+        <path d="M308,690 L200,690 C186.745,690 176,679.255 176,666 L176,666 C176,652.745 186.745,642 200,642 L308,642 C321.255,642 332,652.745 332,666 L332,666 C332,679.255 321.255,690 308,690" id="title" fill="color(display-p3 1.000 1.000 1.000)"></path>
+        <path d="M308,690 L200,690 C186.745,690 176,679.255 176,666 L176,666 C176,652.745 186.745,642 200,642 L308,642 C321.255,642 332,652.745 332,666 L332,666 C332,679.255 321.255,690 308,690" id="title" fill="color(display-p3 1.000 1.000 1.000)"></path>
+    </g>
+</svg>

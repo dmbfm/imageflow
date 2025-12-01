@@ -1,5 +1,5 @@
 {
-  "originHash" : "cb1afbe285719ac5d9e512f067958a01316084e74da94b0dbbb4546074ea442f",
+  "originHash" : "d7e14098676e0d9eab69a01849815968f4e5f99f54cee1f206f3712e590f03ef",
   "pins" : [
     {
       "identity" : "ciimageview",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/dmbfm/CIImageView.git",
       "state" : {
         "branch" : "main",
-        "revision" : "274c00276598db93d1d63723cdafc10953f68b0c"
+        "revision" : "1e14a7b2f7705f26e328d03ba796be9f33cb082d"
       }
     },
     {

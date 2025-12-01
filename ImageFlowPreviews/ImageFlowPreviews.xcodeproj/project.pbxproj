@@ -12,6 +12,7 @@
 		AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEB1301C2E35862D00FCE746 /* CanvasFeature */; };
 		AEB76A7C2E2AEAE10020EE2F /* CanvasView in Frameworks */ = {isa = PBXBuildFile; productRef = AEB76A7B2E2AEAE10020EE2F /* CanvasView */; };
 		AEEDC3552E491773007B4F7F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEEDC3542E491773007B4F7F /* NodeView */; };
+		AEF87CFF2EDF124800043888 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEF87CFE2EDF124800043888 /* ImageFlowKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +21,7 @@
 		AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB76A672E2AEAA20020EE2F /* CanvasViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEEDC3482E491766007B4F7F /* NodeViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchCardViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -41,6 +43,11 @@
 		AEEDC3492E491766007B4F7F /* NodeViewPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NodeViewPreview;
+			sourceTree = "<group>";
+		};
+		AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TouchCardViewPreview;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -86,6 +93,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AEF87CF02EDF11FA00043888 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEF87CFF2EDF124800043888 /* ImageFlowKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,6 +111,7 @@
 				AEB130112E3585F400FCE746 /* CanvasFeaturePreview */,
 				AE927EEA2E4528F700EC4D7C /* NodeControlsPreview */,
 				AEEDC3492E491766007B4F7F /* NodeViewPreview */,
+				AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -109,6 +125,7 @@
 				AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */,
 				AEEDC3482E491766007B4F7F /* NodeViewPreview.app */,
 				AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */,
+				AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -235,6 +252,29 @@
 			productReference = AEEDC3482E491766007B4F7F /* NodeViewPreview.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AEF87CF22EDF11FA00043888 /* TouchCardViewPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEF87CFD2EDF11FB00043888 /* Build configuration list for PBXNativeTarget "TouchCardViewPreview" */;
+			buildPhases = (
+				AEF87CEF2EDF11FA00043888 /* Sources */,
+				AEF87CF02EDF11FA00043888 /* Frameworks */,
+				AEF87CF12EDF11FA00043888 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */,
+			);
+			name = TouchCardViewPreview;
+			packageProductDependencies = (
+				AEF87CFE2EDF124800043888 /* ImageFlowKit */,
+			);
+			productName = TouchCardViewPreview;
+			productReference = AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -260,6 +300,9 @@
 					AEEDC3472E491766007B4F7F = {
 						CreatedOnToolsVersion = 16.4;
 					};
+					AEF87CF22EDF11FA00043888 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 				};
 			};
 			buildConfigurationList = AEB76A4F2E2AE7750020EE2F /* Build configuration list for PBXProject "ImageFlowPreviews" */;
@@ -281,6 +324,7 @@
 				AE927EE82E4528F700EC4D7C /* NodeControlsPreview */,
 				AEEDC3472E491766007B4F7F /* NodeViewPreview */,
 				AE0E8C8D2ECBE2310027AEF9 /* CIImageViewPreview */,
+				AEF87CF22EDF11FA00043888 /* TouchCardViewPreview */,
 			);
 		};
 /* End PBXProject section */
@@ -321,6 +365,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AEF87CF12EDF11FA00043888 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -353,6 +404,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AEEDC3442E491766007B4F7F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEF87CEF2EDF11FA00043888 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -910,6 +968,75 @@
 			};
 			name = Release;
 		};
+		AEF87CFB2EDF11FB00043888 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.TouchCardViewPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AEF87CFC2EDF11FB00043888 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.TouchCardViewPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -967,6 +1094,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AEF87CFD2EDF11FB00043888 /* Build configuration list for PBXNativeTarget "TouchCardViewPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEF87CFB2EDF11FB00043888 /* Debug */,
+				AEF87CFC2EDF11FB00043888 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -989,6 +1125,10 @@
 		AEEDC3542E491773007B4F7F /* NodeView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NodeView;
+		};
+		AEF87CFE2EDF124800043888 /* ImageFlowKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageFlowKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
