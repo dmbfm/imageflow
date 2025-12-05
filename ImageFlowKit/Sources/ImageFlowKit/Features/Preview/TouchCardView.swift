@@ -1,11 +1,9 @@
 import Helpers
 import SwiftUI
+import Logging
 
-struct TouchCardView<Background: View, Content: View, Toolbar: View>: View {
-    let background: Background
+struct TouchCardView<Content: View>: View {
     let content: Content
-    let toolbar: Toolbar
-    let onTap: (() -> ())?
     let onSizeChange: ((CGSize) -> CGSize)?
 
     @Binding var size: CGSize
@@ -34,33 +32,21 @@ struct TouchCardView<Background: View, Content: View, Toolbar: View>: View {
 
     init(
         size: Binding<CGSize>,
-        @ViewBuilder background: () -> Background,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder toolbar: () -> Toolbar,
-        onTap: (() -> ())? = nil,
         onSizeChange: ((CGSize) -> CGSize)? = nil
     ) {
-        self.background = background()
         self.content = content()
-        self.toolbar = toolbar()
         self._size = size
-        self.onTap = onTap
         self.onSizeChange = onSizeChange
     }
 
     var body: some View {
         ZStack(alignment: .center) {
-            self.background
             self.content
-            ZStack(alignment: .top) {
-                Color.clear
-                self.toolbar
-            }
         }
         .frame(width: self.size.width, height: self.size.height)
         .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius, style: .continuous))
         .shadow(color: style.shadow.color, radius: style.shadow.radius, x: style.shadow.x, y: style.shadow.y)
-        .onTapGesture { self.onTap?() }
         .gesture(
             MagnifyGesture(minimumScaleDelta: 0)
                 .onChanged(self.magnifyGestureChanged(_:))
@@ -106,18 +92,18 @@ extension CGSize {
     }
 }
 
-struct TouchCardViewContainer<Background: View, Content: View, Toolbar: View>: View {
+struct TouchCardViewContainer<Content: View>: View {
     @State var alignment: Alignment = .bottomTrailing
     @State var position: CGPoint = .zero
     @State var offset: CGPoint = .zero
     @State var size: Box<CGSize> = .init(.zero)
     let padding: CGSize
-    let cardView: TouchCardView<Background, Content, Toolbar>
+    let cardView: TouchCardView<Content>
 
     init(
         padding: CGSize = .zero,
         defaultAlignment alignment: Alignment = .bottomTrailing,
-        @ViewBuilder cardView: () -> TouchCardView<Background, Content, Toolbar>
+        @ViewBuilder cardView: () -> TouchCardView<Content>
     ) {
         self.cardView = cardView()
         self.padding = padding
@@ -182,13 +168,7 @@ extension Previews {
         public var body: some View {
             TouchCardViewContainer(padding: .init(width: 20, height: 20)) {
                 TouchCardView(size: self.$size) {
-                    Color.blue
-                } content: {
                     Color.red
-                } toolbar: {
-                    EmptyView()
-                } onTap: {
-                    print("tap!!")
                 } onSizeChange: { newSize in
                     let r: ClosedRange<CGFloat> = 100.0...300.0
                     return .init(width: newSize.width.clamped(to: r), height: newSize.height.clamped(to: r))

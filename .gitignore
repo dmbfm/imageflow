@@ -55,6 +55,7 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+.derived-data/
 .index-build/
 .swiftpm
 # CocoaPods

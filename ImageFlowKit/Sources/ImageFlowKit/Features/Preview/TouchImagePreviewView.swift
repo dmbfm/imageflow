@@ -1,9 +1,9 @@
 import CIImageView
+import Logging
 import SwiftUI
 
 struct TouchImagePreviewView: View {
 
-    // var image: CIImage? = nil
     let state: ImagePreviewView.PreviewState
 
     @Binding var isLocked: Bool
@@ -14,7 +14,7 @@ struct TouchImagePreviewView: View {
     @Namespace var ns
 
     func toggleToolbar() {
-        withAnimation(.bouncy.speed(2)) {
+        withAnimation {
             self.toolbarVisible.toggle()
         }
     }
@@ -26,95 +26,144 @@ struct TouchImagePreviewView: View {
         }
     }
 
+    var showToolbarMiddle: Bool {
+        self.size.width > 250
+    }
+
+    private func controlsAction(_ name: ControlsView.ControlName) {
+        switch name {
+        case .lock:
+            self.isLocked.toggle()
+        default:
+            break
+        }
+    }
+
+    func onSizeChange(_ size: CGSize) -> CGSize {
+        let range: ClosedRange<CGFloat> = 150.0...400.0
+        return .init(width: size.width.clamped(to: range), height: size.height.clamped(to: range))
+    }
+
     var body: some View {
         if let image = self.image {
             TouchCardViewContainer(padding: .init(width: 40, height: 40)) {
                 TouchCardView(size: self.$size) {
-                    Rectangle()
-                        .fill(.gray.gradient)
-                } content: {
                     ZStack {
-                        Color.clear
+                        Rectangle()
+                            .fill(.gray.gradient)
+
                         CIImageView(image: image)
                             .placement(.fit)
+
+                        ControlsView(
+                            isLocked: self.isLocked,
+                            visible: self.toolbarVisible,
+                            showToolbarMiddle: self.showToolbarMiddle,
+                            action: self.controlsAction(_:)
+                        )
                     }
-                } toolbar: {
-                    if self.toolbarVisible {
-                        self.toolbarView
+                    .onTapGesture {
+                        self.toggleToolbar()
                     }
-                } onTap: {
-                    self.toggleToolbar()
                 } onSizeChange: { size in
-                    let range: ClosedRange<CGFloat> = 150.0...400.0
-                    return .init(width: size.width.clamped(to: range), height: size.height.clamped(to: range))
+                    self.onSizeChange(size)
                 }
             }
         }
-    }
-
-    var toolbarView: some View {
-        HStack {
-            GlassEffectContainer {
-                HStack {
-                    Button {
-                    } label: {
-                        Image(systemName: "lock")
-                    }
-                    .buttonStyle(ToolbarButtonStyle())
-                    .glassEffectUnion(id: "top-left", namespace: self.ns)
-
-                    Button {
-                    } label: {
-                        Image(systemName: "square.and.arrow.down.fill")
-                    }
-                    .buttonStyle(ToolbarButtonStyle())
-                    .glassEffectUnion(id: "top-left", namespace: self.ns)
-                }
-            }
-            .glassEffect(.regular.interactive())
-
-            Spacer()
-            if self.size.width >= 300 {
-                GlassEffectContainer {
-                    HStack {
-                        Button {
-                        } label: {
-                            Image(systemName: "inset.filled.bottomhalf.rectangle")
-                        }
-                        .buttonStyle(ToolbarButtonStyle())
-                        .glassEffectUnion(id: "top-left", namespace: self.ns)
-
-                        Button {
-                        } label: {
-                            Image(systemName: "inset.filled.tophalf.rectangle")
-                        }
-                        .buttonStyle(ToolbarButtonStyle())
-                        .glassEffectUnion(id: "top-left", namespace: self.ns)
-                    }
-                }
-                .glassEffect(.regular.interactive())
-            }
-            Spacer()
-
-            Button {
-            } label: {
-                Image(systemName: "xmark")
-            }
-            .buttonStyle(ToolbarButtonStyle())
-            .glassEffect(.regular.interactive(), in: Circle())
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 8)
     }
 }
 
-private struct ToolbarButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .bold()
-            .foregroundStyle(.secondary)
-            .padding(10)
+private struct ControlsView: View, @MainActor Equatable {
+    static func == (lhs: ControlsView, rhs: ControlsView) -> Bool {
+        lhs.isLocked == rhs.isLocked && lhs.visible == rhs.visible && lhs.showToolbarMiddle == rhs.showToolbarMiddle
     }
+
+    var isLocked: Bool
+    var visible: Bool
+    var showToolbarMiddle: Bool
+    var size: CGFloat = 36
+    var action: (ControlName) -> ()
+
+    @Namespace var ns
+
+    enum ControlName {
+        case lock
+        case export
+        case dockDown
+        case dockUp
+        case close
+    }
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Color.clear
+
+            VStack(spacing: 0) {
+
+                self.topView
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var topView: some View {
+        HStack {
+            self.topLeftView
+            Spacer()
+            self.topMiddleView
+            Spacer()
+            self.topRightView
+        }
+    }
+
+
+    @ViewBuilder
+    var topLeftView: some View {
+        GlassEffectContainer {
+            HStack {
+                if self.visible {
+                    CircleGlassIconButton(self.isLocked ? "lock.fill" : "lock", size: size) { self.action(.lock) }
+                        .glassEffectUnion(id: "left", namespace: self.ns)
+                    CircleGlassIconButton("square.and.arrow.down", size: size) { self.action(.export) }
+                        .glassEffectUnion(id: "left", namespace: self.ns)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var topMiddleView: some View {
+        GlassEffectContainer {
+            HStack {
+                if self.visible && self.showToolbarMiddle {
+                    CircleGlassIconButton("inset.filled.bottomhalf.rectangle", size: size) { self.action(.dockDown) }
+                        .glassEffectUnion(id: "middle", namespace: self.ns)
+                    CircleGlassIconButton("inset.filled.tophalf.rectangle", size: size) { self.action(.dockUp) }
+                        .glassEffectUnion(id: "middle", namespace: self.ns)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var topRightView: some View {
+        GlassEffectContainer {
+            HStack {
+                if self.visible {
+                    CircleGlassIconButton("xmark", size: size) {
+                        self.action(.close)
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 extension Previews {
