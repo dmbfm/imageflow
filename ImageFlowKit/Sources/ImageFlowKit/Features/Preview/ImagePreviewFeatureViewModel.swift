@@ -13,6 +13,8 @@ class ImagePreviewFeatureViewModel {
         }
     }
 
+    var isVisible: Bool = true
+
     private var state: PreviewState = .noImage(.noSelection)
 
     var previewState: ImagePreviewView.PreviewState {
@@ -59,6 +61,18 @@ class ImagePreviewFeatureViewModel {
                 }
             }
         }
+    }
+
+    func hide() {
+        self.isVisible = false
+    }
+
+    func show() {
+        self.isVisible = true
+    }
+
+    func toggleVisible() {
+        self.isVisible.toggle()
     }
 
     func onChangeOfSelection() {

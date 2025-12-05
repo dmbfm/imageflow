@@ -12,7 +12,7 @@ import ImageFlowKit
 struct TouchCardViewPreviewApp: App {
     var body: some Scene {
         WindowGroup {
-            ImageFlowKit.Previews.TouchCardPreviewPreview()
+//            ImageFlowKit.Previews.TouchCardPreviewPreview()
         }
     }
 }

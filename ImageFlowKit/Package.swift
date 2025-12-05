@@ -19,6 +19,7 @@ let package = Package(
         .library(name: "ImageFlowKit"),
         .library(name: "Helpers"),
         .library(name: "Logging"),
+        .library(name: "Controls"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -29,6 +30,10 @@ let package = Package(
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
+        .target(
+            name: "Controls",
+            dependencies: ["Helpers", "Logging"]
+        ),
         .target(
             name: "Backend",
             dependencies: [

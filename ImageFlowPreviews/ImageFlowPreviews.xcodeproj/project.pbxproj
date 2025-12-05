@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		AE0E8C9A2ECBE4F00027AEF9 /* CIImageView in Frameworks */ = {isa = PBXBuildFile; productRef = AE0E8C992ECBE4F00027AEF9 /* CIImageView */; };
+		AE7E8A032EE46483004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A022EE46483004148B0 /* Controls */; };
+		AE7E8A142EE464CA004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A132EE464CA004148B0 /* Controls */; };
 		AE927EF62E45290100EC4D7C /* NodeControls in Frameworks */ = {isa = PBXBuildFile; productRef = AE927EF52E45290100EC4D7C /* NodeControls */; };
 		AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEB1301C2E35862D00FCE746 /* CanvasFeature */; };
 		AEB76A7C2E2AEAE10020EE2F /* CanvasView in Frameworks */ = {isa = PBXBuildFile; productRef = AEB76A7B2E2AEAE10020EE2F /* CanvasView */; };
@@ -17,6 +19,7 @@
 
 /* Begin PBXFileReference section */
 		AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CIImageViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardStateViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeControlsPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB76A672E2AEAA20020EE2F /* CanvasViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -25,6 +28,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE7E8A092EE46498004148B0 /* CardStateViewPreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CardStateViewPreview;
+			sourceTree = "<group>";
+		};
 		AE927EEA2E4528F700EC4D7C /* NodeControlsPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NodeControlsPreview;
@@ -58,6 +66,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				AE0E8C9A2ECBE4F00027AEF9 /* CIImageView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE7E8A052EE46498004148B0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE7E8A142EE464CA004148B0 /* Controls in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE7E8A032EE46483004148B0 /* Controls in Frameworks */,
 				AEF87CFF2EDF124800043888 /* ImageFlowKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -112,6 +129,7 @@
 				AE927EEA2E4528F700EC4D7C /* NodeControlsPreview */,
 				AEEDC3492E491766007B4F7F /* NodeViewPreview */,
 				AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */,
+				AE7E8A092EE46498004148B0 /* CardStateViewPreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -126,6 +144,7 @@
 				AEEDC3482E491766007B4F7F /* NodeViewPreview.app */,
 				AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */,
 				AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */,
+				AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,6 +177,29 @@
 			);
 			productName = CIImageViewPreview;
 			productReference = AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AE7E8A072EE46498004148B0 /* CardStateViewPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE7E8A102EE46499004148B0 /* Build configuration list for PBXNativeTarget "CardStateViewPreview" */;
+			buildPhases = (
+				AE7E8A042EE46498004148B0 /* Sources */,
+				AE7E8A052EE46498004148B0 /* Frameworks */,
+				AE7E8A062EE46498004148B0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE7E8A092EE46498004148B0 /* CardStateViewPreview */,
+			);
+			name = CardStateViewPreview;
+			packageProductDependencies = (
+				AE7E8A132EE464CA004148B0 /* Controls */,
+			);
+			productName = CardStateViewPreview;
+			productReference = AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AE927EE82E4528F700EC4D7C /* NodeControlsPreview */ = {
@@ -270,6 +312,7 @@
 			name = TouchCardViewPreview;
 			packageProductDependencies = (
 				AEF87CFE2EDF124800043888 /* ImageFlowKit */,
+				AE7E8A022EE46483004148B0 /* Controls */,
 			);
 			productName = TouchCardViewPreview;
 			productReference = AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */;
@@ -286,6 +329,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					AE0E8C8D2ECBE2310027AEF9 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					AE7E8A072EE46498004148B0 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
 					AE927EE82E4528F700EC4D7C = {
@@ -325,12 +371,20 @@
 				AEEDC3472E491766007B4F7F /* NodeViewPreview */,
 				AE0E8C8D2ECBE2310027AEF9 /* CIImageViewPreview */,
 				AEF87CF22EDF11FA00043888 /* TouchCardViewPreview */,
+				AE7E8A072EE46498004148B0 /* CardStateViewPreview */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AE0E8C8C2ECBE2310027AEF9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE7E8A062EE46498004148B0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -376,6 +430,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		AE0E8C8A2ECBE2310027AEF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE7E8A042EE46498004148B0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -493,6 +554,94 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.CIImageViewPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		AE7E8A112EE46499004148B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.CardStateViewPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		AE7E8A122EE46499004148B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.CardStateViewPreview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -1049,6 +1198,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AE7E8A102EE46499004148B0 /* Build configuration list for PBXNativeTarget "CardStateViewPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE7E8A112EE46499004148B0 /* Debug */,
+				AE7E8A122EE46499004148B0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE927EF42E4528F900EC4D7C /* Build configuration list for PBXNativeTarget "NodeControlsPreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1109,6 +1267,14 @@
 		AE0E8C992ECBE4F00027AEF9 /* CIImageView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CIImageView;
+		};
+		AE7E8A022EE46483004148B0 /* Controls */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Controls;
+		};
+		AE7E8A132EE464CA004148B0 /* Controls */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Controls;
 		};
 		AE927EF52E45290100EC4D7C /* NodeControls */ = {
 			isa = XCSwiftPackageProductDependency;
