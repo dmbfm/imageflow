@@ -4,9 +4,15 @@ import PhotosUI
 import SwiftUI
 import Values
 
+@MainActor
+protocol AssetStoreService: AnyObject {
+    func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage>
+    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> { get }
+}
+
 @Observable
 @MainActor
-final class AssetStore {
+final class AssetStore: AssetStoreService {
 
     private(set) var assets: [UUID: Asset] = [:]
 
@@ -127,6 +133,10 @@ final class AssetStore {
             self.thumbCache[id] = result
             return result
         }
+    }
+
+    func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage> {
+        try await self.assetManager.getGeneratedResource(ciImageAt: port)
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {

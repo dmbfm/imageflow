@@ -49,6 +49,7 @@ let package = Package(
             dependencies: [
                 "Values",
                 "Backend",
+                "Controls",
                 "Helpers",
                 "Logging",
                 "CubeLutKit",

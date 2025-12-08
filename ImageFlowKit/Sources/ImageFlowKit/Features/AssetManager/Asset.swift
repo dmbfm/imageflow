@@ -1,12 +1,12 @@
 import Foundation
+import Helpers
 import UniformTypeIdentifiers
 import Values
-import Helpers
 
 struct Asset: Identifiable, Equatable, Codable, With {
     var id: UUID
     var kind: AssetKind
-    var timestamp: Date  
+    var timestamp: Date
     var state: AssetState
 
     var filename: String? {
@@ -50,11 +50,10 @@ enum AssetKind: Equatable, Codable {
     }
 }
 
-struct  GeneratedResource<T>: Identifiable {
+struct GeneratedResource<T>: Identifiable {
     var id: OutputPortLocation
     var timestamp: Date
     var res: T
 }
 
 extension GeneratedResource: Sendable where T: Sendable {}
-

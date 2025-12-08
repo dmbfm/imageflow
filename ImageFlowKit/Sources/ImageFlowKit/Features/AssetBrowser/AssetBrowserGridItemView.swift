@@ -54,7 +54,7 @@ private class PreviewThumbProvider: AssetBrowserThumbProvider {
 }
 
 #Preview {
-    @Previewable @State var asset = Asset(id: .init(), kind: .image, timestamp: .now, state: .loaded(filename: "")) //Asset(id: .asset(id: .init()), state: .loaded(""), timestamp: .now, kind: .image)
+    @Previewable @State var asset = Asset(id: .init(), kind: .image, timestamp: .now, state: .loaded(filename: ""))  //Asset(id: .asset(id: .init()), state: .loaded(""), timestamp: .now, kind: .image)
     @Previewable @State var tp = PreviewThumbProvider()
     @Previewable @State var selected = false
 

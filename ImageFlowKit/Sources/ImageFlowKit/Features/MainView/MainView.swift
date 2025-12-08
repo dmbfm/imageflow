@@ -10,12 +10,28 @@ struct MainView: View {
     let document: FlowDocument
     let documentInfo: DocumentInfo
 
-    @State var flow: Flow = .init()
-    @State var canvas: CanvasFeatureState = .init()
-    @State var assetStore: AssetStore = .init()
+    @State var flow: Flow
+    @State var canvas: CanvasFeatureState
+    @State var assetStore: AssetStore
     @State var backendService: BackendService? = nil
+    @State var previewState: PreviewFeatureState<Flow, AssetStore>
 
     @Environment(\.dismissWindow) var dismissWindow
+
+    init(document: FlowDocument, documentInfo: DocumentInfo) {
+        self.document = document
+        self.documentInfo = documentInfo
+
+        let flow = Flow()
+        let canvas = CanvasFeatureState()
+        let assetStore = AssetStore()
+        let previewState = PreviewFeatureState(flow: flow, assetStore: assetStore)
+
+        self.canvas = canvas
+        self.assetStore = assetStore
+        self.flow = flow
+        self.previewState = previewState
+    }
 
     func onAppear() {
 
@@ -59,6 +75,12 @@ struct MainView: View {
             self.document.assetStore.withLock {
                 $0.assets = assets
             }
+        }
+
+        withObservationTracking {
+            _ = self.flow.selection
+        } onChange: {
+            log("!!!!!!!!!!!!!!!!!!")
         }
     }
 
@@ -115,7 +137,8 @@ struct MainView: View {
     }
 
     var body: some View {
-        MainContentView(flow: self.flow, canvas: self.canvas, assetStore: self.assetStore)
+        MainContentView(flow: self.flow, canvas: self.canvas, assetStore: self.assetStore, previewState: self.previewState)
+            .focusedSceneValue(self.previewState)
             .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
             .onAppear(perform: self.onAppear)
     }

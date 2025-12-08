@@ -41,6 +41,7 @@ public struct CanvasFeatureView: View {
     let state: CanvasFeatureState
     let flow: Flow
     let assetStore: AssetStore
+    let previewState: PreviewFeatureState<Flow, AssetStore>
 
     @State private var edgeLayers: [CanvasView.EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -64,12 +65,14 @@ public struct CanvasFeatureView: View {
         _ state: CanvasFeatureState,
         _ flow: Flow,
         _ assetStore: AssetStore,
+        _ previewState: PreviewFeatureState<Flow, AssetStore>,
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate
     ) {
         self.state = state
         self.focus = focus
         self.flow = flow
+        self.previewState = previewState
         self.assetStore = assetStore
         self.delegate = delegate
     }
@@ -360,30 +363,32 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
 
-            CanvasImagePreviewView(flow: self.flow, assetStore: self.assetStore) { _ in }
+            CanvasImagePreviewView(previewState: self.previewState) { _ in }
         }
     }
 }
 
 #if os(macOS)
 fileprivate struct CanvasImagePreviewView: View {
-    let flow: Flow
-    let assetStore: AssetStore
+    let previewState: PreviewFeatureState<Flow, AssetStore>
     let launchPreviewWindow: (AssetIdentifier) -> ()
     var body: some View {
-        HStack {
-            Spacer()
-            VStack {
-                Spacer()
-                ImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
-                // ImagePreviewView(
-                //     self.assetStore,
-                //     self.selection
-                // )
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
-            }
-        }
+
+        PreviewFeatureView(state: self.previewState)
+
+        // HStack {
+        //     Spacer()
+        //     VStack {
+        //         Spacer()
+        //         // ImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
+        //             // ImagePreviewView(
+        //             //     self.assetStore,
+        //             //     self.selection
+        //             // )
+        //             .padding(.trailing, 20)
+        //             .padding(.bottom, 20)
+        //     }
+        // }
     }
 }
 #endif
@@ -398,4 +403,3 @@ fileprivate struct CanvasImagePreviewView: View {
     }
 }
 #endif
-

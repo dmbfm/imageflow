@@ -3,11 +3,20 @@ import Foundation
 import Logging
 import Values
 
+@MainActor
+protocol FlowService: AnyObject {
+    var nodes: [UUID: FlowNode] { get set }
+    var nodePositions: [UUID: CGPoint] { get set }
+    var selection: Set<UUID> { get set }
+    var edges: Set<Edge> { get set }
+    var partialEdge: PartialEdge? { get set }
+}
+
 /// Observable model backing the node-based flow editor, responsible for nodes,
 /// edges, selection state, and related graph validation utilities.
 @Observable
 @MainActor
-final class Flow {
+final class Flow: FlowService {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode]
     /// The positions of the nodes.
@@ -156,7 +165,7 @@ extension Flow {
 extension Flow {
     @discardableResult
     func addNode(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) -> Bool {
-        if self.addNode(node, at:position) {
+        if self.addNode(node, at: position) {
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in
@@ -264,7 +273,6 @@ extension Flow {
 
         self.removeEdge(edge, undoManager: um)
 
-
         self.setNodePortConnected(edge.to, false, undoManager: um)
 
         if self.numberOfEdges(ofPort: edge.from) == 0 {
@@ -273,10 +281,10 @@ extension Flow {
 
         if let node = self.nodes[edge.to.node] {
             if node[valueTypeAt: edge.to.slot] == .image {
-                if case .nodeOutput = node[valueAt: edge.to.slot].image   {
+                if case .nodeOutput = node[valueAt: edge.to.slot].image {
                     self.nodes[edge.to.node]![valueAt: edge.to.slot] = .image(nil)
                 }
-            } 
+            }
         }
 
         um?.endUndoGrouping()

@@ -14,7 +14,12 @@ typealias MainContentView = MainContentViewIPadOS
 #endif
 
 protocol MainContentViewProtocol: View {
-    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore)
+    init(
+        flow: Flow,
+        canvas: CanvasFeatureState,
+        assetStore: AssetStore,
+        previewState: PreviewFeatureState<Flow, AssetStore>
+    )
 }
 
 extension MainContentView: MainContentViewProtocol {}
@@ -105,7 +110,8 @@ extension MainContentView {
                 log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
             }
         case let .create(assetKind, assetId):
-            if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)), let nodeKind = assetKind.nodeKind,
+            if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)),
+                let nodeKind = assetKind.nodeKind,
                 let inputIndex = assetKind.nodeInputIndex
             {
                 var node = FlowNode(id: .init(), kind: nodeKind)

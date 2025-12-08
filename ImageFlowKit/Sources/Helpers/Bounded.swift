@@ -28,4 +28,3 @@ public struct Bounded<Value>: Sendable, Equatable where Value: Sendable & Compar
         return .init(range, finalValue)!
     }
 }
-

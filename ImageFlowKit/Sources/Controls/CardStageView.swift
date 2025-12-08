@@ -1,5 +1,4 @@
 import Helpers
-import Logging
 import SwiftUI
 
 public struct CardDockHeights {
@@ -39,16 +38,33 @@ public enum CardAlignment: String, Equatable, CaseIterable {
         case .topTrailing: .topTrailing
         }
     }
+
+    var transitionAnchor: UnitPoint {
+        switch self {
+        case .bottomTrailing: .bottomTrailing
+        case .bottomLeading: .bottomLeading
+        case .topLeading: .topLeading
+        case .topTrailing: .topTrailing
+        }
+    }
+}
+
+public enum CardVisibility: String, Equatable, CaseIterable {
+    case visible
+    case visibleWhenDocked
+    case hidden
 }
 
 public struct CardStageView<Content: View>: View {
 
     // MARK: - State
-    
+
     /// The content view that will be hosted in the card.
     let content: Content
     /// The padding to the edge of the stage view, relative to the current card alignment.
     let padding: CGSize
+    /// If true the card is not visible.
+    let visibility: CardVisibility
     /// Stores temporary variables in a class-object so they don't update the view.
     @State var scratch = Scratch()
     /// The drag-amount while resizing the docked view.
@@ -100,7 +116,8 @@ public struct CardStageView<Content: View>: View {
         _ alignment: Binding<CardAlignment>,
         _ dock: Binding<CardDockLocation?>,
         _ dockHeights: Binding<CardDockHeights>,
-        _ padding: CGSize = .zero,
+        visibility: CardVisibility = .visible,
+        padding: CGSize = .zero,
         @ViewBuilder _ content: () -> Content
     ) {
         self._size = size
@@ -109,9 +126,21 @@ public struct CardStageView<Content: View>: View {
         self._dockHeights = dockHeights
         self.padding = padding
         self.content = content()
+        self.visibility = visibility
     }
 
     // MARK: - Computed vars
+
+    var showFloatingCard: Bool {
+        self.visibility == .visible
+    }
+
+    var showDockedCard: Bool {
+        switch self.visibility {
+        case .visible, .visibleWhenDocked: true
+        case .hidden: false
+        }
+    }
 
     var currentHandles: [Handle] {
         switch self.dock {
@@ -165,7 +194,6 @@ public struct CardStageView<Content: View>: View {
     }
 
     func cardDragChanged(_ value: DragGesture.Value) {
-        log("t = \(value.translation)")
         self.offset = value.translation
 
         let size = self.scratch.stageSize
@@ -279,15 +307,22 @@ public struct CardStageView<Content: View>: View {
             }
         }
         .animation(.easeInOut(duration: 0.15), value: self.dock)
+        // .animation(.easeInOut(duration: 0.15), value: self.alignment)
+        .animation(.easeInOut(duration: 0.25), value: self.visibility)
         .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.scratch.stageSize = $0 })
         .coordinateSpace(self.localCoordinateSpace)
     }
 
+    @ViewBuilder
     var undockedView: some View {
         ZStack(alignment: self.alignment.value) {
             Color.clear
-            self.cardView
-                .offset(self.finalOffset)
+            if self.showFloatingCard {
+                self.cardView
+                    .offset(self.finalOffset)
+                    // .transition(.scale(0.01, anchor: self.alignment.transitionAnchor).combined(with: .opacity))
+                    .transition(.scale.combined(with: .opacity))
+            }
         }
     }
 
@@ -298,26 +333,29 @@ public struct CardStageView<Content: View>: View {
         let guide: Edge.Set = self.dock == .up ? .bottom : .top
         ZStack(alignment: alignment) {
             Color.clear
-            ZStack(alignment: alignment2) {
-                self.content
-                    .matchedGeometryEffect(id: "card", in: self.transitionNS)
-                    .shadow(
-                        color: cardStyle.shadow.color,
-                        radius: cardStyle.shadow.radius,
-                        x: cardStyle.shadow.x,
-                        y: cardStyle.shadow.y
-                    )
-                    .padding(guide, 6)
+            if self.showDockedCard {
+                ZStack(alignment: alignment2) {
+                    self.content
+                        .matchedGeometryEffect(id: "card", in: self.transitionNS)
+                        .shadow(
+                            color: cardStyle.shadow.color,
+                            radius: cardStyle.shadow.radius,
+                            x: cardStyle.shadow.x,
+                            y: cardStyle.shadow.y
+                        )
+                        .padding(guide, 6)
 
-                Color.clear
-                    .contentShape(Rectangle())
-                    .frame(height: 12)
-                    #if os(macOS)
-                .pointerStyle(.rowResize)
-                    #endif
-                    .gesture(self.dockDividerDragGesture)
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .frame(height: 12)
+                        #if os(macOS)
+                    .pointerStyle(.rowResize)
+                        #endif
+                        .gesture(self.dockDividerDragGesture)
+                }
+                .frame(height: self.currentDockHeight)
+                .transition(.move(edge: self.dock == .up ? .top : .bottom))
             }
-            .frame(height: self.currentDockHeight)
         }
     }
 
@@ -410,7 +448,7 @@ public struct CardStageView<Content: View>: View {
 
 extension CardStageView: @MainActor Equatable where Content: Equatable {
     public static func == (lhs: CardStageView<Content>, rhs: CardStageView<Content>) -> Bool {
-        lhs.content == rhs.content
+        lhs.content == rhs.content && lhs.padding == rhs.padding && lhs.visibility == rhs.visibility
     }
 }
 
