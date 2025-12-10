@@ -10,6 +10,7 @@ struct MainContentViewIPadOS: View {
     let flow: Flow
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
+    let previewState: PreviewFeatureState<Flow, AssetStore>
     @FocusState var focus: Focus?
 
     @State var showNodePaletteModal: Bool = false
@@ -25,10 +26,11 @@ struct MainContentViewIPadOS: View {
 
     @Environment(\.undoManager) var undoManager
 
-    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore, previewState: PreviewFeatureState<Flow, AssetStore>) {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
+        self.previewState = previewState
     }
 
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
@@ -89,7 +91,7 @@ struct MainContentViewIPadOS: View {
     @ViewBuilder
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.$focus, self.canvasFeatureViewDelegate)
+            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.previewState, self.$focus, self.canvasFeatureViewDelegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in
@@ -114,6 +116,12 @@ struct MainContentViewIPadOS: View {
 
             } label: {
                 Image(systemName: "paperclip")
+            }
+        }
+        
+        ToolbarItem(placement: .secondaryAction) {
+            Menu("Preview", systemImage: "custom.photo.on.rectangle.badge.ellipsis") {
+                @Bindable var p = self.previewState
             }
         }
 

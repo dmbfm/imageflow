@@ -51,7 +51,6 @@ public enum CardAlignment: String, Equatable, CaseIterable {
 
 public enum CardVisibility: String, Equatable, CaseIterable {
     case visible
-    case visibleWhenDocked
     case hidden
 }
 
@@ -131,15 +130,8 @@ public struct CardStageView<Content: View>: View {
 
     // MARK: - Computed vars
 
-    var showFloatingCard: Bool {
+    var isVisible: Bool {
         self.visibility == .visible
-    }
-
-    var showDockedCard: Bool {
-        switch self.visibility {
-        case .visible, .visibleWhenDocked: true
-        case .hidden: false
-        }
     }
 
     var currentHandles: [Handle] {
@@ -317,7 +309,7 @@ public struct CardStageView<Content: View>: View {
     var undockedView: some View {
         ZStack(alignment: self.alignment.value) {
             Color.clear
-            if self.showFloatingCard {
+            if self.isVisible {
                 self.cardView
                     .offset(self.finalOffset)
                     // .transition(.scale(0.01, anchor: self.alignment.transitionAnchor).combined(with: .opacity))
@@ -333,7 +325,7 @@ public struct CardStageView<Content: View>: View {
         let guide: Edge.Set = self.dock == .up ? .bottom : .top
         ZStack(alignment: alignment) {
             Color.clear
-            if self.showDockedCard {
+            if self.isVisible {
                 ZStack(alignment: alignment2) {
                     self.content
                         .matchedGeometryEffect(id: "card", in: self.transitionNS)
@@ -454,15 +446,15 @@ extension CardStageView: @MainActor Equatable where Content: Equatable {
 
 public struct CardStageCardStyle: Sendable, Equatable, With {
 
-    var cornerRadius: CGFloat
-    var shadow: Shadow
+    public var cornerRadius: CGFloat
+    public var shadow: Shadow
 
     public init(cornerRadius: CGFloat, shadow: CardStageCardStyle.Shadow) {
         self.cornerRadius = cornerRadius
         self.shadow = shadow
     }
 
-    static var `default`: Self {
+    public static var `default`: Self {
         .init(cornerRadius: 12, shadow: .init(radius: 4))
     }
 

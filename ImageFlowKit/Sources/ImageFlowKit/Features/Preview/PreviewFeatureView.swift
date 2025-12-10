@@ -26,14 +26,19 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
     let flow: F
     let assetStore: A
-
     var image: CIImage? = nil
+    fileprivate var cardSize: Bounded<CGFloat> = .init(50...600, 300)!
+    fileprivate var cardAlignment: CardAlignment = .bottomTrailing
+    fileprivate var cardDockLocation: CardDockLocation? = nil
+    fileprivate var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200)!, down: .init(50...1000, 200)!)
 
-    var cardSize: Bounded<CGFloat> = .init(50...600, 300)!
-    var cardAlignment: CardAlignment = .bottomTrailing
-    var cardDockLocation: CardDockLocation? = nil
-    var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200)!, down: .init(50...1000, 200)!)
-    var visibility: CardVisibility = .visible
+    var isDocked: Bool {
+        self.cardDockLocation != nil
+    }
+
+    var isFloating: Bool {
+        !self.isDocked
+    }
 
     var previewPosition: PreviewPosition {
         get {
@@ -51,7 +56,6 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
         }
 
         set {
-
             let anim: Animation? =
                 if !self.previewPosition.isDocked && !newValue.isDocked {
                     .bouncy
@@ -129,6 +133,35 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
 
     let state: PreviewFeatureState<F, A>
 
+    var content: PreviewContent {
+        if let image = self.state.image {
+            .image(image)
+        } else {
+            .unavailable
+        }
+    }
+
+    func toolbarAction(_ name: FloatingPreviewContentView.Name) {
+        switch name {
+        case .dockDown:
+            self.state.cardDockLocation = .down
+        case .dockUp:
+            self.state.cardDockLocation = .up
+        case .export:
+            log("TODO: export")
+        case .lock:
+            log("TODO: lock")
+        }
+    }
+
+    var visibility: CardVisibility {
+        if self.state.isDocked {
+            .visible
+        } else {
+            self.state.image == nil ? .hidden : .visible
+        }
+    }
+
     public var body: some View {
 
         @Bindable var state = self.state
@@ -138,16 +171,13 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
             $state.cardAlignment,
             $state.cardDockLocation,
             $state.cardDockHeights,
-            visibility: state.visibility,
+            visibility: self.visibility,
             padding: .init(width: 25, height: 25),
         ) {
-            ZStack {
-                Rectangle()
-                    .fill(Color.gray.gradient)
-                if let image = state.image {
-                    CIImageView(image: image)
-                        .placement(.fit)
-                }
+            if self.state.cardDockLocation == nil {
+                FloatingPreviewContentView(self.content) { self.toolbarAction($0) }
+            } else {
+                Color.teal
             }
         }
     }

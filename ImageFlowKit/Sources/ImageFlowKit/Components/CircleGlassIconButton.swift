@@ -2,13 +2,13 @@ import SwiftUI
 
 struct CircleGlassIconButton: View {
     let systemName: String
-    var size: CGFloat = 48
     var glass: Glass = .regular
     var action: () -> ()
 
-    init(_ systemName: String, size: CGFloat = 48, glass: Glass = .regular, _ action: @escaping () -> ()) {
+    @Environment(\.circleGlassButtonSize) var size
+
+    init(_ systemName: String, glass: Glass = .regular, _ action: @escaping () -> ()) {
         self.systemName = systemName
-        self.size = size
         self.glass = glass
         self.action = action
     }
@@ -23,6 +23,16 @@ struct CircleGlassIconButton: View {
         .buttonStyle(.plain)
         .glassEffect(self.glass.interactive())
         .contentShape(Circle())
+    }
+}
+
+extension EnvironmentValues {
+    @Entry var circleGlassButtonSize: CGFloat = 32.0
+}
+
+extension View {
+    func circleGlassButtonSize(_ value: CGFloat) -> some View {
+        self.environment(\.circleGlassButtonSize, value)
     }
 }
 

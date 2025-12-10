@@ -368,7 +368,7 @@ public struct CanvasFeatureView: View {
     }
 }
 
-#if os(macOS)
+//#if os(macOS)
 fileprivate struct CanvasImagePreviewView: View {
     let previewState: PreviewFeatureState<Flow, AssetStore>
     let launchPreviewWindow: (AssetIdentifier) -> ()
@@ -391,15 +391,15 @@ fileprivate struct CanvasImagePreviewView: View {
         // }
     }
 }
-#endif
+//#endif
 
-#if os(iOS)
-fileprivate struct CanvasImagePreviewView: View {
-    let flow: Flow
-    let assetStore: AssetStore
-    let launchPreviewWindow: (AssetIdentifier) -> ()
-    var body: some View {
-        TouchImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
-    }
-}
-#endif
+//#if os(iOS)
+//fileprivate struct CanvasImagePreviewView: View {
+//    let flow: Flow
+//    let assetStore: AssetStore
+//    let launchPreviewWindow: (AssetIdentifier) -> ()
+//    var body: some View {
+//        TouchImagePreviewFeatureView(flow: self.flow, assetStore: self.assetStore)
+//    }
+//}
+//#endif
