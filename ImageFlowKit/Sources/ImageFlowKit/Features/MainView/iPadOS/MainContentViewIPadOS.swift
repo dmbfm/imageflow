@@ -131,11 +131,28 @@ struct MainContentViewIPadOS: View {
             }
         }
 
-        ToolbarItem(placement: .secondaryAction) {
-            Menu("Preview", systemImage: "custom.photo.on.rectangle.badge.ellipsis") {
-                @Bindable var p = self.previewState
+        ToolbarItem(placement: .primaryAction) {
+            @Bindable var p = self.previewState
+            Menu("Preview", systemImage: "photo.on.rectangle") {
+                Picker("Preview", selection: $p.previewPosition) {
+                    Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
+                        .tag(PreviewPosition.topLeft)
+                    Label("Top Right", systemImage: "inset.filled.topright.rectangle")
+                        .tag(PreviewPosition.topRight)
+                    Label("Bottom Left", systemImage: "inset.filled.bottomleft.rectangle")
+                        .tag(PreviewPosition.bottomLeft)
+                    Label("Bottom Right", systemImage: "inset.filled.bottomright.rectangle")
+                        .tag(PreviewPosition.bottomRight)
+                    Label("Top", systemImage: "inset.filled.tophalf.rectangle")
+                        .tag(PreviewPosition.topDock)
+                    Label("Bottom", systemImage: "inset.filled.bottomhalf.rectangle")
+                        .tag(PreviewPosition.bottomDock)
+                }
+                .labelsVisibility(.visible)
             }
         }
+
+        ToolbarSpacer(.fixed, placement: .primaryAction)
 
         ToolbarItem(placement: .primaryAction) {
             Button {
