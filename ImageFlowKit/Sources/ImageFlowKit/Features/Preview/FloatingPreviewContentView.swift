@@ -29,8 +29,8 @@ extension CGFloat: PlatformConditional {}
 extension Optional: PlatformConditional {}
 
 public struct FloatingPreviewContentView: View {
-    let content: PreviewContent
-    let toolbarAction: (Name) -> ()
+    let vm: PreviewContentViewModel
+    let dispatch: ((PreviewContentViewAction) -> ())?
 
     @State private var width: CGFloat = 0
     @State private var controlsVisible = false
@@ -39,9 +39,9 @@ public struct FloatingPreviewContentView: View {
 
     private let widthToHideControls: CGFloat = .when(macos: 200, ios: 200)
 
-    init(_ content: PreviewContent, toolbarAction: @escaping (Name) -> ()) {
-        self.content = content
-        self.toolbarAction = toolbarAction
+    init(vm: PreviewContentViewModel, dispatch: @escaping (PreviewContentViewAction) -> ()) {
+        self.vm = vm
+        self.dispatch = dispatch
     }
 
     enum Name: Hashable {
@@ -49,6 +49,15 @@ public struct FloatingPreviewContentView: View {
         case export
         case dockDown
         case dockUp
+
+        var action: PreviewContentViewAction {
+            switch self {
+            case .lock: .toggleLock
+            case .export: .export
+            case .dockDown: .dockDown
+            case .dockUp: .dockUp
+            }
+        }
     }
 
     private var showControls: Bool {
@@ -58,7 +67,7 @@ public struct FloatingPreviewContentView: View {
     private var toolbar: [ToolbarElement<Name>] {
         [
             .item(
-                .init(id: .lock, icon: "lock"),
+                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock"),
             ),
             .spacer,
             .pair(
@@ -92,7 +101,7 @@ public struct FloatingPreviewContentView: View {
             self.contentView
 
             if self.showControls {
-                ControlsView(elements: self.toolbar, visible: self.controlsVisible) { self.toolbarAction($0) }
+                ControlsView(elements: self.toolbar, visible: self.controlsVisible) { self.dispatch?($0.action) }
             }
         }
         .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { value in self.width = value }
@@ -105,7 +114,7 @@ public struct FloatingPreviewContentView: View {
 
     @ViewBuilder
     var contentView: some View {
-        switch self.content {
+        switch self.vm.content {
         case .image(let image):
             CIImageView(image: image)
                 .placement(.fit)
@@ -231,10 +240,10 @@ private let previewImage: CIImage = {
 extension FloatingPreviewContentView {
     struct Preview: View {
 
-        let content: PreviewContent
+        let vm: PreviewContentViewModel
 
         var body: some View {
-            FloatingPreviewContentView(content) { print($0) }
+            FloatingPreviewContentView(vm: vm) { print($0) }
                 .frame(width: 300, height: 300)
                 .clipShape(RoundedRectangle(cornerRadius: CardStageCardStyle.default.cornerRadius))
                 .shadow(radius: 4)
@@ -247,13 +256,16 @@ extension FloatingPreviewContentView {
 }
 
 #Preview("Image") {
-    FloatingPreviewContentView.Preview(content: .image(previewImage))
+    let vm = PreviewContentViewModel(content: .image(previewImage), isLocked: false, lockButtonDisabled: false)
+    FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Loading") {
-    FloatingPreviewContentView.Preview(content: .loading)
+    let vm = PreviewContentViewModel(content: .loading, isLocked: false, lockButtonDisabled: false)
+    FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Unavailable") {
-    FloatingPreviewContentView.Preview(content: .unavailable)
+    let vm = PreviewContentViewModel(content: .unavailable, isLocked: false, lockButtonDisabled: false)
+    FloatingPreviewContentView.Preview(vm: vm)
 }

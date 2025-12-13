@@ -329,12 +329,6 @@ public struct CardStageView<Content: View>: View {
                 ZStack(alignment: alignment2) {
                     self.content
                         .matchedGeometryEffect(id: "card", in: self.transitionNS)
-                        .shadow(
-                            color: cardStyle.shadow.color,
-                            radius: cardStyle.shadow.radius,
-                            x: cardStyle.shadow.x,
-                            y: cardStyle.shadow.y
-                        )
                         .padding(guide, 6)
 
                     Color.clear
@@ -349,7 +343,6 @@ public struct CardStageView<Content: View>: View {
                 .transition(.move(edge: self.dock == .up ? .top : .bottom))
             }
         }
-        .backgroundExtensionEffect()
     }
 
     #if os(macOS)
