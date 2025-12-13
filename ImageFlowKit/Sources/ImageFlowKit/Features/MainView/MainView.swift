@@ -137,10 +137,15 @@ struct MainView: View {
     }
 
     var body: some View {
-        MainContentView(flow: self.flow, canvas: self.canvas, assetStore: self.assetStore, previewState: self.previewState)
-            .focusedSceneValue(self.previewState)
-            .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
-            .onAppear(perform: self.onAppear)
+        MainContentView(
+            flow: self.flow,
+            canvas: self.canvas,
+            assetStore: self.assetStore,
+            previewState: self.previewState
+        )
+        .focusedSceneValue(self.previewState)
+        .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
+        .onAppear(perform: self.onAppear)
     }
 }
 

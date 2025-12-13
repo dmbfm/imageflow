@@ -365,9 +365,9 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
 
             CanvasImagePreviewView(previewState: self.previewState) { _ in }
-            #if os(iOS)
-                .safeAreaPadding(.top, 60)
-            #endif
+                #if os(iOS)
+            .safeAreaPadding(.top, 60)
+                #endif
         }
     }
 }

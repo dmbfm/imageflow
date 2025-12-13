@@ -26,7 +26,12 @@ struct MainContentViewIPadOS: View {
 
     @Environment(\.undoManager) var undoManager
 
-    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore, previewState: PreviewFeatureState<Flow, AssetStore>) {
+    init(
+        flow: Flow,
+        canvas: CanvasFeatureState,
+        assetStore: AssetStore,
+        previewState: PreviewFeatureState<Flow, AssetStore>
+    ) {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
@@ -91,12 +96,19 @@ struct MainContentViewIPadOS: View {
     @ViewBuilder
     var canvasView: some View {
         ZStack {
-            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.previewState, self.$focus, self.canvasFeatureViewDelegate)
-                .onGeometryChange(for: CGPoint.self) { proxy in
-                    proxy.frame(in: .local).center
-                } action: { newValue in
-                    self.canvasCenter.value = newValue
-                }
+            CanvasFeatureView(
+                self.canvas,
+                self.flow,
+                self.assetStore,
+                self.previewState,
+                self.$focus,
+                self.canvasFeatureViewDelegate
+            )
+            .onGeometryChange(for: CGPoint.self) { proxy in
+                proxy.frame(in: .local).center
+            } action: { newValue in
+                self.canvasCenter.value = newValue
+            }
         }
 
     }
@@ -118,7 +130,7 @@ struct MainContentViewIPadOS: View {
                 Image(systemName: "paperclip")
             }
         }
-        
+
         ToolbarItem(placement: .secondaryAction) {
             Menu("Preview", systemImage: "custom.photo.on.rectangle.badge.ellipsis") {
                 @Bindable var p = self.previewState

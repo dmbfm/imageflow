@@ -188,11 +188,11 @@ struct DockedPreviewContentView: View {
 
     var body: some View {
         switch content {
-            case .image(let image):
-                CIImageView(image: image)
-                    .placement(.fill)
-            default:
-                Color.white
-       }
+        case .image(let image):
+            CIImageView(image: image)
+                .placement(.fill)
+        default:
+            Color.white
+        }
     }
 }

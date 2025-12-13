@@ -70,4 +70,3 @@ public struct ImageFlowApp: App {
         #endif
     }
 }
-
