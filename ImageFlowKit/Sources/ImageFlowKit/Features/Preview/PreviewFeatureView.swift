@@ -177,8 +177,22 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
             if self.state.cardDockLocation == nil {
                 FloatingPreviewContentView(self.content) { self.toolbarAction($0) }
             } else {
-                Color.teal
+                DockedPreviewContentView(content: self.content)
             }
         }
+    }
+}
+
+struct DockedPreviewContentView: View {
+    let content: PreviewContent
+
+    var body: some View {
+        switch content {
+            case .image(let image):
+                CIImageView(image: image)
+                    .placement(.fill)
+            default:
+                Color.white
+       }
     }
 }

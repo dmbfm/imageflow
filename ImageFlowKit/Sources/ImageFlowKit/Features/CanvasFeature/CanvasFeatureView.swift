@@ -355,6 +355,7 @@ public struct CanvasFeatureView: View {
                 self.viewForNode,
                 self.onCanvasEvent,
             )
+            .ignoresSafeArea()
             .dropDestination(for: NodeKindDragItem.self, action: self.dropDestinationHandler(_:_:))
             .onChange(of: self.flow.edges, initial: true) { self.updateEdges() }
             .onChange(of: self.nodePositions, initial: true) { self.updateEdges() }
@@ -364,6 +365,9 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
 
             CanvasImagePreviewView(previewState: self.previewState) { _ in }
+            #if os(iOS)
+                .safeAreaPadding(.top, 60)
+            #endif
         }
     }
 }

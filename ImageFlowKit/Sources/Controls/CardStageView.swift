@@ -349,6 +349,7 @@ public struct CardStageView<Content: View>: View {
                 .transition(.move(edge: self.dock == .up ? .top : .bottom))
             }
         }
+        .backgroundExtensionEffect()
     }
 
     #if os(macOS)

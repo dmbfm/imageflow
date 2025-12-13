@@ -65,7 +65,6 @@ struct MainContentViewMacOS: View {
                 canvasCenter: self.canvasCenter,
                 delegate: self.canvasFeatureViewDelegate
             )
-            .ignoresSafeArea(.all, edges: [.top, .horizontal])
         }
         .toolbar { self.toolbarContent }
         .toolbarRole(.editor)
@@ -121,16 +120,6 @@ fileprivate struct DetailView: View {
 
     @Environment(\.colorScheme) var cs
 
-    var topGradientColors: [Color] {
-        let c = Colors.canvasBackground.color
-        return [
-            c.opacity(0.8),
-            c.opacity(0.98),
-            c.opacity(0.8),
-            .clear,
-        ]
-    }
-
     var body: some View {
         ZStack(alignment: .top) {
             CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.previewState, self.focus, delegate)
@@ -140,14 +129,14 @@ fileprivate struct DetailView: View {
                     self.canvasCenter.value = newValue
                 }
 
-            self.topGradient
+            // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
+            // effect on the toolbar! This does not work if we use `Color.clear` instead.
+            Rectangle()
+                .fill(Color.white.opacity(0.0001))
+                .frame(height: 60)
+                .ignoresSafeArea(.all, edges: [.top])
+                .backgroundExtensionEffect()
         }
-    }
-
-    var topGradient: some View {
-        Rectangle()
-            .fill(LinearGradient(colors: topGradientColors, startPoint: .top, endPoint: .bottom))
-            .frame(height: 60)
     }
 }
 
