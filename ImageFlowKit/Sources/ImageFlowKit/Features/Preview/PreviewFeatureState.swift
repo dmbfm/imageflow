@@ -2,6 +2,7 @@ import Controls
 import CoreImage
 import Foundation
 import Helpers
+import Logging
 import SwiftUI
 
 public enum PreviewPosition: String, Equatable, CaseIterable {
@@ -62,6 +63,7 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
     private var sm: StateMachineStore<SM> = .init()
     private var task: Task<(), Never>? = nil
+    private var selectedImagePorts: Set<OutputPortLocation> = []
 
     init(flow: F, assetStore: A) {
         self.flow = flow
@@ -77,7 +79,7 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
             switch newState {
             case .loaded(false, _, _), .loading(false, _, _):
-                self.sm.input(.selection(self.flow.selectedImagePorts), onTransition: self.onStateTransition(_:))
+                self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition(_:))
             default:
                 break
             }
@@ -86,13 +88,15 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
     private func observeSelection() async {
         for await _ in Observations({ self.flow.selection }) {
-            self.sm.input(.selection(self.flow.selectedImagePorts), onTransition: self.onStateTransition)
+            self.selectedImagePorts = self.flow.getSelectedImagePorts()
+            self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition)
         }
     }
 
     private func observeModifiedImages() async {
         for await loc in self.assetStore.modifiedGeneratedAssetStream {
-            self.sm.input(.image(loc), onTransition: self.onStateTransition)
+            log("modified image: \(loc)")
+            self.sm.input(.image(loc, self.selectedImagePorts), onTransition: self.onStateTransition)
         }
     }
 
@@ -201,7 +205,7 @@ private struct SM: @MainActor StateMachineImpl {
 
     enum Input {
         case selection(Set<OutputPortLocation>)
-        case image(OutputPortLocation)
+        case image(OutputPortLocation, Set<OutputPortLocation>)
         case toggleLock
     }
 
@@ -210,6 +214,7 @@ private struct SM: @MainActor StateMachineImpl {
     }
 
     static func step(state: State, input: Input) -> State? {
+        log("step: \(state), input: \(input)")
         let commonSelection = {
             (sel: Set<OutputPortLocation>, loc: OutputPortLocation, maybeImage: CIImage?) -> State? in
             if sel.contains(loc) {
@@ -253,10 +258,14 @@ private struct SM: @MainActor StateMachineImpl {
                 commonSelection(sel, loc, maybeImage)
             }
 
-        case .image(let loc):
+        case .image(let loc, let sel):
             switch state {
             case .nothing, .error(_):
-                nil
+                if sel.contains(loc) {
+                    .loading(false, loc, nil) 
+                } else {
+                    nil
+                }
             case let .loaded(lockState, curr, image):
                 commonImage(lockState, loc, curr, image)
             case let .loading(lockState, curr, maybeImage):
@@ -292,7 +301,7 @@ private struct SM: @MainActor StateMachineImpl {
 }
 
 extension FlowService {
-    var selectedImagePorts: Set<OutputPortLocation> {
+    func getSelectedImagePorts() -> Set<OutputPortLocation> {
         .init(
             self.selection
                 .compactMap({ self.nodes[$0] })
