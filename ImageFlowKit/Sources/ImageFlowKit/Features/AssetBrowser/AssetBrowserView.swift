@@ -52,12 +52,22 @@ struct AssetBrowserViewDelegate {
     var deleteAsset: (Asset) -> ()
 }
 
+@Observable
+@MainActor
+class AssetBrowserCoordinator {
+    var type: AssetBrowserType = .browser(.init(assetKinds: .all))
+
+    init(type: AssetBrowserType = .browser(.init(assetKinds: .all))) {
+        self.type = type
+    }
+}
+
 struct AssetBrowserView: View {
 
     // MARK: - State
 
     let assetsProvider: any AssetBrowserAssetsProvider
-    let type: AssetBrowserType
+    let coordinator: AssetBrowserCoordinator
     let allowedAssetKinds: AssetKindSet
     let allowedImportTypes: [UTType]
     let photoPickerDisabled: Bool
@@ -77,14 +87,14 @@ struct AssetBrowserView: View {
     // MARK: - Init
 
     init(
-        type: AssetBrowserType,
+        coordinator: AssetBrowserCoordinator,
         allowedAssetKinds: AssetKindSet,
         allowedImportTypes: [UTType],
         photoPickerDisabled: Bool = false,
         assetsProvider: any AssetBrowserAssetsProvider,
         delegate: AssetBrowserViewDelegate,
     ) {
-        self.type = type
+        self.coordinator = coordinator
         self.allowedAssetKinds = allowedAssetKinds
         self.allowedImportTypes = allowedImportTypes
         self.photoPickerDisabled = photoPickerDisabled
@@ -93,11 +103,12 @@ struct AssetBrowserView: View {
     }
 
     init(
-        type: AssetBrowserType,
+        coordinator: AssetBrowserCoordinator,
         assetsProvider: any AssetBrowserAssetsProvider,
         delegate: AssetBrowserViewDelegate,
     ) {
-        self.type = type
+        self.coordinator = coordinator
+        let type = coordinator.type
         self.allowedAssetKinds = type.allowedAssetKinds
         self.allowedImportTypes = type.allowedAssetKinds.types
         self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
@@ -106,6 +117,10 @@ struct AssetBrowserView: View {
     }
 
     // MARK: - Computed vars
+
+    var type: AssetBrowserType {
+        self.coordinator.type
+    }
 
     fileprivate var style: Style {
         .default
@@ -209,14 +224,13 @@ struct AssetBrowserView: View {
                 }
                 .safeAreaBar(edge: .top) { self.toolbarView }
                 .safeAreaBar(edge: .bottom) { self.footerView }
-
         }
         .ignoresSafeArea(.keyboard)
         .onAppear {
-            log("!!!!!!!!-?!-)?=(!&-)=?(&!-)=?(): \(self.type)")
+            log("[PreviewFeatureState.swift]: onAppear: \(self.type)")
         }
         .onChange(of: self.type, initial: true) {
-            log("change of type: \(self.type)")
+            log("[PreviewFeatureState.swift]: change of type: \(self.type)")
         }
     }
 

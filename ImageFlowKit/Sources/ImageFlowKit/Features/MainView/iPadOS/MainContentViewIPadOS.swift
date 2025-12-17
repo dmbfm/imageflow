@@ -16,7 +16,7 @@ struct MainContentViewIPadOS: View {
     @State var showNodePaletteModal: Bool = false
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
     @State var showAssetBrowser: Bool = false
-    @State var assetBrowserType: AssetBrowserType = .browser(.init(assetKinds: .all))
+    @State var assetBrowserCoordinator: AssetBrowserCoordinator = .init(type: .browser(.init(assetKinds: .all)))
     @State var showFileImporter: Bool = false
     @State var fileImporterConfiguration: Box<FileImporterConfiguration> = .init(.init(allowedContentTypes: []))
     @State var showPhotoPicker: Bool = false
@@ -51,7 +51,7 @@ struct MainContentViewIPadOS: View {
             }
             .sheet(isPresented: self.$showAssetBrowser) {
                 AssetBrowserView(
-                    type: self.assetBrowserType,
+                    coordinator: self.assetBrowserCoordinator,
                     assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )

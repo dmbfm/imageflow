@@ -23,7 +23,7 @@ struct MainContentViewMacOS: View {
     @FocusState var focus: Focus?
 
     @State var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State var assetBrowserType: AssetBrowserType = .browser(.init(assetKinds: .all))
+    @State var assetBrowserCoordinator: AssetBrowserCoordinator = .init(type: .browser(.init(assetKinds: .all)))
     @State var showAssetBrowser: Bool = false
     @State var showFileImporter: Bool = false
     @State var fileImporterConfiguration: Box<FileImporterConfiguration> = .init(.init(allowedContentTypes: []))
@@ -72,7 +72,7 @@ struct MainContentViewMacOS: View {
             isPresented: self.$showAssetBrowser,
             content: {
                 AssetBrowserView(
-                    type: self.assetBrowserType,
+                    coordinator: self.assetBrowserCoordinator,
                     assetsProvider: self.assetStore,
                     delegate: self.assetBrowserDelegate,
                 )

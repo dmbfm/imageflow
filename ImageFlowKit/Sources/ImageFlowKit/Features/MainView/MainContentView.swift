@@ -185,16 +185,16 @@ extension MainContentView {
     }
 
     func openAssetBrowser(_ allowedAssetKinds: AssetKindSet = .all) {
-        self.assetBrowserType = .browser(.init(assetKinds: allowedAssetKinds))
+        self.assetBrowserCoordinator.type = .browser(.init(assetKinds: allowedAssetKinds))
         self.showAssetBrowser = true
     }
 
     func openAssetPicker(_ picker: AssetBrowserType.Picker) {
-        self.assetBrowserType = .picker(picker)
+        self.assetBrowserCoordinator.type = .picker(picker)
         self.showAssetBrowser = true
         Task { @MainActor in
-            try! await Task.sleep(for: .milliseconds(1))
-            self.assetBrowserType = .picker(picker)
+            try! await Task.sleep(for: .milliseconds(500))
+            self.assetBrowserCoordinator.type = .picker(picker)
         }
     }
 }

@@ -86,10 +86,16 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
         }
     }
 
+    var selCount: Int = 0
+    let instanceID = UUID()
     private func observeSelection() async {
+        log("observeSelection: start")
         for await _ in Observations({ self.flow.selection }) {
+            log("[\(self.instanceID)] update(\(selCount)): \(self.flow.selection)")
             self.selectedImagePorts = self.flow.getSelectedImagePorts()
+            log("[\(self.instanceID)] update(\(selCount)): \(self.selectedImagePorts)")
             self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition)
+            selCount += 1
         }
     }
 
