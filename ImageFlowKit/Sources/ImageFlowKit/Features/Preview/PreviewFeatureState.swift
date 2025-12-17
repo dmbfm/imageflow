@@ -268,7 +268,7 @@ private struct SM: @MainActor StateMachineImpl {
             switch state {
             case .nothing, .error(_):
                 if sel.contains(loc) {
-                    .loading(false, loc, nil) 
+                    .loading(false, loc, nil)
                 } else {
                     nil
                 }
