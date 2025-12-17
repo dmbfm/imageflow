@@ -23,7 +23,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
-        .package(url: "https://github.com/dmbfm/CIImageView.git", branch: "main"),
+        .package(path: "../Packages/CIImageView"),
         .package(path: "../CubeLutKit"),
     ],
     targets: [

@@ -1,15 +1,6 @@
 {
-  "originHash" : "ee7e489b2090cfe6e232099b7e486a2799be8995be4124df30ef70fa8e978bf4",
+  "originHash" : "cb97ecaaf4d5e5cd9dbbffc143aef4f6b952c44b5c8149b7f35205f26928f820",
   "pins" : [
-    {
-      "identity" : "ciimageview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/CIImageView.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "1e735f71d30a06c2f13dff0aa538af608c1167d6"
-      }
-    },
     {
       "identity" : "coregraphicsex",
       "kind" : "remoteSourceControl",
@@ -26,15 +17,6 @@
       "state" : {
         "branch" : "master",
         "revision" : "19101a3f8cd26fe17c985f14d97f2c124e64e983"
-      }
-    },
-    {
-      "identity" : "xviewkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/XViewKit.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "2ee8be583039664f794f4c685aa9c40b8c9fcb69"
       }
     }
   ],

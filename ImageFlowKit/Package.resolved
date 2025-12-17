@@ -1,15 +1,6 @@
 {
-  "originHash" : "353300d813366e2e141399e3a7211c5b5b3acc5793a20a11e8848d61210a7469",
+  "originHash" : "5e0a33bfaa397a96740f0e46179267e4ff607d73d1d54571069433119439a461",
   "pins" : [
-    {
-      "identity" : "ciimageview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/CIImageView.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "94bf4acf0cdfa1c3a6680ecdc5eeeb0052b5bd3f"
-      }
-    },
     {
       "identity" : "coregraphicsex",
       "kind" : "remoteSourceControl",
