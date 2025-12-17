@@ -12,6 +12,8 @@ struct DockedPreviewContentView: View {
     @State var zoom: CGFloat = 1.0
     @State var action: CIImageScrollView.Action? = nil
 
+    @Environment(\.colorScheme) var cs
+
     let bgColor: Color = Colors.canvasBackground.color
     let divColor: Color = Colors.canvasBackgroundDot.color
     let toolbarHeight: CGFloat = 26.0
@@ -19,6 +21,14 @@ struct DockedPreviewContentView: View {
     enum Action {
         case undock
         case toggleLock
+    }
+
+    var zoomTextBgColor: Color {
+        .init(white: cs == .dark ? 0.18 : 0.82)
+    }
+
+    var zoomText: String {
+        zoomFormatter.string(for: self.zoom)!
     }
 
     var body: some View {
@@ -135,13 +145,9 @@ struct DockedPreviewContentView: View {
                 .padding(.vertical, 3)
         }
         .frame(width: 52)
-        .background(Color(white: 0.82))
+        .background(self.zoomTextBgColor)
         .clipShape(RoundedRectangle(cornerRadius: 4))
 
-    }
-
-    var zoomText: String {
-        zoomFormatter.string(for: self.zoom)!
     }
 
     var sep: some View {
