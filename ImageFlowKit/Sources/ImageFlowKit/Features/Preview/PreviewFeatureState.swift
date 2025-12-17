@@ -220,7 +220,6 @@ private struct SM: @MainActor StateMachineImpl {
     }
 
     static func step(state: State, input: Input) -> State? {
-        log("step: \(state), input: \(input)")
         let commonSelection = {
             (sel: Set<OutputPortLocation>, loc: OutputPortLocation, maybeImage: CIImage?) -> State? in
             if sel.contains(loc) {
@@ -242,7 +241,7 @@ private struct SM: @MainActor StateMachineImpl {
             if curr == loc {
                 .loading(lockState, loc, maybeImage)
             } else {
-                .nothing
+                nil
             }
         }
 
