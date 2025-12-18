@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AE0E8C9A2ECBE4F00027AEF9 /* CIImageView in Frameworks */ = {isa = PBXBuildFile; productRef = AE0E8C992ECBE4F00027AEF9 /* CIImageView */; };
+		AE1FE5122EF32B4000AEF458 /* CIImageView in Frameworks */ = {isa = PBXBuildFile; productRef = AE1FE5112EF32B4000AEF458 /* CIImageView */; };
 		AE7E8A032EE46483004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A022EE46483004148B0 /* Controls */; };
 		AE7E8A142EE464CA004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A132EE464CA004148B0 /* Controls */; };
 		AE927EF62E45290100EC4D7C /* NodeControls in Frameworks */ = {isa = PBXBuildFile; productRef = AE927EF52E45290100EC4D7C /* NodeControls */; };
@@ -19,6 +19,7 @@
 
 /* Begin PBXFileReference section */
 		AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CIImageViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DockedPreviewGlassDesign.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardStateViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeControlsPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -27,7 +28,25 @@
 		AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchCardViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE3A54E02EF3231E00529F5F /* Exceptions for "DockedPreviewGlassDesign" folder in "DockedPreviewGlassDesign" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE3A54E02EF3231E00529F5F /* Exceptions for "DockedPreviewGlassDesign" folder in "DockedPreviewGlassDesign" target */,
+			);
+			path = DockedPreviewGlassDesign;
+			sourceTree = "<group>";
+		};
 		AE7E8A092EE46498004148B0 /* CardStateViewPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CardStateViewPreview;
@@ -65,7 +84,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE0E8C9A2ECBE4F00027AEF9 /* CIImageView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE3A54CE2EF322A300529F5F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE1FE5122EF32B4000AEF458 /* CIImageView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +156,7 @@
 				AEEDC3492E491766007B4F7F /* NodeViewPreview */,
 				AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */,
 				AE7E8A092EE46498004148B0 /* CardStateViewPreview */,
+				AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -145,6 +172,7 @@
 				AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */,
 				AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */,
 				AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */,
+				AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,10 +201,32 @@
 			);
 			name = CIImageViewPreview;
 			packageProductDependencies = (
-				AE0E8C992ECBE4F00027AEF9 /* CIImageView */,
 			);
 			productName = CIImageViewPreview;
 			productReference = AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE3A54DB2EF322A500529F5F /* Build configuration list for PBXNativeTarget "DockedPreviewGlassDesign" */;
+			buildPhases = (
+				AE3A54CD2EF322A300529F5F /* Sources */,
+				AE3A54CE2EF322A300529F5F /* Frameworks */,
+				AE3A54CF2EF322A300529F5F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */,
+			);
+			name = DockedPreviewGlassDesign;
+			packageProductDependencies = (
+				AE1FE5112EF32B4000AEF458 /* CIImageView */,
+			);
+			productName = DockedPreviewGlassDesign;
+			productReference = AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AE7E8A072EE46498004148B0 /* CardStateViewPreview */ = {
@@ -325,11 +375,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					AE0E8C8D2ECBE2310027AEF9 = {
 						CreatedOnToolsVersion = 26.0.1;
+					};
+					AE3A54D02EF322A300529F5F = {
+						CreatedOnToolsVersion = 26.2;
 					};
 					AE7E8A072EE46498004148B0 = {
 						CreatedOnToolsVersion = 26.0.1;
@@ -360,6 +413,9 @@
 			);
 			mainGroup = AEB76A4B2E2AE7750020EE2F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AE1FE5102EF32B3000AEF458 /* XCLocalSwiftPackageReference "../Packages/CIImageView" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AEB76A552E2AE7750020EE2F /* Products */;
 			projectDirPath = "";
@@ -372,12 +428,20 @@
 				AE0E8C8D2ECBE2310027AEF9 /* CIImageViewPreview */,
 				AEF87CF22EDF11FA00043888 /* TouchCardViewPreview */,
 				AE7E8A072EE46498004148B0 /* CardStateViewPreview */,
+				AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AE0E8C8C2ECBE2310027AEF9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE3A54CF2EF322A300529F5F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -430,6 +494,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		AE0E8C8A2ECBE2310027AEF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE3A54CD2EF322A300529F5F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -566,6 +637,77 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		AE3A54D92EF322A500529F5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DockedPreviewGlassDesign/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.DockedPreviewGlassDesign;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AE3A54DA2EF322A500529F5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DockedPreviewGlassDesign/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.DockedPreviewGlassDesign;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1198,6 +1340,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AE3A54DB2EF322A500529F5F /* Build configuration list for PBXNativeTarget "DockedPreviewGlassDesign" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE3A54D92EF322A500529F5F /* Debug */,
+				AE3A54DA2EF322A500529F5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE7E8A102EE46499004148B0 /* Build configuration list for PBXNativeTarget "CardStateViewPreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1263,9 +1414,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AE1FE5102EF32B3000AEF458 /* XCLocalSwiftPackageReference "../Packages/CIImageView" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/CIImageView;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
-		AE0E8C992ECBE4F00027AEF9 /* CIImageView */ = {
+		AE1FE5112EF32B4000AEF458 /* CIImageView */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = AE1FE5102EF32B3000AEF458 /* XCLocalSwiftPackageReference "../Packages/CIImageView" */;
 			productName = CIImageView;
 		};
 		AE7E8A022EE46483004148B0 /* Controls */ = {

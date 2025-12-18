@@ -2,30 +2,12 @@
   "originHash" : "5e0a33bfaa397a96740f0e46179267e4ff607d73d1d54571069433119439a461",
   "pins" : [
     {
-      "identity" : "coregraphicsex",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/CoreGraphicsEx.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "10e736a1e935380bda61dc6aba4075c384294c65"
-      }
-    },
-    {
       "identity" : "swiftgraph",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/davecom/SwiftGraph.git",
       "state" : {
         "branch" : "master",
         "revision" : "19101a3f8cd26fe17c985f14d97f2c124e64e983"
-      }
-    },
-    {
-      "identity" : "xviewkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/XViewKit.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "2ee8be583039664f794f4c685aa9c40b8c9fcb69"
       }
     }
   ],

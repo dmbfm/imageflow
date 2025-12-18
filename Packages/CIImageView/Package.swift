@@ -18,7 +18,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../XViewKit"),
-        .package(url: "https://github.com/dmbfm/CoreGraphicsEx.git", branch: "main"),
+        .package(path: "../CoreGraphicsEx"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

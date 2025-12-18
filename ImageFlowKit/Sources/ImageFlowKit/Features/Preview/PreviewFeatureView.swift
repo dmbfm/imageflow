@@ -56,7 +56,7 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
                     dispatch: self.previewViewDispatch(_:)
                 )
             } else {
-                DockedPreviewContentView(
+                DockedPreviewContentView<DefaultToolbarView>(
                     vm: self.state.previewContentViewModel,
                     dispatch: self.previewViewDispatch(_:)
                 )
@@ -64,6 +64,12 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
         }
     }
 }
+
+#if os(macOS)
+typealias DefaultToolbarView = ClassicToolbarView
+#else
+typealias DefaultToolbarView = GlassToolbarView
+#endif
 
 struct PreviewContentViewModel {
     var content: PreviewContent

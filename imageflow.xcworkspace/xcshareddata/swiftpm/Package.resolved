@@ -1,15 +1,6 @@
 {
-  "originHash" : "cb97ecaaf4d5e5cd9dbbffc143aef4f6b952c44b5c8149b7f35205f26928f820",
+  "originHash" : "ec362da6311ad9951ee4fbb41e441a8fd2b5c3caa6866ba5ee30f4f778d26812",
   "pins" : [
-    {
-      "identity" : "coregraphicsex",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmbfm/CoreGraphicsEx.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "10e736a1e935380bda61dc6aba4075c384294c65"
-      }
-    },
     {
       "identity" : "swiftgraph",
       "kind" : "remoteSourceControl",
