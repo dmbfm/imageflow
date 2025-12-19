@@ -56,6 +56,7 @@ struct DockedPreviewContentView: View {
                 self.contentView
             }
         }
+        .background(Colors.canvasBackground.color)
     }
 
     var classicToolbarView: some View {
