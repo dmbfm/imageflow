@@ -4,9 +4,10 @@ import CoreImage
 import Helpers
 import SwiftUI
 
-struct DockedPreviewContentView<ToolbarView: DockedPreviewToolbarViewProtocol>: View {
+struct DockedPreviewContentView: View {
 
     let vm: PreviewContentViewModel
+    let style: Style
     var dispatch: ((PreviewContentViewAction) -> ())?
 
     @State var zoom: CGFloat = 1.0
@@ -22,6 +23,11 @@ struct DockedPreviewContentView<ToolbarView: DockedPreviewToolbarViewProtocol>: 
         case toggleLock
     }
 
+    enum Style {
+        case glass
+        case classic
+    }
+
     var zoomTextBgColor: Color {
         .init(white: cs == .dark ? 0.18 : 0.82)
     }
@@ -31,49 +37,86 @@ struct DockedPreviewContentView<ToolbarView: DockedPreviewToolbarViewProtocol>: 
     }
 
     var body: some View {
-        switch ToolbarView.toolbarPlacement {
-        case .vstack: self.withVStackToolbarView
-        case .zstack: self.withZStackToolbarView
+        switch self.style {
+        case .classic:
+            self.classicBody
+        case .glass:
+            self.glassBody
         }
     }
 
     @ViewBuilder
-    var withVStackToolbarView: some View {
+    var classicBody: some View {
         VStack(spacing: 0) {
             if self.vm.dockLocation == .up {
                 self.contentView
-                self.toolbarView
+                self.classicToolbarView
             } else {
-                self.toolbarView
+                self.classicToolbarView
                 self.contentView
             }
         }
-        .background {
-            self.bgColor
-        }
     }
 
-    @ViewBuilder
-    var withZStackToolbarView: some View {
-        ZStack {
-            self.bgColor
-            self.contentView
-            ZStack(alignment: self.vm.dockLocation == .down ? .top : .bottom) {
-                Color.clear
-                self.toolbarView
-            }
-        }
-    }
-    
-    var toolbarView: some View {
-        ToolbarView(
+    var classicToolbarView: some View {
+        ClassicToolbarView(
             vm: self.vm,
             zoom: self.$zoom,
             action: self.$action,
             dispatch: self.dispatch
         )
     }
-    
+
+    @ViewBuilder
+    var glassBody: some View {
+        VStack(spacing: 0) {
+            if self.vm.dockLocation == .down {
+                ZStack {
+                    Color.clear
+                    Capsule()
+                        .frame(width: 60, height: 6)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(height: 30)
+
+                Divider()
+
+                ZStack(alignment: .bottom) {
+                    self.contentView
+
+                    GlassToolbarView(
+                        vm: self.vm,
+                        zoom: self.$zoom,
+                        action: self.$action,
+                        dispatch: self.dispatch
+                    )
+                }
+                .background(Colors.canvasBackground.color)
+            } else {
+                ZStack(alignment: .top) {
+                    self.contentView
+
+                    GlassToolbarView(
+                        vm: self.vm,
+                        zoom: self.$zoom,
+                        action: self.$action,
+                        dispatch: self.dispatch
+                    )
+                }
+                .background(Colors.canvasBackground.color)
+                Divider()
+                ZStack {
+                    Color.clear
+                    Capsule()
+                        .frame(width: 60, height: 6)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(height: 30)
+
+            }
+        }
+    }
+
     @ViewBuilder
     var contentView: some View {
         switch vm.content {
@@ -103,22 +146,12 @@ private struct VDivider: View {
     }
 }
 
-protocol DockedPreviewToolbarViewProtocol: View {
-    static var toolbarPlacement: DockedPreviewToolbarPlacement { get }
-    init(
-        vm: PreviewContentViewModel,
-        zoom: Binding<CGFloat>,
-        action: Binding<CIImageScrollView.Action?>,
-        dispatch: ((PreviewContentViewAction) -> ())?
-    )
-}
-
 enum DockedPreviewToolbarPlacement {
     case zstack
     case vstack
 }
 
-struct GlassToolbarView: View, DockedPreviewToolbarViewProtocol {
+struct GlassToolbarView: View {
 
     var vm: PreviewContentViewModel
     @Binding var zoom: CGFloat
@@ -141,35 +174,111 @@ struct GlassToolbarView: View, DockedPreviewToolbarViewProtocol {
         self.dispatch = dispatch
     }
 
-    var body: some View {
-        ZStack(alignment: .top) {
-            VStack {
-                Divider()
-                Capsule()
-                    .frame(width: 60, height: 5)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            HStack(alignment: .center) {
-                Button {
-                    self.dispatch?(.toggleLock)
-                } label: {
-                    Image(systemName: self.vm.isLocked ? "lock.fill" : "lock")
-                        .frame(width: 36, height: 36)
-                }
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
-                .disabled(self.vm.lockButtonDisabled)
+    enum Name: Hashable {
+        case lock
+        case export
+        case dockSwitch
+        case undock
+        case zoomIn
+        case zoomOut
+        case zoomActual
+        case zoomFit
+    }
 
-                Spacer()
-            }
-            .padding(.top, 20)
+    func handle(_ id: Name) {
+        switch id {
+        case .lock:
+            self.dispatch?(.toggleLock)
+        case .export:
+            self.dispatch?(.export)
+        case .dockSwitch:
+            self.dispatch?(.dockOpposite)
+        case .undock:
+            self.dispatch?(.undock)
+        case .zoomIn:
+            self.action = .zoomIn(animate: true)
+        case .zoomOut:
+            self.action = .zoomOut(animate: true)
+        case .zoomActual:
+            self.action = .setZoom(value: 1.0, animate: true)
+        case .zoomFit:
+            self.action = .zoomToFit(animate: true)
+        }
+    }
+
+    private var toolbarElements: [PreviewToolbarElement<Name>] {
+        [
+            .trio(
+                id: "left",
+                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock", disabled: self.vm.lockButtonDisabled),
+                .init(
+                    id: .dockSwitch,
+                    icon: self.vm.dockLocation == .down
+                        ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle"
+                ),
+                .init(id: .undock, icon: "pip.enter"),
+            ),
+            .spacer,
+            .item(.init(id: .export, icon: "square.and.arrow.down")),
+        ]
+    }
+
+    private var toolbarCenterElements: [PreviewToolbarElement<Name>] {
+        [
+            .spacer,
+            .zoomGroup(
+                id: "middle",
+                .init(id: .zoomIn, icon: "plus.magnifyingglass"),
+                .init(id: .zoomOut, icon: "minus.magnifyingglass"),
+                zoomFormatter.string(for: self.zoom)!,
+                .init(id: .zoomActual, icon: "1.magnifyingglass"),
+                .init(id: .zoomFit, icon: "arrow.up.left.and.down.right.magnifyingglass"),
+            ),
+            .spacer,
+        ]
+    }
+
+    var alignment: Alignment {
+        if self.vm.dockLocation == .down {
+            .top
+        } else {
+            .bottom
+        }
+    }
+
+    var paddingAxis: SwiftUI.Edge.Set {
+        if self.vm.dockLocation == .down {
+            .top
+        } else {
+            .bottom
+        }
+    }
+
+    var body: some View {
+        ZStack(alignment: self.alignment) {
+            let padding: CGFloat = 8
+
+            PreviewToolbarView(
+                elements: self.toolbarElements,
+                visible: true,
+                alignment: self.alignment,
+                handler: self.handle(_:)
+            )
+            .padding(self.paddingAxis, padding)
             .padding(.horizontal, 20)
+
+            PreviewToolbarView(
+                elements: self.toolbarCenterElements,
+                visible: true,
+                alignment: self.alignment,
+                handler: self.handle(_:)
+            )
+            .padding(self.paddingAxis, padding)
         }
     }
 }
 
-struct ClassicToolbarView: View, DockedPreviewToolbarViewProtocol {
+struct ClassicToolbarView: View {
 
     var vm: PreviewContentViewModel
     @Binding var zoom: CGFloat
@@ -298,35 +407,3 @@ private let zoomFormatter: NumberFormatter = {
     f.numberStyle = .percent
     return f
 }()
-
-#Preview("Classic") {
-    VStack(spacing: 0) {
-        Colors.canvasBackground.color
-            .frame(height: 150)
-        DockedPreviewContentView<ClassicToolbarView>(
-            vm: .init(
-                content: .image(.blue.cropped(to: .init(x: 0, y: 0, width: 256, height: 256))),
-                isLocked: false,
-                lockButtonDisabled: false
-            )
-        )
-        .clipped()
-    }
-
-}
-
-#Preview("Glass") {
-    VStack(spacing: 0) {
-        Colors.canvasBackground.color
-            .frame(height: 150)
-        DockedPreviewContentView<GlassToolbarView>(
-            vm: .init(
-                content: .image(.blue.cropped(to: .init(x: 0, y: 0, width: 256, height: 256))),
-                isLocked: false,
-                lockButtonDisabled: false,
-                dockLocation: .down,
-            )
-        )
-        .clipped()
-    }
-}

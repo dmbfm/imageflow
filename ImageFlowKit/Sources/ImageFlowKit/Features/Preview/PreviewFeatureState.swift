@@ -30,7 +30,7 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
     var cardSize: Bounded<CGFloat> = .init(50...600, 300)!
     var cardAlignment: CardAlignment = .bottomTrailing
-    var cardDockLocation: CardDockLocation? = .down
+    var cardDockLocation: CardDockLocation? = nil
     var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200)!, down: .init(50...1000, 200)!)
 
     var isLocked: Bool {
@@ -65,9 +65,10 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
     private var task: Task<(), Never>? = nil
     private var selectedImagePorts: Set<OutputPortLocation> = []
 
-    init(flow: F, assetStore: A) {
+    init(flow: F, assetStore: A, cardDockLocation: CardDockLocation? = nil) {
         self.flow = flow
         self.assetStore = assetStore
+        self.cardDockLocation = cardDockLocation
 
         Task { await self.observeSelection() }
         Task { await self.observeModifiedImages() }

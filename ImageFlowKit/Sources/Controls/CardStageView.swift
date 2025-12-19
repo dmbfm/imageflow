@@ -62,6 +62,12 @@ public struct CardStageView<Content: View>: View {
     let content: Content
     /// The padding to the edge of the stage view, relative to the current card alignment.
     let padding: CGSize
+    /// The height of the invisible draggable area used to resize the docked view.
+    let dockedDragHandleHeight: CGFloat
+    /// The padding between the edge of the docked view and the content.
+    let dockedContentPadding: CGFloat
+    /// If true, draws the dock drag handle area with a translucent red background color.
+    let debugDrawDockedDragHandleArea: Bool
     /// If true the card is not visible.
     let visibility: CardVisibility
     /// Stores temporary variables in a class-object so they don't update the view.
@@ -117,6 +123,9 @@ public struct CardStageView<Content: View>: View {
         _ dockHeights: Binding<CardDockHeights>,
         visibility: CardVisibility = .visible,
         padding: CGSize = .zero,
+        dockedDragHandleHeight: CGFloat = 12,
+        dockedContentPadding: CGFloat = 6,
+        debugDrawDockedDragHandleArea: Bool = false,
         @ViewBuilder _ content: () -> Content
     ) {
         self._size = size
@@ -126,6 +135,9 @@ public struct CardStageView<Content: View>: View {
         self.padding = padding
         self.content = content()
         self.visibility = visibility
+        self.dockedDragHandleHeight = dockedDragHandleHeight
+        self.dockedContentPadding = dockedContentPadding
+        self.debugDrawDockedDragHandleArea = debugDrawDockedDragHandleArea
     }
 
     // MARK: - Computed vars
@@ -312,9 +324,16 @@ public struct CardStageView<Content: View>: View {
             if self.isVisible {
                 self.cardView
                     .offset(self.finalOffset)
-                    // .transition(.scale(0.01, anchor: self.alignment.transitionAnchor).combined(with: .opacity))
                     .transition(.scale.combined(with: .opacity))
             }
+        }
+    }
+
+    var dockedDragHandleColor: Color {
+        if self.debugDrawDockedDragHandleArea {
+            Color.red.opacity(0.25)
+        } else {
+            Color.clear
         }
     }
 
@@ -329,11 +348,11 @@ public struct CardStageView<Content: View>: View {
                 ZStack(alignment: alignment2) {
                     self.content
                         .matchedGeometryEffect(id: "card", in: self.transitionNS)
-                        .padding(guide, 6)
+                        .padding(guide, self.dockedContentPadding)
 
-                    Color.clear
+                    self.dockedDragHandleColor
                         .contentShape(Rectangle())
-                        .frame(height: 12)
+                        .frame(height: self.dockedDragHandleHeight)
                         #if os(macOS)
                     .pointerStyle(.rowResize)
                         #endif

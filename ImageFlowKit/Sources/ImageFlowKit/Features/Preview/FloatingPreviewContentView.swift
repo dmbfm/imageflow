@@ -64,7 +64,7 @@ public struct FloatingPreviewContentView: View {
         self.width > self.widthToHideControls
     }
 
-    private var toolbar: [ToolbarElement<Name>] {
+    private var toolbar: [PreviewToolbarElement<Name>] {
         [
             .item(
                 .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock"),
@@ -126,83 +126,14 @@ public struct FloatingPreviewContentView: View {
     }
 }
 
-private struct ControlsView<ID: Sendable & Hashable>: View {
+private struct ControlsView<ID: PreviewToolbarElementID>: View {
 
-    let elements: [ToolbarElement<ID>]
+    let elements: [PreviewToolbarElement<ID>]
     var visible: Bool = true
     var handler: (ID) -> ()
-    private let buttonSize: CGFloat = .when(macos: 28.0, ios: 36.0)
-    private let pairSpacing: CGFloat? = .when(macos: 0.0, ios: nil)
-
-    @Namespace var ns
 
     var body: some View {
-        let els = elements.enumerated()
-        ZStack(alignment: .topLeading) {
-            Color.clear
-            HStack {
-                ForEach(els, id: \.offset) { _, el in
-                    self.viewForElement(el)
-                }
-            }
-            .padding(.top, 8)
-            .padding(.horizontal, 8)
-            .circleGlassButtonSize(self.buttonSize)
-        }
-    }
-
-    @ViewBuilder
-    func viewForElement(_ el: ToolbarElement<ID>) -> some View {
-        switch el {
-        case .spacer: Spacer()
-        case .item(let item):
-            GlassEffectContainer {
-                HStack {
-                    if self.visible {
-                        #if os(iOS)
-                        CircleGlassIconButton(item.icon) { self.handler(item.id) }
-                        #else
-                        Button {
-                            self.handler(item.id)
-                        } label: {
-                            Image(systemName: item.icon)
-                        }
-                        .buttonStyle(.glass)
-                        #endif
-                    }
-                }
-            }
-        case .pair(let id, let a, let b):
-            GlassEffectContainer {
-                HStack(spacing: self.pairSpacing) {
-                    if self.visible {
-                        #if os(iOS)
-                        CircleGlassIconButton(a.icon) { self.handler(a.id) }
-                            .glassEffectUnion(id: id, namespace: self.ns)
-
-                        CircleGlassIconButton(b.icon) { self.handler(b.id) }
-                            .glassEffectUnion(id: id, namespace: self.ns)
-                        #else
-                        Button {
-                            self.handler(a.id)
-                        } label: {
-                            Image(systemName: a.icon)
-                        }
-                        .buttonStyle(.glass)
-                        .glassEffectUnion(id: id, namespace: self.ns)
-
-                        Button {
-                            self.handler(b.id)
-                        } label: {
-                            Image(systemName: b.icon)
-                        }
-                        .buttonStyle(.glass)
-                        .glassEffectUnion(id: id, namespace: self.ns)
-                        #endif
-                    }
-                }
-            }
-        }
+        PreviewToolbarView(elements: self.elements, visible: self.visible, handler: self.handler)
     }
 }
 

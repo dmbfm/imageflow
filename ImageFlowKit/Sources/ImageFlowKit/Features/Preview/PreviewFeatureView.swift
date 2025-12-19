@@ -19,6 +19,8 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
             self.state.image == nil ? .hidden : .visible
         }
     }
+    
+    private let style: PreviewFeatureViewStyle = .default
 
     // TODO: Move this to PreviewFeatureState
     func previewViewDispatch(_ action: PreviewContentViewAction) {
@@ -42,13 +44,22 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
 
         @Bindable var state = self.state
 
+        #if os(macOS)
+        let dockedStyle: DockedPreviewContentView.Style = .classic
+        #else
+        let dockedStyle: DockedPreviewContentView.Style = .glass
+        #endif
+
         CardStageView(
             $state.cardSize,
             $state.cardAlignment,
             $state.cardDockLocation,
             $state.cardDockHeights,
             visibility: self.visibility,
-            padding: .init(width: 25, height: 25),
+            padding: self.style.padding,
+            dockedDragHandleHeight: self.style.dokcedDragHandleHeight,
+            dockedContentPadding: self.style.dockedContentPadding,
+            debugDrawDockedDragHandleArea: false,
         ) {
             if self.state.cardDockLocation == nil {
                 FloatingPreviewContentView(
@@ -56,8 +67,9 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
                     dispatch: self.previewViewDispatch(_:)
                 )
             } else {
-                DockedPreviewContentView<DefaultToolbarView>(
+                DockedPreviewContentView(
                     vm: self.state.previewContentViewModel,
+                    style: self.style.dockedPreviewStyle,
                     dispatch: self.previewViewDispatch(_:)
                 )
             }
@@ -65,11 +77,38 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
     }
 }
 
-#if os(macOS)
-typealias DefaultToolbarView = ClassicToolbarView
-#else
-typealias DefaultToolbarView = GlassToolbarView
-#endif
+struct PreviewFeatureViewStyle: Sendable, Equatable {
+    var padding: CGSize
+    var dokcedDragHandleHeight: CGFloat
+    var dockedContentPadding: CGFloat
+    var dockedPreviewStyle: DockedPreviewContentView.Style
+    
+    static var iOS: Self {
+        .init(
+            padding: .init(width: 25, height: 25),
+            dokcedDragHandleHeight: 30,
+            dockedContentPadding: 0,
+            dockedPreviewStyle: .glass,
+        )
+    }
+    
+    static var macOS: Self {
+        .init(
+            padding: .init(width: 25, height: 25),
+            dokcedDragHandleHeight: 12,
+            dockedContentPadding: 6,
+            dockedPreviewStyle: .classic,
+        )
+    }
+    
+    static var `default`: Self {
+        #if os(macOS)
+        .macOS
+        #else
+        .iOS
+        #endif
+    }
+}
 
 struct PreviewContentViewModel {
     var content: PreviewContent
@@ -85,4 +124,107 @@ enum PreviewContentViewAction {
     case toggleLock
     case export
     case dockOpposite
+}
+
+// MARK: - Previews
+
+@Observable
+@MainActor
+private class MockFlow: FlowService {
+    var nodes: [UUID: FlowNode]
+    var nodePositions: [UUID: CGPoint]
+    var selection: Set<UUID>
+    var edges: Set<Edge>
+    var partialEdge: PartialEdge?
+
+    init(_ id: UUID) {
+        self.nodes = [id: .init(id: id, kind: .valueNode(.image), name: nil)]
+        self.nodePositions = [id: .zero]
+        self.selection = [id]
+        self.edges = []
+        self.partialEdge = nil
+    }
+}
+
+private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
+    let extent = CGRect(x: 0, y: 0, width: size, height: size)
+
+    // Background
+    let background = CIImage(color: .gray)
+        .cropped(to: extent)
+
+    // Grid
+    let grid = CIFilter.checkerboardGenerator()
+    grid.color0 = CIColor(red: 0.85, green: 0.85, blue: 0.85)
+    grid.color1 = CIColor(red: 0.65, green: 0.65, blue: 0.65)
+    grid.width = 32
+    grid.center = CGPoint(x: 0, y: 0)
+
+    let gridImage = grid.outputImage!
+        .cropped(to: extent)
+
+    // Crosshair
+    let vertical = CIImage(color: .red)
+        .cropped(to: CGRect(x: size / 2 - 1, y: 0, width: 2, height: size))
+
+    let horizontal = CIImage(color: .red)
+        .cropped(to: CGRect(x: 0, y: size / 2 - 1, width: size, height: 2))
+
+    // Color corner markers
+    let corners: [(CIColor, CGRect)] = [
+        (.blue, CGRect(x: 0, y: size - 64, width: 64, height: 64)),  // top-left
+        (.green, CGRect(x: size - 64, y: size - 64, width: 64, height: 64)),  // top-right
+        (.yellow, CGRect(x: 0, y: 0, width: 64, height: 64)),  // bottom-left
+        (.magenta, CGRect(x: size - 64, y: 0, width: 64, height: 64)),  // bottom-right
+    ]
+
+    let cornerImages = corners.map { color, rect in
+        CIImage(color: color).cropped(to: rect)
+    }
+
+    // Composite everything
+    return ([background, gridImage, vertical, horizontal] + cornerImages)
+        .reduce(background) { image, overlay in
+            overlay.composited(over: image)
+        }
+}
+
+@Observable
+@MainActor
+private class MockAssetStore: AssetStoreService {
+
+    var image: CIImage? = nil
+
+    func genImage() async -> CIImage {
+        let task = Task.detached {
+            makeTestPlaceholderImage()
+        }
+
+        return await task.value
+    }
+
+    func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage> {
+        if self.image == nil {
+            self.image = await self.genImage()
+        }
+
+        return .init(id: port, timestamp: .now, res: self.image!)
+    }
+
+    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> {
+        .init() { nil }
+    }
+}
+
+#Preview {
+    @Previewable @State var state = PreviewFeatureState(
+        flow: MockFlow(UUID()),
+        assetStore: MockAssetStore(),
+        cardDockLocation: .down
+    )
+    ZStack {
+        Colors.canvasBackground.color
+        PreviewFeatureView(state: state)
+    }
+    .frame(minWidth: 800, minHeight: 600)
 }
