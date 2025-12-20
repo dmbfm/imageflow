@@ -85,6 +85,7 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         view.drawsBackground = false
         view.backgroundColor = .clear
         let clipView = ClipView(frame: self.bounds)
+        clipView.allowedTouchTypes = [.indirect, .direct]
         view.contentView = clipView
         view.contentView.postsBoundsChangedNotifications = true
         view.contentView.drawsBackground = false
@@ -275,6 +276,8 @@ private class ClipView: NSClipView {
 
     var onEvent: ((Event) -> ())?
 
+    private var touchCount = 0
+
     enum Event {
         case scrollWheel(pos: CGPoint, dy: CGFloat)
         case trackpadScroll(pos: CGPoint, dx: CGFloat, dy: CGFloat)
@@ -297,9 +300,35 @@ private class ClipView: NSClipView {
         return rect
     }
 
+    override func touchesBegan(with event: NSEvent) {
+        getTouchCount(with: event)
+    }
+
+    override func touchesEnded(with event: NSEvent) {
+        getTouchCount(with: event)
+    }
+
+    override func touchesCancelled(with event: NSEvent) {
+        getTouchCount(with: event)
+    }
+
+    private func getTouchCount(with event: NSEvent) {
+        self.touchCount = 0
+        for touch in event.allTouches() {
+            if touch.phase != .cancelled && touch.phase != .ended {
+                self.touchCount += 1
+            }
+        }
+    }
+
     override func scrollWheel(with event: NSEvent) {
         let pos = self.convert(event.locationInWindow, from: nil)
-        if event.subtype == .mouseEvent {
+
+        let isTrackpad = (self.touchCount > 0 || event.momentumPhase != []) && event.subtype != .mouseEvent
+
+        if isTrackpad {
+            self.onEvent?(.trackpadScroll(pos: pos, dx: event.scrollingDeltaX, dy: event.scrollingDeltaY))
+        } else {
             let dy =
                 if event.hasPreciseScrollingDeltas {
                     event.scrollingDeltaY * 0.1
@@ -307,8 +336,6 @@ private class ClipView: NSClipView {
                     event.scrollingDeltaY
                 }
             self.onEvent?(.scrollWheel(pos: pos, dy: dy))
-        } else {
-            self.onEvent?(.trackpadScroll(pos: pos, dx: event.scrollingDeltaX, dy: event.scrollingDeltaY))
         }
     }
 }
