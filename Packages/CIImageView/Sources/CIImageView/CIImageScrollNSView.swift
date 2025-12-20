@@ -325,9 +325,7 @@ private class ClipView: NSClipView {
     override func scrollWheel(with event: NSEvent) {
         let pos = self.convert(event.locationInWindow, from: nil)
 
-        let isTrackpad = (self.touchCount > 0 || event.momentumPhase != []) && event.subtype != .mouseEvent
-
-        if isTrackpad {
+        if event.isTrackpadScrollEvent(touchCount: self.touchCount) {
             self.onEvent?(.trackpadScroll(pos: pos, dx: event.scrollingDeltaX, dy: event.scrollingDeltaY))
         } else {
             let dy =
@@ -338,6 +336,15 @@ private class ClipView: NSClipView {
                 }
             self.onEvent?(.scrollWheel(pos: pos, dy: dy))
         }
+    }
+}
+
+extension NSEvent {
+    fileprivate func isMouseScrollEvent(touchCount: Int) -> Bool {
+        !self.isTrackpadScrollEvent(touchCount: touchCount)
+    }
+    fileprivate func isTrackpadScrollEvent(touchCount: Int) -> Bool {
+        (touchCount > 0 || self.momentumPhase != []) && self.subtype != .mouseEvent
     }
 }
 

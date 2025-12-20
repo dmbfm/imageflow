@@ -53,8 +53,8 @@ final class CanvasNSView: NSView {
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
-            case .scroll(let event):
-                self.gridView(didScrollWith: event)
+            case .scroll(let event, let isMouse):
+                self.gridView(didScrollWith: event, isMouse: isMouse)
             default:
                 break
             }
@@ -165,16 +165,16 @@ final class CanvasNSView: NSView {
     }
 
     @objc
-    func gridView(didScrollWith event: NSEvent) {
-        if event.subtype == .mouseEvent {
+    func gridView(didScrollWith event: NSEvent, isMouse: Bool) {
+        if isMouse {
             let location = self.gridView.convert(event.locationInWindow, from: nil)
 
             var scale = self.viewport.scale
 
             if event.hasPreciseScrollingDeltas {
-                scale -= event.scrollingDeltaX
+                scale += event.scrollingDeltaY * self.configuration.scrollWheelSensitivity * 0.1
             } else {
-                scale -= event.deltaY * self.configuration.scrollWheelSensitivity
+                scale += event.deltaY * self.configuration.scrollWheelSensitivity
             }
 
             self.viewport.zoom(

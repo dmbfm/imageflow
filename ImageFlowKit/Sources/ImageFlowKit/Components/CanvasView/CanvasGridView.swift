@@ -17,7 +17,7 @@ final class CanvasGridView: PlatformView {
     var onEvent: ((Event) -> ())?
 
     enum Event {
-        case scroll(NSEvent)
+        case scroll(NSEvent, isMouse: Bool)
         case mouseEntered
         case mouseLeft
     }
@@ -38,6 +38,7 @@ final class CanvasGridView: PlatformView {
     #if os(macOS)
     func platformInit() {
         self.wantsLayer = true
+        self.allowedTouchTypes = [.indirect, .direct]
     }
     #endif
 
@@ -157,9 +158,34 @@ final class CanvasGridView: PlatformView {
     }
 
     #if os(macOS)
-    public override func scrollWheel(with event: NSEvent) {
-        self.onEvent?(.scroll(event))
+
+    private var touchCount: Int = 0
+
+    override func touchesBegan(with event: NSEvent) {
+        getTouchCount(with: event)
     }
+
+    override func touchesEnded(with event: NSEvent) {
+        getTouchCount(with: event)
+    }
+
+    override func touchesCancelled(with event: NSEvent) {
+        getTouchCount(with: event)
+    }
+
+    private func getTouchCount(with event: NSEvent) {
+        self.touchCount = 0
+        for touch in event.allTouches() {
+            if touch.phase != .cancelled && touch.phase != .ended {
+                self.touchCount += 1
+            }
+        }
+    }
+
+    public override func scrollWheel(with event: NSEvent) {
+        self.onEvent?(.scroll(event, isMouse: event.isMouseScrollEvent(touchCount: self.touchCount)))
+    }
+
     #endif
 
     struct BackgroundStyle: With {
@@ -304,3 +330,14 @@ final class GridViewLayerDelegate: NSObject, CALayerDelegate {
         return NSNull()
     }
 }
+
+#if os(macOS)
+extension NSEvent {
+    fileprivate func isMouseScrollEvent(touchCount: Int) -> Bool {
+        !self.isTrackpadScrollEvent(touchCount: touchCount)
+    }
+    fileprivate func isTrackpadScrollEvent(touchCount: Int) -> Bool {
+        (touchCount > 0 || self.momentumPhase != []) && self.subtype != .mouseEvent
+    }
+}
+#endif
