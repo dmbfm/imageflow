@@ -151,7 +151,6 @@ actor AssetManager {
     }
 
     func addGeneratedResource<T>(id: OutputPortLocation, resource: T) throws(AssetManagerError) {
-        log("--> adding: \(resource)")
         if let res = resource as? CIImage? {
             if let res {
                 self.generatedResources.ciImages[id] = .init(id: id, timestamp: .now, res: res)

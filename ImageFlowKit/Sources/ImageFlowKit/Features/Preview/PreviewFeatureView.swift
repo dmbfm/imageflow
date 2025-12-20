@@ -19,7 +19,7 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
             self.state.image == nil ? .hidden : .visible
         }
     }
-    
+
     private let style: PreviewFeatureViewStyle = .default
 
     // TODO: Move this to PreviewFeatureState
@@ -82,7 +82,7 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
     var dokcedDragHandleHeight: CGFloat
     var dockedContentPadding: CGFloat
     var dockedPreviewStyle: DockedPreviewContentView.Style
-    
+
     static var iOS: Self {
         .init(
             padding: .init(width: 25, height: 25),
@@ -91,7 +91,7 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
             dockedPreviewStyle: .glass,
         )
     }
-    
+
     static var macOS: Self {
         .init(
             padding: .init(width: 25, height: 25),
@@ -100,7 +100,7 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
             dockedPreviewStyle: .classic,
         )
     }
-    
+
     static var `default`: Self {
         #if os(macOS)
         .macOS

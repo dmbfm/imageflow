@@ -321,6 +321,7 @@ private class ClipView: NSClipView {
         }
     }
 
+    // TODO: Apply this fix to canvas
     override func scrollWheel(with event: NSEvent) {
         let pos = self.convert(event.locationInWindow, from: nil)
 
