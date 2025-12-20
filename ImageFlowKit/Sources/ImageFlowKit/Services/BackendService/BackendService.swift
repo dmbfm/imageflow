@@ -47,7 +47,8 @@ class BackendService {
         if self.task != nil {
             self.shouldRunAgain = true
         } else {
-            self.task = Task {
+            self.task = Task { [weak self] in
+                guard let self = self else { return }
                 let startInst = ContinuousClock.now
 
                 var backend = Backend.Flow(

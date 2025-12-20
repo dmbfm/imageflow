@@ -112,7 +112,8 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
         self.task?.cancel()
         switch self.sm.state {
         case .loading(let locked, let loc, _):
-            self.task = Task {
+            self.task = Task { [weak self] in
+                guard let self else { return }
                 do {
                     let response = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
                     self.task = nil
