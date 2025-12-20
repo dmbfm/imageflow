@@ -28,10 +28,10 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
     let flow: F
     let assetStore: A
 
-    var cardSize: Bounded<CGFloat> = .init(50...600, 300)!
+    var cardSize: Bounded<CGFloat> = .init(50...600, 300)
     var cardAlignment: CardAlignment = .bottomTrailing
     var cardDockLocation: CardDockLocation? = nil
-    var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200)!, down: .init(50...1000, 200)!)
+    var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...620, 300))
 
     var isLocked: Bool {
         self.sm.output.lock
@@ -74,6 +74,13 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
         Task { await self.observeModifiedImages() }
     }
 
+    func viewSizeDidChange(_ newSize: CGSize) {
+        let min = max(newSize.height * 0.1, 100)
+        let max = max(newSize.height * 0.85, 2 * min)
+        self.cardDockHeights.down = self.cardDockHeights.down.withRange(min...max)
+        self.cardDockHeights.up = self.cardDockHeights.down.withRange(min...max)
+    }
+
     public func toggleLocked() {
         self.sm.input(.toggleLock) { newState in
             self.sm.state = newState
@@ -87,22 +94,15 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
         }
     }
 
-    var selCount: Int = 0
-    let instanceID = UUID()
     private func observeSelection() async {
-        log("observeSelection: start")
         for await _ in Observations({ self.flow.selection }) {
-            log("[\(self.instanceID)] update(\(selCount)): \(self.flow.selection)")
             self.selectedImagePorts = self.flow.getSelectedImagePorts()
-            log("[\(self.instanceID)] update(\(selCount)): \(self.selectedImagePorts)")
             self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition)
-            selCount += 1
         }
     }
 
     private func observeModifiedImages() async {
         for await loc in self.assetStore.modifiedGeneratedAssetStream {
-            log("modified image: \(loc)")
             self.sm.input(.image(loc, self.selectedImagePorts), onTransition: self.onStateTransition)
         }
     }

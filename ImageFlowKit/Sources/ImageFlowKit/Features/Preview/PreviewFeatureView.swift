@@ -74,6 +74,7 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
                 )
             }
         }
+        .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.state.viewSizeDidChange($0) })
     }
 }
 

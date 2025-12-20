@@ -2,29 +2,28 @@ public struct Bounded<Value>: Sendable, Equatable where Value: Sendable & Compar
     public let range: ClosedRange<Value>
     public let value: Value
 
-    public init?(_ range: ClosedRange<Value>, _ value: Value) {
-        guard range.contains(value) else {
-            return nil
-        }
-
+    public init(_ range: ClosedRange<Value>, _ value: Value) {
         self.range = range
-        self.value = value
+        self.value = range.clamp(value)
     }
 
-    public func withValue(_ value: Value) -> Self? {
+    public func withValue(_ value: Value) -> Self {
         .init(self.range, value)
     }
 
-    public func withValueClamped(_ value: Value) -> Self {
-        let finalValue =
-            if value < self.range.lowerBound {
-                self.range.lowerBound
-            } else if value > self.range.upperBound {
-                self.range.upperBound
-            } else {
-                value
-            }
+    public func withRange(_ range: ClosedRange<Value>) -> Self {
+        .init(range, self.value)
+    }
+}
 
-        return .init(range, finalValue)!
+extension ClosedRange where Bound: Sendable & Comparable & Equatable {
+    func clamp(_ value: Bound) -> Bound {
+        if value < self.lowerBound {
+            self.lowerBound
+        } else if value > self.upperBound {
+            self.upperBound
+        } else {
+            value
+        }
     }
 }

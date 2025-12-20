@@ -2,19 +2,19 @@ import Helpers
 import SwiftUI
 
 public struct CardDockHeights {
-    var up: Bounded<CGFloat>
-    var down: Bounded<CGFloat>
+    public var up: Bounded<CGFloat>
+    public var down: Bounded<CGFloat>
 
     public init(up: Bounded<CGFloat>, down: Bounded<CGFloat>) {
         self.up = up
         self.down = down
     }
 
-    func mapUp(_ f: (Bounded<CGFloat>) -> Bounded<CGFloat>) -> Self {
+    public func mapUp(_ f: (Bounded<CGFloat>) -> Bounded<CGFloat>) -> Self {
         .init(up: f(self.up), down: self.down)
     }
 
-    func mapDown(_ f: (Bounded<CGFloat>) -> Bounded<CGFloat>) -> Self {
+    public func mapDown(_ f: (Bounded<CGFloat>) -> Bounded<CGFloat>) -> Self {
         .init(up: self.up, down: f(self.down))
     }
 }
@@ -162,8 +162,8 @@ public struct CardStageView<Content: View>: View {
 
     var currentDockHeight: CGFloat {
         switch self.dock {
-        case .up: self.dockHeights.up.withValueClamped(self.dockHeights.up.value + self.dockHeightDragOffset).value
-        default: self.dockHeights.down.withValueClamped(self.dockHeights.down.value - self.dockHeightDragOffset).value
+        case .up: self.dockHeights.up.withValue(self.dockHeights.up.value + self.dockHeightDragOffset).value
+        default: self.dockHeights.down.withValue(self.dockHeights.down.value - self.dockHeightDragOffset).value
         }
     }
 
@@ -190,7 +190,7 @@ public struct CardStageView<Content: View>: View {
         }
 
         let newValue = (self.scratch.sizeAtDragStart ?? self.size).value * value.magnification
-        self.size = self.size.withValueClamped(newValue)
+        self.size = self.size.withValue(newValue)
     }
 
     func magnifyGestureEnded(_ value: MagnifyGesture.Value) {
@@ -251,11 +251,11 @@ public struct CardStageView<Content: View>: View {
         switch self.dock {
         case .up:
             self.dockHeights = self.dockHeights.mapUp { value in
-                value.withValueClamped(value.value + amount)
+                value.withValue(value.value + amount)
             }
         case .down:
             self.dockHeights = self.dockHeights.mapDown { value in
-                value.withValueClamped(value.value - amount)
+                value.withValue(value.value - amount)
             }
         case .none:
             break
@@ -290,7 +290,7 @@ public struct CardStageView<Content: View>: View {
                     max(t.width, t.height)
                 }
             let newSize = sizeAtDragStart + delta
-            self.size = self.size.withValueClamped(newSize)
+            self.size = self.size.withValue(newSize)
         case .ended:
             self.scratch.sizeAtDragStart = nil
         }
