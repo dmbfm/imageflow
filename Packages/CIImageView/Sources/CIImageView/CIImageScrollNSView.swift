@@ -45,8 +45,29 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         }
 
         set {
+            let isDifferentSize = self.image?.extent.size != newValue?.extent.size
+
+            print("isDifferentSize: \(isDifferentSize)")
+
             self.imageView.image = newValue
-            self.setNeedsLayout()
+
+            if isDifferentSize || self.needsRestore {
+                self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
+                self.needsLayout = true
+            }
+        }
+    }
+
+    public var id: String {
+        willSet {
+            if newValue != self.id {
+                self.cacheSave()
+            }
+        }
+        didSet {
+            if self.id != oldValue {
+                self.needsRestore = true
+            }
         }
     }
 
@@ -55,10 +76,13 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
     }
 
     public var onEvent: ((Event) -> ())?
+    public var cache: (any CIImageScrollViewCache)?
+    public var isAnimating: Bool = false
 
     private var configuration: Configuration
+    private var needsRestore: Bool = true
     private var lastZoom: CGFloat?
-    public var isAnimating: Bool = false
+
 
     public lazy var imageView: CIImageXView = {
         let view = CIImageXView(frame: self.bounds)
@@ -66,8 +90,16 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         return view
     }()
 
-    required public init(frame: CGRect, configuration: Configuration = .init()) {
+    required public init(
+        frame: CGRect,
+        id: String = "",
+        configuration: Configuration = .init(),
+        cache: (any CIImageScrollViewCache)? = nil
+    ) {
         self.configuration = configuration
+        self.cache = cache
+        self.id = id
+
         super.init(frame: frame)
 
         self.addSubview(self.imageView)
@@ -157,21 +189,50 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         return view
     }()
 
-    public override func setFrameSize(_ newSize: NSSize) {
-        super.setFrameSize(newSize)
-        self.needsLayout = true
-    }
-
-    public override func setBoundsSize(_ newSize: NSSize) {
-        super.setFrameSize(newSize)
-        self.needsLayout = true
-    }
-
     public override func doLayout() {
         self.scrollView.frame = self.bounds
-        self.scrollView.contentView.frame = self.bounds
-        self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
         self.imageView.frame = self.bounds
+
+        if needsRestore {
+            if !self.cacheRestore() {
+                switch self.configuration.initialViewport {
+                case .fit: self.dispatch(.zoomToFit(animate: false))
+                case .actualSize: self.dispatch(.actualSize(animate: false))
+                case .centered(zoom: let zoom):
+                    self.dispatch(.setZoom(value: 1, center: nil, animate: false))
+                    self.dispatch(
+                        .setZoom(value: zoom, center: self.image?.extent.center, animate: false)
+                    )
+                }
+            }
+            self.needsRestore = false
+        }
+    }
+
+    public override func viewWillMove(toSuperview newSuperview: NSView?) {
+        guard newSuperview == nil else { return }
+        self.cacheSave()
+    }
+
+    func cacheSave() {
+        self.cache?.set(
+            id: self.id,
+            value: .init(
+                position: self.scrollView.contentView.bounds.origin,
+                scale: self.scrollView.magnification
+            )
+        )
+    }
+
+    @discardableResult
+    func cacheRestore() -> Bool {
+        if let entry = self.cache?.get(id: self.id) {
+            self.scrollView.magnification = entry.scale
+            self.scrollView.contentView.setBoundsOrigin(entry.position)
+            return true
+        }
+
+        return false
     }
 
     public func actualSize(_ animate: Bool = true) {
@@ -246,8 +307,8 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
             self.zoomIn(animate)
         case .zoomOut(let animate):
             self.zoomOut(animate)
-        case .setZoom(let value, let animate):
-            self.setZoom(value: value, centeredAt: nil, animate: animate)
+        case .setZoom(let value, let point, let animate):
+            self.setZoom(value: value, centeredAt: point, animate: animate)
         }
     }
 }

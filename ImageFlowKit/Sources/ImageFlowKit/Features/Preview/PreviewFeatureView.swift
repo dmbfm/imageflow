@@ -4,6 +4,30 @@ import Helpers
 import Logging
 import SwiftUI
 
+@MainActor
+class ScrollCache: @MainActor CIImageScrollViewCache {
+
+    typealias Entry = CIImageScrollView.CacheEntry
+
+    var cache: [String: Entry] = [:]
+
+    init() {
+        log("cache: init!")
+        self.cache = [:]
+    }
+    
+    func get(id: String) -> Entry? {
+        let result = self.cache[id]
+        log("cache:get:\(id)->\(result, default: "nil")")
+        return result
+    }
+
+    func set(id: String, value: Entry) {
+        log("cache:set:\(id):\(value)")
+        self.cache[id] = value
+    }
+}
+
 struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
 
     let state: PreviewFeatureState<F, A>
@@ -21,6 +45,7 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
     }
 
     private let style: PreviewFeatureViewStyle = .default
+    private let cache = ScrollCache()
 
     // TODO: Move this to PreviewFeatureState
     func previewViewDispatch(_ action: PreviewContentViewAction) {
@@ -70,6 +95,7 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
                 DockedPreviewContentView(
                     vm: self.state.previewContentViewModel,
                     style: self.style.dockedPreviewStyle,
+                    cache: self.cache,
                     dispatch: self.previewViewDispatch(_:)
                 )
             }

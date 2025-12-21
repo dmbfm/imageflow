@@ -8,6 +8,7 @@ struct DockedPreviewContentView: View {
 
     let vm: PreviewContentViewModel
     let style: Style
+    let cache: (any CIImageScrollViewCache)?
     var dispatch: ((PreviewContentViewAction) -> ())?
 
     @State var zoom: CGFloat = 1.0
@@ -33,7 +34,11 @@ struct DockedPreviewContentView: View {
     }
 
     var zoomText: String {
-        zoomFormatter.string(for: self.zoom)!
+        if case .image = self.vm.content {
+            zoomFormatter.string(for: self.zoom)!
+        } else {
+            ""
+        }
     }
 
     var body: some View {
@@ -118,15 +123,21 @@ struct DockedPreviewContentView: View {
         }
     }
 
+    func zoomDidChange(_ value: CGFloat) {
+        self.zoom = value
+    }
+
     @ViewBuilder
     var contentView: some View {
         switch vm.content {
-        case .image(let image):
+        case .image(let image, let loc):
             CIImageScrollView(
+                id: "\(loc.node),\(loc.index)",
                 image: image,
                 configuration: .init(),
-                zoom: $zoom,
-                action: $action
+                action: $action,
+                cache: self.cache,
+                zoomDidChange: self.zoomDidChange(_:),
             )
         default:
             ZStack {
@@ -309,7 +320,11 @@ struct ClassicToolbarView: View {
     }
 
     var zoomText: String {
-        zoomFormatter.string(for: self.zoom)!
+        if case .image = self.vm.content {
+            zoomFormatter.string(for: self.zoom)!
+        } else {
+            ""
+        }
     }
 
     var body: some View {

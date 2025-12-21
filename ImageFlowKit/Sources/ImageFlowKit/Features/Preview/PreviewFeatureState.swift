@@ -56,7 +56,7 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
 
     var image: CIImage? {
         switch self.previewContent {
-        case .image(let image): image
+        case .image(let image, _): image
         default: nil
         }
     }
@@ -297,12 +297,12 @@ private struct SM: @MainActor StateMachineImpl {
             .init(content: .unavailable)
         case .error(_):
             .init(content: .unavailable)
-        case .loading(let lockState, _, .some(let image)):
-            .init(content: .image(image), lock: lockState)
+        case .loading(let lockState, let loc, .some(let image)):
+            .init(content: .image(image, loc), lock: lockState)
         case .loading(let lockState, _, .none):
             .init(content: .unavailable, lock: lockState)
-        case .loaded(let lockState, _, let image):
-            .init(content: .image(image), lock: lockState)
+        case .loaded(let lockState, let loc, let image):
+            .init(content: .image(image, loc), lock: lockState)
         }
     }
 }

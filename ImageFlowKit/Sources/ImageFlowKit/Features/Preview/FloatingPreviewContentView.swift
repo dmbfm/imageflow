@@ -7,7 +7,7 @@ import SwiftUI
 
 enum PreviewContent {
     case unavailable
-    case image(CIImage)
+    case image(CIImage, OutputPortLocation)
     case loading
 }
 
@@ -115,7 +115,7 @@ public struct FloatingPreviewContentView: View {
     @ViewBuilder
     var contentView: some View {
         switch self.vm.content {
-        case .image(let image):
+        case .image(let image, _):
             CIImageView(image: image)
                 .placement(.fit)
         case .unavailable:
@@ -187,7 +187,7 @@ extension FloatingPreviewContentView {
 }
 
 #Preview("Image") {
-    let vm = PreviewContentViewModel(content: .image(previewImage), isLocked: false, lockButtonDisabled: false)
+    let vm = PreviewContentViewModel(content: .image(previewImage, .init(node: .init(), index: 0)), isLocked: false, lockButtonDisabled: false)
     FloatingPreviewContentView.Preview(vm: vm)
 }
 
