@@ -354,7 +354,7 @@ public struct CardStageView<Content: View>: View {
                         .contentShape(Rectangle())
                         .frame(height: self.dockedDragHandleHeight)
                         #if os(macOS)
-                    .pointerStyle(.rowResize)
+                    .pointerStyle(.frameResize(position: .top, directions: [.outward, .inward]))
                         #endif
                         .gesture(self.dockDividerDragGesture)
                 }
@@ -373,13 +373,13 @@ public struct CardStageView<Content: View>: View {
         let (pos, width, height, ps): (CGPoint, CGFloat?, CGFloat?, PointerStyle) =
             switch handle {
             case .left:
-                (.init(x: 0, y: size * 0.5), 10, nil, .columnResize)
+                (.init(x: 0, y: size * 0.5), 10, nil, .frameResize(position: .leading, directions: .all))
             case .right:
-                (.init(x: size, y: size * 0.5), 10, nil, .columnResize)
+                (.init(x: size, y: size * 0.5), 10, nil, .frameResize(position: .trailing, directions: .all))
             case .top:
-                (.init(x: size * 0.5, y: 0), nil, 10, .rowResize)
+                (.init(x: size * 0.5, y: 0), nil, 10, .frameResize(position: .top, directions: .all))
             case .bottom:
-                (.init(x: size * 0.5, y: size), nil, 10, .rowResize)
+                (.init(x: size * 0.5, y: size), nil, 10, .frameResize(position: .bottom, directions: .all))
             case .topLeft:
                 (
                     .init(x: cornerPadding, y: cornerPadding), cornerSize, cornerSize,
