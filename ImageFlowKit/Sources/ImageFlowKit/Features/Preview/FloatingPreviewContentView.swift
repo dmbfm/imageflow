@@ -187,7 +187,11 @@ extension FloatingPreviewContentView {
 }
 
 #Preview("Image") {
-    let vm = PreviewContentViewModel(content: .image(previewImage, .init(node: .init(), index: 0)), isLocked: false, lockButtonDisabled: false)
+    let vm = PreviewContentViewModel(
+        content: .image(previewImage, .init(node: .init(), index: 0)),
+        isLocked: false,
+        lockButtonDisabled: false
+    )
     FloatingPreviewContentView.Preview(vm: vm)
 }
 

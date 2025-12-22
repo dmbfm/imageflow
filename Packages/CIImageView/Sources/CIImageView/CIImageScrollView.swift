@@ -70,7 +70,7 @@ public struct CIImageScrollView: XViewRepresentable {
         if view.image != self.image {
             view.image = self.image
         }
-        
+
         if let action = self.action {
             view.dispatch(action)
             Task { @MainActor in

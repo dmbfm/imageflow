@@ -15,7 +15,7 @@ class ScrollCache: @MainActor CIImageScrollViewCache {
         log("cache: init!")
         self.cache = [:]
     }
-    
+
     func get(id: String) -> Entry? {
         let result = self.cache[id]
         log("cache:get:\(id)->\(result, default: "nil")")

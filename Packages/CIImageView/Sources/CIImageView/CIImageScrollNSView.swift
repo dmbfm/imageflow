@@ -83,7 +83,6 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
     private var needsRestore: Bool = true
     private var lastZoom: CGFloat?
 
-
     public lazy var imageView: CIImageXView = {
         let view = CIImageXView(frame: self.bounds)
         view.placement = .manual(scale: .init(width: 1, height: 1), offset: .zero)
