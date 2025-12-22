@@ -54,7 +54,8 @@ public struct CIImageScrollView: XViewRepresentable {
         view.onEvent = { event in
             Task { @MainActor in
                 switch event {
-                case .zoomDidChange(let value): self.zoomDidChange?(value)
+                case .zoomDidChange(let value):
+                    self.zoomDidChange?(value)
                 }
             }
         }
