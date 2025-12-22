@@ -36,12 +36,13 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
         }
 
         set {
-
             var isDifferentSize = newValue?.extent.size != self.imageView.image?.extent.size
+            let prevZoomScale = self.scrollView.zoomScale
+            let prevOffset = self.scrollView.contentOffset
 
             self.imageView.image = newValue
 
-            if isDifferentSize || self.needsRestoreCache {
+            if isDifferentSize && self.needsRestoreCache {
                 self.scrollView.setZoomScale(1.0, animated: false)
                 self.scrollView.setContentOffset(.zero, animated: false)
                 self.imageView.frame.size = self.imageView.imageLogicalSize
@@ -60,6 +61,9 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
                     }
                 }
                 self.needsRestoreCache = false
+            } else if !isDifferentSize {
+                self.scrollView.setZoomScale(prevZoomScale, animated: false)
+                self.scrollView.setContentOffset(prevOffset, animated: false)
             }
         }
     }
