@@ -35,9 +35,7 @@ struct MainView: View {
 
     func onAppear() {
 
-        log("documentInfo: \(documentInfo)")
-
-        #if os(masOS)
+        #if os(macOS)
         self.dismissWindow(id: WindowID.welcome.rawValue)
         #endif
 
@@ -75,12 +73,6 @@ struct MainView: View {
             self.document.assetStore.withLock {
                 $0.assets = assets
             }
-        }
-
-        withObservationTracking {
-            _ = self.flow.selection
-        } onChange: {
-            log("!!!!!!!!!!!!!!!!!!")
         }
     }
 
