@@ -6,6 +6,8 @@ import Foundation
 import XViewKit
 import AppKit
 
+// MARK: - CIImageScrollNSView
+
 //   ┌──────────────────────┐
 //   │ Metal view drawing   │
 // ██│  image with same size│
@@ -39,55 +41,112 @@ import AppKit
 
 public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
 
-    public var image: CIImage? {
-        get {
-            self.imageView.image
-        }
+    // MARK: - Public Properties
 
-        set {
-            let isDifferentSize = self.image?.extent.size != newValue?.extent.size
-
-            print("isDifferentSize: \(isDifferentSize)")
-
-            self.imageView.image = newValue
-
-            if isDifferentSize || self.needsRestore {
-                self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
-                self.needsLayout = true
-            }
-        }
-    }
-
+    /// An optional listener for `Event`s.
+    public var onEvent: ((Event) -> ())?
+    /// An optional cache to store/restore the viewport state according to the given `id`.
+    public var cache: (any CIImageScrollViewCache)?
+    /// If true the view is currently in the middle of a zoom animation.
+    public var isAnimating: Bool = false
+    /// A `String` identifier used for caching the viewport state via the supplied `cache` store.
     public var id: String {
-        willSet {
-            if newValue != self.id {
-                self.cacheSave()
-            }
-        }
-        didSet {
-            if self.id != oldValue {
-                self.needsRestore = true
-            }
-        }
+        willSet { self.willSetId(newValue) }
+        didSet { self.didSetId(oldValue) }
     }
 
+    /// The image currently being displayed.
+    public var image: CIImage? {
+        get { self.getImage() }
+        set { self.setImage(newValue) }
+    }
+
+    /// The current zoom scale.
     public var zoom: CGFloat {
         self.scrollView.magnification
     }
 
-    public var onEvent: ((Event) -> ())?
-    public var cache: (any CIImageScrollViewCache)?
-    public var isAnimating: Bool = false
+    // MARK: - Private Properties
 
-    private var configuration: Configuration
-    private var needsRestore: Bool = true
-    private var lastZoom: CGFloat?
+    /// The configuration prameters for this view.
+    var configuration: Configuration
+    /// The previous zoom value. Used to check if we need to send a `zoomChanged` event or not when
+    /// the clip view bounds is modified.
+    var lastZoom: CGFloat?
+    // State-machine that handles viewport restoration logic.
+    var viewportRestoreState: ViewportRestoreState
 
+    // MARK: - Public Properties: Subviews
+
+    /// The view that displayes the image. It should have the same size as the scrollView and placed behind it. Will
+    /// draw only the part of the image that is visible.
     public lazy var imageView: CIImageXView = {
         let view = CIImageXView(frame: self.bounds)
         view.placement = .manual(scale: .init(width: 1, height: 1), offset: .zero)
         return view
     }()
+
+    /// This is the view used as the `NSSCrollView`'s `documentView`. It is only a transparent view so we can see the actual
+    /// `imageView` behind it `NSScrollView`.
+    public lazy var documentView: NSView = {
+        let view = NSView()
+        return view
+    }()
+
+    /// The actual `NSScrollView` that is used for scrolling. It has a `clipView` that is made to be the same size as
+    /// the image to be displayed, and a `documentView` which is transparent. The idea is that we synchronize the
+    /// viewport of the `scrollView` (i.e., the magnification and clipView origin) to the `CIImageXView` positioning,
+    /// so that the correct portion of the image is drawn on the screen.
+    public lazy var scrollView: NSScrollView = {
+        // Create a `NSScrollView` with no background, and with both horizontal and vertical scrollers.
+        let view = NSScrollView(frame: self.bounds)
+        view.hasHorizontalScroller = true
+        view.hasVerticalScroller = true
+        view.drawsBackground = false
+        view.backgroundColor = .clear
+
+        // Create an instance of `ClipView` and set it as the `clipView`
+        let clipView = ClipView(frame: self.bounds)
+        clipView.allowedTouchTypes = [.indirect, .direct]
+        view.contentView = clipView
+        view.contentView.postsBoundsChangedNotifications = true
+        view.contentView.drawsBackground = false
+        view.contentView.backgroundColor = .clear
+
+        // Set the document view
+        view.documentView = self.documentView
+
+        // Configure the magnification
+        view.minMagnification = self.configuration.zoomRange.lowerBound
+        view.maxMagnification = self.configuration.zoomRange.upperBound
+        view.allowsMagnification = true
+
+        // If we enable panning the scroll view with the mouse, add a gesture
+        // recognizer
+        if case let .enabled(button, modifiers: _) = self.configuration.mousePan {
+            let panGR = NSPanGestureRecognizer(target: self, action: #selector(Self.clipViewPanGestureHandler(_:)))
+            panGR.buttonMask = button.rawValue
+            clipView.addGestureRecognizer(panGR)
+            panGR.delegate = self
+        }
+
+        // Listen for events from the clipView
+        clipView.onEvent = { [weak self] event in self?.clipViewEvent(event) }
+
+        // Listen for clipView bounds did change notifications
+        NotificationCenter.default.addObserver(
+            forName: NSView.boundsDidChangeNotification,
+            object: view.contentView,
+            queue: .main,
+            using: { notification in
+                MainActor.assumeIsolated { self.clipViewBoundsDidChange() }
+            }
+        )
+
+        return view
+    }()
+
+    // MARK: - Initialization
 
     required public init(
         frame: CGRect,
@@ -98,6 +157,7 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         self.configuration = configuration
         self.cache = cache
         self.id = id
+        self.viewportRestoreState = .init(configuration)
 
         super.init(frame: frame)
 
@@ -109,103 +169,22 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         nil
     }
 
-    public lazy var scrollView: NSScrollView = {
-        let view = NSScrollView(frame: self.bounds)
-        view.hasHorizontalScroller = true
-        view.hasVerticalScroller = true
-        view.drawsBackground = false
-        view.backgroundColor = .clear
-        let clipView = ClipView(frame: self.bounds)
-        clipView.allowedTouchTypes = [.indirect, .direct]
-        view.contentView = clipView
-        view.contentView.postsBoundsChangedNotifications = true
-        view.contentView.drawsBackground = false
-        view.contentView.backgroundColor = .clear
-        view.documentView = self.documentView
-        view.minMagnification = self.configuration.zoomRange.lowerBound
-        view.maxMagnification = self.configuration.zoomRange.upperBound
-        view.allowsMagnification = true
+    // MARK: - NSView
 
-        if case let .enabled(button, modifiers: _) = self.configuration.mousePan {
-            let panGR = NSPanGestureRecognizer(target: self, action: #selector(Self.clipViewPanGestureHandler(_:)))
-            panGR.buttonMask = button.rawValue
-            clipView.addGestureRecognizer(panGR)
-            panGR.delegate = self
-        }
-
-        clipView.onEvent = { [weak self] event in
-            guard let self else { return }
-            switch event {
-            case .scrollWheel(pos: let pos, dy: let dy):
-                if case let .enabled(sensitivity) = self.configuration.scrollWheelZoom {
-                    self.scrollView.setMagnification(
-                        self.scrollView.magnification * (1.0 + sensitivity * 0.1 * dy),
-                        centeredAt: pos
-                    )
-                }
-            case let .trackpadScroll(pos, dx, dy):
-                let view = self.scrollView.contentView
-                view.bounds.origin -= .init(x: dx / self.zoom, y: dy / self.zoom)
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: NSView.boundsDidChangeNotification,
-            object: view.contentView,
-            queue: .main,
-            using: { notification in
-                MainActor.assumeIsolated {
-                    self.imageView.placement.updateManual { scale, offset in
-                        return (
-                            .init(width: self.scrollView.magnification, height: self.scrollView.magnification),
-                            self.imageView.convertToPixel(-view.contentView.bounds.origin)
-                                * self.scrollView.magnification
-                        )
-                    }
-
-                    if !self.isAnimating {
-                        if self.lastZoom != self.zoom {
-                            self.onEvent?(.zoomDidChange(self.zoom))
-                            self.lastZoom = self.zoom
-                        }
-                    }
-                }
-            }
-        )
-
-        return view
-    }()
-
-    @objc func clipViewPanGestureHandler(_ gesture: NSPanGestureRecognizer) {
-        let view = self.scrollView.contentView
-        let t = gesture.translation(in: view)
-        view.bounds.origin -= t
-        gesture.setTranslation(.zero, in: nil)
+    public override var frame: NSRect {
+        didSet { self.viewportStateInput(.frameDidSet) }
     }
 
-    public lazy var documentView: NSView = {
-        let view = NSView()
-        return view
-    }()
+    public override func setBoundsSize(_ newSize: NSSize) {
+        super.setBoundsSize(newSize)
+        self.dispatch(.zoomToFit(animate: false))
+    }
 
     public override func doLayout() {
         self.scrollView.frame = self.bounds
         self.imageView.frame = self.bounds
 
-        if needsRestore {
-            if !self.cacheRestore() {
-                switch self.configuration.initialViewport {
-                case .fit: self.dispatch(.zoomToFit(animate: false))
-                case .actualSize: self.dispatch(.actualSize(animate: false))
-                case .centered(zoom: let zoom):
-                    self.dispatch(.setZoom(value: 1, center: nil, animate: false))
-                    self.dispatch(
-                        .setZoom(value: zoom, center: self.image?.extent.center, animate: false)
-                    )
-                }
-            }
-            self.needsRestore = false
-        }
+        self.viewportStateInput(.layoutOrImageChange(id: self.id, self.cache))
     }
 
     public override func viewWillMove(toSuperview newSuperview: NSView?) {
@@ -213,26 +192,82 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         self.cacheSave()
     }
 
-    func cacheSave() {
-        self.cache?.set(
-            id: self.id,
-            value: .init(
-                position: self.scrollView.contentView.bounds.origin,
-                scale: self.scrollView.magnification
-            )
-        )
+    // MARK: - Properties-related
+
+    private func getImage() -> CIImage? {
+        self.imageView.image
     }
 
-    @discardableResult
-    func cacheRestore() -> Bool {
-        if let entry = self.cache?.get(id: self.id) {
-            self.scrollView.magnification = entry.scale
-            self.scrollView.contentView.setBoundsOrigin(entry.position)
-            return true
+    private func setImage(_ newValue: CIImage?) {
+        let isDifferentSize = self.image?.extent.size != newValue?.extent.size
+
+        self.imageView.image = newValue
+
+        if isDifferentSize {
+            self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
+            self.needsLayout = true
+        }
+    }
+
+    // MARK: - ClipView
+
+    private func clipViewEvent(_ event: ClipView.Event) {
+        switch event {
+        case .scrollWheel(pos: let pos, let dy):
+            self.scrollMouse(pos, dy)
+        case let .trackpadScroll(pos, dx, dy):
+            self.scrollTrackpad(pos, dx, dy)
+        }
+    }
+
+    /// This is always called when the clip view of the scroll view has its
+    /// bounds modified, which happens whenever the scorll view scrolls or is zoomed
+    /// in/out, i.e., always that the scroll view's viewport changes.
+    private func clipViewBoundsDidChange() {
+        // Keep the image placement in the `CIImageView` in sync with the current scrolling/magnification.
+        self.imageView.placement.updateManual { scale, offset in
+            let newScale = CGSize(width: self.scrollView.magnification, height: self.scrollView.magnification)
+            let newOffset =
+                self.imageView.convertToPixel(-self.scrollView.contentView.bounds.origin)
+                * self.scrollView.magnification
+
+            return (newScale, newOffset)
         }
 
-        return false
+        // Check if we need to emit a `zoomDidChange` event.
+        if !self.isAnimating {
+            if self.lastZoom != self.zoom {
+                self.onEvent?(.zoomDidChange(self.zoom))
+                self.lastZoom = self.zoom
+            }
+        }
     }
+
+    // MARK: - Interaction
+
+    @objc private func clipViewPanGestureHandler(_ gesture: NSPanGestureRecognizer) {
+        let view = self.scrollView.contentView
+        let t = gesture.translation(in: view)
+        view.bounds.origin -= t
+        gesture.setTranslation(.zero, in: nil)
+    }
+
+    private func scrollMouse(_ pos: CGPoint, _ dy: CGFloat) {
+        if case let .enabled(sensitivity) = self.configuration.scrollWheelZoom {
+            self.scrollView.setMagnification(
+                self.scrollView.magnification * (1.0 + sensitivity * 0.1 * dy),
+                centeredAt: pos
+            )
+        }
+    }
+
+    private func scrollTrackpad(_ pos: CGPoint, _ dx: CGFloat, _ dy: CGFloat) {
+        let view = self.scrollView.contentView
+        view.bounds.origin -= .init(x: dx / self.zoom, y: dy / self.zoom)
+    }
+
+    // MARK: - Cache
+    // MARK: - Zoom
 
     public func actualSize(_ animate: Bool = true) {
         self.setZoom(value: 1.0, centeredAt: nil, animate: animate)
@@ -296,6 +331,8 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         }
     }
 
+    // MARK: - Action Dispacth
+
     public func dispatch(_ action: Action) {
         switch action {
         case .zoomToFit(let animate):
@@ -310,7 +347,23 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
             self.setZoom(value: value, centeredAt: point, animate: animate)
         }
     }
+
+    // MARK: - Other Private Methods
+
+    func cacheRestore(_ entry: CIImageScrollView.CacheEntry) {
+        self.scrollView.magnification = entry.scale
+        self.scrollView.contentView.setBoundsOrigin(entry.position)
+    }
+
+    func cacheEntry() -> CIImageScrollView.CacheEntry {
+        .init(
+            position: self.scrollView.contentView.bounds.origin,
+            scale: self.scrollView.magnification
+        )
+    }
 }
+
+// MARK: - CIImageScrollXView + NSGestureRecognizerDelegate
 
 extension CIImageScrollXView: NSGestureRecognizerDelegate {
     public func gestureRecognizer(
@@ -329,6 +382,8 @@ extension CIImageScrollXView: NSGestureRecognizerDelegate {
         }
     }
 }
+
+// MARK: - ClipView
 
 private class ClipView: NSClipView {
 
@@ -398,6 +453,8 @@ private class ClipView: NSClipView {
         }
     }
 }
+
+// MARK:- Helpers
 
 extension NSEvent {
     fileprivate func isMouseScrollEvent(touchCount: Int) -> Bool {

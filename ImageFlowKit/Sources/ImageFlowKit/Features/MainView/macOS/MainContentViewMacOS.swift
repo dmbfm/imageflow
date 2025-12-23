@@ -18,7 +18,6 @@ struct MainContentViewMacOS: View {
     let flow: Flow
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
-    let previewState: PreviewFeatureState<Flow, AssetStore>
 
     @FocusState var focus: Focus?
 
@@ -38,12 +37,10 @@ struct MainContentViewMacOS: View {
         flow: Flow,
         canvas: CanvasFeatureState,
         assetStore: AssetStore,
-        previewState: PreviewFeatureState<Flow, AssetStore>
     ) {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
-        self.previewState = previewState
     }
 
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
@@ -60,7 +57,6 @@ struct MainContentViewMacOS: View {
                 flow: self.flow,
                 assetStore: self.assetStore,
                 canvas: self.canvas,
-                previewState: self.previewState,
                 focus: self.$focus,
                 canvasCenter: self.canvasCenter,
                 delegate: self.canvasFeatureViewDelegate
@@ -113,7 +109,6 @@ fileprivate struct DetailView: View {
     let flow: Flow
     let assetStore: AssetStore
     let canvas: CanvasFeatureState
-    let previewState: PreviewFeatureState<Flow, AssetStore>
     let focus: FocusState<Focus?>.Binding
     let canvasCenter: Box<CGPoint>
     let delegate: CanvasFeatureView.Delegate
@@ -122,7 +117,7 @@ fileprivate struct DetailView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.previewState, self.focus, delegate)
+            CanvasFeatureView(self.canvas, self.flow, self.assetStore, self.focus, delegate)
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
                 } action: { newValue in

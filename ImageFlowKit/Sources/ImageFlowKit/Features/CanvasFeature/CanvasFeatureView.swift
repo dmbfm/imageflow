@@ -41,7 +41,6 @@ public struct CanvasFeatureView: View {
     let state: CanvasFeatureState
     let flow: Flow
     let assetStore: AssetStore
-    let previewState: PreviewFeatureState<Flow, AssetStore>
 
     @State private var edgeLayers: [CanvasView.EdgeLayer] = []
     @State private var nodeViews: NodeViewCollection = .init()
@@ -65,14 +64,12 @@ public struct CanvasFeatureView: View {
         _ state: CanvasFeatureState,
         _ flow: Flow,
         _ assetStore: AssetStore,
-        _ previewState: PreviewFeatureState<Flow, AssetStore>,
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate
     ) {
         self.state = state
         self.focus = focus
         self.flow = flow
-        self.previewState = previewState
         self.assetStore = assetStore
         self.delegate = delegate
     }
@@ -364,7 +361,7 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.undoManager, { self.scratch.undoManager = self.undoManager })
             .onChange(of: self.flow.partialEdge) { self.updateEdges() }
 
-            CanvasImagePreviewView(previewState: self.previewState) { _ in }
+            CanvasImagePreviewView(flow: self.flow, assetStore: self.assetStore) { _ in }
                 #if os(iOS)
             .safeAreaPadding(.top, 60)
                 #endif
@@ -374,11 +371,12 @@ public struct CanvasFeatureView: View {
 
 //#if os(macOS)
 fileprivate struct CanvasImagePreviewView: View {
-    let previewState: PreviewFeatureState<Flow, AssetStore>
+    let flow: Flow
+    let assetStore: AssetStore
     let launchPreviewWindow: (AssetIdentifier) -> ()
     var body: some View {
 
-        PreviewFeatureView(state: self.previewState)
+        PreviewFeatureView(self.flow, self.assetStore)
 
         // HStack {
         //     Spacer()

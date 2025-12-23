@@ -16,6 +16,8 @@ public struct Bounded<Value>: Sendable, Equatable where Value: Sendable & Compar
     }
 }
 
+extension Bounded: Codable where Value: Codable {}
+
 extension ClosedRange where Bound: Sendable & Comparable & Equatable {
     func clamp(_ value: Bound) -> Bound {
         if value < self.lowerBound {

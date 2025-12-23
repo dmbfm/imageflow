@@ -22,7 +22,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     init(
         _ data: Flow.StorableData = .init(),
         _ canvas: CanvasFeatureState.StorableData = .init(),
-        _ assets: AssetStore.StorableData = .init()
+        _ assets: AssetStore.StorableData = .init(),
     ) {
         self.id = UUID()
         self.flow = .init(data)
@@ -57,7 +57,7 @@ final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             id: self.id,
             flow: self.flow.withLock({ $0 }),
             canvas: self.canvas.withLock({ $0 }),
-            assets: self.assetStore.withLock({ $0 })
+            assets: self.assetStore.withLock({ $0 }),
         )
         return snap
     }

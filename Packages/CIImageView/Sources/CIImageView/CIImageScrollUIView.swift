@@ -17,14 +17,10 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
     var id: String {
         willSet {
-            if newValue != self.id {
-                self.cacheSave()
-            }
+            self.willSetId(newValue)
         }
         didSet {
-            if self.id != oldValue {
-                self.needsRestoreCache = true
-            }
+            self.didSetId(oldValue)
         }
     }
 
@@ -42,29 +38,12 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
             self.imageView.image = newValue
 
-            if isDifferentSize && self.needsRestoreCache {
-                self.scrollView.setZoomScale(1.0, animated: false)
-                self.scrollView.setContentOffset(.zero, animated: false)
+            if isDifferentSize {
                 self.imageView.frame.size = self.imageView.imageLogicalSize
                 self.scrollView.contentSize = self.imageView.imageLogicalSize
             }
-
-            if self.needsRestoreCache {
-                if !self.cacheRestore() {
-                    switch self.configuration.initialViewport {
-                    case .fit:
-                        self.dispatch(.zoomToFit(animate: false))
-                    case .actualSize:
-                        self.dispatch(.actualSize(animate: false))
-                    case .centered(zoom: let zoom):
-                        self.dispatch(.setZoom(value: zoom, center: nil, animate: false))
-                    }
-                }
-                self.needsRestoreCache = false
-            } else if !isDifferentSize {
-                self.scrollView.setZoomScale(prevZoomScale, animated: false)
-                self.scrollView.setContentOffset(prevOffset, animated: false)
-            }
+            
+            self.setNeedsLayout()
         }
     }
 
@@ -74,9 +53,9 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
     public var onEvent: ((Event) -> ())?
 
-    private var configuration: Configuration
-    private var lastZoom: CGFloat?
-    private var needsRestoreCache: Bool = true
+    var configuration: Configuration
+    var lastZoom: CGFloat?
+    var viewportRestoreState: ViewportRestoreState
 
     public var isAnimating: Bool {
         self.scrollView.isZoomAnimating || self.scrollView.isScrollAnimating
@@ -97,6 +76,8 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
         self.configuration = configuration
         self.id = id
         self.cache = cache
+        self.viewportRestoreState = .init(configuration)
+        
         super.init(frame: frame)
 
         self.addSubview(self.scrollView)
@@ -104,6 +85,12 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
     public required init?(coder: NSCoder) {
         nil
+    }
+    
+    public override var frame: CGRect {
+        didSet {
+            self.viewportStateInput(.frameDidSet)
+        }
     }
 
     public lazy var scrollView: UIScrollView = {
@@ -144,6 +131,7 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
     public override func layoutSubviews() {
         self.scrollView.frame = self.bounds
+        self.viewportStateInput(.layoutOrImageChange(id: self.id, self.cache))
     }
 
     public func dispatch(_ action: Action) {
@@ -171,23 +159,15 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 // MARK: - Cache
 
 extension CIImageScrollXView {
-    func cacheSave() {
-        self.cache?.set(
-            id: self.id,
-            value: .init(position: self.scrollView.contentOffset, scale: self.scrollView.zoomScale)
-        )
+    func cacheEntry() -> CIImageScrollView.CacheEntry {
+        .init(position: self.scrollView.contentOffset, scale: self.scrollView.zoomScale)
     }
 
-    func cacheRestore() -> Bool {
-        if let entry = self.cache?.get(id: self.id) {
-            self.scrollView.setZoomScale(1.0, animated: false)
-            self.scrollView.setContentOffset(.zero, animated: false)
-            self.scrollView.setZoomScale(entry.scale, animated: false)
-            self.scrollView.setContentOffset(entry.position, animated: false)
-            return true
-        }
-
-        return false
+    func cacheRestore(_ entry: CIImageScrollView.CacheEntry) {
+        self.scrollView.setZoomScale(1.0, animated: false)
+        self.scrollView.setContentOffset(.zero, animated: false)
+        self.scrollView.setZoomScale(entry.scale, animated: false)
+        self.scrollView.setContentOffset(entry.position, animated: false)
     }
 }
 

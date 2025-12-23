@@ -8,6 +8,7 @@ import Values
 protocol AssetStoreService: AnyObject {
     func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage>
     var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> { get }
+    init()
 }
 
 @Observable

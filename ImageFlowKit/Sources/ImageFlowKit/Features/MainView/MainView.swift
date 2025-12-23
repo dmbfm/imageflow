@@ -14,7 +14,6 @@ struct MainView: View {
     @State var canvas: CanvasFeatureState
     @State var assetStore: AssetStore
     @State var backendService: BackendService? = nil
-    @State var previewState: PreviewFeatureState<Flow, AssetStore>
 
     @Environment(\.dismissWindow) var dismissWindow
 
@@ -25,12 +24,10 @@ struct MainView: View {
         let flow = Flow()
         let canvas = CanvasFeatureState()
         let assetStore = AssetStore()
-        let previewState = PreviewFeatureState(flow: flow, assetStore: assetStore)
 
         self.canvas = canvas
         self.assetStore = assetStore
         self.flow = flow
-        self.previewState = previewState
     }
 
     func onAppear() {
@@ -132,10 +129,8 @@ struct MainView: View {
         MainContentView(
             flow: self.flow,
             canvas: self.canvas,
-            assetStore: self.assetStore,
-            previewState: self.previewState
+            assetStore: self.assetStore
         )
-        .focusedSceneValue(self.previewState)
         .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
         .onAppear(perform: self.onAppear)
     }

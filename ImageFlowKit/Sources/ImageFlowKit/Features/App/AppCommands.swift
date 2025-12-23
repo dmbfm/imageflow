@@ -2,8 +2,8 @@ import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
 
-    @FocusedValue(PreviewFeatureState<Flow, AssetStore>.self)
-    var previewState: PreviewFeatureState<Flow, AssetStore>?
+    @FocusedValue(PreviewFeatureState.self)
+    var previewState: PreviewFeatureState?
 
     var body: some Commands {
         if let previewState = self.previewState {

@@ -18,7 +18,6 @@ protocol MainContentViewProtocol: View {
         flow: Flow,
         canvas: CanvasFeatureState,
         assetStore: AssetStore,
-        previewState: PreviewFeatureState<Flow, AssetStore>
     )
 }
 

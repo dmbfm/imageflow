@@ -7,7 +7,7 @@ public protocol CIImageScrollViewCache: AnyObject {
 }
 
 extension CIImageScrollView {
-    public struct CacheEntry {
+    public struct CacheEntry: Sendable, Codable {
         var position: CGPoint
         var scale: CGFloat
     }

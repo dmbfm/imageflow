@@ -28,9 +28,13 @@ class ScrollCache: @MainActor CIImageScrollViewCache {
     }
 }
 
-struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
+struct PreviewFeatureView: View {
 
-    let state: PreviewFeatureState<F, A>
+    @State var state: PreviewFeatureState
+
+    init(_ flow: some FlowService, _ assetStore: some AssetStoreService) {
+        self._state = .init(initialValue: .init(flow: flow, assetStore: assetStore))
+    }
 
     var content: PreviewContent {
         self.state.previewContent
@@ -45,7 +49,6 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
     }
 
     private let style: PreviewFeatureViewStyle = .default
-    private let cache = ScrollCache()
 
     // TODO: Move this to PreviewFeatureState
     func previewViewDispatch(_ action: PreviewContentViewAction) {
@@ -95,12 +98,13 @@ struct PreviewFeatureView<F: FlowService, A: AssetStoreService>: View {
                 DockedPreviewContentView(
                     vm: self.state.previewContentViewModel,
                     style: self.style.dockedPreviewStyle,
-                    cache: self.cache,
+                    cache: self.state,
                     dispatch: self.previewViewDispatch(_:)
                 )
             }
         }
         .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.state.viewSizeDidChange($0) })
+        .focusedSceneValue(self.state)
     }
 }
 
@@ -157,12 +161,16 @@ enum PreviewContentViewAction {
 
 @Observable
 @MainActor
-private class MockFlow: FlowService {
+private final class MockFlow: FlowService {
     var nodes: [UUID: FlowNode]
     var nodePositions: [UUID: CGPoint]
     var selection: Set<UUID>
     var edges: Set<Edge>
     var partialEdge: PartialEdge?
+
+    convenience init() {
+        self.init(.init())
+    }
 
     init(_ id: UUID) {
         self.nodes = [id: .init(id: id, kind: .valueNode(.image), name: nil)]
@@ -218,7 +226,7 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 
 @Observable
 @MainActor
-private class MockAssetStore: AssetStoreService {
+private final class MockAssetStore: AssetStoreService {
 
     var image: CIImage? = nil
 
@@ -244,14 +252,9 @@ private class MockAssetStore: AssetStoreService {
 }
 
 #Preview {
-    @Previewable @State var state = PreviewFeatureState(
-        flow: MockFlow(UUID()),
-        assetStore: MockAssetStore(),
-        cardDockLocation: .down
-    )
     ZStack {
         Colors.canvasBackground.color
-        PreviewFeatureView(state: state)
+        PreviewFeatureView(MockFlow(), MockAssetStore())
     }
     .frame(minWidth: 800, minHeight: 600)
 }

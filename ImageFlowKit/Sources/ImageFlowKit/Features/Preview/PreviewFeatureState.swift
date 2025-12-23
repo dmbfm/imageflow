@@ -1,3 +1,4 @@
+import CIImageView
 import Controls
 import CoreImage
 import Foundation
@@ -21,17 +22,28 @@ public enum PreviewPosition: String, Equatable, CaseIterable {
     }
 }
 
+extension PreviewFeatureState: @MainActor CIImageScrollViewCache {
+    func get(id: String) -> CIImageScrollView.CacheEntry? {
+        self.scrollCache[id]
+    }
+
+    func set(id: String, value: CIImageScrollView.CacheEntry) {
+        self.scrollCache[id] = value
+    }
+}
+
 @Observable
 @MainActor
-class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
+final class PreviewFeatureState {
 
-    let flow: F
-    let assetStore: A
+    let flow: any FlowService
+    let assetStore: any AssetStoreService
+    var scrollCache: [String: CIImageScrollView.CacheEntry] = [:]
 
     var cardSize: Bounded<CGFloat> = .init(50...600, 300)
     var cardAlignment: CardAlignment = .bottomTrailing
     var cardDockLocation: CardDockLocation? = nil
-    var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...620, 300))
+    var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...1000, 300))
 
     var isLocked: Bool {
         self.sm.output.lock
@@ -62,10 +74,14 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
     }
 
     private var sm: StateMachineStore<SM> = .init()
+
+    @ObservationIgnored
     private var task: Task<(), Never>? = nil
+
+    @ObservationIgnored
     private var selectedImagePorts: Set<OutputPortLocation> = []
 
-    init(flow: F, assetStore: A, cardDockLocation: CardDockLocation? = nil) {
+    init(flow: some FlowService, assetStore: some AssetStoreService, cardDockLocation: CardDockLocation? = nil) {
         self.flow = flow
         self.assetStore = assetStore
         self.cardDockLocation = cardDockLocation
@@ -75,10 +91,15 @@ class PreviewFeatureState<F: FlowService, A: AssetStoreService> {
     }
 
     func viewSizeDidChange(_ newSize: CGSize) {
-        let min = max(newSize.height * 0.1, 100)
-        let max = max(newSize.height * 0.85, 2 * min)
-        self.cardDockHeights.down = self.cardDockHeights.down.withRange(min...max)
-        self.cardDockHeights.up = self.cardDockHeights.down.withRange(min...max)
+        // NOTE: This is if clause a *hack* to bypass the fact the the screen changes
+        // to many samll sizes during startup on macos... probably won't hurt
+        // on iOS as well.
+        if newSize.width > 300 && newSize.height > 300 {
+            let min = max(newSize.height * 0.1, 100)
+            let max = max(newSize.height * 0.85, 2 * min)
+            self.cardDockHeights.down = self.cardDockHeights.down.withRange(min...max)
+            self.cardDockHeights.up = self.cardDockHeights.down.withRange(min...max)
+        }
     }
 
     public func toggleLocked() {
@@ -317,4 +338,5 @@ extension FlowService {
                 .map({ (id, e) in OutputPortLocation(node: id, index: e.id) })
         )
     }
+
 }

@@ -10,7 +10,6 @@ struct MainContentViewIPadOS: View {
     let flow: Flow
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
-    let previewState: PreviewFeatureState<Flow, AssetStore>
     @FocusState var focus: Focus?
 
     @State var showNodePaletteModal: Bool = false
@@ -23,6 +22,9 @@ struct MainContentViewIPadOS: View {
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
     @State var error: LocalizedAlertError? = nil
     @State var assetBrowserError: LocalizedAlertError? = nil
+    
+    @FocusedValue(PreviewFeatureState.self)
+    var previewState: PreviewFeatureState?
 
     @Environment(\.undoManager) var undoManager
 
@@ -30,12 +32,10 @@ struct MainContentViewIPadOS: View {
         flow: Flow,
         canvas: CanvasFeatureState,
         assetStore: AssetStore,
-        previewState: PreviewFeatureState<Flow, AssetStore>
     ) {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
-        self.previewState = previewState
     }
 
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
@@ -100,7 +100,6 @@ struct MainContentViewIPadOS: View {
                 self.canvas,
                 self.flow,
                 self.assetStore,
-                self.previewState,
                 self.$focus,
                 self.canvasFeatureViewDelegate
             )
@@ -132,23 +131,26 @@ struct MainContentViewIPadOS: View {
         }
 
         ToolbarItem(placement: .primaryAction) {
-            @Bindable var p = self.previewState
-            Menu("Preview", systemImage: "photo.on.rectangle") {
-                Picker("Preview", selection: $p.previewPosition) {
-                    Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
-                        .tag(PreviewPosition.topLeft)
-                    Label("Top Right", systemImage: "inset.filled.topright.rectangle")
-                        .tag(PreviewPosition.topRight)
-                    Label("Bottom Left", systemImage: "inset.filled.bottomleft.rectangle")
-                        .tag(PreviewPosition.bottomLeft)
-                    Label("Bottom Right", systemImage: "inset.filled.bottomright.rectangle")
-                        .tag(PreviewPosition.bottomRight)
-                    Label("Top", systemImage: "inset.filled.tophalf.rectangle")
-                        .tag(PreviewPosition.topDock)
-                    Label("Bottom", systemImage: "inset.filled.bottomhalf.rectangle")
-                        .tag(PreviewPosition.bottomDock)
+            if let previewState = self.previewState {
+                @Bindable var p = previewState
+                
+                Menu("Preview", systemImage: "photo.on.rectangle") {
+                    Picker("Preview", selection: $p.previewPosition) {
+                        Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
+                            .tag(PreviewPosition.topLeft)
+                        Label("Top Right", systemImage: "inset.filled.topright.rectangle")
+                            .tag(PreviewPosition.topRight)
+                        Label("Bottom Left", systemImage: "inset.filled.bottomleft.rectangle")
+                            .tag(PreviewPosition.bottomLeft)
+                        Label("Bottom Right", systemImage: "inset.filled.bottomright.rectangle")
+                            .tag(PreviewPosition.bottomRight)
+                        Label("Top", systemImage: "inset.filled.tophalf.rectangle")
+                            .tag(PreviewPosition.topDock)
+                        Label("Bottom", systemImage: "inset.filled.bottomhalf.rectangle")
+                            .tag(PreviewPosition.bottomDock)
+                    }
+                    .labelsVisibility(.visible)
                 }
-                .labelsVisibility(.visible)
             }
         }
 

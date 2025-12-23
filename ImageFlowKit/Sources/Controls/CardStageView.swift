@@ -1,7 +1,7 @@
 import Helpers
 import SwiftUI
 
-public struct CardDockHeights {
+public struct CardDockHeights: Sendable, Codable {
     public var up: Bounded<CGFloat>
     public var down: Bounded<CGFloat>
 
@@ -19,12 +19,12 @@ public struct CardDockHeights {
     }
 }
 
-public enum CardDockLocation: String, Equatable, CaseIterable {
+public enum CardDockLocation: String, Equatable, CaseIterable, Sendable, Codable {
     case down
     case up
 }
 
-public enum CardAlignment: String, Equatable, CaseIterable {
+public enum CardAlignment: String, Equatable, CaseIterable, Sendable, Codable {
     case topLeading
     case topTrailing
     case bottomLeading

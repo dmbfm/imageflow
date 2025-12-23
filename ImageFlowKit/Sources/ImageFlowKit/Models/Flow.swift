@@ -10,6 +10,7 @@ protocol FlowService: AnyObject {
     var selection: Set<UUID> { get set }
     var edges: Set<Edge> { get set }
     var partialEdge: PartialEdge? { get set }
+    init()
 }
 
 /// Observable model backing the node-based flow editor, responsible for nodes,
@@ -17,6 +18,7 @@ protocol FlowService: AnyObject {
 @Observable
 @MainActor
 final class Flow: FlowService {
+
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode]
     /// The positions of the nodes.
@@ -68,6 +70,10 @@ final class Flow: FlowService {
         self.nodePositions = nodes.mapValues({ $0.1 })
         self.selection = selection
         self.edges = edges
+    }
+
+    convenience init() {
+        self.init(nodes: [:])
     }
 }
 
