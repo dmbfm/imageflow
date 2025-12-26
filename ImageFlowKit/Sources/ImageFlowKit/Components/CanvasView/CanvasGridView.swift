@@ -74,6 +74,17 @@ final class CanvasGridView: PlatformView {
     }
 
     #if os(macOS)
+    private var hasMovedToWindow: Bool = false
+    override func viewWillMove(toWindow newWindow: NSWindow?) {
+        guard newWindow != nil else { return }
+
+        Task { @MainActor in
+            self.hasMovedToWindow = true
+            self.setNeedsDisplay()
+        }
+    }
+
+
     public override func draw(_ dirtyRect: NSRect) {
         guard let context = NSGraphicsContext.current?.cgContext else {
             return
@@ -82,11 +93,24 @@ final class CanvasGridView: PlatformView {
         if let viewport = self.viewport, let layer = self.layer {
             self.drawBackgroundTiles(context, layer, viewport)
         }
-        self.drawEdges(context)
+
+        if self.hasMovedToWindow {
+            self.drawEdges(context)
+        }
     }
     #endif
 
     #if os(iOS)
+    
+    private var hasMovedToWindow: Bool = false
+    
+    override func willMove(toWindow newWindow: UIWindow?) {
+        Task { @MainActor in
+            self.hasMovedToWindow = true
+            self.setNeedsDisplay()
+        }
+    }
+    
     public override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else {
             return
@@ -95,7 +119,10 @@ final class CanvasGridView: PlatformView {
         if let viewport = self.viewport {
             self.drawBackgroundEllipses(context, self.layer, viewport)
         }
-        self.drawEdges(context)
+        
+        if self.hasMovedToWindow {
+            self.drawEdges(context)
+        }
     }
     #endif
 
@@ -103,9 +130,9 @@ final class CanvasGridView: PlatformView {
 
     var edgeShapeLayers: [CAShapeLayer] = []
 
-    var curves: [UUID: (CanvasView.EdgeCurve, Int)] = [:]
+    var curves: [CanvasView.Edge: (CanvasView.EdgeCurve, Int)] = [:]
 
-    private func setupShapeLayers() {
+        private func setupShapeLayers() {
         for _ in 0..<10 {
             let layer = CAShapeLayer()
             layer.fillColor = nil
@@ -140,7 +167,7 @@ final class CanvasGridView: PlatformView {
                 for edge in edgeLayer.edges {
                     let curve = CanvasView.EdgeCurve(start: edge.src, end: edge.dst, withViewport: viewport)
                     curve.addToPath(path)
-                    self.curves[edge.id] = (curve, idx)
+                    self.curves[edge] = (curve, idx)
                 }
 
                 return path

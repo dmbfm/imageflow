@@ -5,13 +5,16 @@ struct PreviewFeatureCommands: Commands {
     @FocusedValue(PreviewFeatureState.self)
     var previewState: PreviewFeatureState?
 
+    #if os(macOS)
+    @FocusedValue(WindowPreviewViewModel.self) var windowPreviewViewModel
+    #endif
+
     var body: some Commands {
-        if let previewState = self.previewState {
 
-            @Bindable var p = previewState
-
-            CommandGroup(after: .sidebar) {
-                Section {
+        CommandGroup(after: .sidebar) {
+            Section {
+                if let previewState = self.previewState {
+                    @Bindable var p = previewState
                     Picker(selection: $p.previewPosition) {
                         Section("Floating") {
                             Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
@@ -33,7 +36,91 @@ struct PreviewFeatureCommands: Commands {
                         Label("Preview Position", systemImage: "pointer.arrow.and.square.on.square.dashed")
                     }
                 }
+                // }
+                // }
+
+                #if os(macOS)
+
+                if let vm = self.windowPreviewViewModel {
+                    @Bindable var vm = vm
+
+                    Menu {
+                        Button {
+                            vm.action = .zoomIn(animate: true)
+                        } label: {
+                            LabeledContent("Zoom In") {
+                                Image(systemName: "plus.magnifyingglass")
+                            }
+                        }
+
+                        Button {
+                            vm.action = .zoomOut(animate: true)
+                        } label: {
+                            LabeledContent("Zoom Out") {
+                                Image(systemName: "minus.magnifyingglass")
+                            }
+                        }
+
+                        Button {
+                            vm.action = .actualSize(animate: true)
+                        } label: {
+                            LabeledContent("Actual Size") {
+                                Image(systemName: "1.magnifyingglass")
+                            }
+                        }
+
+                        Button {
+                            vm.action = .zoomToFit(animate: true)
+                        } label: {
+                            LabeledContent("Zoom To Fit") {
+                                Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
+                            }
+                        }
+
+                        Divider()
+
+                        Toggle(isOn: $vm.pinned) {
+                            LabeledContent("Always On Top") {
+                                Image(systemName: "pin")
+                            }
+                        }
+
+                    } label: {
+                        LabeledContent("Preview Window") {
+                            Image(systemName: "macwindow")
+                        }
+                    }
+                }
+                #endif
+
+                #if os(macOS)
+
+                if let previewState = self.previewState {
+                    Button {
+                        if let loc = previewState.location {
+                            previewState.openPreviewWindow(loc)
+                        }
+                    } label: {
+                        LabeledContent("Open Preview Window") {
+                            Image(systemName: "macwindow.on.rectangle")
+                        }
+                    }
+                    .disabled(previewState.location == nil)
+                }
+                #endif
             }
         }
+
+        #if os(macOS)
+        if let vm = self.windowPreviewViewModel {
+            @Bindable var vm = vm
+
+            CommandGroup(after: .importExport) {
+                Button("Export Image...") {
+
+                }
+            }
+        }
+        #endif
     }
 }

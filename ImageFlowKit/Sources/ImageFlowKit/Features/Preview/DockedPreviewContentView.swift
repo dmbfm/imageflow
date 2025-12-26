@@ -230,7 +230,7 @@ struct GlassToolbarView: View {
         [
             .trio(
                 id: "left",
-                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock", disabled: self.vm.lockButtonDisabled),
+                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock", disabled: self.vm.noImage),
                 .init(
                     id: .dockSwitch,
                     icon: self.vm.dockLocation == .down
@@ -370,7 +370,7 @@ struct ClassicToolbarView: View {
             btn(self.vm.isLocked ? "lock.fill" : "lock") {
                 self.dispatch?(.toggleLock)
             }
-            .disabled(self.vm.lockButtonDisabled)
+            .disabled(self.vm.noImage)
 
             VDivider()
 
@@ -378,6 +378,11 @@ struct ClassicToolbarView: View {
             {
                 self.dispatch?(.dockOpposite)
             }
+
+            btn("macwindow.on.rectangle") {
+                self.dispatch?(.openWindow)
+            }
+            .disabled(self.vm.noImage)
 
             btn("pip.enter") {
                 self.dispatch?(.undock)
@@ -389,6 +394,7 @@ struct ClassicToolbarView: View {
 
             btn("square.and.arrow.down") {
             }
+            .disabled(self.vm.noImage)
         }
         .overlay(alignment: .center) {
             HStack(spacing: 8) {
@@ -396,20 +402,24 @@ struct ClassicToolbarView: View {
                     btn("plus.magnifyingglass") {
                         self.action = .zoomIn(animate: true)
                     }
+                    .disabled(self.vm.noImage)
 
                     btn("minus.magnifyingglass") {
                         self.action = .zoomOut(animate: true)
                     }
+                    .disabled(self.vm.noImage)
 
                     self.zoomLabel
 
                     btn("1.magnifyingglass") {
                         self.action = .actualSize(animate: true)
                     }
+                    .disabled(self.vm.noImage)
 
                     btn("arrow.up.left.and.down.right.magnifyingglass") {
                         self.action = .zoomToFit(animate: true)
                     }
+                    .disabled(self.vm.noImage)
                 }
             }
         }

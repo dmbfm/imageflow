@@ -6,32 +6,6 @@ import Helpers
 import Logging
 import SwiftUI
 
-public enum PreviewPosition: String, Equatable, CaseIterable {
-    case topLeft = "Top Left"
-    case bottomLeft = "Bottom Left"
-    case topRight = "Top Right"
-    case bottomRight = "Bottom Right"
-    case bottomDock = "Bottom"
-    case topDock = "Top"
-
-    var isDocked: Bool {
-        switch self {
-        case .bottomDock, .topDock: true
-        default: false
-        }
-    }
-}
-
-extension PreviewFeatureState: @MainActor CIImageScrollViewCache {
-    func get(id: String) -> CIImageScrollView.CacheEntry? {
-        self.scrollCache[id]
-    }
-
-    func set(id: String, value: CIImageScrollView.CacheEntry) {
-        self.scrollCache[id] = value
-    }
-}
-
 @Observable
 @MainActor
 final class PreviewFeatureState {
@@ -45,6 +19,10 @@ final class PreviewFeatureState {
     var cardDockLocation: CardDockLocation? = nil
     var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...1000, 300))
 
+    #if os(macOS)
+    var windows: [OutputPortLocation: PreviewWindowState] = [:]
+    #endif
+
     var isLocked: Bool {
         self.sm.output.lock
     }
@@ -57,8 +35,8 @@ final class PreviewFeatureState {
         .init(
             content: self.previewContent,
             isLocked: self.isLocked,
-            lockButtonDisabled: self.image == nil,
-            dockLocation: self.cardDockLocation
+            noImage: self.image == nil,
+            dockLocation: self.cardDockLocation,
         )
     }
 
@@ -69,6 +47,13 @@ final class PreviewFeatureState {
     var image: CIImage? {
         switch self.previewContent {
         case .image(let image, _): image
+        default: nil
+        }
+    }
+
+    var location: OutputPortLocation? {
+        switch self.previewContent {
+        case .image(_, let loc): loc
         default: nil
         }
     }
@@ -142,6 +127,7 @@ final class PreviewFeatureState {
                         self.sm.state = .loaded(locked, loc, response.res)
                     }
                 } catch {
+                    log("error \(error)", level: .error)
                     self.task = nil
                     if !Task.isCancelled {
                         self.sm.state = .nothing
@@ -210,7 +196,37 @@ extension PreviewFeatureState {
     }
 }
 
-// MARK: - SM
+// MARK: - PreviewFeatureState: CIImageScrollViewCache
+
+extension PreviewFeatureState: @MainActor CIImageScrollViewCache {
+    func get(id: String) -> CIImageScrollView.CacheEntry? {
+        self.scrollCache[id]
+    }
+
+    func set(id: String, value: CIImageScrollView.CacheEntry) {
+        self.scrollCache[id] = value
+    }
+}
+
+// MARK: - PreviewPosition
+
+public enum PreviewPosition: String, Equatable, CaseIterable {
+    case topLeft = "Top Left"
+    case bottomLeft = "Bottom Left"
+    case topRight = "Top Right"
+    case bottomRight = "Bottom Right"
+    case bottomDock = "Bottom"
+    case topDock = "Top"
+
+    var isDocked: Bool {
+        switch self {
+        case .bottomDock, .topDock: true
+        default: false
+        }
+    }
+}
+
+// MARK: - SM - State Machine
 
 private struct SM: @MainActor StateMachineImpl {
 
@@ -340,3 +356,136 @@ extension FlowService {
     }
 
 }
+
+// MARK: - PreviewFeatureState + openPreviewWindow
+
+#if os(macOS)
+extension PreviewFeatureState {
+
+    enum PreviewWindowState {
+        case closed(Closed)
+        case open(Open)
+
+        @MainActor
+        class ScrollCache: @MainActor CIImageScrollViewCache {
+            var entry: CIImageScrollView.CacheEntry?
+
+            func get(id: String) -> CIImageScrollView.CacheEntry? {
+                return self.entry
+            }
+
+            func set(id: String, value: CIImageScrollView.CacheEntry) {
+                self.entry = value
+            }
+        }
+
+        struct Open {
+            var window: NSWindow
+            var token: (any NSObjectProtocol)?
+            var scrollCache: ScrollCache
+        }
+
+        struct Closed {
+            var frame: CGRect
+            var scrollCache: ScrollCache
+        }
+
+        var window: NSWindow? {
+            switch self {
+            case .open(let open): open.window
+            default: nil
+            }
+        }
+
+        var token: (any NSObjectProtocol)? {
+            switch self {
+            case .open(let open): open.token
+            default: nil
+            }
+        }
+
+        var frame: CGRect? {
+            switch self {
+            case .closed(let closed): closed.frame
+            default: nil
+            }
+        }
+
+    }
+
+    func openPreviewWindow(_ loc: OutputPortLocation) {
+        if let window = self.windows[loc]?.window {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            let (frame, center, scrollCache): (CGRect, Bool, PreviewWindowState.ScrollCache) = {
+                if case let .closed(closed) = self.windows[loc] {
+                    (closed.frame, false, closed.scrollCache)
+                } else {
+                    (CGRect(origin: .zero, size: .init(width: 800, height: 600)), true, .init())
+                }
+            }()
+
+            let window = NSWindow(
+                contentRect: .zero,
+                styleMask: [.titled, .closable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
+
+            let coordinator = PreviewWindowCoordinator()
+
+            window.title = "Preview"
+            window.level = .normal
+            window.isReleasedWhenClosed = false
+            window.toolbarStyle = .unified
+            window.contentView = NSHostingView(
+                rootView: WindowPreviewContentView(
+                    location: loc,
+                    assetStore: self.assetStore,
+                    scrollCache: scrollCache,
+                    coordinator: coordinator,
+                    window: window
+                )
+            )
+
+            window.makeKeyAndOrderFront(nil)
+            window.setFrame(frame, display: false)
+
+            if center {
+                window.center()
+            }
+
+            var token: (any NSObjectProtocol)? = nil
+            token = NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification,
+                object: window,
+                queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+
+                    coordinator.windowWillClose?()
+
+                    if let token = self?.windows[loc]?.token {
+                        NotificationCenter.default.removeObserver(token)
+                    }
+
+                    if case let .open(open) = self?.windows[loc] {
+                        self?.windows[loc] = .closed(.init(frame: open.window.frame, scrollCache: open.scrollCache))
+                    } else {
+                        self?.windows.removeValue(forKey: loc)
+                    }
+
+                }
+            }
+
+            self.windows[loc] = .open(.init(window: window, token: token, scrollCache: scrollCache))
+        }
+    }
+}
+
+@MainActor
+final class PreviewWindowCoordinator {
+    var windowWillClose: (() -> ())?
+}
+
+#endif

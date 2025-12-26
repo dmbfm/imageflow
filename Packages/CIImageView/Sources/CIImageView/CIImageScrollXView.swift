@@ -45,6 +45,7 @@ extension CIImageScrollXView {
         case zoomIn(animate: Bool)
         case zoomOut(animate: Bool)
         case setZoom(value: CGFloat, center: CGPoint? = nil, animate: Bool)
+        case cacheSave
     }
 
     public struct Configuration {
@@ -73,7 +74,7 @@ extension CIImageScrollXView {
             mousePan: MousePan = .enabled(button: .other, modifiers: []),
             scrollWhellZoom: ScrollWheelZoom = .enabled(sensitivity: 0.25),
             zoomRange: ClosedRange<CGFloat> = 0.1...1000,
-            initialViewport: InitialViewport = .fit,
+            initialViewport: InitialViewport = .fit
         ) {
             self.mousePan = mousePan
             self.scrollWheelZoom = scrollWhellZoom
@@ -141,6 +142,7 @@ extension CIImageScrollXView {
     func didSetId(_ oldValue: String) {
         if self.id != oldValue {
             self.viewportStateInput(.didChangeID)
+            self.setNeedsLayout()
         }
     }
 }
@@ -177,11 +179,11 @@ struct ViewportRestoreState {
     mutating func input(_ input: Input) -> Output? {
         switch input {
         case .frameDidSet:
-            return self.frameDidSet()
+            self.frameDidSet()
         case .layoutOrImageChange(let id, let cache):
-            return self.layout(id, cache)
+            self.layout(id, cache)
         case .didChangeID:
-            return self.didChangeID()
+            self.didChangeID()
         }
     }
 
@@ -232,12 +234,7 @@ struct ViewportRestoreState {
     mutating func frameDidSet() -> Output? {
         switch self.state {
         case .idle:
-            if self.initial == .fit {
-                self.state = .adjusting(.now)
-                return .zoomToFit
-            } else {
-                return nil
-            }
+            return nil
         case .adjusting(let start):
             if Date.now.timeIntervalSince(start) > self.fitAdjustmentTimeout {
                 self.state = .done

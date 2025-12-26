@@ -345,6 +345,8 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
             self.zoomOut(animate)
         case .setZoom(let value, let point, let animate):
             self.setZoom(value: value, centeredAt: point, animate: animate)
+        case .cacheSave:
+            self.cacheSave()
         }
     }
 

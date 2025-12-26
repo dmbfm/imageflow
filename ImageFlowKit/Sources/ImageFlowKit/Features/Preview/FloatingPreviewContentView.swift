@@ -49,6 +49,7 @@ public struct FloatingPreviewContentView: View {
         case export
         case dockDown
         case dockUp
+        case openWindow
 
         var action: PreviewContentViewAction {
             switch self {
@@ -56,6 +57,7 @@ public struct FloatingPreviewContentView: View {
             case .export: .export
             case .dockDown: .dockDown
             case .dockUp: .dockUp
+            case .openWindow: .openWindow
             }
         }
     }
@@ -64,19 +66,38 @@ public struct FloatingPreviewContentView: View {
         self.width > self.widthToHideControls
     }
 
+    #if os(macOS)
+    private var middleItems: PreviewToolbarElement<Name> {
+        .trio(
+            id: "middle",
+            .init(id: .dockDown, icon: "inset.filled.bottomhalf.rectangle"),
+            .init(id: .dockUp, icon: "inset.filled.tophalf.rectangle"),
+            .init(id: .openWindow, icon: "macwindow.on.rectangle"),
+        )
+    }
+    #endif
+
+    #if os(iOS)
+    private var middleItems: PreviewToolbarElement<Name> {
+        .pair(
+            id: "middle",
+            .init(id: .dockDown, icon: "inset.filled.bottomhalf.rectangle"),
+            .init(id: .dockUp, icon: "inset.filled.tophalf.rectangle"),
+        )
+    }
+    #endif
+
     private var toolbar: [PreviewToolbarElement<Name>] {
         [
             .item(
                 .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock"),
             ),
             .spacer,
-            .pair(
-                id: "middle",
-                .init(id: .dockDown, icon: "inset.filled.bottomhalf.rectangle"),
-                .init(id: .dockUp, icon: "inset.filled.tophalf.rectangle")
-            ),
+            self.middleItems,
             .spacer,
-            .item(.init(id: .export, icon: "square.and.arrow.down")),
+            .item(
+                .init(id: .export, icon: "square.and.arrow.down"),
+            ),
         ]
     }
 
@@ -190,17 +211,25 @@ extension FloatingPreviewContentView {
     let vm = PreviewContentViewModel(
         content: .image(previewImage, .init(node: .init(), index: 0)),
         isLocked: false,
-        lockButtonDisabled: false
+        noImage: false,
     )
     FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Loading") {
-    let vm = PreviewContentViewModel(content: .loading, isLocked: false, lockButtonDisabled: false)
+    let vm = PreviewContentViewModel(
+        content: .loading,
+        isLocked: false,
+        noImage: false,
+    )
     FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Unavailable") {
-    let vm = PreviewContentViewModel(content: .unavailable, isLocked: false, lockButtonDisabled: false)
+    let vm = PreviewContentViewModel(
+        content: .unavailable,
+        isLocked: false,
+        noImage: false,
+    )
     FloatingPreviewContentView.Preview(vm: vm)
 }

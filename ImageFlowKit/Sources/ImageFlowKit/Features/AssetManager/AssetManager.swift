@@ -213,8 +213,12 @@ actor AssetManager {
                         else {
                             throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
                         }
-
-                        guard let thumb = CGImageSourceCreateThumbnailAtIndex(source, 0, opts) else {
+                        
+                        let thumbTask = Task.detached(name: nil, priority: .utility) {
+                            CGImageSourceCreateThumbnailAtIndex(source, 0, opts)
+                        }
+                        
+                        guard let thumb = await thumbTask.value else {
                             throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
                         }
 

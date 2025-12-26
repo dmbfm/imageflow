@@ -31,6 +31,7 @@ class ScrollCache: @MainActor CIImageScrollViewCache {
 struct PreviewFeatureView: View {
 
     @State var state: PreviewFeatureState
+    @Environment(\.openWindow) var openWindow
 
     init(_ flow: some FlowService, _ assetStore: some AssetStoreService) {
         self._state = .init(initialValue: .init(flow: flow, assetStore: assetStore))
@@ -65,6 +66,15 @@ struct PreviewFeatureView: View {
             self.state.cardDockLocation = self.state.cardDockLocation.map { if $0 == .down { .up } else { .down } }
         case .export:
             log("TODO: export")
+        case .openWindow:
+            #if os(macOS)
+            if let loc = self.state.location {
+                self.state.openPreviewWindow(loc)
+                // self.openWindow(id: "preview-window", value: loc)
+            }
+            #else
+            break
+            #endif
         }
     }
 
@@ -144,7 +154,7 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
 struct PreviewContentViewModel {
     var content: PreviewContent
     var isLocked: Bool
-    var lockButtonDisabled: Bool
+    var noImage: Bool
     var dockLocation: CardDockLocation?
 }
 
@@ -155,6 +165,7 @@ enum PreviewContentViewAction {
     case toggleLock
     case export
     case dockOpposite
+    case openWindow
 }
 
 // MARK: - Previews

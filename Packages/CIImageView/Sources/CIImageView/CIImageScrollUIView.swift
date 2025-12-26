@@ -146,6 +146,8 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
             self.zoomOut(animate)
         case .setZoom(let value, let center, let animate):
             self.setZoom(value: value, animate: animate)
+        case .cacheSave:
+            self.cacheSave()
         }
     }
 

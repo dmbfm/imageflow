@@ -113,6 +113,11 @@ final class CanvasNSView: NSView {
         self.onEvent?(.didMoveToSuperview)
     }
 
+    override func layout() {
+        super.layout()
+        self.updateContentView()
+    }
+
     // MARK: - GridView Methods
 
     func setupGridView() {
