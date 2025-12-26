@@ -197,6 +197,14 @@ struct GlassToolbarView: View {
         case zoomFit
     }
 
+    var zoomText: String {
+        if case .image = self.vm.content {
+            zoomFormatter.string(for: self.zoom)!
+        } else {
+            ""
+        }
+    }
+
     func handle(_ id: Name) {
         switch id {
         case .lock:
@@ -242,7 +250,7 @@ struct GlassToolbarView: View {
                 id: "middle",
                 .init(id: .zoomIn, icon: "plus.magnifyingglass"),
                 .init(id: .zoomOut, icon: "minus.magnifyingglass"),
-                zoomFormatter.string(for: self.zoom)!,
+                self.zoomText,
                 .init(id: .zoomActual, icon: "1.magnifyingglass"),
                 .init(id: .zoomFit, icon: "arrow.up.left.and.down.right.magnifyingglass"),
             ),

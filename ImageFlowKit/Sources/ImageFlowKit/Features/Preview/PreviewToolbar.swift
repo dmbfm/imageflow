@@ -205,6 +205,7 @@ struct PreviewToolbarView<ID: PreviewToolbarElementID>: View {
                             .glassEffectUnion(id: id, namespace: self.ns)
 
                         Text(str)
+                            .frame(width: 72)
                             .glassEffect()
                             .glassEffectUnion(id: id, namespace: self.ns)
 
