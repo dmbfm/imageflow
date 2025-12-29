@@ -71,6 +71,12 @@ let package = Package(
 // Enable the NonisolatedNonsendingByDefault experimental feature
 for target in package.targets {
     var settings = target.swiftSettings ?? []
-    settings.append(.enableExperimentalFeature("NonisolatedNonsendingByDefault"))
+    let features = [
+        "NonisolatedNonsendingByDefault",
+        "InferIsolatedConformances",
+    ]
+    for feat in features {
+        settings.append(.enableExperimentalFeature(feat))
+    }
     target.swiftSettings = settings
 }
