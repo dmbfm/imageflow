@@ -22,7 +22,7 @@ struct MainContentViewIPadOS: View {
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
     @State var error: LocalizedAlertError? = nil
     @State var assetBrowserError: LocalizedAlertError? = nil
-    
+
     @FocusedValue(PreviewFeatureState.self)
     var previewState: PreviewFeatureState?
 
@@ -133,7 +133,7 @@ struct MainContentViewIPadOS: View {
         ToolbarItem(placement: .primaryAction) {
             if let previewState = self.previewState {
                 @Bindable var p = previewState
-                
+
                 Menu("Preview", systemImage: "photo.on.rectangle") {
                     Picker("Preview", selection: $p.previewPosition) {
                         Label("Top Left", systemImage: "inset.filled.topleft.rectangle")

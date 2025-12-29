@@ -102,7 +102,7 @@ final class CanvasUIView: UIView {
     override func didMoveToSuperview() {
         self.onEvent?(.didMoveToSuperview)
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
         self.updateContentView()

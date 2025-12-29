@@ -84,7 +84,6 @@ final class CanvasGridView: PlatformView {
         }
     }
 
-
     public override func draw(_ dirtyRect: NSRect) {
         guard let context = NSGraphicsContext.current?.cgContext else {
             return
@@ -101,16 +100,16 @@ final class CanvasGridView: PlatformView {
     #endif
 
     #if os(iOS)
-    
+
     private var hasMovedToWindow: Bool = false
-    
+
     override func willMove(toWindow newWindow: UIWindow?) {
         Task { @MainActor in
             self.hasMovedToWindow = true
             self.setNeedsDisplay()
         }
     }
-    
+
     public override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else {
             return
@@ -119,7 +118,7 @@ final class CanvasGridView: PlatformView {
         if let viewport = self.viewport {
             self.drawBackgroundEllipses(context, self.layer, viewport)
         }
-        
+
         if self.hasMovedToWindow {
             self.drawEdges(context)
         }
@@ -132,7 +131,7 @@ final class CanvasGridView: PlatformView {
 
     var curves: [CanvasView.Edge: (CanvasView.EdgeCurve, Int)] = [:]
 
-        private func setupShapeLayers() {
+    private func setupShapeLayers() {
         for _ in 0..<10 {
             let layer = CAShapeLayer()
             layer.fillColor = nil

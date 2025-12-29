@@ -42,7 +42,7 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
                 self.imageView.frame.size = self.imageView.imageLogicalSize
                 self.scrollView.contentSize = self.imageView.imageLogicalSize
             }
-            
+
             self.setNeedsLayout()
         }
     }
@@ -77,7 +77,7 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
         self.id = id
         self.cache = cache
         self.viewportRestoreState = .init(configuration)
-        
+
         super.init(frame: frame)
 
         self.addSubview(self.scrollView)
@@ -86,7 +86,7 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
     public required init?(coder: NSCoder) {
         nil
     }
-    
+
     public override var frame: CGRect {
         didSet {
             self.viewportStateInput(.frameDidSet)

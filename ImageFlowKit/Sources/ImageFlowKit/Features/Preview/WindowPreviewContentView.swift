@@ -63,7 +63,7 @@ struct WindowPreviewContentView: View {
             Colors.canvasBackground.color
 
             @Bindable var vm = self.vm
-            
+
             if let image = self.image {
                 CIImageScrollView(
                     id: "",
