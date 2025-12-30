@@ -184,7 +184,7 @@ actor AssetManager {
     ) async throws(AssetManagerError) -> GeneratedResource<CubeLut> {
         fatalError("Not supported")
     }
-
+    
     func getAssetResource(thumbFor id: UUID) async throws(AssetManagerError) -> CGImage {
         guard let asset = self.assets[id] else {
             throw .getAssetResource(.assetNotFound)
@@ -214,7 +214,7 @@ actor AssetManager {
                             throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
                         }
 
-                        let thumbTask = Task.detached(name: nil, priority: .utility) {
+                        let thumbTask = Task.detached {
                             CGImageSourceCreateThumbnailAtIndex(source, 0, opts)
                         }
 
