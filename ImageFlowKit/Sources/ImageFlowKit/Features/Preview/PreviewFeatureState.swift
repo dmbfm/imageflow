@@ -6,6 +6,242 @@ import Helpers
 import Logging
 import SwiftUI
 
+extension Set where Element == PreviewContentViewModel.AvailableEntry {
+    func contains(_ loc: OutputPortLocation) -> Bool {
+        self.contains(where: { $0.location == loc })
+    }
+}
+
+struct PreviewContentViewModel {
+
+    var available: Set<AvailableEntry> = []
+    var state: State = .nothing
+
+    var image: CIImage? {
+        self.state.image
+    }
+
+    var currentLocation: OutputPortLocation? {
+        self.state.location
+    }
+
+    var locked: Bool {
+        switch self.state {
+        case .nothing: false
+        case .error(let locked, _, _),
+            .loading(let locked, _, _),
+            .loaded(let locked, _, _):
+            locked
+        }
+    }
+
+    struct AvailableEntry: Hashable {
+        var location: OutputPortLocation
+        var name: String
+    }
+
+    enum State: Equatable {
+        case nothing
+        case loading(Bool, OutputPortLocation, CIImage?)
+        case loaded(Bool, OutputPortLocation, CIImage)
+        case error(Bool, OutputPortLocation, String)
+
+        var image: CIImage? {
+            switch self {
+            case .loaded(_, _, let image): image
+            case .loading(_, _, let image): image
+            case .nothing, .error: nil
+            }
+        }
+
+        var location: OutputPortLocation? {
+            switch self {
+            case .loading(_, let loc, _), .loaded(_, let loc, _), .error(_, let loc, _): loc
+            case .nothing: nil
+            }
+        }
+
+        var lockAndLocation: (Bool, OutputPortLocation)? {
+            switch self {
+            case .error(let lock, let loc, _),
+                .loaded(let lock, let loc, _),
+                .loading(let lock, let loc, _):
+                (lock, loc)
+            case .nothing: nil
+            }
+        }
+
+        func mapLock(_ f: (Bool) -> Bool) -> State {
+            switch self {
+            case .loading(let lock, let a, let b): .loading(f(lock), a, b)
+            case .loaded(let lock, let a, let b): .loaded(f(lock), a, b)
+            case .error(let lock, let a, let b): .error(f(lock), a, b)
+            case .nothing: .nothing
+            }
+        }
+
+        func mapLocation(_ f: (OutputPortLocation) -> OutputPortLocation) -> State {
+            switch self {
+            case .loading(let a, let loc, let b): .loading(a, f(loc), b)
+            case .loaded(let a, let loc, let b): .loaded(a, f(loc), b)
+            case .error(let a, let loc, let b): .error(a, f(loc), b)
+            case .nothing: .nothing
+            }
+        }
+    }
+
+    enum Effect: Equatable {
+        case startLoading(OutputPortLocation)
+    }
+
+    enum Input {
+        case sel(Set<AvailableEntry>)
+        case pick(OutputPortLocation)
+        case imageUpdated(OutputPortLocation)
+        case imageLoaded(OutputPortLocation, CIImage)
+        case imageError(OutputPortLocation, String)
+        case lock
+        case unlock
+        case toggleLock
+    }
+
+    init?(available: Set<AvailableEntry> = [], state: State = .nothing) {
+        self.available = available
+        self.state = state
+
+        switch self.state {
+        case .nothing: break
+        case .loaded(true, _, _), .loading(true, _, _), .error(true, _, _): break
+        case .loaded(false, let loc, _), .loading(false, let loc, _), .error(false, let loc, _):
+            if !self.available.contains(loc) {
+                return nil
+            }
+        }
+    }
+
+    mutating func input(_ input: Input) -> Effect? {
+        switch input {
+        case .imageUpdated(let loc):
+            return self.imageUpdated(loc)
+        case .imageLoaded(let loc, let image):
+            return self.imageLoaded(loc, image)
+        case .imageError(let loc, let message):
+            return self.imageError(loc, message)
+        case .lock:
+            return self.lock()
+        case .unlock:
+            return self.unlock()
+        case .toggleLock:
+            return self.toggleLock()
+        case .pick(let loc):
+            return self.pick(loc)
+        case .sel(let sel):
+            return self.selection(sel)
+        }
+    }
+
+    mutating func imageError(_ loc: OutputPortLocation, _ message: String) -> Effect? {
+        switch self.state {
+        case .loading(let lock, loc, _):
+            self.state = .error(lock, loc, message)
+        default:
+            break
+        }
+
+        return nil
+    }
+
+    mutating func imageLoaded(_ loc: OutputPortLocation, _ image: CIImage) -> Effect? {
+        switch self.state {
+        case .loading(let lock, loc, _):
+            self.state = .loaded(lock, loc, image)
+        default:
+            break
+        }
+
+        return nil
+    }
+
+    mutating func imageUpdated(_ loc: OutputPortLocation) -> Effect? {
+        if self.currentLocation == loc {
+            self.state = .loading(self.locked, loc, self.image)
+            return .startLoading(loc)
+        }
+
+        return nil
+    }
+
+    mutating func pick(_ loc: OutputPortLocation) -> Effect? {
+
+        guard !self.locked, self.currentLocation != loc else { return nil }
+
+        self.state = .loading(false, loc, self.image)
+        return .startLoading(loc)
+    }
+
+    mutating func toggleLock() -> Effect? {
+        if !self.locked {
+            self.lock()
+        } else {
+            self.unlock()
+        }
+    }
+
+    mutating func lock() -> Effect? {
+        self.state = self.state.mapLock { _ in
+            true
+        }
+
+        return nil
+    }
+
+    mutating func unlock() -> Effect? {
+
+        guard self.locked else { return nil }
+
+        if let loc = self.currentLocation {
+            if !self.available.contains(loc) {
+                if let first = self.available.first {
+                    self.state = .loading(false, first.location, self.image)
+                    return .startLoading(first.location)
+                } else {
+                    self.state = .nothing
+                }
+            }
+        }
+
+        return nil
+    }
+
+    mutating func selection(_ sel: Set<AvailableEntry>) -> Effect? {
+        self.available = sel
+
+        switch self.state.lockAndLocation {
+        case .none:
+            if let first = self.available.first {
+                self.state = .loading(false, first.location, self.image)
+                return .startLoading(first.location)
+            }
+
+        case .some((true, _)):
+            break
+
+        case .some((false, let loc)):
+
+            if let first = self.available.first {
+                if !self.available.contains(loc) {
+                    self.state = .loading(false, first.location, self.image)
+                    return .startLoading(first.location)
+                }
+            } else {
+                self.state = .nothing
+            }
+        }
+
+        return nil
+    }
+}
+
 @Observable
 @MainActor
 final class PreviewFeatureState {
@@ -23,48 +259,22 @@ final class PreviewFeatureState {
     var windows: [OutputPortLocation: PreviewWindowState] = [:]
     #endif
 
-    var isLocked: Bool {
-        self.sm.output.lock
-    }
-
-    var previewContent: PreviewContent {
-        self.sm.output.content
-    }
-
-    var previewContentViewModel: PreviewContentViewModel {
-        .init(
-            content: self.previewContent,
-            isLocked: self.isLocked,
-            noImage: self.image == nil,
-            dockLocation: self.cardDockLocation,
-        )
-    }
+    var previewContentViewModel: PreviewContentViewModel = .init()!
 
     var isDocked: Bool {
         self.previewPosition.isDocked
     }
 
     var image: CIImage? {
-        switch self.previewContent {
-        case .image(let image, _): image
-        default: nil
-        }
+        self.previewContentViewModel.image
     }
 
     var location: OutputPortLocation? {
-        switch self.previewContent {
-        case .image(_, let loc): loc
-        default: nil
-        }
+        self.previewContentViewModel.currentLocation
     }
-
-    private var sm: StateMachineStore<SM> = .init()
 
     @ObservationIgnored
     private var task: Task<(), Never>? = nil
-
-    @ObservationIgnored
-    private var selectedImagePorts: Set<OutputPortLocation> = []
 
     init(flow: some FlowService, assetStore: some AssetStoreService, cardDockLocation: CardDockLocation? = nil) {
         self.flow = flow
@@ -87,55 +297,57 @@ final class PreviewFeatureState {
         }
     }
 
-    public func toggleLocked() {
-        self.sm.input(.toggleLock) { newState in
-            self.sm.state = newState
-
-            switch newState {
-            case .loaded(false, _, _), .loading(false, _, _):
-                self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition(_:))
-            default:
-                break
+    func previewContentViewModel(input: PreviewContentViewModel.Input) {
+        if let effect = self.previewContentViewModel.input(input) {
+            switch effect {
+            case .startLoading(let loc):
+                self.task?.cancel()
+                self.task = Task { [weak self] in
+                    guard let self else { return }
+                    do {
+                        let response = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
+                        self.task = nil
+                        if !Task.isCancelled {
+                            self.previewContentViewModel(input: .imageLoaded(loc, response.res))
+                        }
+                    } catch {
+                        log("error \(error)", level: .error)
+                        self.task = nil
+                        if !Task.isCancelled {
+                            self.previewContentViewModel(input: .imageError(loc, "\(error)"))
+                        }
+                    }
+                }
             }
         }
     }
 
+    public func toggleLocked() {
+        self.previewContentViewModel(input: .toggleLock)
+    }
+
     private func observeSelection() async {
         for await _ in Observations({ self.flow.selection }) {
-            self.selectedImagePorts = self.flow.getSelectedImagePorts()
-            self.sm.input(.selection(self.selectedImagePorts), onTransition: self.onStateTransition)
+
+            var avail: Set<PreviewContentViewModel.AvailableEntry> = []
+
+            for id in self.flow.selection {
+                guard let node = self.flow.nodes[id] else { continue }
+                for output in node.outputs {
+                    let loc = OutputPortLocation(node: id, index: output.index)
+                    if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
+                        avail.insert(.init(location: loc, name: node.name))
+                    }
+                }
+            }
+
+            self.previewContentViewModel(input: .sel(avail))
         }
     }
 
     private func observeModifiedImages() async {
         for await loc in self.assetStore.modifiedGeneratedAssetStream {
-            self.sm.input(.image(loc, self.selectedImagePorts), onTransition: self.onStateTransition)
-        }
-    }
-
-    private func onStateTransition(_ nextState: SM.State) {
-        self.sm.state = nextState
-        self.task?.cancel()
-        switch self.sm.state {
-        case .loading(let locked, let loc, _):
-            self.task = Task { [weak self] in
-                guard let self else { return }
-                do {
-                    let response = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
-                    self.task = nil
-                    if !Task.isCancelled {
-                        self.sm.state = .loaded(locked, loc, response.res)
-                    }
-                } catch {
-                    log("error \(error)", level: .error)
-                    self.task = nil
-                    if !Task.isCancelled {
-                        self.sm.state = .nothing
-                    }
-                }
-            }
-        default:
-            break
+            self.previewContentViewModel(input: .imageUpdated(loc))
         }
     }
 }
@@ -222,124 +434,6 @@ public enum PreviewPosition: String, Equatable, CaseIterable {
         switch self {
         case .bottomDock, .topDock: true
         default: false
-        }
-    }
-}
-
-// MARK: - SM - State Machine
-
-private struct SM: @MainActor StateMachineImpl {
-
-    typealias LockState = Bool
-
-    enum State: Sendable {
-        case loaded(LockState, OutputPortLocation, CIImage)
-        case loading(LockState, OutputPortLocation, CIImage?)
-        case error(OutputPortLocation)
-        case nothing
-    }
-
-    struct S {
-        var isLocked: Bool = false
-    }
-
-    struct Output {
-        var content: PreviewContent
-        var lock: LockState = false
-    }
-
-    enum Input {
-        case selection(Set<OutputPortLocation>)
-        case image(OutputPortLocation, Set<OutputPortLocation>)
-        case toggleLock
-    }
-
-    static var initialState: State {
-        .nothing
-    }
-
-    static func step(state: State, input: Input) -> State? {
-        let commonSelection = {
-            (sel: Set<OutputPortLocation>, loc: OutputPortLocation, maybeImage: CIImage?) -> State? in
-            if sel.contains(loc) {
-                nil
-            } else if let first = sel.first {
-                .loading(false, first, maybeImage)
-            } else {
-                .nothing
-            }
-        }
-
-        let commonImage = {
-            (
-                lockState: LockState,
-                loc: OutputPortLocation,
-                curr: OutputPortLocation,
-                maybeImage: CIImage?
-            ) -> State? in
-            if curr == loc {
-                .loading(lockState, loc, maybeImage)
-            } else {
-                nil
-            }
-        }
-
-        return switch input {
-
-        case .selection(let sel):
-            switch state {
-            case .nothing, .error(_):
-                if let first = sel.first {
-                    .loading(false, first, nil)
-                } else {
-                    nil
-                }
-            case .loaded(true, _, _), .loading(true, _, _):
-                nil
-            case let .loaded(false, loc, image):
-                commonSelection(sel, loc, image)
-            case .loading(false, let loc, let maybeImage):
-                commonSelection(sel, loc, maybeImage)
-            }
-
-        case .image(let loc, let sel):
-            switch state {
-            case .nothing, .error(_):
-                if sel.contains(loc) {
-                    .loading(false, loc, nil)
-                } else {
-                    nil
-                }
-            case let .loaded(lockState, curr, image):
-                commonImage(lockState, loc, curr, image)
-            case let .loading(lockState, curr, maybeImage):
-                commonImage(lockState, loc, curr, maybeImage)
-            }
-
-        case .toggleLock:
-            switch state {
-            case .nothing, .error(_):
-                nil
-            case let .loaded(lock, loc, image):
-                .loaded(!lock, loc, image)
-            case let .loading(lock, loc, image):
-                .loading(!lock, loc, image)
-            }
-        }
-    }
-
-    static func output(state: State) -> Output {
-        switch state {
-        case .nothing:
-            .init(content: .unavailable)
-        case .error(_):
-            .init(content: .unavailable)
-        case .loading(let lockState, let loc, .some(let image)):
-            .init(content: .image(image, loc), lock: lockState)
-        case .loading(let lockState, _, .none):
-            .init(content: .unavailable, lock: lockState)
-        case .loaded(let lockState, let loc, let image):
-            .init(content: .image(image, loc), lock: lockState)
         }
     }
 }

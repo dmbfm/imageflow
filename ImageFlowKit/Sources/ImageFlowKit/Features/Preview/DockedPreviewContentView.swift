@@ -7,6 +7,7 @@ import SwiftUI
 struct DockedPreviewContentView: View {
 
     let vm: PreviewContentViewModel
+    let dockLocation: CardDockLocation
     let style: Style
     let cache: (any CIImageScrollViewCache)?
     var dispatch: ((PreviewContentViewAction) -> ())?
@@ -34,7 +35,7 @@ struct DockedPreviewContentView: View {
     }
 
     var zoomText: String {
-        if case .image = self.vm.content {
+        if self.vm.image != nil {
             zoomFormatter.string(for: self.zoom)!
         } else {
             ""
@@ -53,7 +54,7 @@ struct DockedPreviewContentView: View {
     @ViewBuilder
     var classicBody: some View {
         VStack(spacing: 0) {
-            if self.vm.dockLocation == .up {
+            if self.dockLocation == .up {
                 self.contentView
                 self.classicToolbarView
             } else {
@@ -67,6 +68,7 @@ struct DockedPreviewContentView: View {
     var classicToolbarView: some View {
         ClassicToolbarView(
             vm: self.vm,
+            dockLocation: self.dockLocation,
             zoom: self.$zoom,
             action: self.$action,
             dispatch: self.dispatch
@@ -76,7 +78,7 @@ struct DockedPreviewContentView: View {
     @ViewBuilder
     var glassBody: some View {
         VStack(spacing: 0) {
-            if self.vm.dockLocation == .down {
+            if self.dockLocation == .down {
                 ZStack {
                     Color.clear
                     Capsule()
@@ -92,6 +94,7 @@ struct DockedPreviewContentView: View {
 
                     GlassToolbarView(
                         vm: self.vm,
+                        dockLocation: self.dockLocation,
                         zoom: self.$zoom,
                         action: self.$action,
                         dispatch: self.dispatch
@@ -104,6 +107,7 @@ struct DockedPreviewContentView: View {
 
                     GlassToolbarView(
                         vm: self.vm,
+                        dockLocation: self.dockLocation,
                         zoom: self.$zoom,
                         action: self.$action,
                         dispatch: self.dispatch
@@ -129,8 +133,8 @@ struct DockedPreviewContentView: View {
 
     @ViewBuilder
     var contentView: some View {
-        switch vm.content {
-        case .image(let image, let loc):
+        switch vm.state {
+        case .loaded(_, let loc, let image), .loading(_, let loc, .some(let image)):
             CIImageScrollView(
                 id: "\(loc.node),\(loc.index)",
                 image: image,
@@ -166,6 +170,7 @@ enum DockedPreviewToolbarPlacement {
 struct GlassToolbarView: View {
 
     var vm: PreviewContentViewModel
+    var dockLocation: CardDockLocation
     @Binding var zoom: CGFloat
     @Binding var action: CIImageScrollView.Action?
     var dispatch: ((PreviewContentViewAction) -> ())?
@@ -176,11 +181,13 @@ struct GlassToolbarView: View {
 
     init(
         vm: PreviewContentViewModel,
+        dockLocation: CardDockLocation,
         zoom: Binding<CGFloat>,
         action: Binding<CIImageScrollView.Action?>,
-        dispatch: ((PreviewContentViewAction) -> ())? = nil
+        dispatch: ((PreviewContentViewAction) -> ())? = nil,
     ) {
         self.vm = vm
+        self.dockLocation = dockLocation
         self._zoom = zoom
         self._action = action
         self.dispatch = dispatch
@@ -198,7 +205,7 @@ struct GlassToolbarView: View {
     }
 
     var zoomText: String {
-        if case .image = self.vm.content {
+        if self.vm.image != nil {
             zoomFormatter.string(for: self.zoom)!
         } else {
             ""
@@ -230,10 +237,10 @@ struct GlassToolbarView: View {
         [
             .trio(
                 id: "left",
-                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock", disabled: self.vm.noImage),
+                .init(id: .lock, icon: self.vm.locked ? "lock.fill" : "lock", disabled: self.vm.image == nil),
                 .init(
                     id: .dockSwitch,
-                    icon: self.vm.dockLocation == .down
+                    icon: self.dockLocation == .down
                         ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle"
                 ),
                 .init(id: .undock, icon: "pip.enter"),
@@ -259,7 +266,7 @@ struct GlassToolbarView: View {
     }
 
     var alignment: Alignment {
-        if self.vm.dockLocation == .down {
+        if self.dockLocation == .down {
             .top
         } else {
             .bottom
@@ -267,7 +274,7 @@ struct GlassToolbarView: View {
     }
 
     var paddingAxis: SwiftUI.Edge.Set {
-        if self.vm.dockLocation == .down {
+        if self.dockLocation == .down {
             .top
         } else {
             .bottom
@@ -278,14 +285,9 @@ struct GlassToolbarView: View {
         ZStack(alignment: self.alignment) {
             let padding: CGFloat = 8
 
-            PreviewToolbarView(
-                elements: self.toolbarElements,
-                visible: true,
-                alignment: self.alignment,
-                handler: self.handle(_:)
-            )
-            .padding(self.paddingAxis, padding)
-            .padding(.horizontal, 20)
+            self.leftToolbarView
+                .padding(self.paddingAxis, padding)
+                .padding(.horizontal, 20)
 
             PreviewToolbarView(
                 elements: self.toolbarCenterElements,
@@ -295,12 +297,84 @@ struct GlassToolbarView: View {
             )
             .padding(self.paddingAxis, padding)
         }
+        .onChange(of: self.vm.currentLocation, initial: true) {
+            self.current = self.vm.currentLocation
+        }
+        .onChange(of: self.current, initial: false) {
+            if let current = self.current, self.vm.currentLocation != current {
+                self.dispatch?(.pick(current))
+            }
+        }
+    }
+
+    private let buttonSize: CGFloat = .when(macos: 28.0, ios: 36.0)
+    private let pairSpacing: CGFloat? = .when(macos: 0.0, ios: nil)
+    private let visible: Bool = true
+    @Namespace var ns
+
+    @State var current: OutputPortLocation? = nil
+
+    @ViewBuilder
+    var leftToolbarView: some View {
+        ZStack(alignment: self.alignment) {
+            Color.clear
+            HStack {
+                GlassEffectContainer {
+                    HStack(spacing: self.pairSpacing) {
+                        if self.visible {
+                            CircleGlassIconButton(self.vm.locked ? "lock.fill" : "lock") { self.handle(.lock) }
+                                .disabled(self.vm.image == nil)
+                                .glassEffectUnion(id: "window-group", namespace: self.ns)
+
+                            CircleGlassIconButton(
+                                self.dockLocation == .down
+                                    ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle"
+                            ) { self.handle(.dockSwitch) }
+                            .glassEffectUnion(id: "window-group", namespace: self.ns)
+
+                            CircleGlassIconButton("pip.enter") { self.handle(.undock) }
+                                .glassEffectUnion(id: "window-group", namespace: self.ns)
+
+                            Spacer()
+
+                            if self.vm.available.count >= 2 {
+                                HStack {
+                                    Image(systemName: "photo.stack.fill")
+                                        .padding(.leading, 8)
+
+                                    Picker("", systemImage: "photo.stack.fill", selection: self.$current) {
+                                        ForEach(Array(self.vm.available), id: \.self) { item in
+                                            Text("\(item.name)")
+                                                .tag(item.location)
+                                        }
+                                    }
+                                }
+                                .glassEffect(.regular.interactive(), in: .capsule)
+                                .glassEffectUnion(id: "picker-group", namespace: self.ns)
+                            }
+
+                            CircleGlassIconButton("square.and.arrow.down") { self.handle(.export) }
+                                .glassEffectUnion(id: "export-group", namespace: self.ns)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                GlassEffectContainer {}
+
+            }
+            .padding(.top, 8)
+            .padding(.horizontal, 8)
+            .circleGlassButtonSize(self.buttonSize)
+        }
     }
 }
 
 struct ClassicToolbarView: View {
 
     var vm: PreviewContentViewModel
+    var dockLocation: CardDockLocation
     @Binding var zoom: CGFloat
     @Binding var action: CIImageScrollView.Action?
     var dispatch: ((PreviewContentViewAction) -> ())?
@@ -313,6 +387,7 @@ struct ClassicToolbarView: View {
 
     init(
         vm: PreviewContentViewModel,
+        dockLocation: CardDockLocation,
         zoom: Binding<CGFloat>,
         action: Binding<CIImageScrollView.Action?>,
         dispatch: ((PreviewContentViewAction) -> ())? = nil
@@ -321,6 +396,7 @@ struct ClassicToolbarView: View {
         self._zoom = zoom
         self._action = action
         self.dispatch = dispatch
+        self.dockLocation = dockLocation
     }
 
     var zoomTextBgColor: Color {
@@ -328,7 +404,7 @@ struct ClassicToolbarView: View {
     }
 
     var zoomText: String {
-        if case .image = self.vm.content {
+        if self.vm.image != nil {
             zoomFormatter.string(for: self.zoom)!
         } else {
             ""
@@ -349,6 +425,14 @@ struct ClassicToolbarView: View {
             }
             Divider()
         }
+        .onChange(of: self.vm.currentLocation, initial: true) {
+            self.currentLocation = self.vm.currentLocation
+        }
+        .onChange(of: self.currentLocation) {
+            if let loc = self.currentLocation, loc != self.vm.currentLocation {
+                self.dispatch?(.pick(loc))
+            }
+        }
     }
 
     var zoomLabel: some View {
@@ -364,25 +448,26 @@ struct ClassicToolbarView: View {
 
     }
 
+    @State var currentLocation: OutputPortLocation? = nil
+
     @ViewBuilder
     var toolbarContentView: some View {
         HStack(spacing: 8) {
-            btn(self.vm.isLocked ? "lock.fill" : "lock") {
+            btn(self.vm.locked ? "lock.fill" : "lock") {
                 self.dispatch?(.toggleLock)
             }
-            .disabled(self.vm.noImage)
+            .disabled(self.vm.image == nil)
 
             VDivider()
 
-            btn(self.vm.dockLocation == .down ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle")
-            {
+            btn(self.dockLocation == .down ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle") {
                 self.dispatch?(.dockOpposite)
             }
 
             btn("macwindow.on.rectangle") {
                 self.dispatch?(.openWindow)
             }
-            .disabled(self.vm.noImage)
+            .disabled(self.vm.image == nil)
 
             btn("pip.enter") {
                 self.dispatch?(.undock)
@@ -392,9 +477,22 @@ struct ClassicToolbarView: View {
 
             Spacer()
 
+            if self.vm.available.count >= 2 {
+                Image(systemName: "photo.stack.fill")
+                    .padding(.trailing, -6)
+                Picker("", selection: self.$currentLocation) {
+                    ForEach(Array(self.vm.available), id: \.self) { item in
+                        Text("\(item.name)")
+                            .tag(item.location)
+                    }
+                }
+            }
+
+            VDivider()
+
             btn("square.and.arrow.down") {
             }
-            .disabled(self.vm.noImage)
+            .disabled(self.vm.image == nil)
         }
         .overlay(alignment: .center) {
             HStack(spacing: 8) {
@@ -402,24 +500,24 @@ struct ClassicToolbarView: View {
                     btn("plus.magnifyingglass") {
                         self.action = .zoomIn(animate: true)
                     }
-                    .disabled(self.vm.noImage)
+                    .disabled(self.vm.image == nil)
 
                     btn("minus.magnifyingglass") {
                         self.action = .zoomOut(animate: true)
                     }
-                    .disabled(self.vm.noImage)
+                    .disabled(self.vm.image == nil)
 
                     self.zoomLabel
 
                     btn("1.magnifyingglass") {
                         self.action = .actualSize(animate: true)
                     }
-                    .disabled(self.vm.noImage)
+                    .disabled(self.vm.image == nil)
 
                     btn("arrow.up.left.and.down.right.magnifyingglass") {
                         self.action = .zoomToFit(animate: true)
                     }
-                    .disabled(self.vm.noImage)
+                    .disabled(self.vm.image == nil)
                 }
             }
         }

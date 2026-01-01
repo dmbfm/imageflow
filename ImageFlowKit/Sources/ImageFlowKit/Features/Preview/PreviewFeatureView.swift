@@ -12,18 +12,15 @@ class ScrollCache: @MainActor CIImageScrollViewCache {
     var cache: [String: Entry] = [:]
 
     init() {
-        log("cache: init!")
         self.cache = [:]
     }
 
     func get(id: String) -> Entry? {
         let result = self.cache[id]
-        log("cache:get:\(id)->\(result, default: "nil")")
         return result
     }
 
     func set(id: String, value: Entry) {
-        log("cache:set:\(id):\(value)")
         self.cache[id] = value
     }
 }
@@ -35,10 +32,6 @@ struct PreviewFeatureView: View {
 
     init(_ flow: some FlowService, _ assetStore: some AssetStoreService) {
         self._state = .init(initialValue: .init(flow: flow, assetStore: assetStore))
-    }
-
-    var content: PreviewContent {
-        self.state.previewContent
     }
 
     var visibility: CardVisibility {
@@ -64,13 +57,14 @@ struct PreviewFeatureView: View {
             self.state.cardDockLocation = .up
         case .dockOpposite:
             self.state.cardDockLocation = self.state.cardDockLocation.map { if $0 == .down { .up } else { .down } }
+        case .pick(let loc):
+            self.state.previewContentViewModel(input: .pick(loc))
         case .export:
             log("TODO: export")
         case .openWindow:
             #if os(macOS)
             if let loc = self.state.location {
                 self.state.openPreviewWindow(loc)
-                // self.openWindow(id: "preview-window", value: loc)
             }
             #else
             break
@@ -107,6 +101,7 @@ struct PreviewFeatureView: View {
             } else {
                 DockedPreviewContentView(
                     vm: self.state.previewContentViewModel,
+                    dockLocation: self.state.cardDockLocation!,
                     style: self.style.dockedPreviewStyle,
                     cache: self.state,
                     dispatch: self.previewViewDispatch(_:)
@@ -151,13 +146,6 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
     }
 }
 
-struct PreviewContentViewModel {
-    var content: PreviewContent
-    var isLocked: Bool
-    var noImage: Bool
-    var dockLocation: CardDockLocation?
-}
-
 enum PreviewContentViewAction {
     case dockDown
     case dockUp
@@ -166,6 +154,7 @@ enum PreviewContentViewAction {
     case export
     case dockOpposite
     case openWindow
+    case pick(OutputPortLocation)
 }
 
 // MARK: - Previews
@@ -238,6 +227,9 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 @Observable
 @MainActor
 private final class MockAssetStore: AssetStoreService {
+    func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool {
+        true
+    }
 
     var image: CIImage? = nil
 

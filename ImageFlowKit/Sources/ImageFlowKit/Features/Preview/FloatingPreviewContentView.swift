@@ -5,12 +5,6 @@ import CoreImage.CIFilterBuiltins
 import Helpers
 import SwiftUI
 
-enum PreviewContent {
-    case unavailable
-    case image(CIImage, OutputPortLocation)
-    case loading
-}
-
 protocol PlatformConditional {
     static func when(macos: Self, ios: Self) -> Self
 }
@@ -90,7 +84,7 @@ public struct FloatingPreviewContentView: View {
     private var toolbar: [PreviewToolbarElement<Name>] {
         [
             .item(
-                .init(id: .lock, icon: self.vm.isLocked ? "lock.fill" : "lock"),
+                .init(id: .lock, icon: self.vm.locked ? "lock.fill" : "lock"),
             ),
             .spacer,
             self.middleItems,
@@ -122,7 +116,11 @@ public struct FloatingPreviewContentView: View {
             self.contentView
 
             if self.showControls {
-                ControlsView(elements: self.toolbar, visible: self.controlsVisible) { self.dispatch?($0.action) }
+                ControlsView(vm: self.vm, elements: self.toolbar, visible: self.controlsVisible) {
+                    self.dispatch?($0.action)
+                } pick: {
+                    self.dispatch?(.pick($0))
+                }
             }
         }
         .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { value in self.width = value }
@@ -135,13 +133,13 @@ public struct FloatingPreviewContentView: View {
 
     @ViewBuilder
     var contentView: some View {
-        switch self.vm.content {
-        case .image(let image, _):
+        switch self.vm.state {
+        case .loaded(_, _, let image), .loading(_, _, .some(let image)):
             CIImageView(image: image)
                 .placement(.fit)
-        case .unavailable:
+        case .nothing:
             ContentUnavailableView("No Image!", systemImage: "photo.badge.exclamationmark.fill")
-        case .loading:
+        default:
             ContentUnavailableView("Loading...", systemImage: "timelapse")
         }
     }
@@ -149,12 +147,73 @@ public struct FloatingPreviewContentView: View {
 
 private struct ControlsView<ID: PreviewToolbarElementID>: View {
 
+    let vm: PreviewContentViewModel
     let elements: [PreviewToolbarElement<ID>]
     var visible: Bool = true
     var handler: (ID) -> ()
+    var pick: (OutputPortLocation) -> ()
+
+    @State var current: OutputPortLocation? = nil
+    @Namespace var ns
 
     var body: some View {
-        PreviewToolbarView(elements: self.elements, visible: self.visible, handler: self.handler)
+        ZStack {
+            PreviewToolbarView(elements: self.elements, visible: self.visible, handler: self.handler)
+
+            ZStack(alignment: .bottom) {
+                Color.clear
+                GlassEffectContainer {
+                    VStack {
+                        if self.visible && self.vm.available.count >= 2 {
+                            #if os(macOS)
+                            HStack(spacing: 2) {
+                                Image(systemName: "photo.stack.fill")
+
+                                Picker(
+                                    "",
+                                    selection: self.$current,
+                                ) {
+                                    ForEach(Array(self.vm.available), id: \.self) { item in
+                                        Text("\(item.name)")
+                                            .tag(item.location)
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.trailing, 4)
+                            .padding(.leading, 6)
+                            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 8))
+                            .glassEffectUnion(id: "picker", namespace: self.ns)
+                            #else
+                            HStack {
+                                Image(systemName: "photo.stack.fill")
+                                    .padding(.leading, 8)
+
+                                Picker("", systemImage: "photo.stack.fill", selection: self.$current) {
+                                    ForEach(Array(self.vm.available), id: \.self) { item in
+                                        Text("\(item.name)")
+                                            .tag(item.location)
+                                    }
+                                }
+                            }
+                            .glassEffect(.regular.interactive(), in: .capsule)
+                            .glassEffectUnion(id: "picker", namespace: self.ns)
+                            #endif
+                        }
+                    }
+                    .frame(width: 200)
+                    .padding(.bottom, 12)
+                }
+            }
+        }
+        .onChange(of: self.vm.currentLocation, initial: true) {
+            self.current = self.vm.currentLocation
+        }
+        .onChange(of: self.current) {
+            if let current = self.current, current != self.vm.currentLocation {
+                self.pick(current)
+            }
+        }
     }
 }
 
@@ -208,28 +267,27 @@ extension FloatingPreviewContentView {
 }
 
 #Preview("Image") {
+    let loc = OutputPortLocation(node: .init(), index: 0)
     let vm = PreviewContentViewModel(
-        content: .image(previewImage, .init(node: .init(), index: 0)),
-        isLocked: false,
-        noImage: false,
-    )
+        available: [.init(location: loc, name: "Name")],
+        state: .loaded(false, loc, previewImage)
+    )!
     FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Loading") {
+    let loc = OutputPortLocation(node: .init(), index: 0)
     let vm = PreviewContentViewModel(
-        content: .loading,
-        isLocked: false,
-        noImage: false,
-    )
+        available: [.init(location: loc, name: "Name")],
+        state: .loading(false, loc, previewImage)
+    )!
     FloatingPreviewContentView.Preview(vm: vm)
 }
 
 #Preview("Unavailable") {
     let vm = PreviewContentViewModel(
-        content: .unavailable,
-        isLocked: false,
-        noImage: false,
-    )
+        available: [],
+        state: .nothing,
+    )!
     FloatingPreviewContentView.Preview(vm: vm)
 }

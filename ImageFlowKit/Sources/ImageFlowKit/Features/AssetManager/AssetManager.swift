@@ -173,6 +173,12 @@ actor AssetManager {
         }
     }
 
+    func hasGeneratedResource(
+        ciImageAt port: OutputPortLocation
+    ) -> Bool {
+        self.generatedResources.ciImages[port] != nil
+    }
+
     func getGeneratedResource(
         thumbAt port: OutputPortLocation
     ) async throws(AssetManagerError) -> GeneratedResource<CGImage> {
@@ -184,7 +190,7 @@ actor AssetManager {
     ) async throws(AssetManagerError) -> GeneratedResource<CubeLut> {
         fatalError("Not supported")
     }
-    
+
     func getAssetResource(thumbFor id: UUID) async throws(AssetManagerError) -> CGImage {
         guard let asset = self.assets[id] else {
             throw .getAssetResource(.assetNotFound)

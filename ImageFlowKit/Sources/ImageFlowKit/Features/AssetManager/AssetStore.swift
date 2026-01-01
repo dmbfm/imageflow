@@ -7,6 +7,7 @@ import Values
 @MainActor
 protocol AssetStoreService: AnyObject {
     func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage>
+    func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool
     var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> { get }
     init()
 }
@@ -138,6 +139,11 @@ final class AssetStore: AssetStoreService {
 
     func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage> {
         try await self.assetManager.getGeneratedResource(ciImageAt: port)
+    }
+
+
+    func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool {
+        await self.assetManager.hasGeneratedResource(ciImageAt: port)
     }
 
     private func onAssetManagerEvent(_ event: AssetManager.Event) async {
