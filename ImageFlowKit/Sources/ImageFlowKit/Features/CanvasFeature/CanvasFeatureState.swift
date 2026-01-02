@@ -6,11 +6,23 @@ import SwiftUI
 @MainActor
 final class CanvasFeatureState {
 
-    public var viewport: CanvasView.Viewport = .init()
+    var viewport: CanvasView.Viewport = .init() {
+        didSet {
+            self.delegate?.viewportDidChange(self.viewport)
+        }
+    }
 
-    public init(viewport: CanvasView.Viewport = .init(), nodePositions: [UUID: CGPoint] = .init()) {
+    var delegate: CanvasFeatureStateDelegate? = nil
+
+    public init(
+        viewport: CanvasView.Viewport = .init(),
+    ) {
         self.viewport = viewport
     }
+}
+
+struct CanvasFeatureStateDelegate {
+    var viewportDidChange: (CanvasView.Viewport) -> ()
 }
 
 extension CanvasFeatureState: Storable {

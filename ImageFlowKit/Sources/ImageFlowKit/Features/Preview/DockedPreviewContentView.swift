@@ -139,7 +139,7 @@ struct DockedPreviewContentView: View {
                 id: "\(loc.node),\(loc.index)",
                 image: image,
                 configuration: .init(),
-                action: $action,
+                action: self.$action,
                 cache: self.cache,
                 zoomDidChange: self.zoomDidChange(_:),
             )

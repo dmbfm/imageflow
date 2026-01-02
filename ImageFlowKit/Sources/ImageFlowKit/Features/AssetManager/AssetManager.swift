@@ -42,7 +42,7 @@ actor AssetManager {
     // MARK: - Exposed Properties
 
     private(set) var assets: [UUID: Asset] = [:] { didSet { self.assetsDidChange(oldValue) } }
-    @MainActor var emitter: EventEmitter<Event> = .init()
+    @MainActor var onEvent: ((Event) -> ())?
 
     // MARK: - Exposed Types
 
@@ -298,7 +298,7 @@ actor AssetManager {
 
     private func emit(_ event: Event) {
         Task { @MainActor in
-            self.emitter.emit(event)
+            self.onEvent?(event)
         }
     }
 

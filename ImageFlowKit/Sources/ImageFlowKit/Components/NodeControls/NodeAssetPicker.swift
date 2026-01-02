@@ -16,6 +16,7 @@ import UIKit
 protocol AssetPickerType {
     static func resolve(_ value: Values.Value) -> AssetIdentifier?
     static var none: Value { get }
+    static var assetKind: AssetKind { get }
 }
 
 struct ImageAssetPicker: AssetPickerType {
@@ -26,6 +27,10 @@ struct ImageAssetPicker: AssetPickerType {
     static var none: Value {
         .image(nil)
     }
+
+    static var assetKind: AssetKind {
+        .image
+    }
 }
 
 struct LutAssetPicker: AssetPickerType {
@@ -35,6 +40,10 @@ struct LutAssetPicker: AssetPickerType {
 
     static var none: Value {
         .lut(nil)
+    }
+
+    static var assetKind: AssetKind {
+        .lut
     }
 }
 
@@ -47,6 +56,11 @@ protocol NodeAssetPickerInnerView: PlatformView {
 struct NodeAssetPickerInnerViewModel {
     var label: String
     var showRemoveButton: Bool
+}
+
+protocol NodeAssetPickerDelegate: AnyObject {
+    func openAssetPicker(kind: AssetKind)
+    func titleForAsset(id: AssetIdentifier) -> String?
 }
 
 final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl {
@@ -63,20 +77,15 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     var tint: PlatformColor = .systemBlue
 
-    var delegate: Delegate?
-
-    struct Delegate {
-        var openAssetBrowser: () -> ()
-        var titleForAsset: (AssetIdentifier) -> String?
-    }
+    weak var delegate: (any NodeAssetPickerDelegate)? 
 
     var label: String {
         let maybeID = T.resolve(self.value)
         return switch maybeID {
         case .nodeOutput(let node, let port):
-            self.delegate?.titleForAsset(maybeID!) ?? "[\(node):\(port)]"
+            self.delegate?.titleForAsset(id: maybeID!) ?? "[\(node):\(port)]"
         case .asset(let uuid):
-            self.delegate?.titleForAsset(maybeID!) ?? "[\(uuid))]"
+            self.delegate?.titleForAsset(id: maybeID!) ?? "[\(uuid)]"
         case .none:
             "Select..."
         }
@@ -120,7 +129,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         return view
     }()
 
-    init(_ value: Value, isEditable: Bool = true, delegate: Delegate? = nil) {
+    init(_ value: Value, isEditable: Bool = true, delegate: (any NodeAssetPickerDelegate)? = nil) {
         self.value = value
         self.delegate = delegate
         self.isEditable = isEditable
@@ -142,7 +151,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
     @objc
     func buttonHandler() {
         log("openAssetBrowser: is delegate nil? \(self.delegate == nil)")
-        self.delegate?.openAssetBrowser()
+        self.delegate?.openAssetPicker(kind: T.assetKind)
     }
 
     @objc

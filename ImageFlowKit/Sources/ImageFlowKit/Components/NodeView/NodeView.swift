@@ -27,11 +27,9 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     var id: UUID { self.node.id }
 
-    typealias Delegate = NodeInputBlockView.Delegate
+    weak var delegate: NodeInputBlockView.Delegate?
 
     // MARK: - Private properties
-
-    private var inputBlockDelegate: NodeInputBlockView.Delegate?
 
     private var titleModel: NodeTitleView.ViewModel {
         .init(
@@ -70,7 +68,7 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     }()
 
     lazy var inputBlockView: NodeInputBlockView = {
-        let view = NodeInputBlockView(self.node.inputs, delegate: self.inputBlockDelegate, style: self.style.inputRow)
+        let view = NodeInputBlockView(self.node.inputs, delegate: self.delegate, style: self.style.inputRow)
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
@@ -107,13 +105,13 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     public init(
         _ node: FlowNode,
         _ isSelected: Bool = false,
-        delegate: Delegate? = nil,
+        delegate: NodeInputBlockView.Delegate? = nil,
         style: Style = .default
     ) {
         self.node = node
         self.isSelected = isSelected
         self.style = style
-        self.inputBlockDelegate = delegate
+        self.delegate = delegate
 
         super.init(frame: .zero)
 
@@ -319,6 +317,8 @@ extension NodeView {
     public struct Preview: PlatformViewRepresentable {
         let node: FlowNode
 
+        @State var cancellable: Set<AnyEventEmitterCancellable> = []
+
         public init(node: FlowNode) {
             self.node = node
         }
@@ -327,7 +327,7 @@ extension NodeView {
             view.clipsToBounds = false
             view.emitter.on { event in
                 log("event: \(event)")
-            }
+            }.store(in: &self.cancellable)
             return view
         }
 

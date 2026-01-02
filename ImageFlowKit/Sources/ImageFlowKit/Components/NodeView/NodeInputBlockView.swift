@@ -17,18 +17,47 @@ final class NodeInputBlockView: PlatformCommonView {
 
     var onEvent: ((Event) -> ())?
 
+    weak var delegate: (any Delegate)?
+
     private(set) var rows: [NodeInputRowView] = []
+
+    // MARK: - Private Properties
+     
+    private var delegates: [RowDelegate] = []
 
     // MARK: - Exposed Types
 
-    struct Delegate {
-        var openAssetPicker: (Int, AssetKind) -> ()
-        var titleForAsset: (AssetIdentifier) -> String?
+    protocol Delegate: AnyObject {
+        func openAssetPicker(portIndex: Int, kind: AssetKind)
+        func titleForAsset(id: AssetIdentifier) -> String?
+    }
+
+    // MARK: - Private Types
+
+
+    private final class RowDelegate: NodeInputRowView.Delegate {
+
+        var index: Int = 0
+
+        private weak var delegate: NodeInputBlockView.Delegate?
+
+        init(index: Int = 0, delegate: (any NodeInputBlockView.Delegate)?) {
+            self.index = index
+            self.delegate = delegate
+        }
+
+        func openAssetPicker(kind: AssetKind) {
+            self.delegate?.openAssetPicker(portIndex: self.index, kind: kind)
+        }
+
+        func titleForAsset(id: Values.AssetIdentifier) -> String? {
+            self.delegate?.titleForAsset(id: id)
+
+        }
     }
 
     // MARK: - Private properties
 
-    private var delegate: Delegate?
 
     private var style: NodeInputRowView.Style
 
@@ -84,20 +113,14 @@ final class NodeInputBlockView: PlatformCommonView {
             row.removeFromSuperview()
         }
         self.rows.removeAll()
+        self.delegates.removeAll()
         self.populateRows()
         self.onEvent?(.didRepopulateRows)
     }
 
     func populateRows() {
         for (idx, input) in inputs.enumerated() {
-            let delegate = NodeInputRowView.Delegate(
-                openAssetPicker: { kind in
-                    self.delegate?.openAssetPicker(idx, kind)
-                },
-                titleForAsset: { id in
-                    self.delegate?.titleForAsset(id)
-                }
-            )
+            let delegate = RowDelegate(index: idx, delegate: self.delegate)
             let row = NodeInputRowView(input, delegate: delegate, style: self.style)
             row.clipsToBounds = false
             row.onEvent = { [weak self] event in
@@ -111,6 +134,7 @@ final class NodeInputBlockView: PlatformCommonView {
                 }
             }
             self.rows.append(row)
+            self.delegates.append(delegate)
             self.addSubview(row)
         }
 

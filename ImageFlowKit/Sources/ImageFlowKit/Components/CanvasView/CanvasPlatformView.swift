@@ -72,19 +72,23 @@ extension CanvasPlatformView {
     private func addNode(_ node: some CanvasNodeView, at position: CGPoint) {
         node.frame.origin = position
         node.frame.size = node.intrinsicContentSize
-        node.emitter.on() { event in
+        // NOTE: It seems removing [weak node] here does not cause a retain cycle, but I'm leaving it here just for good
+        // measure (since I don't understand *why* a cycle does not happen here.)
+        node.emitter.on { [weak node] event in
             switch event {
             case .dragGesture:
                 break
             case .sizeChanged:
-                node.frame.size = node.intrinsicContentSize
+                if let node {
+                    node.frame.size = node.intrinsicContentSize
+                }
             case .click:
                 break
             case .other(_):
                 break
 
             }
-        }
+        }.store(in: &self.cancellable)
         self.nodeViews[node.id] = node
         self.contentView.addSubview(node)
         self.contentView.sortSubviews()

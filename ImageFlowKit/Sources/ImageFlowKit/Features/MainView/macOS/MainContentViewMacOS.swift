@@ -30,6 +30,7 @@ struct MainContentViewMacOS: View {
     @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
     @State var error: LocalizedAlertError? = nil
 
+    @State var canvasFeatureViewDelegate = CanvasFeatureViewDelegate()
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 

@@ -1,5 +1,6 @@
 import Backend
 import Foundation
+import Helpers
 import Logging
 import Values
 
@@ -10,7 +11,22 @@ protocol FlowService: AnyObject {
     var selection: Set<UUID> { get set }
     var edges: Set<Edge> { get set }
     var partialEdge: PartialEdge? { get set }
+    var delegate: FlowServiceDelegate? { get set }
+    var emitter: EventEmitter<FlowServiceEvent> { get }
     init()
+}
+
+enum FlowServiceEvent {
+    case nodesDidChange([UUID: FlowNode])
+    case edgesDidChange(Set<Edge>)
+    case nodePositionsDidChange([UUID: CGPoint])
+    case selectionDidChange(Set<UUID>)
+}
+
+struct FlowServiceDelegate {
+    var nodesDidChange: ([UUID: FlowNode]) -> ()
+    var edgesDidChange: (Set<Edge>) -> ()
+    var nodePositionsDidChange: ([UUID: CGPoint]) -> ()
 }
 
 /// Observable model backing the node-based flow editor, responsible for nodes,
@@ -20,15 +36,38 @@ protocol FlowService: AnyObject {
 final class Flow: FlowService {
 
     /// All nodes keyed by identifier.
-    public var nodes: [UUID: FlowNode]
+    public var nodes: [UUID: FlowNode] {
+        didSet {
+            self.delegate?.nodesDidChange(self.nodes)
+            self.emitter.emit(.nodesDidChange(self.nodes))
+        }
+    }
     /// The positions of the nodes.
-    public var nodePositions: [UUID: CGPoint]
+    public var nodePositions: [UUID: CGPoint] {
+        didSet {
+            self.delegate?.nodePositionsDidChange(self.nodePositions)
+            self.emitter.emit(.nodePositionsDidChange(self.nodePositions))
+        }
+    }
     /// The set of node identifiers that are currently selected.
-    public var selection: Set<UUID>
+    public var selection: Set<UUID> {
+        didSet {
+            self.emitter.emit(.selectionDidChange(self.selection))
+        }
+    }
     /// All edges currently present in the graph.
-    public var edges: Set<Edge>
+    public var edges: Set<Edge> {
+        didSet {
+            self.delegate?.edgesDidChange(self.edges)
+            self.emitter.emit(.edgesDidChange(self.edges))
+        }
+    }
 
     public var partialEdge: PartialEdge? = nil
+
+    public var delegate: FlowServiceDelegate? = nil
+
+    public var emitter: EventEmitter<FlowServiceEvent> = .init()
 
     @ObservationIgnored
     var portDraggingState: PortDraggingState = .idle

@@ -48,15 +48,11 @@ final class NodeInputRowView: PlatformView {
 
     // MARK: - Exposed Types
 
-    struct Delegate {
-        var openAssetPicker: (AssetKind) -> ()
-        var titleForAsset: (AssetIdentifier) -> String?
-    }
+    typealias Delegate = NodeAssetPickerDelegate
 
     // MARK: - Private Properties
 
-    private var delegate: Delegate
-
+    private weak var delegate: Delegate?
     private var style: Style
 
     #if os(macOS)
@@ -83,24 +79,6 @@ final class NodeInputRowView: PlatformView {
         return view
     }()
 
-    lazy var nodeImageInputDelegate: NodeAssetPicker<ImageAssetPicker>.Delegate = {
-        .init(
-            openAssetBrowser: {
-                self.delegate.openAssetPicker(.image)
-            },
-            titleForAsset: self.delegate.titleForAsset
-        )
-    }()
-
-    lazy var nodeLutInputDelegate: NodeAssetPicker<LutAssetPicker>.Delegate = {
-        .init(
-            openAssetBrowser: {
-                self.delegate.openAssetPicker(.lut)
-            },
-            titleForAsset: self.delegate.titleForAsset
-        )
-    }()
-
     lazy var controlView: any NodeControl = {
         let view: any NodeControl =
             switch self.input.value.type {
@@ -116,7 +94,7 @@ final class NodeInputRowView: PlatformView {
                 NodeAssetPicker<ImageAssetPicker>(
                     self.input.value,
                     isEditable: self.isEditable,
-                    delegate: self.nodeImageInputDelegate
+                    delegate: self.delegate
                 )
             case .color3, .color4:
                 NodeColorInput(self.input.value, isEditable: self.isEditable)
@@ -128,7 +106,7 @@ final class NodeInputRowView: PlatformView {
                 NodeAssetPicker<LutAssetPicker>(
                     self.input.value,
                     isEditable: self.isEditable,
-                    delegate: self.nodeLutInputDelegate
+                    delegate: self.delegate
                 )
             case .affineTransform:
                 EmptyControlView(value: self.input.value)
@@ -156,7 +134,7 @@ final class NodeInputRowView: PlatformView {
 
     // MARK: - Initializers
 
-    init(_ input: FlowNode.Input, delegate: Delegate, style: Style = .default) {
+    init(_ input: FlowNode.Input, delegate: Delegate?, style: Style = .default) {
         self.input = input
         self.style = style
         self.delegate = delegate
@@ -330,7 +308,7 @@ extension NodeInputRowView {
         func makeView(context: Context) -> NodeInputRowView {
             let view = NodeInputRowView(
                 self.input,
-                delegate: .init(openAssetPicker: { _ in }, titleForAsset: { _ in nil })
+                delegate: nil
             )
             view.onEvent = { log("event: \($0)") }
             return view

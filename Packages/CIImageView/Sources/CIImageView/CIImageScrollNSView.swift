@@ -138,8 +138,8 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
             forName: NSView.boundsDidChangeNotification,
             object: view.contentView,
             queue: .main,
-            using: { notification in
-                MainActor.assumeIsolated { self.clipViewBoundsDidChange() }
+            using: { [weak self] notification in
+                MainActor.assumeIsolated { self?.clipViewBoundsDidChange() }
             }
         )
 

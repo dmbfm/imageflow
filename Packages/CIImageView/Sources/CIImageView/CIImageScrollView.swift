@@ -51,13 +51,8 @@ public struct CIImageScrollView: XViewRepresentable {
 
         view.image = image
 
-        view.onEvent = { event in
-            Task { @MainActor in
-                switch event {
-                case .zoomDidChange(let value):
-                    self.zoomDidChange?(value)
-                }
-            }
+        view.onEvent = { [weak coordinator = context.coordinator] event in
+            coordinator?.onEvent(event)
         }
 
         if let action = self.action {
@@ -68,6 +63,9 @@ public struct CIImageScrollView: XViewRepresentable {
     }
 
     public func updateView(_ view: ViewType, context: Context) {
+
+        context.coordinator.zoomDidChange = self.zoomDidChange
+
         if view.image != self.image {
             view.image = self.image
         }
@@ -84,5 +82,23 @@ public struct CIImageScrollView: XViewRepresentable {
         }
 
         view.cache = self.cache
+    }
+
+    public func makeCoordinator() -> Coordinator {
+        Coordinator(zoomDidChange: self.zoomDidChange)
+    }
+
+    public class Coordinator {
+        var zoomDidChange: ((CGFloat) -> ())? = nil
+
+        init(zoomDidChange: ((CGFloat) -> ())? = nil) {
+            self.zoomDidChange = zoomDidChange
+        }
+
+        func onEvent(_ event: CIImageScrollXView.Event) {
+            switch event {
+            case .zoomDidChange(let zoom): self.zoomDidChange?(zoom)
+            }
+        }
     }
 }

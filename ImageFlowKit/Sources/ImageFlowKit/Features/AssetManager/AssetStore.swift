@@ -1,3 +1,4 @@
+import Helpers
 import Logging
 import Photos
 import PhotosUI
@@ -8,23 +9,40 @@ import Values
 protocol AssetStoreService: AnyObject {
     func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage>
     func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool
-    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> { get }
+    var emitter: EventEmitter<AssetStoreServiceEvent> { get }
     init()
+}
+
+enum AssetStoreServiceEvent {
+    case modifiedGeneratedAsset(OutputPortLocation)
+}
+
+struct AssetStoreServiceDelegate {
+    var assetsDidChange: ([UUID:Asset]) -> ()
 }
 
 @Observable
 @MainActor
 final class AssetStore: AssetStoreService {
 
-    private(set) var assets: [UUID: Asset] = [:]
+    private(set) var assets: [UUID: Asset] = [:] {
+        didSet {
+            self.delegate?.assetsDidChange(self.assets)
+        }
+    }
+    
+    var delegate: AssetStoreServiceDelegate? = nil
 
     @ObservationIgnored
     var thumbCache: [UUID: CGImage] = [:]
+    
+    @ObservationIgnored
+    var emitter: EventEmitter<AssetStoreServiceEvent> = .init()
 
     let assetManager: AssetManager = .init()
 
     init() {
-        self.assetManager.emitter.on { [weak self] event in
+        self.assetManager.onEvent = { [weak self] event in
             Task { @MainActor in
                 await self?.onAssetManagerEvent(event)
             }
@@ -150,19 +168,9 @@ final class AssetStore: AssetStoreService {
         case .assetsDidChange:
             self.assets = await self.assetManager.assets
         case .modifiedGeneratedAsset(let location):
-            self.asyncStreamAdapterCallback?(location)
+            self.emitter.emit(.modifiedGeneratedAsset(location))
         }
     }
-
-    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> {
-        .init { continuation in
-            self.asyncStreamAdapterCallback = { loc in
-                continuation.yield(loc)
-            }
-        }
-    }
-
-    private var asyncStreamAdapterCallback: ((OutputPortLocation) -> ())?
 }
 
 extension AssetStore: Storable {

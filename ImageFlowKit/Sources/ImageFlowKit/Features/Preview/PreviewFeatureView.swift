@@ -44,34 +44,6 @@ struct PreviewFeatureView: View {
 
     private let style: PreviewFeatureViewStyle = .default
 
-    // TODO: Move this to PreviewFeatureState
-    func previewViewDispatch(_ action: PreviewContentViewAction) {
-        switch action {
-        case .undock:
-            self.state.cardDockLocation = nil
-        case .toggleLock:
-            self.state.toggleLocked()
-        case .dockDown:
-            self.state.cardDockLocation = .down
-        case .dockUp:
-            self.state.cardDockLocation = .up
-        case .dockOpposite:
-            self.state.cardDockLocation = self.state.cardDockLocation.map { if $0 == .down { .up } else { .down } }
-        case .pick(let loc):
-            self.state.previewContentViewModel(input: .pick(loc))
-        case .export:
-            log("TODO: export")
-        case .openWindow:
-            #if os(macOS)
-            if let loc = self.state.location {
-                self.state.openPreviewWindow(loc)
-            }
-            #else
-            break
-            #endif
-        }
-    }
-
     public var body: some View {
 
         @Bindable var state = self.state
@@ -96,7 +68,7 @@ struct PreviewFeatureView: View {
             if self.state.cardDockLocation == nil {
                 FloatingPreviewContentView(
                     vm: self.state.previewContentViewModel,
-                    dispatch: self.previewViewDispatch(_:)
+                    dispatch: self.state.dispatch(_:)
                 )
             } else {
                 DockedPreviewContentView(
@@ -104,7 +76,7 @@ struct PreviewFeatureView: View {
                     dockLocation: self.state.cardDockLocation!,
                     style: self.style.dockedPreviewStyle,
                     cache: self.state,
-                    dispatch: self.previewViewDispatch(_:)
+                    dispatch: self.state.dispatch(_:)
                 )
             }
         }
@@ -162,6 +134,10 @@ enum PreviewContentViewAction {
 @Observable
 @MainActor
 private final class MockFlow: FlowService {
+    var emitter: Helpers.EventEmitter<FlowServiceEvent> = .init()
+
+    var delegate: FlowServiceDelegate?
+
     var nodes: [UUID: FlowNode]
     var nodePositions: [UUID: CGPoint]
     var selection: Set<UUID>
@@ -227,6 +203,8 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 @Observable
 @MainActor
 private final class MockAssetStore: AssetStoreService {
+    var emitter: EventEmitter<AssetStoreServiceEvent> = .init()
+
     func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool {
         true
     }
@@ -247,10 +225,6 @@ private final class MockAssetStore: AssetStoreService {
         }
 
         return .init(id: port, timestamp: .now, res: self.image!)
-    }
-
-    var modifiedGeneratedAssetStream: AsyncStream<OutputPortLocation> {
-        .init() { nil }
     }
 }
 

@@ -15,6 +15,7 @@ extension Set where Element == PreviewContentViewModel.AvailableEntry {
 struct PreviewContentViewModel {
 
     var available: Set<AvailableEntry> = []
+
     var state: State = .nothing
 
     var image: CIImage? {
@@ -276,13 +277,43 @@ final class PreviewFeatureState {
     @ObservationIgnored
     private var task: Task<(), Never>? = nil
 
+    @ObservationIgnored
+    private var cancellables: Set<AnyEventEmitterCancellable> = []
+
     init(flow: some FlowService, assetStore: some AssetStoreService, cardDockLocation: CardDockLocation? = nil) {
         self.flow = flow
         self.assetStore = assetStore
         self.cardDockLocation = cardDockLocation
 
-        Task { await self.observeSelection() }
-        Task { await self.observeModifiedImages() }
+        self.observeSelection()
+        self.observeModifiedImages()
+    }
+
+    func dispatch(_ action: PreviewContentViewAction) {
+        switch action {
+        case .undock:
+            self.cardDockLocation = nil
+        case .toggleLock:
+            self.toggleLocked()
+        case .dockDown:
+            self.cardDockLocation = .down
+        case .dockUp:
+            self.cardDockLocation = .up
+        case .dockOpposite:
+            self.cardDockLocation = self.cardDockLocation.map { if $0 == .down { .up } else { .down } }
+        case .pick(let loc):
+            self.previewContentViewModel(input: .pick(loc))
+        case .export:
+            log("TODO: export")
+        case .openWindow:
+            #if os(macOS)
+            if let loc = self.location {
+                self.openPreviewWindow(loc)
+            }
+            #else
+            break
+            #endif
+        }
     }
 
     func viewSizeDidChange(_ newSize: CGSize) {
@@ -326,35 +357,62 @@ final class PreviewFeatureState {
         self.previewContentViewModel(input: .toggleLock)
     }
 
-    private func observeSelection() async {
-        for await _ in Observations({ self.flow.selection }) {
-
-            var avail: Set<PreviewContentViewModel.AvailableEntry> = []
-
-            for id in self.flow.selection {
-                guard let node = self.flow.nodes[id] else { continue }
-                for output in node.outputs {
-                    let loc = OutputPortLocation(node: id, index: output.index)
-                    if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
-                        avail.insert(.init(location: loc, name: node.name))
-                    }
+    private func observeSelection() {
+        self.flow.emitter.on({ [weak self] event in
+            switch event {
+            case .selectionDidChange(_):
+                Task { @MainActor in
+                    await self?.onSelectionChanged()
                 }
+            default:
+                break
             }
-
-            self.previewContentViewModel(input: .sel(avail))
-        }
+        }).store(in: &self.cancellables)
     }
 
-    private func observeModifiedImages() async {
-        for await loc in self.assetStore.modifiedGeneratedAssetStream {
-            self.previewContentViewModel(input: .imageUpdated(loc))
+    func onSelectionChanged() async {
+        var avail: Set<PreviewContentViewModel.AvailableEntry> = []
+
+        for id in self.flow.selection {
+            guard let node = self.flow.nodes[id] else { continue }
+            for output in node.outputs {
+                let loc = OutputPortLocation(node: id, index: output.index)
+                if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
+                    avail.insert(.init(location: loc, name: node.name))
+                }
+            }
         }
+
+        self.previewContentViewModel(input: .sel(avail))
+    }
+
+    private func observeModifiedImages() {
+        self.assetStore.emitter.on { [weak self] event in
+            switch event {
+            case .modifiedGeneratedAsset(let loc):
+                self?.previewContentViewModel(input: .imageUpdated(loc))
+            }
+        }.store(in: &self.cancellables)
     }
 }
 
 // MARK: - PreviewFeatureState + previewPosition
 
 extension PreviewFeatureState {
+
+    var previewPositionSafeBinding: Binding<PreviewPosition?> {
+        .init(
+            get: { [weak self] in
+                self?.previewPosition
+            },
+            set: { [weak self] newValue in
+                if let newValue {
+                    self?.previewPosition = newValue
+                }
+            }
+        )
+    }
+
     var previewPosition: PreviewPosition {
         get {
             switch self.cardDockLocation {
@@ -474,8 +532,7 @@ extension PreviewFeatureState {
         }
 
         struct Open {
-            var window: NSWindow
-            var token: (any NSObjectProtocol)?
+            var windowController: NSWindowController
             var scrollCache: ScrollCache
         }
 
@@ -484,16 +541,10 @@ extension PreviewFeatureState {
             var scrollCache: ScrollCache
         }
 
+        @MainActor
         var window: NSWindow? {
             switch self {
-            case .open(let open): open.window
-            default: nil
-            }
-        }
-
-        var token: (any NSObjectProtocol)? {
-            switch self {
-            case .open(let open): open.token
+            case .open(let open): open.windowController.window
             default: nil
             }
         }
@@ -511,6 +562,9 @@ extension PreviewFeatureState {
         if let window = self.windows[loc]?.window {
             window.makeKeyAndOrderFront(nil)
         } else {
+
+            print("--> making new window: \(self.windows)")
+
             let (frame, center, scrollCache): (CGRect, Bool, PreviewWindowState.ScrollCache) = {
                 if case let .closed(closed) = self.windows[loc] {
                     (closed.frame, false, closed.scrollCache)
@@ -519,60 +573,26 @@ extension PreviewFeatureState {
                 }
             }()
 
-            let window = NSWindow(
-                contentRect: .zero,
-                styleMask: [.titled, .closable, .resizable],
-                backing: .buffered,
-                defer: false
-            )
+            let windowController = WindowPreviewController(
+                frame: frame,
+                center: center,
+                scrollCache: scrollCache,
+                assetStore: self.assetStore,
+                flow: self.flow,
+                location: loc,
+            ) { [weak self] in
+                guard let self else { return }
 
-            let coordinator = PreviewWindowCoordinator()
-
-            window.title = "Preview"
-            window.level = .normal
-            window.isReleasedWhenClosed = false
-            window.toolbarStyle = .unified
-            window.contentView = NSHostingView(
-                rootView: WindowPreviewContentView(
-                    location: loc,
-                    assetStore: self.assetStore,
-                    scrollCache: scrollCache,
-                    coordinator: coordinator,
-                    window: window
-                )
-            )
-
-            window.makeKeyAndOrderFront(nil)
-            window.setFrame(frame, display: false)
-
-            if center {
-                window.center()
-            }
-
-            var token: (any NSObjectProtocol)? = nil
-            token = NotificationCenter.default.addObserver(
-                forName: NSWindow.willCloseNotification,
-                object: window,
-                queue: .main
-            ) { [weak self] _ in
-                MainActor.assumeIsolated {
-
-                    coordinator.windowWillClose?()
-
-                    if let token = self?.windows[loc]?.token {
-                        NotificationCenter.default.removeObserver(token)
-                    }
-
-                    if case let .open(open) = self?.windows[loc] {
-                        self?.windows[loc] = .closed(.init(frame: open.window.frame, scrollCache: open.scrollCache))
-                    } else {
-                        self?.windows.removeValue(forKey: loc)
-                    }
-
+                if case let .open(open) = self.windows[loc], let window = open.windowController.window {
+                    self.windows[loc] = .closed(.init(frame: window.frame, scrollCache: open.scrollCache))
+                } else {
+                    self.windows.removeValue(forKey: loc)
                 }
             }
 
-            self.windows[loc] = .open(.init(window: window, token: token, scrollCache: scrollCache))
+            windowController.showWindow(nil)
+
+            self.windows[loc] = .open(.init(windowController: windowController, scrollCache: scrollCache))
         }
     }
 }

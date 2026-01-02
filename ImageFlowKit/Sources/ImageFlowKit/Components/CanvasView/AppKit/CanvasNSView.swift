@@ -45,6 +45,7 @@ final class CanvasNSView: NSView {
 
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var leftPanInitialPos: CGPoint?
+    var cancellable: Set<AnyEventEmitterCancellable> = []
 
     // MARK: - Subviews
 

@@ -2,8 +2,7 @@ import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
 
-    @FocusedValue(PreviewFeatureState.self)
-    var previewState: PreviewFeatureState?
+    @FocusedValue(PreviewFeatureState.self) var previewState
 
     #if os(macOS)
     @FocusedValue(WindowPreviewViewModel.self) var windowPreviewViewModel
@@ -14,8 +13,7 @@ struct PreviewFeatureCommands: Commands {
         CommandGroup(after: .sidebar) {
             Section {
                 if let previewState = self.previewState {
-                    @Bindable var p = previewState
-                    Picker(selection: $p.previewPosition) {
+                    Picker(selection: previewState.previewPositionSafeBinding) {
                         Section("Floating") {
                             Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
                                 .tag(PreviewPosition.topLeft)
@@ -42,35 +40,33 @@ struct PreviewFeatureCommands: Commands {
                 #if os(macOS)
 
                 if let vm = self.windowPreviewViewModel {
-                    @Bindable var vm = vm
-
                     Menu {
-                        Button {
-                            vm.action = .zoomIn(animate: true)
+                        Button { [weak vm] in
+                            vm?.action = .zoomIn(animate: true)
                         } label: {
                             LabeledContent("Zoom In") {
                                 Image(systemName: "plus.magnifyingglass")
                             }
                         }
 
-                        Button {
-                            vm.action = .zoomOut(animate: true)
+                        Button { [weak vm] in
+                            vm?.action = .zoomOut(animate: true)
                         } label: {
                             LabeledContent("Zoom Out") {
                                 Image(systemName: "minus.magnifyingglass")
                             }
                         }
 
-                        Button {
-                            vm.action = .actualSize(animate: true)
+                        Button { [weak vm] in
+                            vm?.action = .actualSize(animate: true)
                         } label: {
                             LabeledContent("Actual Size") {
                                 Image(systemName: "1.magnifyingglass")
                             }
                         }
 
-                        Button {
-                            vm.action = .zoomToFit(animate: true)
+                        Button { [weak vm] in
+                            vm?.action = .zoomToFit(animate: true)
                         } label: {
                             LabeledContent("Zoom To Fit") {
                                 Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
@@ -79,7 +75,7 @@ struct PreviewFeatureCommands: Commands {
 
                         Divider()
 
-                        Toggle(isOn: $vm.pinned) {
+                        Toggle(isOn: vm.pinnedBinding) {
                             LabeledContent("Always On Top") {
                                 Image(systemName: "pin")
                             }
@@ -94,11 +90,10 @@ struct PreviewFeatureCommands: Commands {
                 #endif
 
                 #if os(macOS)
-
                 if let previewState = self.previewState {
-                    Button {
-                        if let loc = previewState.location {
-                            previewState.openPreviewWindow(loc)
+                    Button { [weak previewState] in
+                        if let loc = previewState?.location {
+                            previewState?.openPreviewWindow(loc)
                         }
                     } label: {
                         LabeledContent("Open Preview Window") {
@@ -112,9 +107,7 @@ struct PreviewFeatureCommands: Commands {
         }
 
         #if os(macOS)
-        if let vm = self.windowPreviewViewModel {
-            @Bindable var vm = vm
-
+        if let _ = self.windowPreviewViewModel {
             CommandGroup(after: .importExport) {
                 Button("Export Image...") {
 

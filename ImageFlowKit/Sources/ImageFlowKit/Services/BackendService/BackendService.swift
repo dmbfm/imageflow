@@ -1,5 +1,6 @@
 import Backend
 import Foundation
+import Helpers
 import Logging
 
 @MainActor
@@ -7,6 +8,7 @@ class BackendService {
 
     var flow: Flow
     var assetStore: AssetStore
+    var cancellables: Set<AnyEventEmitterCancellable> = []
 
     init(_ flow: Flow, _ assetStore: AssetStore) {
         self.flow = flow
@@ -14,23 +16,15 @@ class BackendService {
     }
 
     func start() {
-        self.observeNodes()
-        self.run()
-    }
-
-    private func observeNodes() {
-        withObservationTracking(
-            {
-                _ = self.flow.nodes
-                _ = self.flow.edges
-            },
-            onChange: {
-                Task { @MainActor in
-                    self.run()
-                    self.observeNodes()
+        if self.cancellables.isEmpty {
+            self.flow.emitter.on { [weak self] event in
+                switch event {
+                case .edgesDidChange(_), .nodesDidChange(_): self?.run()
+                default: break
                 }
-            }
-        )
+            }.store(in: &self.cancellables)
+        }
+        self.run()
     }
 
     var task: Task<(), Never>? = nil

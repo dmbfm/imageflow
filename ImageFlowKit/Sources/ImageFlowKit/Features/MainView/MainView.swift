@@ -28,10 +28,50 @@ struct MainView: View {
         self.canvas = canvas
         self.assetStore = assetStore
         self.flow = flow
+
+        // Observe for AssetStore changes (assets )
+        self.assetStore.delegate = .init(assetsDidChange: { [weak document = self.document] assets in
+            document?.assetStore.withLockIfAvailable {
+                $0.assets = assets
+            }
+        })
+
+        // Observe for Flow changes (nodes, edges, nodePositions)
+        self.flow.delegate = .init(
+            nodesDidChange: { [weak document = self.document] nodes in
+                if let document {
+                    document.flow.withLockIfAvailable {
+                        $0.nodes = nodes
+                    }
+                }
+            },
+            edgesDidChange: { [weak document = self.document] edges in
+                if let document {
+                    document.flow.withLockIfAvailable {
+                        $0.edges = edges
+                    }
+                }
+            },
+            nodePositionsDidChange: {
+                [weak document = self.document] nodePositions in
+                if let document {
+                    document.flow.withLockIfAvailable {
+                        $0.nodePositions = nodePositions
+                    }
+                }
+
+            }
+        )
+
+        // Observe for Canvas iewport changes:
+        self.canvas.delegate = .init(viewportDidChange: { [weak document = self.document] viewport in
+            document?.canvas.withLockIfAvailable {
+                $0.viewport = viewport
+            }
+        })
     }
 
     func onAppear() {
-
         #if os(macOS)
         self.dismissWindow(id: WindowID.welcome.rawValue)
         #endif
@@ -47,78 +87,12 @@ struct MainView: View {
             self.assetStore.restore(assetStore)
         }
 
-        Task { await self.observeImageAssets() }
-        Task { await self.observeNodes() }
-        Task { await self.observeNodePositions() }
-        Task { await self.observeEdges() }
-        Task { await self.observeViewport() }
-
         if RunConfiguration.useSampleData {
             loadSampleData()
         }
 
         self.backendService = .init(self.flow, self.assetStore)
         self.backendService?.start()
-    }
-
-    func observeImageAssets() async {
-        let observation = Observations {
-            self.assetStore.assets
-        }
-
-        for await assets in observation {
-            self.document.assetStore.withLock {
-                $0.assets = assets
-            }
-        }
-    }
-
-    func observeViewport() async {
-        let observation = Observations {
-            return self.canvas.viewport
-        }
-
-        for await viewport in observation {
-            self.document.canvas.withLock {
-                $0.viewport = viewport
-            }
-        }
-    }
-
-    func observeNodes() async {
-        let observation = Observations {
-            self.flow.nodes
-        }
-
-        for await nodes in observation {
-            self.document.flow.withLock {
-                $0.nodes = nodes
-            }
-        }
-    }
-
-    func observeNodePositions() async {
-        let observation = Observations {
-            self.flow.nodePositions
-        }
-
-        for await nodePositions in observation {
-            self.document.flow.withLock {
-                $0.nodePositions = nodePositions
-            }
-        }
-    }
-
-    func observeEdges() async {
-        let observation = Observations {
-            self.flow.edges
-        }
-
-        for await edges in observation {
-            self.document.flow.withLock {
-                $0.edges = edges
-            }
-        }
     }
 
     func onChangeOfDocumentInfo() {

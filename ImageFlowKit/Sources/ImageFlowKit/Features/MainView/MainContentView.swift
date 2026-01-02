@@ -21,27 +21,21 @@ protocol MainContentViewProtocol: View {
     )
 }
 
+final class CanvasFeatureViewDelegate: NodeInputBlockView.Delegate {
+    func openAssetPicker(portIndex: Int, kind: AssetKind) {
+    }
+
+    func titleForAsset(id: Values.AssetIdentifier) -> String? {
+        ""
+    }
+}
+
 extension MainContentView: MainContentViewProtocol {}
 
 extension MainContentView {
 
     struct FileImporterConfiguration {
         var allowedContentTypes: [UTType]
-    }
-
-    var canvasFeatureViewDelegate: CanvasFeatureView.Delegate {
-        .init(
-            openAssetPicker: { picker in
-                self.openAssetPicker(picker)
-            },
-            fetchAsset: { id in
-                if case let .asset(id) = id {
-                    self.assetStore.assets[id]
-                } else {
-                    nil
-                }
-            }
-        )
     }
 
     var assetBrowserDelegate: AssetBrowserViewDelegate {
