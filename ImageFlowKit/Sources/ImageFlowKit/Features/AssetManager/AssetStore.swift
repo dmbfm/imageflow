@@ -141,7 +141,6 @@ final class AssetStore: AssetStoreService {
         try await self.assetManager.getGeneratedResource(ciImageAt: port)
     }
 
-
     func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool {
         await self.assetManager.hasGeneratedResource(ciImageAt: port)
     }
