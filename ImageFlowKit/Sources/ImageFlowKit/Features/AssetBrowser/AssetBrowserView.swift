@@ -4,201 +4,36 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Values
 
-enum AssetBrowserType: Equatable {
-    case picker(Picker)
-    case browser(Browser)
-
-    struct Picker: Equatable {
-        var assetKind: AssetKind
-        var portLocation: InputPortLocation
-    }
-
-    struct Browser: Equatable {
-        var assetKinds: AssetKindSet
-    }
-
-    var allowedAssetKinds: AssetKindSet {
-        switch self {
-        case .browser(let data): data.assetKinds
-        case .picker(let data): .assetKind(data.assetKind)
-        }
-    }
-
-    var isBrowser: Bool {
-        switch self {
-        case .browser: true
-        default: false
-        }
-    }
-}
-
-enum AssetBrowserResult {
-    case cancel
-    case pick(
-        assetKind: AssetKind,
-        assetId: UUID,
-        portLocation: InputPortLocation,
-    )
-    case create(
-        assetKind: AssetKind,
-        assetId: UUID,
-    )
-}
-
-struct AssetBrowserViewDelegate {
-    var onDismiss: (AssetBrowserResult) -> ()
-    var openFileImporter: ([UTType]) -> ()
-    var openPhotoPicker: () -> ()
-    var deleteAsset: (Asset) -> ()
-}
-
-@Observable
-@MainActor
-class AssetBrowserCoordinator {
-    var type: AssetBrowserType = .browser(.init(assetKinds: .all))
-
-    init(type: AssetBrowserType = .browser(.init(assetKinds: .all))) {
-        self.type = type
-    }
-}
-
 struct AssetBrowserView: View {
 
     // MARK: - State
 
-    let assetsProvider: any AssetBrowserAssetsProvider
-    let coordinator: AssetBrowserCoordinator
-    let allowedAssetKinds: AssetKindSet
-    let allowedImportTypes: [UTType]
-    let photoPickerDisabled: Bool
-    let gridImageSize: CGFloat = 146.0
-    let delegate: AssetBrowserViewDelegate
+    @State var vm: AssetBrowserViewModel
 
-    @State var selected: Asset? = nil
-    @State var searchText: String = ""
-    @State var showDeleteConfirmationDialog = false
-    @State var assetToDelete: Asset? = nil
-
-    @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
     @Namespace var toolbasNS
 
+    private let gridImageSize: CGFloat = 146.0
+    private let style: Style = .default
+
     // MARK: - Init
 
     init(
-        coordinator: AssetBrowserCoordinator,
+        assetsProvider: any AssetBrowserAssetsProvider,
         allowedAssetKinds: AssetKindSet,
         allowedImportTypes: [UTType],
-        photoPickerDisabled: Bool = false,
-        assetsProvider: any AssetBrowserAssetsProvider,
-        delegate: AssetBrowserViewDelegate,
+        photoPickerDisabled: Bool,
+        type: AssetBrowserType = .browser(.init(assetKinds: .all)),
     ) {
-        self.coordinator = coordinator
-        self.allowedAssetKinds = allowedAssetKinds
-        self.allowedImportTypes = allowedImportTypes
-        self.photoPickerDisabled = photoPickerDisabled
-        self.assetsProvider = assetsProvider
-        self.delegate = delegate
-    }
-
-    init(
-        coordinator: AssetBrowserCoordinator,
-        assetsProvider: any AssetBrowserAssetsProvider,
-        delegate: AssetBrowserViewDelegate,
-    ) {
-        self.coordinator = coordinator
-        let type = coordinator.type
-        self.allowedAssetKinds = type.allowedAssetKinds
-        self.allowedImportTypes = type.allowedAssetKinds.types
-        self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
-        self.assetsProvider = assetsProvider
-        self.delegate = delegate
-    }
-
-    // MARK: - Computed vars
-
-    var type: AssetBrowserType {
-        self.coordinator.type
-    }
-
-    fileprivate var style: Style {
-        .default
-    }
-
-    var sortedAssets: [Asset] {
-        self.assetsProvider.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
-            .sorted(by: { $0.timestamp < $1.timestamp })
-    }
-
-    var filteredAssets: [Asset] {
-        if self.searchText.isEmpty {
-            self.sortedAssets
-        } else {
-            self.sortedAssets.filter({ $0.filename?.contains(self.searchText) ?? false })
-        }
-    }
-
-    var selectButtonText: LocalizedStringResource {
-        if case .browser = self.type {
-            LocalizedStringResource("ab:create-node-btn", defaultValue: "Create Node")
-        } else {
-            LocalizedStringResource("ab:select-btn", defaultValue: "Select")
-        }
-    }
-
-    var cancelButtonText: LocalizedStringResource {
-        switch self.type {
-        case .picker:
-            LocalizedStringResource("ab:cancel-btn", defaultValue: "Cancel")
-        case .browser:
-            LocalizedStringResource("ab:close-btn", defaultValue: "Close")
-        }
-    }
-
-    // MARK: - Methods
-
-    func onTapItem(_ asset: Asset) {
-        switch asset.state {
-        case .loaded:
-            self.selected = asset
-        case .loading:
-            break
-        }
-    }
-
-    func deleteCommandHandler(_ asset: Asset) {
-        self.confirmAssetDelete(asset)
-    }
-
-    func deleteButtonHandler(_ asset: Asset) {
-        self.confirmAssetDelete(asset)
-    }
-
-    func confirmAssetDelete(_ asset: Asset) {
-        self.showDeleteConfirmationDialog = true
-        self.assetToDelete = asset
-    }
-
-    func confirmationDialogTitle(_ asset: Asset) -> String {
-        #if os(macOS)
-        if let name = asset.filename {
-            "Do you want to remove the asset '\(name)'?"
-        } else {
-            "Do you want to remove this asset?"
-        }
-        #else
-        "Do you want to remove this asset?"
-        #endif
-    }
-
-    func delete(_ asset: Asset) {
-        if case .loaded(filename: _) = asset.state {
-            if self.selected?.id == asset.id {
-                self.selected = nil
-            }
-            self.delegate.deleteAsset(asset)
-        }
+        self._vm = .init(
+            wrappedValue: .init(
+                assetsProvider: assetsProvider,
+                allowedAssetKinds: allowedAssetKinds,
+                allowedImportTypes: allowedImportTypes,
+                photoPickerDisabled: photoPickerDisabled
+            )
+        )
     }
 
     // MARK: - Body
@@ -220,18 +55,12 @@ struct AssetBrowserView: View {
         VStack {
             self.gridView
                 .onTapGesture {
-                    self.selected = nil
+                    self.vm.selected = nil
                 }
                 .safeAreaBar(edge: .top) { self.toolbarView }
                 .safeAreaBar(edge: .bottom) { self.footerView }
         }
         .ignoresSafeArea(.keyboard)
-        .onAppear {
-            log("[PreviewFeatureState.swift]: onAppear: \(self.type)")
-        }
-        .onChange(of: self.type, initial: true) {
-            log("[PreviewFeatureState.swift]: change of type: \(self.type)")
-        }
     }
 
     // MARK: - Toolbar
@@ -241,11 +70,12 @@ struct AssetBrowserView: View {
     var toolbarView: some View {
 
         let buttonSize: CGFloat = 18
+        @Bindable var vm = self.vm
 
         HStack(alignment: .center, spacing: 0) {
             HStack(spacing: 14) {
                 Button {
-                    self.delegate.openFileImporter(self.allowedImportTypes)
+                    self.vm.openFileImporter(self.vm.allowedImportTypes)
                 } label: {
                     Text("\(Image(systemName: "square.and.arrow.down"))")
                         .font(.system(size: buttonSize))
@@ -253,15 +83,15 @@ struct AssetBrowserView: View {
                 .buttonStyle(.primaryBorderless)
 
                 Button {
-                    self.delegate.openPhotoPicker()
+                    self.vm.openPhotoPicker()
                 } label: {
                     Text("\(Image(systemName: "photo.badge.plus.fill"))")
                         .font(.system(size: buttonSize))
-                        .foregroundStyle(self.photoPickerDisabled ? .tertiary : .primary)
+                        .foregroundStyle(self.vm.photoPickerDisabled ? .tertiary : .primary)
                         .baselineOffset(-4)
                 }
                 .buttonStyle(.primaryBorderless)
-                .disabled(self.photoPickerDisabled)
+                .disabled(self.vm.photoPickerDisabled)
             }
             .frame(height: 42)
             .padding(.horizontal, 14)
@@ -271,7 +101,7 @@ struct AssetBrowserView: View {
             Spacer()
 
             HStack {
-                TextField("Search...", text: self.$searchText)
+                TextField("Search...", text: $vm.searchText)
                     .textFieldStyle(.plain)
                     .frame(width: 150)
                     .padding(.leading, 20)
@@ -334,35 +164,38 @@ struct AssetBrowserView: View {
 
     @ViewBuilder
     var gridView: some View {
+
+        @Bindable var vm = self.vm
+
         ScrollView {
             VStack {
                 LazyVGrid(
                     columns: Array(repeating: GridItem(.fixed(self.gridImageSize)), count: 5),
                     spacing: 16
                 ) {
-                    ForEach(self.filteredAssets) { asset in
+                    ForEach(self.vm.filteredAssets) { asset in
                         AssetBrowserGridItemView(
                             asset: asset,
-                            thumbProvider: self.assetsProvider,
-                            selected: self.selected?.id == asset.id,
+                            thumbProvider: self.vm.assetsProvider,
+                            selected: self.vm.selected?.id == asset.id,
                         )
                         .focusable()
                         .focusEffectDisabled()
                         #if os(macOS)
                         .onDeleteCommand {
-                            self.deleteButtonHandler(asset)
+                            self.vm.deleteButtonHandler(asset)
                         }
                         #endif
                         .onTapGesture {
-                            self.onTapItem(asset)
+                            self.vm.onTapItem(asset)
                         }
                         .contextMenu {
-                            Button("Delete") { self.deleteButtonHandler(asset) }
+                            Button("Delete") { self.vm.deleteButtonHandler(asset) }
                                 .disabled(!asset.isLoaded)
                         }
                         .confirmationDialog(
-                            self.confirmationDialogTitle(asset),
-                            isPresented: self.$showDeleteConfirmationDialog,
+                            self.vm.confirmationDialogTitle(asset),
+                            isPresented: $vm.showDeleteConfirmationDialog,
                             titleVisibility: .visible,
                             actions: { self.confirmationDialogActions },
                             message: { self.confirmationDialogMessage },
@@ -378,12 +211,12 @@ struct AssetBrowserView: View {
     @ViewBuilder
     var confirmationDialogActions: some View {
         Button("Delete", role: .destructive) {
-            if let asset = self.assetToDelete {
-                self.delete(asset)
+            if let asset = self.vm.assetToDelete {
+                self.vm.delete(asset)
             }
         }
         Button("Cancel", role: .cancel) {
-            self.assetToDelete = nil
+            self.vm.assetToDelete = nil
         }
     }
 
@@ -394,23 +227,6 @@ struct AssetBrowserView: View {
         )
     }
 
-    func selectButtonHandler() {
-        if let selected = self.selected {
-            switch self.type {
-            case .browser(let browser):
-                assert(browser.assetKinds.contains(selected.kind))
-                self.delegate.onDismiss(.create(assetKind: selected.kind, assetId: selected.id))
-                break
-            case .picker(let picker):
-                self.delegate.onDismiss(
-                    .pick(assetKind: picker.assetKind, assetId: selected.id, portLocation: picker.portLocation)
-                )
-                break
-            }
-            self.dismiss()
-        }
-    }
-
     // MARK: - Footer
 
     @ViewBuilder
@@ -419,10 +235,10 @@ struct AssetBrowserView: View {
             Spacer()
 
             Button {
-                self.delegate.onDismiss(.cancel)
+                self.vm.onDismiss(.cancel)
                 self.dismiss()
             } label: {
-                Text(self.cancelButtonText)
+                Text(self.vm.cancelButtonText)
                     #if os(macOS)
                 .padding(.vertical, 2)
                     #endif
@@ -433,15 +249,15 @@ struct AssetBrowserView: View {
             #endif
 
             Button {
-                self.selectButtonHandler()
+                self.vm.selectButtonHandler()
             } label: {
-                Text(self.selectButtonText)
+                Text(self.vm.selectButtonText)
                     #if os(macOS)
                 .padding(.vertical, 2)
                     #endif
             }
             .buttonStyle(.glassProminent)
-            .disabled(self.selected == nil)
+            .disabled(self.vm.selected == nil)
             #if os(macOS)
             .buttonBorderShape(.capsule)
             #endif

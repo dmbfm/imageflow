@@ -150,7 +150,6 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     @objc
     func buttonHandler() {
-        log("openAssetBrowser: is delegate nil? \(self.delegate == nil)")
         self.delegate?.openAssetPicker(kind: T.assetKind)
     }
 

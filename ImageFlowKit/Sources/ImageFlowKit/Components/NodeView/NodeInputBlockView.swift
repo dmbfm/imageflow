@@ -7,6 +7,8 @@ final class NodeInputBlockView: PlatformCommonView {
 
     // MARK: - Exposed Properties
 
+    var node: UUID
+
     var inputs: [FlowNode.Input] {
         didSet {
             if self.inputs != oldValue {
@@ -28,7 +30,7 @@ final class NodeInputBlockView: PlatformCommonView {
     // MARK: - Exposed Types
 
     protocol Delegate: AnyObject {
-        func openAssetPicker(portIndex: Int, kind: AssetKind)
+        func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
         func titleForAsset(id: AssetIdentifier) -> String?
     }
 
@@ -38,16 +40,18 @@ final class NodeInputBlockView: PlatformCommonView {
     private final class RowDelegate: NodeInputRowView.Delegate {
 
         var index: Int = 0
+        var node: UUID
 
         private weak var delegate: NodeInputBlockView.Delegate?
 
-        init(index: Int = 0, delegate: (any NodeInputBlockView.Delegate)?) {
+        init(node: UUID, index: Int = 0, delegate: (any NodeInputBlockView.Delegate)?) {
+            self.node = node
             self.index = index
             self.delegate = delegate
         }
 
         func openAssetPicker(kind: AssetKind) {
-            self.delegate?.openAssetPicker(portIndex: self.index, kind: kind)
+            self.delegate?.openAssetPicker(node: self.node, portIndex: self.index, kind: kind)
         }
 
         func titleForAsset(id: Values.AssetIdentifier) -> String? {
@@ -64,10 +68,12 @@ final class NodeInputBlockView: PlatformCommonView {
     // MARK: - Init
 
     init(
+        node: UUID,
         _ inputs: [FlowNode.Input],
         delegate: Delegate? = nil,
         style: NodeInputRowView.Style = .default,
     ) {
+        self.node = node
         self.inputs = inputs
         self.style = style
         self.delegate = delegate
@@ -120,7 +126,7 @@ final class NodeInputBlockView: PlatformCommonView {
 
     func populateRows() {
         for (idx, input) in inputs.enumerated() {
-            let delegate = RowDelegate(index: idx, delegate: self.delegate)
+            let delegate = RowDelegate(node: self.node, index: idx, delegate: self.delegate)
             let row = NodeInputRowView(input, delegate: delegate, style: self.style)
             row.clipsToBounds = false
             row.onEvent = { [weak self] event in
@@ -209,7 +215,7 @@ extension NodeInputBlockView {
 extension NodeInputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> NodeInputBlockView {
-            let view = NodeInputBlockView([
+            let view = NodeInputBlockView(node: .init(), [
                 .init(label: "Some number", index: 0, value: .float(0.5), semantics: .default, connected: false),
                 .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
                 .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),

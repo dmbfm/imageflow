@@ -68,7 +68,12 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     }()
 
     lazy var inputBlockView: NodeInputBlockView = {
-        let view = NodeInputBlockView(self.node.inputs, delegate: self.delegate, style: self.style.inputRow)
+        let view = NodeInputBlockView(
+            node: self.node.id,
+            self.node.inputs,
+            delegate: self.delegate,
+            style: self.style.inputRow
+        )
         view.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
