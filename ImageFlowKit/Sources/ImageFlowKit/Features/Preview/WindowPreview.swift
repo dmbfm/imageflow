@@ -48,7 +48,6 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
             rootView: self.rootView
         )
 
-        window.makeKeyAndOrderFront(nil)
         window.setFrame(frame, display: false)
 
         if center {

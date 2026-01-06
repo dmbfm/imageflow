@@ -562,8 +562,8 @@ extension PreviewFeatureState {
         if let window = self.windows[loc]?.window {
             window.makeKeyAndOrderFront(nil)
         } else {
-
-            print("--> making new window: \(self.windows)")
+            
+            let mainWindow = NSApp.keyWindow
 
             let (frame, center, scrollCache): (CGRect, Bool, PreviewWindowState.ScrollCache) = {
                 if case let .closed(closed) = self.windows[loc] {
@@ -593,6 +593,14 @@ extension PreviewFeatureState {
             windowController.showWindow(nil)
 
             self.windows[loc] = .open(.init(windowController: windowController, scrollCache: scrollCache))
+            
+            if let mainWindow {
+                NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: mainWindow, queue: .main, using: { [weak windowController] _ in
+                    MainActor.assumeIsolated {
+                        windowController?.close()
+                    }
+                })
+            }
         }
     }
 }

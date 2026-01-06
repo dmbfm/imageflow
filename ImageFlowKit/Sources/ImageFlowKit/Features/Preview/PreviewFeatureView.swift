@@ -27,11 +27,11 @@ class ScrollCache: @MainActor CIImageScrollViewCache {
 
 struct PreviewFeatureView: View {
 
-    @State var state: PreviewFeatureState
+    @ObservableState var state: PreviewFeatureState
     @Environment(\.openWindow) var openWindow
 
     init(_ flow: some FlowService, _ assetStore: some AssetStoreService) {
-        self._state = .init(initialValue: .init(flow: flow, assetStore: assetStore))
+        self._state = .init(wrappedValue: .init(flow: flow, assetStore: assetStore))
     }
 
     var visibility: CardVisibility {
