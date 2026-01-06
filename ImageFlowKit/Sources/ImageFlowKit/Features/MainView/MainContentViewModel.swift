@@ -10,12 +10,13 @@ import Values
 
 @Observable
 @MainActor
-final class MainContentViewModel {
+final class MainContentViewModel: ObservableObject {
     let flow: Flow
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
+    let assetBrowserViewModel: AssetBrowserViewModel
 
-    var type: AssetBrowserType = .browser(.init(assetKinds: .all))
+    // var assetBrowserType: AssetBrowserType = .browser(.init(assetKinds: .all))
     var showAssetBrowser: Bool = false
     var showFileImporter: Bool = false
     var showPhotoPicker: Bool = false
@@ -35,6 +36,13 @@ final class MainContentViewModel {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
+        self.assetBrowserViewModel = .init(
+            assetsProvider: assetStore,
+            allowedAssetKinds: .all,
+            allowedImportTypes: [],
+            photoPickerDisabled: true
+        )
+        self.assetBrowserViewModel.delegate = self
     }
 
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
@@ -158,17 +166,18 @@ final class MainContentViewModel {
     }
 
     func openAssetBrowser(_ allowedAssetKinds: AssetKindSet = .all) {
-        self.type = .browser(.init(assetKinds: allowedAssetKinds))
+        self.assetBrowserViewModel.setType(.browser(.init(assetKinds: allowedAssetKinds)))
         self.showAssetBrowser = true
     }
 
     func openAssetPicker(picker: AssetBrowserType.Picker) {
-        self.type = .picker(picker)
+        self.assetBrowserViewModel.setType(.picker(picker))
+        // self.assetBrowserType = .picker(picker)
         self.showAssetBrowser = true
-        Task { @MainActor in
-            try! await Task.sleep(for: .milliseconds(500))
-            self.type = .picker(picker)
-        }
+        // Task { @MainActor in
+        //     try! await Task.sleep(for: .milliseconds(500))
+        //     self.assetBrowserType = .picker(picker)
+        // }
     }
 }
 
@@ -192,6 +201,7 @@ extension MainContentViewModel: AssetBrowserViewModel.Delegate {
     }
 
     func openFileImporter(_ types: [UTType]) {
+        log("openFileImporter:types:\(types)", level: .debug)
         self.showAssetBrowser = false
         self.fileImporterConfiguration = .init(allowedContentTypes: types)
         Task { @MainActor in

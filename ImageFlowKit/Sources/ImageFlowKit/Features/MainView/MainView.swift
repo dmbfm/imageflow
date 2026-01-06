@@ -5,6 +5,32 @@ extension EnvironmentValues {
     @Entry var assetManager: AssetManager? = nil
 }
 
+@Observable
+@MainActor
+final class MainViewModel {
+    var document: FlowDocument
+    var documentInfo: DocumentInfo
+
+    let flow: Flow
+    let canvas: CanvasFeatureState
+    let assetStore: AssetStore
+    let backendService: BackendService
+
+    init(document: FlowDocument, documentInfo: DocumentInfo) {
+        self.document = document
+        self.documentInfo = documentInfo
+
+        let flow = Flow()
+        let canvas = CanvasFeatureState()
+        let assetStore = AssetStore()
+
+        self.canvas = canvas
+        self.assetStore = assetStore
+        self.flow = flow
+        self.backendService = .init(flow, assetStore)
+    }
+}
+
 struct MainView: View {
 
     let document: FlowDocument
@@ -18,6 +44,7 @@ struct MainView: View {
     @Environment(\.dismissWindow) var dismissWindow
 
     init(document: FlowDocument, documentInfo: DocumentInfo) {
+        log("init!!!!!!!!!!!!!!!!", level: .debug)
         self.document = document
         self.documentInfo = documentInfo
 

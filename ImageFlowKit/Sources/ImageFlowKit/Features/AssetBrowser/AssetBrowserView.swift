@@ -8,7 +8,7 @@ struct AssetBrowserView: View {
 
     // MARK: - State
 
-    @State var vm: AssetBrowserViewModel
+    @Bindable var vm: AssetBrowserViewModel
 
     @Environment(\.dismiss) var dismiss
 
@@ -19,21 +19,8 @@ struct AssetBrowserView: View {
 
     // MARK: - Init
 
-    init(
-        assetsProvider: any AssetBrowserAssetsProvider,
-        allowedAssetKinds: AssetKindSet,
-        allowedImportTypes: [UTType],
-        photoPickerDisabled: Bool,
-        type: AssetBrowserType = .browser(.init(assetKinds: .all)),
-    ) {
-        self._vm = .init(
-            wrappedValue: .init(
-                assetsProvider: assetsProvider,
-                allowedAssetKinds: allowedAssetKinds,
-                allowedImportTypes: allowedImportTypes,
-                photoPickerDisabled: photoPickerDisabled
-            )
-        )
+    init(_ vm: AssetBrowserViewModel) {
+        self._vm = .init(wrappedValue: vm)
     }
 
     // MARK: - Body
@@ -249,7 +236,7 @@ struct AssetBrowserView: View {
             #endif
 
             Button {
-                self.vm.selectButtonHandler()
+                self.vm.selectButtonHandler { self.dismiss() }
             } label: {
                 Text(self.vm.selectButtonText)
                     #if os(macOS)

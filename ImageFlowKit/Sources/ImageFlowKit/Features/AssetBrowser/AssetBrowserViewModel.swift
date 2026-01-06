@@ -1,14 +1,15 @@
 import Foundation
 import UniformTypeIdentifiers
+import Logging
 
 @Observable
 @MainActor
 final class AssetBrowserViewModel {
 
     let assetsProvider: any AssetBrowserAssetsProvider
-    let allowedAssetKinds: AssetKindSet
-    let allowedImportTypes: [UTType]
-    let photoPickerDisabled: Bool
+    var allowedAssetKinds: AssetKindSet
+    var allowedImportTypes: [UTType]
+    var photoPickerDisabled: Bool
 
     var searchText: String = ""
     var selected: Asset? = nil
@@ -69,6 +70,13 @@ final class AssetBrowserViewModel {
         }
     }
 
+    func setType(_ type: AssetBrowserType) {
+        self.type = type 
+        self.allowedAssetKinds = type.allowedAssetKinds
+        self.allowedImportTypes = type.allowedAssetKinds.types
+        self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
+    }
+
     func onTapItem(_ asset: Asset) {
         switch asset.state {
         case .loaded:
@@ -103,7 +111,7 @@ final class AssetBrowserViewModel {
         #endif
     }
 
-    func selectButtonHandler() {
+    func selectButtonHandler(_ dismiss: () -> ()) {
         if let selected = self.selected {
             switch self.type {
             case .browser(let browser):
@@ -116,7 +124,7 @@ final class AssetBrowserViewModel {
                 )
                 break
             }
-            // self.dismiss()
+            dismiss()
         }
     }
 

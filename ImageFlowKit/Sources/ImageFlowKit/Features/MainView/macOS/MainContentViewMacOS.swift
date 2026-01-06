@@ -17,7 +17,7 @@ struct MainContentViewMacOS: View {
 
     @FocusState var focus: Focus?
 
-    @State var vm: MainContentViewModel
+    @StateObject var vm: MainContentViewModel
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
@@ -46,12 +46,7 @@ struct MainContentViewMacOS: View {
         .sheet(
             isPresented: self.$vm.showAssetBrowser,
             content: {
-                AssetBrowserView(
-                    assetsProvider: self.vm.assetStore,
-                    allowedAssetKinds: self.vm.type.allowedAssetKinds,
-                    allowedImportTypes: self.vm.type.allowedAssetKinds.types,
-                    photoPickerDisabled: !self.vm.type.allowedAssetKinds.contains(.image)
-                )
+                AssetBrowserView(self.vm.assetBrowserViewModel)
             }
         )
         .photosPicker(

@@ -33,7 +33,7 @@ struct FlowServiceDelegate {
 /// edges, selection state, and related graph validation utilities.
 @Observable
 @MainActor
-final class Flow: FlowService {
+final class Flow: FlowService, ObservableObject {
 
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode] {
