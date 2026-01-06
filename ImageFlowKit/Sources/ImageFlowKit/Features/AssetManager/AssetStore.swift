@@ -18,7 +18,7 @@ enum AssetStoreServiceEvent {
 }
 
 struct AssetStoreServiceDelegate {
-    var assetsDidChange: ([UUID:Asset]) -> ()
+    var assetsDidChange: ([UUID: Asset]) -> ()
 }
 
 @Observable
@@ -30,12 +30,12 @@ final class AssetStore: AssetStoreService {
             self.delegate?.assetsDidChange(self.assets)
         }
     }
-    
+
     var delegate: AssetStoreServiceDelegate? = nil
 
     @ObservationIgnored
     var thumbCache: [UUID: CGImage] = [:]
-    
+
     @ObservationIgnored
     var emitter: EventEmitter<AssetStoreServiceEvent> = .init()
 

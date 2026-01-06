@@ -1,7 +1,6 @@
 import Foundation
 import UniformTypeIdentifiers
 
-
 // extension MainContentView {
 
 //     enum UserError: LocalizedError {

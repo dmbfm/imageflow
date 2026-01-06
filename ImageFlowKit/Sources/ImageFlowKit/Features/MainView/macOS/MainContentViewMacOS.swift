@@ -17,17 +17,19 @@ struct MainContentViewMacOS: View {
 
     @FocusState var focus: Focus?
 
-    @StateObject var vm: MainContentViewModel
+    @ObservableState var vm: MainContentViewModel
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
-    init(
-        flow: Flow,
-        canvas: CanvasFeatureState,
-        assetStore: AssetStore,
-    ) {
-        self._vm = .init(wrappedValue: .init(flow: flow, canvas: canvas, assetStore: assetStore))
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
+        self._vm = .init(
+            wrappedValue: .init(
+                flow: flow,
+                canvas: canvas,
+                assetStore: assetStore
+            )
+        )
     }
 
     var body: some View {
@@ -89,12 +91,18 @@ fileprivate struct DetailView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            CanvasFeatureView(self.vm.canvas, self.vm.flow, self.vm.assetStore, self.focus, self.vm)
-                .onGeometryChange(for: CGPoint.self) { proxy in
-                    proxy.frame(in: .local).center
-                } action: { newValue in
-                    self.vm.canvasCenter = newValue
-                }
+            CanvasFeatureView(
+                self.vm.canvas,
+                self.vm.flow,
+                self.vm.assetStore,
+                self.focus,
+                self.vm
+            )
+            .onGeometryChange(for: CGPoint.self) { proxy in
+                proxy.frame(in: .local).center
+            } action: { newValue in
+                self.vm.canvasCenter = newValue
+            }
 
             // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
             // effect on the toolbar! This does not work if we use `Color.clear` instead.

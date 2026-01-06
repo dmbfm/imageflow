@@ -1,6 +1,6 @@
 import Foundation
-import UniformTypeIdentifiers
 import Logging
+import UniformTypeIdentifiers
 
 @Observable
 @MainActor
@@ -71,7 +71,7 @@ final class AssetBrowserViewModel {
     }
 
     func setType(_ type: AssetBrowserType) {
-        self.type = type 
+        self.type = type
         self.allowedAssetKinds = type.allowedAssetKinds
         self.allowedImportTypes = type.allowedAssetKinds.types
         self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)

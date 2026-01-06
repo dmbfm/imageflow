@@ -30,12 +30,14 @@ final class CanvasFeatureViewModel {
         state: CanvasFeatureState,
         flow: Flow,
         assetStore: AssetStore,
-        focus: FocusState<Focus?>.Binding
+        focus: FocusState<Focus?>.Binding,
+        delegate: Delegate? = nil,
     ) {
         self.state = state
         self.flow = flow
         self.assetStore = assetStore
         self.focus = focus
+        self.delegate = delegate
     }
 
     var nodePositions: [UUID: CGPoint] {

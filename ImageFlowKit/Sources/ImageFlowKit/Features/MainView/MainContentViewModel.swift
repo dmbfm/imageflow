@@ -10,7 +10,7 @@ import Values
 
 @Observable
 @MainActor
-final class MainContentViewModel: ObservableObject {
+final class MainContentViewModel {
     let flow: Flow
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
@@ -240,6 +240,42 @@ extension MainContentViewModel {
                 }()
             }
         }
+    }
+
+}
+
+struct LocalizedAlertError: LocalizedError {
+    var inner: any LocalizedError
+
+    var errorDescription: String? {
+        self.inner.errorDescription
+    }
+
+    var failureReason: String? {
+        self.inner.failureReason
+    }
+
+    var helpAnchor: String? {
+        self.inner.helpAnchor
+    }
+
+    var recoverySuggestion: String? {
+        self.inner.recoverySuggestion
+    }
+}
+
+extension View {
+    func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
+        self
+            .alert(
+                isPresented: .constant(error.wrappedValue != nil),
+                error: error.wrappedValue,
+                actions: {
+                    Button("OK") {
+                        error.wrappedValue = nil
+                    }
+                }
+            )
     }
 }
 

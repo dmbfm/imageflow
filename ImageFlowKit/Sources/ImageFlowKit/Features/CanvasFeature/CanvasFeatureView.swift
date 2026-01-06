@@ -8,7 +8,7 @@ public struct CanvasFeatureView: View {
 
     // MARK: - State
 
-    @State private var vm: CanvasFeatureViewModel
+    @ObservableState private var vm: CanvasFeatureViewModel
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
@@ -23,19 +23,23 @@ public struct CanvasFeatureView: View {
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate?
     ) {
-        self._vm = .init(wrappedValue: .init(state: state, flow: flow, assetStore: assetStore, focus: focus))
-        self.vm.delegate = delegate
+        self._vm = .init(
+            wrappedValue: .init(
+                state: state,
+                flow: flow,
+                assetStore: assetStore,
+                focus: focus,
+                delegate: delegate
+            )
+        )
     }
 
     // MARK: - Body
 
     public var body: some View {
         ZStack(alignment: .topLeading) {
-
-            @Bindable var vm = self.vm
-
             CanvasView(
-                $vm.state.viewport,
+                self.$vm.state.viewport,
                 self.vm.nodePositions,
                 self.vm.edgeLayers,
                 self.vm.canvasPlatformViewRefBinding,

@@ -77,7 +77,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     var tint: PlatformColor = .systemBlue
 
-    weak var delegate: (any NodeAssetPickerDelegate)? 
+    weak var delegate: (any NodeAssetPickerDelegate)?
 
     var label: String {
         let maybeID = T.resolve(self.value)

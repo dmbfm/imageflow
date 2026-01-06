@@ -24,7 +24,7 @@ final class NodeInputBlockView: PlatformCommonView {
     private(set) var rows: [NodeInputRowView] = []
 
     // MARK: - Private Properties
-     
+
     private var delegates: [RowDelegate] = []
 
     // MARK: - Exposed Types
@@ -35,7 +35,6 @@ final class NodeInputBlockView: PlatformCommonView {
     }
 
     // MARK: - Private Types
-
 
     private final class RowDelegate: NodeInputRowView.Delegate {
 
@@ -61,7 +60,6 @@ final class NodeInputBlockView: PlatformCommonView {
     }
 
     // MARK: - Private properties
-
 
     private var style: NodeInputRowView.Style
 
@@ -215,11 +213,14 @@ extension NodeInputBlockView {
 extension NodeInputBlockView {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> NodeInputBlockView {
-            let view = NodeInputBlockView(node: .init(), [
-                .init(label: "Some number", index: 0, value: .float(0.5), semantics: .default, connected: false),
-                .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
-                .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
-            ])
+            let view = NodeInputBlockView(
+                node: .init(),
+                [
+                    .init(label: "Some number", index: 0, value: .float(0.5), semantics: .default, connected: false),
+                    .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
+                    .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
+                ]
+            )
             return view
         }
 
