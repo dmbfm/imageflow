@@ -109,7 +109,7 @@ struct AssetBrowserView: View {
             GlassEffectContainer {
                 HStack {
                     Button {
-                        self.delegate.openFileImporter(self.allowedImportTypes)
+                        self.vm.delegate?.openFileImporter(self.vm.allowedImportTypes)
                     } label: {
                         Text("\(Image(systemName: "square.and.arrow.down"))")
                             .font(.system(size: style.toolbar.buttonSize))
@@ -119,7 +119,7 @@ struct AssetBrowserView: View {
                     .help("Import Assets")
 
                     Button {
-                        self.delegate.openPhotoPicker()
+                        self.vm.delegate?.openPhotoPicker()
                     } label: {
                         Text("\(Image(systemName: "photo.badge.plus.fill"))")
                             .font(.system(size: style.toolbar.buttonSize))
@@ -134,7 +134,7 @@ struct AssetBrowserView: View {
 
             Spacer()
 
-            TextField("Search...", text: self.$searchText)
+            TextField("Search...", text: self.$vm.searchText)
                 .frame(width: style.toolbar.searchWidth)
                 .textFieldStyle(kind: style.toolbar.searchTextFieldStyle)
                 .padding(.vertical, 4)

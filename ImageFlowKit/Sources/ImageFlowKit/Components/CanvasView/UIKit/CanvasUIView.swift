@@ -47,6 +47,7 @@ final class CanvasUIView: UIView {
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var startLoc: CGPoint = .zero
     private var oneFingerPanInitialPos: CGPoint = .zero
+    var cancellable: Set<AnyEventEmitterCancellable> = []
 
     // MARK: - Subviews
 

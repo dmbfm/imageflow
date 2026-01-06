@@ -24,6 +24,11 @@ final class MainContentViewModel {
     var error: LocalizedAlertError? = nil
     var undoManager: UndoManager? = nil
 
+    #if os(iOS)
+    var showNodePaletteModal: Bool = false
+    var assetBrowserError: LocalizedAlertError? = nil
+    #endif
+
     @ObservationIgnored var canvasCenter: CGPoint = .zero
     @ObservationIgnored var fileImporterConfiguration: FileImporterConfiguration = .init(
         allowedContentTypes: [])

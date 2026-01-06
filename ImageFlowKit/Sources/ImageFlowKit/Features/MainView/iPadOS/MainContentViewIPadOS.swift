@@ -7,21 +7,9 @@ import PhotosUI
 
 struct MainContentViewIPadOS: View {
 
-    let flow: Flow
-    let canvas: CanvasFeatureState
-    let assetStore: AssetStore
     @FocusState var focus: Focus?
 
-    @State var showNodePaletteModal: Bool = false
-    @State var canvasCenter: Box<CGPoint> = .init(.zero)
-    @State var showAssetBrowser: Bool = false
-    @State var assetBrowserCoordinator: AssetBrowserCoordinator = .init(type: .browser(.init(assetKinds: .all)))
-    @State var showFileImporter: Bool = false
-    @State var fileImporterConfiguration: Box<FileImporterConfiguration> = .init(.init(allowedContentTypes: []))
-    @State var showPhotoPicker: Bool = false
-    @State var selectedPhotoPickerItems: [PhotosPickerItem] = []
-    @State var error: LocalizedAlertError? = nil
-    @State var assetBrowserError: LocalizedAlertError? = nil
+    @ObservableState var vm: MainContentViewModel
 
     @FocusedValue(PreviewFeatureState.self)
     var previewState: PreviewFeatureState?
@@ -33,46 +21,46 @@ struct MainContentViewIPadOS: View {
         canvas: CanvasFeatureState,
         assetStore: AssetStore,
     ) {
-        self.flow = flow
-        self.canvas = canvas
-        self.assetStore = assetStore
+        self._vm = .init(
+            wrappedValue: .init(
+                flow: flow,
+                canvas: canvas,
+                assetStore: assetStore
+            )
+        )
     }
 
     func onNodePaletteTapItem(_ item: NodePaletteItem) {
         log("item: \(item)", level: .trace)
-        self.showNodePaletteModal = false
-        self.createNodeAtCanvasCenter(fromPaletteItem: item)
+        self.vm.showNodePaletteModal = false
+        self.vm.createNodeAtCanvasCenter(fromPaletteItem: item)
     }
 
     var body: some View {
         self.content
-            .sheet(isPresented: self.$showNodePaletteModal) {
+            .sheet(isPresented: self.$vm.showNodePaletteModal) {
                 NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
             }
-            .sheet(isPresented: self.$showAssetBrowser) {
-                AssetBrowserView(
-                    coordinator: self.assetBrowserCoordinator,
-                    assetsProvider: self.assetStore,
-                    delegate: self.assetBrowserDelegate,
-                )
-                .errorAlert(self.$assetBrowserError)
+            .sheet(isPresented: self.$vm.showAssetBrowser) {
+                AssetBrowserView(self.vm.assetBrowserViewModel)
+                    .errorAlert(self.$vm.assetBrowserError)
             }
             .fileImporter(
-                isPresented: self.$showFileImporter,
-                allowedContentTypes: self.fileImporterConfiguration.value.allowedContentTypes,
+                isPresented: self.$vm.showFileImporter,
+                allowedContentTypes: self.vm.fileImporterConfiguration.allowedContentTypes,
                 allowsMultipleSelection: true,
-                onCompletion: self.fileImporterCompletionHandler(_:)
+                onCompletion: self.vm.fileImporterCompletionHandler(_:)
             )
             .photosPicker(
-                isPresented: self.$showPhotoPicker,
-                selection: self.$selectedPhotoPickerItems,
+                isPresented: self.$vm.showPhotoPicker,
+                selection: self.$vm.selectedPhotoPickerItems,
                 matching: .images,
                 photoLibrary: .shared(),
             )
-            .errorAlert(self.$error)
-            .onChange(of: self.showFileImporter, initial: false, self.onChangeOfShowFileImporter)
-            .onChange(of: self.showPhotoPicker, initial: false, self.onChangeOfShowPhotoPicker)
-            .onChange(of: self.selectedPhotoPickerItems, initial: false, self.onChangeOfPhotoPickerItems)
+            .errorAlert(self.$vm.error)
+            .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
+            .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
+            .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
     }
 
     @ViewBuilder
@@ -97,16 +85,17 @@ struct MainContentViewIPadOS: View {
     var canvasView: some View {
         ZStack {
             CanvasFeatureView(
-                self.canvas,
-                self.flow,
-                self.assetStore,
+                self.vm.canvas,
+                self.vm.flow,
+                self.vm.assetStore,
                 self.$focus,
-                self.canvasFeatureViewDelegate
+                self.vm
+                // self.vm.canvasFeatureViewDelegate
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center
             } action: { newValue in
-                self.canvasCenter.value = newValue
+                self.vm.canvasCenter = newValue
             }
         }
 
@@ -116,7 +105,7 @@ struct MainContentViewIPadOS: View {
     var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .secondaryAction) {
             Button {
-                self.showNodePaletteModal = true
+                self.vm.showNodePaletteModal = true
             } label: {
                 Image(systemName: "plus")
             }
@@ -158,7 +147,7 @@ struct MainContentViewIPadOS: View {
 
         ToolbarItem(placement: .primaryAction) {
             Button {
-                self.openAssetBrowser()
+                self.vm.openAssetBrowser()
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
             }
