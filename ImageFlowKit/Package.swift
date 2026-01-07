@@ -65,6 +65,10 @@ let package = Package(
             ],
             resources: [.copy("Fixtures")]
         ),
+        .testTarget(
+            name: "HelpersTests",
+            dependencies: ["Helpers"]
+        ),
     ]
 )
 

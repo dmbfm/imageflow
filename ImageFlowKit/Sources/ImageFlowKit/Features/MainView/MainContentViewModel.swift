@@ -249,28 +249,28 @@ extension MainContentViewModel {
 
 }
 
-struct LocalizedAlertError: LocalizedError {
+public struct LocalizedAlertError: LocalizedError {
     var inner: any LocalizedError
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         self.inner.errorDescription
     }
 
-    var failureReason: String? {
+    public var failureReason: String? {
         self.inner.failureReason
     }
 
-    var helpAnchor: String? {
+    public var helpAnchor: String? {
         self.inner.helpAnchor
     }
 
-    var recoverySuggestion: String? {
+    public var recoverySuggestion: String? {
         self.inner.recoverySuggestion
     }
 }
 
 extension View {
-    func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
+    public func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
         self
             .alert(
                 isPresented: .constant(error.wrappedValue != nil),

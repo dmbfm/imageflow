@@ -26,6 +26,14 @@ struct PreviewContentViewModel {
         self.state.location
     }
 
+    var currentName: String? {
+        if let loc = self.currentLocation {
+            self.available.first(where: { $0.location == loc })?.name
+        } else {
+            nil
+        }
+    }
+
     var locked: Bool {
         switch self.state {
         case .nothing: false
@@ -256,6 +264,12 @@ final class PreviewFeatureState {
     var cardDockLocation: CardDockLocation? = nil
     var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...1000, 300))
 
+    var showImageExporter: Bool = false
+    var imageExportAlertError: LocalizedAlertError? = nil
+
+    @ObservationIgnored
+    var cachedName: (OutputPortLocation?, String?) = (nil, nil)
+
     #if os(macOS)
     var windows: [OutputPortLocation: PreviewWindowState] = [:]
     #endif
@@ -272,6 +286,16 @@ final class PreviewFeatureState {
 
     var location: OutputPortLocation? {
         self.previewContentViewModel.currentLocation
+    }
+
+    var name: String? {
+        if self.cachedName.0 == self.location {
+            return self.cachedName.1
+        } else {
+            let name = self.previewContentViewModel.currentName
+            self.cachedName = (self.location, name)
+            return name
+        }
     }
 
     @ObservationIgnored
@@ -304,7 +328,7 @@ final class PreviewFeatureState {
         case .pick(let loc):
             self.previewContentViewModel(input: .pick(loc))
         case .export:
-            log("TODO: export")
+            self.showImageExporter = true
         case .openWindow:
             #if os(macOS)
             if let loc = self.location {

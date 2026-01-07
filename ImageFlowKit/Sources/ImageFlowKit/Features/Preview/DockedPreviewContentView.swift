@@ -521,6 +521,7 @@ struct ClassicToolbarView: View {
             VDivider()
 
             btn("square.and.arrow.down") {
+                self.dispatch?(.export)
             }
             .disabled(self.vm.image == nil)
         }
@@ -564,7 +565,6 @@ struct ClassicToolbarView: View {
     }
 }
 
-
 @Observable
 class DockedPreviewMenuActionCoordinator {
 
@@ -578,7 +578,6 @@ class DockedPreviewMenuActionCoordinator {
         case zoomToFit
     }
 }
-
 
 private let zoomFormatter: NumberFormatter = {
     let f = NumberFormatter()

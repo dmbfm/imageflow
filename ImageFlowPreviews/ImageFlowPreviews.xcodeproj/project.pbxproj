@@ -11,6 +11,7 @@
 		AE7E8A032EE46483004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A022EE46483004148B0 /* Controls */; };
 		AE7E8A142EE464CA004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A132EE464CA004148B0 /* Controls */; };
 		AE927EF62E45290100EC4D7C /* NodeControls in Frameworks */ = {isa = PBXBuildFile; productRef = AE927EF52E45290100EC4D7C /* NodeControls */; };
+		AEA8D3D52F10269000418317 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEA8D3D42F10269000418317 /* ImageFlowKit */; };
 		AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEB1301C2E35862D00FCE746 /* CanvasFeature */; };
 		AEB76A7C2E2AEAE10020EE2F /* CanvasView in Frameworks */ = {isa = PBXBuildFile; productRef = AEB76A7B2E2AEAE10020EE2F /* CanvasView */; };
 		AEEDC3552E491773007B4F7F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEEDC3542E491773007B4F7F /* NodeView */; };
@@ -22,6 +23,7 @@
 		AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DockedPreviewGlassDesign.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardStateViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeControlsPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEA8D3C92F10267D00418317 /* ImageExporterPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageExporterPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB130102E3585F400FCE746 /* CanvasFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB76A672E2AEAA20020EE2F /* CanvasViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEEDC3482E491766007B4F7F /* NodeViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -55,6 +57,11 @@
 		AE927EEA2E4528F700EC4D7C /* NodeControlsPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NodeControlsPreview;
+			sourceTree = "<group>";
+		};
+		AEA8D3CA2F10267D00418317 /* ImageExporterPreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ImageExporterPreview;
 			sourceTree = "<group>";
 		};
 		AEB130112E3585F400FCE746 /* CanvasFeaturePreview */ = {
@@ -111,6 +118,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AEA8D3C62F10267D00418317 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEA8D3D52F10269000418317 /* ImageFlowKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEB1300D2E3585F400FCE746 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -157,6 +172,7 @@
 				AEF87CF42EDF11FA00043888 /* TouchCardViewPreview */,
 				AE7E8A092EE46498004148B0 /* CardStateViewPreview */,
 				AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */,
+				AEA8D3CA2F10267D00418317 /* ImageExporterPreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -173,6 +189,7 @@
 				AEF87CF32EDF11FA00043888 /* TouchCardViewPreview.app */,
 				AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */,
 				AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */,
+				AEA8D3C92F10267D00418317 /* ImageExporterPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -273,6 +290,29 @@
 			);
 			productName = NodeControlsPreview;
 			productReference = AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AEA8D3C82F10267D00418317 /* ImageExporterPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEA8D3D32F10267F00418317 /* Build configuration list for PBXNativeTarget "ImageExporterPreview" */;
+			buildPhases = (
+				AEA8D3C52F10267D00418317 /* Sources */,
+				AEA8D3C62F10267D00418317 /* Frameworks */,
+				AEA8D3C72F10267D00418317 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AEA8D3CA2F10267D00418317 /* ImageExporterPreview */,
+			);
+			name = ImageExporterPreview;
+			packageProductDependencies = (
+				AEA8D3D42F10269000418317 /* ImageFlowKit */,
+			);
+			productName = ImageExporterPreview;
+			productReference = AEA8D3C92F10267D00418317 /* ImageExporterPreview.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AEB1300F2E3585F400FCE746 /* CanvasFeaturePreview */ = {
@@ -390,6 +430,9 @@
 					AE927EE82E4528F700EC4D7C = {
 						CreatedOnToolsVersion = 16.4;
 					};
+					AEA8D3C82F10267D00418317 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					AEB1300F2E3585F400FCE746 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -429,6 +472,7 @@
 				AEF87CF22EDF11FA00043888 /* TouchCardViewPreview */,
 				AE7E8A072EE46498004148B0 /* CardStateViewPreview */,
 				AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */,
+				AEA8D3C82F10267D00418317 /* ImageExporterPreview */,
 			);
 		};
 /* End PBXProject section */
@@ -456,6 +500,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AE927EE72E4528F700EC4D7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEA8D3C72F10267D00418317 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -515,6 +566,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AE927EE52E4528F700EC4D7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEA8D3C52F10267D00418317 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -880,6 +938,114 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Release;
+		};
+		AEA8D3D12F10267F00418317 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageExporterPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		AEA8D3D22F10267F00418317 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageExporterPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Release;
 		};
@@ -1367,6 +1533,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AEA8D3D32F10267F00418317 /* Build configuration list for PBXNativeTarget "ImageExporterPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEA8D3D12F10267F00418317 /* Debug */,
+				AEA8D3D22F10267F00418317 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AEB130192E3585F600FCE746 /* Build configuration list for PBXNativeTarget "CanvasFeaturePreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1438,6 +1613,10 @@
 		AE927EF52E45290100EC4D7C /* NodeControls */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NodeControls;
+		};
+		AEA8D3D42F10269000418317 /* ImageFlowKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageFlowKit;
 		};
 		AEB1301C2E35862D00FCE746 /* CanvasFeature */ = {
 			isa = XCSwiftPackageProductDependency;

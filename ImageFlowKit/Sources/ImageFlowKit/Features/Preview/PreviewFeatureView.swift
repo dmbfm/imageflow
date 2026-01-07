@@ -82,6 +82,13 @@ struct PreviewFeatureView: View {
         }
         .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.state.viewSizeDidChange($0) })
         .focusedSceneValue(self.state)
+        .imageExporter(
+            isPresented: self.$state.showImageExporter,
+            image: self.state.image,
+            defaultFilename: self.state.name,
+            errorMessage: self.$state.imageExportAlertError,
+        )
+        .errorAlert(self.$state.imageExportAlertError)
     }
 }
 

@@ -87,9 +87,12 @@ class WindowPreviewViewModel {
 
     let location: OutputPortLocation
     var image: CIImage? = nil
+    var name: String? = nil
     var zoom: CGFloat = 1.0
     var pinned: Bool = false { didSet { self.updateWindow() } }
     var action: CIImageScrollView.Action? = nil
+    var showImageExporter: Bool = false
+    var imageExporterAlertError: LocalizedAlertError? = nil
 
     @ObservationIgnored
     var assetStore: any AssetStoreService
@@ -136,6 +139,7 @@ class WindowPreviewViewModel {
         self.assetStore = assetStore
         self.flow = flow
         self.cache = cache
+        self.name = flow.nodes[location.node]?.name
 
         assetStore.emitter.on { [weak self] event in
             // guard let self else { return }
@@ -177,6 +181,9 @@ struct WindowPreviewContentView: View {
     let vm: WindowPreviewViewModel
 
     var body: some View {
+
+        @Bindable var vm = self.vm
+
         ZStack {
             Colors.canvasBackground.color
 
@@ -193,6 +200,13 @@ struct WindowPreviewContentView: View {
         }
         .focusedSceneValue(self.vm)
         .toolbar { self.toolbarContent }
+        .imageExporter(
+            isPresented: $vm.showImageExporter,
+            image: self.vm.image,
+            defaultFilename: self.vm.name,
+            errorMessage: $vm.imageExporterAlertError
+        )
+        .errorAlert($vm.imageExporterAlertError)
     }
 
     @ToolbarContentBuilder
@@ -231,7 +245,7 @@ struct WindowPreviewContentView: View {
             }
 
             Button {
-
+                self.vm.showImageExporter = true
             } label: {
                 Image(systemName: "square.and.arrow.down")
             }
