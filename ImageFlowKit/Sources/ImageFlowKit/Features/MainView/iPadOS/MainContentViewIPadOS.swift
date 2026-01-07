@@ -90,7 +90,7 @@ struct MainContentViewIPadOS: View {
                 self.vm.assetStore,
                 self.$focus,
                 self.vm
-                // self.vm.canvasFeatureViewDelegate
+                    // self.vm.canvasFeatureViewDelegate
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center

@@ -12,4 +12,3 @@ typealias MainContentView = MainContentViewMacOS
 #if os(iOS)
 typealias MainContentView = MainContentViewIPadOS
 #endif
-
