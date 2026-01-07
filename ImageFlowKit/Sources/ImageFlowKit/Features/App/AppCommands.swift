@@ -3,6 +3,7 @@ import SwiftUI
 struct PreviewFeatureCommands: Commands {
 
     @FocusedValue(PreviewFeatureState.self) var previewState
+    @FocusedValue(DockedPreviewMenuActionCoordinator.self) var previewCoordinator
 
     #if os(macOS)
     @FocusedValue(WindowPreviewViewModel.self) var windowPreviewViewModel
@@ -38,7 +39,6 @@ struct PreviewFeatureCommands: Commands {
                 // }
 
                 #if os(macOS)
-
                 if let vm = self.windowPreviewViewModel {
                     Menu {
                         Button { [weak vm] in
@@ -83,14 +83,58 @@ struct PreviewFeatureCommands: Commands {
 
                     } label: {
                         LabeledContent("Preview Window") {
-                            Image(systemName: "macwindow")
+                            // Image(systemName: "macwindow")
                         }
                     }
                 }
                 #endif
 
                 #if os(macOS)
-                if let previewState = self.previewState {
+                let isWindowPreviewFocused = self.windowPreviewViewModel != nil
+                #else
+                let isWindowPreviewFocused = false
+                #endif
+
+                if let vm = self.previewCoordinator, !isWindowPreviewFocused {
+                    Menu {
+                        Button { [weak vm] in
+                            vm?.action = .zoomIn
+                        } label: {
+                            LabeledContent("Zoom In") {
+                                Image(systemName: "plus.magnifyingglass")
+                            }
+                        }
+
+                        Button { [weak vm] in
+                            vm?.action = .zoomOut
+                        } label: {
+                            LabeledContent("Zoom Out") {
+                                Image(systemName: "minus.magnifyingglass")
+                            }
+                        }
+                        Button { [weak vm] in
+                            vm?.action = .actualSize
+                        } label: {
+                            LabeledContent("Actual Size") {
+                                Image(systemName: "1.magnifyingglass")
+                            }
+                        }
+
+                        Button { [weak vm] in
+                            vm?.action = .zoomToFit
+                        } label: {
+                            LabeledContent("Zoom To Fit") {
+                                Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
+                            }
+                        }
+                    } label: {
+                        LabeledContent("Docked Preview") {
+                        }
+                    }
+                }
+
+                #if os(macOS)
+                if let previewState = self.previewState, !isWindowPreviewFocused {
                     Button { [weak previewState] in
                         if let loc = previewState?.location {
                             previewState?.openPreviewWindow(loc)

@@ -2,6 +2,7 @@ import CIImageView
 import Controls
 import CoreImage
 import Helpers
+import Logging
 import SwiftUI
 
 struct DockedPreviewContentView: View {
@@ -15,15 +16,12 @@ struct DockedPreviewContentView: View {
     @State var zoom: CGFloat = 1.0
     @State var action: CIImageScrollView.Action? = nil
 
+    @ObservableState var menuCoordinator: DockedPreviewMenuActionCoordinator = .init()
+
     @Environment(\.colorScheme) var cs
 
     let bgColor: Color = Colors.canvasBackground.color
     let toolbarHeight: CGFloat = 26.0
-
-    enum Action {
-        case undock
-        case toggleLock
-    }
 
     enum Style {
         case glass
@@ -42,7 +40,39 @@ struct DockedPreviewContentView: View {
         }
     }
 
+    func menuAction() {
+        switch self.menuCoordinator.action {
+        case .none:
+            break
+        case .zoomIn:
+            self.action = .zoomIn(animate: true)
+        case .zoomOut:
+            self.action = .zoomOut(animate: true)
+        case .actualSize:
+            self.action = .actualSize(animate: true)
+        case .zoomToFit:
+            self.action = .zoomToFit(animate: true)
+        }
+        self.menuCoordinator.action = .none
+    }
+
     var body: some View {
+        self._body
+            .focusedSceneValue(self.menuCoordinator)
+            .onChange(
+                of: self.menuCoordinator.action,
+                initial: false,
+                {
+                    log("action: \(self.menuCoordinator.action)", level: .debug)
+                    Task { @MainActor in
+                        self.menuAction()
+                    }
+                }
+            )
+    }
+
+    @ViewBuilder
+    var _body: some View {
         switch self.style {
         case .classic:
             self.classicBody
@@ -533,6 +563,22 @@ struct ClassicToolbarView: View {
         .buttonStyle(.plain)
     }
 }
+
+
+@Observable
+class DockedPreviewMenuActionCoordinator {
+
+    var action: MenuAction = .none
+
+    enum MenuAction {
+        case none
+        case zoomIn
+        case zoomOut
+        case actualSize
+        case zoomToFit
+    }
+}
+
 
 private let zoomFormatter: NumberFormatter = {
     let f = NumberFormatter()
