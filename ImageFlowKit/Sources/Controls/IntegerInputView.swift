@@ -8,17 +8,17 @@
 import SwiftUI
 
 public struct IntegerInputView: View {
-    
+
     let title: String
     let range: ClosedRange<Int>
-    
+
     @Binding var value: Int
     @State var text: String = ""
-    
+
     func updateText() {
         self.text = "\(self.value)"
     }
-    
+
     func parseText() {
         if let newValue = Int(self.text) {
             self.value = newValue
@@ -26,13 +26,13 @@ public struct IntegerInputView: View {
             self.updateText()
         }
     }
-    
-    public init(_ title: String, value: Binding<Int>, in range: ClosedRange<Int> = Int.min...(Int.max-1)) {
+
+    public init(_ title: String, value: Binding<Int>, in range: ClosedRange<Int> = Int.min...(Int.max - 1)) {
         self.title = title
         self.range = range
         self._value = value
     }
-    
+
     public var body: some View {
         HStack(spacing: 0) {
             TextField(self.title, text: self.$text)

@@ -173,7 +173,12 @@ public struct ImageExportModifier: ViewModifier {
         }
     }
 
-    init(isPresented: Binding<Bool>, image: CIImage?, defaultFilename: String? = nil, errorMessage: Binding<LocalizedAlertError?>? = nil) {
+    init(
+        isPresented: Binding<Bool>,
+        image: CIImage?,
+        defaultFilename: String? = nil,
+        errorMessage: Binding<LocalizedAlertError?>? = nil
+    ) {
         self._isPresented = isPresented
         self._errorMessage = errorMessage ?? .constant(nil)
         self.image = image
@@ -826,16 +831,10 @@ private func encodeImage(
 
         }
 
-    let hasAlpha = image.hasAlphaChannel(context)
-
     let format: CIFormat =
-        switch (hasAlpha, configuration.depth) {
-        case (true, .depth8): .RGBA8
-        case (true, .depth16): .RGBA16
-        case (false, .depth8): .RGBX8
-        case (false, .depth16): .RGBX16
-        case (.none, .depth8): .RGBA8
-        case (.none, .depth16): .RGBA8
+        switch configuration.depth {
+        case .depth8: .RGBA8
+        case .depth16: .RGBA16
         }
 
     let colorSpace: CGColorSpace = .init(name: CGColorSpace.sRGB)!
