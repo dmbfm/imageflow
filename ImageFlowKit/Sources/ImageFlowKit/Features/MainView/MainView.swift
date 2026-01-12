@@ -7,8 +7,10 @@ struct MainView: View {
     let documentInfo: DocumentInfo
 
     @ObservableState var vm: MainViewModel
+    @ObservableState var appMenuCoordinator: AppMenuCoordinator = .init()
 
     @Environment(\.dismissWindow) var dismissWindow
+    @Environment(\.undoManager) var um
 
     init(document: FlowDocument, documentInfo: DocumentInfo) {
         self.documentInfo = documentInfo
@@ -34,6 +36,12 @@ struct MainView: View {
             assetStore: self.vm.assetStore,
         )
         .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
+        .onChange(of: self.um, initial: true) {
+            self.vm.undoManager = self.um
+        }
         .onAppear(perform: self.onAppear)
+        #if os(iOS)
+        .activeViewObject(self.vm.appMenuCoordinator)
+        #endif
     }
 }

@@ -32,6 +32,12 @@ struct MainContentViewMacOS: View {
         )
     }
 
+    func onChangeOfFocus() {
+        if self.focus == nil {
+            self.focus = .global
+        }
+    }
+
     var body: some View {
         NavigationSplitView {
             SidebarFeatureView(self.$focus, self.vm.onDoubleClick(nodePaletteItem:))
@@ -68,6 +74,7 @@ struct MainContentViewMacOS: View {
         .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
         .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
         .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
+        .onChange(of: self.focus, initial: true, self.onChangeOfFocus)
     }
 
     @ToolbarContentBuilder
@@ -88,6 +95,7 @@ fileprivate struct DetailView: View {
     let focus: FocusState<Focus?>.Binding
 
     @Environment(\.colorScheme) var cs
+    @Environment(\.undoManager) var um
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -103,6 +111,15 @@ fileprivate struct DetailView: View {
             } action: { newValue in
                 self.vm.canvasCenter = newValue
             }
+            .focusable(true, interactions: .edit)
+            .focused(self.focus, equals: .global)
+            .onDeleteCommand(
+                perform: self.vm.flow.selection.isEmpty
+                    ? nil
+                    : {
+                        vm.flow.deleteSelectedNodesAction(undoManager: um)
+                    }
+            )
 
             // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
             // effect on the toolbar! This does not work if we use `Color.clear` instead.

@@ -64,7 +64,6 @@ final class CanvasFeatureViewModel {
             self.focus.wrappedValue = .global
         case .clickBackground:
             self.onCanvasClickBackground()
-            self.focus.wrappedValue = .global
         case .didMoveToSuperview:
             Task { @MainActor in
                 self.updateEdges()
@@ -119,6 +118,12 @@ final class CanvasFeatureViewModel {
         self.nodeViews[id] = view
 
         return view
+    }
+
+    func refocus() {
+        if self.focus.wrappedValue != .global {
+            self.focus.wrappedValue = .global
+        }
     }
 
     func onNodeEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
@@ -205,6 +210,7 @@ final class CanvasFeatureViewModel {
             }
         case .ended:
             self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
+            self.refocus()
         }
     }
 

@@ -27,6 +27,7 @@ struct FlowServiceDelegate {
     var nodesDidChange: ([UUID: FlowNode]) -> ()
     var edgesDidChange: (Set<Edge>) -> ()
     var nodePositionsDidChange: ([UUID: CGPoint]) -> ()
+    var selectionDidChange: (Set<UUID>) -> ()
 }
 
 /// Observable model backing the node-based flow editor, responsible for nodes,
@@ -53,6 +54,7 @@ final class Flow: FlowService, ObservableObject {
     public var selection: Set<UUID> {
         didSet {
             self.emitter.emit(.selectionDidChange(self.selection))
+            self.delegate?.selectionDidChange(self.selection)
         }
     }
     /// All edges currently present in the graph.
@@ -293,6 +295,14 @@ extension Flow {
         precondition(!self.hasNode(node.id), "A node with the same ID already exists.")
         let result = self.addNode(node, at: position, undoManager: um)
         assert(result, "`addNode` unexpectedly failed.")
+    }
+
+    func deleteSelectedNodesAction(undoManager um: UndoManager?) {
+        um?.beginUndoGrouping()
+        for id in self.selection {
+            self.deleteNodeAction(id, undoManager: um)
+        }
+        um?.endUndoGrouping()
     }
 
     func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {

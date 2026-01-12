@@ -1,3 +1,4 @@
+import Helpers
 import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
@@ -159,5 +160,23 @@ struct PreviewFeatureCommands: Commands {
             }
         }
         #endif
+    }
+}
+
+struct EditCommandsiOS: Commands {
+
+    @ActiveViewObject(AppMenuCoordinator.self) var coordinator
+
+    var body: some Commands {
+        if let coordinator = self.coordinator {
+            CommandGroup(after: .textEditing) {
+                let name = coordinator.nodeSelectionCount > 1 ? "Nodes" : "Node"
+                Button("Delete Selected \(name)") {
+                    coordinator.action = .deleteSelectedNodes
+                }
+                .keyboardShortcut(.delete, modifiers: [])
+                .disabled(coordinator.nodeSelectionCount == 0)
+            }
+        }
     }
 }
