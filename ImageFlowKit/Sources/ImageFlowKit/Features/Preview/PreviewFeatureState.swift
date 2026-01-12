@@ -304,6 +304,9 @@ final class PreviewFeatureState {
     @ObservationIgnored
     private var cancellables: Set<AnyEventEmitterCancellable> = []
 
+    @ObservationIgnored
+    let pasteboardWriter = PasteboarImageWriter()
+
     init(flow: some FlowService, assetStore: some AssetStoreService, cardDockLocation: CardDockLocation? = nil) {
         self.flow = flow
         self.assetStore = assetStore
@@ -329,6 +332,8 @@ final class PreviewFeatureState {
             self.previewContentViewModel(input: .pick(loc))
         case .export:
             self.showImageExporter = true
+        case .copy:
+            self.copy()
         case .openWindow:
             #if os(macOS)
             if let loc = self.location {
@@ -417,6 +422,12 @@ final class PreviewFeatureState {
                 self?.previewContentViewModel(input: .imageUpdated(loc))
             }
         }.store(in: &self.cancellables)
+    }
+
+    func copy() {
+        if let image = self.image {
+            self.pasteboardWriter.copy(image)
+        }
     }
 }
 

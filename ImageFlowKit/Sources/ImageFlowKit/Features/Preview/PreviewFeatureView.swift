@@ -131,6 +131,7 @@ enum PreviewContentViewAction {
     case undock
     case toggleLock
     case export
+    case copy
     case dockOpposite
     case openWindow
     case pick(OutputPortLocation)

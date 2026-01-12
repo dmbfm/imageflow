@@ -113,7 +113,9 @@ public struct FloatingPreviewContentView: View {
         ZStack(alignment: .center) {
             Rectangle()
                 .fill(cs == .light ? Color(white: 0.94) : Color(white: 0.06))
+
             self.contentView
+                .contextMenu { self.contextMenuItems }
 
             if self.showControls {
                 ControlsView(vm: self.vm, elements: self.toolbar, visible: self.controlsVisible) {
@@ -129,6 +131,15 @@ public struct FloatingPreviewContentView: View {
         #else
         .onTapGesture(perform: self.onTap)
         #endif
+    }
+
+    @ViewBuilder
+    var contextMenuItems: some View {
+        Button {
+            self.dispatch?(.copy)
+        } label: {
+            Label("Copy Image", systemImage: "document.on.document")
+        }
     }
 
     @ViewBuilder

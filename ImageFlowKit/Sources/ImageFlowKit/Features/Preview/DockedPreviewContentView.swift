@@ -226,6 +226,7 @@ struct GlassToolbarView: View {
     enum Name: Hashable {
         case lock
         case export
+        case copy
         case dockSwitch
         case undock
         case zoomIn
@@ -248,6 +249,8 @@ struct GlassToolbarView: View {
             self.dispatch?(.toggleLock)
         case .export:
             self.dispatch?(.export)
+        case .copy:
+            self.dispatch?(.copy)
         case .dockSwitch:
             self.dispatch?(.dockOpposite)
         case .undock:
@@ -261,23 +264,6 @@ struct GlassToolbarView: View {
         case .zoomFit:
             self.action = .zoomToFit(animate: true)
         }
-    }
-
-    private var toolbarElements: [PreviewToolbarElement<Name>] {
-        [
-            .trio(
-                id: "left",
-                .init(id: .lock, icon: self.vm.locked ? "lock.fill" : "lock", disabled: self.vm.image == nil),
-                .init(
-                    id: .dockSwitch,
-                    icon: self.dockLocation == .down
-                        ? "inset.filled.tophalf.rectangle" : "inset.filled.bottomhalf.rectangle"
-                ),
-                .init(id: .undock, icon: "pip.enter"),
-            ),
-            .spacer,
-            .item(.init(id: .export, icon: "square.and.arrow.down")),
-        ]
     }
 
     private var toolbarCenterElements: [PreviewToolbarElement<Name>] {
@@ -382,6 +368,9 @@ struct GlassToolbarView: View {
                                 .glassEffect(.regular.interactive(), in: .capsule)
                                 .glassEffectUnion(id: "picker-group", namespace: self.ns)
                             }
+
+                            CircleGlassIconButton("document.on.document") { self.handle(.copy) }
+                                .glassEffectUnion(id: "export-group", namespace: self.ns)
 
                             CircleGlassIconButton("square.and.arrow.down") { self.handle(.export) }
                                 .glassEffectUnion(id: "export-group", namespace: self.ns)
@@ -516,6 +505,10 @@ struct ClassicToolbarView: View {
                             .tag(item.location)
                     }
                 }
+            }
+
+            btn("document.on.document") {
+                self.dispatch?(.copy)
             }
 
             VDivider()

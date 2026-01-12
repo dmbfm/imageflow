@@ -4,6 +4,7 @@ import SwiftUI
 import CIImageView
 import Logging
 import Helpers
+import AppKit
 
 class WindowPreviewController: NSWindowController, NSWindowDelegate {
 
@@ -175,6 +176,15 @@ class WindowPreviewViewModel {
             self.image = r.res
         } catch {}
     }
+
+    @ObservationIgnored
+    let pasteboardWriter = PasteboarImageWriter()
+
+    func copy() {
+        if let image = self.image {
+            self.pasteboardWriter.copy(image)
+        }
+    }
 }
 
 struct WindowPreviewContentView: View {
@@ -240,6 +250,7 @@ struct WindowPreviewContentView: View {
 
         ToolbarItemGroup(placement: .primaryAction) {
             Button {
+                self.vm.copy()
             } label: {
                 Image(systemName: "document.on.document")
             }
@@ -262,170 +273,6 @@ struct WindowPreviewContentView: View {
         }
     }
 }
-
-// struct WindowPreviewContentView: View {
-
-//     let location: OutputPortLocation
-//     let assetStore: (any AssetStoreService)
-//     let scrollCache: (any CIImageScrollViewCache)?
-//     var coordinator: PreviewWindowCoordinator? = nil
-//     weak var window: NSWindow? = nil
-
-//     // TODO: Move most of the State to a view-model that is owned by a
-//     // WindowController to avoid leaks causaed by the SwiftUI view hierarchy not
-//     // deallocating.
-//     @State var image: CIImage? = nil
-//     @State var zoom: CGFloat = 1.0
-//     @State var vm = WindowPreviewViewModel()
-//     @State var assetObserver: AssetObserver? = nil
-
-//     class WindowDelegate: NSObject, NSWindowDelegate {
-//         var callback: (() -> ())?
-
-//         func windowWillClose(_ notification: Notification) {
-//             self.callback?()
-//         }
-//     }
-
-//     @MainActor
-//     class AssetObserver {
-//         let assetStore: any AssetStoreService
-//         var handle: EventEmitter.Handle
-//         init(_ assetStore: any AssetStoreService, _ onImageChanged: @escaping (OutputPortLocation) -> ()) {
-//             print("--> AssetObserver init")
-//             self.assetStore = assetStore
-//             self.handle = 0
-//             // self.handle = assetStore.emitter.on { [weak self] event in
-//             //     _ = self
-//             //     switch event {
-//             //     case .modifiedGeneratedAsset(let loc):
-//             //         onImageChanged(loc)
-//             //     }
-//             // }
-//         }
-
-//         isolated deinit {
-//             print("--> AssotObserver deninit")
-//             self.assetStore.emitter.off(self.handle)
-//         }
-//     }
-
-//     func updateWindow() {
-//         if self.vm.pinned {
-//             self.window?.level = .floating
-//         } else {
-//             self.window?.level = .normal
-//         }
-//     }
-
-//     func startLoadingImage() {
-//         Task {
-//             await self.loadImageAsync()
-//         }
-//     }
-
-//     func loadImageAsync() async {
-//         do {
-//             let r = try await self.assetStore.getGeneratedResource(ciImageAt: self.location)
-//             self.image = r.res
-//         } catch {}
-//     }
-
-//     var body: some View {
-//         ZStack {
-//             Colors.canvasBackground.color
-
-//             @Bindable var vm = self.vm
-
-//             if let image = self.image {
-//                 CIImageScrollView(
-//                     id: "",
-//                     image: image,
-//                     configuration: .init(initialViewport: .fit),
-//                     action: $vm.action,
-//                     cache: self.scrollCache,
-//                     // zoomDidChange: { self.zoom = $0 }
-//                 )
-//             }
-//         }
-//         .onChange(of: self.window, initial: true) {
-//             self.updateWindow()
-//         }
-//         .onChange(of: self.vm.pinned, initial: true) {
-//             self.updateWindow()
-//         }
-//         .onChange(of: self.location, initial: true) {
-//             self.startLoadingImage()
-//         }
-//         .onAppear {
-//             self.coordinator?.windowWillClose = { @MainActor in
-//                 self.vm.action = .cacheSave
-//             }
-//             self.assetObserver = .init(self.assetStore) { loc in
-//                 if loc == self.location {
-//                     self.startLoadingImage()
-//                 }
-//             }
-//         }
-//         .toolbar {
-//             self.toolbarContent
-//         }
-//         .focusedSceneValue(self.vm)
-//     }
-
-//     @ToolbarContentBuilder
-//     var toolbarContent: some ToolbarContent {
-//         ToolbarItemGroup(placement: .principal) {
-//             Button {
-//                 self.vm.action = .zoomIn(animate: true)
-//             } label: {
-//                 Image(systemName: "plus.magnifyingglass")
-//             }
-
-//             Button {
-//                 self.vm.action = .zoomOut(animate: true)
-//             } label: {
-//                 Image(systemName: "minus.magnifyingglass")
-//             }
-
-//             Text(zoomFormatter.string(for: self.zoom) ?? "")
-
-//             Button {
-//                 self.vm.action = .actualSize(animate: true)
-//             } label: {
-//                 Image(systemName: "1.magnifyingglass")
-//             }
-//             Button {
-//                 self.vm.action = .zoomToFit(animate: true)
-//             } label: {
-//                 Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
-//             }
-//         }
-
-//         ToolbarItemGroup(placement: .primaryAction) {
-//             Button {
-//             } label: {
-//                 Image(systemName: "document.on.document")
-//             }
-
-//             Button {
-
-//             } label: {
-//                 Image(systemName: "square.and.arrow.down")
-//             }
-//         }
-
-//         ToolbarSpacer(.fixed)
-
-//         ToolbarItem(placement: .primaryAction) {
-//             Button {
-//                 self.vm.pinned.toggle()
-//             } label: {
-//                 Image(systemName: self.vm.pinned ? "pin.fill" : "pin")
-//             }
-//         }
-//     }
-// }
 
 private let zoomFormatter: NumberFormatter = {
     let f = NumberFormatter()
