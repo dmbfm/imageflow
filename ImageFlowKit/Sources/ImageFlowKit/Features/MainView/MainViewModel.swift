@@ -21,6 +21,7 @@ class AppMenuCoordinator {
 
     enum Action {
         case deleteSelectedNodes
+        case duplidateSelectedNodes
     }
 }
 
@@ -100,6 +101,8 @@ final class MainViewModel {
             switch action {
             case .deleteSelectedNodes:
                 self?.flow.deleteSelectedNodesAction(undoManager: self?.undoManager)
+            case .duplidateSelectedNodes:
+                self?.flow.duplidateSelectedNodesAction(undoManager: self?.undoManager)
             }
         }
     }

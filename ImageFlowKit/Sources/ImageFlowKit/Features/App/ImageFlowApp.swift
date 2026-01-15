@@ -56,11 +56,12 @@ public struct ImageFlowApp: App {
         .commands {
             SidebarCommands()
             PreviewFeatureCommands()
+            NodeEditCommands()
         }
         #else
         .commands {
             PreviewFeatureCommands()
-            EditCommandsiOS()
+            NodeEditCommands()
         }
         #endif
 

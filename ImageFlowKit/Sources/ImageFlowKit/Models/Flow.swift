@@ -192,6 +192,25 @@ extension Flow {
     }
 
     @discardableResult
+    func duplicateNode(
+        _ id: UUID,
+        offset: CGPoint = .init(x: 50, y: 50),
+        undoManager um: UndoManager? = nil
+    ) -> FlowNode? {
+        guard var node = self.nodes[id], let pos = self.nodePositions[id] else { return nil }
+
+        let id = UUID()
+        node.id = id
+
+        for i in node.inputs.indices { node.inputs[i].connected = false }
+        for i in node.outputs.indices { node.outputs[i].connected = false }
+
+        self.addNode(node, at: pos + offset, undoManager: um)
+
+        return node
+    }
+
+    @discardableResult
     func addEdge(_ edge: Edge) -> Bool {
         if !self.edges.contains(edge) {
             self.edges.insert(edge)
@@ -297,12 +316,24 @@ extension Flow {
         assert(result, "`addNode` unexpectedly failed.")
     }
 
-    func deleteSelectedNodesAction(undoManager um: UndoManager?) {
+    private func withSelectedNodes(_ um: UndoManager?, perform: (UUID, UndoManager?) -> ()) {
         um?.beginUndoGrouping()
         for id in self.selection {
-            self.deleteNodeAction(id, undoManager: um)
+            perform(id, um)
         }
         um?.endUndoGrouping()
+    }
+
+    func deleteSelectedNodesAction(undoManager um: UndoManager?) {
+        self.withSelectedNodes(um) { id, um in
+            self.deleteNodeAction(id, undoManager: um)
+        }
+    }
+
+    func duplidateSelectedNodesAction(undoManager um: UndoManager?) {
+        self.withSelectedNodes(um) { id, um in
+            self.duplicateNode(id, undoManager: um)
+        }
     }
 
     func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {

@@ -14,10 +14,6 @@ struct PreviewFeatureCommands: Commands {
 
         CommandGroup(after: .sidebar) {
 
-            // Section("My Section") {
-            //     Button("Do Something") {}
-            // }
-
             Section {
                 if let previewState = self.previewState {
                     Menu("Preview Position") {
@@ -169,7 +165,7 @@ struct PreviewFeatureCommands: Commands {
     }
 }
 
-struct EditCommandsiOS: Commands {
+struct NodeEditCommands: Commands {
 
     @ActiveViewObject(AppMenuCoordinator.self) var coordinator
 
@@ -177,10 +173,19 @@ struct EditCommandsiOS: Commands {
         if let coordinator = self.coordinator {
             CommandGroup(after: .textEditing) {
                 let name = coordinator.nodeSelectionCount > 1 ? "Nodes" : "Node"
-                Button("Delete Selected \(name)") {
+
+                #if os(iOS)
+                Button("Delete \(name)") {
                     coordinator.action = .deleteSelectedNodes
                 }
                 .keyboardShortcut(.delete, modifiers: [])
+                .disabled(coordinator.nodeSelectionCount == 0)
+                #endif
+
+                Button("Duplicate \(name)") {
+                    coordinator.action = .duplidateSelectedNodes
+                }
+                .keyboardShortcut("d", modifiers: [.command])
                 .disabled(coordinator.nodeSelectionCount == 0)
             }
         }

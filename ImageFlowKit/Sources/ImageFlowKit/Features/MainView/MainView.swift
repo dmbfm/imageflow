@@ -40,8 +40,6 @@ struct MainView: View {
             self.vm.undoManager = self.um
         }
         .onAppear(perform: self.onAppear)
-        #if os(iOS)
         .activeViewObject(self.vm.appMenuCoordinator)
-        #endif
     }
 }
