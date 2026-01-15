@@ -52,7 +52,11 @@ public struct CanvasFeatureView: View {
             .onChange(of: self.vm.nodePositions, initial: true) { self.vm.updateEdges() }
             .onChange(of: self.vm.flow.nodes, initial: true) { self.vm.updateNodeData() }
             .onChange(of: self.vm.flow.selection, initial: true) { self.vm.updateSelection() }
-            .onChange(of: self.undoManager, { self.vm.undoManager = self.undoManager })
+            .onChange(
+                of: self.undoManager,
+                initial: true,
+                { self.vm.undoManager = self.undoManager }
+            )
             .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
 
             CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore) { _ in }

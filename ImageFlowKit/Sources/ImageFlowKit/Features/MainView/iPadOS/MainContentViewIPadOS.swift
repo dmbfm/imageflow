@@ -58,6 +58,7 @@ struct MainContentViewIPadOS: View {
                 photoLibrary: .shared(),
             )
             .errorAlert(self.$vm.error)
+            .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
             .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
             .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
             .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
