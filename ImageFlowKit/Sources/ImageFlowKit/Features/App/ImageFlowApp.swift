@@ -57,7 +57,7 @@ public struct ImageFlowApp: App {
             SidebarCommands()
             PreviewFeatureCommands()
         }
-        #else 
+        #else
         .commands {
             PreviewFeatureCommands()
             EditCommandsiOS()

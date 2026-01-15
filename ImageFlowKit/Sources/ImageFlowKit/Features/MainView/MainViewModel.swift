@@ -98,8 +98,8 @@ final class MainViewModel {
 
         self.appMenuCoordinator.dispatch = { [weak self] action in
             switch action {
-                case .deleteSelectedNodes:
-                    self?.flow.deleteSelectedNodesAction(undoManager: self?.undoManager)
+            case .deleteSelectedNodes:
+                self?.flow.deleteSelectedNodesAction(undoManager: self?.undoManager)
             }
         }
     }
