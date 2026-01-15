@@ -113,6 +113,7 @@ fileprivate struct DetailView: View {
             }
             .focusable(true, interactions: .edit)
             .focused(self.focus, equals: .global)
+            .focusEffectDisabled()
             .onDeleteCommand(
                 perform: self.vm.flow.selection.isEmpty
                     ? nil

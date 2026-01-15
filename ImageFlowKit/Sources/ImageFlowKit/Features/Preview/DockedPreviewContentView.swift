@@ -58,7 +58,7 @@ struct DockedPreviewContentView: View {
 
     var body: some View {
         self._body
-            .focusedSceneValue(self.menuCoordinator)
+            .activeViewObject(self.menuCoordinator)
             .onChange(
                 of: self.menuCoordinator.action,
                 initial: false,

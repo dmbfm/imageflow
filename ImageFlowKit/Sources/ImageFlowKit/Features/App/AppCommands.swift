@@ -3,8 +3,8 @@ import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
 
-    @FocusedValue(PreviewFeatureState.self) var previewState
-    @FocusedValue(DockedPreviewMenuActionCoordinator.self) var previewCoordinator
+    @ActiveViewObject(PreviewFeatureState.self) var previewState
+    @ActiveViewObject(DockedPreviewMenuActionCoordinator.self) var previewCoordinator
 
     #if os(macOS)
     @FocusedValue(WindowPreviewViewModel.self) var windowPreviewViewModel
@@ -13,10 +13,15 @@ struct PreviewFeatureCommands: Commands {
     var body: some Commands {
 
         CommandGroup(after: .sidebar) {
+
+            // Section("My Section") {
+            //     Button("Do Something") {}
+            // }
+
             Section {
                 if let previewState = self.previewState {
-                    Picker(selection: previewState.previewPositionSafeBinding) {
-                        Section("Floating") {
+                    Menu("Preview Position") {
+                        Picker("Floating", selection: previewState.previewPositionSafeBinding) {
                             Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
                                 .tag(PreviewPosition.topLeft)
                             Label("Top Right", systemImage: "inset.filled.topright.rectangle")
@@ -26,18 +31,19 @@ struct PreviewFeatureCommands: Commands {
                             Label("Bottom Right", systemImage: "inset.filled.bottomright.rectangle")
                                 .tag(PreviewPosition.bottomRight)
                         }
-                        Section("Docked") {
+                        .labelsVisibility(.visible)
+                        .pickerStyle(.inline)
+
+                        Picker("Docked", selection: previewState.previewPositionSafeBinding) {
                             Label("Bottom", systemImage: "inset.filled.bottomhalf.rectangle")
                                 .tag(PreviewPosition.bottomDock)
                             Label("Top", systemImage: "inset.filled.tophalf.rectangle")
                                 .tag(PreviewPosition.topDock)
                         }
-                    } label: {
-                        Label("Preview Position", systemImage: "pointer.arrow.and.square.on.square.dashed")
+                        .labelsVisibility(.visible)
+                        .pickerStyle(.inline)
                     }
                 }
-                // }
-                // }
 
                 #if os(macOS)
                 if let vm = self.windowPreviewViewModel {

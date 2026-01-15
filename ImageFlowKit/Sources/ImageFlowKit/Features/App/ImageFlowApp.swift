@@ -59,6 +59,7 @@ public struct ImageFlowApp: App {
         }
         #else 
         .commands {
+            PreviewFeatureCommands()
             EditCommandsiOS()
         }
         #endif
