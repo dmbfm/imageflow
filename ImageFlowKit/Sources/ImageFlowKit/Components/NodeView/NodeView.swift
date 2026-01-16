@@ -3,6 +3,17 @@ import Logging
 import SwiftUI
 import Values
 
+protocol NodeViewDelegate: NodeInputBlockView.Delegate {
+    func nodeView(willShowContextMenuForNode node: UUID)
+    func nodeViewSelectedNodesCount() -> Int
+    func nodeViewAction(_ action: NodeViewContextMenuAction)
+}
+
+enum NodeViewContextMenuAction {
+    case deleteSelectedNodes
+    case duplicateSelectedNodes
+}
+
 final class NodeView: PlatformCommonView, CanvasNodeView {
 
     // MARK: - Exposed properties
@@ -27,7 +38,7 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
 
     var id: UUID { self.node.id }
 
-    weak var delegate: NodeInputBlockView.Delegate?
+    weak var delegate: NodeViewDelegate?
 
     // MARK: - Private properties
 
@@ -41,6 +52,10 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     }
 
     private var style: Style
+
+    #if os(iOS)
+    private var interaction: UIContextMenuInteraction?
+    #endif
 
     // MARK: - Subviews
 
@@ -110,7 +125,7 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
     public init(
         _ node: FlowNode,
         _ isSelected: Bool = false,
-        delegate: NodeInputBlockView.Delegate? = nil,
+        delegate: NodeViewDelegate? = nil,
         style: Style = .default
     ) {
         self.node = node
@@ -124,6 +139,11 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
         self.addSubview(self.titleView)
         self.addSubview(self.inputBlockView)
         self.addSubview(self.outputBlockView)
+
+        #if os(iOS)
+        self.interaction = .init(delegate: self)
+        self.addInteraction(self.interaction!)
+        #endif
     }
 
     public required init?(coder: NSCoder) {
@@ -217,6 +237,100 @@ final class NodeView: PlatformCommonView, CanvasNodeView {
         )
     }
 }
+
+// MARK: - NodeView + Contex Menu
+
+extension NodeView {
+    #if os(macOS)
+    var contextMenu: NSMenu? {
+        let menu = NSMenu(title: "Node Context Menu")
+        let selectedCount = self.delegate?.nodeViewSelectedNodesCount() ?? 0
+        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
+
+        let deleteItem = NSMenuItem(
+            title: "Delete \(nodeName)",
+            action: #selector(Self.contextMenuDeleteAction),
+            keyEquivalent: "",
+        )
+        deleteItem.image = .init(systemSymbolName: "trash", accessibilityDescription: "Delete \(nodeName)")
+
+        let duplicateItem = NSMenuItem(
+            title: "Duplicate \(nodeName)",
+            action: #selector(Self.contextMenuDuplicateAction),
+            keyEquivalent: ""
+        )
+        duplicateItem.image = .init(
+            systemSymbolName: "plus.square.on.square",
+            accessibilityDescription: "Duplicate \(nodeName)"
+        )
+
+        menu.addItem(duplicateItem)
+        menu.addItem(deleteItem)
+
+        return menu
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        self.delegate?.nodeView(willShowContextMenuForNode: self.node.id)
+        if let menu = self.contextMenu {
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+        }
+    }
+    #endif
+
+    @objc
+    func contextMenuDeleteAction() {
+        self.delegate?.nodeViewAction(.deleteSelectedNodes)
+    }
+
+    @objc
+    func contextMenuDuplicateAction() {
+        self.delegate?.nodeViewAction(.duplicateSelectedNodes)
+    }
+}
+
+// MARK: NodeView + UIContextMenuInteractionDelegate
+
+#if os(iOS)
+extension NodeView: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+
+        self.delegate?.nodeView(willShowContextMenuForNode: self.node.id)
+
+        let selectedCount = self.delegate?.nodeViewSelectedNodesCount() ?? 0
+        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
+
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil,
+            actionProvider: { suggestedActions in
+
+                let deleteAction = UIAction(
+                    title: "Delete \(nodeName)",
+                    image: .init(systemName: "trash"),
+                    attributes: .destructive
+                ) { action in
+                    self.delegate?.nodeViewAction(.deleteSelectedNodes)
+                }
+
+                let duplicateAction = UIAction(
+                    title: "Duplicate \(nodeName)",
+                    image: .init(systemName: "plus.square.on.square")
+                ) { action in
+                    self.delegate?.nodeViewAction(.duplicateSelectedNodes)
+                }
+
+                return UIMenu(title: "", children: [duplicateAction, deleteAction])
+            }
+        )
+    }
+}
+#endif
+
+// MARK: - NodeView + Style
 
 extension NodeView {
     struct Style: Sendable, Hashable, With {

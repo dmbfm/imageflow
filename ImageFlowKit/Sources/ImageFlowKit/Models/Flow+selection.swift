@@ -50,6 +50,11 @@ extension Flow {
         return prev
     }
 
+    func selectNodeIfNotSelected(_ node: UUID) {
+        guard !self.selection.contains(node) else { return }
+        self.select([node])
+    }
+
     func liveSelectStart() {
         self.liveSelectSnapshot = self.selection
     }

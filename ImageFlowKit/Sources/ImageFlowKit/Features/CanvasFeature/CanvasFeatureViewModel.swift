@@ -24,7 +24,7 @@ final class CanvasFeatureViewModel {
     weak var canvasPlatformView: PlatformView?
     weak var delegate: Delegate?
 
-    typealias Delegate = NodeInputBlockView.Delegate
+    typealias Delegate = NodeViewDelegate
 
     init(
         state: CanvasFeatureState,

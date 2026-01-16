@@ -113,33 +113,31 @@ final class MainContentViewModel {
     func fileImporterCompletionHandler(_ res: Result<[URL], any Error>) {
         guard case let .success(urls) = res else { return }
 
-        Task {
-
+        func inner() async {
             var erroredTypes = Set<UTType>()
 
-            for url in urls {
+            func processURL(_ url: URL) async {
                 do {
                     _ = url.startAccessingSecurityScopedResource()
                     guard let resourceValues = try? url.resourceValues(forKeys: [.contentTypeKey]),
                         let utType = resourceValues.contentType
-                    else { continue }
+                    else { return }
                     url.stopAccessingSecurityScopedResource()
 
                     guard let kind = utType.assetKind else {
                         erroredTypes.insert(utType)
-                        continue
+                        return
                     }
-
-                    // if kind == .lut {
-                    //     erroredTypes.insert(utType)
-                    //     continue
-                    // }
 
                     try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                     self.undoManager?.setActionName("Import Image")
                 } catch {
                     log("failed to import file: \(url): \(error)")
                 }
+            }
+
+            for url in urls {
+                await processURL(url)
             }
 
             if !erroredTypes.isEmpty {
@@ -150,6 +148,8 @@ final class MainContentViewModel {
                 #endif
             }
         }
+
+        let _: Task<(), Never> = Task { await inner() }
     }
 
     func onChangeOfPhotoPickerItems() {
@@ -177,16 +177,28 @@ final class MainContentViewModel {
 
     func openAssetPicker(picker: AssetBrowserType.Picker) {
         self.assetBrowserViewModel.setType(.picker(picker))
-        // self.assetBrowserType = .picker(picker)
         self.showAssetBrowser = true
-        // Task { @MainActor in
-        //     try! await Task.sleep(for: .milliseconds(500))
-        //     self.assetBrowserType = .picker(picker)
-        // }
     }
 }
 
-extension MainContentViewModel: CanvasFeatureView.Delegate {
+extension MainContentViewModel: NodeViewDelegate {
+    func nodeViewSelectedNodesCount() -> Int {
+        self.flow.selection.count
+    }
+
+    func nodeViewAction(_ action: NodeViewContextMenuAction) {
+        switch action {
+        case .deleteSelectedNodes:
+            self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
+        case .duplicateSelectedNodes:
+            self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
+        }
+    }
+
+    func nodeView(willShowContextMenuForNode node: UUID) {
+        self.flow.selectNodeIfNotSelected(node)
+    }
+
     func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind) {
         self.openAssetPicker(picker: .init(assetKind: kind, portLocation: .init(node: node, index: portIndex)))
     }
