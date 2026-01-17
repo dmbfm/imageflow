@@ -306,7 +306,9 @@ extension NodeView: UIContextMenuInteractionDelegate {
         return UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: nil,
-            actionProvider: { suggestedActions in
+            actionProvider: { [weak self] suggestedActions in
+                
+                guard let self else { return nil }
 
                 let deleteAction = UIAction(
                     title: "Delete \(nodeName)",
@@ -323,7 +325,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     self.delegate?.nodeViewAction(.duplicateSelectedNodes)
                 }
 
-                return UIMenu(title: "", children: [duplicateAction, deleteAction])
+                return UIMenu(title: "Node", children: [duplicateAction, deleteAction])
             }
         )
     }

@@ -1,3 +1,4 @@
+import Backend
 import Helpers
 import Logging
 
@@ -25,6 +26,8 @@ final class CanvasGridView: PlatformView {
 
     var layerDelegate: GridViewLayerDelegate = .init()
 
+    var onContextMenuAction: ((CanvasView.ContextMenuAction) -> ())? = nil
+
     init() {
         super.init(frame: .zero)
         self.platformInit()
@@ -40,10 +43,24 @@ final class CanvasGridView: PlatformView {
         self.wantsLayer = true
         self.allowedTouchTypes = [.indirect, .direct]
     }
+
+    var rightMouseDownLocation: CGPoint = .zero
+    override func rightMouseDown(with event: NSEvent) {
+        self.updateContextMenu()
+        self.rightMouseDownLocation = self.convert(event.locationInWindow, from: nil)
+        if let menu = self.contextMenu {
+            log("menu at: \(event.location(inView: self))")
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+        }
+    }
     #endif
 
     #if os(iOS)
     func platformInit() {
+        
+        self.contextMenuInteraction = .init(delegate: self)
+        self.addInteraction(self.contextMenuInteraction!)
+        
         self.backgroundColor = BackgroundStyle.default.bg.platformColor  //Colors.canvasBackground.platformColor
         self.setNeedsDisplay()
     }
@@ -343,7 +360,173 @@ final class CanvasGridView: PlatformView {
             }
         }
     }
+
+    #if os(macOS)
+    var contextMenu: NSMenu? = nil
+    #endif
+    
+    #if os(iOS)
+    var contextMenuInteraction: UIContextMenuInteraction? = nil
+    var contextMenu: UIMenu? = nil
+    #endif
 }
+
+#if os(macOS)
+extension CanvasGridView {
+    func updateContextMenu() {
+        guard self.contextMenu == nil else { return }
+
+        let menu = NSMenu(title: "Canvas Context Menu")
+
+        let addItem = NSMenuItem(
+            title: "Add",
+            action: nil,
+            keyEquivalent: "",
+            systemSymbolName: "plus",
+            accessibilityDescription: "Add"
+        )
+
+        let addSubmenu: NSMenu = {
+            let menu = NSMenu(title: "Add Menu")
+
+            menu.addItem(
+                ContextMenuItem(
+                    title: "Search...",
+                    action: #selector(Self.addNodeMenuAction(_:)),
+                    keyEquivalent: "",
+                    kind: .search,
+                    systemSymbolName: "magnifyingglass",
+                    accessibilityDescription: nil
+                )
+            )
+
+            for cat in NodePaletteService.categories() {
+                let catItem = NSMenuItem(title: cat.name.rawValue, action: nil, keyEquivalent: "")
+
+                let catSubmenu = NSMenu(title: cat.name.rawValue)
+
+                for _item in cat.items {
+                    let item = ContextMenuItem(
+                        title: _item.displayName,
+                        action: #selector(Self.addNodeMenuAction(_:)),
+                        keyEquivalent: "",
+                        kind: .addNode(_item.nodeKind)
+                    )
+                    item.image = .init(systemSymbolName: _item.icon, accessibilityDescription: nil)
+                    catSubmenu.addItem(item)
+                }
+
+                catItem.submenu = catSubmenu
+                menu.addItem(catItem)
+            }
+
+            return menu
+        }()
+
+        addItem.submenu = addSubmenu
+
+        menu.addItem(addItem)
+
+        // TODO: we will need to update this item dynamically...
+        menu.addItem(
+            ContextMenuItem(
+                title: "Paste",
+                action: #selector(Self.addNodeMenuAction(_:)),
+                keyEquivalent: "",
+                kind: .paste,
+                systemSymbolName: "document.on.clipboard",
+                accessibilityDescription: "Paste"
+            )
+        )
+
+        self.contextMenu = menu
+    }
+
+    @objc
+    private func addNodeMenuAction(_ target: ContextMenuItem) {
+        let loc =
+            self.viewport?.convert(self.rightMouseDownLocation, from: .screen, to: .canvas)
+            ?? self.rightMouseDownLocation
+
+        switch target.kind {
+        case .addNode(let nodeKind):
+            self.onContextMenuAction?(.addNode(nodeKind, loc))
+        case .search:
+            break
+        case .paste:
+            break
+        }
+    }
+}
+
+private final class ContextMenuItem: NSMenuItem {
+
+    enum Kind {
+        case addNode(NodeKind)
+        case search
+        case paste
+    }
+
+    var kind: Kind
+
+    init(title string: String, action selector: Selector?, keyEquivalent charCode: String, kind: Kind) {
+        self.kind = kind
+        super.init(title: string, action: selector, keyEquivalent: charCode)
+    }
+
+    public init(
+        title: String,
+        action: Selector?,
+        keyEquivalent: String,
+        kind: Kind,
+        systemSymbolName: String,
+        accessibilityDescription: String?
+    ) {
+        self.kind = kind
+        super.init(
+            title: title,
+            action: action,
+            keyEquivalent: keyEquivalent,
+        )
+        self.image = .init(systemSymbolName: systemSymbolName, accessibilityDescription: accessibilityDescription)
+    }
+    @available(*, unavailable)
+    required init(coder: NSCoder) {
+        fatalError()
+    }
+
+}
+#endif
+
+#if os(iOS)
+extension CanvasGridView: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        .init(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else { return nil }
+            
+            if self.contextMenu == nil {
+                let addMenu = UIMenu(title: "Add Node", image: .init(systemName: "plus"), children: NodePaletteService.categories().map{ category in
+                    return UIMenu(title: category.name.rawValue, children: category.items.map { item in
+                        UIAction(title: item.displayName, image: .init(systemName: item.icon)) { [weak self, weak interaction = self.contextMenuInteraction] _ in
+                            let loc = self?.convert(interaction?.location(in: nil) ?? .zero, from: nil) ?? .zero
+                            self?.onContextMenuAction?(.addNode(item.nodeKind, loc))
+                        }
+                    })
+                })
+                
+                let copyItem = UIAction(title: "Paste", image: .init(systemName: "document.on.clipboard"), attributes: .disabled) { _ in }
+                
+                self.contextMenu = UIMenu(title: "Canvas", children: [
+                    addMenu,
+                    copyItem
+                ])
+            }
+            
+            return self.contextMenu
+        }
+    }
+}
+#endif
 
 final class GridViewLayerDelegate: NSObject, CALayerDelegate {
     func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {

@@ -1,3 +1,4 @@
+import Backend
 import Helpers
 import Logging
 import SwiftUI
@@ -43,6 +44,12 @@ struct CanvasView: PlatformViewRepresentable {
         case clickBackground
         /// This event is emitted when the canvas' platform view responds to `viewDidMoveToSuperview`.
         case didMoveToSuperview
+        /// This event is emitted when the user clicks on a canvas context menu item that demands external action.
+        case contextMenuAction(ContextMenuAction)
+    }
+
+    enum ContextMenuAction {
+        case addNode(NodeKind, CGPoint)
     }
 
     init(
@@ -123,6 +130,8 @@ struct CanvasView: PlatformViewRepresentable {
                 self.onEvent?(.clickBackground)
             case .didMoveToSuperview:
                 self.onEvent?(.didMoveToSuperview)
+            case .contextMenuAction(let action):
+                self.onEvent?(.contextMenuAction(action))
             }
         }
     }

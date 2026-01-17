@@ -34,6 +34,7 @@ extension CanvasPlatformView {
         case rectSelect(RectSelect)
         case clickBackground
         case didMoveToSuperview
+        case contextMenuAction(CanvasView.ContextMenuAction)
 
         public enum RectSelect {
             case started(shiftDown: Bool)

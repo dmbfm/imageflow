@@ -68,6 +68,13 @@ final class CanvasFeatureViewModel {
             Task { @MainActor in
                 self.updateEdges()
             }
+        case .contextMenuAction(let action):
+            log("action: \(action)")
+            switch action {
+            case .addNode(let kind, let point):
+                self.flow.newNodeAction(.init(kind: kind), at: point, undoManager: self.undoManager)
+            }
+            break
         }
     }
 

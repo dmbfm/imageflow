@@ -58,9 +58,6 @@ public struct CanvasFeatureView: View {
                 { self.vm.undoManager = self.undoManager }
             )
             .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
-            .contextMenu {
-                Button("TODO: context menu") {}
-            }
 
             CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore) { _ in }
                 #if os(iOS)

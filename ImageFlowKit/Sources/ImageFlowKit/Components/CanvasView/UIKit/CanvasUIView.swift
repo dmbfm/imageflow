@@ -131,6 +131,13 @@ final class CanvasUIView: UIView {
         oneFingerPanGesture.minimumNumberOfTouches = 1
         oneFingerPanGesture.maximumNumberOfTouches = 1
         self.gridView.addGestureRecognizer(oneFingerPanGesture)
+        
+        self.gridView.onContextMenuAction = { [weak self] action in
+            switch action {
+            case .addNode(let kind, let point):
+                self?.onEvent?(.contextMenuAction(.addNode(kind, point)))
+            }
+        }
     }
 
     @objc

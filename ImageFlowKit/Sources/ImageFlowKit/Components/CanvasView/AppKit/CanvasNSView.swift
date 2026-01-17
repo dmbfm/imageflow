@@ -60,6 +60,9 @@ final class CanvasNSView: NSView {
                 break
             }
         }
+        view.onContextMenuAction = { [weak self] action in
+            self?.onEvent?(.contextMenuAction(action))
+        }
         view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
         return view
     }()
