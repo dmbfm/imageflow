@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AEE2C6D72E8B07FD002B0057 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */; };
+		AEBDC1A52F217E94001D5A5E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC1A42F217E94001D5A5E /* AppFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEE2C6D72E8B07FD002B0057 /* ImageFlowKit in Frameworks */,
+				AEBDC1A52F217E94001D5A5E /* AppFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +139,7 @@
 			name = ImageFlowIPad;
 			packageProductDependencies = (
 				AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */,
+				AEBDC1A42F217E94001D5A5E /* AppFeature */,
 			);
 			productName = ImageFlowIPad;
 			productReference = AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */;
@@ -607,6 +608,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AEBDC1A42F217E94001D5A5E /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
 		AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ImageFlowKit;

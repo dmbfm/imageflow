@@ -13,13 +13,26 @@ let package = Package(
     name: "ImageFlowKit",
     platforms: [.macOS(.v26), .iOS(.v26)],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(name: "Backend"),
         .library(name: "Values"),
-        .library(name: "ImageFlowKit"),
         .library(name: "Helpers"),
         .library(name: "Logging"),
         .library(name: "Controls"),
+        .library(name: "SharedModels"),
+        .library(name: "PreviewFeature"),
+        .library(name: "NodePaletteFeature"),
+        .library(name: "ImageExporter"),
+        .library(name: "AssetManager"),
+        .library(name: "AssetBrowserFeature"),
+        .library(name: "CanvasView"),
+        .library(name: "NodeView"),
+        .library(name: "CanvasFeature"),
+        .library(name: "SidebarFeature"),
+        .library(name: "WelcomeWindow"),
+        .library(name: "FlowDocument"),
+        .library(name: "BackendService"),
+        .library(name: "MainViewFeature"),
+        .library(name: "AppFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -45,29 +58,184 @@ let package = Package(
             ]
         ),
         .target(
-            name: "ImageFlowKit",
+            name: "SharedModels",
             dependencies: [
-                "Values",
                 "Backend",
+                "Helpers",
+                "Values",
+            ]
+        ),
+        .target(
+            name: "PreviewFeature",
+            dependencies: [
+                "Backend",
+                "Design",
                 "Controls",
+                "SharedModels",
+                "Helpers",
+                "Values",
+                "Logging",
+                "CIImageView",
+                "ImageExporter",
+                "SharedMocking",
+            ]
+        ),
+        .target(
+            name: "NodePaletteFeature",
+            dependencies: [
+                "Helpers",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "Design",
+            dependencies: ["Helpers"]
+        ),
+        .target(
+            name: "ImageExporter",
+            dependencies: [
+                "Helpers",
+                "Controls",
+            ]
+        ),
+        .target(
+            name: "AssetManager",
+            dependencies: [
+                "Backend",
+                "Helpers",
+                "Values",
+                "Logging",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "AssetBrowserFeature",
+            dependencies: [
+                "Logging",
+                "Values",
+                "Helpers",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "CanvasView",
+            dependencies: [
                 "Helpers",
                 "Logging",
-                "CubeLutKit",
-                "CIImageView",
+                "Design",
+            ],
+        ),
+        .target(
+            name: "NodeView",
+            dependencies: [
+                "Helpers",
+                "Logging",
+                "CanvasView",
+                "Design",
+                "Values",
+                "Backend",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "CanvasFeature",
+            dependencies: [
+                "Helpers",
+                "Logging",
+                "Design",
+                "CanvasView",
+                "SharedModels",
+                "NodeView",
+                "PreviewFeature",
+            ],
+        ),
+        .target(
+            name: "SidebarFeature",
+            dependencies: [
+                "Backend",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "WelcomeWindow",
+            dependencies: [
+                "SharedModels"
+            ]
+        ),
+        .target(
+            name: "FlowDocument",
+            dependencies: [
+                "Logging",
+                "Helpers",
+                "CanvasFeature",
+                "AssetManager",
+            ]
+        ),
+        .target(
+            name: "SharedMocking",
+            dependencies: [
+                "SharedModels",
+                "Helpers",
+            ]
+        ),
+        .target(
+            name: "BackendService",
+            dependencies: [
+                "Backend",
+                "Logging",
+                "Helpers",
+                "SharedModels",
+            ]
+        ),
+        .target(
+            name: "MainViewFeature",
+            dependencies: [
+                "Backend",
+                "Logging",
+                "Helpers",
+                "SharedModels",
+                // "PreviewFeature",
+                "NodePaletteFeature",
+                "ImageExporter",
+                "AssetManager",
+                "AssetBrowserFeature",
+                "CanvasView",
+                "NodeView",
+                "CanvasFeature",
+                "SidebarFeature",
+                "WelcomeWindow",
+                "FlowDocument",
+                "BackendService",
+            ]
+        ),
+        .target(
+            name: "AppFeature",
+            dependencies: [
+                "Controls",
+                "Helpers",
+                "SharedModels",
+                "MainViewFeature",
+                "AssetManager",
+                "FlowDocument",
+                "WelcomeWindow",
+                "PreviewFeature",
             ]
         ),
         .testTarget(
-            name: "ImageFlowKitTests",
+            name: "SharedModelsTests",
             dependencies: [
-                "ImageFlowKit",
                 "Backend",
+                "SharedModels",
                 "Values",
-            ],
-            resources: [.copy("Fixtures")]
+            ]
         ),
         .testTarget(
-            name: "HelpersTests",
-            dependencies: ["Helpers"]
+            name: "AssetManagerTests",
+            dependencies: [
+                "SharedModels",
+                "AssetManager",
+            ],
+            resources: [.copy("Fixtures")]
         ),
     ]
 )
@@ -81,6 +249,7 @@ for target in package.targets {
     ]
     for feat in features {
         settings.append(.enableExperimentalFeature(feat))
+        // settings.append(.defaultIsolation(MainActor.self))
     }
     target.swiftSettings = settings
 }
