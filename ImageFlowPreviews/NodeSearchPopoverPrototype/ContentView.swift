@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ImageFlowKit
+import SharedModels
 
 let SIZE: CGSize = .init(width: 400, height: 200)
 
