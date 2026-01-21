@@ -35,6 +35,8 @@ public struct CanvasView: PlatformViewRepresentable {
     /// A closure to listen to canvas view events (see `Event`).
     let onEvent: ((CanvasView.Event) -> ())?
 
+    weak var contextMenuProvider: (any CanvasContextMenuProvider)?
+
     /// The public events handled by the `onEvent` closure.
     public enum Event {
         /// This event is emitted when the user drags the canvas' background grid to create a rectangular selection.
@@ -51,6 +53,7 @@ public struct CanvasView: PlatformViewRepresentable {
         _ edges: [EdgeLayer],
         _ canvasPlatformViewRef: Binding<PlatformView?>,
         _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
+        contextMenuProvider: (any CanvasContextMenuProvider)? = nil,
         _ onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
         self._viewport = viewport
@@ -59,6 +62,7 @@ public struct CanvasView: PlatformViewRepresentable {
         self.viewForNode = viewForNode
         self._canvasPlatformViewRef = canvasPlatformViewRef
         self.onEvent = onEvent
+        self.contextMenuProvider = contextMenuProvider
     }
 
     public func makeView(context: Context) -> CanvasPlatformView {
@@ -75,6 +79,8 @@ public struct CanvasView: PlatformViewRepresentable {
         view.onEvent = context.coordinator.onEventHandler
 
         self.canvasPlatformViewRef = .init(view)
+
+        view.contextMenuProvider = self.contextMenuProvider
 
         return view
     }
@@ -97,6 +103,10 @@ public struct CanvasView: PlatformViewRepresentable {
 
         if view.edgeLayers != self.edgeLayers {
             view.edgeLayers = self.edgeLayers
+        }
+
+        if view.contextMenuProvider !== self.contextMenuProvider {
+            view.contextMenuProvider = self.contextMenuProvider
         }
     }
 

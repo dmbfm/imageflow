@@ -138,7 +138,6 @@
 			);
 			name = ImageFlowIPad;
 			packageProductDependencies = (
-				AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */,
 				AEBDC1A42F217E94001D5A5E /* AppFeature */,
 			);
 			productName = ImageFlowIPad;
@@ -611,10 +610,6 @@
 		AEBDC1A42F217E94001D5A5E /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;
-		};
-		AEE2C6D62E8B07FD002B0057 /* ImageFlowKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ImageFlowKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

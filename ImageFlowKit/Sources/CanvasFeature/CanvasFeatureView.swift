@@ -50,6 +50,7 @@ public struct CanvasFeatureView: View {
                 self.vm.edgeLayers,
                 self.vm.canvasPlatformViewRefBinding,
                 self.vm.viewForNode,
+                contextMenuProvider: self.vm,
                 self.vm.onCanvasEvent,
             )
             .ignoresSafeArea()
