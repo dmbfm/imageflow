@@ -9,7 +9,7 @@ struct NodePaletteListView: View {
     var onTapItem: ((NodePaletteItem) -> ())?
 
     var categories: [NodePaletteCategory] {
-        NodePaletteService.categories(searchText: self.searchText)
+        NodePaletteService.shared.categories(searchText: self.searchText)
     }
 
     @State var expanded: [NodePaletteCategoryName: Bool] = [:]

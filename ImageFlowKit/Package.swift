@@ -147,6 +147,7 @@ let package = Package(
                 "SharedModels",
                 "NodeView",
                 "PreviewFeature",
+                "NodePaletteFeature",
             ],
         ),
         .target(

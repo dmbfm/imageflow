@@ -38,6 +38,7 @@ struct MainContentViewMacOS: View {
     }
 
     func onChangeOfFocus() {
+        log("focus changed: \(self.focus, default: "nil")", level: .debug)
         if self.focus == nil {
             self.focus = .global
         }
@@ -102,6 +103,17 @@ fileprivate struct DetailView: View {
     @Environment(\.colorScheme) var cs
     @Environment(\.undoManager) var um
 
+    @State var canvasAction: CanvasFeatureView.Action?
+
+    func handleKeyPress(_ kp: KeyPress) -> KeyPress.Result {
+        if kp.key == .space {
+            self.canvasAction = .showNodeSearchPopover
+            return .handled
+        }
+
+        return .ignored
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             CanvasFeatureView(
@@ -109,7 +121,8 @@ fileprivate struct DetailView: View {
                 self.vm.flow,
                 self.vm.assetStore,
                 self.focus,
-                self.vm
+                self.vm,
+                action: self.$canvasAction,
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center
@@ -126,6 +139,7 @@ fileprivate struct DetailView: View {
                         vm.flow.deleteSelectedNodesAction(undoManager: um)
                     }
             )
+            .onKeyPress(action: self.handleKeyPress(_:))
 
             // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
             // effect on the toolbar! This does not work if we use `Color.clear` instead.

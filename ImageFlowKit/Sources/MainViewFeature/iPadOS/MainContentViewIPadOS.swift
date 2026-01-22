@@ -13,6 +13,8 @@ import AssetBrowserFeature
 
 struct MainContentViewIPadOS: View {
 
+    @State private var canvasAction: CanvasFeatureView.Action?
+    
     @FocusState var focus: Focus?
 
     @ObservableState var vm: MainContentViewModel
@@ -96,8 +98,8 @@ struct MainContentViewIPadOS: View {
                 self.vm.flow,
                 self.vm.assetStore,
                 self.$focus,
-                self.vm
-                    // self.vm.canvasFeatureViewDelegate
+                self.vm,
+                action: self.$canvasAction
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center
@@ -116,6 +118,7 @@ struct MainContentViewIPadOS: View {
             } label: {
                 Image(systemName: "plus")
             }
+            .keyboardShortcut(.init(.space, modifiers: []))
         }
 
         ToolbarItem(placement: .secondaryAction) {

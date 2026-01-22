@@ -2,6 +2,7 @@ import Backend
 import CanvasView
 import Helpers
 import Logging
+import NodePaletteFeature
 import NodeView
 import PreviewFeature
 import SharedModels
@@ -14,11 +15,17 @@ public struct CanvasFeatureView: View {
 
     // MARK: - State
 
+    @Binding var action: Action?
+
     @ObservableState private var vm: CanvasFeatureViewModel
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
     public typealias Delegate = NodeViewDelegate
+
+    public enum Action {
+        case showNodeSearchPopover
+    }
 
     // MARK: - Initializers
 
@@ -27,7 +34,8 @@ public struct CanvasFeatureView: View {
         _ flow: Flow,
         _ assetStore: any AssetStoreService,
         _ focus: FocusState<Focus?>.Binding,
-        _ delegate: Delegate?
+        _ delegate: Delegate?,
+        action: Binding<Action?>,
     ) {
         self._vm = .init(
             wrappedValue: .init(
@@ -35,9 +43,21 @@ public struct CanvasFeatureView: View {
                 flow: flow,
                 assetStore: assetStore,
                 focus: focus,
-                delegate: delegate
+                delegate: delegate,
             )
         )
+        self._action = action
+    }
+
+    func onAction() {
+        if let action = self.action {
+            switch action {
+            case .showNodeSearchPopover:
+                self.vm.nodeSearchPopoverIsPresentedAt = .zero
+                break
+            }
+            self.action = nil
+        }
     }
 
     // MARK: - Body
@@ -65,6 +85,25 @@ public struct CanvasFeatureView: View {
                 { self.vm.undoManager = self.undoManager }
             )
             .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
+            .onChange(of: self.action) { self.onAction() }
+            #if os(macOS)
+            .nodePaletteSearchPopover(
+                isPresentedAt: self.$vm.nodeSearchPopoverIsPresentedAt,
+                focus: self.vm.focus,
+                onPickItem: { item, maybePos in
+                    self.vm.onNodePaletteSearchPickItem(item, maybePos)
+                }
+            )
+            .onKeyPress { kp in
+
+                if kp.key == .space {
+                    self.vm.nodeSearchPopoverIsPresentedAt = .zero
+                    return .handled
+                }
+
+                return .ignored
+            }
+            #endif
 
             CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore) { _ in }
                 #if os(iOS)

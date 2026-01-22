@@ -15,6 +15,8 @@
 		AEB1301D2E35862D00FCE746 /* CanvasFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEB1301C2E35862D00FCE746 /* CanvasFeature */; };
 		AEB76A7C2E2AEAE10020EE2F /* CanvasView in Frameworks */ = {isa = PBXBuildFile; productRef = AEB76A7B2E2AEAE10020EE2F /* CanvasView */; };
 		AEBDC2992F2197AD001D5A5E /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC2982F2197AD001D5A5E /* SharedModels */; };
+		AEBDC29B2F22E5AC001D5A5E /* NodePaletteFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC29A2F22E5AC001D5A5E /* NodePaletteFeature */; };
+		AEBDC29D2F22F47F001D5A5E /* Helpers in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC29C2F22F47F001D5A5E /* Helpers */; };
 		AEEDC3552E491773007B4F7F /* NodeView in Frameworks */ = {isa = PBXBuildFile; productRef = AEEDC3542E491773007B4F7F /* NodeView */; };
 		AEF87CFF2EDF124800043888 /* ImageFlowKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEF87CFE2EDF124800043888 /* ImageFlowKit */; };
 /* End PBXBuildFile section */
@@ -153,7 +155,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEBDC29D2F22F47F001D5A5E /* Helpers in Frameworks */,
 				AEBDC2992F2197AD001D5A5E /* SharedModels in Frameworks */,
+				AEBDC29B2F22E5AC001D5A5E /* NodePaletteFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +400,8 @@
 			name = NodeSearchPopoverPrototype;
 			packageProductDependencies = (
 				AEBDC2982F2197AD001D5A5E /* SharedModels */,
+				AEBDC29A2F22E5AC001D5A5E /* NodePaletteFeature */,
+				AEBDC29C2F22F47F001D5A5E /* Helpers */,
 			);
 			productName = NodeSearchPopoverPrototype;
 			productReference = AEC9558A2F1EAB3C00DC1130 /* NodeSearchPopoverPrototype.app */;
@@ -1764,6 +1770,14 @@
 		AEBDC2982F2197AD001D5A5E /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
+		};
+		AEBDC29A2F22E5AC001D5A5E /* NodePaletteFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NodePaletteFeature;
+		};
+		AEBDC29C2F22F47F001D5A5E /* Helpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Helpers;
 		};
 		AEEDC3542E491773007B4F7F /* NodeView */ = {
 			isa = XCSwiftPackageProductDependency;

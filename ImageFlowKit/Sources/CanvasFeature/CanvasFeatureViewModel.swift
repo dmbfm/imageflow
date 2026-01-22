@@ -30,6 +30,11 @@ final class CanvasFeatureViewModel {
     weak var canvasPlatformView: PlatformView?
     weak var delegate: Delegate?
 
+    @ObservationIgnored
+    var trackedMousePosition: CGPoint?
+
+    var nodeSearchPopoverIsPresentedAt: CGPoint?
+
     typealias Delegate = NodeViewDelegate
 
     init(
@@ -321,6 +326,14 @@ final class CanvasFeatureViewModel {
             view.isSelected = self.flow.isSelected(id)
         }
     }
+
+    func onNodePaletteSearchPickItem(_ item: NodePaletteItem, _ maybePos: CGPoint?) {
+        log("onNodePaletteSearchPickItem: \(item), \(maybePos)", level: .debug)
+        if let pos = maybePos, let p = self.canvasPlatformView?.convert(pos, from: nil) {
+            let final = self.state.viewport.convert(p, from: .screen, to: .canvas)
+            self.flow.newNodeAction(.init(kind: item.nodeKind), at: final, undoManager: self.undoManager)
+        }
+    }
 }
 
 extension CanvasFeatureViewModel {
@@ -367,7 +380,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
                 UIMenu(
                     title: "Add",
                     image: .init(systemName: "plus"),
-                    children: NodePaletteService.categories().map { category in
+                    children: NodePaletteService.shared.categories().map { category in
                         UIMenu(
                             title: category.name.rawValue,
                             children: category.items.map { item in
@@ -410,10 +423,14 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
         Group {
             Menu("Add", systemImage: "plus") {
                 Button {
+                    // let event = NSEvent.
+                    log("pos: \(NSEvent.mouseLocation)", level: .debug)
+                    self.nodeSearchPopoverIsPresentedAt = NSEvent.mouseLocation
+                    // self.focus.wrappedValue = .nodeSearch
                 } label: {
                     Label("Search", systemImage: "magnifyingglass")
                 }
-                ForEach(NodePaletteService.categories()) { cat in
+                ForEach(NodePaletteService.shared.categories()) { cat in
                     Menu(cat.name.rawValue) {
                         ForEach(cat.items) { item in
                             Button {

@@ -1,8 +1,20 @@
 import Backend
 import Values
 
-public struct NodePaletteService: Sendable {
-    public let categories: [NodePaletteCategory] = {
+@MainActor
+public class NodePaletteService {
+
+    lazy var allItems: [NodePaletteItem] = {
+        var result = [NodePaletteItem]()
+
+        for cat in self.categories() {
+            result.append(contentsOf: cat.items)
+        }
+
+        return result
+    }()
+
+    lazy var categories: [NodePaletteCategory] = {
 
         var result = [NodePaletteCategory]()
 
@@ -16,7 +28,8 @@ public struct NodePaletteService: Sendable {
                     .init(
                         displayName: "Add",
                         icon: NodeKind.addNode(.float).icon,
-                        nodeKind: .addNode(.float)
+                        nodeKind: .addNode(.float),
+                        categoryName: .math
                     )
                 ]
             )
@@ -31,14 +44,16 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .input
                     )
                 }
                     + [
                         .init(
                             displayName: "Affine Transform",
                             icon: NodeKind.valueCustomNode(.affineTransform).icon,
-                            nodeKind: .valueCustomNode(.affineTransform)
+                            nodeKind: .valueCustomNode(.affineTransform),
+                            categoryName: .input
                         )
                     ]
             )
@@ -53,7 +68,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .blur
                     )
                 }
             )
@@ -68,12 +84,15 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .colorAdjustment
                     )
                 }
                     + CoreImageCustomNodeKind.ColorAdjustment.allCases
                     .map { $0.kind }
-                    .map { .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0) })
+                    .map {
+                        .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0, categoryName: .colorAdjustment)
+                    })
             )
         )
 
@@ -86,7 +105,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .colorEffect
                     )
                 }
             )
@@ -101,7 +121,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .compositeOperation
                     )
                 }
             )
@@ -116,7 +137,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .distortionEffect
                     )
                 }
             )
@@ -131,7 +153,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .generator
                     )
                 }
             )
@@ -146,12 +169,20 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .geometryAdjustment
                     )
                 }
                     + CoreImageCustomNodeKind.GeometryAdjustment.allCases
                     .map { $0.kind }
-                    .map { .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0) }
+                    .map {
+                        .init(
+                            displayName: $0.displayName,
+                            icon: $0.icon,
+                            nodeKind: $0,
+                            categoryName: .geometryAdjustment
+                        )
+                    }
             )
         )
 
@@ -164,7 +195,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .gradient
                     )
                 }
             )
@@ -179,7 +211,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .halftoneEffect
                     )
                 }
             )
@@ -194,7 +227,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .reduction
                     )
                 }
             )
@@ -209,7 +243,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .sharpen
                     )
                 }
             )
@@ -224,7 +259,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .stylize
                     )
                 }
             )
@@ -239,7 +275,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .tileEffect
                     )
                 }
             )
@@ -253,7 +290,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .transition
                     )
                 }
             )
@@ -267,7 +305,8 @@ public struct NodePaletteService: Sendable {
                     return NodePaletteItem(
                         displayName: kind.displayName,
                         icon: kind.icon,
-                        nodeKind: kind
+                        nodeKind: kind,
+                        categoryName: .video
                     )
                 }
             )
@@ -280,19 +319,31 @@ public struct NodePaletteService: Sendable {
 
     public init() {}
 
-    public static let shared: Self = .init()
+    public static let shared: NodePaletteService = .init()
 
-    public static func categories(searchText: String = "") -> [NodePaletteCategory] {
+    public func categories(searchText: String = "") -> [NodePaletteCategory] {
         if searchText.isEmpty {
-            return NodePaletteService.shared.categories
+            return self.categories
         } else {
-            return NodePaletteService.shared.categories.map { cat in
+            return self.categories.map { cat in
                 var r = cat
                 r.items = cat.items.filter { item in
                     item.displayName.lowercased().contains(searchText.lowercased())
                 }
                 return r
             }.filter({ !$0.items.isEmpty })
+        }
+    }
+
+    public func items(searchText: String = "") -> [NodePaletteItem] {
+        if searchText.isEmpty {
+            return self.allItems
+        } else {
+            return self.allItems.filter { entry in
+                let text = searchText.lowercased()
+                return entry.categoryName.rawValue.lowercased().contains(text)
+                    || entry.displayName.lowercased().contains(text)
+            }
         }
     }
 }
@@ -330,6 +381,7 @@ public struct NodePaletteItem: Sendable, Hashable, Identifiable {
     public var displayName: String
     public var icon: String
     public var nodeKind: NodeKind
+    public var categoryName: NodePaletteCategoryName
 
     public var id: Self { self }
 }

@@ -28,7 +28,7 @@ public struct SidebarFeatureView: View {
     }
 
     var categories: [NodePaletteCategory] {
-        NodePaletteService.categories(searchText: self.searchText)
+        NodePaletteService.shared.categories(searchText: self.searchText)
     }
 
     func nodeKindDragItem(_ item: NodePaletteItem) -> NodeKindDragItem {
