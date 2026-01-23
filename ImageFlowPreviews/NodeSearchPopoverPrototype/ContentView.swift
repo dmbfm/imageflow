@@ -5,27 +5,29 @@
 //  Created by Daniel Fortes on 19/01/26.
 //
 
+import Helpers
 import NodePaletteFeature
 import SharedModels
 import SwiftUI
-import Helpers
 
 let SIZE: CGSize = .init(width: 400, height: 200)
 
 struct ContentView3: View {
 
-    @State var isPresented: CGPoint? = nil
+  @State var isPresented: CGPoint? = nil
 
-    var body: some View {
-        Color(white: 0.95)
-            .onTapGesture(coordinateSpace: .local) { point in
-                print("point: \(point)")
-                self.isPresented = point
-            }
-            .nodePaletteSearchPopover(isPresentedAt: self.$isPresented, onPickItem: { item in
-                print("item: \(item)")
-            })
-    }
+  var body: some View {
+    Color(white: 0.95)
+      .onTapGesture(coordinateSpace: .local) { point in
+        print("point: \(point)")
+        self.isPresented = point
+      }
+      .nodePaletteSearchPopover(
+        isPresentedAt: self.$isPresented,
+        onPickItem: { item in
+          print("item: \(item)")
+        })
+  }
 }
 //
 //struct ContentView: View {

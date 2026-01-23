@@ -14,7 +14,7 @@ import AssetBrowserFeature
 struct MainContentViewIPadOS: View {
 
     @State private var canvasAction: CanvasFeatureView.Action?
-    
+
     @FocusState var focus: Focus?
 
     @ObservableState var vm: MainContentViewModel
