@@ -37,23 +37,13 @@ struct MainContentViewMacOS: View {
         )
     }
 
-    func onChangeOfFocus() {
-        log("focus changed: \(self.focus, default: "nil")", level: .debug)
-        if self.focus == nil {
-            self.focus = .global
-        }
-    }
-
     var body: some View {
         NavigationSplitView {
             SidebarFeatureView(self.$focus, self.vm.onDoubleClick(nodePaletteItem:))
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
                 .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {
-            DetailView(
-                vm: self.vm,
-                focus: self.$focus,
-            )
+            DetailView(vm: self.vm, focus: self.$focus)
         }
         .toolbar { self.toolbarContent }
         .toolbarRole(.editor)
@@ -77,10 +67,7 @@ struct MainContentViewMacOS: View {
         )
         .errorAlert(self.$vm.error)
         .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
-        .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
-        .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
-        .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
-        .onChange(of: self.focus, initial: true, self.onChangeOfFocus)
+        .onChange(of: self.focus, initial: false, { self.vm.focusDidChange(self.$focus) })
     }
 
     @ToolbarContentBuilder
@@ -94,62 +81,4 @@ struct MainContentViewMacOS: View {
         }
     }
 }
-
-fileprivate struct DetailView: View {
-
-    let vm: MainContentViewModel
-    let focus: FocusState<Focus?>.Binding
-
-    @Environment(\.colorScheme) var cs
-    @Environment(\.undoManager) var um
-
-    @State var canvasAction: CanvasFeatureView.Action?
-
-    func handleKeyPress(_ kp: KeyPress) -> KeyPress.Result {
-        if kp.key == .space {
-            self.canvasAction = .showNodeSearchPopover
-            return .handled
-        }
-
-        return .ignored
-    }
-
-    var body: some View {
-        ZStack(alignment: .top) {
-            CanvasFeatureView(
-                self.vm.canvas,
-                self.vm.flow,
-                self.vm.assetStore,
-                self.focus,
-                self.vm,
-                action: self.$canvasAction,
-            )
-            .onGeometryChange(for: CGPoint.self) { proxy in
-                proxy.frame(in: .local).center
-            } action: { newValue in
-                self.vm.canvasCenter = newValue
-            }
-            .focusable(true, interactions: .edit)
-            .focused(self.focus, equals: .global)
-            .focusEffectDisabled()
-            .onDeleteCommand(
-                perform: self.vm.flow.selection.isEmpty
-                    ? nil
-                    : {
-                        vm.flow.deleteSelectedNodesAction(undoManager: um)
-                    }
-            )
-            .onKeyPress(action: self.handleKeyPress(_:))
-
-            // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
-            // effect on the toolbar! This does not work if we use `Color.clear` instead.
-            Rectangle()
-                .fill(Color.white.opacity(0.0001))
-                .frame(height: 60)
-                .ignoresSafeArea(.all, edges: [.top])
-                .backgroundExtensionEffect()
-        }
-    }
-}
-
 #endif

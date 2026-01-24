@@ -23,11 +23,29 @@ final class MainContentViewModel {
     let assetStore: AssetStore
     let assetBrowserViewModel: AssetBrowserViewModel
 
-    // var assetBrowserType: AssetBrowserType = .browser(.init(assetKinds: .all))
     var showAssetBrowser: Bool = false
-    var showFileImporter: Bool = false
-    var showPhotoPicker: Bool = false
-    var selectedPhotoPickerItems: [PhotosPickerItem] = []
+    var showFileImporter: Bool = false {
+        didSet {
+            if self.showFileImporter != oldValue {
+                self.onChangeOfShowFileImporter()
+            }
+        }
+    }
+    var showPhotoPicker: Bool = false {
+        didSet {
+            if self.showPhotoPicker != oldValue {
+                self.onChangeOfShowPhotoPicker()
+            }
+        }
+    }
+    var selectedPhotoPickerItems: [PhotosPickerItem] = [] {
+        didSet {
+            if self.selectedPhotoPickerItems != oldValue {
+                self.onChangeOfPhotoPickerItems()
+            }
+        }
+    }
+    var canvasAction: CanvasFeatureView.Action?
     var error: LocalizedAlertError? = nil
     var undoManager: UndoManager? = nil
 
@@ -57,8 +75,33 @@ final class MainContentViewModel {
         self.assetBrowserViewModel.delegate = self
     }
 
+    func focusDidChange(_ focus: FocusState<Focus?>.Binding) {
+        log("focusDidChange:focus:\(focus.wrappedValue, default: "nil")", level: .info)
+        if focus.wrappedValue == nil {
+            focus.wrappedValue = .global
+            log("focusDidChange:focus:nil -> \(focus.wrappedValue, default: "nil")", level: .info)
+        }
+    }
+
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
         self.createNodeAtCanvasCenter(fromPaletteItem: item)
+    }
+
+    var onDeleteCommand: (() -> ())? {
+        if !self.flow.selection.isEmpty {
+            { [weak self] in self?._onDeleteCommand() }
+        } else {
+            nil
+        }
+    }
+
+    func _onDeleteCommand() {
+        self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
+    }
+
+    func onKeyPressSpace() -> KeyPress.Result {
+        self.canvasAction = .showNodeSearchPopover
+        return .handled
     }
 
     func onChangeOfShowFileImporter() {

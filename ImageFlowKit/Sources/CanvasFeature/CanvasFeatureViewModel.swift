@@ -33,7 +33,17 @@ final class CanvasFeatureViewModel {
     @ObservationIgnored
     var trackedMousePosition: CGPoint?
 
-    var nodeSearchPopoverIsPresentedAt: CGPoint?
+    var nodeSearchPopoverIsPresented: Bool = false {
+        didSet {
+            #if os(macOS)
+            if self.nodeSearchPopoverIsPresented {
+                if let window = NSApp.keyWindow, let canvas = self.canvasPlatformView {
+                    self.trackedMousePosition = canvas.convert(window.mouseLocationOutsideOfEventStream, from: nil)
+                }
+            }
+            #endif
+        }
+    }
 
     typealias Delegate = NodeViewDelegate
 
@@ -309,6 +319,23 @@ final class CanvasFeatureViewModel {
         return self.state.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
 
+    // MARK: - Node Search Popover
+
+    var nodeSearchPopoverPosition: CGPoint {
+        self.trackedMousePosition ?? .zero
+    }
+
+    func nodeSearchPopover(didPickItem item: NodePaletteItem, at maybePos: CGPoint?) {
+        if let p = maybePos {
+            let final = self.state.viewport.convert(p, from: .screen, to: .canvas)
+            self.flow.newNodeAction(.init(kind: item.nodeKind), at: final, undoManager: self.undoManager)
+        }
+    }
+
+    func nodeSearchPopoverDismiss() {
+        self.nodeSearchPopoverIsPresented = false
+    }
+
     // MARK: - Other Methods
 
     func dropDestinationHandler(_ items: [NodeKindDragItem], _ point: CGPoint) -> Bool {
@@ -327,13 +354,6 @@ final class CanvasFeatureViewModel {
         }
     }
 
-    func onNodePaletteSearchPickItem(_ item: NodePaletteItem, _ maybePos: CGPoint?) {
-        log("onNodePaletteSearchPickItem: \(item), \(maybePos)", level: .debug)
-        if let pos = maybePos, let p = self.canvasPlatformView?.convert(pos, from: nil) {
-            let final = self.state.viewport.convert(p, from: .screen, to: .canvas)
-            self.flow.newNodeAction(.init(kind: item.nodeKind), at: final, undoManager: self.undoManager)
-        }
-    }
 }
 
 extension CanvasFeatureViewModel {
@@ -369,87 +389,4 @@ extension PartialEdge {
             Colors.edgeWithError.platformColor
         }
     }
-}
-
-extension CanvasFeatureViewModel: CanvasContextMenuProvider {
-    #if os(iOS)
-    func canvasContextMenu(at location: CGPoint) -> UIMenu? {
-        UIMenu(
-            title: "Canvas",
-            children: [
-                UIMenu(
-                    title: "Add",
-                    image: .init(systemName: "plus"),
-                    children: NodePaletteService.shared.categories().map { category in
-                        UIMenu(
-                            title: category.name.rawValue,
-                            children: category.items.map { item in
-                                UIAction(
-                                    title: item.displayName,
-                                    image: .init(systemName: item.icon),
-                                    handler: { [weak self] _ in
-                                        self?.addButtonClick(item, location)
-                                    }
-                                )
-                            }
-                        )
-                    }
-                ),
-                UIAction(
-                    title: "Paste",
-                    image: .init(systemName: "document.on.clipboard"),
-                    attributes: .disabled,
-                    handler: { _ in }
-                ),
-            ]
-        )
-    }
-    #endif
-
-    private func addButtonClick(_ item: NodePaletteItem, _ pos: CGPoint) {
-        self.flow.newNodeAction(
-            .init(kind: item.nodeKind),
-            at: self.state.viewport.convert(pos, from: .screen, to: .canvas),
-            undoManager: self.undoManager
-        )
-    }
-
-    #if os(macOS)
-    func canvasContextMenu(at location: CGPoint) -> NSMenu? {
-        NSHostingMenu(rootView: self._canvasContextMenu(at: location))
-    }
-
-    private func _canvasContextMenu(at location: CGPoint) -> some View {
-        Group {
-            Menu("Add", systemImage: "plus") {
-                Button {
-                    // let event = NSEvent.
-                    log("pos: \(NSEvent.mouseLocation)", level: .debug)
-                    self.nodeSearchPopoverIsPresentedAt = NSEvent.mouseLocation
-                    // self.focus.wrappedValue = .nodeSearch
-                } label: {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                ForEach(NodePaletteService.shared.categories()) { cat in
-                    Menu(cat.name.rawValue) {
-                        ForEach(cat.items) { item in
-                            Button {
-                                self.addButtonClick(item, location)
-                            } label: {
-                                Label(item.displayName, systemImage: item.icon)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Button {
-                log("TODO", level: .warning)
-            } label: {
-                Label("Paste", systemImage: "document.on.clipboard")
-            }
-
-        }
-    }
-    #endif
 }

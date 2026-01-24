@@ -4,26 +4,12 @@ import SwiftUI
 import SharedModels
 import Helpers
 
-public extension View {
-    func nodePaletteSearchPopover(
-        isPresentedAt: Binding<CGPoint?>,
-        focus: FocusState<Focus?>.Binding,
-        onPickItem: @escaping (NodePaletteItem, CGPoint?) -> (),
-    ) -> some View {
-        self.popover(isPresentedAt: isPresentedAt, positioning: .cursor, size: NodePaletteSearchPopoverView.size) {
-            NodePaletteSearchPopoverView(isPresentedAt, focus: focus, onPickItem: onPickItem) {
-                isPresentedAt.wrappedValue = nil
-            }
-        }
-    }
-}
-
-struct NodePaletteSearchPopoverView: View {
+public struct NodePaletteSearchPopoverView: View {
 
     @State var text: String = ""
     @State var selectedItem: NodePaletteItem?
 
-    @Binding var _position: CGPoint?
+    var _position: CGPoint?
 
     @Environment(\.colorScheme) var cs
 
@@ -35,38 +21,38 @@ struct NodePaletteSearchPopoverView: View {
 
     static let size: CGSize = .init(width: 400, height: 200)
 
-    init(
-        _ position: Binding<CGPoint?>,
+    public init(
+        _ position: CGPoint?,
         focus: FocusState<Focus?>.Binding,
         onPickItem: @escaping (NodePaletteItem, CGPoint?) -> (),
         dismiss: @escaping () -> ()
     ) {
-        self.__position = position
+        self._position = position
         self.focus = focus
         self.onPickItem = onPickItem
         self.dismiss = dismiss
     }
 
     var items: [NodePaletteItem] {
-        palette.items(searchText: self.text)
+        palette.items(searchText: self.text.trimmingCharacters(in: .whitespaces))
     }
 
     var searchView: some View {
-        TextField("", text: self.$text)
+        _TextField(text: self.$text)
             .font(.system(size: 12))
             .focused(self.focus, equals: .nodeSearch)
-            .textFieldStyle(.plain)
-            .padding(2)
-            .background { self.cs == .light ? Color.white : Color.black }
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            .padding(1)
-            .background {
-                RoundedRectangle(cornerRadius: 5)
-                    .fill(.tertiary)
-            }
             .padding(.horizontal)
             .padding(.top)
             .padding(.bottom, 8)
+        // .onAppear {
+        // print("on appear!!!!!!!")
+        // self.focus.wrappedValue = .global
+        // Task { @MainActor in
+        //     print("changing focu!!!!!!!!!!!")
+        //     try await Task.sleep(for: .milliseconds(150))
+        // self.focus.wrappedValue = .nodeSearch
+        // }
+        // }
     }
 
     func selectNext() {
@@ -132,7 +118,7 @@ struct NodePaletteSearchPopoverView: View {
         .scrollPosition(id: self.$selectedItem)
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             self.searchView
             self.listView
@@ -170,4 +156,79 @@ struct NodePaletteSearchPopoverView: View {
     }
 }
 
+struct _TextField: NSViewRepresentable {
+
+    @Binding var text: String
+    var font: NSFont? = nil
+
+    func makeNSView(context: Context) -> Inner {
+        print("make: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        let view = Inner()
+        view.focusRingType = .none
+        view.font = self.font
+        view.text = self.text
+        view.delegate = context.coordinator
+        view.maximumNumberOfLines = 1
+        view.isAutomaticTextCompletionEnabled = false
+        view.allowsWritingTools = false
+        context.coordinator.text = self.$text
+        // Task { @MainActor in
+        //     window?.mak
+        // }
+        return view
+    }
+
+    func updateNSView(_ view: Inner, context: Context) {
+        view.text = self.text
+        context.coordinator.text = self.$text
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    class Inner: NSTextField {
+
+        // override var canBecomeKeyView: Bool { false }
+
+        // static var isFirst: Bool = false
+
+        // override func viewWillDraw() {
+
+        // }
+
+        // override func viewDidMoveToWindow() {
+        //     print("mmmmmmmmmmmmmmmmmmmmmmmove!")
+        //     if let window = self.window {
+        //         Task { @MainActor in
+        //             // if Self.isFirst {
+        //                 // try await Task.sleep(for: .seconds(0.5))
+        //                 // Self.isFirst = false
+        //             // }
+        //             window.makeFirstResponder(self)
+        //         }
+        //     }
+        // }
+
+    }
+
+    class Coordinator: NSObject, NSTextFieldDelegate {
+
+        var text: Binding<String>?
+
+        func controlTextDidChange(_ obj: Notification) {
+            if let text = self.text, let object = obj.object, let textField = object as? NSTextField {
+                text.wrappedValue = textField.text
+            }
+        }
+
+        func controlTextDidBeginEditing(_ obj: Notification) {
+
+        }
+
+        func controlTextDidEndEditing(_ obj: Notification) {
+
+        }
+    }
+}
 #endif

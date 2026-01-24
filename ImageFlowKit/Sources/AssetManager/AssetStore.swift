@@ -17,7 +17,7 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
-    public var delegate: AssetStoreServiceDelegate? = nil
+    public weak var delegate: AssetStoreServiceDelegate? = nil
 
     @ObservationIgnored
     var thumbCache: [UUID: CGImage] = [:]

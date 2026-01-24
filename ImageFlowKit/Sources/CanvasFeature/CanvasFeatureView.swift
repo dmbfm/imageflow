@@ -53,7 +53,7 @@ public struct CanvasFeatureView: View {
         if let action = self.action {
             switch action {
             case .showNodeSearchPopover:
-                self.vm.nodeSearchPopoverIsPresentedAt = .zero
+                self.vm.nodeSearchPopoverIsPresented = true
                 break
             }
             self.action = nil
@@ -86,23 +86,20 @@ public struct CanvasFeatureView: View {
             )
             .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
             .onChange(of: self.action) { self.onAction() }
+
             #if os(macOS)
-            .nodePaletteSearchPopover(
-                isPresentedAt: self.$vm.nodeSearchPopoverIsPresentedAt,
-                focus: self.vm.focus,
-                onPickItem: { item, maybePos in
-                    self.vm.onNodePaletteSearchPickItem(item, maybePos)
-                }
-            )
-            .onKeyPress { kp in
-
-                if kp.key == .space {
-                    self.vm.nodeSearchPopoverIsPresentedAt = .zero
-                    return .handled
-                }
-
-                return .ignored
+            VStack {
+                Color.red.opacity(0)
             }
+            .popover(
+                isPresented: self.$vm.nodeSearchPopoverIsPresented,
+                arrowEdge: .bottom,
+                content: { self.nodeSearchPopoverContent }
+            )
+            .ignoresSafeArea(.all)
+            .frame(width: 10, height: 10)
+            .position(self.vm.nodeSearchPopoverPosition)
+            .ignoresSafeArea(.all)
             #endif
 
             CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore) { _ in }
@@ -111,6 +108,17 @@ public struct CanvasFeatureView: View {
                 #endif
         }
     }
+
+    #if os(macOS)
+    var nodeSearchPopoverContent: some View {
+        NodePaletteSearchPopoverView(
+            self.vm.trackedMousePosition,
+            focus: self.vm.focus,
+            onPickItem: self.vm.nodeSearchPopover(didPickItem:at:),
+            dismiss: self.vm.nodeSearchPopoverDismiss,
+        )
+    }
+    #endif
 }
 
 fileprivate struct CanvasImagePreviewView: View {

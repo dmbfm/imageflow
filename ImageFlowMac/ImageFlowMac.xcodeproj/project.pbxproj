@@ -138,7 +138,6 @@
 			);
 			name = ImageFlowMac;
 			packageProductDependencies = (
-				AECE4C912E8B2A9A00208FF7 /* ImageFlowKit */,
 				AEBDC1A22F21790B001D5A5E /* AppFeature */,
 			);
 			productName = ImageFlowMac;
@@ -646,10 +645,6 @@
 		AEBDC1A22F21790B001D5A5E /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;
-		};
-		AECE4C912E8B2A9A00208FF7 /* ImageFlowKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ImageFlowKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
