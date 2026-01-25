@@ -10,6 +10,8 @@ extension MainContentViewMacOS {
         let vm: MainContentViewModel
         let focus: FocusState<Focus?>.Binding
 
+        @State var opacity: CGFloat = 0.0
+
         @Environment(\.colorScheme) var cs
         @Environment(\.undoManager) var um
 
@@ -38,10 +40,16 @@ extension MainContentViewMacOS {
                 // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
                 // effect on the toolbar! This does not work if we use `Color.clear` instead.
                 Rectangle()
-                    .fill(Color.white.opacity(0.0001))
+                    .fill(Color.white.opacity(self.opacity))
                     .frame(height: 60)
                     .ignoresSafeArea(.all, edges: [.top])
                     .backgroundExtensionEffect()
+                    .task {
+                        do {
+                            try await Task.sleep(for: .seconds(1.0))
+                            self.opacity = 0.0001
+                        } catch {}
+                    }
             }
         }
     }
