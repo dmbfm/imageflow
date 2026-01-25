@@ -5,6 +5,9 @@ import AppKit
 import SharedModels
 import Helpers
 
+@MainActor
+private var isFirst: Bool = true
+
 public struct NodePaletteSearchPopoverView: View {
 
     @State var text: String = ""
@@ -45,6 +48,21 @@ public struct NodePaletteSearchPopoverView: View {
             .padding(.horizontal)
             .padding(.top)
             .padding(.bottom, 8)
+            // NOTE: Workaround for popover glitch that only happens the first time the popover is shown in the app.
+            .onAppear {
+                if isFirst {
+                    self.focus.wrappedValue = .global
+                }
+            }
+            .task {
+                if isFirst {
+                    isFirst = false
+                    do {
+                        try await Task.sleep(for: .milliseconds(100))
+                        self.focus.wrappedValue = .nodeSearch
+                    } catch {}
+                }
+            }
     }
 
     func selectNext() {
