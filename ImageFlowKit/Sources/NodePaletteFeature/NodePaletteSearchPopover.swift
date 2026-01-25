@@ -1,6 +1,7 @@
 #if os(macOS)
 
 import SwiftUI
+import AppKit
 import SharedModels
 import Helpers
 
@@ -44,15 +45,6 @@ public struct NodePaletteSearchPopoverView: View {
             .padding(.horizontal)
             .padding(.top)
             .padding(.bottom, 8)
-        // .onAppear {
-        // print("on appear!!!!!!!")
-        // self.focus.wrappedValue = .global
-        // Task { @MainActor in
-        //     print("changing focu!!!!!!!!!!!")
-        //     try await Task.sleep(for: .milliseconds(150))
-        // self.focus.wrappedValue = .nodeSearch
-        // }
-        // }
     }
 
     func selectNext() {
@@ -161,9 +153,8 @@ struct _TextField: NSViewRepresentable {
     @Binding var text: String
     var font: NSFont? = nil
 
-    func makeNSView(context: Context) -> Inner {
-        print("make: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        let view = Inner()
+    func makeNSView(context: Context) -> NSTextField {
+        let view = NSTextField()
         view.focusRingType = .none
         view.font = self.font
         view.text = self.text
@@ -172,44 +163,16 @@ struct _TextField: NSViewRepresentable {
         view.isAutomaticTextCompletionEnabled = false
         view.allowsWritingTools = false
         context.coordinator.text = self.$text
-        // Task { @MainActor in
-        //     window?.mak
-        // }
         return view
     }
 
-    func updateNSView(_ view: Inner, context: Context) {
+    func updateNSView(_ view: NSTextField, context: Context) {
         view.text = self.text
         context.coordinator.text = self.$text
     }
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
-    }
-
-    class Inner: NSTextField {
-
-        // override var canBecomeKeyView: Bool { false }
-
-        // static var isFirst: Bool = false
-
-        // override func viewWillDraw() {
-
-        // }
-
-        // override func viewDidMoveToWindow() {
-        //     print("mmmmmmmmmmmmmmmmmmmmmmmove!")
-        //     if let window = self.window {
-        //         Task { @MainActor in
-        //             // if Self.isFirst {
-        //                 // try await Task.sleep(for: .seconds(0.5))
-        //                 // Self.isFirst = false
-        //             // }
-        //             window.makeFirstResponder(self)
-        //         }
-        //     }
-        // }
-
     }
 
     class Coordinator: NSObject, NSTextFieldDelegate {
