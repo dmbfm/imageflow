@@ -74,7 +74,6 @@ public struct CanvasFeatureView: View {
                 self.vm.onCanvasEvent,
             )
             .ignoresSafeArea()
-            .dropDestination(for: NodeKindDragItem.self, action: self.vm.dropDestinationHandler(_:_:))
             .onChange(of: self.vm.flow.edges, initial: true) { self.vm.updateEdges() }
             .onChange(of: self.vm.nodePositions, initial: true) { self.vm.updateEdges() }
             .onChange(of: self.vm.flow.nodes, initial: true) { self.vm.updateNodeData() }
@@ -106,7 +105,22 @@ public struct CanvasFeatureView: View {
                 #if os(iOS)
             .safeAreaPadding(.top, 60)
                 #endif
+
+            DropOverlay(vm: self.vm)
         }
+    }
+
+    struct DropOverlay: View, @MainActor Equatable {
+        static func == (lhs: CanvasFeatureView.DropOverlay, rhs: CanvasFeatureView.DropOverlay) -> Bool {
+            return true
+        }
+
+        let vm: CanvasFeatureViewModel
+        var body: some View {
+            Color.clear
+                .dropDestination(for: NodeKindDragItem.self, action: self.vm.dropDestinationHandler(_:_:))
+        }
+
     }
 
     #if os(macOS)
