@@ -176,3 +176,9 @@ extension CGSize {
         lhs = lhs * rhs
     }
 }
+
+extension CGPoint {
+    public func clamped(toRect rect: CGRect) -> CGPoint {
+        .init(x: self.x.clamped(to: rect.minX...rect.maxX), y: self.y.clamped(to: rect.minY...rect.maxY))
+    }
+}

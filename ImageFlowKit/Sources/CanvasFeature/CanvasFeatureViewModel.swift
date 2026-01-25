@@ -39,6 +39,7 @@ final class CanvasFeatureViewModel {
             if self.nodeSearchPopoverIsPresented {
                 if let window = NSApp.keyWindow, let canvas = self.canvasPlatformView {
                     self.trackedMousePosition = canvas.convert(window.mouseLocationOutsideOfEventStream, from: nil)
+                        .clamped(toRect: canvas.safeAreaRect)
                 }
             }
             #endif
