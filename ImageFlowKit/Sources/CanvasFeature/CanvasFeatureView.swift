@@ -53,6 +53,9 @@ public struct CanvasFeatureView: View {
         if let action = self.action {
             switch action {
             case .showNodeSearchPopover:
+                #if os(macOS)
+                NSPopover.swizzle()
+                #endif
                 self.vm.nodeSearchPopoverIsPresented = true
                 break
             }
