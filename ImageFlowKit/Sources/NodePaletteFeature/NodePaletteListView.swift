@@ -4,6 +4,7 @@ import SwiftUI
 
 struct NodePaletteListView: View {
 
+    let focusBinding: FocusState<Focus?>.Binding
     @State var searchText: String = ""
 
     var onTapItem: ((NodePaletteItem) -> ())?
@@ -56,6 +57,7 @@ struct NodePaletteListView: View {
         }
         .listStyle(.sidebar)
         .searchable(text: self.$searchText)
+        .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) {
             self.expanded = [:]
         }

@@ -47,7 +47,7 @@ struct MainContentViewIPadOS: View {
     var body: some View {
         self.content
             .sheet(isPresented: self.$vm.showNodePaletteModal) {
-                NodePaletteSheetView() { self.onNodePaletteTapItem($0) }
+                NodePaletteSheetView(focus: self.$focus) { self.onNodePaletteTapItem($0) }
             }
             .sheet(isPresented: self.$vm.showAssetBrowser) {
                 AssetBrowserView(self.vm.assetBrowserViewModel)
@@ -67,9 +67,11 @@ struct MainContentViewIPadOS: View {
             )
             .errorAlert(self.$vm.error)
             .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
+            .onChange(of: self.focus, initial: true, { self.vm.focusDidChange(self.$focus) })
             .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
             .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
             .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
+            .defaultFocus(self.$focus, .global)
     }
 
     @ViewBuilder
@@ -106,6 +108,9 @@ struct MainContentViewIPadOS: View {
             } action: { newValue in
                 self.vm.canvasCenter = newValue
             }
+            .focusable()
+            .focused(self.$focus, equals: .global)
+            .focusEffectDisabled()
         }
 
     }
