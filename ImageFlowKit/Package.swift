@@ -33,6 +33,7 @@ let package = Package(
         .library(name: "BackendService"),
         .library(name: "MainViewFeature"),
         .library(name: "AppFeature"),
+        .library(name: "SettingsFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -78,6 +79,7 @@ let package = Package(
                 "CIImageView",
                 "ImageExporter",
                 "SharedMocking",
+                "SettingsFeature",
             ]
         ),
         .target(
@@ -160,7 +162,8 @@ let package = Package(
         .target(
             name: "WelcomeWindow",
             dependencies: [
-                "SharedModels"
+                "SharedModels",
+                "SettingsFeature",
             ]
         ),
         .target(
@@ -220,7 +223,12 @@ let package = Package(
                 "FlowDocument",
                 "WelcomeWindow",
                 "PreviewFeature",
+                "SettingsFeature",
             ]
+        ),
+        .target(
+            name: "SettingsFeature",
+            dependencies: []
         ),
         .testTarget(
             name: "SharedModelsTests",

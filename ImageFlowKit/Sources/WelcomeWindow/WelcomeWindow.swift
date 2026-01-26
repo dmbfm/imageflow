@@ -3,8 +3,11 @@
 import SwiftUI
 import AppKit
 import SharedModels
+import SettingsFeature
 
 public struct WelcomeWindow: Scene {
+
+    @AppStorage(.settingsColorSchemeKey) var cs: PreferredColorScheme = .system
 
     let title: String
 
@@ -36,6 +39,7 @@ public struct WelcomeWindow: Scene {
     public var body: some Scene {
         Window(title, id: WindowID.welcome.rawValue) {
             WelcomeWindowView()
+                .preferredColorScheme(self.cs.value)
                 .task {
                     self.onAppear()
                 }

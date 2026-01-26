@@ -10,6 +10,7 @@ import Controls
 import FlowDocument
 import Logging
 import MainViewFeature
+import SettingsFeature
 import SwiftUI
 import UniformTypeIdentifiers
 import WelcomeWindow
@@ -38,6 +39,8 @@ public struct ImageFlowApp: App {
     @NSApplicationDelegateAdaptor var appDelegate: AppDelegate
     #endif
 
+    @AppStorage(.settingsColorSchemeKey) var preferredColorScheme: PreferredColorScheme = .system
+
     public init() {}
 
     public var body: some Scene {
@@ -46,6 +49,7 @@ public struct ImageFlowApp: App {
                 document: configuration.document,
                 documentInfo: .init(id: configuration.document.id, url: configuration.fileURL)
             )
+            .preferredColorScheme(self.preferredColorScheme.value)
             #if os(macOS)
             .windowTransparentTitlebar()
             #endif
@@ -77,6 +81,11 @@ public struct ImageFlowApp: App {
         #if os(macOS)
         WelcomeWindow("Image Flow")
             .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .presented : .suppressed)
+
+        Settings {
+            SettingsFeatureView()
+                .preferredColorScheme(self.preferredColorScheme.value)
+        }
         #endif
     }
 }

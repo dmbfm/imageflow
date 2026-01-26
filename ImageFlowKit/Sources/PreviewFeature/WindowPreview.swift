@@ -8,6 +8,7 @@ import AppKit
 import SharedModels
 import Design
 import ImageExporter
+import SettingsFeature
 
 class WindowPreviewController: NSWindowController, NSWindowDelegate {
 
@@ -191,7 +192,10 @@ public class WindowPreviewViewModel {
 }
 
 struct WindowPreviewContentView: View {
+
     let vm: WindowPreviewViewModel
+
+    @AppStorage(.settingsColorSchemeKey) var cs: PreferredColorScheme = .system
 
     var body: some View {
 
@@ -220,6 +224,7 @@ struct WindowPreviewContentView: View {
             errorMessage: $vm.imageExporterAlertError
         )
         .errorAlert($vm.imageExporterAlertError)
+        .preferredColorScheme(self.cs.value)
     }
 
     @ToolbarContentBuilder
