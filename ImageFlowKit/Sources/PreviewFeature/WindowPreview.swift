@@ -72,7 +72,6 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
-        log("window will close")
         self.windowWillCloseCallback?()
     }
 
@@ -88,7 +87,7 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
 
 @Observable
 @MainActor
-public class WindowPreviewViewModel {
+public class WindowPreviewViewModel: Observable {
 
     let location: OutputPortLocation
     var image: CIImage? = nil

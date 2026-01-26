@@ -5,15 +5,21 @@ public struct NodePaletteSheetView: View {
     let focus: FocusState<Focus?>.Binding
     var onTapItem: ((NodePaletteItem) -> ())?
     let topPadding: CGFloat = -50
+    let port: TypedPortLocation?
 
-    public init(focus: FocusState<Focus?>.Binding, onTapItem: ((NodePaletteItem) -> Void)? = nil) {
+    public init(
+        port: TypedPortLocation?,
+        focus: FocusState<Focus?>.Binding,
+        onTapItem: ((NodePaletteItem) -> Void)? = nil
+    ) {
         self.onTapItem = onTapItem
         self.focus = focus
+        self.port = port
     }
 
     public var body: some View {
         NavigationStack {
-            NodePaletteListView(focusBinding: self.focus) { self.onTapItem?($0) }
+            NodePaletteListView(focusBinding: self.focus, port: self.port) { self.onTapItem?($0) }
                 .navigationBarBackButtonHidden()
                 .navigationTitle("Add Node")
                 #if os(iOS)
@@ -32,7 +38,7 @@ public struct NodePaletteSheetView: View {
             .font(.largeTitle)
     }
     .sheet(isPresented: .constant(true)) {
-        NodePaletteSheetView(focus: $focus)
+        NodePaletteSheetView(port: nil, focus: $focus)
         //            .presentationDetents([.medium, .large])
     }
 }

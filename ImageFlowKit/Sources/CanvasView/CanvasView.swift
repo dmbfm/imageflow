@@ -48,13 +48,13 @@ public struct CanvasView: PlatformViewRepresentable {
     }
 
     public init(
-        _ viewport: Binding<Viewport>,
-        _ nodePositions: [UUID: CGPoint],
-        _ edges: [EdgeLayer],
-        _ canvasPlatformViewRef: Binding<PlatformView?>,
-        _ viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
+        viewport: Binding<Viewport>,
+        nodePositions: [UUID: CGPoint],
+        edges: [EdgeLayer],
+        canvasPlatformViewRef: Binding<PlatformView?>,
+        viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         contextMenuProvider: (any CanvasContextMenuProvider)? = nil,
-        _ onEvent: ((CanvasView.Event) -> ())? = nil
+        onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
         self._viewport = viewport
         self.nodePositions = nodePositions

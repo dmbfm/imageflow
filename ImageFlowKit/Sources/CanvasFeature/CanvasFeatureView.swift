@@ -15,17 +15,11 @@ public struct CanvasFeatureView: View {
 
     // MARK: - State
 
-    @Binding var action: Action?
-
     @ObservableState private var vm: CanvasFeatureViewModel
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
-    public typealias Delegate = NodeViewDelegate
-
-    public enum Action {
-        case showNodeSearchPopover
-    }
+    public typealias Delegate = CanvasFeatureViewModel.Delegate
 
     // MARK: - Initializers
 
@@ -35,7 +29,7 @@ public struct CanvasFeatureView: View {
         _ assetStore: any AssetStoreService,
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate?,
-        action: Binding<Action?>,
+        coordinator: any GlobalCoordinatorService
     ) {
         self._vm = .init(
             wrappedValue: .init(
@@ -44,23 +38,9 @@ public struct CanvasFeatureView: View {
                 assetStore: assetStore,
                 focus: focus,
                 delegate: delegate,
+                coordinator: coordinator,
             )
         )
-        self._action = action
-    }
-
-    func onAction() {
-        if let action = self.action {
-            switch action {
-            case .showNodeSearchPopover:
-                #if os(macOS)
-                NSPopover.swizzle()
-                #endif
-                self.vm.nodeSearchPopoverIsPresented = true
-                break
-            }
-            self.action = nil
-        }
     }
 
     // MARK: - Body
@@ -68,13 +48,13 @@ public struct CanvasFeatureView: View {
     public var body: some View {
         ZStack(alignment: .topLeading) {
             CanvasView(
-                self.$vm.state.viewport,
-                self.vm.nodePositions,
-                self.vm.edgeLayers,
-                self.vm.canvasPlatformViewRefBinding,
-                self.vm.viewForNode,
+                viewport: self.$vm.state.viewport,
+                nodePositions: self.vm.nodePositions,
+                edges: self.vm.edgeLayers,
+                canvasPlatformViewRef: self.vm.canvasPlatformViewRefBinding,
+                viewForNode: self.vm.viewForNode,
                 contextMenuProvider: self.vm,
-                self.vm.onCanvasEvent,
+                onEvent: self.vm.onCanvasEvent,
             )
             .ignoresSafeArea()
             .onChange(of: self.vm.flow.edges, initial: true) { self.vm.updateEdges() }
@@ -87,20 +67,19 @@ public struct CanvasFeatureView: View {
                 { self.vm.undoManager = self.undoManager }
             )
             .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
-            .onChange(of: self.action) { self.onAction() }
 
             #if os(macOS)
             VStack {
                 Color.red.opacity(0)
             }
             .popover(
-                isPresented: self.$vm.nodeSearchPopoverIsPresented,
+                isPresented: self.$vm.nodeSearchPopoverState.isPresented,
                 arrowEdge: .bottom,
                 content: { self.nodeSearchPopoverContent }
             )
             .ignoresSafeArea(.all)
             .frame(width: 10, height: 10)
-            .position(self.vm.nodeSearchPopoverPosition)
+            .position(self.vm.nodeSearchPopoverState.mousePosition ?? .zero)
             .ignoresSafeArea(.all)
             #endif
 
@@ -129,7 +108,8 @@ public struct CanvasFeatureView: View {
     #if os(macOS)
     var nodeSearchPopoverContent: some View {
         NodePaletteSearchPopoverView(
-            self.vm.trackedMousePosition,
+            self.vm.nodeSearchPopoverState.mousePosition,
+            typedPortLocation: self.vm.nodeSearchPopoverState.typedPortLocation,
             focus: self.vm.focus,
             onPickItem: self.vm.nodeSearchPopover(didPickItem:at:),
             dismiss: self.vm.nodeSearchPopoverDismiss,

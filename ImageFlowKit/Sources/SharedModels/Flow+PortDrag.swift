@@ -85,16 +85,17 @@ extension Flow {
             switch self {
             case .idle:
                 throw .invalid
-            case .startedDragging:
+            case .startedDragging(port: let port, removedEdge: _):
                 self = .idle
-                return .init(edgeToCreate: nil, removedEdge: nil, fix: nil)
-            case let .dragging(port: _, removedEdge: removedEdge, edgeToCreate: edgeToCreate, fix: fix):
+                return .init(port: port, edgeToCreate: nil, removedEdge: nil, fix: nil)
+            case let .dragging(port: port, removedEdge: removedEdge, edgeToCreate: edgeToCreate, fix: fix):
                 self = .idle
-                return .init(edgeToCreate: edgeToCreate, removedEdge: removedEdge, fix: fix)
+                return .init(port: port, edgeToCreate: edgeToCreate, removedEdge: removedEdge, fix: fix)
             }
         }
 
         struct EndDraggingResult {
+            var port: PortLocation
             var edgeToCreate: Edge?
             var removedEdge: Edge?
             var fix: Flow.TypeError.Fix?
@@ -146,7 +147,7 @@ extension Flow {
         }
     }
 
-    public func portDragEnd(undoManager um: UndoManager?) {
+    public func portDragEnd(undoManager um: UndoManager?, position: CGPoint?) {
         do {
             let result = try self.portDraggingState.endDragging()
 
@@ -168,6 +169,15 @@ extension Flow {
             um?.endUndoGrouping()
 
             self.partialEdge = nil
+
+            if result.edgeToCreate == nil, let portType = self.nodes[result.port.node]?[valueTypeAt: result.port.slot] {
+                self.emitter.emit(
+                    .didEndPortDragWithoutCreatingEdge(
+                        typedPortLocation: .init(type: portType, port: result.port),
+                        canvasPosition: position
+                    )
+                )
+            }
 
         } catch {
             log("Failed to end port drag: \(error)", level: .error)

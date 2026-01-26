@@ -175,6 +175,25 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
         self.emitter.emit(.sizeChanged)
     }
 
+    #if os(macOS)
+    public override func viewDidMoveToSuperview() {
+        self.emitter.emit(.sizeChanged)
+    }
+
+    public override func viewDidMoveToWindow() {
+        self.emitter.emit(.sizeChanged)
+    }
+    #endif
+
+    #if os(iOS)
+    public override func didMoveToSuperview() {
+        self.emitter.emit(.sizeChanged)
+    }
+    public override func didMoveToWindow() {
+        self.emitter.emit(.sizeChanged)
+    }
+    #endif
+
     // MARK: - Layout
 
     public override var intrinsicContentSize: CGSize {

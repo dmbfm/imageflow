@@ -5,7 +5,7 @@ import SwiftUI
 
 extension CanvasFeatureViewModel: CanvasContextMenuProvider {
     #if os(iOS)
-    func canvasContextMenu(at location: CGPoint) -> UIMenu? {
+    public func canvasContextMenu(at location: CGPoint) -> UIMenu? {
         UIMenu(
             title: "Canvas",
             children: [
@@ -47,7 +47,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
     }
 
     #if os(macOS)
-    func canvasContextMenu(at location: CGPoint) -> NSMenu? {
+    public func canvasContextMenu(at location: CGPoint) -> NSMenu? {
         NSHostingMenu(rootView: self._canvasContextMenu(at: location))
     }
 
@@ -55,7 +55,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
         Group {
             Menu("Add", systemImage: "plus") {
                 Button {
-                    self.nodeSearchPopoverIsPresented = true
+                    self.nodeSearchPopoverPresent()
                 } label: {
                     Label("Search", systemImage: "magnifyingglass")
                 }

@@ -18,12 +18,19 @@ import class SharedModels.Flow
 @Observable
 @MainActor
 final class MainContentViewModel {
+    /// The Flow model
     let flow: Flow
-    let canvas: CanvasFeatureState
+    /// The Global Coordinator the receive and send events from
+    let coordinator: GlobalCoordinator
+    /// The asset store
     let assetStore: AssetStore
+    /// The view model for the asset browser sheet
     let assetBrowserViewModel: AssetBrowserViewModel
-
+    /// The canvas viewport state
+    let canvas: CanvasFeatureState
+    /// If true show the Asset Browser sheet
     var showAssetBrowser: Bool = false
+    /// If true show the file importer
     var showFileImporter: Bool = false {
         didSet {
             if self.showFileImporter != oldValue {
@@ -31,6 +38,7 @@ final class MainContentViewModel {
             }
         }
     }
+    /// If true show the photo picker
     var showPhotoPicker: Bool = false {
         didSet {
             if self.showPhotoPicker != oldValue {
@@ -38,6 +46,7 @@ final class MainContentViewModel {
             }
         }
     }
+    /// The user-selected photo picker items
     var selectedPhotoPickerItems: [PhotosPickerItem] = [] {
         didSet {
             if self.selectedPhotoPickerItems != oldValue {
@@ -45,24 +54,38 @@ final class MainContentViewModel {
             }
         }
     }
-    var canvasAction: CanvasFeatureView.Action?
+    /// Error messages to be shown as an alert
     var error: LocalizedAlertError? = nil
+    /// The undo manager from SwiftUI's evironment
     var undoManager: UndoManager? = nil
 
-    #if os(iOS)
-    var showNodePaletteModal: Bool = false
-    var assetBrowserError: LocalizedAlertError? = nil
-    #endif
-
     @ObservationIgnored var canvasCenter: CGPoint = .zero
+
     @ObservationIgnored var fileImporterConfiguration: FileImporterConfiguration = .init(
         allowedContentTypes: [])
+
+    @ObservationIgnored var cancellables: Set<AnyEventEmitterCancellable> = []
+
+    #if os(iOS)
+    /// The state of the node palette sheet
+    var nodePaletteState: NodePaletteState = .init()
+
+    /// Alert for errors related to asset importing
+    var assetBrowserError: LocalizedAlertError? = nil
+
+    struct NodePaletteState {
+        var isPresented: Bool = false
+        var typedPortLocation: TypedPortLocation?
+        var canvasPosition: CGPoint?
+    }
+
+    #endif
 
     struct FileImporterConfiguration {
         var allowedContentTypes: [UTType]
     }
 
-    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore, coordinator: GlobalCoordinator) {
         self.flow = flow
         self.canvas = canvas
         self.assetStore = assetStore
@@ -72,7 +95,23 @@ final class MainContentViewModel {
             allowedImportTypes: [],
             photoPickerDisabled: true
         )
+        self.coordinator = coordinator
         self.assetBrowserViewModel.delegate = self
+
+        self.coordinator.emitter.on({ [weak self] event in self?.onCoordinatorEvent(event) }).store(
+            in: &self.cancellables
+        )
+    }
+
+    func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
+        switch event {
+        #if os(iOS)
+        case let .showNodeSearch(typedPortLocation, canvasPosition):
+            self.nodePalettePresent(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
+        #endif
+        default:
+            break
+        }
     }
 
     func focusDidChange(_ focus: FocusState<Focus?>.Binding) {
@@ -99,11 +138,6 @@ final class MainContentViewModel {
         self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
     }
 
-    func onKeyPressSpace() -> KeyPress.Result {
-        self.canvasAction = .showNodeSearchPopover
-        return .handled
-    }
-
     func onChangeOfShowFileImporter() {
         if !self.showFileImporter {
             self.showAssetBrowser = true
@@ -116,9 +150,11 @@ final class MainContentViewModel {
         }
     }
 
-    func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) {
+    @discardableResult
+    func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) -> FlowNode {
         let node = FlowNode(kind: item.nodeKind)
         self.createNodeAtCanvasCenter(node)
+        return node
     }
 
     func createNodeAtCanvasCenter(_ node: FlowNode) {
@@ -131,6 +167,54 @@ final class MainContentViewModel {
         self.flow.newNodeAction(node, at: pos, undoManager: self.undoManager)
         self.flow.select([node.id])
     }
+
+    // MARK: - Node Palette
+
+    #if os(iOS)
+    func nodePalettePresent(typedPortLocation: TypedPortLocation? = nil, canvasPosition: CGPoint? = nil) {
+        self.nodePaletteState = .init(
+            isPresented: true,
+            typedPortLocation: typedPortLocation,
+            canvasPosition: canvasPosition
+        )
+    }
+
+    func nodePaletteDismiss() {
+        self.nodePaletteState = .init()
+    }
+
+    func nodePalettePositionForNode(_ item: NodePaletteItem) -> CGPoint {
+        if let pos = self.nodePaletteState.canvasPosition {
+            return pos
+        } else {
+            let view = NodeView(FlowNode(kind: item.nodeKind))
+            let size = view.intrinsicContentSize
+            let pos = self.canvasCenter - (size * 0.5).cgPoint
+            return self.canvas.viewport.convert(pos, from: .screen, to: .canvas)
+        }
+    }
+
+    func onNodePaletteSheetTapItem(_ item: NodePaletteItem) {
+        let port = self.nodePaletteState.typedPortLocation
+        let pos = self.nodePalettePositionForNode(item)
+
+        self.nodePaletteDismiss()
+        let node = FlowNode(kind: item.nodeKind)
+
+        if let port {
+            self.flow.newNodeAction(
+                node,
+                at: pos,
+                connectingToExistingPort: port,
+                undoManager: self.undoManager
+            )
+        } else {
+            self.flow.newNodeAction(node, at: pos, undoManager: self.undoManager)
+        }
+
+        self.flow.select([node.id])
+    }
+    #endif
 
     func onAssetBrowserDismiss(_ result: AssetBrowserResult) {
         switch result {
@@ -182,7 +266,7 @@ final class MainContentViewModel {
                     try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                     self.undoManager?.setActionName("Import Image")
                 } catch {
-                    log("failed to import file: \(url): \(error)")
+                    log("failed to import file: \(url): \(error)", level: .error)
                 }
             }
 
@@ -268,7 +352,6 @@ extension MainContentViewModel: AssetBrowserViewModel.Delegate {
     }
 
     func openFileImporter(_ types: [UTType]) {
-        log("openFileImporter:types:\(types)", level: .debug)
         self.showAssetBrowser = false
         self.fileImporterConfiguration = .init(allowedContentTypes: types)
         Task { @MainActor in

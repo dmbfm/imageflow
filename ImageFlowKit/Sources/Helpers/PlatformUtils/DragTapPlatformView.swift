@@ -86,8 +86,6 @@ open class DragTapPlatformView: PlatformView {
 
             let location = event.location(inView: self)
 
-            // log("start: state: \(state), event.type: \(event.type), location: \(location)")
-
             switch event.type {
             case .leftMouseDragged:
 
@@ -140,7 +138,6 @@ open class DragTapPlatformView: PlatformView {
             default:
                 state = .done
             }
-            // log("end: state: \(state)")
         }
     }
     #endif

@@ -27,12 +27,13 @@ struct MainContentViewMacOS: View {
     @Environment(\.undoManager) var undoManager
     @Environment(\.dismiss) var dismiss
 
-    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore) {
+    init(flow: Flow, canvas: CanvasFeatureState, assetStore: AssetStore, coordinator: GlobalCoordinator) {
         self._vm = .init(
             wrappedValue: .init(
                 flow: flow,
                 canvas: canvas,
-                assetStore: assetStore
+                assetStore: assetStore,
+                coordinator: coordinator
             )
         )
     }

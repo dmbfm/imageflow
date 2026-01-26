@@ -13,8 +13,6 @@ import AssetBrowserFeature
 
 struct MainContentViewIPadOS: View {
 
-    @State private var canvasAction: CanvasFeatureView.Action?
-
     @FocusState var focus: Focus?
 
     @ObservableState var vm: MainContentViewModel
@@ -28,26 +26,24 @@ struct MainContentViewIPadOS: View {
         flow: Flow,
         canvas: CanvasFeatureState,
         assetStore: AssetStore,
+        coordinator: GlobalCoordinator,
     ) {
         self._vm = .init(
             wrappedValue: .init(
                 flow: flow,
                 canvas: canvas,
-                assetStore: assetStore
+                assetStore: assetStore,
+                coordinator: coordinator
             )
         )
     }
 
-    func onNodePaletteTapItem(_ item: NodePaletteItem) {
-        log("item: \(item)", level: .trace)
-        self.vm.showNodePaletteModal = false
-        self.vm.createNodeAtCanvasCenter(fromPaletteItem: item)
-    }
-
     var body: some View {
         self.content
-            .sheet(isPresented: self.$vm.showNodePaletteModal) {
-                NodePaletteSheetView(focus: self.$focus) { self.onNodePaletteTapItem($0) }
+            .sheet(isPresented: self.$vm.nodePaletteState.isPresented) {
+                NodePaletteSheetView(port: self.vm.nodePaletteState.typedPortLocation, focus: self.$focus) {
+                    self.vm.onNodePaletteSheetTapItem($0)
+                }
             }
             .sheet(isPresented: self.$vm.showAssetBrowser) {
                 AssetBrowserView(self.vm.assetBrowserViewModel)
@@ -101,7 +97,7 @@ struct MainContentViewIPadOS: View {
                 self.vm.assetStore,
                 self.$focus,
                 self.vm,
-                action: self.$canvasAction
+                coordinator: self.vm.coordinator,
             )
             .onGeometryChange(for: CGPoint.self) { proxy in
                 proxy.frame(in: .local).center
@@ -119,7 +115,7 @@ struct MainContentViewIPadOS: View {
     var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .secondaryAction) {
             Button {
-                self.vm.showNodePaletteModal = true
+                self.vm.nodePalettePresent()
             } label: {
                 Image(systemName: "plus")
             }

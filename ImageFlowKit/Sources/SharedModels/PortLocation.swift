@@ -1,4 +1,5 @@
 import Foundation
+import Values
 
 public struct PortLocation: Hashable, Sendable, Codable {
     public var node: UUID
@@ -11,6 +12,10 @@ public struct PortLocation: Hashable, Sendable, Codable {
 
     public func canConnectWith(_ other: Self) -> Bool {
         self.node != other.node && !self.slot.sameSideAs(other.slot)
+    }
+
+    public var direction: PortDirection {
+        self.slot.direction
     }
 }
 
@@ -52,6 +57,12 @@ public enum PortSlot: Hashable, Sendable, Codable {
         }
     }
 
+    public var direction: PortDirection {
+        switch self {
+        case .input(_): .input
+        case .output(_): .output
+        }
+    }
 }
 
 public struct InputPortLocation: Hashable, Sendable, Codable {
@@ -72,4 +83,22 @@ public struct OutputPortLocation: Hashable, Sendable, Codable {
         self.node = node
         self.index = index
     }
+}
+
+public struct TypedPortLocation {
+    public init(type: ValueType, port: PortLocation) {
+        self.type = type
+        self.port = port
+    }
+
+    public var type: ValueType
+    public var port: PortLocation
+    public var direction: PortDirection {
+        self.port.direction
+    }
+}
+
+public enum PortDirection: Equatable {
+    case input
+    case output
 }

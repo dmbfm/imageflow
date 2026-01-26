@@ -5,12 +5,21 @@ import SwiftUI
 struct NodePaletteListView: View {
 
     let focusBinding: FocusState<Focus?>.Binding
+    let port: TypedPortLocation?
     @State var searchText: String = ""
 
     var onTapItem: ((NodePaletteItem) -> ())?
 
     var categories: [NodePaletteCategory] {
-        NodePaletteService.shared.categories(searchText: self.searchText)
+        if let port = self.port {
+            NodePaletteService.shared.categories(
+                connectingToType: port.type,
+                direction: port.direction,
+                searchText: self.searchText
+            )
+        } else {
+            NodePaletteService.shared.categories(searchText: self.searchText)
+        }
     }
 
     @State var expanded: [NodePaletteCategoryName: Bool] = [:]
@@ -27,7 +36,6 @@ struct NodePaletteListView: View {
     }
 
     func onTapItemHandler(_ item: NodePaletteItem) {
-        log("Tapped item: \(item.displayName)")
         self.onTapItem?(item)
     }
 

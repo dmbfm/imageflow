@@ -169,7 +169,15 @@ struct PreviewFeatureCommands: Commands {
 
 struct NodeEditCommands: Commands {
 
-    @ActiveViewObject(AppMenuCoordinator.self) var coordinator
+    @ActiveViewObject(GlobalCoordinator.self) var coordinator
+
+    func deleteHandler() {
+        self.coordinator?.emitter.emit(.deleteSelectedNodes)
+    }
+
+    func duplicateHandler() {
+        self.coordinator?.emitter.emit(.duplicateSelectedNodes)
+    }
 
     var body: some Commands {
         if let coordinator = self.coordinator {
@@ -178,14 +186,14 @@ struct NodeEditCommands: Commands {
 
                 #if os(iOS)
                 Button("Delete \(name)") {
-                    coordinator.action = .deleteSelectedNodes
+                    self.deleteHandler()
                 }
                 .keyboardShortcut(.delete, modifiers: [])
                 .disabled(coordinator.nodeSelectionCount == 0)
                 #endif
 
                 Button("Duplicate \(name)") {
-                    coordinator.action = .duplidateSelectedNodes
+                    self.duplicateHandler()
                 }
                 .keyboardShortcut("d", modifiers: [.command])
                 .disabled(coordinator.nodeSelectionCount == 0)

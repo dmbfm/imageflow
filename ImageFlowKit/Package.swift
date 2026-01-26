@@ -87,6 +87,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "SharedModels",
+                "Values",
             ]
         ),
         .target(

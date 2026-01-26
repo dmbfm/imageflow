@@ -1,4 +1,5 @@
 import Backend
+import Helpers
 import Values
 
 @MainActor
@@ -321,6 +322,34 @@ public class NodePaletteService {
 
     public static let shared: NodePaletteService = .init()
 
+    public func categories(
+        connectingToType type: ValueType,
+        direction: PortDirection,
+        searchText: String = ""
+    ) -> [NodePaletteCategory] {
+        var result: [NodePaletteCategory] = []
+
+        let text = searchText.lowercased()
+
+        for cat in self.categories {
+            var items: [NodePaletteItem] = []
+            for item in cat.items {
+                if let variation = item.variationThatcanConnectToPort(ofType: type, direction: direction),
+                    (searchText.isEmpty || variation.displayName.lowercased().contains(text))
+                {
+                    items.append(variation)
+                }
+            }
+            if !items.isEmpty {
+                var c = cat
+                c.items = items
+                result.append(c)
+            }
+        }
+
+        return result
+    }
+
     public func categories(searchText: String = "") -> [NodePaletteCategory] {
         if searchText.isEmpty {
             return self.categories
@@ -345,6 +374,42 @@ public class NodePaletteService {
                     || entry.displayName.lowercased().contains(text)
             }
         }
+    }
+
+    public func items(connectingToInputOfType type: ValueType) -> [NodePaletteItem] {
+        self.items(connectingTo: type, isInput: true)
+    }
+
+    public func items(connectingToOutputOfType type: ValueType) -> [NodePaletteItem] {
+        self.items(connectingTo: type, isInput: false)
+    }
+
+    private func items(connectingTo type: ValueType, isInput: Bool) -> [NodePaletteItem] {
+        var result: [NodePaletteItem] = []
+
+        for item in self.allItems {
+            outer: for v in item.nodeKind.variations {
+                let schema = v.schema
+
+                if isInput {
+                    for output in schema.outputs {
+                        if output.type == type {
+                            result.append(item.with(\.nodeKind, v))
+                            break outer
+                        }
+                    }
+                } else {
+                    for input in schema.inputs {
+                        if input.type == type {
+                            result.append(item.with(\.nodeKind, v))
+                            break outer
+                        }
+                    }
+                }
+            }
+        }
+
+        return result
     }
 }
 
@@ -377,11 +442,52 @@ public struct NodePaletteCategory: Sendable, Hashable, Identifiable {
     public var id: NodePaletteCategoryName { self.name }
 }
 
-public struct NodePaletteItem: Sendable, Hashable, Identifiable {
+public struct NodePaletteItem: Sendable, Hashable, Identifiable, With {
     public var displayName: String
     public var icon: String
     public var nodeKind: NodeKind
     public var categoryName: NodePaletteCategoryName
 
     public var id: Self { self }
+}
+
+extension NodePaletteItem {
+    func canConnectToPort(ofType type: ValueType, direction: PortDirection) -> Bool {
+        if direction == .input {
+            for output in self.nodeKind.schema.outputs {
+                if output.type == type {
+                    return true
+                }
+            }
+        } else {
+            for input in self.nodeKind.schema.inputs {
+                if input.type == type {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    func variationThatcanConnectToPort(ofType type: ValueType, direction: PortDirection) -> NodePaletteItem? {
+        for variation in self.nodeKind.variations {
+            let schema = variation.schema
+            if direction == .input {
+                for output in schema.outputs {
+                    if output.type == type {
+                        return self.with(\.nodeKind, variation)
+                    }
+                }
+            } else {
+                for input in schema.inputs {
+                    if input.type == type {
+                        return self.with(\.nodeKind, variation)
+                    }
+                }
+            }
+        }
+
+        return nil
+    }
 }

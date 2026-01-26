@@ -4,6 +4,7 @@ import SwiftUI
 import AppKit
 import SharedModels
 import Helpers
+import Values
 
 @MainActor
 private var isFirst: Bool = true
@@ -25,8 +26,11 @@ public struct NodePaletteSearchPopoverView: View {
 
     static let size: CGSize = .init(width: 400, height: 200)
 
+    let typedPortLocation: TypedPortLocation?
+
     public init(
         _ position: CGPoint?,
+        typedPortLocation: TypedPortLocation?,
         focus: FocusState<Focus?>.Binding,
         onPickItem: @escaping (NodePaletteItem, CGPoint?) -> (),
         dismiss: @escaping () -> ()
@@ -35,10 +39,30 @@ public struct NodePaletteSearchPopoverView: View {
         self.focus = focus
         self.onPickItem = onPickItem
         self.dismiss = dismiss
+        self.typedPortLocation = typedPortLocation
+    }
+
+    var _items: [NodePaletteItem] {
+        if let info = self.typedPortLocation {
+            switch info.port.slot {
+            case .input(_): palette.items(connectingToInputOfType: info.type)
+            case .output(_): palette.items(connectingToOutputOfType: info.type)
+            }
+        } else {
+            palette.items()
+        }
     }
 
     var items: [NodePaletteItem] {
-        palette.items(searchText: self.text.trimmingCharacters(in: .whitespaces))
+        let trimmed = self.text.trimmingCharacters(in: .whitespaces)
+        if trimmed.isEmpty {
+            return self._items
+        } else {
+            let text = trimmed.lowercased()
+            return _items.filter({ item in
+                item.displayName.lowercased().contains(text)
+            })
+        }
     }
 
     var searchView: some View {
@@ -58,7 +82,7 @@ public struct NodePaletteSearchPopoverView: View {
                 if isFirst {
                     isFirst = false
                     do {
-                        try await Task.sleep(for: .milliseconds(100))
+                        try await Task.sleep(for: .milliseconds(200))
                         self.focus.wrappedValue = .nodeSearch
                     } catch {}
                 }

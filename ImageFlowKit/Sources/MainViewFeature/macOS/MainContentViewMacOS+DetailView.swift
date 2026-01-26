@@ -15,6 +15,15 @@ extension MainContentViewMacOS {
         @Environment(\.colorScheme) var cs
         @Environment(\.undoManager) var um
 
+        func onKeyPressSpace() -> KeyPress.Result {
+            if self.focus.wrappedValue != .nodeSearch {
+                self.vm.coordinator.emitter.emit(.showNodeSearch(typedPortLocation: nil, canvasPosition: nil))
+                return .handled
+            }
+
+            return .ignored
+        }
+
         var body: some View {
             @Bindable var vm = self.vm
             ZStack(alignment: .top) {
@@ -24,7 +33,7 @@ extension MainContentViewMacOS {
                     self.vm.assetStore,
                     self.focus,
                     self.vm,
-                    action: $vm.canvasAction,
+                    coordinator: self.vm.coordinator
                 )
                 .onGeometryChange(for: CGPoint.self) { proxy in
                     proxy.frame(in: .local).center
@@ -35,7 +44,7 @@ extension MainContentViewMacOS {
                 .focused(self.focus, equals: .global)
                 .focusEffectDisabled()
                 .onDeleteCommand(perform: self.vm.onDeleteCommand)
-                .onKeyPress(.space, action: self.vm.onKeyPressSpace)
+                .onKeyPress(.space, action: self.onKeyPressSpace)
 
                 // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
                 // effect on the toolbar! This does not work if we use `Color.clear` instead.

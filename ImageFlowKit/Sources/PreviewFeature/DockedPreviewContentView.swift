@@ -65,7 +65,6 @@ struct DockedPreviewContentView: View {
                 of: self.menuCoordinator.action,
                 initial: false,
                 {
-                    log("action: \(self.menuCoordinator.action)", level: .debug)
                     Task { @MainActor in
                         self.menuAction()
                     }

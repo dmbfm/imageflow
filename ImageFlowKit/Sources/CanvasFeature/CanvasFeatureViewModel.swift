@@ -2,6 +2,7 @@ import CanvasView
 import Design
 import Helpers
 import Logging
+import NodePaletteFeature
 import NodeView
 import SharedModels
 import SwiftUI
@@ -15,52 +16,68 @@ import AppKit
 
 @Observable
 @MainActor
-final class CanvasFeatureViewModel {
-
+public final class CanvasFeatureViewModel {
+    /// The Flow model
+    let flow: Flow
+    /// The asset store
+    let assetStore: any AssetStoreService
+    /// The global coordinator to receive and send global events from
+    let coordinator: any GlobalCoordinatorService
+    /// The canvas viewport state
     var state: CanvasFeatureState
-    var flow: Flow
+    /// A binding to the app-wide focus state
     var focus: FocusState<Focus?>.Binding
-    var assetStore: any AssetStoreService
+    /// The edges to be drawn by the `CanvasView`
     var edgeLayers: [CanvasView.EdgeLayer] = []
-    var nodeViews: NodeViewCollection = .init()
+    /// The view showing annotation in the canvas such as errors, warnings and othes messages
     var annotationView: AnnotationView = .empty(width: 280)
-    var viewportAtDragStart: CanvasView.Viewport = .init()
-    var undoManager: UndoManager?
-    var cancellables: Set<AnyEventEmitterCancellable> = []
-    weak var canvasPlatformView: PlatformView?
-    weak var delegate: Delegate?
+    /// Storage for the `NodeView` instances to be displayed
+    @ObservationIgnored var nodeViews: NodeViewCollection = .init()
+    /// Temporary storage for when the viewport is zoomed/dragged
+    @ObservationIgnored var viewportAtDragStart: CanvasView.Viewport = .init()
+    /// The current UndoManager from the SwiftUI's environment
+    @ObservationIgnored var undoManager: UndoManager?
+    /// Stores a reference to the platform-specific (i.e., NSView/UIView) canvas view.
+    @ObservationIgnored weak var canvasPlatformView: PlatformView?
+    /// The delegate for this view model (in practive it is a typealias to `NodeView.Delegate`) (TODO: Is this necessary?)
+    @ObservationIgnored weak var delegate: Delegate?
+    /// Storage for `EventEmitter` cancellables
+    @ObservationIgnored var cancellables: Set<AnyEventEmitterCancellable> = []
 
-    @ObservationIgnored
-    var trackedMousePosition: CGPoint?
+    public typealias Delegate = NodeViewDelegate
 
-    var nodeSearchPopoverIsPresented: Bool = false {
-        didSet {
-            #if os(macOS)
-            if self.nodeSearchPopoverIsPresented {
-                if let window = NSApp.keyWindow, let canvas = self.canvasPlatformView {
-                    self.trackedMousePosition = canvas.convert(window.mouseLocationOutsideOfEventStream, from: nil)
-                        .clamped(toRect: canvas.safeAreaRect)
-                }
-            }
-            #endif
-        }
+    #if os(macOS)
+    /// The state of the node search popover
+    var nodeSearchPopoverState: NodeSearchPopoverState = .init()
+
+    struct NodeSearchPopoverState {
+        var isPresented: Bool = false
+        var typedPortLocation: TypedPortLocation?
+        var mousePosition: CGPoint?
     }
+    #endif
 
-    typealias Delegate = NodeViewDelegate
-
-    init(
+    public init(
         state: CanvasFeatureState,
         flow: Flow,
         assetStore: any AssetStoreService,
         focus: FocusState<Focus?>.Binding,
         delegate: Delegate? = nil,
+        coordinator: any GlobalCoordinatorService,
     ) {
         self.state = state
         self.flow = flow
         self.assetStore = assetStore
         self.focus = focus
         self.delegate = delegate
+        self.coordinator = coordinator
+
+        self.coordinator.emitter.on({ [weak self] event in self?.onCoordinatorEvent(event) }).store(
+            in: &self.cancellables
+        )
     }
+
+    // MARK: - Computed variables
 
     var nodePositions: [UUID: CGPoint] {
         self.flow.nodePositionsWithLiveMove
@@ -75,6 +92,19 @@ final class CanvasFeatureViewModel {
                 self?.canvasPlatformView = newValue
             }
         )
+    }
+
+    // MARK: - Global Coordinator
+
+    func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
+        switch event {
+        case let .showNodeSearch(typedPortLocation, _):
+            #if os(macOS)
+            self.nodeSearchPopoverPresent(typedPortLocation: typedPortLocation)
+            #endif
+        default:
+            break
+        }
     }
 
     // MARK: - Canvas
@@ -142,12 +172,6 @@ final class CanvasFeatureViewModel {
         return view
     }
 
-    func refocus() {
-        if self.focus.wrappedValue != .global {
-            self.focus.wrappedValue = .global
-        }
-    }
-
     func onNodeEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
         switch event {
         case .click:
@@ -195,7 +219,18 @@ final class CanvasFeatureViewModel {
             self.flow.portDragCancel()
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         case .ended:
-            self.flow.portDragEnd(undoManager: self.undoManager)
+            let pos: CGPoint? =
+                if let canvasView = self.canvasPlatformView {
+                    self.state.viewport.convert(
+                        canvasView.convert(gesture.locationInWindow, from: nil),
+                        from: .screen,
+                        to: .canvas
+                    )
+                } else {
+                    nil
+                }
+
+            self.flow.portDragEnd(undoManager: self.undoManager, position: pos)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         }
     }
@@ -232,7 +267,7 @@ final class CanvasFeatureViewModel {
             }
         case .ended:
             self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
-            self.refocus()
+            self.focus.wrappedValue = .global
         }
     }
 
@@ -322,20 +357,54 @@ final class CanvasFeatureViewModel {
 
     // MARK: - Node Search Popover
 
-    var nodeSearchPopoverPosition: CGPoint {
-        self.trackedMousePosition ?? .zero
+    #if os(macOS)
+    func nodeSearchPopoverPresent(typedPortLocation: TypedPortLocation? = nil) {
+        let mousePosition: CGPoint? = {
+            if let window = NSApp.keyWindow, let canvas = self.canvasPlatformView {
+                canvas.convert(window.mouseLocationOutsideOfEventStream, from: nil)
+                    .clamped(toRect: canvas.safeAreaRect)
+            } else {
+                nil
+            }
+        }()
+
+        NSPopover.swizzle()
+
+        self.nodeSearchPopoverState = .init(
+            isPresented: true,
+            typedPortLocation: typedPortLocation,
+            mousePosition: mousePosition
+        )
     }
 
-    func nodeSearchPopover(didPickItem item: NodePaletteItem, at maybePos: CGPoint?) {
-        if let p = maybePos {
-            let final = self.state.viewport.convert(p, from: .screen, to: .canvas)
-            self.flow.newNodeAction(.init(kind: item.nodeKind), at: final, undoManager: self.undoManager)
+    func nodeSearchPopover(didPickItem item: NodePaletteItem, at maybePosition: CGPoint?) {
+        if let position = maybePosition {
+            let canvasPosition = self.state.viewport.convert(position, from: .screen, to: .canvas)
+
+            let node = FlowNode(kind: item.nodeKind)
+
+            if let typedPort = self.nodeSearchPopoverState.typedPortLocation {
+                self.flow.newNodeAction(
+                    node,
+                    at: canvasPosition,
+                    connectingToExistingPort: typedPort,
+                    undoManager: self.undoManager
+                )
+            } else {
+                self.flow.newNodeAction(node, at: canvasPosition, undoManager: self.undoManager)
+            }
+
+            self.flow.select([node.id])
+
+        } else {
+            log("nodeSearchPopover(didPickItem): missing canvas position!", level: .error)
         }
     }
 
     func nodeSearchPopoverDismiss() {
-        self.nodeSearchPopoverIsPresented = false
+        self.nodeSearchPopoverState = .init(isPresented: false, typedPortLocation: nil)
     }
+    #endif
 
     // MARK: - Other Methods
 
@@ -345,6 +414,8 @@ final class CanvasFeatureViewModel {
         let id = UUID()
         let pos = self.state.viewport.convert(point, from: .screen, to: .canvas)
         self.flow.newNodeAction(.init(id: id, kind: item.kind), at: pos, undoManager: self.undoManager)
+
+        self.flow.select([id])
 
         return true
     }
@@ -368,7 +439,7 @@ extension CanvasFeatureViewModel {
 }
 
 extension CanvasFeatureViewModel: PlatformViewRefStore {
-    var view: PlatformView? {
+    public var view: PlatformView? {
         get {
             self.canvasPlatformView
         }

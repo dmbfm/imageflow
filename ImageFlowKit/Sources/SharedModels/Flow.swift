@@ -9,13 +9,13 @@ public enum FlowEvent {
     case edgesDidChange(Set<Edge>)
     case nodePositionsDidChange([UUID: CGPoint])
     case selectionDidChange(Set<UUID>)
+    case didEndPortDragWithoutCreatingEdge(typedPortLocation: TypedPortLocation, canvasPosition: CGPoint?)
 }
 
 public protocol FlowDelegate: AnyObject {
-    func flow(nodesDidChange nodes: [UUID: FlowNode]) -> ()
-    func flow(edgesDidChange edges: Set<Edge>) -> ()
-    func flow(nodePositionsDidChange nodePositions: [UUID: CGPoint]) -> ()
-    func flow(selectionDidChange selection: Set<UUID>) -> ()
+    func flow(nodesDidChange nodes: [UUID: FlowNode])
+    func flow(edgesDidChange edges: Set<Edge>)
+    func flow(nodePositionsDidChange nodePositions: [UUID: CGPoint])
 }
 
 /// Observable model backing the node-based flow editor, responsible for nodes,
@@ -41,7 +41,6 @@ public final class Flow: ObservableObject {
     public var selection: Set<UUID> {
         didSet {
             self.emitter.emit(.selectionDidChange(self.selection))
-            self.delegate?.flow(selectionDidChange: self.selection)
         }
     }
     /// All edges currently present in the graph.
@@ -263,7 +262,7 @@ extension Flow {
     }
 
     @discardableResult
-    func addEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
+    public func addEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
         if self.addEdge(edge) {
             um?.registerUndo(
                 withTarget: self,
@@ -296,11 +295,64 @@ extension Flow {
 // MARK: - Nodes, Ports and Edges - Complex Actions
 
 extension Flow {
+    public func newNodeAction(kind: NodeKind, at position: CGPoint, undoManager um: UndoManager?) {
+        self.newNodeAction(.init(kind: kind), at: position, undoManager: um)
+    }
+
     public func newNodeAction(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) {
         precondition(node.numConnectedSlots == 0, "Can't add a node connected node.")
         precondition(!self.hasNode(node.id), "A node with the same ID already exists.")
         let result = self.addNode(node, at: position, undoManager: um)
         assert(result, "`addNode` unexpectedly failed.")
+    }
+
+    public func newNodeAction(
+        kind: NodeKind,
+        at position: CGPoint,
+        connectingToExistingPort typedPortLocation: TypedPortLocation,
+        undoManager um: UndoManager?
+    ) {
+        self.newNodeAction(
+            .init(kind: kind),
+            at: position,
+            connectingToExistingPort: typedPortLocation,
+            undoManager: um
+        )
+    }
+
+    public func newNodeAction(
+        _ node: FlowNode,
+        at position: CGPoint,
+        connectingToExistingPort typedPortLocation: TypedPortLocation,
+        undoManager um: UndoManager?
+    ) {
+        um?.beginUndoGrouping()
+
+        self.newNodeAction(node, at: position, undoManager: um)
+
+        let schema = node.kind.schema
+
+        var slot: PortSlot?
+        switch typedPortLocation.direction {
+        case .input:
+            for (idx, output) in schema.outputs.enumerated() {
+                if output.type == typedPortLocation.type {
+                    slot = .output(idx)
+                }
+            }
+        case .output:
+            for (idx, input) in schema.inputs.enumerated() {
+                if input.type == typedPortLocation.type {
+                    slot = .input(idx)
+                }
+            }
+        }
+
+        if let slot, let edge = Edge(typedPortLocation.port, .init(node: node.id, port: slot)) {
+            self.newEdgeAction(edge, undoManager: um)
+        }
+
+        um?.endUndoGrouping()
     }
 
     private func withSelectedNodes(_ um: UndoManager?, perform: (UUID, UndoManager?) -> ()) {
