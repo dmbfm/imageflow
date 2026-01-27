@@ -6,7 +6,24 @@ import SwiftUI
 extension CanvasFeatureViewModel: CanvasContextMenuProvider {
     #if os(iOS)
     public func canvasContextMenu(at location: CGPoint) -> UIMenu? {
-        UIMenu(
+
+        let pasteAction = UIAction(
+            title: "Paste",
+            image: .init(systemName: "document.on.clipboard"),
+            attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
+            handler: { [weak self] _ in
+                self?.coordinator.emitter.emit(.pasteFlowNodes(location))
+            },
+        )
+
+        let selectAllAction = UIAction(
+            title: "Select All",
+            image: .init(systemName: "character.textbox"),
+        ) { [weak self] action in
+            self?.coordinator.emitter.emit(.selectAllNodes)
+        }
+
+        return UIMenu(
             title: "Canvas",
             children: [
                 UIMenu(
@@ -27,12 +44,8 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
                         )
                     }
                 ),
-                UIAction(
-                    title: "Paste",
-                    image: .init(systemName: "document.on.clipboard"),
-                    attributes: .disabled,
-                    handler: { _ in }
-                ),
+                pasteAction,
+                selectAllAction,
             ]
         )
     }
@@ -53,31 +66,41 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
 
     private func _canvasContextMenu(at location: CGPoint) -> some View {
         Group {
-            Menu("Add", systemImage: "plus") {
-                Button {
-                    self.nodeSearchPopoverPresent()
-                } label: {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                ForEach(NodePaletteService.shared.categories()) { cat in
-                    Menu(cat.name.rawValue) {
-                        ForEach(cat.items) { item in
-                            Button {
-                                self.addButtonClick(item, location)
-                            } label: {
-                                Label(item.displayName, systemImage: item.icon)
+            Section("Canvas") {
+                Menu("Add Node", systemImage: "plus") {
+                    Button {
+                        self.nodeSearchPopoverPresent()
+                    } label: {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                    ForEach(NodePaletteService.shared.categories()) { cat in
+                        Menu(cat.name.rawValue) {
+                            ForEach(cat.items) { item in
+                                Button {
+                                    self.addButtonClick(item, location)
+                                } label: {
+                                    Label(item.displayName, systemImage: item.icon)
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Button {
-                log("TODO", level: .warning)
-            } label: {
-                Label("Paste", systemImage: "document.on.clipboard")
-            }
+                Button {
+                    self.coordinator.emitter.emit(.pasteFlowNodes(nil))
+                } label: {
+                    Label("Paste", systemImage: "document.on.clipboard")
+                }
+                .keyboardShortcut("v")
+                .disabled(!PasteboardObserver.shared.canPaste)
 
+                Button {
+                    self.coordinator.emitter.emit(.selectAllNodes)
+                } label: {
+                    Label("Select All", systemImage: .systemIconMenuSelectAll)
+                }
+                .keyboardShortcut("a")
+            }
         }
     }
     #endif

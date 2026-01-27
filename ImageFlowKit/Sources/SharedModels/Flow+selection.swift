@@ -14,7 +14,8 @@ extension Flow {
         self.selection.contains(id)
     }
 
-    func selectAll(undoManager um: UndoManager? = nil) -> Set<UUID>? {
+    @discardableResult
+    public func selectAll(undoManager um: UndoManager? = nil) -> Set<UUID>? {
         self.select(Set(self.nodes.keys), undoManager: um)
     }
 

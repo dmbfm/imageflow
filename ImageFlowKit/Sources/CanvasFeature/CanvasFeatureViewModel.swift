@@ -98,9 +98,39 @@ public final class CanvasFeatureViewModel {
 
     func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
         switch event {
+        #if os(macOS)
         case let .showNodeSearch(typedPortLocation, _):
-            #if os(macOS)
             self.nodeSearchPopoverPresent(typedPortLocation: typedPortLocation)
+        #endif
+
+        case .performPaste(let data, let maybePos):
+            #if os(macOS)
+            if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream,
+                let view = self.canvasPlatformView
+            {
+
+                let mp = view.convert(mwp, from: nil)
+                var pos: CGPoint = .zero
+                if view.safeAreaRect.contains(mp) {
+                    pos = self.state.viewport.convert(mp, from: .screen, to: .canvas)
+                } else {
+                    pos = self.state.viewport.convert(view.bounds.center, from: .screen, to: .canvas)
+                }
+
+                self.flow.paste(pasteboardData: data, at: pos, undoManager: self.undoManager)
+            }
+            #else
+            if let pos = maybePos {
+                let pastePos = self.state.viewport.convert(pos, from: .screen, to: .canvas)
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            } else if let pastePos = self.coordinator.pointerData?.positionInCanvas {
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            } else if let centerPos = self.canvasPlatformView?.bounds.center {
+                let pastePos = self.state.viewport.convert(centerPos, from: .screen, to: .canvas)
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            }
+
+            break
             #endif
         default:
             break
@@ -119,6 +149,15 @@ public final class CanvasFeatureViewModel {
         case .didMoveToSuperview:
             Task { @MainActor in
                 self.updateEdges()
+            }
+        case .pointerMoved(positionInView: let pos):
+            if let pos {
+                self.coordinator.pointerData = .init(
+                    positionInCanvasView: pos,
+                    positionInCanvas: self.state.viewport.convert(pos, from: .screen, to: .canvas)
+                )
+            } else {
+                self.coordinator.pointerData = nil
             }
         }
     }
@@ -425,7 +464,6 @@ public final class CanvasFeatureViewModel {
             view.isSelected = self.flow.isSelected(id)
         }
     }
-
 }
 
 extension CanvasFeatureViewModel {

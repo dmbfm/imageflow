@@ -294,4 +294,20 @@ public struct FlowNode: Sendable, Equatable, Codable {
             outputs: self.outputs.map { $0.type.defaultValue }
         )
     }
+
+    public mutating func disconnectAllPorts() {
+        for i in self.inputs.indices {
+            self.inputs[i].connected = false
+        }
+
+        for i in self.outputs.indices {
+            self.outputs[i].connected = false
+        }
+    }
+
+    public func disconnectingAllPorts() -> Self {
+        var node = self
+        node.disconnectAllPorts()
+        return node
+    }
 }

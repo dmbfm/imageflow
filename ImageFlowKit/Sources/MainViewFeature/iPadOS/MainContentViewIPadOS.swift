@@ -108,7 +108,6 @@ struct MainContentViewIPadOS: View {
             .focused(self.$focus, equals: .global)
             .focusEffectDisabled()
         }
-
     }
 
     @ToolbarContentBuilder

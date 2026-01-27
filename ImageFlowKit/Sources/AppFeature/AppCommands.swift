@@ -1,6 +1,7 @@
 import Helpers
 import MainViewFeature
 import PreviewFeature
+import SharedModels
 import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
@@ -184,19 +185,106 @@ struct NodeEditCommands: Commands {
             CommandGroup(after: .textEditing) {
                 let name = coordinator.nodeSelectionCount > 1 ? "Nodes" : "Node"
 
-                #if os(iOS)
-                Button("Delete \(name)") {
-                    self.deleteHandler()
-                }
-                .keyboardShortcut(.delete, modifiers: [])
-                .disabled(coordinator.nodeSelectionCount == 0)
-                #endif
-
                 Button("Duplicate \(name)") {
                     self.duplicateHandler()
                 }
                 .keyboardShortcut("d", modifiers: [.command])
                 .disabled(coordinator.nodeSelectionCount == 0)
+            }
+        }
+    }
+}
+
+struct PasteboardCommands: Commands {
+
+    @ActiveViewObject(GlobalCoordinator.self) var co
+
+    var hasSelection: Bool {
+        if let co {
+            co.nodeSelectionCount > 0
+        } else {
+            false
+        }
+    }
+
+    var canPaste: Bool {
+        PasteboardObserver.shared.canPaste
+    }
+
+    var body: some Commands {
+        CommandGroup(replacing: .pasteboard) {
+            CommandButton(
+                "Cut",
+                systemImage: "scissors",
+                action: {
+                    co?.emitter.emit(.cutSelectedNodes)
+                }
+            )
+            .keyboardShortcut("x", modifiers: .command)
+            .disabled(!self.hasSelection)
+
+            CommandButton(
+                "Copy",
+                systemImage: "document.on.document",
+                action: {
+                    co?.emitter.emit(.copySelectedNodes)
+                }
+            )
+            .keyboardShortcut("c", modifiers: .command)
+            .disabled(!self.hasSelection)
+
+            CommandButton(
+                "Paste",
+                systemImage: "document.on.clipboard",
+                action: {
+                    co?.emitter.emit(.pasteFlowNodes(nil))
+                }
+            )
+            .keyboardShortcut("v", modifiers: .command)
+            .disabled(!self.canPaste)
+
+            CommandButton(
+                "Delete",
+                systemImage: "trash",
+                action: {
+                    co?.emitter.emit(.deleteSelectedNodes)
+                }
+            )
+            .keyboardShortcut(.delete, modifiers: [])
+            .disabled(!self.hasSelection)
+
+            CommandButton(
+                "Select All",
+                systemImage: "character.textbox",
+                action: {
+                    co?.emitter.emit(.selectAllNodes)
+                }
+            )
+            .keyboardShortcut("a", modifiers: .command)
+        }
+    }
+}
+
+struct CommandButton: View {
+
+    let title: String
+    let systemImage: String?
+    let action: () -> ()
+
+    init(_ title: String, systemImage: String?, action: @escaping () -> Void) {
+        self.title = title
+        self.systemImage = systemImage
+        self.action = action
+    }
+
+    var body: some View {
+        Button {
+            self.action()
+        } label: {
+            if let systemImage = self.systemImage {
+                Label(self.title, systemImage: systemImage)
+            } else {
+                Text(self.title)
             }
         }
     }

@@ -8,6 +8,7 @@
 import AssetManager
 import Controls
 import FlowDocument
+import Helpers
 import Logging
 import MainViewFeature
 import SettingsFeature
@@ -18,7 +19,15 @@ import WelcomeWindow
 #if canImport(AppKit)
 import AppKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate, NSStandardKeyBindingResponding {
+
+    @ActiveViewObject(GlobalCoordinator.self) var coordinator
+
+    func selectAll(_ sender: Any?) {
+        self.coordinator?.emitter.emit(.selectAllNodes)
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         log("Removing temporary files...", level: .info)
         do {
@@ -30,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             log("Error: \(error)", level: .error)
         }
     }
+
 }
 #endif
 
@@ -70,6 +80,7 @@ public struct ImageFlowApp: App {
         .commands {
             PreviewFeatureCommands()
             NodeEditCommands()
+            PasteboardCommands()
         }
         #endif
 

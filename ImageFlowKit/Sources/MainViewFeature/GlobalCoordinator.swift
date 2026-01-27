@@ -11,6 +11,12 @@ public final class GlobalCoordinator: GlobalCoordinatorService {
         self.flow.selection.count
     }
 
+    public var canPaste: Bool {
+        PasteboardObserver.shared.canPaste
+    }
+
+    public var pointerData: PointerData?
+
     @ObservationIgnored
     public var emitter: EventEmitter<SharedModels.GlobalCoordinatorEvent> = .init()
 
@@ -50,8 +56,7 @@ public final class GlobalCoordinator: GlobalCoordinatorService {
     }
 
     func onEvent(_ event: GlobalCoordinatorEvent) {
-        log("onEvent: \(event)")
-
+        log("onEvent: \(event)", level: .trace)
         switch event {
         case .duplicateSelectedNodes:
             self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)

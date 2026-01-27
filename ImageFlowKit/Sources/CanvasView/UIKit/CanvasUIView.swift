@@ -90,6 +90,20 @@ public final class CanvasUIView: UIView {
 
         self.nodePositionsDidChange([:])
         self.gridViewDraw()
+        
+        let gesture = UIHoverGestureRecognizer(target: self, action: #selector(Self.onHover(_:)))
+        self.addGestureRecognizer(gesture)
+    }
+    
+    @objc
+    func onHover(_ gesture: UIHoverGestureRecognizer) {
+        let pos = gesture.location(in: self)
+        log("Hover: \(pos), \(gesture.state), \(gesture.location(in: nil)) \(self.bounds.contains(pos))", level: .debug)
+        if gesture.state == .changed || gesture.state == .began {
+            self.onEvent?(.pointerMoved(positionInView: pos))
+        } else {
+            self.onEvent?(.pointerMoved(positionInView: nil))
+        }
     }
 
     @available(*, unavailable)

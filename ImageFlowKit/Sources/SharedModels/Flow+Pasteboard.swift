@@ -1,0 +1,141 @@
+import Helpers
+import SwiftUI
+import UniformTypeIdentifiers
+
+public struct FlowPasteboardData: Sendable, Codable {
+    public var nodes: [UUID: FlowNode]
+    public var nodePositions: [UUID: CGPoint]
+    public var edges: [Edge]
+
+    public init(nodes: [UUID: FlowNode], nodePositions: [UUID: CGPoint], edges: [Edge]) {
+        self.nodes = nodes
+        self.nodePositions = nodePositions
+        self.edges = edges
+    }
+
+    public init?(data: Data) {
+        do {
+            self = try JSONDecoder().decode(Self.self, from: data)
+        } catch {
+            return nil
+        }
+    }
+
+    public var jsonData: Data? {
+        try? JSONEncoder().encode(self)
+    }
+}
+
+#if os(macOS)
+extension NSPasteboard.PasteboardType {
+    public static let flowNode: Self = .init("com.dmbfm.imageflow-node")
+}
+
+public class FlowPasteboardItem: NSObject, NSPasteboardWriting, NSPasteboardReading {
+    public var flowPasteboardData: FlowPasteboardData
+
+    @MainActor
+    public init?(_ flow: Flow) {
+        if let pasteboardData = flow.pasteboardData {
+            self.flowPasteboardData = pasteboardData
+        } else {
+            return nil
+        }
+    }
+
+    public init(_ flowPasteboardData: FlowPasteboardData) {
+        self.flowPasteboardData = flowPasteboardData
+    }
+
+    public func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
+        [.flowNode]
+    }
+
+    public func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
+        guard type == .flowNode else { return nil }
+        return self.flowPasteboardData.jsonData
+    }
+
+    public static func readableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
+        [.flowNode]
+    }
+
+    required public init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
+        if let data = propertyList as? Data, let pasteboardData = FlowPasteboardData(data: data) {
+            self.flowPasteboardData = pasteboardData
+        } else {
+            return nil
+        }
+    }
+}
+#endif
+
+extension UTType {
+    public static let flowNode: Self = .init("com.dmbfm.imageflow-node")!
+}
+
+extension FlowPasteboardData: Transferable {
+    public static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(for: FlowPasteboardData.self, contentType: .flowNode)
+    }
+}
+
+extension Flow {
+    public var pasteboardData: FlowPasteboardData? {
+        guard !self.selection.isEmpty else {
+            return nil
+        }
+
+        var nodes: [UUID: FlowNode] = [:]
+        var nodePositions: [UUID: CGPoint] = [:]
+        var edges: [Edge] = []
+
+        for id in self.selection {
+            if let node = self.nodes[id], let pos = self.nodePositions[id] {
+                nodes[id] = node.disconnectingAllPorts()
+                nodePositions[id] = pos
+            }
+        }
+
+        for edge in self.edges {
+            if self.selection.contains(edge.from.node) && self.selection.contains(edge.to.node) {
+                edges.append(edge)
+            }
+        }
+
+        return .init(nodes: nodes, nodePositions: nodePositions, edges: edges)
+    }
+
+    public func paste(pasteboardData data: FlowPasteboardData, at point: CGPoint, undoManager um: UndoManager?) {
+        guard let center = Array(data.nodePositions.values).centerPoint else { return }
+
+        um?.beginUndoGrouping()
+        var ids: [UUID: UUID] = [:]
+        for (id, node) in data.nodes {
+            guard let nodePos = data.nodePositions[id] else { continue }
+            var newNode = node
+            newNode.id = UUID()
+            ids[node.id] = newNode.id
+            self.newNodeAction(newNode, at: nodePos - center + point, undoManager: um)
+        }
+
+        for edge in data.edges {
+            if let fromNode = ids[edge.from.node],
+                let toNode = ids[edge.to.node],
+                let edge = Edge(
+                    PortLocation(node: fromNode, port: edge.from.slot),
+                    PortLocation(node: toNode, port: edge.to.slot)
+                )
+            {
+                self.newEdgeAction(
+                    edge,
+                    undoManager: um
+                )
+            }
+        }
+
+        um?.endUndoGrouping()
+
+        self.select(Set(ids.values))
+    }
+}

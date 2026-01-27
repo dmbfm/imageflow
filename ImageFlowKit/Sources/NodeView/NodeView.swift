@@ -15,6 +15,10 @@ public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
 public enum NodeViewContextMenuAction {
     case deleteSelectedNodes
     case duplicateSelectedNodes
+    case copySelectedNodes
+    case cutSelectedNodes
+    case paste(CGPoint?)
+    case selectAll
 }
 
 public final class NodeView: PlatformCommonView, CanvasNodeView {
@@ -268,26 +272,82 @@ extension NodeView {
         let menu = NSMenu(title: "Node Context Menu")
         let selectedCount = self.delegate?.nodeViewSelectedNodesCount() ?? 0
         let nodeName = selectedCount > 1 ? "Nodes" : "Node"
+        let hasSelection = selectedCount > 0
+
+        menu.autoenablesItems = false
 
         let deleteItem = NSMenuItem(
             title: "Delete \(nodeName)",
             action: #selector(Self.contextMenuDeleteAction),
             keyEquivalent: "",
         )
-        deleteItem.image = .init(systemSymbolName: "trash", accessibilityDescription: "Delete \(nodeName)")
+        deleteItem.image = .init(
+            systemSymbolName: .systemIconMenuDelete,
+            accessibilityDescription: "Delete \(nodeName)"
+        )
+        deleteItem.isEnabled = hasSelection
 
         let duplicateItem = NSMenuItem(
             title: "Duplicate \(nodeName)",
             action: #selector(Self.contextMenuDuplicateAction),
-            keyEquivalent: ""
+            keyEquivalent: "d"
         )
         duplicateItem.image = .init(
-            systemSymbolName: "plus.square.on.square",
+            systemSymbolName: .systemIconMenuDuplicate,
             accessibilityDescription: "Duplicate \(nodeName)"
         )
+        duplicateItem.isEnabled = hasSelection
 
+        let copyItem = NSMenuItem(
+            title: "Copy \(nodeName)",
+            action: #selector(Self.contextMenuCopyAction),
+            keyEquivalent: "c"
+        )
+        copyItem.image = .init(
+            systemSymbolName: .systemIconMenuCopy,
+            accessibilityDescription: "Copy \(nodeName)"
+        )
+        copyItem.isEnabled = hasSelection
+
+        let cutItem = NSMenuItem(
+            title: "Cut \(nodeName)",
+            action: #selector(Self.contextMenuCutAction),
+            keyEquivalent: "x"
+        )
+        cutItem.image = .init(
+            systemSymbolName: .systemIconMenuCut,
+            accessibilityDescription: "Cut \(nodeName)"
+        )
+        cutItem.isEnabled = hasSelection
+
+        let pasteItem = NSMenuItem(
+            title: "Paste \(nodeName)",
+            action: #selector(Self.contextMenuPasteAction),
+            keyEquivalent: "v",
+        )
+        pasteItem.image = .init(
+            systemSymbolName: .systemIconMenuPaste,
+            accessibilityDescription: "Paste \(nodeName)"
+        )
+        pasteItem.isEnabled = PasteboardObserver.shared.canPaste
+
+        let selectAllItem = NSMenuItem(
+            title: "Select All",
+            action: #selector(Self.contextMenuSelectAllAction),
+            keyEquivalent: "a"
+        )
+        selectAllItem.image = .init(
+            systemSymbolName: .systemIconMenuSelectAll,
+            accessibilityDescription: "Select All"
+        )
+
+        menu.addItem(.sectionHeader(title: "\(nodeName)"))
+        menu.addItem(cutItem)
+        menu.addItem(copyItem)
+        menu.addItem(pasteItem)
         menu.addItem(duplicateItem)
         menu.addItem(deleteItem)
+        menu.addItem(selectAllItem)
 
         return menu
     }
@@ -308,6 +368,24 @@ extension NodeView {
     @objc
     func contextMenuDuplicateAction() {
         self.delegate?.nodeViewAction(.duplicateSelectedNodes)
+    }
+
+    @objc
+    func contextMenuCopyAction() {
+        self.delegate?.nodeViewAction(.copySelectedNodes)
+    }
+
+    @objc
+    func contextMenuCutAction() {
+        self.delegate?.nodeViewAction(.cutSelectedNodes)
+    }
+    @objc
+    func contextMenuPasteAction() {
+        self.delegate?.nodeViewAction(.paste(nil))
+    }
+    @objc
+    func contextMenuSelectAllAction() {
+        self.delegate?.nodeViewAction(.selectAll)
     }
 }
 
@@ -347,7 +425,52 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     self.delegate?.nodeViewAction(.duplicateSelectedNodes)
                 }
 
-                return UIMenu(title: "Node", children: [duplicateAction, deleteAction])
+                let copyAction = UIAction(
+                    title: "Copy \(nodeName)",
+                    image: .init(systemName: "document.on.document")
+                ) { action in
+                    self.delegate?.nodeViewAction(.copySelectedNodes)
+                }
+
+                let cutAction = UIAction(
+                    title: "Cut \(nodeName)",
+                    image: .init(systemName: "scissors")
+                ) { action in
+                    self.delegate?.nodeViewAction(.cutSelectedNodes)
+                }
+
+                let pasteAction = UIAction(
+                    title: "Paste \(nodeName)",
+                    image: .init(systemName: "document.on.clipboard"),
+                    attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
+                ) { action in
+                    self.delegate?.nodeViewAction(
+                        .paste(
+                            self.superview?.convert(location, from: self)
+                        )
+                    )
+                }
+
+                let selectAllAction = UIAction(
+                    title: "Select All",
+                    image: .init(systemName: "character.textbox"),
+                ) { action in
+                    self.delegate?.nodeViewAction(.selectAll)
+                }
+
+                print("canPaste? \(PasteboardObserver.shared.canPaste)")
+
+                return UIMenu(
+                    title: "Node",
+                    children: [
+                        cutAction,
+                        copyAction,
+                        pasteAction,
+                        duplicateAction,
+                        deleteAction,
+                        selectAllAction,
+                    ]
+                )
             }
         )
     }

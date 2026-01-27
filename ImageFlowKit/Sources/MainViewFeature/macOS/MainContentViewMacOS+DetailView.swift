@@ -44,6 +44,9 @@ extension MainContentViewMacOS {
                 .focused(self.focus, equals: .global)
                 .focusEffectDisabled()
                 .onDeleteCommand(perform: self.vm.onDeleteCommand)
+                .onCopyCommand(perform: self.vm.onCopyCommand)
+                .onPasteCommand(of: [.flowNode], perform: self.vm.onPasteCommand(_:))
+                .onCutCommand(perform: self.vm.onCutCommand)
                 .onKeyPress(.space, action: self.onKeyPressSpace)
 
                 // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur

@@ -45,6 +45,8 @@ public struct CanvasView: PlatformViewRepresentable {
         case clickBackground
         /// This event is emitted when the canvas' platform view responds to `viewDidMoveToSuperview`.
         case didMoveToSuperview
+        ///
+        case pointerMoved(positionInView: CGPoint?)
     }
 
     public init(
@@ -133,6 +135,8 @@ public struct CanvasView: PlatformViewRepresentable {
                 self.onEvent?(.clickBackground)
             case .didMoveToSuperview:
                 self.onEvent?(.didMoveToSuperview)
+            case .pointerMoved(positionInView: let pos):
+                self.onEvent?(.pointerMoved(positionInView: pos))
             }
         }
     }

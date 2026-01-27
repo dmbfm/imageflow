@@ -370,9 +370,13 @@ extension Flow {
     }
 
     public func duplidateSelectedNodesAction(undoManager um: UndoManager?) {
+        var newSelection: Set<UUID> = []
         self.withSelectedNodes(um) { id, um in
-            self.duplicateNode(id, undoManager: um)
+            if let id = self.duplicateNode(id, undoManager: um)?.id {
+                newSelection.insert(id)
+            }
         }
+        self.select(newSelection)
     }
 
     func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {
@@ -415,7 +419,7 @@ extension Flow {
         um?.endUndoGrouping()
     }
 
-    func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
+    public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
         precondition(self.isValidPort(edge.from))
         precondition(self.isValidPort(edge.to))
 

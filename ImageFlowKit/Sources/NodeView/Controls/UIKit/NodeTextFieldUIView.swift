@@ -183,7 +183,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         case .editing:
             self.backgroundView.backgroundColor = self.style.backgroundColor
             self.label.isHidden = true
-            self.textField.keyboardType = .decimalPad
+            self.textField.keyboardType = .numbersAndPunctuation
             self.textField.isHidden = false
             self.textField.becomeFirstResponder()
             self.layer.borderWidth = self.style.borderWidth

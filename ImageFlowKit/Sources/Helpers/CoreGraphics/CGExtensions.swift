@@ -182,3 +182,15 @@ extension CGPoint {
         .init(x: self.x.clamped(to: rect.minX...rect.maxX), y: self.y.clamped(to: rect.minY...rect.maxY))
     }
 }
+
+extension Array where Element == CGPoint {
+    public var centerPoint: CGPoint? {
+        guard !self.isEmpty else { return nil }
+        return self.reduce(
+            CGPoint.zero,
+            { acc, point in
+                acc + point
+            }
+        ) / CGFloat(self.count)
+    }
+}
