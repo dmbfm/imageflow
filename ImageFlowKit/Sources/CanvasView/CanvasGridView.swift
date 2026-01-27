@@ -51,7 +51,6 @@ final class CanvasGridView: PlatformView {
     override func rightMouseDown(with event: NSEvent) {
         let location = self.convert(event.locationInWindow, from: nil)
         if let menu = self.contextMenuProvider?.canvasContextMenu(at: location) {
-            log("menu at: \(event.location(inView: self))")
             NSMenu.popUpContextMenu(menu, with: event, for: self)
         }
     }
@@ -378,7 +377,6 @@ extension CanvasGridView: UIContextMenuInteractionDelegate {
         _ interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation location: CGPoint
     ) -> UIContextMenuConfiguration? {
-        log("context menu! \(location), \(self.contextMenuProvider == nil)")
         let loc = self.convert(interaction.location(in: nil), from: nil)
         return .init(identifier: nil, previewProvider: nil) { [weak self] _ in
             self?.contextMenuProvider?.canvasContextMenu(at: loc)

@@ -19,7 +19,6 @@ public final class CanvasUIView: UIView {
 
     public var nodePositions: [UUID: CGPoint] {
         didSet {
-            log("nodePositionsDidSet")
             if self.nodePositions != oldValue {
                 self.nodePositionsDidChange(oldValue)
             }
@@ -139,8 +138,6 @@ public final class CanvasUIView: UIView {
 
     @objc
     func oneFingerPanGesture(_ gesture: UIPanGestureRecognizer) {
-        log("\(gesture.state)")
-
         if gesture.state == .began {
             self.oneFingerPanInitialPos = gesture.location(in: self.gridView)
             self.onEvent?(.rectSelect(.started(shiftDown: false)))

@@ -36,8 +36,6 @@ public final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
     }
 
     required public init(configuration: ReadConfiguration) throws {
-        log("init:configuration:\(configuration)")
-
         guard let fws = configuration.file.fileWrappers else {
             throw Errors.missingFileWrappers
         }
@@ -48,8 +46,6 @@ public final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
             throw Errors.flowJsonNotFound
         }
         let snapshot = try JSONDecoder().decode(StorableData.self, from: flowFileData)
-
-        log("loaded snapshot: \(snapshot)")
 
         self.id = snapshot.id
         self.flow = .init(snapshot.flow)
@@ -87,7 +83,7 @@ public final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
                 }
             }
         } catch {
-            log("error: \(error)")
+            log("error: \(error)", level: .error)
             throw error
         }
 

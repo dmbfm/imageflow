@@ -67,7 +67,7 @@ public final class BackendService {
 
                 let time = ContinuousClock.now - startInst
 
-                log("Run time: \(time) [\(time * 1000) ms], messaegs: \(messages)")
+                log("Run time: \(time) [\(time * 1000) ms], messaegs: \(messages)", level: .info)
 
                 self.task = nil
             }

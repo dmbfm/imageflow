@@ -99,13 +99,13 @@ extension CanvasPlatformView {
         if let node = self.viewForNode(id) {
             self.addNode(node, at: position)
         } else {
-            log("Missing view for node \(id)")
+            log("Missing view for node \(id)", level: .error)
         }
     }
 
     func removeNode(_ id: UUID) {
         guard let node = self.nodeViews[id] else {
-            log("Node not found: \(id)")
+            log("Node not found: \(id)", level: .warning)
             return
         }
         self.nodeViews.removeValue(forKey: id)

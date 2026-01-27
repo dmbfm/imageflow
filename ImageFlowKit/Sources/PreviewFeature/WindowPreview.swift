@@ -79,10 +79,6 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
     required init?(coder: NSCoder) {
         nil
     }
-
-    deinit {
-        log("deinit", level: .debug)
-    }
 }
 
 @Observable
@@ -157,10 +153,6 @@ public class WindowPreviewViewModel: Observable {
 
         self.updateWindow()
         self.startLoadingImage()
-    }
-
-    deinit {
-        log("deinit", level: .debug)
     }
 
     func updateWindow() {

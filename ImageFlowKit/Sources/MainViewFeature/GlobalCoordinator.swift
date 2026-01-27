@@ -36,8 +36,6 @@ public final class GlobalCoordinator: GlobalCoordinatorService {
     }
 
     func onFlowEvent(_ event: FlowEvent) {
-        log("onFlowEvent: \(event)")
-
         switch event {
         case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition):
             self.emitter.emit(
@@ -49,7 +47,6 @@ public final class GlobalCoordinator: GlobalCoordinatorService {
         default:
             break
         }
-
     }
 
     func onEvent(_ event: GlobalCoordinatorEvent) {

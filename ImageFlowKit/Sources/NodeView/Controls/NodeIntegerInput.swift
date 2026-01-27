@@ -100,7 +100,6 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     #endif
 
     @objc func stepperHandler() {
-        log("step! \(self.stepper.value)")
         self.value = .int(Int(self.stepper.value))
         self.emit(.valueDidChange(self.value))
     }

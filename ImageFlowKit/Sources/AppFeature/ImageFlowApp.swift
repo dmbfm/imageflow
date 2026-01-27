@@ -20,7 +20,7 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
-        log("Removing temporary files...")
+        log("Removing temporary files...", level: .info)
         do {
             let url: URL = .tempAssetsDirectory
             if FileManager.default.fileExists(atPath: url.path) {
