@@ -114,8 +114,8 @@ struct MainContentViewIPadOS: View {
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .secondaryAction) {
-            Button {
-                self.vm.nodePalettePresent()
+            Button { [weak vm = self.vm] in
+                vm?.nodePalettePresent()
             } label: {
                 Image(systemName: "plus")
             }
