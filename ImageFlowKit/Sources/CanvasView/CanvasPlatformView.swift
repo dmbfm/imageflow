@@ -119,6 +119,7 @@ extension CanvasPlatformView {
 
     // MARK: - Context Menu
 
+    #if os(macOS)
     public weak var contextMenuProvider: (any CanvasContextMenuProvider)? {
         get {
             self.gridView.contextMenuProvider
@@ -128,4 +129,5 @@ extension CanvasPlatformView {
             self.gridView.contextMenuProvider = newValue
         }
     }
+    #endif
 }

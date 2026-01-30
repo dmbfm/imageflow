@@ -28,10 +28,6 @@ final class CanvasGridView: PlatformView {
 
     weak var contextMenuProvider: (any CanvasContextMenuProvider)? = nil
 
-    #if os(iOS)
-    var contextMenuInteraction: UIContextMenuInteraction? = nil
-    #endif
-
     init() {
         super.init(frame: .zero)
         self.platformInit()
@@ -58,8 +54,6 @@ final class CanvasGridView: PlatformView {
 
     #if os(iOS)
     func platformInit() {
-        self.contextMenuInteraction = .init(delegate: self)
-        self.addInteraction(self.contextMenuInteraction!)
         self.backgroundColor = BackgroundStyle.default.bg.platformColor  //Colors.canvasBackground.platformColor
         self.setNeedsDisplay()
     }
@@ -370,20 +364,6 @@ public protocol CanvasContextMenuProvider: AnyObject {
 
     func canvasContextMenu(at location: CGPoint) -> ContextMenuType?
 }
-
-#if os(iOS)
-extension CanvasGridView: UIContextMenuInteractionDelegate {
-    func contextMenuInteraction(
-        _ interaction: UIContextMenuInteraction,
-        configurationForMenuAtLocation location: CGPoint
-    ) -> UIContextMenuConfiguration? {
-        let loc = self.convert(interaction.location(in: nil), from: nil)
-        return .init(identifier: nil, previewProvider: nil) { [weak self] _ in
-            self?.contextMenuProvider?.canvasContextMenu(at: loc)
-        }
-    }
-}
-#endif
 
 final class GridViewLayerDelegate: NSObject, CALayerDelegate {
     func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {

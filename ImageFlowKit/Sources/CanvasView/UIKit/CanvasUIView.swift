@@ -93,7 +93,15 @@ public final class CanvasUIView: UIView {
         
         let gesture = UIHoverGestureRecognizer(target: self, action: #selector(Self.onHover(_:)))
         self.addGestureRecognizer(gesture)
+        
+        
+        self.contextMenuInteraction = .init(delegate: self)
+        self.addInteraction(self.contextMenuInteraction)
     }
+    
+    var contextMenuInteraction: UIContextMenuInteraction!
+    
+    public weak var contextMenuProvider: (any CanvasContextMenuProvider)?
     
     @objc
     func onHover(_ gesture: UIHoverGestureRecognizer) {
@@ -253,6 +261,17 @@ private final class RectSelectionView: UIView {
         path.lineWidth = 1.0
         path.stroke()
     }
+}
+
+extension CanvasUIView: UIContextMenuInteractionDelegate {
+    public func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        let loc = self.convert(interaction.location(in: nil), from: nil)
+        return .init(identifier: nil, previewProvider: nil, actionProvider: { _ in
+            self.contextMenuProvider?.canvasContextMenu(at: loc)
+        })
+    }
+    
+    
 }
 
 #endif
