@@ -34,8 +34,12 @@ public struct PreviewFeatureView: View {
     @ObservableState var state: PreviewFeatureState
     @Environment(\.openWindow) var openWindow
 
-    public init(_ flow: Flow, _ assetStore: some AssetStoreService) {
-        self._state = .init(wrappedValue: .init(flow: flow, assetStore: assetStore))
+    public init(
+        _ flow: Flow,
+        _ assetStore: some AssetStoreService,
+        coordinator: any GlobalCoordinatorService
+    ) {
+        self._state = .init(wrappedValue: .init(flow: flow, assetStore: assetStore, coordinator: coordinator))
     }
 
     var visibility: CardVisibility {
@@ -86,13 +90,6 @@ public struct PreviewFeatureView: View {
         }
         .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.state.viewSizeDidChange($0) })
         .activeViewObject(self.state)
-        .imageExporter(
-            isPresented: self.$state.showImageExporter,
-            image: self.state.image,
-            defaultFilename: self.state.name,
-            errorMessage: self.$state.imageExportAlertError,
-        )
-        .errorAlert(self.$state.imageExportAlertError)
     }
 }
 
@@ -229,7 +226,7 @@ private final class MockAssetStore: AssetStoreService {
 #Preview {
     ZStack {
         Colors.canvasBackground.color
-        PreviewFeatureView(Flow(), MockAssetStore())
+        PreviewFeatureView(Flow(), MockAssetStore(), coordinator: MockGlobalCoordinatorService(flow: Flow()))
     }
     .frame(minWidth: 800, minHeight: 600)
 }

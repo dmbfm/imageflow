@@ -63,7 +63,9 @@ struct MainContentViewIPadOS: View {
             )
             .imageExporter(
                 isPresented: self.$vm.imageExporterState.isPresented,
-                image: self.vm.imageExporterState.image
+                image: self.vm.imageExporterState.image,
+                defaultFilename: self.vm.imageExporterState.defaultFilename,
+                errorMessage: self.$vm.error,
             )
             .errorAlert(self.$vm.error)
             .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }

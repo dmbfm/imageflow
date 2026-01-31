@@ -5,6 +5,7 @@ import Logging
 import NodePaletteFeature
 import NodeView
 import PreviewFeature
+import SharedMocking
 import SharedModels
 import SwiftUI
 import Values
@@ -83,10 +84,11 @@ public struct CanvasFeatureView: View {
             .ignoresSafeArea(.all)
             #endif
 
-            CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore) { _ in }
-                #if os(iOS)
+            CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore, coordinator: self.vm.coordinator)
+            { _ in }
+            #if os(iOS)
             .safeAreaPadding(.top, 60)
-                #endif
+            #endif
 
             DropOverlay(vm: self.vm)
         }
@@ -121,8 +123,9 @@ public struct CanvasFeatureView: View {
 private struct CanvasImagePreviewView: View {
     let flow: Flow
     let assetStore: any AssetStoreService
+    let coordinator: any GlobalCoordinatorService
     let launchPreviewWindow: (AssetIdentifier) -> ()
     var body: some View {
-        PreviewFeatureView(self.flow, self.assetStore)
+        PreviewFeatureView(self.flow, self.assetStore, coordinator: self.coordinator)
     }
 }

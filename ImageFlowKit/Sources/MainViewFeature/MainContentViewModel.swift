@@ -55,7 +55,13 @@ final class MainContentViewModel {
         }
     }
     /// The state of the image exporter dialog
-    var imageExporterState: ImageExporterState
+    var imageExporterState: ImageExporterState {
+        didSet {
+            if !self.imageExporterState.isPresented && self.imageExporterState.image != nil {
+                self.imageExporterState.image = nil
+            }
+        }
+    }
     /// Error messages to be shown as an alert
     var error: LocalizedAlertError? = nil
     /// The undo manager from SwiftUI's evironment
@@ -85,7 +91,8 @@ final class MainContentViewModel {
 
     struct ImageExporterState {
         var isPresented: Bool = false
-        var image: CIImage? = nil
+        var image: CIImage?
+        var defaultFilename: String?
     }
 
     struct FileImporterConfiguration {
@@ -129,6 +136,9 @@ final class MainContentViewModel {
 
         case .cutSelectedNodes:
             self.cutSelectedNodes()
+
+        case let .exportImage(image, filename):
+            self.showImageExporter(image, filename)
 
         default:
             break
@@ -451,7 +461,11 @@ final class MainContentViewModel {
 
         let image = try await self.assetStore.getGeneratedResource(ciImageAt: .init(node: nodeID, index: index)).res
 
-        self.imageExporterState = .init(isPresented: true, image: image)
+        self.imageExporterState = .init(
+            isPresented: true,
+            image: image,
+            defaultFilename: node.name
+        )
     }
 
     func showImageExporter(_ nodeID: UUID) {
@@ -463,6 +477,10 @@ final class MainContentViewModel {
                 self.error = .init(inner: SimpleMessageLocalizedError(message: error.localizedDescription))
             }
         }
+    }
+
+    func showImageExporter(_ image: CIImage, _ defaultFilename: String?) {
+        self.imageExporterState = .init(isPresented: true, image: image, defaultFilename: defaultFilename)
     }
 }
 
@@ -555,25 +573,25 @@ extension MainContentViewModel {
 
 }
 
-public struct LocalizedAlertError: LocalizedError {
-    var inner: any LocalizedError
+// public struct LocalizedAlertError: LocalizedError {
+//     var inner: any LocalizedError
 
-    public var errorDescription: String? {
-        self.inner.errorDescription
-    }
+//     public var errorDescription: String? {
+//         self.inner.errorDescription
+//     }
 
-    public var failureReason: String? {
-        self.inner.failureReason
-    }
+//     public var failureReason: String? {
+//         self.inner.failureReason
+//     }
 
-    public var helpAnchor: String? {
-        self.inner.helpAnchor
-    }
+//     public var helpAnchor: String? {
+//         self.inner.helpAnchor
+//     }
 
-    public var recoverySuggestion: String? {
-        self.inner.recoverySuggestion
-    }
-}
+//     public var recoverySuggestion: String? {
+//         self.inner.recoverySuggestion
+//     }
+// }
 
 struct SimpleMessageLocalizedError: LocalizedError {
     var message: String
@@ -581,20 +599,20 @@ struct SimpleMessageLocalizedError: LocalizedError {
     var errorDescription: String? { self.message }
 }
 
-extension View {
-    public func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
-        self
-            .alert(
-                isPresented: .constant(error.wrappedValue != nil),
-                error: error.wrappedValue,
-                actions: {
-                    Button("OK") {
-                        error.wrappedValue = nil
-                    }
-                }
-            )
-    }
-}
+// extension View {
+//     public func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
+//         self
+//             .alert(
+//                 isPresented: .constant(error.wrappedValue != nil),
+//                 error: error.wrappedValue,
+//                 actions: {
+//                     Button("OK") {
+//                         error.wrappedValue = nil
+//                     }
+//                 }
+//             )
+//     }
+// }
 
 extension Value {
     fileprivate init?(assetKind: AssetKind, assetId: AssetIdentifier) {

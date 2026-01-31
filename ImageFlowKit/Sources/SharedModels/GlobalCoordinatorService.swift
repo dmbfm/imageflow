@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 import Helpers
 
@@ -25,6 +26,7 @@ public enum GlobalCoordinatorEvent {
     case copySelectedNodes
     case cutSelectedNodes
     case selectAllNodes
+    case exportImage(image: CIImage, filename: String?)
     case pasteFlowNodes(CGPoint?)
     case showNodeSearch(typedPortLocation: TypedPortLocation?, canvasPosition: CGPoint?)
     case performPaste(FlowPasteboardData, CGPoint?)

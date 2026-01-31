@@ -258,6 +258,7 @@ public final class PreviewFeatureState {
 
     let flow: Flow
     let assetStore: any AssetStoreService
+    let coordinator: any GlobalCoordinatorService
     var scrollCache: [String: CIImageScrollView.CacheEntry] = [:]
 
     var cardSize: Bounded<CGFloat> = .init(50...600, 300)
@@ -265,8 +266,8 @@ public final class PreviewFeatureState {
     var cardDockLocation: CardDockLocation? = nil
     var cardDockHeights: CardDockHeights = .init(up: .init(50...1000, 200), down: .init(100...1000, 300))
 
-    var showImageExporter: Bool = false
-    var imageExportAlertError: LocalizedAlertError? = nil
+    // var showImageExporter: Bool = false
+    // var imageExportAlertError: LocalizedAlertError? = nil
 
     @ObservationIgnored
     var cachedName: (OutputPortLocation?, String?) = (nil, nil)
@@ -308,17 +309,25 @@ public final class PreviewFeatureState {
     @ObservationIgnored
     let pasteboardWriter = PasteboarImageWriter()
 
-    init(flow: Flow, assetStore: some AssetStoreService, cardDockLocation: CardDockLocation? = nil) {
+    init(
+        flow: Flow,
+        assetStore: some AssetStoreService,
+        coordinator: any GlobalCoordinatorService,
+        cardDockLocation: CardDockLocation? = nil
+    ) {
         self.flow = flow
         self.assetStore = assetStore
         self.cardDockLocation = cardDockLocation
+        self.coordinator = coordinator
 
         self.observeSelection()
         self.observeModifiedImages()
     }
 
     public func exportImage() {
-        self.showImageExporter = true
+        if let image = self.image {
+            self.coordinator.emitter.emit(.exportImage(image: image, filename: self.name))
+        }
     }
 
     func dispatch(_ action: PreviewContentViewAction) {
@@ -336,7 +345,7 @@ public final class PreviewFeatureState {
         case .pick(let loc):
             self.previewContentViewModel(input: .pick(loc))
         case .export:
-            self.showImageExporter = true
+            self.exportImage()
         case .copy:
             self.copy()
         case .openWindow:
