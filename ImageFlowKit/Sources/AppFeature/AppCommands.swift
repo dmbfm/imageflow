@@ -157,12 +157,26 @@ struct PreviewFeatureCommands: Commands {
         }
 
         #if os(macOS)
-        if let vm = self.windowPreviewViewModel {
-            CommandGroup(after: .importExport) {
-                Button("Export Image...") {
-                    fatalError("TODO: export \(vm)")
+        CommandGroup(after: .saveItem) {
+            Button("Export Image...") {
+                if let windowPreviewViewModel = self.windowPreviewViewModel {
+                    windowPreviewViewModel.exportImage()
+                } else if let previewState = self.previewState {
+                    previewState.exportImage()
                 }
             }
+            .disabled(self.windowPreviewViewModel == nil && self.previewState?.image == nil)
+            .keyboardShortcut("e", modifiers: [.shift, .command])
+        }
+        #else
+        CommandGroup(after: .saveItem) {
+            Button("Export Image...") {
+                if let previewState = self.previewState {
+                    previewState.exportImage()
+                }
+            }
+            .disabled(self.previewState?.image == nil)
+            .keyboardShortcut("e", modifiers: [.shift, .command])
         }
         #endif
     }

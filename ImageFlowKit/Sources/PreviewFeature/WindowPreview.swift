@@ -158,6 +158,10 @@ public class WindowPreviewViewModel: Observable {
         self.startLoadingImage()
     }
 
+    public func exportImage() {
+        self.showImageExporter = true
+    }
+
     func updateWindow() {
         self.setWindowLevel(self.pinned ? .floating : .normal)
     }

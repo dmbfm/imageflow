@@ -317,6 +317,10 @@ public final class PreviewFeatureState {
         self.observeModifiedImages()
     }
 
+    public func exportImage() {
+        self.showImageExporter = true
+    }
+
     func dispatch(_ action: PreviewContentViewAction) {
         switch action {
         case .undock:
