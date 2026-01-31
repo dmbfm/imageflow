@@ -66,6 +66,10 @@ struct MainContentViewMacOS: View {
             allowsMultipleSelection: true,
             onCompletion: self.vm.fileImporterCompletionHandler(_:)
         )
+        .imageExporter(
+            isPresented: self.$vm.imageExporterState.isPresented,
+            image: self.vm.imageExporterState.image
+        )
         .errorAlert(self.$vm.error)
         .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
         .onChange(of: self.focus, initial: false, { self.vm.focusDidChange(self.$focus) })

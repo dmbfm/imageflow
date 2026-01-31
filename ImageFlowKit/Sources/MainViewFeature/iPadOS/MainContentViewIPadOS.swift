@@ -61,6 +61,10 @@ struct MainContentViewIPadOS: View {
                 matching: .images,
                 photoLibrary: .shared(),
             )
+            .imageExporter(
+                isPresented: self.$vm.imageExporterState.isPresented,
+                image: self.vm.imageExporterState.image
+            )
             .errorAlert(self.$vm.error)
             .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
             .onChange(of: self.focus, initial: true, { self.vm.focusDidChange(self.$focus) })

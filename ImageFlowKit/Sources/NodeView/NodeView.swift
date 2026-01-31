@@ -9,10 +9,11 @@ import Values
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
     func nodeViewSelectedNodesCount() -> Int
-    func nodeViewAction(_ action: NodeViewContextMenuAction)
+    func nodeViewAction(_ id: UUID, _ action: NodeViewContextMenuAction)
 }
 
 public enum NodeViewContextMenuAction {
+    case exportImage
     case deleteSelectedNodes
     case duplicateSelectedNodes
     case copySelectedNodes
@@ -341,6 +342,12 @@ extension NodeView {
             accessibilityDescription: "Select All"
         )
 
+        let exportImageItem = NSMenuItem(
+            title: "Export Image...",
+            action: #selector(Self.contextMenuExportImageAction),
+            keyEquivalent: "E",
+        )
+
         menu.addItem(.sectionHeader(title: "\(nodeName)"))
         menu.addItem(cutItem)
         menu.addItem(copyItem)
@@ -348,6 +355,11 @@ extension NodeView {
         menu.addItem(duplicateItem)
         menu.addItem(deleteItem)
         menu.addItem(selectAllItem)
+
+        if self.node.outputs.contains(where: { $0.type == .image }) {
+            menu.addItem(.separator())
+            menu.addItem(exportImageItem)
+        }
 
         return menu
     }
@@ -361,31 +373,36 @@ extension NodeView {
     #endif
 
     @objc
+    func contextMenuExportImageAction() {
+        self.delegate?.nodeViewAction(self.id, .exportImage)
+    }
+
+    @objc
     func contextMenuDeleteAction() {
-        self.delegate?.nodeViewAction(.deleteSelectedNodes)
+        self.delegate?.nodeViewAction(self.id, .deleteSelectedNodes)
     }
 
     @objc
     func contextMenuDuplicateAction() {
-        self.delegate?.nodeViewAction(.duplicateSelectedNodes)
+        self.delegate?.nodeViewAction(self.id, .duplicateSelectedNodes)
     }
 
     @objc
     func contextMenuCopyAction() {
-        self.delegate?.nodeViewAction(.copySelectedNodes)
+        self.delegate?.nodeViewAction(self.id, .copySelectedNodes)
     }
 
     @objc
     func contextMenuCutAction() {
-        self.delegate?.nodeViewAction(.cutSelectedNodes)
+        self.delegate?.nodeViewAction(self.id, .cutSelectedNodes)
     }
     @objc
     func contextMenuPasteAction() {
-        self.delegate?.nodeViewAction(.paste(nil))
+        self.delegate?.nodeViewAction(self.id, .paste(nil))
     }
     @objc
     func contextMenuSelectAllAction() {
-        self.delegate?.nodeViewAction(.selectAll)
+        self.delegate?.nodeViewAction(self.id, .selectAll)
     }
 }
 
@@ -416,28 +433,28 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     image: .init(systemName: "trash"),
                     attributes: .destructive
                 ) { _ in
-                    self.delegate?.nodeViewAction(.deleteSelectedNodes)
+                    self.delegate?.nodeViewAction(self.id, .deleteSelectedNodes)
                 }
 
                 let duplicateAction = UIAction(
                     title: "Duplicate \(nodeName)",
                     image: .init(systemName: "plus.square.on.square")
                 ) { _ in
-                    self.delegate?.nodeViewAction(.duplicateSelectedNodes)
+                    self.delegate?.nodeViewAction(self.id, .duplicateSelectedNodes)
                 }
 
                 let copyAction = UIAction(
                     title: "Copy \(nodeName)",
                     image: .init(systemName: "document.on.document")
                 ) { _ in
-                    self.delegate?.nodeViewAction(.copySelectedNodes)
+                    self.delegate?.nodeViewAction(self.id, .copySelectedNodes)
                 }
 
                 let cutAction = UIAction(
                     title: "Cut \(nodeName)",
                     image: .init(systemName: "scissors")
                 ) { _ in
-                    self.delegate?.nodeViewAction(.cutSelectedNodes)
+                    self.delegate?.nodeViewAction(self.id, .cutSelectedNodes)
                 }
 
                 let pasteAction = UIAction(
@@ -446,6 +463,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
                 ) { _ in
                     self.delegate?.nodeViewAction(
+                        self.id,
                         .paste(
                             self.superview?.convert(location, from: self)
                         )
@@ -456,10 +474,16 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     title: "Select All",
                     image: .init(systemName: "character.textbox"),
                 ) { _ in
-                    self.delegate?.nodeViewAction(.selectAll)
+                    self.delegate?.nodeViewAction(self.id, .selectAll)
                 }
 
-                print("canPaste? \(PasteboardObserver.shared.canPaste)")
+                let exportImageAction = UIAction(
+                    title: "Export Image...",
+                ) { _ in
+                    self.delegate?.nodeViewAction(self.id, .exportImage)
+                }
+
+                let hasImageOutput = self.node.outputs.contains(where: { $0.type == .image })
 
                 return UIMenu(
                     title: "Node",
@@ -471,6 +495,10 @@ extension NodeView: UIContextMenuInteractionDelegate {
                         deleteAction,
                         selectAllAction,
                     ]
+                        + (hasImageOutput
+                            ? [
+                                UIMenu(title: "", options: [.displayInline], children: [exportImageAction])
+                            ] : [])
                 )
             }
         )

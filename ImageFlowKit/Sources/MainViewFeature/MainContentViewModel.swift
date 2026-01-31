@@ -54,6 +54,8 @@ final class MainContentViewModel {
             }
         }
     }
+    /// The state of the image exporter dialog
+    var imageExporterState: ImageExporterState
     /// Error messages to be shown as an alert
     var error: LocalizedAlertError? = nil
     /// The undo manager from SwiftUI's evironment
@@ -81,6 +83,11 @@ final class MainContentViewModel {
 
     #endif
 
+    struct ImageExporterState {
+        var isPresented: Bool = false
+        var image: CIImage? = nil
+    }
+
     struct FileImporterConfiguration {
         var allowedContentTypes: [UTType]
     }
@@ -95,6 +102,7 @@ final class MainContentViewModel {
             allowedImportTypes: [],
             photoPickerDisabled: true
         )
+        self.imageExporterState = .init(isPresented: false, image: nil)
         self.coordinator = coordinator
         self.assetBrowserViewModel.delegate = self
 
@@ -424,6 +432,38 @@ final class MainContentViewModel {
         self.assetBrowserViewModel.setType(.picker(picker))
         self.showAssetBrowser = true
     }
+
+    func exportImage(_ nodeID: UUID) async throws {
+        guard !self.imageExporterState.isPresented else {
+            log("Image exporter is already being presented!", level: .warning)
+            return
+        }
+
+        guard let node = self.flow.nodes[nodeID] else {
+            log("node not found: \(nodeID)", level: .error)
+            return
+        }
+
+        guard let index = node.outputs.firstIndex(where: { $0.type == .image }) else {
+            log("node image outputs found for node: \(nodeID)", level: .error)
+            return
+        }
+
+        let image = try await self.assetStore.getGeneratedResource(ciImageAt: .init(node: nodeID, index: index)).res
+
+        self.imageExporterState = .init(isPresented: true, image: image)
+    }
+
+    func showImageExporter(_ nodeID: UUID) {
+        Task {
+            do {
+                try await self.exportImage(nodeID)
+            } catch {
+                log("\(error)", level: .error)
+                self.error = .init(inner: SimpleMessageLocalizedError(message: error.localizedDescription))
+            }
+        }
+    }
 }
 
 extension MainContentViewModel: NodeViewDelegate {
@@ -431,7 +471,7 @@ extension MainContentViewModel: NodeViewDelegate {
         self.flow.selection.count
     }
 
-    func nodeViewAction(_ action: NodeViewContextMenuAction) {
+    func nodeViewAction(_ id: UUID, _ action: NodeViewContextMenuAction) {
         switch action {
         case .deleteSelectedNodes:
             self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
@@ -445,6 +485,8 @@ extension MainContentViewModel: NodeViewDelegate {
             self.pasteFlowNodes(maybePosition)
         case .selectAll:
             self.flow.selectAll()
+        case .exportImage:
+            self.showImageExporter(id)
         }
     }
 
@@ -531,6 +573,12 @@ public struct LocalizedAlertError: LocalizedError {
     public var recoverySuggestion: String? {
         self.inner.recoverySuggestion
     }
+}
+
+struct SimpleMessageLocalizedError: LocalizedError {
+    var message: String
+
+    var errorDescription: String? { self.message }
 }
 
 extension View {
