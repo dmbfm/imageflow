@@ -324,26 +324,34 @@ final class MainContentViewModel {
         case .cancel:
             break
         case let .pick(assetKind, assetId, portLocation):
-            if let value: Value = Value(assetKind: assetKind, assetId: .asset(assetId)) {
-                assert(
-                    self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)].type == assetKind.valueType
-                )
-                self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)] = value
-            } else {
-                log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
-            }
+            self.onAssetBrowserPick(assetKind, assetId, portLocation)
         case let .create(assetKind, assetId):
-            if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)),
-                let nodeKind = assetKind.nodeKind,
-                let inputIndex = assetKind.nodeInputIndex
-            {
-                var node = FlowNode(id: .init(), kind: nodeKind)
-                assert(node.inputs[inputIndex].value.type == assetKind.valueType)
-                node.inputs[inputIndex].value = value
-                self.createNodeAtCanvasCenter(node)
-            } else {
-                log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
-            }
+            self.onAssetBrowserCreate(assetKind, assetId)
+        }
+    }
+
+    func onAssetBrowserPick(_ assetKind: AssetKind, _ assetId: UUID, _ portLocation: InputPortLocation) {
+        if let value: Value = Value(assetKind: assetKind, assetId: .asset(assetId)) {
+            assert(
+                self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)].type == assetKind.valueType
+            )
+            self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)] = value
+        } else {
+            log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
+        }
+    }
+
+    func onAssetBrowserCreate(_ assetKind: AssetKind, _ assetId: UUID) {
+        if let value: Value = .init(assetKind: assetKind, assetId: .asset(assetId)),
+            let nodeKind = assetKind.nodeKind,
+            let inputIndex = assetKind.nodeInputIndex
+        {
+            var node = FlowNode(id: .init(), kind: nodeKind)
+            assert(node.inputs[inputIndex].value.type == assetKind.valueType)
+            node.inputs[inputIndex].value = value
+            self.createNodeAtCanvasCenter(node)
+        } else {
+            log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
         }
     }
 
