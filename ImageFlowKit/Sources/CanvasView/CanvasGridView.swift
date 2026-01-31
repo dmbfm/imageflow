@@ -54,7 +54,7 @@ final class CanvasGridView: PlatformView {
 
     #if os(iOS)
     func platformInit() {
-        self.backgroundColor = BackgroundStyle.default.bg.platformColor  //Colors.canvasBackground.platformColor
+        self.backgroundColor = BackgroundStyle.default.bg.platformColor
         self.setNeedsDisplay()
     }
     #endif
@@ -71,7 +71,7 @@ final class CanvasGridView: PlatformView {
     ///
     /// - Parameter viewport: The viewport state.
     /// - Parameter edges: The list of edges to be drawn.
-    // func draw(viewport: CanvasView.Viewport, edges: [EdgeLayer]) {
+    /// func draw(viewport: CanvasView.Viewport, edges: [EdgeLayer]) {
     func draw(viewport: CanvasView.Viewport, edges: [CanvasView.EdgeLayer]) {
         self.viewport = viewport
         self.edgesLayersToDraw = edges
@@ -368,8 +368,7 @@ public protocol CanvasContextMenuProvider: AnyObject {
 final class GridViewLayerDelegate: NSObject, CALayerDelegate {
     func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {
         if event == "strokeColor" {
-            let animation = CASpringAnimation(perceptualDuration: 0.15, bounce: 0)  //CABasicAnimation()
-            // animation.perceptualDuration = 0.15
+            let animation = CASpringAnimation(perceptualDuration: 0.15, bounce: 0)
             animation.duration = 0.15
             return animation
         }

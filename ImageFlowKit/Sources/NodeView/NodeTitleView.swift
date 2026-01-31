@@ -54,7 +54,7 @@ public final class NodeTitleView: PlatformCommonView {
 
     lazy var titleView: UILabel = {
         let lbl = UILabel()
-        lbl.font = self.style.titleFont.font  //.systemFont(ofSize: 20, weight: .semibold)
+        lbl.font = self.style.titleFont.font
         lbl.textColor = self.style.titleColor
         lbl.numberOfLines = 1
         lbl.lineBreakMode = .byTruncatingTail

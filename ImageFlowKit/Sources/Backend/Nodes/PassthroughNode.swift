@@ -10,7 +10,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = node.inputs[0]
             }
         }

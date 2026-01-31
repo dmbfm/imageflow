@@ -17,7 +17,7 @@ extension Nodes {
 
             return NodeImpl(
                 schema: schema,
-            ) { node, context in
+            ) { node, _ in
                 node.outputs[0] = node.inputs[0] + node.inputs[1]
             }
         }

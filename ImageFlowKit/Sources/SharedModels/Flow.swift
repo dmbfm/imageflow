@@ -254,7 +254,7 @@ extension Flow {
 
         um?.registerUndo(
             withTarget: self,
-            handler: { [weak um] this in
+            handler: { [weak um] _ in
                 self.updateNode(previous, undoManager: um)
             }
         )
@@ -335,16 +335,12 @@ extension Flow {
         var slot: PortSlot?
         switch typedPortLocation.direction {
         case .input:
-            for (idx, output) in schema.outputs.enumerated() {
-                if output.type == typedPortLocation.type {
-                    slot = .output(idx)
-                }
+            for (idx, output) in schema.outputs.enumerated() where output.type == typedPortLocation.type {
+                slot = .output(idx)
             }
         case .output:
-            for (idx, input) in schema.inputs.enumerated() {
-                if input.type == typedPortLocation.type {
-                    slot = .input(idx)
-                }
+            for (idx, input) in schema.inputs.enumerated() where input.type == typedPortLocation.type {
+                slot = .input(idx)
             }
         }
 
@@ -439,14 +435,14 @@ extension Flow {
         um?.beginUndoGrouping()
         defer { um?.endUndoGrouping() }
 
-        if case let .some((portToFix, kind)):(PortLocation, NodeKind)? =
-            switch fix
+        if let ((portToFix, kind)) =
+            switch fix {
+            case .canFixConvertingDestNodeTo(let kind):
+                (edge.to, kind)
+            case .canFixConvertingSourceNodeTo(let kind):
+                (edge.from, kind)
+            }
         {
-        case .canFixConvertingDestNodeTo(let kind):
-            (edge.to, kind)
-        case .canFixConvertingSourceNodeTo(let kind):
-            (edge.from, kind)
-        } {
             let converted = self.nodes[portToFix.node]!.convert(toVariation: kind)
             precondition(converted)
         }

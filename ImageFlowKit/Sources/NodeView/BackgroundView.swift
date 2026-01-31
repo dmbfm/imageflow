@@ -192,8 +192,8 @@ final class BackgroundView: PlatformView {
             curve: .cubic,
             stops: 10
         )
-        self.gradientLayer.startPoint = CGPointMake(0, -10.0 / self.bounds.height)
-        self.gradientLayer.endPoint = CGPointMake(0, self.style.gradientHeight / self.bounds.height)
+        self.gradientLayer.startPoint = CGPoint(x: 0, y: -10.0 / self.bounds.height)
+        self.gradientLayer.endPoint = CGPoint(x: 0, y: self.style.gradientHeight / self.bounds.height)
     }
 }
 

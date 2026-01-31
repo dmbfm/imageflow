@@ -61,8 +61,11 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
 
         super.init(window: window)
 
-        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) {
-            [weak self] _ in
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: window,
+            queue: .main
+        ) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.windowWillCloseCallback?()
             }

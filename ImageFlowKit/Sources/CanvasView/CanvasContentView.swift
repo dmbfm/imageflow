@@ -27,10 +27,8 @@ class CanvasContentView: PlatformView {
         }
 
         let localPoint = self.convert(point, from: self.superview)
-        for view in self.subviews.reversed() {
-            if view.hitTest(localPoint) != nil {
-                return super.hitTest(point)
-            }
+        for view in self.subviews.reversed() where view.hitTest(localPoint) != nil {
+            return super.hitTest(point)
         }
 
         return nil

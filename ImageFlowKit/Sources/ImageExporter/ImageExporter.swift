@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 
 // MARK: - ImageExportConfiguration
 
-fileprivate struct ImageExportConfiguration: Equatable {
+private struct ImageExportConfiguration: Equatable {
 
     var representation: Representation = .png
     var quality: Double = 90.0
@@ -185,6 +185,8 @@ public struct ImageExportModifier: ViewModifier {
         self.defaultFilename = defaultFilename
     }
 
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
     private func input(_ input: _Input) {
 
         func createTask(_ image: CIImage, _ configuration: ImageExportConfiguration) -> Task<(), Never> {
@@ -217,7 +219,7 @@ public struct ImageExportModifier: ViewModifier {
             switch self.state {
             case .nothing: break
             case .fileDialog: break
-            case .settings(_, _, _):
+            case .settings:
                 self.state.task?.cancel()
                 self.showExportSettings = false
                 self.showFileExporter = false
@@ -229,9 +231,9 @@ public struct ImageExportModifier: ViewModifier {
             switch self.state {
             case .nothing: break
             case .fileDialog: break
-            case .settings(_, _, .loading(_)):
+            case .settings(_, _, .loading):
                 break
-            case .settings(_, _, .loaded(_, _)):
+            case .settings(_, _, .loaded):
                 self.showExportSettings = false
                 self.showFileExporter = true
             }
@@ -266,7 +268,7 @@ public struct ImageExportModifier: ViewModifier {
 
     func fileExporterOnCompletion(_ result: Result<URL, any Error>) {
         switch result {
-        case .success(_):
+        case .success:
             self.input(.fileExported)
         case .failure(let err):
             self.errorMessage = .init(inner: FileExportError(err: err))
@@ -308,7 +310,7 @@ public struct ImageExportModifier: ViewModifier {
 
     private var exportDisabled: Bool {
         switch self.state {
-        case .settings(_, _, .loaded(_, _)): false
+        case .settings(_, _, .loaded): false
         default: true
         }
 
@@ -809,7 +811,7 @@ private struct ImageTransferable: Transferable {
     }
 }
 
-// MARK:- encodeImage
+// MARK: - encodeImage
 
 @concurrent
 private func encodeImage(

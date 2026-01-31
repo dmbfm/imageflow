@@ -112,7 +112,7 @@ public final class AssetStore: AssetStoreService {
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
-                self.removeAsset(asset.id, undoManager: um)
+                this.removeAsset(asset.id, undoManager: um)
             }
         )
     }

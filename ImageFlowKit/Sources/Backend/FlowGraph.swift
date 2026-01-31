@@ -94,7 +94,7 @@ public final class FlowGraph {
     }
 }
 
-fileprivate final class _FlowGraph: Graph, Codable {
+private final class _FlowGraph: Graph, Codable {
     var vertices: [UUID]
     var edges: [[FlowGraphEdge]]
 
@@ -151,6 +151,7 @@ struct FlowGraphEdge: SwiftGraph.Edge, Equatable {
         }
     }
 
+    // swiftlint:disable unused_setter_value
     var directed: Bool {
         get { true }
         set { fatalError("Only directed edges allowed") }

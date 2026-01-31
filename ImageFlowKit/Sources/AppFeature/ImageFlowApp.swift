@@ -65,7 +65,7 @@ public struct ImageFlowApp: App {
             #endif
         }
         #if os(macOS)
-        .defaultWindowPlacement { root, context in
+        .defaultWindowPlacement { _, context in
             let screenRect = context.defaultDisplay.visibleRect
             let ratio = 0.7
             return .init(.center, width: ratio * screenRect.width, height: ratio * screenRect.height)

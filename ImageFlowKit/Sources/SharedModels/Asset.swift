@@ -49,9 +49,3 @@ public enum AssetKind: Sendable, Equatable, Codable {
         }
     }
 }
-
-//extension UTType {
-//    static let cubeLut: UTType = {
-//        UTType(importedAs: "com.apple.videoapps.cube")
-//    }()
-//}

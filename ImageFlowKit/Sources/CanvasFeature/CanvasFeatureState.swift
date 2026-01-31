@@ -24,7 +24,7 @@ public final class CanvasFeatureState {
 }
 
 public protocol CanvasFeatureStateDelegate: AnyObject {
-    func canvas(viewportDidChange viewporp: CanvasView.Viewport) -> ()
+    func canvas(viewportDidChange viewporp: CanvasView.Viewport)
 }
 
 extension CanvasFeatureState: Storable {

@@ -58,7 +58,6 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
                     self?.emit(.sizeDidChange)
                 case let .drag(phase, dx, dy):
                     self?.onDrag(idx, phase, dx, dy)
-                    break
                 }
             }
             return view
@@ -80,7 +79,7 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
 
     var isEditable: Bool {
         get {
-            self.textFields.any(where: { $0.isEditable })
+            self.textFields.contains(where: { $0.isEditable })
         }
 
         set {

@@ -204,67 +204,16 @@ actor AssetManager {
                 loader: .init(
                     getResource: { id in self.assetResources.thumbs[id] },
                     setResource: { id, res in self.assetResources.thumbs[id] = res },
-                    loadFromFile: { url in
-                        let opts =
-                            [
-                                kCGImageSourceCreateThumbnailWithTransform: true,
-                                kCGImageSourceCreateThumbnailFromImageAlways: true,
-                                kCGImageSourceShouldCacheImmediately: true,
-                                kCGImageSourceThumbnailMaxPixelSize: 256,
-                            ] as CFDictionary
-                        guard
-                            let source = CGImageSourceCreateWithURL(
-                                url as CFURL,
-                                [kCGImageSourceShouldCache: false] as CFDictionary
-                            )
-                        else {
-                            throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
-                        }
-
-                        let thumbTask = Task.detached {
-                            CGImageSourceCreateThumbnailAtIndex(source, 0, opts)
-                        }
-
-                        guard let thumb = await thumbTask.value else {
-                            throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
-                        }
-
-                        return thumb
-                    }
+                    loadFromFile: { url in try await generateThumb(fromURL: url) }
                 )
             )
         default:
             return try await self.getAssetResource(
                 forAssetID: id,
                 loader: .init(
-                    getResource: { id in self.assetResources.assetKindThumbs[asset.kind] },
-                    setResource: { id, res in self.assetResources.assetKindThumbs[asset.kind] = res },
-                    loadFromFile: { url in
-                        #if os(macOS)
-                        switch asset.kind {
-                        case .image:
-                            return NSImage.init(systemSymbolName: "doc.fill", accessibilityDescription: nil)!.cgImage(
-                                forProposedRect: nil,
-                                context: nil,
-                                hints: nil
-                            )!
-                        case .lut:
-                            var rect = CGRect(x: 0, y: 0, width: 128, height: 128)
-                            return NSImage(named: "file-icon-lut")!.cgImage(
-                                forProposedRect: &rect,
-                                context: nil,
-                                hints: [.interpolation: NSImageInterpolation.high]
-                            )!
-                        }
-                        #else
-                        switch asset.kind {
-                        case .image:
-                            return UIImage(systemName: "doc.fill")!.cgImage!
-                        case .lut:
-                            return UIImage(named: "file-icon-lut")!.cgImage!
-                        }
-                        #endif
-                    }
+                    getResource: { _ in self.assetResources.assetKindThumbs[asset.kind] },
+                    setResource: { _, res in self.assetResources.assetKindThumbs[asset.kind] = res },
+                    loadFromFile: { _ in try await generateNonImageFileThumb(fromAsset: asset) }
                 )
             )
         }
@@ -542,4 +491,59 @@ extension AssetManager: BackendAssetProvider {
     ) async throws {
         try self.addGeneratedResource(id: .init(node: node, index: port), resource: image)
     }
+}
+
+func generateNonImageFileThumb(fromAsset asset: Asset) async throws -> CGImage {
+    #if os(macOS)
+    switch asset.kind {
+    case .image:
+        return NSImage.init(systemSymbolName: "doc.fill", accessibilityDescription: nil)!.cgImage(
+            forProposedRect: nil,
+            context: nil,
+            hints: nil
+        )!
+    case .lut:
+        var rect = CGRect(x: 0, y: 0, width: 128, height: 128)
+        return NSImage(named: "file-icon-lut")!.cgImage(
+            forProposedRect: &rect,
+            context: nil,
+            hints: [.interpolation: NSImageInterpolation.high]
+        )!
+    }
+    #else
+    switch asset.kind {
+    case .image:
+        return UIImage(systemName: "doc.fill")!.cgImage!
+    case .lut:
+        return UIImage(named: "file-icon-lut")!.cgImage!
+    }
+    #endif
+}
+
+func generateThumb(fromURL url: URL) async throws -> CGImage {
+    let opts =
+        [
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: 256,
+        ] as CFDictionary
+    guard
+        let source = CGImageSourceCreateWithURL(
+            url as CFURL,
+            [kCGImageSourceShouldCache: false] as CFDictionary
+        )
+    else {
+        throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
+    }
+
+    let thumbTask = Task.detached {
+        CGImageSourceCreateThumbnailAtIndex(source, 0, opts)
+    }
+
+    guard let thumb = await thumbTask.value else {
+        throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
+    }
+
+    return thumb
 }

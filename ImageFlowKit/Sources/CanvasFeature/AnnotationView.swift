@@ -263,7 +263,7 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         let view = NSVisualEffectView()
         view.wantsLayer = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.material = .popover  //.hudWindow // .init(rawValue: 3)!
+        view.material = .popover
         view.blendingMode = .withinWindow
         view.layer?.cornerRadius = self.style.cornerRadius
         view.layer?.cornerCurve = .continuous

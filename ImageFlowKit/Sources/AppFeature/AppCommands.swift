@@ -157,10 +157,10 @@ struct PreviewFeatureCommands: Commands {
         }
 
         #if os(macOS)
-        if let _ = self.windowPreviewViewModel {
+        if let vm = self.windowPreviewViewModel {
             CommandGroup(after: .importExport) {
                 Button("Export Image...") {
-
+                    fatalError("TODO: export \(vm)")
                 }
             }
         }

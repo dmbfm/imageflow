@@ -378,8 +378,6 @@ extension NodeColorPicker: UIColorPickerViewControllerDelegate {
     }
 }
 
-//extension NodeColorPicker: UIPopoverPresentationControllerDelegate { }
-
 #endif
 
 // MARK: - Style

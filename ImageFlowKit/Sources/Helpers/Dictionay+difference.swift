@@ -12,10 +12,8 @@ public extension Dictionary where Value: Equatable {
                 changes.append(.removed(k))
             }
         }
-        for (k, v) in other {
-            if self[k] == nil {
-                changes.append(.added(k, v))
-            }
+        for (k, v) in other where self[k] == nil {
+            changes.append(.added(k, v))
         }
         return changes
     }

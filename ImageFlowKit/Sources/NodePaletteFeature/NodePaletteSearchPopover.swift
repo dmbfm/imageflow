@@ -66,7 +66,7 @@ public struct NodePaletteSearchPopoverView: View {
     }
 
     var searchView: some View {
-        _TextField(text: self.$text)
+        SearchTextField(text: self.$text)
             .font(.system(size: 12))
             .focused(self.focus, equals: .nodeSearch)
             .padding(.horizontal)
@@ -190,7 +190,7 @@ public struct NodePaletteSearchPopoverView: View {
     }
 }
 
-struct _TextField: NSViewRepresentable {
+private struct SearchTextField: NSViewRepresentable {
 
     @Binding var text: String
     var font: NSFont? = nil

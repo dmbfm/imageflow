@@ -1,0 +1,25 @@
+disabled_rules:
+  - void_return
+  - trailing_comma
+  - identifier_name
+  - blanket_disable_command
+  - syntactic_sugar
+  - opening_brace
+  - type_body_length
+  - implicit_optional_initialization
+  - file_length
+  - unneeded_synthesized_initializer
+  - nesting
+  - empty_enum_arguments
+  - line_length
+  - duplicate_imports
+  - large_tuple
+  - cyclomatic_complexity
+  - multiple_closures_with_trailing_closure
+  - todo
+
+excluded:
+  - Sources/Backend/Nodes/CIFilterNodes.swift
+  - Sources/Helpers/Easing.swift
+  - Tests
+  - .build

@@ -98,10 +98,8 @@ final class NodeInputBlockView: PlatformCommonView {
 
         }
 
-        for (idx, input) in self.inputs.enumerated() {
-            if input != self.rows[idx].input {
-                self.rows[idx].input = input
-            }
+        for (idx, input) in self.inputs.enumerated() where input != self.rows[idx].input {
+            self.rows[idx].input = input
         }
     }
 

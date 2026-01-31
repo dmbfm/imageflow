@@ -27,6 +27,7 @@ struct Layout {
     }
 
     @MainActor
+    // swiftlint:disable function_body_length
     static func align(views: [PlatformView], alignment: Alignment, guide: Guide) {
         switch alignment {
         case .left:
@@ -51,7 +52,6 @@ struct Layout {
             for view in views {
                 view.frame.origin.x = pos - view.frame.width
             }
-            break
         case .top:
             let pos: CGFloat =
                 switch guide {
@@ -96,7 +96,6 @@ struct Layout {
             for view in views {
                 view.frame.origin.y = pos - view.frame.height * 0.5
             }
-            break
         }
     }
 }

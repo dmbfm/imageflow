@@ -1,16 +1,16 @@
 #if os(iOS)
 import UIKit
-public typealias _PlatformAutoresizingMask = UIView.AutoresizingMask
+public typealias PlatformAutoresizingMaskValue = UIView.AutoresizingMask
 #elseif os(macOS)
 import AppKit
-public typealias _PlatformAutoresizingMask = NSView.AutoresizingMask
+public typealias PlatformAutoresizingMaskValue = NSView.AutoresizingMask
 #endif
 
 /// A platform-agnostic autoresizing mask.
 public struct PlatfowmAutoresizingMask: Sendable, OptionSet {
-    public let rawValue: _PlatformAutoresizingMask.RawValue
+    public let rawValue: PlatformAutoresizingMaskValue.RawValue
 
-    public init(rawValue: _PlatformAutoresizingMask.RawValue) {
+    public init(rawValue: PlatformAutoresizingMaskValue.RawValue) {
         self.rawValue = rawValue
     }
 
@@ -75,8 +75,8 @@ public struct PlatfowmAutoresizingMask: Sendable, OptionSet {
     )
 
     /// Convert our mask set into the platform’s native mask.
-    public var platformMask: _PlatformAutoresizingMask {
-        return _PlatformAutoresizingMask(rawValue: rawValue)
+    public var platformMask: PlatformAutoresizingMaskValue {
+        return PlatformAutoresizingMaskValue(rawValue: rawValue)
     }
 }
 

@@ -253,19 +253,15 @@ public struct FlowNode: Sendable, Equatable, Codable {
 
         var node = FlowNode(id: self.id, kind: variation, name: self.name)
 
-        for idx in node.inputs.indices {
-            if self.inputs.indices.contains(idx) {
-                if let value = self.inputs[idx].value.convert(to: node.inputs[idx].value.type) {
-                    node.inputs[idx].value = value
-                }
-                node.inputs[idx].connected = self.inputs[idx].connected
+        for idx in node.inputs.indices where self.inputs.indices.contains(idx) {
+            if let value = self.inputs[idx].value.convert(to: node.inputs[idx].value.type) {
+                node.inputs[idx].value = value
             }
+            node.inputs[idx].connected = self.inputs[idx].connected
         }
 
-        for idx in node.outputs.indices {
-            if self.outputs.indices.contains(idx) {
-                node.outputs[idx].connected = self.outputs[idx].connected
-            }
+        for idx in node.outputs.indices where self.outputs.indices.contains(idx) {
+            node.outputs[idx].connected = self.outputs[idx].connected
         }
 
         return node

@@ -240,6 +240,12 @@ let package = Package(
             ]
         ),
         .testTarget(
+            name: "HelpersTests",
+            dependencies: [
+                "Helpers",
+            ]
+        ),
+        .testTarget(
             name: "AssetManagerTests",
             dependencies: [
                 "SharedModels",

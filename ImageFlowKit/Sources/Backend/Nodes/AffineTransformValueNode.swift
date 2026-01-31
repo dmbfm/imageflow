@@ -17,7 +17,7 @@ extension Nodes {
 
             return NodeImpl(
                 schema: schema,
-                runImpl: { node, context in
+                runImpl: { node, _ in
                     let r1 = node.inputs[0].vector2
                     let r2 = node.inputs[1].vector2
                     let t = node.inputs[2].vector2

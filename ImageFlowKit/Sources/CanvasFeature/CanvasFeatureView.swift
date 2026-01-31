@@ -118,7 +118,7 @@ public struct CanvasFeatureView: View {
     #endif
 }
 
-fileprivate struct CanvasImagePreviewView: View {
+private struct CanvasImagePreviewView: View {
     let flow: Flow
     let assetStore: any AssetStoreService
     let launchPreviewWindow: (AssetIdentifier) -> ()

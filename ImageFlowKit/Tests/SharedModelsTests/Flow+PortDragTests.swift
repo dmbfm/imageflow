@@ -20,7 +20,7 @@ func portDragAndCreateEdge() throws {
     flow.portDragUpdate(.init(x: 300, y: 400), dst)
     #expect(flow.partialEdge == .init(port: src, pointer: .init(x: 300, y: 400), state: .canConnect))
     um.removeAllActions()
-    flow.portDragEnd(undoManager: um)
+    flow.portDragEnd(undoManager: um, position: nil)
     #expect(flow.edges.count == 1)
     #expect(flow.edges.first == .init(src, dst))
 
@@ -66,7 +66,7 @@ func portDragConnectedInputShouldDelete() {
 
     flow.portDragStart(src, .zero)
     flow.portDragUpdate(.init(x: 300, y: 400), dst)
-    flow.portDragEnd(undoManager: nil)
+    flow.portDragEnd(undoManager: nil, position: nil)
     #expect(flow.edges.count == 1)
     #expect(flow.getPortConnected(src) == true)
     #expect(flow.getPortConnected(dst) == true)
@@ -77,7 +77,7 @@ func portDragConnectedInputShouldDelete() {
     #expect(flow.getPortConnected(dst) == false)
 
     flow.portDragUpdate(.zero, nil)
-    flow.portDragEnd(undoManager: um)
+    flow.portDragEnd(undoManager: um, position: nil)
     #expect(flow.edges.isEmpty)
 
     um.undo()
@@ -99,7 +99,7 @@ func portDragConvertNode() {
 
     flow.portDragStart(src, .zero)
     flow.portDragUpdate(.zero, dst)
-    flow.portDragEnd(undoManager: nil)
+    flow.portDragEnd(undoManager: nil, position: nil)
 
     #expect(flow.nodes[ids[0]]?.kind == .valueNode(.int))
     #expect(flow.nodes[ids[1]]?.kind == .valueNode(.int))

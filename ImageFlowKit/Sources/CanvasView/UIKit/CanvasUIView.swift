@@ -90,19 +90,18 @@ public final class CanvasUIView: UIView {
 
         self.nodePositionsDidChange([:])
         self.gridViewDraw()
-        
+
         let gesture = UIHoverGestureRecognizer(target: self, action: #selector(Self.onHover(_:)))
         self.addGestureRecognizer(gesture)
-        
-        
+
         self.contextMenuInteraction = .init(delegate: self)
         self.addInteraction(self.contextMenuInteraction)
     }
-    
+
     var contextMenuInteraction: UIContextMenuInteraction!
-    
+
     public weak var contextMenuProvider: (any CanvasContextMenuProvider)?
-    
+
     @objc
     func onHover(_ gesture: UIHoverGestureRecognizer) {
         let pos = gesture.location(in: self)
@@ -264,14 +263,20 @@ private final class RectSelectionView: UIView {
 }
 
 extension CanvasUIView: UIContextMenuInteractionDelegate {
-    public func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+    public func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
         let loc = self.convert(interaction.location(in: nil), from: nil)
-        return .init(identifier: nil, previewProvider: nil, actionProvider: { _ in
-            self.contextMenuProvider?.canvasContextMenu(at: loc)
-        })
+        return .init(
+            identifier: nil,
+            previewProvider: nil,
+            actionProvider: { _ in
+                self.contextMenuProvider?.canvasContextMenu(at: loc)
+            }
+        )
     }
-    
-    
+
 }
 
 #endif

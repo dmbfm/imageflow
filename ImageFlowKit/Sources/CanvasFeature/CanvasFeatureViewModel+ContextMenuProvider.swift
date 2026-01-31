@@ -19,7 +19,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
         let selectAllAction = UIAction(
             title: "Select All",
             image: .init(systemName: "character.textbox"),
-        ) { [weak self] action in
+        ) { [weak self] _ in
             self?.coordinator.emitter.emit(.selectAllNodes)
         }
 

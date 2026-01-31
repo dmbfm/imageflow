@@ -52,10 +52,8 @@ final class NodeOutputBlockView: PlatformCommonView {
 
     private func update() {
         assert(self.outputs.count == self.rows.count, "Changing the number of inputs is not supported")
-        for (idx, output) in outputs.enumerated() {
-            if output != self.rows[idx].output {
-                self.rows[idx].output = output
-            }
+        for (idx, output) in outputs.enumerated() where output != self.rows[idx].output {
+            self.rows[idx].output = output
         }
     }
 

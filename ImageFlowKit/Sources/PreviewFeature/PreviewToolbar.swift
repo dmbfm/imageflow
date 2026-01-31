@@ -49,6 +49,7 @@ struct PreviewToolbarView<ID: PreviewToolbarElementID>: View {
         }
     }
 
+    // swiftlint:disable function_body_length
     @ViewBuilder
     func viewForElement(_ el: PreviewToolbarElement<ID>) -> some View {
         switch el {

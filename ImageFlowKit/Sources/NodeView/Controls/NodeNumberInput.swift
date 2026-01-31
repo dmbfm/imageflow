@@ -74,7 +74,6 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
                 self?.emit(.sizeDidChange)
             case let .drag(phase, dx, dy):
                 self?.onDrag(phase, dx, dy)
-                break
             }
         }
         return view

@@ -175,7 +175,6 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
             self.layer?.borderWidth = self.style.borderWidth
             self.layer?.cornerRadius = self.style.outerCornerRadius
             self.backgroundView.layer?.backgroundColor = self.style.backgroundColor.cgColor
-            break
         }
     }
 

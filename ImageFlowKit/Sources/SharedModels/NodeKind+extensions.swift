@@ -75,8 +75,14 @@ public extension NodeKind {
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
         case .addNode, .passthroughNode, .valueNode:
-            if (inputs.any() || outputs.any()) { [self] } else { self.variations }
-        default: self.variations
+            if inputs.contains(true) || outputs.contains(true) {
+                [self]
+            } else {
+                self.variations
+            }
+
+        default:
+            self.variations
         }
     }
 

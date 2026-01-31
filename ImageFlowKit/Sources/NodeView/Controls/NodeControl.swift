@@ -14,6 +14,7 @@ extension NodeControl {
         self.onEvent?(event)
     }
 
+    // swiftlint:disable unused_setter_value
     var isEditable: Bool {
         get { true }
         set {}

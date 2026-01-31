@@ -52,16 +52,12 @@ extension NodeSchema {
             return .outputCountMismatch
         }
 
-        for (idx, (a, b)) in zip(node.inputs, self.inputs).enumerated() {
-            if !a.is(b.type) {
-                return .inputTypeMismatch(idx)
-            }
+        for (idx, (a, b)) in zip(node.inputs, self.inputs).enumerated() where !a.is(b.type) {
+            return .inputTypeMismatch(idx)
         }
 
-        for (idx, (a, b)) in zip(node.outputs, self.outputs).enumerated() {
-            if !a.is(b.type) {
-                return .outputTypeMismatch(idx)
-            }
+        for (idx, (a, b)) in zip(node.outputs, self.outputs).enumerated() where !a.is(b.type) {
+            return .outputTypeMismatch(idx)
         }
 
         return .ok
@@ -131,15 +127,15 @@ public struct OutputPropertySchema: Sendable, Hashable {
 }
 
 /// An `option` is basically just a `Value` with a `name`. In practice, it
-// should be used for additional node values that the user can set but are not
-// (usually) displayed prominently like node controls, but more likely on the
-// inspector panel. Currently ou can have per-node and per-input options.
-//
-// Additionally, there is a `pickerOptions` array of strings. This should
-// be used when you want the user to be able to select one case out of several
-// labelled cases (e.g., but displaying a dropdown menu). When using the
-// `pickerOptions` (i.e., when it is not nil) you must use a `.int` value which
-// should be interpreted as the index of the chosen option.
+/// should be used for additional node values that the user can set but are not
+/// (usually) displayed prominently like node controls, but more likely on the
+/// inspector panel. Currently ou can have per-node and per-input options.
+///
+/// Additionally, there is a `pickerOptions` array of strings. This should
+/// be used when you want the user to be able to select one case out of several
+/// labelled cases (e.g., but displaying a dropdown menu). When using the
+/// `pickerOptions` (i.e., when it is not nil) you must use a `.int` value which
+/// should be interpreted as the index of the chosen option.
 public struct NodeOptionSchema: Sendable, Hashable {
     /// The name of the option.
     public var name: String
@@ -152,7 +148,6 @@ public struct NodeOptionSchema: Sendable, Hashable {
     /// - Parameters:
     ///   - name: The name of the option.
     ///   - defaultValue: The default value of the option.
-    ///
     public init(name: String, defaultValue: Value) {
         self.name = name
         self.defaultValue = defaultValue
@@ -160,12 +155,11 @@ public struct NodeOptionSchema: Sendable, Hashable {
     }
 
     /// Initializes an option schema with a given set of `pickerOptions` and a
-    // `Int` default value, which should be an index into the `pickerOptions` array.
+    /// `Int` default value, which should be an index into the `pickerOptions` array.
     /// - Parameters:
     ///   - name: The name of the option.
     ///   - pickerOptions: The array of option labels.
     ///   - defaultValue: An index into the `pickerOptions` array marking the default option value.
-    ///
     public init?(name: String, pickerOptions: [String], defaultValue: Int) {
         if !pickerOptions.indices.contains(defaultValue) {
             return nil

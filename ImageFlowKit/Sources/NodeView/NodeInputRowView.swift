@@ -124,10 +124,8 @@ public final class NodeInputRowView: PlatformView {
                 self.needsLayout = true
                 #endif
                 self.onEvent?(.sizeDidChange)
-                break
             case .valueDidChange(let value):
                 self.onEvent?(.valueDidChange(value))
-                break
             }
         }
         return view

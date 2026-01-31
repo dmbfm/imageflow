@@ -22,9 +22,9 @@ public final class AssetBrowserViewModel {
 
     public protocol Delegate: AnyObject {
         func onDismiss(_: AssetBrowserResult)
-        func openFileImporter(_: [UTType]) -> ()
-        func openPhotoPicker() -> ()
-        func deleteAsset(_: Asset) -> ()
+        func openFileImporter(_: [UTType])
+        func openPhotoPicker()
+        func deleteAsset(_: Asset)
     }
 
     public init(
@@ -118,12 +118,10 @@ public final class AssetBrowserViewModel {
             case .browser(let browser):
                 assert(browser.assetKinds.contains(selected.kind))
                 self.delegate?.onDismiss(.create(assetKind: selected.kind, assetId: selected.id))
-                break
             case .picker(let picker):
                 self.delegate?.onDismiss(
                     .pick(assetKind: picker.assetKind, assetId: selected.id, portLocation: picker.portLocation)
                 )
-                break
             }
             dismiss()
         }

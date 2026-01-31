@@ -169,10 +169,10 @@ public struct CardStageView<Content: View>: View {
 
     var dockDividerDragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
-            .onChanged() { value in
+            .onChanged { value in
                 self.dockHeightDragOffset = value.translation.height
             }
-            .onEnded() { value in
+            .onEnded { _ in
                 self.offsetCurrentDockHeight(by: self.dockHeightDragOffset)
                 self.dockHeightDragOffset = 0
             }

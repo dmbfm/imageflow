@@ -19,7 +19,7 @@ public class NodePaletteService {
 
         var result = [NodePaletteCategory]()
 
-        let blacklistedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace, .affineTransform]
+        let excludedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace, .affineTransform]
 
         // math
         result.append(
@@ -40,7 +40,7 @@ public class NodePaletteService {
         result.append(
             .init(
                 name: .input,
-                items: ValueType.allCases.filter({ !blacklistedValueTypes.contains($0) }).map { type in
+                items: ValueType.allCases.filter({ !excludedValueTypes.contains($0) }).map { type in
                     let kind: NodeKind = .valueNode(type)
                     return NodePaletteItem(
                         displayName: kind.displayName,
@@ -335,7 +335,7 @@ public class NodePaletteService {
             var items: [NodePaletteItem] = []
             for item in cat.items {
                 if let variation = item.variationThatcanConnectToPort(ofType: type, direction: direction),
-                    (searchText.isEmpty || variation.displayName.lowercased().contains(text))
+                    searchText.isEmpty || variation.displayName.lowercased().contains(text)
                 {
                     items.append(variation)
                 }
@@ -392,18 +392,14 @@ public class NodePaletteService {
                 let schema = v.schema
 
                 if isInput {
-                    for output in schema.outputs {
-                        if output.type == type {
-                            result.append(item.with(\.nodeKind, v))
-                            break outer
-                        }
+                    for output in schema.outputs where output.type == type {
+                        result.append(item.with(\.nodeKind, v))
+                        break outer
                     }
                 } else {
-                    for input in schema.inputs {
-                        if input.type == type {
-                            result.append(item.with(\.nodeKind, v))
-                            break outer
-                        }
+                    for input in schema.inputs where input.type == type {
+                        result.append(item.with(\.nodeKind, v))
+                        break outer
                     }
                 }
             }
@@ -454,16 +450,12 @@ public struct NodePaletteItem: Sendable, Hashable, Identifiable, With {
 extension NodePaletteItem {
     func canConnectToPort(ofType type: ValueType, direction: PortDirection) -> Bool {
         if direction == .input {
-            for output in self.nodeKind.schema.outputs {
-                if output.type == type {
-                    return true
-                }
+            for output in self.nodeKind.schema.outputs where output.type == type {
+                return true
             }
         } else {
-            for input in self.nodeKind.schema.inputs {
-                if input.type == type {
-                    return true
-                }
+            for input in self.nodeKind.schema.inputs where input.type == type {
+                return true
             }
         }
 
@@ -474,16 +466,12 @@ extension NodePaletteItem {
         for variation in self.nodeKind.variations {
             let schema = variation.schema
             if direction == .input {
-                for output in schema.outputs {
-                    if output.type == type {
-                        return self.with(\.nodeKind, variation)
-                    }
+                for output in schema.outputs where output.type == type {
+                    return self.with(\.nodeKind, variation)
                 }
             } else {
-                for input in schema.inputs {
-                    if input.type == type {
-                        return self.with(\.nodeKind, variation)
-                    }
+                for input in schema.inputs where input.type == type {
+                    return self.with(\.nodeKind, variation)
                 }
             }
         }

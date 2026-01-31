@@ -76,12 +76,8 @@ extension Flow {
 
         var didMoveNode: Bool = false
 
-        for (id, pos) in snap {
-            if self.hasNode(id) {
-                if let _ = self.moveNode(id, to: pos, undoManager: um) {
-                    didMoveNode = true
-                }
-            }
+        for (id, pos) in snap where self.hasNode(id) && self.moveNode(id, to: pos, undoManager: um) != nil {
+            didMoveNode = true
         }
 
         um?.endUndoGrouping()

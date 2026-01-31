@@ -168,10 +168,8 @@ public final class CanvasFeatureViewModel {
             self.flow.liveSelectStart()
         case let .modified(shiftDown: shiftDown, rect: rect):
             var nodes = Set<UUID>()
-            for (id, view) in self.nodeViews {
-                if view.frame.intersects(rect) {
-                    nodes.insert(id)
-                }
+            for (id, view) in self.nodeViews where view.frame.intersects(rect) {
+                nodes.insert(id)
             }
             self.flow.liveSelectUpdate(nodes, mode: shiftDown ? .union : .replace)
         case .ended:
@@ -221,10 +219,8 @@ public final class CanvasFeatureViewModel {
             switch event {
             case let .dragPort(port, gesture):
                 self.onNodePortDrag(port, gesture, undoManager: self.undoManager)
-                break
             case let .valueDidChange(index, value):
                 self.onNodeValueChange(id, index, value)
-                break
             case .didRepopulateInputRows:
                 self.nodeViews[id]?.setNeedsLayout()
                 self.nodeViews[id]?.layoutIfNeeded()
@@ -372,10 +368,8 @@ public final class CanvasFeatureViewModel {
         for (_, view) in self.nodeViews {
             for (port, frame) in view.ports.map({ (loc, view) in
                 (loc, view.superview!.convert(view.frame, to: nil))
-            }) {
-                if frame.contains(point) {
-                    return port
-                }
+            }) where frame.contains(point) {
+                return port
             }
         }
         return nil

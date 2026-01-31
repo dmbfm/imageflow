@@ -393,6 +393,7 @@ extension NodeView {
 
 #if os(iOS)
 extension NodeView: UIContextMenuInteractionDelegate {
+    // swiftlint:disable function_body_length
     public func contextMenuInteraction(
         _ interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation location: CGPoint
@@ -406,7 +407,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
         return UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: nil,
-            actionProvider: { [weak self] suggestedActions in
+            actionProvider: { [weak self] _ in
 
                 guard let self else { return nil }
 
@@ -414,28 +415,28 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     title: "Delete \(nodeName)",
                     image: .init(systemName: "trash"),
                     attributes: .destructive
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(.deleteSelectedNodes)
                 }
 
                 let duplicateAction = UIAction(
                     title: "Duplicate \(nodeName)",
                     image: .init(systemName: "plus.square.on.square")
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(.duplicateSelectedNodes)
                 }
 
                 let copyAction = UIAction(
                     title: "Copy \(nodeName)",
                     image: .init(systemName: "document.on.document")
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(.copySelectedNodes)
                 }
 
                 let cutAction = UIAction(
                     title: "Cut \(nodeName)",
                     image: .init(systemName: "scissors")
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(.cutSelectedNodes)
                 }
 
@@ -443,7 +444,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
                     title: "Paste \(nodeName)",
                     image: .init(systemName: "document.on.clipboard"),
                     attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(
                         .paste(
                             self.superview?.convert(location, from: self)
@@ -454,7 +455,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
                 let selectAllAction = UIAction(
                     title: "Select All",
                     image: .init(systemName: "character.textbox"),
-                ) { action in
+                ) { _ in
                     self.delegate?.nodeViewAction(.selectAll)
                 }
 
@@ -613,19 +614,3 @@ extension NodeView {
     .frame(minWidth: 300, minHeight: 300)
     .background(Colors.canvasBackground.color)
 }
-
-//#Preview("Gaussian Blur", traits: .sizeThatFitsLayout) {
-//    VStack {
-//        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.gaussianBlur)))
-//    }
-//    .frame(minWidth: 300, minHeight: 300)
-//    .background(Colors.canvasBackground.color)
-//}
-//
-//#Preview("KMeans", traits: .sizeThatFitsLayout) {
-//    VStack {
-//        NodeView.Preview(node: .init(kind: .coreImageFilterNode(.kMeans)))
-//    }
-//    .frame(minWidth: 300, minHeight: 300)
-//    .background(Colors.canvasBackground.color)
-//}
