@@ -242,7 +242,7 @@ let package = Package(
         .testTarget(
             name: "HelpersTests",
             dependencies: [
-                "Helpers",
+                "Helpers"
             ]
         ),
         .testTarget(
