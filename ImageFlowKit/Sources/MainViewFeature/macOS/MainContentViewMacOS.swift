@@ -75,6 +75,7 @@ struct MainContentViewMacOS: View {
         .errorAlert(self.$vm.error)
         .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
         .onChange(of: self.focus, initial: false, { self.vm.focusDidChange(self.$focus) })
+        .activeViewObject(self.vm)
     }
 
     @ToolbarContentBuilder

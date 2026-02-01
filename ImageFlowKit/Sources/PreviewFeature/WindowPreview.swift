@@ -22,6 +22,7 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
         scrollCache: any CIImageScrollViewCache,
         assetStore: any AssetStoreService,
         flow: Flow,
+        coordinator: GlobalCoordinator,
         location: OutputPortLocation,
         windowWillClose: (() -> ())? = nil
     ) {
@@ -42,6 +43,7 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
             location,
             assetStore,
             flow,
+            coordinator,
             scrollCache,
             { [weak window] level in window?.level = level }
         )
@@ -89,6 +91,7 @@ class WindowPreviewController: NSWindowController, NSWindowDelegate {
 public class WindowPreviewViewModel: Observable {
 
     let location: OutputPortLocation
+    let activeObjectKey: String
     var image: CIImage? = nil
     var name: String? = nil
     var zoom: CGFloat = 1.0
@@ -102,6 +105,9 @@ public class WindowPreviewViewModel: Observable {
 
     @ObservationIgnored
     var flow: Flow
+
+    @ObservationIgnored
+    var coordinator: GlobalCoordinator
 
     @ObservationIgnored
     var cache: any CIImageScrollViewCache
@@ -134,6 +140,7 @@ public class WindowPreviewViewModel: Observable {
         _ location: OutputPortLocation,
         _ assetStore: any AssetStoreService,
         _ flow: Flow,
+        _ coordinator: GlobalCoordinator,
         _ cache: any CIImageScrollViewCache,
         _ setWindowLevel: @escaping (NSWindow.Level) -> (),
     ) {
@@ -141,11 +148,12 @@ public class WindowPreviewViewModel: Observable {
         self.location = location
         self.assetStore = assetStore
         self.flow = flow
+        self.coordinator = .init(coordinator)
         self.cache = cache
         self.name = flow.nodes[location.node]?.name
+        self.activeObjectKey = "\(location.node)-\(location.index)"
 
         assetStore.emitter.on { [weak self] event in
-            // guard let self else { return }
             switch event {
             case .modifiedGeneratedAsset(let loc):
                 if loc == self?.location {
@@ -213,7 +221,8 @@ struct WindowPreviewContentView: View {
                 )
             }
         }
-        .focusedSceneValue(self.vm)
+        .activeViewObject(self.vm, useScenePhase: false)
+        .activeViewObject(self.vm.coordinator, key: self.vm.activeObjectKey, useScenePhase: false)
         .toolbar { self.toolbarContent }
         .imageExporter(
             isPresented: $vm.showImageExporter,

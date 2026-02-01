@@ -18,7 +18,7 @@ public struct MainView: View {
         self.documentInfo = documentInfo
         let vm = MainViewModel(document: document, documentInfo: documentInfo)
         self._vm = .init(wrappedValue: vm)
-        self._coordinator = .init(wrappedValue: .init(flow: vm.flow))
+        self._coordinator = .init(wrappedValue: .init(GlobalCoordinatorDefaultImpl(flow: vm.flow)))
     }
 
     func onAppear() {
@@ -46,6 +46,6 @@ public struct MainView: View {
             self.coordinator.undoManager = self.um
         }
         .onAppear(perform: self.onAppear)
-        .activeViewObject(self.coordinator)
+        .activeViewObject(self.coordinator, key: "main")
     }
 }

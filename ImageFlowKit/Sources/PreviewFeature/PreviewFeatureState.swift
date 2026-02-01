@@ -258,7 +258,7 @@ public final class PreviewFeatureState {
 
     let flow: Flow
     let assetStore: any AssetStoreService
-    let coordinator: any GlobalCoordinatorService
+    let coordinator: GlobalCoordinator
     var scrollCache: [String: CIImageScrollView.CacheEntry] = [:]
 
     var cardSize: Bounded<CGFloat> = .init(50...600, 300)
@@ -312,7 +312,7 @@ public final class PreviewFeatureState {
     init(
         flow: Flow,
         assetStore: some AssetStoreService,
-        coordinator: any GlobalCoordinatorService,
+        coordinator: GlobalCoordinator,
         cardDockLocation: CardDockLocation? = nil
     ) {
         self.flow = flow
@@ -326,7 +326,7 @@ public final class PreviewFeatureState {
 
     public func exportImage() {
         if let image = self.image {
-            self.coordinator.emitter.emit(.exportImage(image: image, filename: self.name))
+            self.coordinator.perform(userAction: .exportImage(image: image, filename: self.name))
         }
     }
 
@@ -529,22 +529,6 @@ extension PreviewFeatureState: @MainActor CIImageScrollViewCache {
 
 // MARK: - PreviewPosition
 
-public enum PreviewPosition: String, Equatable, CaseIterable {
-    case topLeft = "Top Left"
-    case bottomLeft = "Bottom Left"
-    case topRight = "Top Right"
-    case bottomRight = "Bottom Right"
-    case bottomDock = "Bottom"
-    case topDock = "Top"
-
-    var isDocked: Bool {
-        switch self {
-        case .bottomDock, .topDock: true
-        default: false
-        }
-    }
-}
-
 extension Flow {
     func getSelectedImagePorts() -> Set<OutputPortLocation> {
         .init(
@@ -628,6 +612,7 @@ extension PreviewFeatureState {
                 scrollCache: scrollCache,
                 assetStore: self.assetStore,
                 flow: self.flow,
+                coordinator: self.coordinator,
                 location: loc,
             ) { [weak self] in
                 guard let self else { return }

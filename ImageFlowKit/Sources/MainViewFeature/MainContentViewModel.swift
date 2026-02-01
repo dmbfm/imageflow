@@ -119,30 +119,6 @@ final class MainContentViewModel {
     }
 
     func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
-        switch event {
-        #if os(iOS)
-        case let .showNodeSearch(typedPortLocation, canvasPosition):
-            self.nodePalettePresent(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
-        #endif
-
-        case .pasteFlowNodes(let maybePosition):
-            self.pasteFlowNodes(maybePosition)
-
-        case .copySelectedNodes:
-            self.copySelectedNodes()
-
-        case .selectAllNodes:
-            self.flow.selectAll()
-
-        case .cutSelectedNodes:
-            self.cutSelectedNodes()
-
-        case let .exportImage(image, filename):
-            self.showImageExporter(image, filename)
-
-        default:
-            break
-        }
     }
 
     func focusDidChange(_ focus: FocusState<Focus?>.Binding) {
@@ -169,32 +145,6 @@ final class MainContentViewModel {
         self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
     }
 
-    func copySelectedNodes() {
-        #if os(macOS)
-        if let item = FlowPasteboardItem(self.flow) {
-            NSPasteboard.general.clearContents()
-            if !NSPasteboard.general.writeObjects([item]) {
-                log("Failed to write items to pasteboard!", level: .error)
-            }
-        }
-        #else
-        let pb = UIPasteboard.general
-        if let data = self.flow.pasteboardData, let jsonData = data.jsonData {
-            pb.setData(jsonData, forPasteboardType: UTType.flowNode.identifier)
-        }
-        #endif
-    }
-
-    func cutSelectedNodes() {
-        guard !self.flow.selection.isEmpty else {
-            log("Trying to cut an empty selection!", level: .warning)
-            return
-        }
-
-        self.copySelectedNodes()
-        self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
-    }
-
     #if os(macOS)
     var onCopyCommand: (() -> [NSItemProvider])? {
         if !self.flow.selection.isEmpty {
@@ -206,7 +156,7 @@ final class MainContentViewModel {
 
     func _onCopyCommand() -> [NSItemProvider] {
         Task { @MainActor in
-            self.copySelectedNodes()
+            self.coordinator.perform(userAction: .copySelectedNodes)
         }
 
         return []
@@ -214,7 +164,9 @@ final class MainContentViewModel {
 
     var onCutCommand: (() -> [NSItemProvider])? {
         if !self.flow.selection.isEmpty {
-            { self._onCutCommand() }
+            {
+                self._onCutCommand()
+            }
         } else {
             nil
         }
@@ -222,40 +174,14 @@ final class MainContentViewModel {
 
     func _onCutCommand() -> [NSItemProvider] {
         Task { @MainActor in
-            self.cutSelectedNodes()
+            self.coordinator.perform(userAction: .cutSelectedNodes)
         }
 
         return []
     }
 
     func onPasteCommand(_ items: [NSItemProvider]) {
-        if let objects = NSPasteboard.general.readObjects(forClasses: [FlowPasteboardItem.self]) {
-            for o in objects {
-                if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
-                    self.coordinator.emitter.emit(.performPaste(data, nil))
-                }
-            }
-        }
-    }
-    #endif
-
-    func pasteFlowNodes(_ maybePosition: CGPoint? = nil) {
-        #if os(macOS)
-        self.onPasteCommand([])
-        #else
-        self.onPasteComamnd(maybePosition)
-        #endif
-    }
-
-    #if os(iOS)
-    func onPasteComamnd(_ maybePosition: CGPoint?) {
-        let pb = UIPasteboard.general
-
-        if let data = pb.data(forPasteboardType: UTType.flowNode.identifier),
-            let flowPasteboardData = FlowPasteboardData(data: data)
-        {
-            self.coordinator.emitter.emit(.performPaste(flowPasteboardData, maybePosition))
-        }
+        self.coordinator.perform(userAction: .pasteNodes(nil))
     }
     #endif
 
@@ -292,7 +218,7 @@ final class MainContentViewModel {
     // MARK: - Node Palette
 
     #if os(iOS)
-    func nodePalettePresent(typedPortLocation: TypedPortLocation? = nil, canvasPosition: CGPoint? = nil) {
+    public func nodePalettePresent(typedPortLocation: TypedPortLocation? = nil, canvasPosition: CGPoint? = nil) {
         self.nodePaletteState = .init(
             isPresented: true,
             typedPortLocation: typedPortLocation,
@@ -496,11 +422,11 @@ extension MainContentViewModel: NodeViewDelegate {
         case .duplicateSelectedNodes:
             self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
         case .copySelectedNodes:
-            self.copySelectedNodes()
+            self.coordinator.perform(userAction: .copySelectedNodes)
         case .cutSelectedNodes:
-            self.cutSelectedNodes()
+            self.coordinator.perform(userAction: .cutSelectedNodes)
         case .paste(let maybePosition):
-            self.pasteFlowNodes(maybePosition)
+            self.coordinator.perform(userAction: .pasteNodes(maybePosition))
         case .selectAll:
             self.flow.selectAll()
         case .exportImage:

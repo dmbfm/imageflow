@@ -30,7 +30,7 @@ public struct CanvasFeatureView: View {
         _ assetStore: any AssetStoreService,
         _ focus: FocusState<Focus?>.Binding,
         _ delegate: Delegate?,
-        coordinator: any GlobalCoordinatorService
+        coordinator: GlobalCoordinator
     ) {
         self._vm = .init(
             wrappedValue: .init(
@@ -92,6 +92,7 @@ public struct CanvasFeatureView: View {
 
             DropOverlay(vm: self.vm)
         }
+        .activeViewObject(self.vm)
     }
 
     struct DropOverlay: View, @MainActor Equatable {
@@ -123,7 +124,7 @@ public struct CanvasFeatureView: View {
 private struct CanvasImagePreviewView: View {
     let flow: Flow
     let assetStore: any AssetStoreService
-    let coordinator: any GlobalCoordinatorService
+    let coordinator: GlobalCoordinator
     let launchPreviewWindow: (AssetIdentifier) -> ()
     var body: some View {
         PreviewFeatureView(self.flow, self.assetStore, coordinator: self.coordinator)

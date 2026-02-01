@@ -12,6 +12,7 @@ import Helpers
 import Logging
 import MainViewFeature
 import SettingsFeature
+import SharedModels
 import SwiftUI
 import UniformTypeIdentifiers
 import WelcomeWindow
@@ -25,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSStandardKeyBindingRe
     @ActiveViewObject(GlobalCoordinator.self) var coordinator
 
     func selectAll(_ sender: Any?) {
-        self.coordinator?.emitter.emit(.selectAllNodes)
+        self.coordinator?.perform(userAction: .selectAllNodes)
     }
 
     func applicationWillTerminate(_ notification: Notification) {

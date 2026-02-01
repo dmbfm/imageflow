@@ -17,7 +17,7 @@ extension MainContentViewMacOS {
 
         func onKeyPressSpace() -> KeyPress.Result {
             if self.focus.wrappedValue != .nodeSearch {
-                self.vm.coordinator.emitter.emit(.showNodeSearch(typedPortLocation: nil, canvasPosition: nil))
+                self.vm.coordinator.perform(userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: nil))
                 return .handled
             }
 

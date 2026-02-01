@@ -74,6 +74,7 @@ struct MainContentViewIPadOS: View {
             .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
             .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
             .defaultFocus(self.$focus, .global)
+            .activeViewObject(self.vm)
     }
 
     @ViewBuilder

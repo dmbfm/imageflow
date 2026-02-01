@@ -37,7 +37,7 @@ public struct PreviewFeatureView: View {
     public init(
         _ flow: Flow,
         _ assetStore: some AssetStoreService,
-        coordinator: any GlobalCoordinatorService
+        coordinator: GlobalCoordinator
     ) {
         self._state = .init(wrappedValue: .init(flow: flow, assetStore: assetStore, coordinator: coordinator))
     }
@@ -226,7 +226,7 @@ private final class MockAssetStore: AssetStoreService {
 #Preview {
     ZStack {
         Colors.canvasBackground.color
-        PreviewFeatureView(Flow(), MockAssetStore(), coordinator: MockGlobalCoordinatorService(flow: Flow()))
+        PreviewFeatureView(Flow(), MockAssetStore(), coordinator: .init(MockGlobalCoordinatorService(flow: Flow())))
     }
     .frame(minWidth: 800, minHeight: 600)
 }

@@ -6,21 +6,14 @@ import SwiftUI
 
 struct PreviewFeatureCommands: Commands {
 
-    @ActiveViewObject(PreviewFeatureState.self) var previewState
-    @ActiveViewObject(DockedPreviewMenuActionCoordinator.self) var previewCoordinator
-
-    #if os(macOS)
-    @FocusedValue(WindowPreviewViewModel.self) var windowPreviewViewModel
-    #endif
+    @ActiveViewObject(GlobalCoordinator.self) var coordinator
 
     var body: some Commands {
-
         CommandGroup(after: .sidebar) {
-
             Section {
-                if let previewState = self.previewState {
+                if let coordinator = self.coordinator, coordinator.available.preview {
                     Menu("Preview Position") {
-                        Picker("Floating", selection: previewState.previewPositionSafeBinding) {
+                        Picker("Floating", selection: coordinator.previewPositionBinding) {
                             Label("Top Left", systemImage: "inset.filled.topleft.rectangle")
                                 .tag(PreviewPosition.topLeft)
                             Label("Top Right", systemImage: "inset.filled.topright.rectangle")
@@ -33,7 +26,7 @@ struct PreviewFeatureCommands: Commands {
                         .labelsVisibility(.visible)
                         .pickerStyle(.inline)
 
-                        Picker("Docked", selection: previewState.previewPositionSafeBinding) {
+                        Picker("Docked", selection: coordinator.previewPositionBinding) {
                             Label("Bottom", systemImage: "inset.filled.bottomhalf.rectangle")
                                 .tag(PreviewPosition.bottomDock)
                             Label("Top", systemImage: "inset.filled.tophalf.rectangle")
@@ -44,141 +37,69 @@ struct PreviewFeatureCommands: Commands {
                     }
                 }
 
-                #if os(macOS)
-                if let vm = self.windowPreviewViewModel {
+                // TODO: Make this work for both windowed and docked previews contextually
+                if let coordinator = self.coordinator,
+                    coordinator.previewIsDocked || coordinator.available.windowPreview
+                {
                     Menu {
-                        Button { [weak vm] in
-                            vm?.action = .zoomIn(animate: true)
+                        Button { [weak coordinator] in
+                            coordinator?.perform(userAction: .preview(.zoomIn))
                         } label: {
                             LabeledContent("Zoom In") {
                                 Image(systemName: "plus.magnifyingglass")
                             }
                         }
 
-                        Button { [weak vm] in
-                            vm?.action = .zoomOut(animate: true)
+                        Button { [weak coordinator] in
+                            coordinator?.perform(userAction: .preview(.zoomOut))
                         } label: {
                             LabeledContent("Zoom Out") {
                                 Image(systemName: "minus.magnifyingglass")
                             }
                         }
-
-                        Button { [weak vm] in
-                            vm?.action = .actualSize(animate: true)
+                        Button { [weak coordinator] in
+                            coordinator?.perform(userAction: .preview(.actualSize))
                         } label: {
                             LabeledContent("Actual Size") {
                                 Image(systemName: "1.magnifyingglass")
                             }
                         }
 
-                        Button { [weak vm] in
-                            vm?.action = .zoomToFit(animate: true)
-                        } label: {
-                            LabeledContent("Zoom To Fit") {
-                                Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
-                            }
-                        }
-
-                        Divider()
-
-                        Toggle(isOn: vm.pinnedBinding) {
-                            LabeledContent("Always On Top") {
-                                Image(systemName: "pin")
-                            }
-                        }
-
-                    } label: {
-                        LabeledContent("Preview Window") {
-                            // Image(systemName: "macwindow")
-                        }
-                    }
-                }
-                #endif
-
-                #if os(macOS)
-                let isWindowPreviewFocused = self.windowPreviewViewModel != nil
-                #else
-                let isWindowPreviewFocused = false
-                #endif
-
-                if let vm = self.previewCoordinator, !isWindowPreviewFocused {
-                    Menu {
-                        Button { [weak vm] in
-                            vm?.action = .zoomIn
-                        } label: {
-                            LabeledContent("Zoom In") {
-                                Image(systemName: "plus.magnifyingglass")
-                            }
-                        }
-
-                        Button { [weak vm] in
-                            vm?.action = .zoomOut
-                        } label: {
-                            LabeledContent("Zoom Out") {
-                                Image(systemName: "minus.magnifyingglass")
-                            }
-                        }
-                        Button { [weak vm] in
-                            vm?.action = .actualSize
-                        } label: {
-                            LabeledContent("Actual Size") {
-                                Image(systemName: "1.magnifyingglass")
-                            }
-                        }
-
-                        Button { [weak vm] in
-                            vm?.action = .zoomToFit
+                        Button { [weak coordinator] in
+                            coordinator?.perform(userAction: .preview(.zoomToFit))
                         } label: {
                             LabeledContent("Zoom To Fit") {
                                 Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
                             }
                         }
                     } label: {
-                        LabeledContent("Docked Preview") {
-                        }
+                        Text(coordinator.available.windowPreview ? "Window Preview" : "Docked Preview")
                     }
                 }
 
                 #if os(macOS)
-                if let previewState = self.previewState, !isWindowPreviewFocused {
-                    Button { [weak previewState] in
-                        if let loc = previewState?.location {
-                            previewState?.openPreviewWindow(loc)
-                        }
+                if let coordinator = self.coordinator, !coordinator.available.windowPreview {
+                    Button { [weak coordinator] in
+                        coordinator?.perform(userAction: .preview(.openWindow))
                     } label: {
                         LabeledContent("Open Preview Window") {
                             Image(systemName: "macwindow.on.rectangle")
                         }
                     }
-                    .disabled(previewState.location == nil)
                 }
                 #endif
             }
         }
 
-        #if os(macOS)
-        CommandGroup(after: .saveItem) {
-            Button("Export Image...") {
-                if let windowPreviewViewModel = self.windowPreviewViewModel {
-                    windowPreviewViewModel.exportImage()
-                } else if let previewState = self.previewState {
-                    previewState.exportImage()
+        if let coordinator = self.coordinator, coordinator.available.preview || coordinator.available.windowPreview {
+            CommandGroup(after: .saveItem) {
+                Button("Export Image...") { [weak coordinator] in
+                    coordinator?.perform(userAction: .exportPreviewedImage)
                 }
+                .disabled(!(coordinator.previewHasImage || coordinator.available.windowPreview))
+                .keyboardShortcut("e", modifiers: [.shift, .command])
             }
-            .disabled(self.windowPreviewViewModel == nil && self.previewState?.image == nil)
-            .keyboardShortcut("e", modifiers: [.shift, .command])
         }
-        #else
-        CommandGroup(after: .saveItem) {
-            Button("Export Image...") {
-                if let previewState = self.previewState {
-                    previewState.exportImage()
-                }
-            }
-            .disabled(self.previewState?.image == nil)
-            .keyboardShortcut("e", modifiers: [.shift, .command])
-        }
-        #endif
     }
 }
 
@@ -186,21 +107,13 @@ struct NodeEditCommands: Commands {
 
     @ActiveViewObject(GlobalCoordinator.self) var coordinator
 
-    func deleteHandler() {
-        self.coordinator?.emitter.emit(.deleteSelectedNodes)
-    }
-
-    func duplicateHandler() {
-        self.coordinator?.emitter.emit(.duplicateSelectedNodes)
-    }
-
     var body: some Commands {
         if let coordinator = self.coordinator {
             CommandGroup(after: .textEditing) {
                 let name = coordinator.nodeSelectionCount > 1 ? "Nodes" : "Node"
 
-                Button("Duplicate \(name)") {
-                    self.duplicateHandler()
+                Button("Duplicate \(name)") { [weak coordinator = self.coordinator] in
+                    coordinator?.perform(userAction: .duplicateSelectedNodes)
                 }
                 .keyboardShortcut("d", modifiers: [.command])
                 .disabled(coordinator.nodeSelectionCount == 0)
@@ -230,8 +143,8 @@ struct PasteboardCommands: Commands {
             CommandButton(
                 "Cut",
                 systemImage: "scissors",
-                action: {
-                    co?.emitter.emit(.cutSelectedNodes)
+                action: { [weak co = self.co] in
+                    co?.perform(userAction: .cutSelectedNodes)
                 }
             )
             .keyboardShortcut("x", modifiers: .command)
@@ -240,8 +153,8 @@ struct PasteboardCommands: Commands {
             CommandButton(
                 "Copy",
                 systemImage: "document.on.document",
-                action: {
-                    co?.emitter.emit(.copySelectedNodes)
+                action: { [weak co = self.co] in
+                    co?.perform(userAction: .copySelectedNodes)
                 }
             )
             .keyboardShortcut("c", modifiers: .command)
@@ -250,8 +163,8 @@ struct PasteboardCommands: Commands {
             CommandButton(
                 "Paste",
                 systemImage: "document.on.clipboard",
-                action: {
-                    co?.emitter.emit(.pasteFlowNodes(nil))
+                action: { [weak co = self.co] in
+                    co?.perform(userAction: .pasteNodes(nil))
                 }
             )
             .keyboardShortcut("v", modifiers: .command)
@@ -260,8 +173,8 @@ struct PasteboardCommands: Commands {
             CommandButton(
                 "Delete",
                 systemImage: "trash",
-                action: {
-                    co?.emitter.emit(.deleteSelectedNodes)
+                action: { [weak co = self.co] in
+                    co?.perform(userAction: .deleteSelectedNodes)
                 }
             )
             .keyboardShortcut(.delete, modifiers: [])
@@ -270,8 +183,8 @@ struct PasteboardCommands: Commands {
             CommandButton(
                 "Select All",
                 systemImage: "character.textbox",
-                action: {
-                    co?.emitter.emit(.selectAllNodes)
+                action: { [weak co = self.co] in
+                    co?.perform(userAction: .selectAllNodes)
                 }
             )
             .keyboardShortcut("a", modifiers: .command)

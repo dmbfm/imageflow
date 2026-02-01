@@ -22,7 +22,7 @@ public final class CanvasFeatureViewModel {
     /// The asset store
     let assetStore: any AssetStoreService
     /// The global coordinator to receive and send global events from
-    let coordinator: any GlobalCoordinatorService
+    let coordinator: GlobalCoordinator
     /// The canvas viewport state
     var state: CanvasFeatureState
     /// A binding to the app-wide focus state
@@ -63,7 +63,7 @@ public final class CanvasFeatureViewModel {
         assetStore: any AssetStoreService,
         focus: FocusState<Focus?>.Binding,
         delegate: Delegate? = nil,
-        coordinator: any GlobalCoordinatorService,
+        coordinator: GlobalCoordinator,
     ) {
         self.state = state
         self.flow = flow
@@ -94,47 +94,13 @@ public final class CanvasFeatureViewModel {
         )
     }
 
+    public var viewport: CanvasView.Viewport {
+        self.state.viewport
+    }
+
     // MARK: - Global Coordinator
 
     func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
-        switch event {
-        #if os(macOS)
-        case let .showNodeSearch(typedPortLocation, _):
-            self.nodeSearchPopoverPresent(typedPortLocation: typedPortLocation)
-        #endif
-
-        case .performPaste(let data, let maybePos):
-            #if os(macOS)
-            if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream,
-                let view = self.canvasPlatformView
-            {
-
-                let mp = view.convert(mwp, from: nil)
-                var pos: CGPoint = .zero
-                if view.safeAreaRect.contains(mp) {
-                    pos = self.state.viewport.convert(mp, from: .screen, to: .canvas)
-                } else {
-                    pos = self.state.viewport.convert(view.bounds.center, from: .screen, to: .canvas)
-                }
-
-                self.flow.paste(pasteboardData: data, at: pos, undoManager: self.undoManager)
-            }
-            #else
-            if let pos = maybePos {
-                let pastePos = self.state.viewport.convert(pos, from: .screen, to: .canvas)
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            } else if let pastePos = self.coordinator.pointerData?.positionInCanvas {
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            } else if let centerPos = self.canvasPlatformView?.bounds.center {
-                let pastePos = self.state.viewport.convert(centerPos, from: .screen, to: .canvas)
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            }
-
-            break
-            #endif
-        default:
-            break
-        }
     }
 
     // MARK: - Canvas
@@ -391,7 +357,7 @@ public final class CanvasFeatureViewModel {
     // MARK: - Node Search Popover
 
     #if os(macOS)
-    func nodeSearchPopoverPresent(typedPortLocation: TypedPortLocation? = nil) {
+    public func nodeSearchPopoverPresent(typedPortLocation: TypedPortLocation? = nil) {
         let mousePosition: CGPoint? = {
             if let window = NSApp.keyWindow, let canvas = self.canvasPlatformView {
                 canvas.convert(window.mouseLocationOutsideOfEventStream, from: nil)

@@ -12,7 +12,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
             image: .init(systemName: "document.on.clipboard"),
             attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
             handler: { [weak self] _ in
-                self?.coordinator.emitter.emit(.pasteFlowNodes(location))
+                self?.coordinator.perform(userAction: .pasteNodes(location))
             },
         )
 
@@ -20,7 +20,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
             title: "Select All",
             image: .init(systemName: "character.textbox"),
         ) { [weak self] _ in
-            self?.coordinator.emitter.emit(.selectAllNodes)
+            self?.coordinator.perform(userAction: .selectAllNodes)
         }
 
         return UIMenu(
@@ -86,16 +86,16 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
                     }
                 }
 
-                Button {
-                    self.coordinator.emitter.emit(.pasteFlowNodes(nil))
+                Button { [weak self] in
+                    self?.coordinator.perform(userAction: .pasteNodes(nil))
                 } label: {
                     Label("Paste", systemImage: "document.on.clipboard")
                 }
                 .keyboardShortcut("v")
                 .disabled(!PasteboardObserver.shared.canPaste)
 
-                Button {
-                    self.coordinator.emitter.emit(.selectAllNodes)
+                Button { [weak self] in
+                    self?.coordinator.perform(userAction: .selectAllNodes)
                 } label: {
                     Label("Select All", systemImage: .systemIconMenuSelectAll)
                 }
