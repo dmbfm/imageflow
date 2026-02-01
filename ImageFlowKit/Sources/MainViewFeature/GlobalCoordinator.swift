@@ -17,11 +17,10 @@ public final class GlobalCoordinator: GlobalCoordinatorService {
 
     public var pointerData: PointerData?
 
+    let flow: Flow
+    
     @ObservationIgnored
     public var emitter: EventEmitter<SharedModels.GlobalCoordinatorEvent> = .init()
-
-    @ObservationIgnored
-    let flow: Flow
 
     @ObservationIgnored
     var cancellables: Set<AnyEventEmitterCancellable> = []

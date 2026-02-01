@@ -573,46 +573,11 @@ extension MainContentViewModel {
 
 }
 
-// public struct LocalizedAlertError: LocalizedError {
-//     var inner: any LocalizedError
-
-//     public var errorDescription: String? {
-//         self.inner.errorDescription
-//     }
-
-//     public var failureReason: String? {
-//         self.inner.failureReason
-//     }
-
-//     public var helpAnchor: String? {
-//         self.inner.helpAnchor
-//     }
-
-//     public var recoverySuggestion: String? {
-//         self.inner.recoverySuggestion
-//     }
-// }
-
 struct SimpleMessageLocalizedError: LocalizedError {
     var message: String
 
     var errorDescription: String? { self.message }
 }
-
-// extension View {
-//     public func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
-//         self
-//             .alert(
-//                 isPresented: .constant(error.wrappedValue != nil),
-//                 error: error.wrappedValue,
-//                 actions: {
-//                     Button("OK") {
-//                         error.wrappedValue = nil
-//                     }
-//                 }
-//             )
-//     }
-// }
 
 extension Value {
     fileprivate init?(assetKind: AssetKind, assetId: AssetIdentifier) {
