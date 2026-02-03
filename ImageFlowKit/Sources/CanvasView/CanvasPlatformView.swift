@@ -20,7 +20,7 @@ protocol CanvasPlatformViewProtocol {
     var configuration: CanvasView.Configuration { get }
     var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
     var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
-    var contextMenuProvider: (any CanvasContextMenuProvider)? { get set }
+    var contextMenuProvider: (any PositionedContextMenuProvider)? { get set }
     init(
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
@@ -120,7 +120,7 @@ extension CanvasPlatformView {
     // MARK: - Context Menu
 
     #if os(macOS)
-    public weak var contextMenuProvider: (any CanvasContextMenuProvider)? {
+    public weak var contextMenuProvider: (any PositionedContextMenuProvider)? {
         get {
             self.gridView.contextMenuProvider
         }

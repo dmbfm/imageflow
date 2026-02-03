@@ -1,4 +1,5 @@
 import CanvasFeature
+import CanvasView
 import Combine
 import Helpers
 import Logging
@@ -66,6 +67,9 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     @ObservationIgnored
     public var undoManager: UndoManager? = nil
 
+    @ObservationIgnored
+    var nodeViewMenu: NodeViewMenuProvider?
+
     required public init(flow: SharedModels.Flow) {
         self.flow = flow
         self.activeViewObserver = .init()
@@ -110,6 +114,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
         case .duplicateSelectedNodes:
             self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
+        case .exportImageForNode(let id):
+            self.mainContentViewModel?.showImageExporter(id)
         case .exportImage(let image, let filename):
             self.exportImage(image, filename)
         case .exportPreviewedImage:
@@ -125,32 +131,20 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         }
     }
 
-    func perform(previewAction action: UserAction.PreviewAction) {
+    @discardableResult
+    func perform(dockedPreviewAction action: UserAction.PreviewAction) -> Bool {
+
+        guard let preview = self.dockedPreview else { return false }
+
         switch action {
         case .zoomIn:
-            if let preview = self.dockedPreview {
-                preview.action = .zoomIn
-            } else if let preview = self.windowPreviewViewModel {
-                preview.action = .zoomIn(animate: true)
-            }
+            preview.action = .zoomIn
         case .zoomOut:
-            if let preview = self.dockedPreview {
-                preview.action = .zoomOut
-            } else if let preview = self.windowPreviewViewModel {
-                preview.action = .zoomOut(animate: true)
-            }
+            preview.action = .zoomOut
         case .zoomToFit:
-            if let preview = self.dockedPreview {
-                preview.action = .zoomToFit
-            } else if let preview = self.windowPreviewViewModel {
-                preview.action = .zoomToFit(animate: true)
-            }
+            preview.action = .zoomToFit
         case .actualSize:
-            if let preview = self.dockedPreview {
-                preview.action = .actualSize
-            } else if let preview = self.windowPreviewViewModel {
-                preview.action = .actualSize(animate: true)
-            }
+            preview.action = .actualSize
         case .openWindow:
             #if os(macOS)
             if let loc = self.previewState?.location {
@@ -160,22 +154,61 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             break
             #endif
         }
+
+        return true
+    }
+
+    func perform(windowPreviewAction action: UserAction.PreviewAction) -> Bool {
+
+        #if os(iOS)
+        return false
+        #endif
+
+        #if os(macOS)
+        guard let preview = self.windowPreviewViewModel else { return false }
+
+        switch action {
+        case .zoomIn:
+            preview.action = .zoomIn(animate: true)
+        case .zoomOut:
+            preview.action = .zoomOut(animate: true)
+        case .zoomToFit:
+            preview.action = .zoomToFit(animate: true)
+        case .actualSize:
+            preview.action = .actualSize(animate: true)
+        case .openWindow:
+            break
+        }
+
+        return true
+        #endif
+    }
+
+    func perform(previewAction action: UserAction.PreviewAction) {
+        if !self.perform(windowPreviewAction: action) {
+            self.perform(dockedPreviewAction: action)
+        }
     }
 
     func exportPreviewedImage() {
+        #if os(macOS)
         if let preview = self.windowPreviewViewModel {
             preview.exportImage()
-        } else if let preview = self.previewState, let image = preview.image {
+            return
+        }
+        #endif
+
+        if let preview = self.previewState, let image = preview.image {
             self.exportImage(image, preview.name)
         }
     }
 
-    func pasteFlowNodes(_ maybePosition: CGPoint? = nil) {
+    func pasteFlowNodes(_ maybePoint: Point? = nil) {
         #if os(macOS)
         if let objects = NSPasteboard.general.readObjects(forClasses: [FlowPasteboardItem.self]) {
             for o in objects {
                 if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
-                    self.paste(data: data, at: nil)
+                    self.doPaste(data: data, at: nil)
                 }
             }
         }
@@ -187,12 +220,22 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         if let data = pb.data(forPasteboardType: UTType.flowNode.identifier),
             let flowPasteboardData = FlowPasteboardData(data: data)
         {
-            self.paste(data: flowPasteboardData, at: maybePosition)
+            let point: CGPoint? =
+                if let point = maybePoint ?? (self.pointerData?.positionInCanvas).map({ Point.canvas($0) }),
+                    let vm = self.canvasViewModel,
+                    let view = vm.view
+                {
+                    point.canvas(view: view, viewport: vm.viewport).cgPoint
+                } else {
+                    nil
+                }
+
+            self.doPaste(data: flowPasteboardData, at: point)
         }
         #endif
     }
 
-    func paste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
+    func doPaste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
         #if os(macOS)
         if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream,
             let view = self.canvasViewModel?.view,
@@ -349,5 +392,20 @@ private class ActiveViewObserver {
             self?.coordinator?.dockedPreview = self?.dockedPreview
         }
         .store(in: &self.cancellables)
+    }
+}
+
+extension Point {
+
+    @MainActor
+    func canvas(
+        view: PlatformView,
+        viewport: CanvasView.Viewport
+    ) -> Point {
+        switch self {
+        case .canvas: self
+        case .canvasView(let point): .canvasView(viewport.convert(point, from: .screen, to: .canvas))
+        case .window(let point): .canvasView(view.convert(point, from: nil)).canvas(view: view, viewport: viewport)
+        }
     }
 }

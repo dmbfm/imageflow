@@ -8,18 +8,8 @@ import Values
 
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
+    func nodeView(contextMenuProvider node: UUID) -> any PositionedContextMenuProvider
     func nodeViewSelectedNodesCount() -> Int
-    func nodeViewAction(_ id: UUID, _ action: NodeViewContextMenuAction)
-}
-
-public enum NodeViewContextMenuAction {
-    case exportImage
-    case deleteSelectedNodes
-    case duplicateSelectedNodes
-    case copySelectedNodes
-    case cutSelectedNodes
-    case paste(CGPoint?)
-    case selectAll
 }
 
 public final class NodeView: PlatformCommonView, CanvasNodeView {
@@ -263,154 +253,23 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
             height: outputBlockSize.height
         )
     }
-}
 
-// MARK: - NodeView + Contex Menu
+    // MARK: - Context Menu
 
-extension NodeView {
     #if os(macOS)
-    var contextMenu: NSMenu? {
-        let menu = NSMenu(title: "Node Context Menu")
-        let selectedCount = self.delegate?.nodeViewSelectedNodesCount() ?? 0
-        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
-        let hasSelection = selectedCount > 0
-
-        menu.autoenablesItems = false
-
-        let deleteItem = NSMenuItem(
-            title: "Delete \(nodeName)",
-            action: #selector(Self.contextMenuDeleteAction),
-            keyEquivalent: "",
-        )
-        deleteItem.image = .init(
-            systemSymbolName: .systemIconMenuDelete,
-            accessibilityDescription: "Delete \(nodeName)"
-        )
-        deleteItem.isEnabled = hasSelection
-
-        let duplicateItem = NSMenuItem(
-            title: "Duplicate \(nodeName)",
-            action: #selector(Self.contextMenuDuplicateAction),
-            keyEquivalent: "d"
-        )
-        duplicateItem.image = .init(
-            systemSymbolName: .systemIconMenuDuplicate,
-            accessibilityDescription: "Duplicate \(nodeName)"
-        )
-        duplicateItem.isEnabled = hasSelection
-
-        let copyItem = NSMenuItem(
-            title: "Copy \(nodeName)",
-            action: #selector(Self.contextMenuCopyAction),
-            keyEquivalent: "c"
-        )
-        copyItem.image = .init(
-            systemSymbolName: .systemIconMenuCopy,
-            accessibilityDescription: "Copy \(nodeName)"
-        )
-        copyItem.isEnabled = hasSelection
-
-        let cutItem = NSMenuItem(
-            title: "Cut \(nodeName)",
-            action: #selector(Self.contextMenuCutAction),
-            keyEquivalent: "x"
-        )
-        cutItem.image = .init(
-            systemSymbolName: .systemIconMenuCut,
-            accessibilityDescription: "Cut \(nodeName)"
-        )
-        cutItem.isEnabled = hasSelection
-
-        let pasteItem = NSMenuItem(
-            title: "Paste \(nodeName)",
-            action: #selector(Self.contextMenuPasteAction),
-            keyEquivalent: "v",
-        )
-        pasteItem.image = .init(
-            systemSymbolName: .systemIconMenuPaste,
-            accessibilityDescription: "Paste \(nodeName)"
-        )
-        pasteItem.isEnabled = PasteboardObserver.shared.canPaste
-
-        let selectAllItem = NSMenuItem(
-            title: "Select All",
-            action: #selector(Self.contextMenuSelectAllAction),
-            keyEquivalent: "a"
-        )
-        selectAllItem.image = .init(
-            systemSymbolName: .systemIconMenuSelectAll,
-            accessibilityDescription: "Select All"
-        )
-
-        let exportImageItem = NSMenuItem(
-            title: "Export Image...",
-            action: #selector(Self.contextMenuExportImageAction),
-            keyEquivalent: "E",
-        )
-
-        menu.addItem(.sectionHeader(title: "\(nodeName)"))
-        menu.addItem(cutItem)
-        menu.addItem(copyItem)
-        menu.addItem(pasteItem)
-        menu.addItem(duplicateItem)
-        menu.addItem(deleteItem)
-        menu.addItem(selectAllItem)
-
-        if self.node.outputs.contains(where: { $0.type == .image }) {
-            menu.addItem(.separator())
-            menu.addItem(exportImageItem)
-        }
-
-        return menu
-    }
-
     public override func rightMouseDown(with event: NSEvent) {
         self.delegate?.nodeView(willShowContextMenuForNode: self.node.id)
-        if let menu = self.contextMenu {
+        if let menu = self.delegate?.nodeView(contextMenuProvider: self.node.id).canvasContextMenu(at: .zero) {
             NSMenu.popUpContextMenu(menu, with: event, for: self)
         }
     }
     #endif
-
-    @objc
-    func contextMenuExportImageAction() {
-        self.delegate?.nodeViewAction(self.id, .exportImage)
-    }
-
-    @objc
-    func contextMenuDeleteAction() {
-        self.delegate?.nodeViewAction(self.id, .deleteSelectedNodes)
-    }
-
-    @objc
-    func contextMenuDuplicateAction() {
-        self.delegate?.nodeViewAction(self.id, .duplicateSelectedNodes)
-    }
-
-    @objc
-    func contextMenuCopyAction() {
-        self.delegate?.nodeViewAction(self.id, .copySelectedNodes)
-    }
-
-    @objc
-    func contextMenuCutAction() {
-        self.delegate?.nodeViewAction(self.id, .cutSelectedNodes)
-    }
-    @objc
-    func contextMenuPasteAction() {
-        self.delegate?.nodeViewAction(self.id, .paste(nil))
-    }
-    @objc
-    func contextMenuSelectAllAction() {
-        self.delegate?.nodeViewAction(self.id, .selectAll)
-    }
 }
 
 // MARK: NodeView + UIContextMenuInteractionDelegate
 
 #if os(iOS)
 extension NodeView: UIContextMenuInteractionDelegate {
-    // swiftlint:disable function_body_length
     public func contextMenuInteraction(
         _ interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation location: CGPoint
@@ -418,87 +277,13 @@ extension NodeView: UIContextMenuInteractionDelegate {
 
         self.delegate?.nodeView(willShowContextMenuForNode: self.node.id)
 
-        let selectedCount = self.delegate?.nodeViewSelectedNodesCount() ?? 0
-        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
-
         return UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: nil,
             actionProvider: { [weak self] _ in
-
                 guard let self else { return nil }
-
-                let deleteAction = UIAction(
-                    title: "Delete \(nodeName)",
-                    image: .init(systemName: "trash"),
-                    attributes: .destructive
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .deleteSelectedNodes)
-                }
-
-                let duplicateAction = UIAction(
-                    title: "Duplicate \(nodeName)",
-                    image: .init(systemName: "plus.square.on.square")
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .duplicateSelectedNodes)
-                }
-
-                let copyAction = UIAction(
-                    title: "Copy \(nodeName)",
-                    image: .init(systemName: "document.on.document")
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .copySelectedNodes)
-                }
-
-                let cutAction = UIAction(
-                    title: "Cut \(nodeName)",
-                    image: .init(systemName: "scissors")
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .cutSelectedNodes)
-                }
-
-                let pasteAction = UIAction(
-                    title: "Paste \(nodeName)",
-                    image: .init(systemName: "document.on.clipboard"),
-                    attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
-                ) { _ in
-                    self.delegate?.nodeViewAction(
-                        self.id,
-                        .paste(
-                            self.superview?.convert(location, from: self)
-                        )
-                    )
-                }
-
-                let selectAllAction = UIAction(
-                    title: "Select All",
-                    image: .init(systemName: "character.textbox"),
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .selectAll)
-                }
-
-                let exportImageAction = UIAction(
-                    title: "Export Image...",
-                ) { _ in
-                    self.delegate?.nodeViewAction(self.id, .exportImage)
-                }
-
-                let hasImageOutput = self.node.outputs.contains(where: { $0.type == .image })
-
-                return UIMenu(
-                    title: "Node",
-                    children: [
-                        cutAction,
-                        copyAction,
-                        pasteAction,
-                        duplicateAction,
-                        deleteAction,
-                        selectAllAction,
-                    ]
-                        + (hasImageOutput
-                            ? [
-                                UIMenu(title: "", options: [.displayInline], children: [exportImageAction])
-                            ] : [])
+                return self.delegate?.nodeView(contextMenuProvider: self.node.id).canvasContextMenu(
+                    at: interaction.location(in: nil)
                 )
             }
         )

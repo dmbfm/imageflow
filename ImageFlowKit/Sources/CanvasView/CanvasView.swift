@@ -35,7 +35,7 @@ public struct CanvasView: PlatformViewRepresentable {
     /// A closure to listen to canvas view events (see `Event`).
     let onEvent: ((CanvasView.Event) -> ())?
 
-    weak var contextMenuProvider: (any CanvasContextMenuProvider)?
+    weak var contextMenuProvider: (any PositionedContextMenuProvider)?
 
     /// The public events handled by the `onEvent` closure.
     public enum Event {
@@ -55,7 +55,7 @@ public struct CanvasView: PlatformViewRepresentable {
         edges: [EdgeLayer],
         canvasPlatformViewRef: Binding<PlatformView?>,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
-        contextMenuProvider: (any CanvasContextMenuProvider)? = nil,
+        contextMenuProvider: (any PositionedContextMenuProvider)? = nil,
         onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
         self._viewport = viewport

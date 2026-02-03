@@ -20,8 +20,6 @@ public struct CanvasFeatureView: View {
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
-    public typealias Delegate = CanvasFeatureViewModel.Delegate
-
     // MARK: - Initializers
 
     public init(
@@ -29,7 +27,6 @@ public struct CanvasFeatureView: View {
         _ flow: Flow,
         _ assetStore: any AssetStoreService,
         _ focus: FocusState<Focus?>.Binding,
-        _ delegate: Delegate?,
         coordinator: GlobalCoordinator
     ) {
         self._vm = .init(
@@ -38,7 +35,7 @@ public struct CanvasFeatureView: View {
                 flow: flow,
                 assetStore: assetStore,
                 focus: focus,
-                delegate: delegate,
+                delegate: coordinator.implementation as? NodeViewDelegate,
                 coordinator: coordinator,
             )
         )

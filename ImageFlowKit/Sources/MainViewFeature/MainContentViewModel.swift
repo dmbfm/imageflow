@@ -410,47 +410,6 @@ final class MainContentViewModel {
     }
 }
 
-extension MainContentViewModel: NodeViewDelegate {
-    func nodeViewSelectedNodesCount() -> Int {
-        self.flow.selection.count
-    }
-
-    func nodeViewAction(_ id: UUID, _ action: NodeViewContextMenuAction) {
-        switch action {
-        case .deleteSelectedNodes:
-            self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
-        case .duplicateSelectedNodes:
-            self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
-        case .copySelectedNodes:
-            self.coordinator.perform(userAction: .copySelectedNodes)
-        case .cutSelectedNodes:
-            self.coordinator.perform(userAction: .cutSelectedNodes)
-        case .paste(let maybePosition):
-            self.coordinator.perform(userAction: .pasteNodes(maybePosition))
-        case .selectAll:
-            self.flow.selectAll()
-        case .exportImage:
-            self.showImageExporter(id)
-        }
-    }
-
-    func nodeView(willShowContextMenuForNode node: UUID) {
-        self.flow.selectNodeIfNotSelected(node)
-    }
-
-    func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind) {
-        self.openAssetPicker(picker: .init(assetKind: kind, portLocation: .init(node: node, index: portIndex)))
-    }
-
-    func titleForAsset(id: Values.AssetIdentifier) -> String? {
-        if case let .asset(id) = id {
-            self.assetStore.assets[id]?.filename
-        } else {
-            nil
-        }
-    }
-}
-
 extension MainContentViewModel: AssetBrowserViewModel.Delegate {
     func onDismiss(_ result: AssetBrowserResult) {
         self.onAssetBrowserDismiss(result)

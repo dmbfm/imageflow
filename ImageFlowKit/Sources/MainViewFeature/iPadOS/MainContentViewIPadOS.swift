@@ -103,7 +103,6 @@ struct MainContentViewIPadOS: View {
                 self.vm.flow,
                 self.vm.assetStore,
                 self.$focus,
-                self.vm,
                 coordinator: self.vm.coordinator,
             )
             .onGeometryChange(for: CGPoint.self) { proxy in

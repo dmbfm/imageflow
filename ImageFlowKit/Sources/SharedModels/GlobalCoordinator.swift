@@ -47,15 +47,30 @@ public struct PointerData {
     }
 }
 
+public enum Point {
+    case canvas(CGPoint)
+    case canvasView(CGPoint)
+    case window(CGPoint)
+
+    public var cgPoint: CGPoint {
+        switch self {
+        case .canvas(let p): p
+        case .canvasView(let p): p
+        case .window(let p): p
+        }
+    }
+}
+
 public enum UserAction {
     case deleteSelectedNodes
     case duplicateSelectedNodes
     case copySelectedNodes
     case cutSelectedNodes
     case selectAllNodes
-    case pasteNodes(CGPoint?)
+    case pasteNodes(Point?)
     case exportPreviewedImage
     case exportImage(image: CIImage, filename: String?)
+    case exportImageForNode(UUID)
     case showNodeSearch(typedPortLocation: TypedPortLocation?, canvasPosition: CGPoint?)
     case preview(PreviewAction)
 
@@ -139,5 +154,9 @@ public class GlobalCoordinator: GlobalCoordinatorImpl {
 
     public var previewHasImage: Bool {
         self.impl.previewHasImage
+    }
+
+    public var implementation: any GlobalCoordinatorImpl {
+        self.impl
     }
 }

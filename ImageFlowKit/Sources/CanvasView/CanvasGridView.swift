@@ -26,7 +26,7 @@ final class CanvasGridView: PlatformView {
 
     var layerDelegate: GridViewLayerDelegate = .init()
 
-    weak var contextMenuProvider: (any CanvasContextMenuProvider)? = nil
+    weak var contextMenuProvider: (any PositionedContextMenuProvider)? = nil
 
     init() {
         super.init(frame: .zero)
@@ -353,16 +353,6 @@ final class CanvasGridView: PlatformView {
             }
         }
     }
-}
-
-public protocol CanvasContextMenuProvider: AnyObject {
-    #if os(macOS)
-    typealias ContextMenuType = NSMenu
-    #else
-    typealias ContextMenuType = UIMenu
-    #endif
-
-    func canvasContextMenu(at location: CGPoint) -> ContextMenuType?
 }
 
 final class GridViewLayerDelegate: NSObject, CALayerDelegate {

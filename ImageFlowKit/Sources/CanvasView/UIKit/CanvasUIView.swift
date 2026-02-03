@@ -100,7 +100,7 @@ public final class CanvasUIView: UIView {
 
     var contextMenuInteraction: UIContextMenuInteraction!
 
-    public weak var contextMenuProvider: (any CanvasContextMenuProvider)?
+    public weak var contextMenuProvider: (any PositionedContextMenuProvider)?
 
     @objc
     func onHover(_ gesture: UIHoverGestureRecognizer) {

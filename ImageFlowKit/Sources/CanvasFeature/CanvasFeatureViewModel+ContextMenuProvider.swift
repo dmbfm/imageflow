@@ -1,9 +1,10 @@
 import CanvasView
+import Helpers
 import Logging
 import SharedModels
 import SwiftUI
 
-extension CanvasFeatureViewModel: CanvasContextMenuProvider {
+extension CanvasFeatureViewModel: PositionedContextMenuProvider {
     #if os(iOS)
     public func canvasContextMenu(at location: CGPoint) -> UIMenu? {
 
@@ -12,7 +13,7 @@ extension CanvasFeatureViewModel: CanvasContextMenuProvider {
             image: .init(systemName: "document.on.clipboard"),
             attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
             handler: { [weak self] _ in
-                self?.coordinator.perform(userAction: .pasteNodes(location))
+                self?.coordinator.perform(userAction: .pasteNodes(.canvasView(location)))
             },
         )
 
