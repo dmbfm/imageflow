@@ -134,6 +134,8 @@ final class NodeInputBlockView: PlatformCommonView {
                     self?.onEvent?(.dragPort(input.index, data))
                 case .sizeDidChange:
                     self?.updateSize()
+                case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                    self?.onEvent?(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
                 }
             }
             self.rows.append(row)
@@ -206,6 +208,7 @@ extension NodeInputBlockView {
         case valueDidChange(Int, Value)
         case dragPort(Int, PortView.DragData)
         case didRepopulateRows
+        case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
     }
 }
 

@@ -196,6 +196,8 @@ public final class CanvasFeatureViewModel {
             Task { @MainActor in
                 self.updateEdges()
             }
+        case .keyboardWillShow(windowVerticalOverlap: _):
+            break
         }
     }
 

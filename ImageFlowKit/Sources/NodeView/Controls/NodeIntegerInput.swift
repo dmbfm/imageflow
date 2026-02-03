@@ -64,6 +64,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             case .drag:
                 // NOTE: We don't use dragging for integer inputs currently
                 break
+            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
         }
         return view
@@ -214,6 +216,7 @@ extension NodeIntegerInput {
                 switch event {
                 case .valueDidChange(let value): self.value = value
                 case .sizeDidChange: break
+                case .keyboardWillShow: break
                 }
             }
             return view

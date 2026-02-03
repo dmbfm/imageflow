@@ -98,6 +98,8 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
                 self.emitter.emit(.other(.valueDidChange(index, value)))
             case .didRepopulateRows:
                 self.emitter.emit(.other(.didRepopulateInputRows))
+            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                self.emitter.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
         }
         view.clipsToBounds = false

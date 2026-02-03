@@ -121,6 +121,8 @@ extension NodeBooleanInput {
                     self.value = value
                 case .sizeDidChange:
                     break
+                case .keyboardWillShow:
+                    break
                 }
             }
             return view

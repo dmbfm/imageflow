@@ -74,6 +74,8 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
                 self?.emit(.sizeDidChange)
             case let .drag(phase, dx, dy):
                 self?.onDrag(phase, dx, dy)
+            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
         }
         return view
@@ -163,6 +165,7 @@ extension NodeNumberInput {
                 switch event {
                 case .valueDidChange(let value): self.value = value
                 case .sizeDidChange: break
+                case .keyboardWillShow: break
                 }
             }
             return view

@@ -32,6 +32,7 @@ enum NodeTextFieldEvent {
     case textDidChange(String)
     case sizeDidChange
     case drag(GesturePhase, CGFloat, CGFloat)
+    case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
 }
 
 struct NodeTextFieldStyle: Sendable, Hashable, With {

@@ -46,6 +46,7 @@ public final class CanvasUIView: UIView {
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var startLoc: CGPoint = .zero
     private var oneFingerPanInitialPos: CGPoint = .zero
+    var canvasAnimator: CanvasAnimator?
     var cancellable: Set<AnyEventEmitterCancellable> = []
 
     // MARK: - Subviews
@@ -81,6 +82,7 @@ public final class CanvasUIView: UIView {
 
         super.init(frame: .zero)
 
+        self.canvasAnimator = .init(self)
         self.autoresizesSubviews = true
         self.clipsToBounds = true
 
@@ -259,6 +261,7 @@ private final class RectSelectionView: UIView {
         path.lineWidth = 1.0
         path.stroke()
     }
+
 }
 
 extension CanvasUIView: UIContextMenuInteractionDelegate {

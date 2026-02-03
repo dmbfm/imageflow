@@ -76,7 +76,7 @@ extension CanvasPlatformView {
         node.frame.size = node.intrinsicContentSize
         // NOTE: It seems removing [weak node] here does not cause a retain cycle, but I'm leaving it here just for good
         // measure (since I don't understand *why* a cycle does not happen here.)
-        node.emitter.on { [weak node] event in
+        node.emitter.on { [weak node, weak self] event in
             switch event {
             case .dragGesture:
                 break
@@ -86,6 +86,8 @@ extension CanvasPlatformView {
                 }
             case .click:
                 break
+            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                self?.moveViewportDueToKeyboard(value, duration)
             case .other(_):
                 break
 
@@ -130,4 +132,14 @@ extension CanvasPlatformView {
         }
     }
     #endif
+
+    // MARK: - Mode View Due To Keyboard
+
+    func moveViewportDueToKeyboard(_ windowAmount: CGFloat, _ duration: CGFloat) {
+        #if os(iOS)
+        let amount = self.convert(CGRect(x: 0, y: 0, width: 0, height: windowAmount), from: nil).height
+        let dy = self.viewport.convert(amount, from: .screen, to: .canvas)
+        self.canvasAnimator?.animate(toViewportOrigin: self.viewport.origin + .init(x: 0, y: dy), duration: duration)
+        #endif
+    }
 }

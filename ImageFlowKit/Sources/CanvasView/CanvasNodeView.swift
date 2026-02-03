@@ -27,6 +27,7 @@ public enum CanvasNodeEvent<E> {
     case click
     case sizeChanged
     case other(E)
+    case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
 }
 
 public struct CanvasNodeDragGesture: Sendable, Equatable {

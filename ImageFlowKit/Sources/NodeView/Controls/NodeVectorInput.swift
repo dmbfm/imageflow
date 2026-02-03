@@ -58,6 +58,8 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
                     self?.emit(.sizeDidChange)
                 case let .drag(phase, dx, dy):
                     self?.onDrag(idx, phase, dx, dy)
+                case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+                    self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
                 }
             }
             return view
