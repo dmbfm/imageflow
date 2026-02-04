@@ -54,7 +54,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     }
 
     // MARK: - Private properties
-    
+
     private var cancellables: Set<AnyCancellable> = []
 
     private var state: State = .idle {
@@ -156,26 +156,29 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             self.state = .nonEditable
         }
         self.update()
-        
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification).sink { [weak self] notification in
-            guard let self else { return }
-            if let frameValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-                
-                let maybeDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
-                let duration = maybeDuration ?? 0.4
-                
-                let keyboardFrame = frameValue.cgRectValue
-                MainActor.assumeIsolated {
-                    guard self.state == .editing else { return }
-                    let bounds = self.convert(self.bounds, to: nil)
-                    let dy = bounds.maxY - keyboardFrame.minY
-                    
-                    if dy > 0 {
-                        self.onEvent?(.keyboardWillShow(windowVerticalOverlap: dy + 10, duration: duration))
+
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .sink { [weak self] notification in
+                guard let self else { return }
+                if let frameValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+
+                    let maybeDuration =
+                        (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?
+                        .doubleValue
+                    let duration = maybeDuration ?? 0.4
+
+                    let keyboardFrame = frameValue.cgRectValue
+                    MainActor.assumeIsolated {
+                        guard self.state == .editing else { return }
+                        let bounds = self.convert(self.bounds, to: nil)
+                        let dy = bounds.maxY - keyboardFrame.minY
+
+                        if dy > 0 {
+                            self.onEvent?(.keyboardWillShow(windowVerticalOverlap: dy + 10, duration: duration))
+                        }
                     }
                 }
-            }
-        }.store(in: &self.cancellables)
+            }.store(in: &self.cancellables)
     }
 
     public required init?(coder: NSCoder) {

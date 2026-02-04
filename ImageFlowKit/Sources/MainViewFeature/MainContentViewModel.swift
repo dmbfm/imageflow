@@ -124,7 +124,7 @@ final class MainContentViewModel {
     func focusDidChange(_ focus: FocusState<Focus?>.Binding) {
         #if os(macOS)
         log("focusDidChange:focus:\(focus.wrappedValue, default: "nil")", level: .info)
-        
+
         if focus.wrappedValue == nil {
             focus.wrappedValue = .global
             log("focusDidChange:focus:nil -> \(focus.wrappedValue, default: "nil")", level: .info)
