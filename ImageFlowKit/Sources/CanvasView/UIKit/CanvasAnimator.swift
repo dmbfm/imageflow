@@ -76,6 +76,49 @@ class CanvasAnimator: DisplayLinkHelper.Delegate {
     }
 }
 
+@MainActor
+class CanvasInertiaAnimator: DisplayLinkHelper.Delegate {
+    weak var canvas: CanvasUIView?
+    var link: DisplayLinkHelper
+    var velocity: CGPoint = .zero
+    
+    var gamma: CGFloat = 8.0
+
+    init(canvas: CanvasUIView? = nil) {
+        self.canvas = canvas
+        self.link = .init()
+        self.link.delegate = self
+        self.link.start()
+    }
+    
+    var prev: Double = 0.0
+    
+    func step(ellapsed: Double) -> Bool {
+        let delta = ellapsed - prev
+        self.prev = ellapsed
+        
+        guard let canvas = self.canvas else { return true }
+        guard self.velocity.magnitude > 100.0 else { return true }
+        
+        let v = self.velocity
+        let p = canvas.viewport.origin
+        
+        let ax = -self.gamma * v.x
+        let ay = -self.gamma * v.y
+        
+        let vx = v.x + delta * ax
+        let vy = v.y + delta * ay
+        
+        let x = p.x + vx * delta
+        let y = p.y + vy * delta
+        
+        canvas.viewport.origin = .init(x: x, y: y)
+        self.velocity = .init(x: vx, y: vy)
+
+        return true
+    }
+}
+
 class DisplayLinkHelper {
     var link: CADisplayLink?
     weak var delegate: Delegate?

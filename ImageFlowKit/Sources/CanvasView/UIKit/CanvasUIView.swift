@@ -46,6 +46,7 @@ public final class CanvasUIView: UIView {
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var startLoc: CGPoint = .zero
     private var oneFingerPanInitialPos: CGPoint = .zero
+    private var canvasInertiaAnimator: CanvasInertiaAnimator = .init()
     var canvasAnimator: CanvasAnimator?
     var cancellable: Set<AnyEventEmitterCancellable> = []
 
@@ -83,6 +84,7 @@ public final class CanvasUIView: UIView {
         super.init(frame: .zero)
 
         self.canvasAnimator = .init(self)
+        self.canvasInertiaAnimator.canvas = self
         self.autoresizesSubviews = true
         self.clipsToBounds = true
 
@@ -142,12 +144,14 @@ public final class CanvasUIView: UIView {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.gridViewPanGesture(_:)))
         panGesture.minimumNumberOfTouches = 2
         panGesture.maximumNumberOfTouches = 2
+        panGesture.delegate = self
         self.gridView.addGestureRecognizer(panGesture)
 
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(Self.gridViewPinchGesture(_:)))
+        pinchGesture.delegate = self
         self.gridView.addGestureRecognizer(pinchGesture)
 
-        let oneFingerPanGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.oneFingerPanGesture(_:)))
+        let oneFingerPanGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.gridViewPanGesture(_:)))
         oneFingerPanGesture.minimumNumberOfTouches = 1
         oneFingerPanGesture.maximumNumberOfTouches = 1
         self.gridView.addGestureRecognizer(oneFingerPanGesture)
@@ -158,37 +162,52 @@ public final class CanvasUIView: UIView {
         self.onEvent?(.clickBackground)
     }
 
-    @objc
-    func oneFingerPanGesture(_ gesture: UIPanGestureRecognizer) {
-        if gesture.state == .began {
-            self.oneFingerPanInitialPos = gesture.location(in: self.gridView)
-            self.onEvent?(.rectSelect(.started(shiftDown: false)))
-            return
-        }
+//    @objc
+//    func oneFingerPanGesture(_ gesture: UIPanGestureRecognizer) {
+        // if gesture.state == .began {
+        //     self.oneFingerPanInitialPos = gesture.location(in: self.gridView)
+        //     self.onEvent?(.rectSelect(.started(shiftDown: false)))
+        //     return
+        // }
 
-        if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
-            self.oneFingerPanInitialPos = .zero
-            self.rectSelectionView.selectionRect = .zero
-            self.onEvent?(.rectSelect(.ended))
-            return
-        }
+        // if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
+        //     self.oneFingerPanInitialPos = .zero
+        //     self.rectSelectionView.selectionRect = .zero
+        //     self.onEvent?(.rectSelect(.ended))
+        //     return
+        // }
 
-        let gridRect = CGRect(
-            origin: self.oneFingerPanInitialPos,
-            size: gesture.translation(in: self.gridView).cgSize
-        )
+        // let gridRect = CGRect(
+        //     origin: self.oneFingerPanInitialPos,
+        //     size: gesture.translation(in: self.gridView).cgSize
+        // )
 
-        let contentRect = self.contentView.convert(gridRect, from: self.gridView)
+        // let contentRect = self.contentView.convert(gridRect, from: self.gridView)
 
-        self.rectSelectionView.selectionRect = gridRect
-        self.onEvent?(.rectSelect(.modified(shiftDown: false, rect: contentRect)))
+        // self.rectSelectionView.selectionRect = gridRect
+        // self.onEvent?(.rectSelect(.modified(shiftDown: false, rect: contentRect)))
+//    }
+    
+    
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.canvasInertiaAnimator.velocity = .zero
+        super.touchesBegan(touches, with: event)
     }
 
     @objc
     func gridViewPanGesture(_ gesture: UIPanGestureRecognizer) {
+        
+        if gesture.state == .began {
+            self.canvasInertiaAnimator.velocity = .zero
+        }
+        
         let t = gesture.translation(in: nil)
         self.viewport.translate(by: t.cgSize * -1.0, in: .screen)
         gesture.setTranslation(.zero, in: nil)
+        
+        if gesture.state == .ended {
+            self.canvasInertiaAnimator.velocity = -gesture.velocity(in: self.gridView)
+        }
     }
 
     @objc
@@ -278,7 +297,17 @@ extension CanvasUIView: UIContextMenuInteractionDelegate {
             }
         )
     }
+}
 
+extension CanvasUIView: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        let gestures = [gestureRecognizer, otherGestureRecognizer]
+        if gestures.contains(where: { $0 is UIPanGestureRecognizer }) && gestures.contains(where: { $0 is UIPinchGestureRecognizer }) {
+            return true
+        }
+        
+        return false
+    }
 }
 
 #endif
