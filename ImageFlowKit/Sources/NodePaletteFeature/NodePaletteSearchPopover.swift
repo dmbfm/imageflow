@@ -169,8 +169,8 @@ public struct NodePaletteSearchPopoverView: View {
                     return .handled
                 } else if press.key == .return {
                     if let item = self.selectedItem {
-                        self.dismiss()
                         self.onPickItem(item, self._position)
+                        self.dismiss()
                     }
                     return .handled
                 }
@@ -218,21 +218,12 @@ private struct SearchTextField: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, NSTextFieldDelegate {
-
         var text: Binding<String>?
 
         func controlTextDidChange(_ obj: Notification) {
             if let text = self.text, let object = obj.object, let textField = object as? NSTextField {
                 text.wrappedValue = textField.text
             }
-        }
-
-        func controlTextDidBeginEditing(_ obj: Notification) {
-
-        }
-
-        func controlTextDidEndEditing(_ obj: Notification) {
-
         }
     }
 }

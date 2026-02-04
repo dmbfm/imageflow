@@ -344,6 +344,8 @@ extension Flow {
             }
         }
 
+        print("--> slot: \(slot, default: "nil")")
+
         if let slot, let edge = Edge(typedPortLocation.port, .init(node: node.id, port: slot)) {
             self.newEdgeAction(edge, undoManager: um)
         }
