@@ -33,7 +33,7 @@ public final class CanvasUIView: UIView {
         }
     }
 
-    public var configuration: CanvasView.Configuration = .init(zoomRange: 0.1...1.0)
+    public var configuration: CanvasView.Configuration = .default
 
     public var onEvent: ((Event) -> ())?
 
@@ -47,6 +47,9 @@ public final class CanvasUIView: UIView {
     private var startLoc: CGPoint = .zero
     private var oneFingerPanInitialPos: CGPoint = .zero
     private var canvasInertiaAnimator: CanvasInertiaAnimator = .init()
+    private var panGesturePreviousTranslation: CGPoint = .zero
+    private var pointerGestureDelegate: PointerPanGestureDelegate?
+    private var pointerPosition: CGPoint?
     var canvasAnimator: CanvasAnimator?
     var cancellable: Set<AnyEventEmitterCancellable> = []
 
@@ -110,8 +113,10 @@ public final class CanvasUIView: UIView {
     func onHover(_ gesture: UIHoverGestureRecognizer) {
         let pos = gesture.location(in: self)
         if gesture.state == .changed || gesture.state == .began {
+            self.pointerPosition = pos
             self.onEvent?(.pointerMoved(positionInView: pos))
         } else {
+            self.pointerPosition = nil
             self.onEvent?(.pointerMoved(positionInView: nil))
         }
     }
@@ -154,7 +159,56 @@ public final class CanvasUIView: UIView {
         let oneFingerPanGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.gridViewPanGesture(_:)))
         oneFingerPanGesture.minimumNumberOfTouches = 1
         oneFingerPanGesture.maximumNumberOfTouches = 1
+        oneFingerPanGesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.direct.rawValue)
+        ]
         self.gridView.addGestureRecognizer(oneFingerPanGesture)
+
+        let mouseDragGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.mouseDragGestureHandler(_:)))
+        mouseDragGesture.allowedScrollTypesMask = .discrete
+        mouseDragGesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.indirectPointer.rawValue)
+        ]
+        self.addGestureRecognizer(mouseDragGesture)
+
+        let trackpadScrollGesture = UIPanGestureRecognizer(
+            target: self,
+            action: #selector(Self.trackpadScollGestureHandler(_:))
+        )
+        trackpadScrollGesture.allowedScrollTypesMask = .continuous
+        trackpadScrollGesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.indirectPointer.rawValue)
+        ]
+        self.addGestureRecognizer(trackpadScrollGesture)
+
+        let pointerGestureDelegate = PointerPanGestureDelegate(mouseDragGesture, trackpadScrollGesture)
+        self.pointerGestureDelegate = pointerGestureDelegate
+        mouseDragGesture.delegate = pointerGestureDelegate
+        trackpadScrollGesture.delegate = pointerGestureDelegate
+
+    }
+
+    @objc
+    func trackpadScollGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        if gesture.buttonMask.rawValue == 0 {
+            self.panHandler(gesture, view: self, sensitivity: 0.28)
+        }
+    }
+
+    func panHandler(_ gesture: UIPanGestureRecognizer, view: UIView, sensitivity: CGFloat = 1.0) {
+        if gesture.state == .began {
+            self.panGesturePreviousTranslation = .zero
+            self.canvasInertiaAnimator.velocity = .zero
+        }
+
+        let t = gesture.translation(in: view) * sensitivity
+        let delta = t - panGesturePreviousTranslation
+        self.viewport.translate(by: delta.cgSize * -1.0, in: .screen)
+        self.panGesturePreviousTranslation = t
+
+        if gesture.state == .ended {
+            self.canvasInertiaAnimator.velocity = -gesture.velocity(in: view) * sensitivity
+        }
     }
 
     @objc
@@ -162,33 +216,76 @@ public final class CanvasUIView: UIView {
         self.onEvent?(.clickBackground)
     }
 
-//    @objc
-//    func oneFingerPanGesture(_ gesture: UIPanGestureRecognizer) {
-        // if gesture.state == .began {
-        //     self.oneFingerPanInitialPos = gesture.location(in: self.gridView)
-        //     self.onEvent?(.rectSelect(.started(shiftDown: false)))
-        //     return
-        // }
+    func mousePrimaryDragGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        if gesture.state == .began {
+            self.oneFingerPanInitialPos = gesture.location(in: self)
+            self.onEvent?(.rectSelect(.started(shiftDown: false)))
+            return
+        }
 
-        // if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
-        //     self.oneFingerPanInitialPos = .zero
-        //     self.rectSelectionView.selectionRect = .zero
-        //     self.onEvent?(.rectSelect(.ended))
-        //     return
-        // }
+        if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
+            self.oneFingerPanInitialPos = .zero
+            self.rectSelectionView.selectionRect = .zero
+            self.onEvent?(.rectSelect(.ended))
+            return
+        }
 
-        // let gridRect = CGRect(
-        //     origin: self.oneFingerPanInitialPos,
-        //     size: gesture.translation(in: self.gridView).cgSize
-        // )
+        let localRect = CGRect(
+            origin: self.oneFingerPanInitialPos,
+            size: gesture.translation(in: self).cgSize
+        )
 
-        // let contentRect = self.contentView.convert(gridRect, from: self.gridView)
+        let contentRect = self.contentView.convert(localRect, from: self)
 
-        // self.rectSelectionView.selectionRect = gridRect
-        // self.onEvent?(.rectSelect(.modified(shiftDown: false, rect: contentRect)))
-//    }
-    
-    
+        self.rectSelectionView.selectionRect = localRect
+        self.onEvent?(.rectSelect(.modified(shiftDown: false, rect: contentRect)))
+    }
+
+    func mouseMiddleDragGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        let t = gesture.translation(in: nil)
+        self.viewport.translate(by: t.cgSize * -1.0, in: .screen)
+        gesture.setTranslation(.zero, in: nil)
+    }
+
+    func mouseScrollGestureZoom(_ gesture: UIPanGestureRecognizer) {
+        guard gesture.state != .ended else {
+            return
+        }
+
+        let s = self.configuration.scrollWheelSensitivity
+        let newScale =
+            if gesture.translation(in: self).y > 0 {
+                self.configuration.clampZoom(self.viewport.scale + s)
+            } else {
+                self.configuration.clampZoom(self.viewport.scale - s)
+            }
+
+        let location = self.convert(gesture.location(in: nil), from: nil)
+        if let pointerPosition = self.pointerPosition {
+            self.viewport.zoom(newScale, atScreenPoint: pointerPosition)
+        } else {
+            self.viewport.zoom(newScale, atScreenPoint: location)
+        }
+    }
+
+    @objc
+    func mouseDragGestureHandler(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.buttonMask.rawValue {
+        case 0:
+            self.mouseScrollGestureZoom(gesture)
+        case 1:
+            if gesture.modifierFlags.contains(.alternate) {
+                self.mouseMiddleDragGestureHandler(gesture)
+            } else {
+                self.mousePrimaryDragGestureHandler(gesture)
+            }
+        case 4:
+            self.mouseMiddleDragGestureHandler(gesture)
+        default:
+            break
+        }
+    }
+
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.canvasInertiaAnimator.velocity = .zero
         super.touchesBegan(touches, with: event)
@@ -196,18 +293,7 @@ public final class CanvasUIView: UIView {
 
     @objc
     func gridViewPanGesture(_ gesture: UIPanGestureRecognizer) {
-        
-        if gesture.state == .began {
-            self.canvasInertiaAnimator.velocity = .zero
-        }
-        
-        let t = gesture.translation(in: nil)
-        self.viewport.translate(by: t.cgSize * -1.0, in: .screen)
-        gesture.setTranslation(.zero, in: nil)
-        
-        if gesture.state == .ended {
-            self.canvasInertiaAnimator.velocity = -gesture.velocity(in: self.gridView)
-        }
+        self.panHandler(gesture, view: self.gridView, sensitivity: 1.0)
     }
 
     @objc
@@ -219,7 +305,6 @@ public final class CanvasUIView: UIView {
         }
 
         let scale = gesture.scale
-        //        let location = gesture.location(in: self.gridView)
         let newZoom = self.scaleAtStartOfMagnification * scale
         self.viewport.zoom(self.configuration.clampZoom(newZoom), atScreenPoint: self.startLoc)
     }
@@ -237,14 +322,6 @@ public final class CanvasUIView: UIView {
 
     func updateContentView() {
         self.contentView.transform = self.viewport.transform(from: .canvas, to: .screen)
-        //        self.contentView.contentScaleFactor = self.viewport.scale * 2.0
-        //        self.contentView.setNeedsDisplay()
-        //        self.contentView.layer.rasterizationScale = self.viewport.scale * 2.0
-        //        for view in self.nodeViews {
-        //            view.value.contentScaleFactor = self.viewport.scale * 2.0
-        //            view.value.layer.rasterizationScale = self.viewport.scale * 2.0
-        //            view.value.setNeedsDisplay()
-        //        }
     }
 
     // MARK: - RectSelectionView Methods
@@ -300,12 +377,40 @@ extension CanvasUIView: UIContextMenuInteractionDelegate {
 }
 
 extension CanvasUIView: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
         let gestures = [gestureRecognizer, otherGestureRecognizer]
-        if gestures.contains(where: { $0 is UIPanGestureRecognizer }) && gestures.contains(where: { $0 is UIPinchGestureRecognizer }) {
+        if gestures.contains(where: { $0 is UIPanGestureRecognizer })
+            && gestures.contains(where: { $0 is UIPinchGestureRecognizer })
+        {
             return true
         }
-        
+
+        return false
+    }
+}
+
+class PointerPanGestureDelegate: NSObject, UIGestureRecognizerDelegate {
+
+    weak var a: UIGestureRecognizer?
+    weak var b: UIGestureRecognizer?
+
+    init(_ a: UIGestureRecognizer, _ b: UIGestureRecognizer) {
+        self.a = a
+        self.b = b
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        if let a = self.a, let b = self.b {
+            return (gestureRecognizer === a || gestureRecognizer === b)
+                && (otherGestureRecognizer === a || otherGestureRecognizer === b)
+        }
+
         return false
     }
 }

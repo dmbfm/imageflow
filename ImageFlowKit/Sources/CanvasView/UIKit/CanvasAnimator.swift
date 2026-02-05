@@ -81,8 +81,10 @@ class CanvasInertiaAnimator: DisplayLinkHelper.Delegate {
     weak var canvas: CanvasUIView?
     var link: DisplayLinkHelper
     var velocity: CGPoint = .zero
-    
-    var gamma: CGFloat = 8.0
+    var prev: Double = 0.0
+
+    let cutoff: CGFloat = 50.0
+    let factor = 0.112 / 0.016
 
     init(canvas: CanvasUIView? = nil) {
         self.canvas = canvas
@@ -91,29 +93,36 @@ class CanvasInertiaAnimator: DisplayLinkHelper.Delegate {
         self.link.start()
     }
     
-    var prev: Double = 0.0
     
     func step(ellapsed: Double) -> Bool {
         let delta = ellapsed - prev
         self.prev = ellapsed
         
         guard let canvas = self.canvas else { return true }
-        guard self.velocity.magnitude > 100.0 else { return true }
+        guard self.velocity.magnitude > self.cutoff else { return true }
         
         let v = self.velocity
         let p = canvas.viewport.origin
         
-        let ax = -self.gamma * v.x
-        let ay = -self.gamma * v.y
+        let vmag = v.magnitude
+        let vdirx = v.x / vmag
+        let vdixy = v.y / vmag
         
-        let vx = v.x + delta * ax
-        let vy = v.y + delta * ay
+        let vmagprime = vmag * (1.0 - (delta * self.factor).clamped(to: 0...1))
         
-        let x = p.x + vx * delta
-        let y = p.y + vy * delta
+        if vmagprime < self.cutoff {
+            self.velocity = .zero
+            return true
+        }
+        
+        let vprimex = vdirx * vmagprime
+        let vprimey = vdixy * vmagprime
+        
+        let x = p.x + vprimex * delta
+        let y = p.y + vprimey * delta
         
         canvas.viewport.origin = .init(x: x, y: y)
-        self.velocity = .init(x: vx, y: vy)
+        self.velocity = .init(x: vprimex, y: vprimey)
 
         return true
     }
