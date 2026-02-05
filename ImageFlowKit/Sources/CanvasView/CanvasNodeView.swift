@@ -14,6 +14,8 @@ public protocol CanvasNodeView: PlatformView {
     var id: UUID { get }
     var level: Int { get }
     var emitter: EventEmitter<CanvasNodeEvent<Event>> { get }
+    func emitDragGesture(_ drag: CanvasNodeDragGesture)
+    func emitClick()
 }
 
 extension CanvasNodeView {

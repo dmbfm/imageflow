@@ -52,7 +52,16 @@ final class AnnotationView: PlatformView, CanvasNodeView {
         self.platformUpdate(oldValue)
     }
 
+    func emitDragGesture(_ drag: CanvasNodeDragGesture) {
+        self.emitter.emit(.dragGesture(drag))
+    }
+
+    func emitClick() {
+        self.emitter.emit(.click)
+    }
+
     // MARK: - iOS
+
     #if os(iOS)
 
     let padding: UIEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)

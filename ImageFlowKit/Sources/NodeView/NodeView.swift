@@ -172,6 +172,14 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
         self.emitter.emit(.sizeChanged)
     }
 
+    public func emitDragGesture(_ drag: CanvasNodeDragGesture) {
+        self.emitter.emit(.dragGesture(drag))
+    }
+
+    public func emitClick() {
+        self.emitter.emit(.click)
+    }
+
     #if os(macOS)
     public override func viewDidMoveToSuperview() {
         self.emitter.emit(.sizeChanged)
@@ -255,6 +263,32 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
             height: outputBlockSize.height
         )
     }
+
+    #if os(iOS)
+    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let p = self.convert(point, to: nil)
+        for row in self.inputBlockView.rows {
+            let v = row.controlView
+            let localp = v.convert(p, from: nil)
+            if let view = v.hitTest(localp, with: event) {
+                return view
+            }
+
+            let port = row.portView
+            if let view = port.hitTest(port.convert(p, from: nil), with: event) {
+                return view
+            }
+        }
+        for row in self.outputBlockView.rows {
+            let port = row.portView
+            if let view = port.hitTest(port.convert(p, from: nil), with: event) {
+                return view
+            }
+        }
+
+        return nil
+    }
+    #endif
 
     // MARK: - Context Menu
 

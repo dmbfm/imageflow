@@ -129,12 +129,6 @@ final class BackgroundView: PlatformView {
         self.layer.shadowRadius = self.style.shadow.radius
         self.layer.shadowOffset = self.style.shadow.offset
         self.gradientLayer.frame = self.bounds
-
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureHandler))
-        self.addGestureRecognizer(tapGesture)
-
-        let dragGesture = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureHangler(_:)))
-        self.addGestureRecognizer(dragGesture)
     }
 
     @objc

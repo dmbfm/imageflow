@@ -92,35 +92,34 @@ class CanvasInertiaAnimator: DisplayLinkHelper.Delegate {
         self.link.delegate = self
         self.link.start()
     }
-    
-    
+
     func step(ellapsed: Double) -> Bool {
         let delta = ellapsed - prev
         self.prev = ellapsed
-        
+
         guard let canvas = self.canvas else { return true }
         guard self.velocity.magnitude > self.cutoff else { return true }
-        
+
         let v = self.velocity
         let p = canvas.viewport.origin
-        
+
         let vmag = v.magnitude
         let vdirx = v.x / vmag
         let vdixy = v.y / vmag
-        
+
         let vmagprime = vmag * (1.0 - (delta * self.factor).clamped(to: 0...1))
-        
+
         if vmagprime < self.cutoff {
             self.velocity = .zero
             return true
         }
-        
+
         let vprimex = vdirx * vmagprime
         let vprimey = vdixy * vmagprime
-        
+
         let x = p.x + vprimex * delta
         let y = p.y + vprimey * delta
-        
+
         canvas.viewport.origin = .init(x: x, y: y)
         self.velocity = .init(x: vprimex, y: vprimey)
 
