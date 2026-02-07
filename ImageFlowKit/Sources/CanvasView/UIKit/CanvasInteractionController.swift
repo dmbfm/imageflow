@@ -230,8 +230,14 @@ where
         self.right = right
     }
 
+    var target: EitherCanvasOrNodeTarget = .canvas
+
     mutating func handle(_ gesture: Gesture, _ canvas: CanvasUIView) {
-        switch Condition.choose(gesture, canvas) {
+        if gesture.state == .began || (gesture.state == .ended && gesture is UITapGestureRecognizer) {
+            self.target = Condition.choose(gesture, canvas)
+        }
+
+        switch self.target {
         case .canvas: self.left.handle(gesture, canvas)
         case .node(let view): self.right.handle(gesture, canvas, view)
         }
@@ -283,6 +289,8 @@ where
     var b: B
     var c: C
 
+    var target: CanvasGestureHandlerEither3Pick = .none
+
     init(a: A, b: B, c: C) {
         self.a = a
         self.b = b
@@ -290,7 +298,11 @@ where
     }
 
     mutating func handle(_ gesture: Gesture, _ canvas: CanvasUIView) {
-        switch Condition.choose(gesture, canvas) {
+        if gesture.state == .began || (gesture.state == .ended && gesture is UITapGestureRecognizer) {
+            self.target = Condition.choose(gesture, canvas)
+        }
+
+        switch self.target {
         case .a: self.a.handle(gesture, canvas)
         case .b: self.b.handle(gesture, canvas)
         case .c: self.c.handle(gesture, canvas)

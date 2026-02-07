@@ -252,8 +252,8 @@ public final class CanvasFeatureViewModel {
                 } else {
                     Set([id])
                 }
-            self.flow.liveMoveNodesStart(nodes)
             self.flow.select(nodes)
+            self.flow.liveMoveNodesStart(nodes)
         case .cancelled:
             self.flow.liveMoveNodesCancel()
         case .changed:
