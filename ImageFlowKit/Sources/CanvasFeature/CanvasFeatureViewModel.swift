@@ -31,6 +31,8 @@ public final class CanvasFeatureViewModel {
     var edgeLayers: [CanvasView.EdgeLayer] = []
     /// The view showing annotation in the canvas such as errors, warnings and othes messages
     var annotationView: AnnotationView = .empty(width: 280)
+    /// The current interaction mode of the canvas
+    var interactionMode: CanvasInteractionMode = .default
     /// Storage for the `NodeView` instances to be displayed
     @ObservationIgnored var nodeViews: NodeViewCollection = .init()
     /// Temporary storage for when the viewport is zoomed/dragged
@@ -43,6 +45,12 @@ public final class CanvasFeatureViewModel {
     @ObservationIgnored weak var delegate: Delegate?
     /// Storage for `EventEmitter` cancellables
     @ObservationIgnored var cancellables: Set<AnyEventEmitterCancellable> = []
+    /// If true, hides floating or docked previews.
+    var hidePreviews: Bool = false
+    /// If true, show the interactive selection toolbar on iPadOS.
+    var interactiveSelectionToolbarIsPresented: Bool {
+        self.interactionMode == .interactiveSelection
+    }
 
     public typealias Delegate = NodeViewDelegate
 
@@ -239,8 +247,13 @@ public final class CanvasFeatureViewModel {
     }
 
     func onNodeClick(_ id: UUID) {
-        self.flow.select([id], previousOverride: nil, mode: self.isShiftDown ? .union : .replace, undoManager: nil)
-        self.focus.wrappedValue = .global
+        if self.interactionMode == .interactiveSelection {
+            self.flow.toggleSelected(id)
+            self.focus.wrappedValue = .global
+        } else {
+            self.flow.select([id], previousOverride: nil, mode: self.isShiftDown ? .union : .replace, undoManager: nil)
+            self.focus.wrappedValue = .global
+        }
     }
 
     func onNodeDragGesture(_ id: UUID, _ gesture: CanvasNodeDragGesture) {
@@ -408,6 +421,35 @@ public final class CanvasFeatureViewModel {
     }
     #endif
 
+    // MARK: - Interaction Mode
+
+    public func startInteractiveSelection() {
+        self.hidePreviews = true
+        Task { @MainActor in
+            try await Task.sleep(for: .seconds(0.1))
+            self.interactionMode = .interactiveSelection
+        }
+    }
+
+    public func stopInteractiveSelection() {
+        self.interactionMode = .default
+        Task { @MainActor in
+            try await Task.sleep(for: .seconds(0.1))
+            self.hidePreviews = false
+        }
+    }
+
+    func interactiveSelectionToolbarAction(_ action: InteractiveSelectionToolbarView.Action) {
+        switch action {
+        case .done:
+            self.stopInteractiveSelection()
+        case .selectAll:
+            self.coordinator.perform(userAction: .selectAllNodes)
+        case .selectNone:
+            self.coordinator.perform(userAction: .selectNone)
+        }
+    }
+
     // MARK: - Other Methods
 
     func dropDestinationHandler(_ items: [NodeKindDragItem], _ point: CGPoint) -> Bool {
@@ -448,6 +490,12 @@ extension CanvasFeatureViewModel: PlatformViewRefStore {
         set {
             self.canvasPlatformView = newValue
         }
+    }
+}
+
+extension CanvasFeatureViewModel: CanvasViewDelegate {
+    public func canvasViewEditMenuShouldAppear() -> Bool {
+        self.flow.selection.isEmpty
     }
 }
 

@@ -66,7 +66,9 @@ public enum UserAction {
     case duplicateSelectedNodes
     case copySelectedNodes
     case cutSelectedNodes
+    case selectNone
     case selectAllNodes
+    case selectNodesInteractive
     case pasteNodes(Point?)
     case exportPreviewedImage
     case exportImage(image: CIImage, filename: String?)

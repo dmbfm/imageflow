@@ -69,7 +69,8 @@ struct ActiveViewObjectModifier<V: AnyObject>: ViewModifier {
                 if self.useScenePhase {
                     switch self.scenePhase {
                     case .active: self.store()
-                    default: self.clear()
+                    case .inactive: self.clear()
+                    default: break
                     }
                 }
             }

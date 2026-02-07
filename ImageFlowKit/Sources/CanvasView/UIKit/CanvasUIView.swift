@@ -5,7 +5,7 @@ import CoreGraphics
 import Logging
 import SwiftUI
 
-public final class CanvasUIView: UIView {
+public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {
 
     // MARK: - Public Properties
 
@@ -41,6 +41,20 @@ public final class CanvasUIView: UIView {
 
     public internal(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
 
+    public weak var delegate: (any CanvasViewDelegate)?
+
+    public weak var contextMenuProvider: (any PositionedContextMenuProvider)?
+
+    public var interactionMode: CanvasInteractionMode {
+        get {
+            self.interactionController.interactionMode
+        }
+
+        set {
+            self.interactionController.interactionMode = newValue
+        }
+    }
+
     // MARK: - Internal / Private Properties
 
     var canvasInertiaAnimator: CanvasInertiaAnimator = .init()
@@ -48,6 +62,7 @@ public final class CanvasUIView: UIView {
     var canvasAnimator: CanvasAnimator?
     var interactionController: CanvasInteractionController!
     var cancellable: Set<AnyEventEmitterCancellable> = []
+    var contextMenuInteraction: UIContextMenuInteraction!
 
     // MARK: - Subviews
 
@@ -83,6 +98,7 @@ public final class CanvasUIView: UIView {
     public init(
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
+        configuration: CanvasView.Configuration = .default,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?,
     ) {
         self.viewport = viewport
@@ -106,12 +122,8 @@ public final class CanvasUIView: UIView {
         self.gridViewDraw()
 
         self.contextMenuInteraction = .init(delegate: self)
-        self.addInteraction(self.contextMenuInteraction)
+        self.gridView.addInteraction(self.contextMenuInteraction)
     }
-
-    var contextMenuInteraction: UIContextMenuInteraction!
-
-    public weak var contextMenuProvider: (any PositionedContextMenuProvider)?
 
     @available(*, unavailable)
     public required init?(coder: NSCoder) {
@@ -182,17 +194,80 @@ public final class CanvasUIView: UIView {
     }
 }
 
-final class RectSelectionView: UIView {
+final class RectSelectionView: UIView, DisplayLinkHelper.Delegate {
     var selectionRect: CGRect = .zero {
+        didSet {
+            if !self.playing {
+                self._selectionRect = selectionRect
+            } else {
+                if self.selectionRect.width > 10 || self.selectionRect.height > 10 {
+                    self.playing = false
+                    self.helper.stop()
+                    self._selectionRect = selectionRect
+                }
+            }
+        }
+    }
+
+    var _selectionRect: CGRect = .zero {
         didSet {
             self.setNeedsDisplay()
         }
     }
 
+    let helper: DisplayLinkHelper
+
     override init(frame: CGRect) {
+        self.helper = .init()
+
         super.init(frame: frame)
 
         self.backgroundColor = .clear
+
+        self.helper.delegate = self
+    }
+
+    var playing: Bool = false
+    var point: CGPoint = .zero
+
+    let squareSize = 120.0
+    let duration = 0.7
+
+    func step(ellapsed: Double) -> Bool {
+        if ellapsed > duration {
+            self.playing = false
+            self._selectionRect = .init(origin: self.point, size: .zero)
+            return false
+        }
+
+        if !self.playing {
+            return false
+        }
+
+        let t = EasingCurve.cubic.easeOut(ellapsed / duration)
+
+        if (0...0.5).contains(t) {
+            let tt = t / 0.5
+            let size = squareSize * tt
+            let x = self.point.x * (1.0 - tt) + (self.point.x - squareSize * 0.5) * tt
+            let y = self.point.y * (1.0 - tt) + (self.point.y - squareSize * 0.5) * tt
+            self._selectionRect = .init(x: x, y: y, width: size, height: size)
+        } else if (0.5...1.0).contains(t) {
+            let tt = (t - 0.5) / 0.5
+            let size = squareSize * (1 - tt)
+            let x = (self.point.x - squareSize * 0.5) * (1 - tt) + self.point.x * tt
+            let y = (self.point.y - squareSize * 0.5) * (1 - tt) + self.point.y * tt
+            self._selectionRect = .init(x: x, y: y, width: size, height: size)
+        }
+
+        return true
+    }
+
+    func animate(_ point: CGPoint) {
+        self.selectionRect = .init(x: point.x, y: point.y, width: 0, height: 0)
+        self.point = point
+        self.playing = true
+        self.helper.start()
     }
 
     required init?(coder: NSCoder) {
@@ -202,7 +277,7 @@ final class RectSelectionView: UIView {
     override func draw(_ rect: CGRect) {
         UIColor.systemOrange.withAlphaComponent(0.2).setFill()
         UIColor.systemOrange.setStroke()
-        let path = UIBezierPath(rect: self.selectionRect)
+        let path = UIBezierPath(rect: self._selectionRect)
         path.fill()
         path.lineWidth = 1.0
         path.stroke()

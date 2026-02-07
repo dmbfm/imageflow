@@ -35,7 +35,12 @@ public struct CanvasView: PlatformViewRepresentable {
     /// A closure to listen to canvas view events (see `Event`).
     let onEvent: ((CanvasView.Event) -> ())?
 
+    /// The current interaction mode of the canvas
+    let interactionMode: CanvasInteractionMode
+
     weak var contextMenuProvider: (any PositionedContextMenuProvider)?
+
+    weak var delegate: (any CanvasViewDelegate)?
 
     /// The public events handled by the `onEvent` closure.
     public enum Event {
@@ -56,6 +61,8 @@ public struct CanvasView: PlatformViewRepresentable {
         canvasPlatformViewRef: Binding<PlatformView?>,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         contextMenuProvider: (any PositionedContextMenuProvider)? = nil,
+        delegate: (any CanvasViewDelegate)? = nil,
+        interactionMode: CanvasInteractionMode = .default,
         onEvent: ((CanvasView.Event) -> ())? = nil
     ) {
         self._viewport = viewport
@@ -65,6 +72,8 @@ public struct CanvasView: PlatformViewRepresentable {
         self._canvasPlatformViewRef = canvasPlatformViewRef
         self.onEvent = onEvent
         self.contextMenuProvider = contextMenuProvider
+        self.delegate = delegate
+        self.interactionMode = interactionMode
     }
 
     public func makeView(context: Context) -> CanvasPlatformView {
@@ -83,6 +92,8 @@ public struct CanvasView: PlatformViewRepresentable {
         self.canvasPlatformViewRef = .init(view)
 
         view.contextMenuProvider = self.contextMenuProvider
+        view.delegate = self.delegate
+        view.interactionMode = self.interactionMode
 
         return view
     }
@@ -109,6 +120,14 @@ public struct CanvasView: PlatformViewRepresentable {
 
         if view.contextMenuProvider !== self.contextMenuProvider {
             view.contextMenuProvider = self.contextMenuProvider
+        }
+
+        if view.delegate !== self.delegate {
+            view.delegate = self.delegate
+        }
+
+        if view.interactionMode != self.interactionMode {
+            view.interactionMode = self.interactionMode
         }
     }
 

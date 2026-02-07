@@ -5,8 +5,7 @@ import CoreGraphics
 import Logging
 import SwiftUI
 
-public final class CanvasNSView: NSView {
-
+public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
     // MARK: - Public Properties
 
     public var viewport: CanvasView.Viewport {
@@ -40,6 +39,9 @@ public final class CanvasNSView: NSView {
     public var viewForNode: (UUID) -> (any CanvasNodeView)?
 
     public internal(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
+
+    public var delegate: (any CanvasViewDelegate)?
+    public var interactionMode: CanvasInteractionMode = .default
 
     // MARK: - Private Properties
 
@@ -81,6 +83,7 @@ public final class CanvasNSView: NSView {
     public init(
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
+        configuration: CanvasView.Configuration = .default,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?,
     ) {
         self.viewport = viewport

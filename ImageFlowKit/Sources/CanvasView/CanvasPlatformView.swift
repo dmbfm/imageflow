@@ -21,12 +21,23 @@ protocol CanvasPlatformViewProtocol {
     var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
     var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
     var contextMenuProvider: (any PositionedContextMenuProvider)? { get set }
+    var delegate: (any CanvasViewDelegate)? { get set }
+    var interactionMode: CanvasInteractionMode { get set }
     init(
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
         configuration: CanvasView.Configuration,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?
     )
+}
+
+public enum CanvasInteractionMode {
+    case `default`
+    case interactiveSelection
+}
+
+public protocol CanvasViewDelegate: AnyObject {
+    func canvasViewEditMenuShouldAppear() -> Bool
 }
 
 extension CanvasPlatformView {

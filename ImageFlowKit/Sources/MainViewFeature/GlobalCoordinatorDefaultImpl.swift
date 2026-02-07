@@ -128,6 +128,10 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
         case .preview(let action):
             self.perform(previewAction: action)
+        case .selectNodesInteractive:
+            self.canvasViewModel?.startInteractiveSelection()
+        case .selectNone:
+            self.flow.selectNone()
         }
     }
 

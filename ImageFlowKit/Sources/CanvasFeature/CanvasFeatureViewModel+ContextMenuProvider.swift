@@ -24,11 +24,18 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
             self?.coordinator.perform(userAction: .selectAllNodes)
         }
 
+        let selectNodes = UIAction(
+            title: "Select Nodes",
+            image: .init(systemName: "rectangle.dashed"),
+        ) { [weak self] _ in
+            self?.coordinator.perform(userAction: .selectNodesInteractive)
+        }
+
         return UIMenu(
             title: "Canvas",
             children: [
                 UIMenu(
-                    title: "Add",
+                    title: "Add Node",
                     image: .init(systemName: "plus"),
                     children: NodePaletteService.shared.categories().map { category in
                         UIMenu(
@@ -47,6 +54,7 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
                 ),
                 pasteAction,
                 selectAllAction,
+                selectNodes,
             ]
         )
     }

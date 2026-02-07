@@ -52,6 +52,8 @@ public struct CanvasFeatureView: View {
                 canvasPlatformViewRef: self.vm.canvasPlatformViewRefBinding,
                 viewForNode: self.vm.viewForNode,
                 contextMenuProvider: self.vm,
+                delegate: self.vm,
+                interactionMode: self.vm.interactionMode,
                 onEvent: self.vm.onCanvasEvent,
             )
             .ignoresSafeArea()
@@ -81,10 +83,19 @@ public struct CanvasFeatureView: View {
             .ignoresSafeArea(.all)
             #endif
 
-            CanvasImagePreviewView(flow: self.vm.flow, assetStore: self.vm.assetStore, coordinator: self.vm.coordinator)
-            { _ in }
+            CanvasImagePreviewView(
+                flow: self.vm.flow,
+                assetStore: self.vm.assetStore,
+                coordinator: self.vm.coordinator
+            )
             #if os(iOS)
             .safeAreaPadding(.top, 60)
+            #endif
+            .opacity(self.vm.hidePreviews ? 0 : 1)
+            .animation(.smooth(duration: 0.2), value: self.vm.hidePreviews)
+
+            #if os(iOS)
+            self.interactiveSelectionToolbarView
             #endif
 
             DropOverlay(vm: self.vm)
@@ -105,6 +116,19 @@ public struct CanvasFeatureView: View {
 
     }
 
+    #if os(iOS)
+    var interactiveSelectionToolbarView: some View {
+        ZStack(alignment: .bottom) {
+            Color.clear
+            InteractiveSelectionToolbarView(
+                visible: self.vm.interactiveSelectionToolbarIsPresented,
+                onAction: self.vm.interactiveSelectionToolbarAction(_:)
+            )
+            .padding(.bottom, 60)
+        }
+    }
+    #endif
+
     #if os(macOS)
     var nodeSearchPopoverContent: some View {
         NodePaletteSearchPopoverView(
@@ -122,7 +146,7 @@ private struct CanvasImagePreviewView: View {
     let flow: Flow
     let assetStore: any AssetStoreService
     let coordinator: GlobalCoordinator
-    let launchPreviewWindow: (AssetIdentifier) -> ()
+
     var body: some View {
         PreviewFeatureView(self.flow, self.assetStore, coordinator: self.coordinator)
     }

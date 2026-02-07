@@ -13,6 +13,8 @@ class CanvasInteractionController: NSObject {
         self.canvas.gestureView
     }
 
+    var interactionMode: CanvasInteractionMode = .default
+
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureHandler(_:)))
         gesture.delegate = self
@@ -63,6 +65,14 @@ class CanvasInteractionController: NSObject {
 
     lazy var hoverGesture: UIHoverGestureRecognizer = {
         let gesture = UIHoverGestureRecognizer(target: self, action: #selector(Self.hoverHandler(_:)))
+        gesture.delegate = self
+        return gesture
+    }()
+
+    lazy var longpressGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.longpressHandler(_:)))
+        gesture.numberOfTouchesRequired = 1
+        gesture.delegate = self
         return gesture
     }()
 
@@ -91,11 +101,15 @@ class CanvasInteractionController: NSObject {
 
     private lazy var oneFingerPangestureHandler:
         EitherCanvasOrNodeGestureHandle<
-            InertialPanHandler,
+            CanvasGestureHandlerEither<
+                InertialPanHandler,
+                RectSelectGestureHandler,
+                CanvasInteractionModeCondition
+            >,
             NodeDragHandler,
             EitherCanvasOrNodeHitTestCondition<UIPanGestureRecognizer>
         > = {
-            .init(.init(sensitivity: 1.0), .init())
+            .init(.init(left: .init(sensitivity: 1.0), right: .init()), .init())
         }()
 
     private lazy var twoFingerPanHandler: InertialPanHandler = {
@@ -115,6 +129,11 @@ class CanvasInteractionController: NSObject {
         .init()
     }()
 
+    private lazy var longPressGestureHandler:
+        ConditionalCanvasGestureHandler<LongPressGestureHandler, LocationNotInAnyNodeCondition> = {
+            .init(handler: .init())
+        }()
+
     init(_ canvas: CanvasUIView) {
         self.canvas = canvas
 
@@ -127,6 +146,7 @@ class CanvasInteractionController: NSObject {
         self.view.addGestureRecognizer(self.mousePanGesture)
         self.view.addGestureRecognizer(self.trackpadScrollPanGesture)
         self.view.addGestureRecognizer(self.hoverGesture)
+        self.view.addGestureRecognizer(self.longpressGesture)
     }
 
     func emit(_ event: CanvasPlatformView.Event) {
@@ -166,6 +186,19 @@ class CanvasInteractionController: NSObject {
     @objc
     func hoverHandler(_ gesture: UIHoverGestureRecognizer) {
         self.hoverGestureHandler.handle(gesture, self.canvas)
+    }
+
+    @objc
+    func longpressHandler(_ gesture: UILongPressGestureRecognizer) {
+        self.longPressGestureHandler.handle(gesture, canvas)
+    }
+
+    func startInteractiveSelection() {
+        self.interactionMode = .interactiveSelection
+    }
+
+    func stopInteractiveSelection() {
+        self.interactionMode = .default
     }
 }
 
@@ -382,6 +415,14 @@ struct TapNodeGestureHandler: CanvasNodeGestureHandler {
 @MainActor
 struct TapCanvasGestureHandler: CanvasGestureHandler {
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView) {
+        guard canvas.interactionMode != .interactiveSelection else {
+            return
+        }
+
+        if canvas.delegate?.canvasViewEditMenuShouldAppear() == true {
+            canvas.gestureView.showEditMenu(gesture.location(in: canvas.gestureView))
+        }
+
         canvas.onEvent?(.clickBackground)
     }
 }
@@ -391,14 +432,24 @@ struct RectSelectGestureHandler: CanvasGestureHandler {
 
     var initialPos: CGPoint = .zero
 
-    mutating func handle(_ gesture: UIPanGestureRecognizer, _ canvas: CanvasUIView) {
-        if gesture.state == .began {
-            self.initialPos = gesture.location(in: canvas.gestureView)
-            canvas.onEvent?(.rectSelect(.started(shiftDown: false)))
+    mutating func handle(
+        _ state: UIGestureRecognizer.State,
+        _ isShiftDown: Bool,
+        _ location: CGPoint,
+        _ translation: CGSize,
+        _ canvas: CanvasUIView
+    ) {
+
+        let isAdditive = isShiftDown || canvas.interactionMode == .interactiveSelection
+
+        if state == .began {
+            self.initialPos = location
+            canvas.rectSelectionView.animate(location)
+            canvas.onEvent?(.rectSelect(.started(shiftDown: isAdditive)))
             return
         }
 
-        if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
+        if state == .ended || state == .cancelled || state == .failed {
             self.initialPos = .zero
             canvas.rectSelectionView.selectionRect = .zero
             canvas.onEvent?(.rectSelect(.ended))
@@ -407,13 +458,19 @@ struct RectSelectGestureHandler: CanvasGestureHandler {
 
         let localRect = CGRect(
             origin: self.initialPos,
-            size: gesture.translation(in: canvas.gestureView).cgSize
+            size: translation
         )
 
         let contentRect = canvas.contentView.convert(localRect, from: canvas.gestureView)
 
         canvas.rectSelectionView.selectionRect = localRect
-        canvas.onEvent?(.rectSelect(.modified(shiftDown: false, rect: contentRect)))
+        canvas.onEvent?(.rectSelect(.modified(shiftDown: isAdditive, rect: contentRect)))
+    }
+
+    mutating func handle(_ gesture: UIPanGestureRecognizer, _ canvas: CanvasUIView) {
+        let location = gesture.location(in: canvas.gestureView)
+        let translation = gesture.translation(in: canvas.gestureView).cgSize
+        self.handle(gesture.state, gesture.modifierFlags.contains(.shift), location, translation, canvas)
     }
 }
 
@@ -489,12 +546,17 @@ where
         self.handler = handler
     }
 
+    var enabled: Bool = true
+
     mutating func handle(_ gesture: Gesture, _ canvas: CanvasUIView) {
-        if Condition.condition(gesture, canvas) {
+        if gesture.state == .began || (gesture.state == .ended && gesture is UITapGestureRecognizer) {
+            self.enabled = Condition.condition(gesture, canvas)
+        }
+
+        if self.enabled {
             self.handler.handle(gesture, canvas)
         }
     }
-
 }
 
 protocol ConditionalCanvasGestureHandlerCondition<Gesture> {
@@ -506,6 +568,13 @@ protocol ConditionalCanvasGestureHandlerCondition<Gesture> {
 struct ScrollButtonMaskCondition<G: UIGestureRecognizer>: ConditionalCanvasGestureHandlerCondition {
     static func condition(_ gesture: G, _ canvas: CanvasUIView) -> Bool {
         gesture.buttonMask.rawValue == 0
+    }
+}
+
+@MainActor
+struct LocationNotInAnyNodeCondition<G: UIGestureRecognizer>: ConditionalCanvasGestureHandlerCondition {
+    static func condition(_ gesture: G, _ canvas: CanvasUIView) -> Bool {
+        canvas.nodeHitTest(gesture.location(in: canvas)) == nil
     }
 }
 
@@ -523,4 +592,76 @@ struct HoverHandler: CanvasGestureHandler {
 
     }
 }
+
+@MainActor
+private struct LongPressGestureHandler: CanvasGestureHandler {
+
+    var rectHandler: RectSelectGestureHandler = .init()
+    var start: CGPoint = .zero
+
+    mutating func handle(_ gesture: UILongPressGestureRecognizer, _ canvas: CanvasUIView) {
+        let location = gesture.location(in: canvas.gestureView)
+        if gesture.state == .began {
+            self.start = location
+        }
+        let translation = location - self.start
+        self.rectHandler.handle(
+            gesture.state,
+            gesture.modifierFlags.contains(.shift),
+            location,
+            translation.cgSize,
+            canvas
+        )
+    }
+}
+
+@MainActor
+struct CanvasGestureHandlerEither<Left, Right, Condition>: CanvasGestureHandler
+where
+    Left: CanvasGestureHandler,
+    Right: CanvasGestureHandler,
+    Left.Gesture == Right.Gesture,
+    Condition: CanvasGestureHandlerEitherCondition,
+    Condition.Gesture == Left.Gesture
+{
+    typealias Gesture = Left.Gesture
+
+    var left: Left
+    var right: Right
+    var target: CanvasGestureHandlerEitherTarget = .left
+
+    mutating func handle(_ gesture: Left.Gesture, _ canvas: CanvasUIView) {
+        if gesture.state == .began || (gesture.state == .ended && gesture is UITapGestureRecognizer) {
+            self.target = Condition.choose(gesture, canvas)
+        }
+
+        switch target {
+        case .left:
+            self.left.handle(gesture, canvas)
+        case .right:
+            self.right.handle(gesture, canvas)
+        }
+    }
+}
+
+enum CanvasGestureHandlerEitherTarget {
+    case left
+    case right
+}
+
+protocol CanvasGestureHandlerEitherCondition {
+    associatedtype Gesture
+    static func choose(_ gesture: Gesture, _ canvas: CanvasUIView) -> CanvasGestureHandlerEitherTarget
+}
+
+@MainActor
+struct CanvasInteractionModeCondition<G: UIGestureRecognizer>: CanvasGestureHandlerEitherCondition {
+    static func choose(_ gesture: G, _ canvas: CanvasUIView) -> CanvasGestureHandlerEitherTarget {
+        switch canvas.interactionController.interactionMode {
+        case .default: .left
+        case .interactiveSelection: .right
+        }
+    }
+}
+
 #endif

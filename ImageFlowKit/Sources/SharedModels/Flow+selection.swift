@@ -14,6 +14,14 @@ extension Flow {
         self.selection.contains(id)
     }
 
+    public func toggleSelected(_ id: UUID) {
+        if self.selection.contains(id) {
+            self.selection.remove(id)
+        } else {
+            self.selection.insert(id)
+        }
+    }
+
     @discardableResult
     public func selectAll(undoManager um: UndoManager? = nil) -> Set<UUID>? {
         self.select(Set(self.nodes.keys), undoManager: um)
