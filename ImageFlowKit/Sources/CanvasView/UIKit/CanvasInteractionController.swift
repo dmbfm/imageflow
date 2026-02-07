@@ -140,25 +140,21 @@ class CanvasInteractionController: NSObject {
 
     @objc
     func oneFingerPanHandler(_ gesture: UIPanGestureRecognizer) {
-        log("oneFingerPanHandler")
         self.oneFingerPangestureHandler.handle(gesture, self.canvas)
     }
 
     @objc
     func twoFingerPanHandler(_ gesture: UIPanGestureRecognizer) {
-        log("twoFingerPanHandler")
         self.twoFingerPanHandler.handle(gesture, self.canvas)
     }
 
     @objc
     func pinchGestureHandler(_ gesture: UIPinchGestureRecognizer) {
-        log("pinchGestureHandler")
         self.twoFingerPinchHandler.handle(gesture, self.canvas)
     }
 
     @objc
     func mousePanHandler(_ gesture: UIPanGestureRecognizer) {
-        log("mousePanHandler(:\(gesture.translation(in: self.canvas))")
         self.mousePanGestureHandler.handle(gesture, self.canvas)
     }
 
