@@ -1,19 +1,36 @@
-import CanvasView
-import Helpers
-import Logging
+import Foundation
 import SharedModels
 import SwiftUI
 
-extension CanvasFeatureViewModel: PositionedContextMenuProvider {
-    #if os(iOS)
-    public func canvasContextMenu(at location: CGPoint) -> UIMenu? {
+#if os(iOS)
+import UIKit
+#endif
 
+#if os(macOS)
+import AppKit
+#endif
+
+@MainActor
+public class CanvasContextMenuProvider {
+
+    weak var coordinator: GlobalCoordinator?
+
+    public init(coordinator: GlobalCoordinator?) {
+        self.coordinator = coordinator
+    }
+
+    func pickItem(_ item: NodePaletteItem, _ pos: CGPoint) {
+        self.coordinator?.perform(userAction: .newNode(kind: item.nodeKind, at: .canvasView(pos)))
+    }
+
+    #if os(iOS)
+    public func makeMenu(at location: CGPoint) -> UIMenu? {
         let pasteAction = UIAction(
             title: "Paste",
             image: .init(systemName: "document.on.clipboard"),
             attributes: PasteboardObserver.shared.canPaste ? [] : .disabled,
             handler: { [weak self] _ in
-                self?.coordinator.perform(userAction: .pasteNodes(.canvasView(location)))
+                self?.coordinator?.perform(userAction: .pasteNodes(.canvasView(location)))
             },
         )
 
@@ -21,14 +38,14 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
             title: "Select All",
             image: .init(systemName: "character.textbox"),
         ) { [weak self] _ in
-            self?.coordinator.perform(userAction: .selectAllNodes)
+            self?.coordinator?.perform(userAction: .selectAllNodes)
         }
 
         let selectNodes = UIAction(
             title: "Select Nodes",
             image: .init(systemName: "rectangle.dashed"),
         ) { [weak self] _ in
-            self?.coordinator.perform(userAction: .selectNodesInteractive)
+            self?.coordinator?.perform(userAction: .selectNodesInteractive)
         }
 
         return UIMenu(
@@ -45,7 +62,7 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
                                     title: item.displayName,
                                     image: .init(systemName: item.icon),
                                     handler: { [weak self] _ in
-                                        self?.addButtonClick(item, location)
+                                        self?.pickItem(item, location)
                                     }
                                 )
                             }
@@ -60,16 +77,8 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
     }
     #endif
 
-    private func addButtonClick(_ item: NodePaletteItem, _ pos: CGPoint) {
-        self.flow.newNodeAction(
-            .init(kind: item.nodeKind),
-            at: self.state.viewport.convert(pos, from: .screen, to: .canvas),
-            undoManager: self.undoManager
-        )
-    }
-
     #if os(macOS)
-    public func canvasContextMenu(at location: CGPoint) -> NSMenu? {
+    public func makeMenu(at location: CGPoint) -> NSMenu? {
         NSHostingMenu(rootView: self._canvasContextMenu(at: location))
     }
 
@@ -78,7 +87,9 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
             Section("Canvas") {
                 Menu("Add Node", systemImage: "plus") {
                     Button {
-                        self.nodeSearchPopoverPresent()
+                        self.coordinator?.perform(
+                            userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: location)
+                        )
                     } label: {
                         Label("Search", systemImage: "magnifyingglass")
                     }
@@ -86,7 +97,7 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
                         Menu(cat.name.rawValue) {
                             ForEach(cat.items) { item in
                                 Button {
-                                    self.addButtonClick(item, location)
+                                    self.pickItem(item, location)
                                 } label: {
                                     Label(item.displayName, systemImage: item.icon)
                                 }
@@ -95,16 +106,16 @@ extension CanvasFeatureViewModel: PositionedContextMenuProvider {
                     }
                 }
 
-                Button { [weak self] in
-                    self?.coordinator.perform(userAction: .pasteNodes(nil))
+                Button {
+                    self.coordinator?.perform(userAction: .pasteNodes(nil))
                 } label: {
                     Label("Paste", systemImage: "document.on.clipboard")
                 }
                 .keyboardShortcut("v")
                 .disabled(!PasteboardObserver.shared.canPaste)
 
-                Button { [weak self] in
-                    self?.coordinator.perform(userAction: .selectAllNodes)
+                Button {
+                    self.coordinator?.perform(userAction: .selectAllNodes)
                 } label: {
                     Label("Select All", systemImage: .systemIconMenuSelectAll)
                 }

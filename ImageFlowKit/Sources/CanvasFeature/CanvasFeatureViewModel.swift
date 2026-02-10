@@ -1,4 +1,5 @@
 import CanvasView
+import ContextMenus
 import Design
 import Helpers
 import Logging
@@ -41,10 +42,12 @@ public final class CanvasFeatureViewModel {
     @ObservationIgnored var undoManager: UndoManager?
     /// Stores a reference to the platform-specific (i.e., NSView/UIView) canvas view.
     @ObservationIgnored weak var canvasPlatformView: PlatformView?
-    /// The delegate for this view model (in practive it is a typealias to `NodeView.Delegate`) (TODO: Is this necessary?)
-    @ObservationIgnored weak var delegate: Delegate?
     /// Storage for `EventEmitter` cancellables
     @ObservationIgnored var cancellables: Set<AnyEventEmitterCancellable> = []
+    /// Provider for node context menus
+    @ObservationIgnored var nodeContextMenuProvider: NodeContextMenuProvider?
+    /// Provider for canvas context menus
+    @ObservationIgnored var canvasContextMenuProvider: CanvasContextMenuProvider?
     /// If true, hides floating or docked previews.
     var hidePreviews: Bool = false
     /// If true, show the interactive selection toolbar on iPadOS.
@@ -70,14 +73,12 @@ public final class CanvasFeatureViewModel {
         flow: Flow,
         assetStore: any AssetStoreService,
         focus: FocusState<Focus?>.Binding,
-        delegate: Delegate? = nil,
         coordinator: GlobalCoordinator,
     ) {
         self.state = state
         self.flow = flow
         self.assetStore = assetStore
         self.focus = focus
-        self.delegate = delegate
         self.coordinator = coordinator
 
         self.coordinator.emitter.on({ [weak self] event in self?.onCoordinatorEvent(event) }).store(
@@ -172,7 +173,7 @@ public final class CanvasFeatureViewModel {
             return nil
         }
 
-        let view = NodeView(node, delegate: self.delegate)
+        let view = NodeView(node, delegate: self)
 
         view.emitter.on { [weak self, id] event in
             self?.onNodeEvent(id, event)
@@ -494,6 +495,26 @@ extension CanvasFeatureViewModel: PlatformViewRefStore {
 }
 
 extension CanvasFeatureViewModel: CanvasViewDelegate {
+    public func canvasView(willShowContextMenuForNode id: UUID) {
+        // self.flow.select([id])
+    }
+
+    public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> PlatformMenu? {
+        if self.nodeContextMenuProvider == nil {
+            self.nodeContextMenuProvider = .init(coordinator: self.coordinator)
+        }
+
+        return self.nodeContextMenuProvider?.makeMenu(forNode: id, at: point ?? .zero)
+    }
+
+    public func canvasView(contextMenuAt point: CGPoint) -> Helpers.PlatformMenu? {
+        if self.canvasContextMenuProvider == nil {
+            self.canvasContextMenuProvider = .init(coordinator: self.coordinator)
+        }
+
+        return self.canvasContextMenuProvider?.makeMenu(at: point)
+    }
+
     public func canvasViewEditMenuShouldAppear() -> Bool {
         self.flow.selection.isEmpty
     }

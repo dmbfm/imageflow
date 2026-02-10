@@ -43,8 +43,6 @@ public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {
 
     public weak var delegate: (any CanvasViewDelegate)?
 
-    public weak var contextMenuProvider: (any PositionedContextMenuProvider)?
-
     public var interactionMode: CanvasInteractionMode {
         get {
             self.interactionController.interactionMode
@@ -295,7 +293,7 @@ extension CanvasUIView: UIContextMenuInteractionDelegate {
             identifier: nil,
             previewProvider: nil,
             actionProvider: { _ in
-                self.contextMenuProvider?.canvasContextMenu(at: loc)
+                self.delegate?.canvasView(contextMenuAt: loc)
             }
         )
     }

@@ -1,3 +1,4 @@
+import Backend
 import CoreImage
 import Foundation
 import Helpers
@@ -5,6 +6,7 @@ import SwiftUI
 
 public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
+    var flow: Flow { get }
     var nodeSelectionCount: Int { get }
     var canPaste: Bool { get }
 
@@ -75,6 +77,8 @@ public enum UserAction {
     case exportImageForNode(UUID)
     case showNodeSearch(typedPortLocation: TypedPortLocation?, canvasPosition: CGPoint?)
     case preview(PreviewAction)
+    case newNode(kind: NodeKind, at: Point?)
+    case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
 
     public enum PreviewAction {
         case zoomIn
@@ -92,6 +96,10 @@ public enum GlobalCoordinatorEvent {
 @Observable
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorImpl {
+    public var flow: Flow {
+        self.impl.flow
+    }
+
     public var available: ComponentAvailability {
         self.impl.available
     }

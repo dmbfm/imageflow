@@ -145,8 +145,12 @@ class CanvasInteractionController: NSObject {
     }()
 
     private lazy var longPressGestureHandler:
-        ConditionalCanvasGestureHandler<LongPressGestureHandler, LocationNotInAnyNodeCondition> = {
-            .init(handler: .init())
+        EitherCanvasOrNodeGestureHandle<
+            LongPressGestureHandler,
+            LongPressNodeGestureHandler,
+            EitherCanvasOrNodeHitTestCondition<UILongPressGestureRecognizer>,
+        > = {
+            .init(.init(), .init())
         }()
 
     init(_ canvas: CanvasUIView) {
@@ -435,7 +439,7 @@ struct TapCanvasGestureHandler: CanvasGestureHandler {
         //        }
 
         if canvas.delegate?.canvasViewEditMenuShouldAppear() == true {
-            canvas.gestureView.showEditMenu(gesture.location(in: canvas.gestureView))
+            canvas.gestureView.showCanvasEditMenu(gesture.location(in: canvas.gestureView))
         }
 
         canvas.onEvent?(.clickBackground)
@@ -644,6 +648,15 @@ private struct LongPressGestureHandler: CanvasGestureHandler {
             translation.cgSize,
             canvas
         )
+    }
+}
+
+@MainActor
+private struct LongPressNodeGestureHandler: CanvasNodeGestureHandler {
+    func handle(_ gesture: UILongPressGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
+        if gesture.state == .began {
+            canvas.gestureView.showNodeEditMenu(nodeView.id, gesture.location(in: canvas.gestureView))
+        }
     }
 }
 

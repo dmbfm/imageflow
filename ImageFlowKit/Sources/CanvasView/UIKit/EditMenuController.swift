@@ -20,16 +20,29 @@ class EditMenuController: NSObject, UIEditMenuInteractionDelegate {
 
     var dismissedTime: Date? = .distantPast
 
-    func showEditMenu(_ point: CGPoint) {
+    func showEditMenu(_ type: EditMenuType, at point: CGPoint) {
+        
+        if self.view.canvas?.interactionMode == .interactiveSelection {
+            return
+        }
+        
+        if type != .canvas {
+            if self.dismissedTime == nil {
+                self.editMenuInteraction.dismissMenu()
+            }
+            self.show(type, at: point)
+            return
+        }
+        
         if let dismissedTime = self.dismissedTime {
             if Date.now.timeIntervalSince(dismissedTime) > 0.2 {
-                self.show(point)
+                self.show(type, at: point)
             }
         }
     }
 
-    private func show(_ point: CGPoint) {
-        self.editMenuInteraction.presentEditMenu(with: .init(identifier: "canvas-edit-menu", sourcePoint: point))
+    private func show(_ type: EditMenuType, at point: CGPoint) {
+        self.editMenuInteraction.presentEditMenu(with: .init(identifier: type, sourcePoint: point))
         self.dismissedTime = nil
     }
 
@@ -46,7 +59,26 @@ class EditMenuController: NSObject, UIEditMenuInteractionDelegate {
         menuFor configuration: UIEditMenuConfiguration,
         suggestedActions: [UIMenuElement]
     ) -> UIMenu? {
-        self.view.contextMenuProvider?.canvasContextMenu(at: configuration.sourcePoint)
+        
+        guard let identifier = configuration.identifier as? EditMenuType else {
+            log("Invalid identifier!", level: .error)
+            return nil
+        }
+        
+        if identifier == .canvas {
+            return self.view.canvas?.delegate?.canvasView(contextMenuAt: configuration.sourcePoint)
+        } else if  case let .node(id) = identifier {
+            self.view.canvas?.delegate?.canvasView(willShowContextMenuForNode: id)
+            return self.view.canvas?.delegate?.canvasView(contextMenuForNode: id, at: interaction.location(in: self.view))
+        }
+        
+        return nil
     }
 }
+
+enum EditMenuType: Hashable {
+    case canvas
+    case node(UUID)
+}
+
 #endif

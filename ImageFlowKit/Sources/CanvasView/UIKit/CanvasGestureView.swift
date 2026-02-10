@@ -8,16 +8,16 @@ class CanvasGestureView: UIView {
 
     weak var canvas: CanvasUIView?
 
-    var contextMenuProvider: PositionedContextMenuProvider? {
-        self.canvas?.contextMenuProvider
-    }
-
     lazy var editMenuController: EditMenuController = {
         .init(self)
     }()
+    
+    func showNodeEditMenu(_ id: UUID, _ point: CGPoint) {
+        self.editMenuController.showEditMenu(.node(id), at: point)
+    }
 
-    func showEditMenu(_ point: CGPoint) {
-        self.editMenuController.showEditMenu(point)
+    func showCanvasEditMenu(_ point: CGPoint) {
+        self.editMenuController.showEditMenu(.canvas, at: point)
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {

@@ -1,69 +1,34 @@
 import Foundation
-import Helpers
-import Logging
-import NodeView
 import SharedModels
-import Values
-
-extension GlobalCoordinatorDefaultImpl: NodeViewDelegate {
-    public func nodeView(willShowContextMenuForNode node: UUID) {
-        self.flow.selectNodeIfNotSelected(node)
-    }
-
-    public func nodeView(contextMenuProvider node: UUID) -> any PositionedContextMenuProvider {
-        let menu = NodeViewMenuProvider(id: node, coordinator: self)
-        self.nodeViewMenu = menu
-        return menu
-    }
-
-    public func nodeViewSelectedNodesCount() -> Int {
-        self.flow.selection.count
-    }
-
-    public func openAssetPicker(node: UUID, portIndex: Int, kind: SharedModels.AssetKind) {
-        self.mainContentViewModel?.openAssetPicker(
-            picker: .init(assetKind: kind, portLocation: .init(node: node, index: portIndex))
-        )
-    }
-
-    public func titleForAsset(id: AssetIdentifier) -> String? {
-        guard let assetStore = self.mainContentViewModel?.assetStore else { return nil }
-
-        return if case let .asset(id) = id {
-            assetStore.assets[id]?.filename
-        } else {
-            nil
-        }
-    }
-}
-
-#if os(macOS)
-import AppKit
-#endif
+import SwiftUI
 
 #if os(iOS)
 import UIKit
 #endif
 
-@MainActor
-class NodeViewMenuProvider: PositionedContextMenuProvider {
-    var id: UUID
-    weak var coordinator: GlobalCoordinatorDefaultImpl?
+#if os(macOS)
+import AppKit
+#endif
 
-    init(id: UUID, coordinator: GlobalCoordinatorDefaultImpl?) {
-        self.id = id
+@MainActor
+public class NodeContextMenuProvider {
+
+    weak var coordinator: (any GlobalCoordinatorImpl)?
+    private var id: UUID?
+
+    public init(coordinator: (any GlobalCoordinatorImpl)?) {
         self.coordinator = coordinator
     }
 
     #if os(macOS)
-    // swiftlint:disable function_body_length
-    func canvasContextMenu(at _: CGPoint) -> PlatformMenu? {
+    public func makeMenu(forNode id: UUID, at location: CGPoint) -> NSMenu? {
+        self.id = id
         let menu = NSMenu(title: "Node Context Menu")
         let selectedCount = self.coordinator?.flow.selection.count ?? 0
         let nodeName = selectedCount > 1 ? "Nodes" : "Node"
         let hasSelection = selectedCount > 0
 
-        guard let node = self.coordinator?.flow.nodes[self.id] else {
+        guard let node = self.coordinator?.flow.nodes[id] else {
             return nil
         }
 
@@ -160,7 +125,9 @@ class NodeViewMenuProvider: PositionedContextMenuProvider {
 
     @objc
     func contextMenuExportImageAction() {
-        self.coordinator?.perform(userAction: .exportImageForNode(self.id))
+        if let id = self.id {
+            self.coordinator?.perform(userAction: .exportImageForNode(id))
+        }
     }
 
     @objc
@@ -192,13 +159,13 @@ class NodeViewMenuProvider: PositionedContextMenuProvider {
     }
     #endif
 
-    // swiftlint:disable function_body_length
     #if os(iOS)
-    func canvasContextMenu(at location: CGPoint) -> PlatformMenu? {
-        let selectedCount = self.coordinator?.nodeViewSelectedNodesCount() ?? 0
+    public func makeMenu(forNode id: UUID, at location: CGPoint) -> UIMenu? {
+
+        let selectedCount = self.coordinator?.flow.selection.count ?? 0
         let nodeName = selectedCount > 1 ? "Nodes" : "Node"
 
-        guard let node = self.coordinator?.flow.nodes[self.id] else {
+        guard let node = self.coordinator?.flow.nodes[id] else {
             return nil
         }
 
@@ -249,7 +216,7 @@ class NodeViewMenuProvider: PositionedContextMenuProvider {
         let exportImageAction = UIAction(
             title: "Export Image...",
         ) { _ in
-            self.coordinator?.perform(userAction: .exportImageForNode(self.id))
+            self.coordinator?.perform(userAction: .exportImageForNode(id))
         }
 
         let hasImageOutput = node.outputs.contains(where: { $0.type == .image })
@@ -269,6 +236,7 @@ class NodeViewMenuProvider: PositionedContextMenuProvider {
                         UIMenu(title: "", options: [.displayInline], children: [exportImageAction])
                     ] : [])
         )
+
     }
     #endif
 }

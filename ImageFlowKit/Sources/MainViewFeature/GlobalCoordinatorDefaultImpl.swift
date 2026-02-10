@@ -1,12 +1,16 @@
+import Backend
 import CanvasFeature
 import CanvasView
 import Combine
+import ContextMenus
 import Helpers
 import Logging
 import PreviewFeature
 import SharedModels
 import SwiftUI
 import UniformTypeIdentifiers
+
+import class SharedModels.Flow
 
 @Observable
 @MainActor
@@ -44,7 +48,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     }
     #endif
 
-    let flow: Flow
+    public let flow: Flow
 
     private var activeViewObserver: ActiveViewObserver
 
@@ -66,9 +70,6 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
 
     @ObservationIgnored
     public var undoManager: UndoManager? = nil
-
-    @ObservationIgnored
-    var nodeViewMenu: NodeViewMenuProvider?
 
     required public init(flow: SharedModels.Flow) {
         self.flow = flow
@@ -106,6 +107,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     public func perform(userAction action: UserAction) {
         log("user action: \(action)", level: .info)
         switch action {
+        case .newNode(let kind, at: let point):
+            self.newNode(kind: kind, at: point)
         case .copySelectedNodes:
             self.copySelectedNodes()
         case .cutSelectedNodes:
@@ -132,6 +135,10 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.canvasViewModel?.startInteractiveSelection()
         case .selectNone:
             self.flow.selectNone()
+        case let .openAssetPicker(node, portIndex, kind):
+            self.mainContentViewModel?.openAssetPicker(
+                picker: .init(assetKind: kind, portLocation: .init(node: node, index: portIndex))
+            )
         }
     }
 
@@ -204,6 +211,13 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
 
         if let preview = self.previewState, let image = preview.image {
             self.exportImage(image, preview.name)
+        }
+    }
+
+    func newNode(kind: NodeKind, at point: Point?) {
+        if let point, let view = self.canvasViewModel?.view, let viewport = self.canvasViewModel?.viewport {
+            let pos = point.canvas(view: view, viewport: viewport).cgPoint
+            self.flow.newNodeAction(kind: kind, at: pos, undoManager: self.undoManager)
         }
     }
 

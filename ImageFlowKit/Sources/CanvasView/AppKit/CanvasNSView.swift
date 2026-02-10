@@ -63,6 +63,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
             }
         }
         view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
+        view.delegate = self
         return view
     }()
 
@@ -283,6 +284,12 @@ extension CanvasNSView: NSGestureRecognizerDelegate {
         }
 
         return false
+    }
+}
+
+extension CanvasNSView: CanvasGridView.Delegate {
+    func gridViewCanvasContextMenu(at point: CGPoint) -> Helpers.PlatformMenu? {
+        self.delegate?.canvasView(contextMenuAt: point)
     }
 }
 

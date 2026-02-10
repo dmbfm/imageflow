@@ -26,7 +26,11 @@ final class CanvasGridView: PlatformView {
 
     var layerDelegate: GridViewLayerDelegate = .init()
 
-    weak var contextMenuProvider: (any PositionedContextMenuProvider)? = nil
+    weak var delegate: Delegate?
+
+    protocol Delegate: AnyObject {
+        func gridViewCanvasContextMenu(at point: CGPoint) -> PlatformMenu?
+    }
 
     init() {
         super.init(frame: .zero)
@@ -46,7 +50,7 @@ final class CanvasGridView: PlatformView {
 
     override func rightMouseDown(with event: NSEvent) {
         let location = self.convert(event.locationInWindow, from: nil)
-        if let menu = self.contextMenuProvider?.canvasContextMenu(at: location) {
+        if let menu = self.delegate?.gridViewCanvasContextMenu(at: location) {
             NSMenu.popUpContextMenu(menu, with: event, for: self)
         }
     }

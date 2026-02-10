@@ -8,7 +8,7 @@ import Values
 
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
-    func nodeView(contextMenuProvider node: UUID) -> any PositionedContextMenuProvider
+    func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> PlatformMenu?
     func nodeViewSelectedNodesCount() -> Int
 }
 
@@ -295,7 +295,7 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
     #if os(macOS)
     public override func rightMouseDown(with event: NSEvent) {
         self.delegate?.nodeView(willShowContextMenuForNode: self.node.id)
-        if let menu = self.delegate?.nodeView(contextMenuProvider: self.node.id).canvasContextMenu(at: .zero) {
+        if let menu = self.delegate?.nodeView(contextMenuForNode: self.node.id, at: nil) {
             NSMenu.popUpContextMenu(menu, with: event, for: self)
         }
     }
@@ -318,9 +318,7 @@ extension NodeView: UIContextMenuInteractionDelegate {
             previewProvider: nil,
             actionProvider: { [weak self] _ in
                 guard let self else { return nil }
-                return self.delegate?.nodeView(contextMenuProvider: self.node.id).canvasContextMenu(
-                    at: interaction.location(in: nil)
-                )
+                return self.delegate?.nodeView(contextMenuForNode: self.node.id, at: interaction.location(in: nil))
             }
         )
     }

@@ -10,6 +10,3 @@ import UIKit
 public typealias PlatformMenu = UIMenu
 #endif
 
-public protocol PositionedContextMenuProvider: AnyObject {
-    func canvasContextMenu(at location: CGPoint) -> PlatformMenu?
-}

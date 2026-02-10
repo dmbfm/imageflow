@@ -34,6 +34,7 @@ let package = Package(
         .library(name: "MainViewFeature"),
         .library(name: "AppFeature"),
         .library(name: "SettingsFeature"),
+        .library(name: "ContextMenus"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -151,6 +152,7 @@ let package = Package(
                 "NodeView",
                 "PreviewFeature",
                 "NodePaletteFeature",
+                "ContextMenus",
             ],
         ),
         .target(
@@ -211,6 +213,7 @@ let package = Package(
                 "WelcomeWindow",
                 "FlowDocument",
                 "BackendService",
+                "ContextMenus",
             ]
         ),
         .target(
@@ -230,6 +233,12 @@ let package = Package(
         .target(
             name: "SettingsFeature",
             dependencies: []
+        ),
+        .target(
+            name: "ContextMenus",
+            dependencies: [
+                "SharedModels"
+            ]
         ),
         .testTarget(
             name: "SharedModelsTests",

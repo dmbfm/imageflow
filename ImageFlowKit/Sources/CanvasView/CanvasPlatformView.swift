@@ -20,7 +20,6 @@ protocol CanvasPlatformViewProtocol {
     var configuration: CanvasView.Configuration { get }
     var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
     var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
-    var contextMenuProvider: (any PositionedContextMenuProvider)? { get set }
     var delegate: (any CanvasViewDelegate)? { get set }
     var interactionMode: CanvasInteractionMode { get set }
     init(
@@ -38,6 +37,9 @@ public enum CanvasInteractionMode {
 
 public protocol CanvasViewDelegate: AnyObject {
     func canvasViewEditMenuShouldAppear() -> Bool
+    func canvasView(willShowContextMenuForNode id: UUID)
+    func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> PlatformMenu?
+    func canvasView(contextMenuAt point: CGPoint) -> PlatformMenu?
 }
 
 extension CanvasPlatformView {
@@ -129,20 +131,6 @@ extension CanvasPlatformView {
     func moveNode(_ id: UUID, to position: CGPoint) {
         self.nodeViews[id]?.frame.origin = position
     }
-
-    // MARK: - Context Menu
-
-    #if os(macOS)
-    public weak var contextMenuProvider: (any PositionedContextMenuProvider)? {
-        get {
-            self.gridView.contextMenuProvider
-        }
-
-        set {
-            self.gridView.contextMenuProvider = newValue
-        }
-    }
-    #endif
 
     // MARK: - Mode View Due To Keyboard
 

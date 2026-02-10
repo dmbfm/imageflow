@@ -35,7 +35,6 @@ public struct CanvasFeatureView: View {
                 flow: flow,
                 assetStore: assetStore,
                 focus: focus,
-                delegate: coordinator.implementation as? NodeViewDelegate,
                 coordinator: coordinator,
             )
         )
@@ -51,7 +50,6 @@ public struct CanvasFeatureView: View {
                 edges: self.vm.edgeLayers,
                 canvasPlatformViewRef: self.vm.canvasPlatformViewRefBinding,
                 viewForNode: self.vm.viewForNode,
-                contextMenuProvider: self.vm,
                 delegate: self.vm,
                 interactionMode: self.vm.interactionMode,
                 onEvent: self.vm.onCanvasEvent,
