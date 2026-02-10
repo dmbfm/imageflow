@@ -78,11 +78,26 @@ class CanvasInteractionController: NSObject {
 
     private lazy var tapGestureHandler:
         EitherCanvasOrNodeGestureHandle<
-            TapCanvasGestureHandler,
+            CanvasGestureHandlerEither<
+                CanvasGestureHandlerEither<
+                    MouseLeftClickCanvasGestureHandler,
+                    EmptyHandler,
+                    CanvasInteractionModeCondition,
+                >,
+                CanvasGestureHandlerEither<
+                    TapCanvasGestureHandler,
+                    EmptyHandler,
+                    CanvasInteractionModeCondition,
+                >,
+                MouseLeftClickCondition
+            >,
             TapNodeGestureHandler,
             EitherCanvasOrNodeHitTestCondition<UITapGestureRecognizer>
         > = {
-            .init(.init(), .init())
+            .init(
+                .init(left: .init(left: .init(), right: .init()), right: .init(left: .init(), right: .init())),
+                .init()
+            )
         }()
 
     private lazy var mousePanGestureHandler:
@@ -415,9 +430,9 @@ struct TapNodeGestureHandler: CanvasNodeGestureHandler {
 @MainActor
 struct TapCanvasGestureHandler: CanvasGestureHandler {
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView) {
-        guard canvas.interactionMode != .interactiveSelection else {
-            return
-        }
+        //        guard canvas.interactionMode != .interactiveSelection else {
+        //            return
+        //        }
 
         if canvas.delegate?.canvasViewEditMenuShouldAppear() == true {
             canvas.gestureView.showEditMenu(gesture.location(in: canvas.gestureView))
@@ -425,6 +440,23 @@ struct TapCanvasGestureHandler: CanvasGestureHandler {
 
         canvas.onEvent?(.clickBackground)
     }
+}
+
+/// Handler for canvas tap gestures.
+@MainActor
+struct MouseLeftClickCanvasGestureHandler: CanvasGestureHandler {
+    func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView) {
+        //        guard canvas.interactionMode != .interactiveSelection else {
+        //            return
+        //        }
+
+        canvas.onEvent?(.clickBackground)
+    }
+}
+
+@MainActor
+struct EmptyHandler<G: UIGestureRecognizer>: CanvasGestureHandler {
+    func handle(_ gesture: G, _ canvas: CanvasUIView) {}
 }
 
 @MainActor
@@ -660,6 +692,17 @@ struct CanvasInteractionModeCondition<G: UIGestureRecognizer>: CanvasGestureHand
         switch canvas.interactionController.interactionMode {
         case .default: .left
         case .interactiveSelection: .right
+        }
+    }
+}
+
+@MainActor
+struct MouseLeftClickCondition<G: UIGestureRecognizer>: CanvasGestureHandlerEitherCondition {
+    static func choose(_ gesture: G, _ canvas: CanvasUIView) -> CanvasGestureHandlerEitherTarget {
+        if gesture.buttonMask.rawValue == 1 {
+            .left
+        } else {
+            .right
         }
     }
 }
