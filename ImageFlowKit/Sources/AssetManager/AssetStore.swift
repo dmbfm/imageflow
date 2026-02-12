@@ -131,6 +131,12 @@ public final class AssetStore: AssetStoreService {
         )
     }
 
+    public func remove(generatedAssetsForNode node: UUID) {
+        Task {
+            await self._assetManager.remove(generatedAssetsForNode: node)
+        }
+    }
+
     public func getThumb(forAsset id: UUID) async throws -> CGImage? {
         // NOTE: Returning the thumb that is cached in the manager has a
         // performance penalty (I think it needs to copy the CGImage data

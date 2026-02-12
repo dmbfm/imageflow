@@ -34,6 +34,10 @@ struct AssetResources {
 struct GeneratedResources {
     var ciImages: [OutputPortLocation: GeneratedResource<CIImage>] = [:]
 
+    mutating func removeCIImages(forNode node: UUID) {
+        self.ciImages = self.ciImages.filter { $0.key.node != node }
+    }
+
     mutating func clear() {
         self = .init()
     }
@@ -101,6 +105,10 @@ actor AssetManager {
         }
 
         return nil
+    }
+
+    func remove(generatedAssetsForNode node: UUID) {
+        self.generatedResources.removeCIImages(forNode: node)
     }
 
     func importImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {

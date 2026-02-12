@@ -1,3 +1,4 @@
+import AssetManager
 import Backend
 import CanvasFeature
 import CanvasView
@@ -99,6 +100,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.perform(
                 userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
             )
+        case let .didDeleteNode(id):
+            self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: id)
         default:
             break
         }

@@ -10,6 +10,7 @@ public enum FlowEvent {
     case nodePositionsDidChange([UUID: CGPoint])
     case selectionDidChange(Set<UUID>)
     case didEndPortDragWithoutCreatingEdge(typedPortLocation: TypedPortLocation, canvasPosition: CGPoint?)
+    case didDeleteNode(UUID)
 }
 
 public protocol FlowDelegate: AnyObject {
@@ -242,6 +243,10 @@ extension Flow {
                 this.addNode(previousNode, at: previousPos, undoManager: um)
             }
         )
+
+        self.selection.remove(id)
+
+        self.emitter.emit(.didDeleteNode(id))
 
         return (previousNode, previousPos)
     }
