@@ -1,4 +1,5 @@
 import Backend
+import CoreGraphics
 import Foundation
 import Helpers
 import Logging
@@ -179,7 +180,7 @@ extension Flow {
     }
 
     @discardableResult
-    func duplicateNode(
+    public func duplicateNode(
         _ id: UUID,
         offset: CGPoint = .init(x: 50, y: 50),
         undoManager um: UndoManager? = nil
@@ -382,7 +383,7 @@ extension Flow {
         self.select(newSelection)
     }
 
-    func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {
+    public func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {
         precondition(self.hasNode(id), "Can't delete a non-existing node.")
 
         um?.beginUndoGrouping()

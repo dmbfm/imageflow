@@ -20,17 +20,42 @@ public class NodeContextMenuProvider {
         self.coordinator = coordinator
     }
 
-    #if os(macOS)
-    public func makeMenu(forNode id: UUID, at location: CGPoint) -> NSMenu? {
-        self.id = id
-        let menu = NSMenu(title: "Node Context Menu")
+    func update(_ id: UUID) {
         let selectedCount = self.coordinator?.flow.selection.count ?? 0
-        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
-        let hasSelection = selectedCount > 0
+        let targetSelected = self.coordinator?.flow.isSelected(id) ?? false
+        self.id = id
+        self.target =
+            if targetSelected {
+                .selection
+            } else {
+                .node(id)
+            }
+        self.nodeLabel =
+            if !targetSelected || selectedCount <= 1 {
+                "Node"
+            } else {
+                "Nodes"
+            }
 
-        guard let node = self.coordinator?.flow.nodes[id] else {
+        self.node = self.coordinator?.flow.nodes[id]
+    }
+
+    var target: UserAction.Target = .selection
+    var nodeLabel: String = "Node"
+    var node: FlowNode?
+
+    #if os(macOS)
+    
+    public func makeMenu(forNode id: UUID, at location: CGPoint) -> NSMenu? {
+        self.update(id)
+
+        let menu = NSMenu(title: "Node Context Menu")
+
+        guard let node = self.node else {
             return nil
         }
+
+        let nodeName = self.nodeLabel
 
         menu.autoenablesItems = false
 
@@ -43,7 +68,7 @@ public class NodeContextMenuProvider {
             systemSymbolName: .systemIconMenuDelete,
             accessibilityDescription: "Delete \(nodeName)"
         )
-        deleteItem.isEnabled = hasSelection
+        // deleteItem.isEnabled = hasSelection
 
         let duplicateItem = NSMenuItem(
             title: "Duplicate \(nodeName)",
@@ -54,7 +79,7 @@ public class NodeContextMenuProvider {
             systemSymbolName: .systemIconMenuDuplicate,
             accessibilityDescription: "Duplicate \(nodeName)"
         )
-        duplicateItem.isEnabled = hasSelection
+        // duplicateItem.isEnabled = hasSelection
 
         let copyItem = NSMenuItem(
             title: "Copy \(nodeName)",
@@ -65,7 +90,7 @@ public class NodeContextMenuProvider {
             systemSymbolName: .systemIconMenuCopy,
             accessibilityDescription: "Copy \(nodeName)"
         )
-        copyItem.isEnabled = hasSelection
+        // copyItem.isEnabled = hasSelection
 
         let cutItem = NSMenuItem(
             title: "Cut \(nodeName)",
@@ -76,7 +101,7 @@ public class NodeContextMenuProvider {
             systemSymbolName: .systemIconMenuCut,
             accessibilityDescription: "Cut \(nodeName)"
         )
-        cutItem.isEnabled = hasSelection
+        // cutItem.isEnabled = hasSelection
 
         let pasteItem = NSMenuItem(
             title: "Paste \(nodeName)",
@@ -87,7 +112,7 @@ public class NodeContextMenuProvider {
             systemSymbolName: .systemIconMenuPaste,
             accessibilityDescription: "Paste \(nodeName)"
         )
-        pasteItem.isEnabled = PasteboardObserver.shared.canPaste
+        // pasteItem.isEnabled = PasteboardObserver.shared.canPaste
 
         let selectAllItem = NSMenuItem(
             title: "Select All",
@@ -132,22 +157,22 @@ public class NodeContextMenuProvider {
 
     @objc
     func contextMenuDeleteAction() {
-        self.coordinator?.perform(userAction: .deleteSelectedNodes)
+        self.coordinator?.perform(userAction: .delete(self.target))
     }
 
     @objc
     func contextMenuDuplicateAction() {
-        self.coordinator?.perform(userAction: .duplicateSelectedNodes)
+        self.coordinator?.perform(userAction: .duplicate(self.target))
     }
 
     @objc
     func contextMenuCopyAction() {
-        self.coordinator?.perform(userAction: .copySelectedNodes)
+        self.coordinator?.perform(userAction: .copy(self.target))
     }
 
     @objc
     func contextMenuCutAction() {
-        self.coordinator?.perform(userAction: .cutSelectedNodes)
+        self.coordinator?.perform(userAction: .cut(self.target))
     }
     @objc
     func contextMenuPasteAction() {
@@ -161,11 +186,11 @@ public class NodeContextMenuProvider {
 
     #if os(iOS)
     public func makeMenu(forNode id: UUID, at location: CGPoint) -> UIMenu? {
+        self.update(id)
+        
+        let nodeName = self.nodeLabel
 
-        let selectedCount = self.coordinator?.flow.selection.count ?? 0
-        let nodeName = selectedCount > 1 ? "Nodes" : "Node"
-
-        guard let node = self.coordinator?.flow.nodes[id] else {
+        guard let node = self.node else {
             return nil
         }
 
@@ -174,28 +199,28 @@ public class NodeContextMenuProvider {
             image: .init(systemName: "trash"),
             attributes: .destructive
         ) { _ in
-            self.coordinator?.perform(userAction: .deleteSelectedNodes)
+            self.coordinator?.perform(userAction: .delete(self.target))
         }
 
         let duplicateAction = UIAction(
             title: "Duplicate \(nodeName)",
             image: .init(systemName: "plus.square.on.square")
         ) { _ in
-            self.coordinator?.perform(userAction: .duplicateSelectedNodes)
+            self.coordinator?.perform(userAction: .duplicate(self.target))
         }
 
         let copyAction = UIAction(
             title: "Copy \(nodeName)",
             image: .init(systemName: "document.on.document")
         ) { _ in
-            self.coordinator?.perform(userAction: .copySelectedNodes)
+            self.coordinator?.perform(userAction: .copy(self.target))
         }
 
         let cutAction = UIAction(
             title: "Cut \(nodeName)",
             image: .init(systemName: "scissors")
         ) { _ in
-            self.coordinator?.perform(userAction: .cutSelectedNodes)
+            self.coordinator?.perform(userAction: .cut(self.target))
         }
 
         let pasteAction = UIAction(

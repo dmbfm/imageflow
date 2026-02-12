@@ -112,12 +112,20 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         switch action {
         case .newNode(let kind, at: let point):
             self.newNode(kind: kind, at: point)
+        case .copy(let target):
+            self.copy(target)
         case .copySelectedNodes:
             self.copySelectedNodes()
+        case .cut(let target):
+            self.cut(target)
         case .cutSelectedNodes:
             self.cutSelectedNodes()
+        case .delete(let target):
+            self.delete(target)
         case .deleteSelectedNodes:
             self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
+        case .duplicate(let target):
+            self.duplicate(target)
         case .duplicateSelectedNodes:
             self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
         case .exportImageForNode(let id):
@@ -298,6 +306,29 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         vm.showImageExporter(image, filename)
     }
 
+    func delete(_ target: UserAction.Target) {
+        switch target {
+        case .selection: self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
+        case .node(let id): self.flow.deleteNodeAction(id, undoManager: self.undoManager)
+        }
+    }
+
+    func duplicate(_ target: UserAction.Target) {
+        switch target {
+        case .selection: self.flow.duplidateSelectedNodesAction(undoManager: self.undoManager)
+        case .node(let id): self.flow.duplicateNode(id, undoManager: self.undoManager)
+        }
+    }
+
+    func cut(_ target: UserAction.Target) {
+        switch target {
+        case .selection: self.cutSelectedNodes()
+        case .node(let id):
+            self.copyNodes([id])
+            self.flow.deleteNodeAction(id, undoManager: self.undoManager)
+        }
+    }
+
     func cutSelectedNodes() {
         guard !self.flow.selection.isEmpty else {
             log("Trying to cut an empty selection!", level: .warning)
@@ -308,9 +339,16 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
     }
 
-    func copySelectedNodes() {
+    func copy(_ target: UserAction.Target) {
+        switch target {
+        case .selection: self.copySelectedNodes()
+        case .node(let id): self.copyNodes([id])
+        }
+    }
+
+    func copyNodes(_ nodes: Set<UUID>) {
         #if os(macOS)
-        if let item = FlowPasteboardItem(self.flow) {
+        if let item = FlowPasteboardItem(nodes: nodes, self.flow) {
             NSPasteboard.general.clearContents()
             if !NSPasteboard.general.writeObjects([item]) {
                 log("Failed to write items to pasteboard!", level: .error)
@@ -318,10 +356,14 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         }
         #else
         let pb = UIPasteboard.general
-        if let data = self.flow.pasteboardData, let jsonData = data.jsonData {
+        if let data = self.flow.pasteboardData(forNodes: nodes), let jsonData = data.jsonData {
             pb.setData(jsonData, forPasteboardType: UTType.flowNode.identifier)
         }
         #endif
+    }
+
+    func copySelectedNodes() {
+        self.copyNodes(self.flow.selection)
     }
 
     func showNodeSearch(typedPortLocation: TypedPortLocation?, canvasPosition: CGPoint?) {

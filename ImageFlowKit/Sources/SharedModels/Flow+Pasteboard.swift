@@ -43,6 +43,15 @@ public class FlowPasteboardItem: NSObject, NSPasteboardWriting, NSPasteboardRead
         }
     }
 
+    @MainActor
+    public init?(nodes: Set<UUID>, _ flow: Flow) {
+        if let pasteboardData = flow.pasteboardData(forNodes: nodes) {
+            self.flowPasteboardData = pasteboardData
+        } else {
+            return nil
+        }
+    }
+
     public init(_ flowPasteboardData: FlowPasteboardData) {
         self.flowPasteboardData = flowPasteboardData
     }
@@ -81,8 +90,9 @@ extension FlowPasteboardData: Transferable {
 }
 
 extension Flow {
-    public var pasteboardData: FlowPasteboardData? {
-        guard !self.selection.isEmpty else {
+
+    public func pasteboardData(forNodes ids: Set<UUID>) -> FlowPasteboardData? {
+        guard !ids.isEmpty else {
             return nil
         }
 
@@ -90,7 +100,7 @@ extension Flow {
         var nodePositions: [UUID: CGPoint] = [:]
         var edges: [Edge] = []
 
-        for id in self.selection {
+        for id in ids {
             if let node = self.nodes[id], let pos = self.nodePositions[id] {
                 nodes[id] = node.disconnectingAllPorts()
                 nodePositions[id] = pos
@@ -98,12 +108,16 @@ extension Flow {
         }
 
         for edge in self.edges {
-            if self.selection.contains(edge.from.node) && self.selection.contains(edge.to.node) {
+            if ids.contains(edge.from.node) && ids.contains(edge.to.node) {
                 edges.append(edge)
             }
         }
 
         return .init(nodes: nodes, nodePositions: nodePositions, edges: edges)
+    }
+
+    public var pasteboardData: FlowPasteboardData? {
+        self.pasteboardData(forNodes: self.selection)
     }
 
     public func paste(pasteboardData data: FlowPasteboardData, at point: CGPoint, undoManager um: UndoManager?) {

@@ -64,6 +64,10 @@ public enum Point {
 }
 
 public enum UserAction {
+    case delete(Target)
+    case copy(Target)
+    case cut(Target)
+    case duplicate(Target)
     case deleteSelectedNodes
     case duplicateSelectedNodes
     case copySelectedNodes
@@ -79,6 +83,11 @@ public enum UserAction {
     case preview(PreviewAction)
     case newNode(kind: NodeKind, at: Point?)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
+
+    public enum Target {
+        case selection
+        case node(UUID)
+    }
 
     public enum PreviewAction {
         case zoomIn
