@@ -7,7 +7,7 @@ import SwiftUI
 @Observable
 public class MockGlobalCoordinatorService: GlobalCoordinatorImpl {
     public var flow: SharedModels.Flow = .init()
-    
+
     public var previewHasImage: Bool = false
 
     public var previewPositionBinding: Binding<SharedModels.PreviewPosition?> = .constant(PreviewPosition.bottomDock)

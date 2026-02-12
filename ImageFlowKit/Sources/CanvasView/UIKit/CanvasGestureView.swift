@@ -11,7 +11,7 @@ class CanvasGestureView: UIView {
     lazy var editMenuController: EditMenuController = {
         .init(self)
     }()
-    
+
     func showNodeEditMenu(_ id: UUID, _ point: CGPoint) {
         self.editMenuController.showEditMenu(.node(id), at: point)
     }
