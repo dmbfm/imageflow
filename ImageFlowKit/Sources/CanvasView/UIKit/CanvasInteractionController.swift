@@ -17,6 +17,19 @@ class CanvasInteractionController: NSObject {
 
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureHandler(_:)))
+        gesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.direct.rawValue)
+        ]
+        gesture.delegate = self
+        return gesture
+    }()
+
+    lazy var clickGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(Self.clickGestureHandler(_:)))
+        gesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.indirect.rawValue),
+            NSNumber(value: UITouch.TouchType.indirectPointer.rawValue),
+        ]
         gesture.delegate = self
         return gesture
     }()
@@ -69,35 +82,33 @@ class CanvasInteractionController: NSObject {
         return gesture
     }()
 
-    lazy var longpressGesture: UILongPressGestureRecognizer = {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.longpressHandler(_:)))
-        gesture.numberOfTouchesRequired = 1
-        gesture.delegate = self
-        return gesture
-    }()
+     lazy var longpressGesture: UILongPressGestureRecognizer = {
+         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.longpressHandler(_:)))
+         gesture.numberOfTouchesRequired = 1
+         gesture.delegate = self
+         return gesture
+     }()
 
     private lazy var tapGestureHandler:
         EitherCanvasOrNodeGestureHandle<
             CanvasGestureHandlerEither<
-                CanvasGestureHandlerEither<
-                    MouseLeftClickCanvasGestureHandler,
-                    EmptyHandler,
-                    CanvasInteractionModeCondition,
-                >,
-                CanvasGestureHandlerEither<
-                    TapCanvasGestureHandler,
-                    EmptyHandler,
-                    CanvasInteractionModeCondition,
-                >,
-                MouseLeftClickCondition
+                TapCanvasGestureHandler,
+                EmptyHandler,
+                CanvasInteractionModeCondition,
             >,
             TapNodeGestureHandler,
             EitherCanvasOrNodeHitTestCondition<UITapGestureRecognizer>
         > = {
-            .init(
-                .init(left: .init(left: .init(), right: .init()), right: .init(left: .init(), right: .init())),
-                .init()
-            )
+            .init(.init(left: .init(), right: .init()), .init())
+        }()
+
+    private lazy var clickGestureHandler:
+        EitherCanvasOrNodeGestureHandle<
+            MouseLeftClickCanvasGestureHandler,
+            ClickNodeGestureHandler,
+            EitherCanvasOrNodeHitTestCondition<UITapGestureRecognizer>
+        > = {
+            .init(.init(), .init())
         }()
 
     private lazy var mousePanGestureHandler:
@@ -144,14 +155,14 @@ class CanvasInteractionController: NSObject {
         .init()
     }()
 
-    private lazy var longPressGestureHandler:
-        EitherCanvasOrNodeGestureHandle<
-            LongPressGestureHandler,
-            LongPressNodeGestureHandler,
-            EitherCanvasOrNodeHitTestCondition<UILongPressGestureRecognizer>,
-        > = {
-            .init(.init(), .init())
-        }()
+     private lazy var longPressGestureHandler:
+         EitherCanvasOrNodeGestureHandle<
+             LongPressGestureHandler,
+             LongPressNodeGestureHandler,
+             EitherCanvasOrNodeHitTestCondition<UILongPressGestureRecognizer>,
+         > = {
+             .init(.init(), .init())
+         }()
 
     init(_ canvas: CanvasUIView) {
         self.canvas = canvas
@@ -159,13 +170,14 @@ class CanvasInteractionController: NSObject {
         super.init()
 
         self.view.addGestureRecognizer(self.tapGesture)
+        self.view.addGestureRecognizer(self.clickGesture)
         self.view.addGestureRecognizer(self.oneFingerPanGesture)
         self.view.addGestureRecognizer(self.twoFingerPanGesture)
         self.view.addGestureRecognizer(self.pinchGesture)
         self.view.addGestureRecognizer(self.mousePanGesture)
         self.view.addGestureRecognizer(self.trackpadScrollPanGesture)
         self.view.addGestureRecognizer(self.hoverGesture)
-        self.view.addGestureRecognizer(self.longpressGesture)
+         self.view.addGestureRecognizer(self.longpressGesture)
     }
 
     func emit(_ event: CanvasPlatformView.Event) {
@@ -175,6 +187,11 @@ class CanvasInteractionController: NSObject {
     @objc
     func tapGestureHandler(_ gesture: UITapGestureRecognizer) {
         self.tapGestureHandler.handle(gesture, self.canvas)
+    }
+
+    @objc
+    func clickGestureHandler(_ gesture: UITapGestureRecognizer) {
+        self.clickGestureHandler.handle(gesture, self.canvas)
     }
 
     @objc
@@ -426,6 +443,22 @@ private struct MouseViewportPanHandler: CanvasGestureHandler {
 @MainActor
 struct TapNodeGestureHandler: CanvasNodeGestureHandler {
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
+        if canvas.delegate?.canvasView(shouldShowNodeEditMenuAfterTap: nodeView.id) == true {
+            if !canvas.gestureView.editMenuController.isPresenting {
+                canvas.gestureView.editMenuController.showEditMenu(
+                    .node(nodeView.id),
+                    at: gesture.location(in: canvas.gestureView)
+                )
+            }
+        } else {
+            nodeView.emitClick()
+        }
+    }
+}
+
+@MainActor
+struct ClickNodeGestureHandler: CanvasNodeGestureHandler {
+    func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
         nodeView.emitClick()
     }
 }
@@ -434,10 +467,6 @@ struct TapNodeGestureHandler: CanvasNodeGestureHandler {
 @MainActor
 struct TapCanvasGestureHandler: CanvasGestureHandler {
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView) {
-        //        guard canvas.interactionMode != .interactiveSelection else {
-        //            return
-        //        }
-
         if canvas.delegate?.canvasViewEditMenuShouldAppear() == true {
             canvas.gestureView.showCanvasEditMenu(gesture.location(in: canvas.gestureView))
         }
@@ -654,9 +683,9 @@ private struct LongPressGestureHandler: CanvasGestureHandler {
 @MainActor
 private struct LongPressNodeGestureHandler: CanvasNodeGestureHandler {
     func handle(_ gesture: UILongPressGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
-        if gesture.state == .began {
-            canvas.gestureView.showNodeEditMenu(nodeView.id, gesture.location(in: canvas.gestureView))
-        }
+        //        if gesture.state == .began {
+        //            canvas.gestureView.showNodeEditMenu(nodeView.id, gesture.location(in: canvas.gestureView))
+        //        }
     }
 }
 

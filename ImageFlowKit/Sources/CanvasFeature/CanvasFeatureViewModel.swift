@@ -498,6 +498,10 @@ extension CanvasFeatureViewModel: CanvasViewDelegate {
     public func canvasView(willShowContextMenuForNode id: UUID) {
         // self.flow.select([id])
     }
+    
+    public func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool {
+        self.flow.isSelected(id)
+    }
 
     public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> PlatformMenu? {
         if self.nodeContextMenuProvider == nil {

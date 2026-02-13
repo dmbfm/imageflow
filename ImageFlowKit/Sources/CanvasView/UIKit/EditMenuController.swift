@@ -18,6 +18,14 @@ class EditMenuController: NSObject, UIEditMenuInteractionDelegate {
         return interaction
     }()
 
+    var isPresenting: Bool {
+        if let dismissedTime {
+            Date.now.timeIntervalSince(dismissedTime) < 0.1
+        } else {
+            true
+        }
+    }
+
     var dismissedTime: Date? = .distantPast
 
     func showEditMenu(_ type: EditMenuType, at point: CGPoint) {
@@ -52,6 +60,14 @@ class EditMenuController: NSObject, UIEditMenuInteractionDelegate {
         animator: any UIEditMenuInteractionAnimating
     ) {
         self.dismissedTime = .now
+    }
+
+    func editMenuInteraction(
+        _ interaction: UIEditMenuInteraction,
+        willPresentMenuFor configuration: UIEditMenuConfiguration,
+        animator: any UIEditMenuInteractionAnimating
+    ) {
+        self.dismissedTime = nil
     }
 
     func editMenuInteraction(
