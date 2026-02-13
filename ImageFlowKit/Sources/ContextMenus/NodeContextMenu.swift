@@ -45,7 +45,7 @@ public class NodeContextMenuProvider {
     var node: FlowNode?
 
     #if os(macOS)
-    
+
     public func makeMenu(forNode id: UUID, at location: CGPoint) -> NSMenu? {
         self.update(id)
 
@@ -187,7 +187,7 @@ public class NodeContextMenuProvider {
     #if os(iOS)
     public func makeMenu(forNode id: UUID, at location: CGPoint) -> UIMenu? {
         self.update(id)
-        
+
         let nodeName = self.nodeLabel
 
         guard let node = self.node else {
