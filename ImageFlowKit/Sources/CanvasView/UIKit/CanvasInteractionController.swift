@@ -442,12 +442,33 @@ private struct MouseViewportPanHandler: CanvasGestureHandler {
 /// Handler for node tap gestures.
 @MainActor
 struct TapNodeGestureHandler: CanvasNodeGestureHandler {
+    
+    func menuPosition(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) -> CGPoint {
+        let x = nodeView.bounds.midX
+        let y = nodeView.bounds.minY
+        let canvasPos = canvas.gestureView.convert(CGPoint(x: x, y: y), from: nodeView)
+        let isTopHalf = canvasPos.y < canvas.bounds.height * 0.5
+        let offset = isTopHalf ? -70 : 0
+        let bounds = canvas.bounds.inset(by: canvas.editMenuSafeAreaInsets)
+        let canvasPosWithOffset = canvasPos + .init(x: 0, y: offset)
+        if bounds.contains(canvasPosWithOffset) {
+            return canvasPosWithOffset
+        } else {
+            let canvasPos = canvas.gestureView.convert(CGPoint(x: x, y: nodeView.bounds.maxY), from: nodeView) + .init(x: 0, y: 0)
+            if bounds.contains(canvasPos) {
+                return canvasPos
+            } else {
+                return gesture.location(in:canvas)
+            }
+        }
+    }
+    
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
         if canvas.delegate?.canvasView(shouldShowNodeEditMenuAfterTap: nodeView.id) == true {
             if !canvas.gestureView.editMenuController.isPresenting {
                 canvas.gestureView.editMenuController.showEditMenu(
                     .node(nodeView.id),
-                    at: gesture.location(in: canvas.gestureView)
+                    at: self.menuPosition(gesture, canvas, nodeView)
                 )
             }
         } else {

@@ -52,6 +52,8 @@ public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {
             self.interactionController.interactionMode = newValue
         }
     }
+    
+    public var editMenuSafeAreaInsets: UIEdgeInsets = .init(top: 60, left: 0, bottom: 0, right: 0)
 
     // MARK: - Internal / Private Properties
 
