@@ -23,7 +23,6 @@ class CanvasGestureView: UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if event?.type == .scroll { return self }
         if event?.buttonMask.rawValue == 4 { return self }
-        if event?.buttonMask.rawValue == 2 { return nil }
         guard let canvas else { return self }
 
         let windowPoint = self.convert(point, to: nil)
@@ -35,10 +34,17 @@ class CanvasGestureView: UIView {
             }
             // Needed for occlusion culling the nodes
             if view.bounds.contains(local) {
-                return self
+                // Forward right-click events to the node view to show context menus
+                if event?.buttonMask.rawValue == 2 {
+                    return view
+                } else {
+                    return self
+                }
             }
         }
-
+        
+        if event?.buttonMask.rawValue == 2 { return nil }
+        
         return self
     }
 }
