@@ -376,7 +376,7 @@ extension NSEvent {
         !self.isTrackpadScrollEvent(touchCount: touchCount)
     }
     fileprivate func isTrackpadScrollEvent(touchCount: Int) -> Bool {
-        (touchCount > 0 || self.momentumPhase != []) && self.subtype != .mouseEvent
+        (touchCount > 0 || self.momentumPhase != []) || self.subtype != .mouseEvent
     }
 }
 #endif
