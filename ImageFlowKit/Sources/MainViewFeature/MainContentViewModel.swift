@@ -469,7 +469,7 @@ extension MainContentViewModel {
         case disabled
         case undo
         case redo
-        
+
         var label: LocalizedStringKey {
             switch self {
             case .undo, .disabled:
@@ -478,7 +478,7 @@ extension MainContentViewModel {
                 "Redo"
             }
         }
-        
+
         var icon: String {
             switch self {
             case .undo, .disabled:
@@ -488,7 +488,7 @@ extension MainContentViewModel {
             }
         }
     }
-    
+
     var primaryUndoAction: UndoAction {
         if self.canUndo {
             .undo
@@ -498,7 +498,7 @@ extension MainContentViewModel {
             .disabled
         }
     }
-    
+
     func onUndoCheckpoint() {
         self.canUndo = self.undoManager?.canUndo ?? false
         self.canRedo = self.undoManager?.canRedo ?? false

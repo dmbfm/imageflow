@@ -23,7 +23,7 @@ struct MainContentViewIPadOS: View {
     @Environment(\.undoManager) var undoManager
 
     var undoObserver = NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)
-    
+
     init(
         flow: Flow,
         canvas: CanvasFeatureState,
@@ -118,7 +118,6 @@ struct MainContentViewIPadOS: View {
             .focusEffectDisabled()
         }
     }
-       
 
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
@@ -164,7 +163,7 @@ struct MainContentViewIPadOS: View {
         }
 
         ToolbarSpacer(.fixed, placement: .primaryAction)
-        
+
         ToolbarItem(placement: .primaryAction) {
             Menu(self.vm.primaryUndoAction.label, systemImage: self.vm.primaryUndoAction.icon) {
                 Button("Undo", systemImage: "arrow.uturn.backward") {
@@ -189,7 +188,7 @@ struct MainContentViewIPadOS: View {
         }
 
         ToolbarSpacer(.fixed, placement: .primaryAction)
-        
+
         ToolbarItem(placement: .primaryAction) {
             Button {
                 self.vm.openAssetBrowser()
