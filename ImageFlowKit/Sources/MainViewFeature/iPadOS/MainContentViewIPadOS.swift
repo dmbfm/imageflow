@@ -22,6 +22,8 @@ struct MainContentViewIPadOS: View {
 
     @Environment(\.undoManager) var undoManager
 
+    var undoObserver = NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)
+    
     init(
         flow: Flow,
         canvas: CanvasFeatureState,
@@ -73,6 +75,7 @@ struct MainContentViewIPadOS: View {
             .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
             .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
             .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
+            .onReceive(self.undoObserver) { _ in self.vm.onUndoCheckpoint() }
             .defaultFocus(self.$focus, .global)
             .activeViewObject(self.vm)
     }
@@ -115,6 +118,7 @@ struct MainContentViewIPadOS: View {
             .focusEffectDisabled()
         }
     }
+       
 
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
@@ -160,7 +164,32 @@ struct MainContentViewIPadOS: View {
         }
 
         ToolbarSpacer(.fixed, placement: .primaryAction)
+        
+        ToolbarItem(placement: .primaryAction) {
+            Menu(self.vm.primaryUndoAction.label, systemImage: self.vm.primaryUndoAction.icon) {
+                Button("Undo", systemImage: "arrow.uturn.backward") {
+                    self.undoManager?.undo()
+                }
+                .disabled(!self.vm.canUndo)
+                Button("Redo", systemImage: "arrow.uturn.forward") {
+                    self.undoManager?.redo()
+                }
+                .disabled(!self.vm.canRedo)
+            } primaryAction: {
+                switch self.vm.primaryUndoAction {
+                case .disabled:
+                    break
+                case .undo:
+                    self.undoManager?.undo()
+                case .redo:
+                    self.undoManager?.redo()
+                }
+            }
+            .disabled(self.vm.primaryUndoAction == .disabled)
+        }
 
+        ToolbarSpacer(.fixed, placement: .primaryAction)
+        
         ToolbarItem(placement: .primaryAction) {
             Button {
                 self.vm.openAssetBrowser()

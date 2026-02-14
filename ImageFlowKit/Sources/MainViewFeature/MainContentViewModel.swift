@@ -77,16 +77,18 @@ final class MainContentViewModel {
     #if os(iOS)
     /// The state of the node palette sheet
     var nodePaletteState: NodePaletteState = .init()
-
     /// Alert for errors related to asset importing
     var assetBrowserError: LocalizedAlertError? = nil
+    /// True if the user can perform an undo operation
+    var canUndo: Bool = false
+    /// True if the user can perform an redo operation
+    var canRedo: Bool = false
 
     struct NodePaletteState {
         var isPresented: Bool = false
         var typedPortLocation: TypedPortLocation?
         var canvasPosition: CGPoint?
     }
-
     #endif
 
     struct ImageExporterState {
@@ -458,8 +460,51 @@ extension MainContentViewModel {
             }
         }
     }
-
 }
+
+// MARK: - MainContentViewModel + UndoAction
+#if os(iOS)
+extension MainContentViewModel {
+    enum UndoAction {
+        case disabled
+        case undo
+        case redo
+        
+        var label: LocalizedStringKey {
+            switch self {
+            case .undo, .disabled:
+                "Undo"
+            case .redo:
+                "Redo"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .undo, .disabled:
+                "arrow.uturn.backward"
+            case .redo:
+                "arrow.uturn.forward"
+            }
+        }
+    }
+    
+    var primaryUndoAction: UndoAction {
+        if self.canUndo {
+            .undo
+        } else if self.canRedo {
+            .redo
+        } else {
+            .disabled
+        }
+    }
+    
+    func onUndoCheckpoint() {
+        self.canUndo = self.undoManager?.canUndo ?? false
+        self.canRedo = self.undoManager?.canRedo ?? false
+    }
+}
+#endif
 
 struct SimpleMessageLocalizedError: LocalizedError {
     var message: String
