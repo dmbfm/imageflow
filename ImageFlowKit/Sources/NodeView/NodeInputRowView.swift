@@ -11,6 +11,8 @@ final class EmptyControlView: PlatformCommonView, NodeControl {
 
     var onEvent: ((NodeControlEvent) -> ())?
 
+    var context: NodeControlContext = .init()
+
     init(value: Value) {
         self.value = value
         super.init(frame: .zero)

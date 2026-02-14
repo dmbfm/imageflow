@@ -14,7 +14,6 @@ import UIKit
 #endif
 
 final class NodeBooleanInput: PlatformCommonView, NodeControl {
-
     var value: Value {
         didSet {
             if self.value != oldValue {
@@ -43,11 +42,15 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var context: NodeControlContext = .init()
+
     #if os(macOS)
     lazy var toggle: NSSwitch = {
         let view = NSSwitch()
         view.focusRingType = .exterior
         view.state = self.value.bool ? .on : .off
+        view.target = self
+        view.action = #selector(Self.onToggleChange)
         return view
     }()
 
@@ -57,7 +60,7 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
     @objc
     func onToggleChange() {
-        self.setValue(self.toggle.state == .on)
+        self.setValue(newValue: .bool(self.toggle.state == .on), registerUndo: true)
     }
 
     #endif
@@ -76,7 +79,7 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
     @objc
     func onToggleChange() {
-        self.setValue(self.toggle.isOn)
+        self.setValue(newValue: .bool(self.toggle.isOn), registerUndo: true)
     }
     #endif
 
@@ -101,11 +104,6 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
     override func doLayout() {
         self.toggle.frame.origin = .zero
         self.toggle.frame.size = self.toggle.intrinsicContentSize
-    }
-
-    func setValue(_ value: Bool) {
-        self.value = .bool(value)
-        self.emit(.valueDidChange(self.value))
     }
 }
 

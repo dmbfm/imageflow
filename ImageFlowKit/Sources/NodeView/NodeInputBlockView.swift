@@ -25,6 +25,18 @@ final class NodeInputBlockView: PlatformCommonView {
 
     var onEvent: ((Event) -> ())?
 
+    var makeNodeControlContext: ((Int) -> (NodeControlContext?))? {
+        didSet {
+            if let makeNodeControlContext = self.makeNodeControlContext {
+                for (idx, row) in self.rows.enumerated() {
+                    if let context = makeNodeControlContext(idx) {
+                        row.controlView.context = context
+                    }
+                }
+            }
+        }
+    }
+
     weak var delegate: (any NodeInputBlockViewDelegate)?
 
     private(set) var rows: [NodeInputRowView] = []
@@ -137,6 +149,9 @@ final class NodeInputBlockView: PlatformCommonView {
                 case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                     self?.onEvent?(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
                 }
+            }
+            if let makeContext = self.makeNodeControlContext, let context = makeContext(idx) {
+                row.controlView.context = context
             }
             self.rows.append(row)
             self.delegates.append(delegate)

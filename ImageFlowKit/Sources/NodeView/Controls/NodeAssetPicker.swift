@@ -65,12 +65,16 @@ protocol NodeAssetPickerDelegate: AnyObject {
 }
 
 final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl {
+    var context: NodeControlContext = .init()
 
     var onEvent: ((NodeControlEvent) -> ())?
 
     var value: Value {
         didSet {
             if self.value != oldValue {
+                if let undo = self.context.undo {
+                    undo.register(oldValue, self.value)
+                }
                 self.update()
             }
         }
@@ -156,6 +160,9 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     @objc
     func removeButtonHandler() {
+        if let undo = self.context.undo, self.value != T.none {
+            undo.register(self.value, T.none)
+        }
         self.value = T.none
         self.emit(.valueDidChange(self.value))
     }

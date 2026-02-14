@@ -43,6 +43,8 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     public var tint: PlatformColor = .systemBlue
 
+    var context: NodeControlContext = .init()
+
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.decimalSeparator = "."
@@ -61,10 +63,10 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
             case .textDidChange(let value):
                 guard let self else { return }
                 if let number = Double(value) {
-                    self.setValue(number)
+                    self.setValue(newValue: .float(number), registerUndo: true)
                 } else {
                     if value == "" {
-                        self.setValue(0.0)
+                        self.setValue(newValue: .float(0.0), registerUndo: true)
                     } else {
                         self.update()
                     }
@@ -116,11 +118,6 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         self.textField.frame.size = self.textField.intrinsicContentSize
     }
 
-    func setValue(_ value: Double) {
-        self.value.float = value
-        self.emit(.valueDidChange(self.value))
-    }
-
     func update() {
         self.textField.text = self.value.float.formatted(.nodeNumber)
         self.invalidateIntrinsicContentSize()
@@ -139,7 +136,12 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
         let t = dx * 0.001
         let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
-        self.setValue(newValue)
+
+        if phase == .ended {
+            self.setValue(newValue: .float(newValue), oldValue: .float(self.valueAtDragStart), registerUndo: true)
+        } else {
+            self.setValue(newValue: .float(newValue))
+        }
     }
 }
 

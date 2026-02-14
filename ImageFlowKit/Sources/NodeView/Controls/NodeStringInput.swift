@@ -36,6 +36,8 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var context: NodeControlContext = .init()
+
     lazy var textField: NodeTextField = {
         let view = NodeTextField(
             self.value.string,
@@ -49,22 +51,13 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
                 self?.emit(.sizeDidChange)
                 self?.setNeedsLayout()
             case .textDidChange(let text):
-                self?.setValue(text)
+                self?.setValue(newValue: .string(text), registerUndo: true)
             default:
                 break
             }
         }
         return view
     }()
-
-    func setValue(_ text: String) {
-        let newValue: Value = .string(text)
-
-        if self.value != newValue {
-            self.value = newValue
-            self.emit(.valueDidChange(self.value))
-        }
-    }
 
     init(_ value: Value, isEditable: Bool = true) {
         self.value = value

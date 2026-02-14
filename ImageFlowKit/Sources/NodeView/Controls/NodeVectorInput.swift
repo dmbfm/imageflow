@@ -14,6 +14,7 @@ import UIKit
 #endif
 
 final class NodeVectorInput: PlatformCommonView, NodeControl {
+    var context: NodeControlContext = .init()
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var value: Value {
@@ -45,10 +46,10 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
                 case .textDidChange(let value):
                     guard let self else { return }
                     if let number = Double(value) {
-                        self.setValue(idx, number)
+                        self.setValue(newValue: self.value(settingIndex: idx, to: number), registerUndo: true)
                     } else {
                         if value == "" {
-                            self.setValue(idx, 0.0)
+                            self.setValue(newValue: self.value(settingIndex: idx, to: 0.0), registerUndo: true)
                         } else {
                             self.update()
                         }
@@ -136,19 +137,20 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         )
     }
 
-    func setValue(_ idx: Int, _ value: Double) {
-        switch self.value.type {
+    func value(settingIndex idx: Int, to component: Double) -> Value {
+        var value = self.value
+        switch value.type {
         case .vector2:
-            self.value.vector2[idx] = value
+            value.vector2[idx] = component
         case .vector3:
-            self.value.vector3[idx] = value
+            value.vector3[idx] = component
         case .vector4:
-            self.value.vector4[idx] = value
+            value.vector4[idx] = component
         default:
             fatalError("invalid type: \(self.value.type)")
         }
 
-        self.emit(.valueDidChange(self.value))
+        return value
     }
 
     private func update() {
@@ -169,7 +171,13 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
 
         let t = dx * 0.001
         let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
-        self.setValue(idx, newValue)
+
+        if phase == .ended {
+            let oldValue = self.value(settingIndex: idx, to: self.valueAtDragStart)
+            self.setValue(newValue: self.value(settingIndex: idx, to: newValue), oldValue: oldValue, registerUndo: true)
+        } else {
+            self.setValue(newValue: self.value(settingIndex: idx, to: newValue))
+        }
     }
 }
 

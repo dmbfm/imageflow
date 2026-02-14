@@ -19,6 +19,8 @@ public final class StaticLabelNodeControl: PlatformCommonView, NodeControl {
 
     public var value: Value
 
+    var context: NodeControlContext = .init()
+
     #if os(macOS)
     lazy var labelView: NSTextField = {
         let view = NSTextField(labelWithString: self.text)

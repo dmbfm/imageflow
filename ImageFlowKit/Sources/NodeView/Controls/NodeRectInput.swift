@@ -36,10 +36,21 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var context: NodeControlContext = .init() {
+        didSet {
+            self.nodeVectorInput.context = self.innerContext
+        }
+    }
+
+    var innerContext: NodeControlContext {
+        .init(undo: UndoAdapter(control: self))
+    }
+
     lazy var nodeVectorInput: NodeVectorInput = {
         let rect = self.value.rect
         let vec = Value.vector4(.init(x: rect.minX, y: rect.minY, z: rect.width, w: rect.height))
         let view = NodeVectorInput(vec)
+        view.context = self.innerContext
 
         #if os(macOS)
         for (idx, view) in view.textFields.enumerated() {
@@ -62,7 +73,9 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
                 self?.setNeedsLayout()
             case .valueDidChange(let value):
                 let vec = value.vector4
-                self?.setValue(vec)
+                let value: Value = .rect(.init(x: vec.x, y: vec.y, width: vec.z, height: vec.w))
+                self?.setValue(newValue: value, registerUndo: true)
+            // self?.setValue(vec)
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
@@ -112,6 +125,19 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         self.nodeVectorInput.frame.size = self.nodeVectorInput.intrinsicContentSize
 
         Layout.align(views: [self.nodeVectorInput], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
+    }
+}
+
+@MainActor
+private struct UndoAdapter: NodeControlUndoManager {
+    weak var control: NodeRectInput?
+
+    func register(_ oldValue: Values.Value, _ newValue: Values.Value) {
+        let old = oldValue.vector4
+        let new = newValue.vector4
+        let oldValue = Value.rect(.init(x: old.x, y: old.y, width: old.z, height: old.w))
+        let newValue = Value.rect(.init(x: new.x, y: new.y, width: new.z, height: new.w))
+        self.control?.context.undo?.register(oldValue, newValue)
     }
 }
 

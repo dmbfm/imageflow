@@ -26,6 +26,7 @@ extension FormatStyle where Self == NodeIntegerInputFormat {
 }
 
 final class NodeIntegerInput: PlatformCommonView, NodeControl {
+    var context: NodeControlContext = .init()
     var onEvent: ((NodeControlEvent) -> ())?
 
     var value: Value {
@@ -50,10 +51,10 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             case .textDidChange(let value):
                 guard let self else { return }
                 if let number = Int(value) {
-                    self.setValue(number)
+                    self.setValue(newValue: .int(number), registerUndo: true)
                 } else {
                     if value == "" {
-                        self.setValue(0)
+                        self.setValue(newValue: .int(0), registerUndo: true)
                     } else {
                         self.update()
                     }
@@ -101,9 +102,26 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     #endif
 
+    lazy var debouncer: UndoDebouncer = {
+        .init(0.2)
+    }()
+
     @objc func stepperHandler() {
-        self.value = .int(Int(self.stepper.value))
-        self.emit(.valueDidChange(self.value))
+        let newValue: Value = .int(Int(self.stepper.value))
+
+        if newValue != self.value {
+            let oldValue = self.value
+            if let undo = self.context.undo {
+                self.debouncer.debounce(
+                    oldValue: oldValue,
+                    { oldValue in
+                        undo.register(oldValue, newValue)
+                    }
+                )
+            }
+            self.value = .int(Int(self.stepper.value))
+            self.emit(.valueDidChange(self.value))
+        }
     }
 
     var isEditable: Bool {

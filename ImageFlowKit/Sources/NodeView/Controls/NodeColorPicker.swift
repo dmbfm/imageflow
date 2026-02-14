@@ -5,6 +5,7 @@
 //  Created by Daniel Fortes on 02/11/25.
 //
 
+import Combine
 import Helpers
 import Logging
 import SwiftUI
@@ -20,9 +21,18 @@ final class NodeColorPicker: NSView {
 
     var color: NSColor = .red {
         didSet {
+            guard self.color != oldValue else { return }
+
             self.needsDisplay = true
+
+            if let token = self.token {
+                ColorPanelManager.shared.setColor(color: self.color, token: token)
+            }
         }
     }
+
+    // NOTE: Not used on macOS
+    var commitedColor: NSColor = .red
 
     var isLocked: Bool = false {
         didSet {
@@ -36,13 +46,24 @@ final class NodeColorPicker: NSView {
 
     var showsAlpha: Bool = true
 
-    var colorDidChange: ((NSColor) -> ())?
+    enum Event {
+        case didChange(NSColor)
+        case didCommit(old: NSColor, new: NSColor)
+    }
+
+    var onEvent: ((Event) -> ())?
 
     // MARK: - Private Properties
+
+    private lazy var previousCommitedColor: NSColor = {
+        self.color
+    }()
 
     private let style: Style = .default
 
     private var trackingArea: NSTrackingArea?
+
+    private var token: ColorPanelManager.Token?
 
     // MARK: - Subviews
 
@@ -185,25 +206,38 @@ final class NodeColorPicker: NSView {
     func clickHandler() {
         guard !self.isLocked else { return }
 
-        let cp = NSColorPanel.shared
-        cp.setAction(nil)
-        cp.setTarget(nil)
-        cp.isContinuous = true
-        cp.color = self.color
-        cp.showsAlpha = self.showsAlpha
-        cp.setTarget(self)
-        cp.setAction(#selector(Self.colorPanelHandler(_:)))
-        cp.makeKeyAndOrderFront(nil)
+        self.token = ColorPanelManager.shared.open(
+            initialColor: self.color,
+            showsAlpha: self.showsAlpha,
+            onDiscreteChange: { [weak self] newValue in
+                guard let self else { return }
+
+                guard !self.isLocked else { return }
+
+                if self.previousCommitedColor != newValue {
+                    self.onEvent?(.didCommit(old: self.previousCommitedColor, new: newValue))
+                    self.previousCommitedColor = newValue.copy() as! NSColor
+                }
+            },
+            onContinuousChange: { [weak self] newValue in
+                guard let self else { return }
+
+                if self.color != newValue {
+                    self.color = newValue
+                    self.needsDisplay = true
+                    self.onEvent?(.didChange(self.color))
+                }
+            }
+        )
     }
 
     @objc
     func colorPanelHandler(_ panel: NSColorPanel) {
         guard !self.isLocked else { return }
 
-        if self.color != panel.color {
-            self.color = panel.color
-            self.needsDisplay = true
-            self.colorDidChange?(self.color)
+        if self.previousCommitedColor != panel.color {
+            self.onEvent?(.didCommit(old: self.previousCommitedColor, new: panel.color))
+            self.previousCommitedColor = panel.color.copy() as! NSColor
         }
     }
 }
@@ -219,13 +253,16 @@ final class NodeColorPicker: UIView {
     // MARK: - Exposed Properties
 
     /// The selected color
-    var color: UIColor = .systemRed
+    var color: UIColor = .systemRed {
+        didSet {
+            self.setNeedsDisplay()
+        }
+    }
+
+    var commitedColor: UIColor = .systemRed
 
     /// If true, the color picker can edit the color's alpha values
     var showsAlpha: Bool = true
-
-    /// A closure that is called (continuously) whenever the selected color changes.
-    var colorDidChange: ((UIColor) -> ())?
 
     var isLocked: Bool = false {
         didSet {
@@ -236,6 +273,13 @@ final class NodeColorPicker: UIView {
             }
         }
     }
+
+    enum Event {
+        case didChange(PlatformColor)
+        case didCommit(old: PlatformColor, new: PlatformColor)
+    }
+
+    var onEvent: ((Event) -> ())?
 
     // MARK: - Private Properties
 
@@ -375,7 +419,15 @@ extension NodeColorPicker: UIColorPickerViewControllerDelegate {
         guard !self.isLocked else { return }
 
         self.color = color
-        self.colorDidChange?(color)
+
+        if continuously {
+            self.onEvent?(.didChange(color))
+        } else {
+            if self.commitedColor != color {
+                self.onEvent?(.didCommit(old: self.commitedColor, new: color))
+                self.commitedColor = color
+            }
+        }
         self.setNeedsDisplay()
     }
 }
@@ -415,14 +467,9 @@ extension NodeColorPicker {
 extension NodeColorPicker {
     fileprivate struct Preview: PlatformViewRepresentable {
         func makeView(context: Context) -> some PlatformView {
-            //            let view = UIColorWell()
-            //            return view
             let picker = NodeColorPicker()
             picker.color = .systemTeal
             picker.showsAlpha = true
-            picker.colorDidChange = { color in
-                log("Color: \(color)")
-            }
             return picker
         }
 

@@ -27,6 +27,8 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 
     var tint: PlatformColor = .systemBlue
 
+    var context: NodeControlContext = .init()
+
     var platformColor: PlatformColor {
         switch self.value {
         case .color3(let color):
@@ -41,9 +43,22 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
     lazy var colorPicker: NodeColorPicker = {
         let picker = NodeColorPicker()
         picker.color = self.platformColor
+        picker.commitedColor = self.platformColor
         picker.showsAlpha = self.value.type == .color4
-        picker.colorDidChange = { [weak self] color in
-            self?.setValue(color)
+        picker.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .didChange(let newValue):
+                self.setValue(newValue)
+            case .didCommit(let old, let new):
+                if old != new,
+                    let undo = self.context.undo,
+                    let old = self.value(forPlatformColor: old),
+                    let new = self.value(forPlatformColor: new)
+                {
+                    undo.register(old, new)
+                }
+            }
         }
         return picker
     }()
@@ -73,22 +88,36 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         nil
     }
 
-    private func update() {}
+    private func update() {
+        switch self.value {
+        case .color3(let c): self.colorPicker.color = c.platformColor
+        case .color4(let c): self.colorPicker.color = c.platformColor
+        default: break
+        }
+    }
 
-    private func setValue(_ color: PlatformColor) {
+    private func value(forPlatformColor color: PlatformColor) -> Value? {
         switch self.value.type {
         case .color3:
             if let color = Color3(platformColor: color) {
-                self.value = .color3(color)
+                return .color3(color)
             }
         case .color4:
             if let color = Color4(platformColor: color) {
-                self.value = .color4(color)
+                return .color4(color)
             }
         default:
-            fatalError("Invalid type")
+            return nil
         }
-        self.emit(.valueDidChange(self.value))
+
+        return nil
+    }
+
+    private func setValue(_ color: PlatformColor) {
+        if let value = self.value(forPlatformColor: color) {
+            self.value = value
+            self.emit(.valueDidChange(self.value))
+        }
     }
 
     override var intrinsicContentSize: CGSize {

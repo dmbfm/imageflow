@@ -9,6 +9,7 @@ import Values
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
     func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> PlatformMenu?
+    func nodeView(registerUndoForNode node: UUID, inputIndex: Int, oldValue: Value, newValue: Value)
     func nodeViewSelectedNodesCount() -> Int
 }
 
@@ -50,6 +51,10 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
     }
 
     private var style: Style
+
+    private lazy var nodeControlContextProvider: NodeControlContextProvider = {
+        .init(self)
+    }()
 
     #if os(iOS)
     private var interaction: UIContextMenuInteraction?
@@ -103,6 +108,10 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
             }
         }
         view.clipsToBounds = false
+        view.makeNodeControlContext = { [weak self] index in
+            guard let self else { return nil }
+            return self.nodeControlContextProvider.nodeControlContext(self.id, index)
+        }
         return view
     }()
 
@@ -421,6 +430,24 @@ extension NodeView {
                 return nil
             }
             return self.outputBlockView.rows[idx].portView
+        }
+    }
+}
+
+// MARK: - Input Values
+
+extension NodeView {
+    public func value(inputIntex index: Int) -> Value? {
+        if self.inputBlockView.rows.indices.contains(index) {
+            return self.inputBlockView.rows[index].controlView.value
+        } else {
+            return nil
+        }
+    }
+
+    public func setValue(inputIntex index: Int, value: Value) {
+        if self.inputBlockView.rows.indices.contains(index) {
+            self.inputBlockView.rows[index].controlView.value = value
         }
     }
 }
