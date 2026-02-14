@@ -148,12 +148,12 @@ public final class CanvasFeatureViewModel {
             }
             self.flow.liveSelectUpdate(nodes, mode: shiftDown ? .union : .replace)
         case .ended:
-            self.flow.liveSelectEnd(undoManager: nil)
+            self.flow.liveSelectEnd()
         }
     }
 
     private func onCanvasClickBackground() {
-        self.flow.selectNone(undoManager: nil)
+        self.flow.selectNone()
         self.focus.wrappedValue = .global
     }
 
@@ -252,7 +252,7 @@ public final class CanvasFeatureViewModel {
             self.flow.toggleSelected(id)
             self.focus.wrappedValue = .global
         } else {
-            self.flow.select([id], previousOverride: nil, mode: self.isShiftDown ? .union : .replace, undoManager: nil)
+            self.flow.select([id], previousOverride: nil, mode: self.isShiftDown ? .union : .replace)
             self.focus.wrappedValue = .global
         }
     }

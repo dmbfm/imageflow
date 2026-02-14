@@ -23,21 +23,20 @@ extension Flow {
     }
 
     @discardableResult
-    public func selectAll(undoManager um: UndoManager? = nil) -> Set<UUID>? {
-        self.select(Set(self.nodes.keys), undoManager: um)
+    public func selectAll() -> Set<UUID>? {
+        self.select(Set(self.nodes.keys))
     }
 
     @discardableResult
-    public func selectNone(undoManager um: UndoManager? = nil) -> Set<UUID>? {
-        self.select([], undoManager: um)
+    public func selectNone() -> Set<UUID>? {
+        self.select([])
     }
 
     @discardableResult
     public func select(
         _ nodes: Set<UUID>,
         previousOverride: Set<UUID>? = nil,
-        mode: SelectionMode = .replace,
-        undoManager um: UndoManager? = nil
+        mode: SelectionMode = .replace
     ) -> Set<UUID>? {
         let filteredNodes = nodes.filter({ id in self.hasNode(id) })
         let prev = previousOverride ?? self.selection
@@ -48,13 +47,6 @@ extension Flow {
         }
 
         self.selection = next
-
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                _ = this.select(prev, undoManager: um)
-            }
-        )
 
         return prev
     }
@@ -68,12 +60,12 @@ extension Flow {
         self.liveSelectSnapshot = self.selection
     }
 
-    public func liveSelectEnd(undoManager um: UndoManager?) {
+    public func liveSelectEnd() {
         guard let snapshot = self.liveSelectSnapshot else {
             fatalError("Called `leveSelectEnd` withoult calling `liveSelectStart`")
         }
         if snapshot != self.selection {
-            self.select(self.selection, previousOverride: snapshot, mode: .replace, undoManager: um)
+            self.select(self.selection, previousOverride: snapshot, mode: .replace)
         }
     }
 
