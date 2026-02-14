@@ -42,9 +42,9 @@ class CanvasGestureView: UIView {
                 }
             }
         }
-        
+
         if event?.buttonMask.rawValue == 2 { return nil }
-        
+
         return self
     }
 }

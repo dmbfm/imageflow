@@ -82,12 +82,12 @@ class CanvasInteractionController: NSObject {
         return gesture
     }()
 
-     lazy var longpressGesture: UILongPressGestureRecognizer = {
-         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.longpressHandler(_:)))
-         gesture.numberOfTouchesRequired = 1
-         gesture.delegate = self
-         return gesture
-     }()
+    lazy var longpressGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.longpressHandler(_:)))
+        gesture.numberOfTouchesRequired = 1
+        gesture.delegate = self
+        return gesture
+    }()
 
     private lazy var tapGestureHandler:
         EitherCanvasOrNodeGestureHandle<
@@ -155,14 +155,14 @@ class CanvasInteractionController: NSObject {
         .init()
     }()
 
-     private lazy var longPressGestureHandler:
-         EitherCanvasOrNodeGestureHandle<
-             LongPressGestureHandler,
-             LongPressNodeGestureHandler,
-             EitherCanvasOrNodeHitTestCondition<UILongPressGestureRecognizer>,
-         > = {
-             .init(.init(), .init())
-         }()
+    private lazy var longPressGestureHandler:
+        EitherCanvasOrNodeGestureHandle<
+            LongPressGestureHandler,
+            LongPressNodeGestureHandler,
+            EitherCanvasOrNodeHitTestCondition<UILongPressGestureRecognizer>,
+        > = {
+            .init(.init(), .init())
+        }()
 
     init(_ canvas: CanvasUIView) {
         self.canvas = canvas
@@ -177,7 +177,7 @@ class CanvasInteractionController: NSObject {
         self.view.addGestureRecognizer(self.mousePanGesture)
         self.view.addGestureRecognizer(self.trackpadScrollPanGesture)
         self.view.addGestureRecognizer(self.hoverGesture)
-         self.view.addGestureRecognizer(self.longpressGesture)
+        self.view.addGestureRecognizer(self.longpressGesture)
     }
 
     func emit(_ event: CanvasPlatformView.Event) {
@@ -442,8 +442,12 @@ private struct MouseViewportPanHandler: CanvasGestureHandler {
 /// Handler for node tap gestures.
 @MainActor
 struct TapNodeGestureHandler: CanvasNodeGestureHandler {
-    
-    func menuPosition(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) -> CGPoint {
+
+    func menuPosition(
+        _ gesture: UITapGestureRecognizer,
+        _ canvas: CanvasUIView,
+        _ nodeView: any CanvasNodeView
+    ) -> CGPoint {
         let x = nodeView.bounds.midX
         let y = nodeView.bounds.minY
         let canvasPos = canvas.gestureView.convert(CGPoint(x: x, y: y), from: nodeView)
@@ -454,15 +458,16 @@ struct TapNodeGestureHandler: CanvasNodeGestureHandler {
         if bounds.contains(canvasPosWithOffset) {
             return canvasPosWithOffset
         } else {
-            let canvasPos = canvas.gestureView.convert(CGPoint(x: x, y: nodeView.bounds.maxY), from: nodeView) + .init(x: 0, y: 0)
+            let canvasPos =
+                canvas.gestureView.convert(CGPoint(x: x, y: nodeView.bounds.maxY), from: nodeView) + .init(x: 0, y: 0)
             if bounds.contains(canvasPos) {
                 return canvasPos
             } else {
-                return gesture.location(in:canvas)
+                return gesture.location(in: canvas)
             }
         }
     }
-    
+
     func handle(_ gesture: UITapGestureRecognizer, _ canvas: CanvasUIView, _ nodeView: any CanvasNodeView) {
         if canvas.delegate?.canvasView(shouldShowNodeEditMenuAfterTap: nodeView.id) == true {
             if !canvas.gestureView.editMenuController.isPresenting {
