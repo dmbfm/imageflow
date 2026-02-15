@@ -186,6 +186,8 @@ final class NodeColorPicker: NSView {
         guard !self.isLocked else { return }
 
         let cp = NSColorPanel.shared
+        cp.setAction(nil)
+        cp.setTarget(nil)
         cp.isContinuous = true
         cp.color = self.color
         cp.showsAlpha = self.showsAlpha
