@@ -10,7 +10,11 @@ public enum FlowEvent {
     case edgesDidChange(Set<Edge>)
     case nodePositionsDidChange([UUID: CGPoint])
     case selectionDidChange(Set<UUID>)
-    case didEndPortDragWithoutCreatingEdge(typedPortLocation: TypedPortLocation, canvasPosition: CGPoint?)
+    case didEndPortDragWithoutCreatingEdge(
+        typedPortLocation: TypedPortLocation,
+        canvasPosition: CGPoint?,
+        travelDistance: CGFloat
+    )
     case didDeleteNode(UUID)
 }
 

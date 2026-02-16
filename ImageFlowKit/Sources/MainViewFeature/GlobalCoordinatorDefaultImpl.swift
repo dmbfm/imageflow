@@ -96,10 +96,12 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
 
     func onFlowEvent(_ event: FlowEvent) {
         switch event {
-        case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition):
-            self.perform(
-                userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
-            )
+        case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition, travelDistance):
+            if travelDistance >= 50 {
+                self.perform(
+                    userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
+                )
+            }
         case let .didDeleteNode(id):
             self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: id)
         default:

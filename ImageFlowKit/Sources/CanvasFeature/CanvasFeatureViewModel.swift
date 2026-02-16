@@ -218,6 +218,9 @@ public final class CanvasFeatureViewModel {
         let viewPos =
             self.canvasPlatformView?.convert(gesture.locationInWindow, from: nil) ?? gesture.locationInWindow
         let pointer = self.state.viewport.convert(viewPos, from: .screen, to: .canvas)
+        let draggedPortPos = self.nodeViews[port.node]?.portFrame(port.slot)?.center
+        let dist = viewPos.distance(to: draggedPortPos!)
+        let canvasDist = self.state.viewport.convert(dist, from: .screen, to: .canvas)
 
         let hoveredPort = self.portHitTest(locationInWindow: gesture.locationInWindow)
 
@@ -242,7 +245,7 @@ public final class CanvasFeatureViewModel {
                     nil
                 }
 
-            self.flow.portDragEnd(undoManager: self.undoManager, position: pos)
+            self.flow.portDragEnd(undoManager: self.undoManager, position: pos, travelDistance: canvasDist)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
         }
     }

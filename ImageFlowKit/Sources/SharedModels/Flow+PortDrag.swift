@@ -147,7 +147,7 @@ extension Flow {
         }
     }
 
-    public func portDragEnd(undoManager um: UndoManager?, position: CGPoint?) {
+    public func portDragEnd(undoManager um: UndoManager?, position: CGPoint?, travelDistance: CGFloat) {
         do {
             let result = try self.portDraggingState.endDragging()
 
@@ -174,7 +174,8 @@ extension Flow {
                 self.emitter.emit(
                     .didEndPortDragWithoutCreatingEdge(
                         typedPortLocation: .init(type: portType, port: result.port),
-                        canvasPosition: position
+                        canvasPosition: position,
+                        travelDistance: travelDistance
                     )
                 )
             }
