@@ -95,7 +95,7 @@ public struct CanvasFeatureView: View {
             #if os(iOS)
             self.interactiveSelectionToolbarView
             #endif
-
+            
             DropOverlay(vm: self.vm)
         }
         .activeViewObject(self.vm)

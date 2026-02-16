@@ -41,7 +41,7 @@ public final class CanvasFeatureViewModel {
     /// The current UndoManager from the SwiftUI's environment
     @ObservationIgnored var undoManager: UndoManager?
     /// Stores a reference to the platform-specific (i.e., NSView/UIView) canvas view.
-    @ObservationIgnored weak var canvasPlatformView: PlatformView?
+    @ObservationIgnored weak var canvasPlatformView: CanvasPlatformView?
     /// Storage for `EventEmitter` cancellables
     @ObservationIgnored var cancellables: Set<AnyEventEmitterCancellable> = []
     /// Provider for node context menus
@@ -92,7 +92,7 @@ public final class CanvasFeatureViewModel {
         self.flow.nodePositionsWithLiveMove
     }
 
-    var canvasPlatformViewRefBinding: Binding<PlatformView?> {
+    var canvasPlatformViewRefBinding: Binding<CanvasPlatformView?> {
         .init(
             get: { [weak self] in
                 self?.canvasPlatformView
@@ -485,8 +485,8 @@ extension CanvasFeatureViewModel {
     }
 }
 
-extension CanvasFeatureViewModel: PlatformViewRefStore {
-    public var view: PlatformView? {
+extension CanvasFeatureViewModel {
+    public var view: CanvasPlatformView? {
         get {
             self.canvasPlatformView
         }

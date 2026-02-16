@@ -75,11 +75,13 @@ public struct ImageFlowApp: App {
         .commands {
             SidebarCommands()
             PreviewFeatureCommands()
+            ZoomCommands()
             NodeEditCommands()
         }
         #else
         .commands {
             PreviewFeatureCommands()
+            ZoomCommands()
             NodeEditCommands()
             PasteboardCommands()
         }

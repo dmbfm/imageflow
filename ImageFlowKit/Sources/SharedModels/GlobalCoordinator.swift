@@ -9,6 +9,8 @@ public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     var flow: Flow { get }
     var nodeSelectionCount: Int { get }
     var canPaste: Bool { get }
+    var canZoomIn: Bool { get }
+    var canZoomOut: Bool { get }
 
     var undoManager: UndoManager? { get set }
     var pointerData: PointerData? { get set }
@@ -83,6 +85,7 @@ public enum UserAction {
     case preview(PreviewAction)
     case newNode(kind: NodeKind, at: Point?)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
+    case viewport(ViewportAction)
 
     public enum Target {
         case selection
@@ -96,6 +99,14 @@ public enum UserAction {
         case actualSize
         case openWindow
     }
+
+    public enum ViewportAction {
+        case zoomIn
+        case zoomOut
+        case setZoom(CGFloat)
+        case zoomToFitContent
+        case zoomToFitSelection
+    }
 }
 
 public enum GlobalCoordinatorEvent {
@@ -105,6 +116,10 @@ public enum GlobalCoordinatorEvent {
 @Observable
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorImpl {
+    public var canZoomIn: Bool { self.impl.canZoomIn }
+
+    public var canZoomOut: Bool { self.impl.canZoomOut }
+
     public var flow: Flow {
         self.impl.flow
     }

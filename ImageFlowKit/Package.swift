@@ -237,7 +237,8 @@ let package = Package(
         .target(
             name: "ContextMenus",
             dependencies: [
-                "SharedModels"
+                "SharedModels",
+                "Helpers",
             ]
         ),
         .testTarget(

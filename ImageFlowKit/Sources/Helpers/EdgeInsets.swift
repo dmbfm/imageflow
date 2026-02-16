@@ -6,6 +6,8 @@ public struct EdgeInsets: Sendable, Hashable {
     public var left: CGFloat
     public var right: CGFloat
 
+    public static let zero: EdgeInsets = .init(top: 0, bottom: 0, left: 0, right: 0)
+
     public init(top: CGFloat, bottom: CGFloat, left: CGFloat, right: CGFloat) {
         self.top = top
         self.bottom = bottom

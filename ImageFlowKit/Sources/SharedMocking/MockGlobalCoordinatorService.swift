@@ -6,6 +6,10 @@ import SwiftUI
 @MainActor
 @Observable
 public class MockGlobalCoordinatorService: GlobalCoordinatorImpl {
+    public var canZoomIn: Bool = false
+    
+    public var canZoomOut: Bool = false
+    
     public var flow: SharedModels.Flow = .init()
 
     public var previewHasImage: Bool = false

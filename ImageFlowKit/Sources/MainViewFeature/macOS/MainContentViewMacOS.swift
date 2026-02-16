@@ -78,9 +78,68 @@ struct MainContentViewMacOS: View {
         .activeViewObject(self.vm)
     }
 
+    let zoomValues: [CGFloat] = [
+        0.1,
+        0.25,
+        0.5,
+        1,
+        1.5,
+        2,
+        3,
+        4,
+    ]
+
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup {
+
+        ToolbarItemGroup(placement: .secondaryAction) {
+            Button {
+                self.vm.coordinator.perform(userAction: .viewport(.zoomOut))
+            } label: {
+                Image(systemName: "minus")
+            }
+
+            Menu {
+                Button("Fit Content") {
+                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitContent))
+                }
+                .disabled(self.vm.flow.nodes.isEmpty)
+
+                Button("Fit Selection") {
+                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitSelection))
+                }
+                .disabled(self.vm.flow.selection.isEmpty)
+
+                Divider()
+
+                ForEach(self.zoomValues, id: \.self) { value in
+                    Button(zoomFormatter.string(for: value) ?? "") {
+                        self.vm.coordinator.perform(userAction: .viewport(.setZoom(value)))
+                    }
+                }
+            } label: {
+                HStack(alignment: .center, spacing: 2) {
+                    Text(zoomFormatter.string(for: self.vm.canvas.viewport.scale) ?? "100%")
+                        .frame(width: 45)
+                    Image(systemName: "chevron.down")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 6)
+                        .frame(height: 20)
+                }
+                .contentShape(.rect)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
+
+            Button {
+                self.vm.coordinator.perform(userAction: .viewport(.zoomIn))
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
+
+        ToolbarItemGroup(placement: .primaryAction) {
             Button {
                 self.vm.openAssetBrowser()
             } label: {
@@ -89,4 +148,10 @@ struct MainContentViewMacOS: View {
         }
     }
 }
+
+private let zoomFormatter: NumberFormatter = {
+    let f = NumberFormatter()
+    f.numberStyle = .percent
+    return f
+}()
 #endif

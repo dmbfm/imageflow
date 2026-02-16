@@ -27,6 +27,25 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         PasteboardObserver.shared.canPaste
     }
 
+    #if os(macOS)
+    let maxZoom: CGFloat = 4
+    #else
+    let maxZoom: CGFloat = 1
+    #endif
+    let minZoom: CGFloat = 0.1
+
+    var currentZoom: CGFloat {
+        self.canvasViewModel?.viewport.scale ?? 1.0
+    }
+
+    public var canZoomIn: Bool {
+        self.currentZoom < self.maxZoom
+    }
+
+    public var canZoomOut: Bool {
+        self.currentZoom > self.minZoom
+    }
+
     #if os(iOS)
     public var pointerData: PointerData?
     #else
@@ -152,6 +171,16 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.mainContentViewModel?.openAssetPicker(
                 picker: .init(assetKind: kind, portLocation: .init(node: node, index: portIndex))
             )
+        case .viewport(.zoomIn):
+            self.canvasViewModel?.view?.perform(canvasAction: .zoomIn)
+        case .viewport(.zoomOut):
+            self.canvasViewModel?.view?.perform(canvasAction: .zoomOut)
+        case .viewport(.setZoom(let value)):
+            self.canvasViewModel?.view?.perform(canvasAction: .zoom(value))
+        case .viewport(.zoomToFitContent):
+            self.canvasViewModel?.view?.perform(canvasAction: .zoomToFitContent)
+        case .viewport(.zoomToFitSelection):
+            self.canvasViewModel?.view?.perform(canvasAction: .zoomToFitSelection(self.flow.selection))
         }
     }
 

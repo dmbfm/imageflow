@@ -72,6 +72,7 @@ public class CanvasContextMenuProvider {
                 pasteAction,
                 selectAllAction,
                 selectNodes,
+                makeZoomUIMenu(self.coordinator),
             ]
         )
     }
@@ -105,6 +106,8 @@ public class CanvasContextMenuProvider {
                         }
                     }
                 }
+
+                ZoomMenu()
 
                 Button {
                     self.coordinator?.perform(userAction: .pasteNodes(nil))

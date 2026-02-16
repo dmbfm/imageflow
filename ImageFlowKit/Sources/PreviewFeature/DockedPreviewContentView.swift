@@ -159,7 +159,9 @@ struct DockedPreviewContentView: View {
     }
 
     func zoomDidChange(_ value: CGFloat) {
-        self.zoom = value
+        Task {
+            self.zoom = value
+        }
     }
 
     @ViewBuilder

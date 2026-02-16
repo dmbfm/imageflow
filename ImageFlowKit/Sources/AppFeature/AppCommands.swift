@@ -1,3 +1,4 @@
+import ContextMenus
 import Helpers
 import MainViewFeature
 import PreviewFeature
@@ -213,6 +214,14 @@ struct CommandButton: View {
             } else {
                 Text(self.title)
             }
+        }
+    }
+}
+
+struct ZoomCommands: Commands {
+    var body: some Commands {
+        CommandGroup(after: .sidebar) {
+            ZoomMenu()
         }
     }
 }

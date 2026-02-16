@@ -118,10 +118,52 @@ struct MainContentViewIPadOS: View {
             .focusEffectDisabled()
         }
     }
-
+    let zoomValues: [CGFloat] = [
+        0.1,
+        0.25,
+        0.5,
+        0.75,
+        1,
+    ]
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .secondaryAction) {
+        
+        ToolbarItemGroup(placement: .secondaryAction) {
+            Button {
+                self.vm.coordinator.perform(userAction: .viewport(.zoomIn))
+            } label: {
+                Image(systemName: "plus")
+            }
+            .disabled(self.vm.canvas.viewport.scale >= 1.0)
+            
+            Menu {
+                Button("Fit Content") {
+                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitContent))
+                }
+                .disabled(self.vm.flow.nodes.isEmpty)
+                Button("Fit Selected") {
+                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitSelection))
+                }
+                .disabled(self.vm.flow.selection.isEmpty)
+                Divider()
+                ForEach(self.zoomValues, id: \.self) { value in
+                    Button(zoomFormatter.string(for: value) ?? "") {
+                        self.vm.coordinator.perform(userAction: .viewport(.setZoom(value)))
+                    }
+                }
+            } label: {
+                Text(zoomFormatter.string(for: self.vm.canvas.viewport.scale) ?? "")
+            }
+            
+            Button {
+                self.vm.coordinator.perform(userAction: .viewport(.zoomOut))
+            } label: {
+                Image(systemName: "minus")
+            }
+            .disabled(self.vm.canvas.viewport.scale <= 0.1)
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
             Button { [weak vm = self.vm] in
                 vm?.nodePalettePresent()
             } label: {
@@ -130,7 +172,7 @@ struct MainContentViewIPadOS: View {
             .keyboardShortcut(.init(.space, modifiers: []))
         }
 
-        ToolbarItem(placement: .secondaryAction) {
+        ToolbarItem(placement: .primaryAction) {
             Button {
 
             } label: {
@@ -199,4 +241,9 @@ struct MainContentViewIPadOS: View {
     }
 }
 
+private let zoomFormatter: NumberFormatter = {
+    let f = NumberFormatter()
+    f.numberStyle = .percent
+    return f
+}()
 #endif

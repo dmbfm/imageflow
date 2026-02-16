@@ -3,6 +3,8 @@ import Helpers
 import Logging
 import SwiftUI
 
+import struct Helpers.EdgeInsets
+
 #if canImport(AppKit)
 import AppKit
 public typealias CanvasPlatformView = CanvasNSView
@@ -28,11 +30,20 @@ protocol CanvasPlatformViewProtocol {
         configuration: CanvasView.Configuration,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)?
     )
+    func perform(canvasAction: CanvasAction)
 }
 
 public enum CanvasInteractionMode {
     case `default`
     case interactiveSelection
+}
+
+public enum CanvasAction {
+    case zoomIn
+    case zoomOut
+    case zoom(CGFloat)
+    case zoomToFitContent
+    case zoomToFitSelection(Set<UUID>)
 }
 
 public protocol CanvasViewDelegate: AnyObject {
@@ -142,4 +153,88 @@ extension CanvasPlatformView {
         self.canvasAnimator?.animate(toViewportOrigin: self.viewport.origin + .init(x: 0, y: dy), duration: duration)
         #endif
     }
+
+    // MARK: - Actions
+
+    public func perform(canvasAction: CanvasAction) {
+        switch canvasAction {
+        case .zoomIn:
+            self.zoomIn()
+        case .zoomOut:
+            self.zoomOut()
+        case .zoom(let value):
+            self.setZoom(value)
+        case .zoomToFitContent:
+            self.zoomToFitNodes()
+        case .zoomToFitSelection(let selection):
+            self.zoomToFit(selection: selection)
+        }
+    }
+
+    public func setZoom(_ value: CGFloat) {
+        self.viewport.zoom(
+            self.configuration.clampZoom(value),
+            atScreenPoint: self.safeAreaRect.center
+        )
+    }
+    public func zoomIn(_ animate: Bool = true) {
+        let alpha = log2(self.viewport.scale)
+        let nextAlpha = floor(alpha) + 1
+        let zoom = pow(2.0, nextAlpha)
+        self.viewport.zoom(
+            self.configuration.clampZoom(zoom),
+            atScreenPoint: self.safeAreaRect.center
+        )
+    }
+
+    public func zoomOut(_ animate: Bool = true) {
+        let alpha = log2(self.viewport.scale)
+        let nextAlpha = floor(alpha) - 1
+        let zoom = pow(2.0, nextAlpha)
+        self.viewport.zoom(
+            self.configuration.clampZoom(zoom),
+            atScreenPoint: self.safeAreaRect.center
+        )
+    }
+
+    public func zoomToFitNodes() {
+        if let rect = self.contentRect(nil) {
+            self.viewport.fit(
+                contentRect: rect,
+                centeredAtViewRect: self.safeAreaRect,
+                zoomRange: self.configuration.zoomRange,
+                padding: 20
+            )
+        }
+    }
+
+    public func zoomToFit(selection: Set<UUID>) {
+        if let rect = self.contentRect(selection) {
+            self.viewport.fit(
+                contentRect: rect,
+                centeredAtViewRect: self.safeAreaRect,
+                zoomRange: self.configuration.zoomRange,
+                padding: 20
+            )
+        }
+    }
+
+    func contentRect(_ nodes: Set<UUID>?) -> CGRect? {
+        self.nodeViews.reduce(
+            nil as CGRect?,
+            { acc, e in
+                if let nodes, !nodes.contains(e.key) { return acc }
+                return acc?.union(e.value.frame) ?? e.value.frame
+            }
+        )
+    }
 }
+
+#if os(iOS)
+import UIKit
+extension UIView {
+    var safeAreaRect: CGRect {
+        self.bounds.insetted(by: self.safeAreaInsets)
+    }
+}
+#endif

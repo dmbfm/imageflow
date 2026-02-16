@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import Helpers
 
 extension CanvasView {
     public struct Viewport: Codable, Sendable, Hashable, Equatable {
@@ -177,6 +178,30 @@ extension CanvasView {
 
             return (imin...imax, jmin...jmax)
         }
-    }
 
+        public mutating func fit(
+            contentRect: CGRect,
+            centeredAtViewRect viewRect: CGRect,
+            zoomRange: ClosedRange<CGFloat>? = nil,
+            padding: CGFloat = 0.0
+        ) {
+            let contentRect = contentRect.insetBy(dx: -padding, dy: -padding)
+            let viewAspect = viewRect.width / viewRect.height
+            let contentAspect = contentRect.width / contentRect.height
+
+            self.scale =
+                if viewAspect >= contentAspect {
+                    viewRect.height / contentRect.height
+                } else {
+                    viewRect.width / contentRect.width
+                }
+
+            if let range = zoomRange {
+                self.scale = self.scale.clamped(to: range)
+            }
+            self.origin = .zero
+            let viewRectPrime = self.convert(viewRect, from: .screen, to: .canvas)
+            self.origin = contentRect.center - viewRectPrime.center
+        }
+    }
 }
