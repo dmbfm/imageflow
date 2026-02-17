@@ -121,8 +121,6 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
                     userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
                 )
             }
-            self.undoManager?.endUndoGrouping()
-            self.undoManager?.setActionName("...")
         case let .didDeleteNode(id):
             self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: id)
         default:
