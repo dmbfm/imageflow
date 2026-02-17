@@ -127,7 +127,7 @@ struct MainContentViewIPadOS: View {
     ]
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-        
+
         ToolbarItemGroup(placement: .secondaryAction) {
             Button {
                 self.vm.coordinator.perform(userAction: .viewport(.zoomIn))
@@ -135,7 +135,7 @@ struct MainContentViewIPadOS: View {
                 Image(systemName: "plus")
             }
             .disabled(self.vm.canvas.viewport.scale >= 1.0)
-            
+
             Menu {
                 Button("Fit Content") {
                     self.vm.coordinator.perform(userAction: .viewport(.zoomToFitContent))
@@ -154,7 +154,7 @@ struct MainContentViewIPadOS: View {
             } label: {
                 Text(zoomFormatter.string(for: self.vm.canvas.viewport.scale) ?? "")
             }
-            
+
             Button {
                 self.vm.coordinator.perform(userAction: .viewport(.zoomOut))
             } label: {
@@ -162,7 +162,7 @@ struct MainContentViewIPadOS: View {
             }
             .disabled(self.vm.canvas.viewport.scale <= 0.1)
         }
-        
+
         ToolbarItem(placement: .primaryAction) {
             Button { [weak vm = self.vm] in
                 vm?.nodePalettePresent()

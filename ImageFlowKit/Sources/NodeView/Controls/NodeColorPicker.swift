@@ -216,7 +216,7 @@ final class NodeColorPicker: NSView {
 
                 if self.previousCommitedColor != newValue {
                     self.onEvent?(.didCommit(old: self.previousCommitedColor, new: newValue))
-                    self.previousCommitedColor = newValue.copy() as! NSColor
+                    self.previousCommitedColor = newValue.clone()
                 }
             },
             onContinuousChange: { [weak self] newValue in
@@ -237,7 +237,7 @@ final class NodeColorPicker: NSView {
 
         if self.previousCommitedColor != panel.color {
             self.onEvent?(.didCommit(old: self.previousCommitedColor, new: panel.color))
-            self.previousCommitedColor = panel.color.copy() as! NSColor
+            self.previousCommitedColor = panel.color.clone()
         }
     }
 }

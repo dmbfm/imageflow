@@ -128,6 +128,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         }
     }
 
+    // swiftlint:disable function_body_length
     public func perform(userAction action: UserAction) {
         log("user action: \(action)", level: .info)
         switch action {

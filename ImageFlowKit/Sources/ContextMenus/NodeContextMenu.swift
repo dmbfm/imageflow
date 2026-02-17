@@ -46,6 +46,7 @@ public class NodeContextMenuProvider {
 
     #if os(macOS)
 
+    // swiftlint:disable function_body_length
     public func makeMenu(forNode id: UUID, at location: CGPoint) -> NSMenu? {
         self.update(id)
 
@@ -185,6 +186,7 @@ public class NodeContextMenuProvider {
     #endif
 
     #if os(iOS)
+    // swiftlint:disable function_body_length
     public func makeMenu(forNode id: UUID, at location: CGPoint) -> UIMenu? {
         self.update(id)
 
