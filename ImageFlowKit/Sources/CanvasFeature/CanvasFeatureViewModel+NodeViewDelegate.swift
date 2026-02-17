@@ -45,6 +45,7 @@ extension CanvasFeatureViewModel {
                 this.setNodeValue(id, index, newValue, oldValue)
             }
         )
+        self.undoManager?.setActionName("\(newValue.type.displayName) Value Change")
     }
 }
 

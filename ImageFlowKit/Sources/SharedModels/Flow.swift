@@ -198,6 +198,7 @@ extension Flow {
         for i in node.outputs.indices { node.outputs[i].connected = false }
 
         self.addNode(node, at: pos + offset, undoManager: um)
+        um?.setActionName("Duplicate Node")
 
         return node
     }
@@ -230,6 +231,7 @@ extension Flow {
                     this.removeNode(node.id, undoManager: um)
                 }
             )
+            um?.setActionName("Create Node")
             return true
         }
 
@@ -354,13 +356,12 @@ extension Flow {
             }
         }
 
-        print("--> slot: \(slot, default: "nil")")
-
         if let slot, let edge = Edge(typedPortLocation.port, .init(node: node.id, port: slot)) {
             self.newEdgeAction(edge, undoManager: um)
         }
 
         um?.endUndoGrouping()
+        um?.setActionName("Create Node")
     }
 
     private func withSelectedNodes(_ um: UndoManager?, perform: (UUID, UndoManager?) -> ()) {
@@ -372,8 +373,10 @@ extension Flow {
     }
 
     public func deleteSelectedNodesAction(undoManager um: UndoManager?) {
+        let actionName = "Delete Node" + (self.selection.count > 1 ? "s" : "")
         self.withSelectedNodes(um) { id, um in
             self.deleteNodeAction(id, undoManager: um)
+            um?.setActionName(actionName)
         }
     }
 
@@ -384,6 +387,7 @@ extension Flow {
                 newSelection.insert(id)
             }
         }
+        um?.setActionName("Duplicate Node" + (self.selection.count > 1 ? "s" : ""))
         self.select(newSelection)
     }
 
@@ -399,6 +403,7 @@ extension Flow {
         self.removeNode(id, undoManager: um)
 
         um?.endUndoGrouping()
+        um?.setActionName("Delete Node")
     }
 
     func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
@@ -425,6 +430,7 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
+        um?.setActionName("Delete Edge")
     }
 
     public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
@@ -438,6 +444,7 @@ extension Flow {
         self.setNodePortConnected(edge.to, true, undoManager: um)
 
         um?.endUndoGrouping()
+        um?.setActionName("Create Edge")
     }
 
     func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoManager um: UndoManager?) {

@@ -149,6 +149,7 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
+        um?.setActionName("Paste Node" + (ids.count > 1 ? "s" : ""))
 
         self.select(Set(ids.values))
     }

@@ -81,6 +81,7 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
+        um?.setActionName("Mode Node" + (snap.count > 1 ? "s" : ""))
 
         if !didMoveNode {
             um?.undoNestedGroup()

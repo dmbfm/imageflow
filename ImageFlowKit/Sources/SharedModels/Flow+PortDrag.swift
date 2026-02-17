@@ -167,6 +167,7 @@ extension Flow {
             }
 
             um?.endUndoGrouping()
+            um?.setActionName("Create Edge")
 
             self.partialEdge = nil
 
