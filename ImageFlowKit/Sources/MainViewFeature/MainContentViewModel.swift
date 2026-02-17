@@ -220,7 +220,7 @@ final class MainContentViewModel {
         let pos = self.nodePaletteState.canvasPosition
 
         self.nodePaletteDismiss()
-        
+
         // NOTE: If we don't do this in a Task, we sometimes get a freeze
         Task { @MainActor in
             let node = FlowNode(kind: item.nodeKind)

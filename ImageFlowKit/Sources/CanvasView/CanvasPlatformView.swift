@@ -229,4 +229,3 @@ extension CanvasPlatformView {
         )
     }
 }
-
