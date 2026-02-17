@@ -230,11 +230,3 @@ extension CanvasPlatformView {
     }
 }
 
-#if os(iOS)
-import UIKit
-extension UIView {
-    var safeAreaRect: CGRect {
-        self.bounds.insetted(by: self.safeAreaInsets)
-    }
-}
-#endif

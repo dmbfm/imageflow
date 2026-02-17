@@ -6,6 +6,7 @@ import Combine
 import ContextMenus
 import Helpers
 import Logging
+import NodeView
 import PreviewFeature
 import SharedModels
 import SwiftUI
@@ -132,7 +133,9 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     public func perform(userAction action: UserAction) {
         log("user action: \(action)", level: .info)
         switch action {
-        case .newNode(let kind, at: let point):
+        case .newNode(let node, at: let point, let typedPort):
+            self.newNode(node: node, at: point, typedPort: typedPort)
+        case .newNodeWithKind(let kind, at: let point):
             self.newNode(kind: kind, at: point)
         case .copy(let target):
             self.copy(target)
@@ -258,9 +261,29 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     }
 
     func newNode(kind: NodeKind, at point: Point?) {
-        if let point, let view = self.canvasViewModel?.view, let viewport = self.canvasViewModel?.viewport {
-            let pos = point.canvas(view: view, viewport: viewport).cgPoint
-            self.flow.newNodeAction(kind: kind, at: pos, undoManager: self.undoManager)
+        self.newNode(node: .init(kind: kind), at: point, typedPort: nil)
+    }
+
+    func newNode(node: FlowNode, at point: Point?, typedPort: TypedPortLocation?) {
+        if let view = self.canvasViewModel?.view, let viewport = self.canvasViewModel?.viewport {
+            let point = point ?? .canvasView(view.safeAreaRect.center)
+            let nodeSize = node.estimatedViewSize
+            let pos = point.canvas(view: view, viewport: viewport).cgPoint - (nodeSize.cgPoint * 0.5)
+            if let typedPort {
+                self.flow.newNodeAction(
+                    node,
+                    at: pos,
+                    connectingToExistingPort: typedPort,
+                    undoManager: self.undoManager
+                )
+            } else {
+                self.flow.newNodeAction(
+                    node,
+                    at: pos,
+                    undoManager: self.undoManager
+                )
+            }
+            self.flow.select([node.id])
         }
     }
 
@@ -491,7 +514,6 @@ private class ActiveViewObserver {
 }
 
 extension Point {
-
     @MainActor
     func canvas(
         view: PlatformView,
@@ -502,5 +524,12 @@ extension Point {
         case .canvasView(let point): .canvasView(viewport.convert(point, from: .screen, to: .canvas))
         case .window(let point): .canvasView(view.convert(point, from: nil)).canvas(view: view, viewport: viewport)
         }
+    }
+}
+
+extension FlowNode {
+    @MainActor
+    var estimatedViewSize: CGSize {
+        NodeView(self).intrinsicContentSize
     }
 }

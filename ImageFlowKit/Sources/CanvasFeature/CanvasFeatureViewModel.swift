@@ -402,19 +402,13 @@ public final class CanvasFeatureViewModel {
 
             let node = FlowNode(kind: item.nodeKind)
 
-            if let typedPort = self.nodeSearchPopoverState.typedPortLocation {
-                self.flow.newNodeAction(
+            self.coordinator.perform(
+                userAction: .newNode(
                     node,
-                    at: canvasPosition,
-                    connectingToExistingPort: typedPort,
-                    undoManager: self.undoManager
+                    at: .canvas(canvasPosition),
+                    connectingToExistingPort: self.nodeSearchPopoverState.typedPortLocation
                 )
-            } else {
-                self.flow.newNodeAction(node, at: canvasPosition, undoManager: self.undoManager)
-            }
-
-            self.flow.select([node.id])
-
+            )
         } else {
             log("nodeSearchPopover(didPickItem): missing canvas position!", level: .error)
         }

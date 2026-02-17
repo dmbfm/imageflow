@@ -108,11 +108,6 @@ struct MainContentViewIPadOS: View {
                 self.$focus,
                 coordinator: self.vm.coordinator,
             )
-            .onGeometryChange(for: CGPoint.self) { proxy in
-                proxy.frame(in: .local).center
-            } action: { newValue in
-                self.vm.canvasCenter = newValue
-            }
             .focusable()
             .focused(self.$focus, equals: .global)
             .focusEffectDisabled()

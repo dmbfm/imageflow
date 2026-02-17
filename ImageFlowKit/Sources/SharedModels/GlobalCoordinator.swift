@@ -83,7 +83,8 @@ public enum UserAction {
     case exportImageForNode(UUID)
     case showNodeSearch(typedPortLocation: TypedPortLocation?, canvasPosition: CGPoint?)
     case preview(PreviewAction)
-    case newNode(kind: NodeKind, at: Point?)
+    case newNodeWithKind(kind: NodeKind, at: Point?)
+    case newNode(FlowNode, at: Point?, connectingToExistingPort: TypedPortLocation?)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     case viewport(ViewportAction)
 

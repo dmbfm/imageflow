@@ -67,8 +67,6 @@ final class MainContentViewModel {
     /// The undo manager from SwiftUI's evironment
     var undoManager: UndoManager? = nil
 
-    @ObservationIgnored var canvasCenter: CGPoint = .zero
-
     @ObservationIgnored var fileImporterConfiguration: FileImporterConfiguration = .init(
         allowedContentTypes: [])
 
@@ -135,7 +133,7 @@ final class MainContentViewModel {
     }
 
     func onDoubleClick(nodePaletteItem item: NodePaletteItem) {
-        self.createNodeAtCanvasCenter(fromPaletteItem: item)
+        self.coordinator.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: nil))  // .newNode(kind: item.nodeKind, at: nil))
     }
 
     var onDeleteCommand: (() -> ())? {
@@ -202,24 +200,6 @@ final class MainContentViewModel {
         }
     }
 
-    @discardableResult
-    func createNodeAtCanvasCenter(fromPaletteItem item: NodePaletteItem) -> FlowNode {
-        let node = FlowNode(kind: item.nodeKind)
-        self.createNodeAtCanvasCenter(node)
-        return node
-    }
-
-    func createNodeAtCanvasCenter(_ node: FlowNode) {
-        let pos: CGPoint = {
-            let view = NodeView(node)
-            let size = view.intrinsicContentSize
-            let pos = self.canvasCenter - (size * 0.5).cgPoint
-            return self.canvas.viewport.convert(pos, from: .screen, to: .canvas)
-        }()
-        self.flow.newNodeAction(node, at: pos, undoManager: self.undoManager)
-        self.flow.select([node.id])
-    }
-
     // MARK: - Node Palette
 
     #if os(iOS)
@@ -235,36 +215,18 @@ final class MainContentViewModel {
         self.nodePaletteState = .init()
     }
 
-    func nodePalettePositionForNode(_ item: NodePaletteItem) -> CGPoint {
-        if let pos = self.nodePaletteState.canvasPosition {
-            return pos
-        } else {
-            let view = NodeView(FlowNode(kind: item.nodeKind))
-            let size = view.intrinsicContentSize
-            let pos = self.canvasCenter - (size * 0.5).cgPoint
-            return self.canvas.viewport.convert(pos, from: .screen, to: .canvas)
-        }
-    }
-
     func onNodePaletteSheetTapItem(_ item: NodePaletteItem) {
         let port = self.nodePaletteState.typedPortLocation
-        let pos = self.nodePalettePositionForNode(item)
+        let pos = self.nodePaletteState.canvasPosition
 
         self.nodePaletteDismiss()
-        let node = FlowNode(kind: item.nodeKind)
-
-        if let port {
-            self.flow.newNodeAction(
-                node,
-                at: pos,
-                connectingToExistingPort: port,
-                undoManager: self.undoManager
-            )
-        } else {
-            self.flow.newNodeAction(node, at: pos, undoManager: self.undoManager)
+        
+        // NOTE: If we don't do this in a Task, we sometimes get a freeze
+        Task { @MainActor in
+            let node = FlowNode(kind: item.nodeKind)
+            let point = pos.map { Point.canvas($0) }
+            self.coordinator.perform(userAction: .newNode(node, at: point, connectingToExistingPort: port))
         }
-
-        self.flow.select([node.id])
     }
     #endif
 
@@ -298,7 +260,7 @@ final class MainContentViewModel {
             var node = FlowNode(id: .init(), kind: nodeKind)
             assert(node.inputs[inputIndex].value.type == assetKind.valueType)
             node.inputs[inputIndex].value = value
-            self.createNodeAtCanvasCenter(node)
+            self.coordinator.perform(userAction: .newNode(node, at: nil, connectingToExistingPort: nil))
         } else {
             log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
         }

@@ -20,7 +20,7 @@ public class CanvasContextMenuProvider {
     }
 
     func pickItem(_ item: NodePaletteItem, _ pos: CGPoint) {
-        self.coordinator?.perform(userAction: .newNode(kind: item.nodeKind, at: .canvasView(pos)))
+        self.coordinator?.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: .canvasView(pos)))
     }
 
     #if os(iOS)
