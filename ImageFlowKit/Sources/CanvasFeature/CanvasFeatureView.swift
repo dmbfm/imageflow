@@ -48,6 +48,7 @@ public struct CanvasFeatureView: View {
                 viewport: self.$vm.state.viewport,
                 nodePositions: self.vm.nodePositions,
                 edges: self.vm.edgeLayers,
+                plusIcon: self.vm.plusIconPosition,
                 canvasPlatformViewRef: self.vm.canvasPlatformViewRefBinding,
                 viewForNode: self.vm.viewForNode,
                 delegate: self.vm,

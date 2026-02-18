@@ -30,6 +30,9 @@ public final class CanvasFeatureViewModel {
     var focus: FocusState<Focus?>.Binding
     /// The edges to be drawn by the `CanvasView`
     var edgeLayers: [CanvasView.EdgeLayer] = []
+    /// The position of the "+" icon over the partial edge that indicates to the
+    /// user that a node can be created by dropping the edge at the current location.
+    var plusIconPosition: CGPoint? = nil
     /// The view showing annotation in the canvas such as errors, warnings and othes messages
     var annotationView: AnnotationView = .empty(width: 280)
     /// The current interaction mode of the canvas
@@ -48,6 +51,9 @@ public final class CanvasFeatureViewModel {
     @ObservationIgnored var nodeContextMenuProvider: NodeContextMenuProvider?
     /// Provider for canvas context menus
     @ObservationIgnored var canvasContextMenuProvider: CanvasContextMenuProvider?
+    /// Set to true whenever the user is dragging a partial edge starting from a
+    /// connected input port of a node.
+    @ObservationIgnored var isDraggingConnectedInputPort: Bool = false
     /// If true, hides floating or docked previews.
     var hidePreviews: Bool = false
     /// If true, show the interactive selection toolbar on iPadOS.
@@ -229,6 +235,8 @@ public final class CanvasFeatureViewModel {
 
         switch gesture.phase {
         case .began:
+            self.isDraggingConnectedInputPort =
+                port.direction == .input && self.flow.nodes[port.node]!.inputs[port.slot.index].connected
             self.flow.portDragStart(port, pointer)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
         case .changed:
@@ -348,7 +356,46 @@ public final class CanvasFeatureViewModel {
             )
         }
 
+        self.updatePlusIconPosition()
         self.edgeLayers = edges
+    }
+
+    func updatePlusIconPosition() {
+        guard let e = self.flow.partialEdge else {
+            self.plusIconPosition = nil
+            return
+        }
+
+        if e.state != .default {
+            self.plusIconPosition = nil
+            return
+        }
+
+        if let center = self.portFrameCenter(e.port), e.pointer.distance(to: center) < 50 {
+            self.plusIconPosition = nil
+            return
+        }
+
+        if self.isDraggingConnectedInputPort {
+            self.plusIconPosition = nil
+            return
+        }
+
+        #if os(iOS)
+        let y = 12
+        let x = 8
+        #else
+        let y = 14
+        let x = 2
+        #endif
+
+        let offset: CGPoint =
+            switch e.port.slot {
+            case .input(_): .init(x: -(x + 12), y: -y)
+            case .output(_): .init(x: x, y: -y)
+            }
+
+        self.plusIconPosition = self.viewport.convert(e.pointer, from: .canvas, to: .screen) + offset
     }
 
     // MARK: - Port

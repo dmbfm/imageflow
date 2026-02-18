@@ -43,9 +43,26 @@ final class CanvasGridView: PlatformView {
     }
 
     #if os(macOS)
+
+    lazy var plusIconView: NSView = {
+        let image =
+            NSImage(
+                systemSymbolName: "plus",
+                accessibilityDescription: nil,
+            )?.withSymbolConfiguration(
+                .init(pointSize: 12, weight: .regular)
+                    .applying(.init(paletteColors: [Colors.portConnected.platformColor]))
+            ) ?? .init()
+        let view = NSImageView(image: image)
+        view.frame.origin = .init(x: 0, y: 0)
+        view.isHidden = true
+        return view
+    }()
+
     func platformInit() {
         self.wantsLayer = true
         self.allowedTouchTypes = [.indirect, .direct]
+        self.addSubview(self.plusIconView)
     }
 
     override func rightMouseDown(with event: NSEvent) {
@@ -57,8 +74,17 @@ final class CanvasGridView: PlatformView {
     #endif
 
     #if os(iOS)
+    lazy var plusIconView: UIView = {
+        let image = UIImage(
+            systemName: "plus",
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        )?.withTintColor(Colors.portConnected.platformColor, renderingMode: .alwaysOriginal)
+        let view = UIImageView(image: image)
+        return view
+    }()
     func platformInit() {
         self.backgroundColor = BackgroundStyle.default.bg.platformColor
+        self.addSubview(self.plusIconView)
         self.setNeedsDisplay()
     }
     #endif
@@ -138,6 +164,17 @@ final class CanvasGridView: PlatformView {
         }
     }
     #endif
+
+    var plusIconPosition: CGPoint? = nil {
+        didSet {
+            if let pos = self.plusIconPosition {
+                self.plusIconView.isHidden = false
+                self.plusIconView.frame.origin = pos
+            } else {
+                self.plusIconView.isHidden = true
+            }
+        }
+    }
 
     var edgesLayersToDraw: [CanvasView.EdgeLayer] = []
 

@@ -26,6 +26,9 @@ public struct CanvasView: PlatformViewRepresentable {
     /// This array of `EdgeLayer` tells the view which edges to draw in which colors.
     let edgeLayers: [EdgeLayer]
 
+    /// Draw a plus icon at the given position
+    let plusIcon: CGPoint?
+
     /// This is used to set a reference to the underlying `NSView` or `UIView` to be used upwards in the view chain.
     @Binding var canvasPlatformViewRef: CanvasPlatformView?
 
@@ -56,6 +59,7 @@ public struct CanvasView: PlatformViewRepresentable {
         viewport: Binding<Viewport>,
         nodePositions: [UUID: CGPoint],
         edges: [EdgeLayer],
+        plusIcon: CGPoint? = nil,
         canvasPlatformViewRef: Binding<CanvasPlatformView?>,
         viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         delegate: (any CanvasViewDelegate)? = nil,
@@ -65,6 +69,7 @@ public struct CanvasView: PlatformViewRepresentable {
         self._viewport = viewport
         self.nodePositions = nodePositions
         self.edgeLayers = edges
+        self.plusIcon = plusIcon
         self.viewForNode = viewForNode
         self._canvasPlatformViewRef = canvasPlatformViewRef
         self.onEvent = onEvent
@@ -89,6 +94,7 @@ public struct CanvasView: PlatformViewRepresentable {
 
         view.delegate = self.delegate
         view.interactionMode = self.interactionMode
+        view.plusIconPosition = self.plusIcon
 
         return view
     }
@@ -119,6 +125,10 @@ public struct CanvasView: PlatformViewRepresentable {
 
         if view.interactionMode != self.interactionMode {
             view.interactionMode = self.interactionMode
+        }
+
+        if view.plusIconPosition != self.plusIcon {
+            view.plusIconPosition = self.plusIcon
         }
     }
 
