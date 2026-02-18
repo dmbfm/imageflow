@@ -171,7 +171,10 @@ extension Flow {
 
             self.partialEdge = nil
 
-            if result.edgeToCreate == nil, let portType = self.nodes[result.port.node]?[valueTypeAt: result.port.slot] {
+            if result.edgeToCreate == nil,
+                !(result.port.slot.isInput && result.removedEdge != nil),
+                let portType = self.nodes[result.port.node]?[valueTypeAt: result.port.slot]
+            {
                 self.emitter.emit(
                     .didEndPortDragWithoutCreatingEdge(
                         typedPortLocation: .init(type: portType, port: result.port),
