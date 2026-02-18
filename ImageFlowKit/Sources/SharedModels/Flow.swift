@@ -318,12 +318,13 @@ extension Flow {
         assert(result, "`addNode` unexpectedly failed.")
     }
 
+    @discardableResult
     public func newNodeAction(
         kind: NodeKind,
         at position: CGPoint,
         connectingToExistingPort typedPortLocation: TypedPortLocation,
         undoManager um: UndoManager?
-    ) {
+    ) -> PortSlot? {
         self.newNodeAction(
             .init(kind: kind),
             at: position,
@@ -332,12 +333,13 @@ extension Flow {
         )
     }
 
+    @discardableResult
     public func newNodeAction(
         _ node: FlowNode,
         at position: CGPoint,
         connectingToExistingPort typedPortLocation: TypedPortLocation,
         undoManager um: UndoManager?
-    ) {
+    ) -> PortSlot? {
         um?.beginUndoGrouping()
 
         self.newNodeAction(node, at: position, undoManager: um)
@@ -362,6 +364,8 @@ extension Flow {
 
         um?.endUndoGrouping()
         um?.setActionName("Create Node")
+
+        return slot
     }
 
     private func withSelectedNodes(_ um: UndoManager?, perform: (UUID, UndoManager?) -> ()) {

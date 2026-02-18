@@ -267,15 +267,23 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     func newNode(node: FlowNode, at point: Point?, typedPort: TypedPortLocation?) {
         if let view = self.canvasViewModel?.view, let viewport = self.canvasViewModel?.viewport {
             let point = point ?? .canvasView(view.safeAreaRect.center)
-            let nodeSize = node.estimatedViewSize
-            let pos = point.canvas(view: view, viewport: viewport).cgPoint - (nodeSize.cgPoint * 0.5)
+            let nodeView = NodeView(node)
+            let nodeSize = nodeView.intrinsicContentSize
+            let nodeTopLeft = point.canvas(view: view, viewport: viewport).cgPoint
+            let pos = nodeTopLeft - (nodeSize.cgPoint * 0.5)
             if let typedPort {
-                self.flow.newNodeAction(
+                let maybeSlot = self.flow.newNodeAction(
                     node,
                     at: pos,
                     connectingToExistingPort: typedPort,
                     undoManager: self.undoManager
                 )
+                if let slot = maybeSlot, let portView = nodeView.portView(slot) {
+                    nodeView.setNeedsLayout()
+                    nodeView.layoutIfNeeded()
+                    let newPos = nodeTopLeft - portView.convert(portView.frame.center, to: nodeView)
+                    self.flow.nodePositions[node.id] = newPos
+                }
             } else {
                 self.flow.newNodeAction(
                     node,
