@@ -135,6 +135,8 @@ extension CanvasPlatformView {
 
     func addNode(_ id: UUID, at position: CGPoint) {
         if let node = self.viewForNode(id) {
+            node.setNeedsLayout()
+            node.layoutIfNeeded()
             self.addNode(node, at: position)
         } else {
             log("Missing view for node \(id)", level: .error)
