@@ -117,7 +117,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     func onFlowEvent(_ event: FlowEvent) {
         switch event {
         case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition, travelDistance):
-            if travelDistance >= 50 {
+            if travelDistance >= GlobalConstants.minTravelDistanceToCreateNode {
                 self.perform(
                     userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
                 )

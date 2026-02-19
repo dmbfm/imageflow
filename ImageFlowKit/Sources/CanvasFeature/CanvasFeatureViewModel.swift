@@ -372,7 +372,9 @@ public final class CanvasFeatureViewModel {
             self.plusIconState.visible = false
         }
 
-        if let center = self.portFrameCenter(e.port), e.pointer.distance(to: center) < 50 {
+        if let center = self.portFrameCenter(e.port),
+            e.pointer.distance(to: center) < GlobalConstants.minTravelDistanceToCreateNode
+        {
             self.plusIconState.visible = false
         }
 
