@@ -32,7 +32,7 @@ public final class CanvasFeatureViewModel {
     var edgeLayers: [CanvasView.EdgeLayer] = []
     /// The position of the "+" icon over the partial edge that indicates to the
     /// user that a node can be created by dropping the edge at the current location.
-    var plusIconPosition: CGPoint? = nil
+    var plusIconState: CanvasView.PlusIconState = .init()
     /// The view showing annotation in the canvas such as errors, warnings and othes messages
     var annotationView: AnnotationView = .empty(width: 280)
     /// The current interaction mode of the canvas
@@ -361,41 +361,31 @@ public final class CanvasFeatureViewModel {
     }
 
     func updatePlusIconPosition() {
+        self.plusIconState.visible = true
+
         guard let e = self.flow.partialEdge else {
-            self.plusIconPosition = nil
+            self.plusIconState.visible = false
             return
         }
 
         if e.state != .default {
-            self.plusIconPosition = nil
-            return
+            self.plusIconState.visible = false
         }
 
         if let center = self.portFrameCenter(e.port), e.pointer.distance(to: center) < 50 {
-            self.plusIconPosition = nil
-            return
+            self.plusIconState.visible = false
         }
 
         if self.isDraggingConnectedInputPort {
-            self.plusIconPosition = nil
-            return
+            self.plusIconState.visible = false
         }
 
-        #if os(iOS)
-        let y = 12
-        let x = 8
-        #else
-        let y = 14
-        let x = 2
-        #endif
-
-        let offset: CGPoint =
+        self.plusIconState.position = self.viewport.convert(e.pointer, from: .canvas, to: .screen)
+        self.plusIconState.direction =
             switch e.port.slot {
-            case .input(_): .init(x: -(x + 12), y: -y)
-            case .output(_): .init(x: x, y: -y)
+            case .input: .xminus
+            case .output: .xplus
             }
-
-        self.plusIconPosition = self.viewport.convert(e.pointer, from: .canvas, to: .screen) + offset
     }
 
     // MARK: - Port

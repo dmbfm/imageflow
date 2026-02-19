@@ -1,6 +1,7 @@
 import Design
 import Helpers
 import Logging
+import SwiftUI
 
 #if canImport(AppKit)
 import AppKit
@@ -42,21 +43,13 @@ final class CanvasGridView: PlatformView {
         nil
     }
 
+    lazy var plusIconViewModel: PlusIconModel = .init()
+    
     #if os(macOS)
 
+
     lazy var plusIconView: NSView = {
-        let image =
-            NSImage(
-                systemSymbolName: "plus",
-                accessibilityDescription: nil,
-            )?.withSymbolConfiguration(
-                .init(pointSize: 12, weight: .regular)
-                    .applying(.init(paletteColors: [Colors.portConnected.platformColor]))
-            ) ?? .init()
-        let view = NSImageView(image: image)
-        view.frame.origin = .init(x: 0, y: 0)
-        view.isHidden = true
-        return view
+        return NSHostingView(rootView: PlusIconView(vm: self.plusIconViewModel))
     }()
 
     func platformInit() {
@@ -75,13 +68,10 @@ final class CanvasGridView: PlatformView {
 
     #if os(iOS)
     lazy var plusIconView: UIView = {
-        let image = UIImage(
-            systemName: "plus",
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
-        )?.withTintColor(Colors.portConnected.platformColor, renderingMode: .alwaysOriginal)
-        let view = UIImageView(image: image)
-        return view
+        let view = UIHostingConfiguration(content: { PlusIconView(vm: self.plusIconViewModel) })
+        return view.makeContentView()
     }()
+
     func platformInit() {
         self.backgroundColor = BackgroundStyle.default.bg.platformColor
         self.addSubview(self.plusIconView)
@@ -165,15 +155,27 @@ final class CanvasGridView: PlatformView {
     }
     #endif
 
-    var plusIconPosition: CGPoint? = nil {
+    var plusIconState: CanvasView.PlusIconState = .init() {
         didSet {
-            if let pos = self.plusIconPosition {
-                self.plusIconView.isHidden = false
-                self.plusIconView.frame.origin = pos
-            } else {
-                self.plusIconView.isHidden = true
+            if self.plusIconState.visible && !oldValue.visible {
+                self.plusIconShow()
+            } else if !self.plusIconState.visible && oldValue.visible {
+                self.plusIconHide()
+            }
+
+            self.plusIconView.frame.origin = self.plusIconState.position
+            if self.plusIconViewModel.direction != self.plusIconState.direction {
+                self.plusIconViewModel.direction = self.plusIconState.direction
             }
         }
+    }
+
+    func plusIconHide() {
+        self.plusIconViewModel.visible = false
+    }
+
+    func plusIconShow() {
+        self.plusIconViewModel.visible = true
     }
 
     var edgesLayersToDraw: [CanvasView.EdgeLayer] = []
@@ -417,3 +419,34 @@ extension NSEvent {
     }
 }
 #endif
+
+struct PlusIconView: View {
+
+    let vm: PlusIconModel
+
+    var offsetX: CGFloat {
+        switch self.vm.direction {
+        case .xplus: 10
+        case .xminus: -10
+        }
+    }
+
+    var body: some View {
+        VStack {
+            if self.vm.visible {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20))
+                    .transition(.scale(0, anchor: self.vm.direction == .xplus ? .leading : .trailing))
+                    .foregroundColor(Colors.portConnected.color)
+            }
+        }
+        .position(x: self.offsetX, y: 0)
+        .animation(.easeInOut(duration: 0.2), value: self.vm.visible)
+    }
+}
+
+@Observable
+class PlusIconModel {
+    var visible: Bool = true
+    var direction: CanvasView.PlusIconState.Direction = .xplus
+}

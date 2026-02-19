@@ -19,7 +19,7 @@ protocol CanvasPlatformViewProtocol {
     var viewport: CanvasView.Viewport { get set }
     var nodePositions: [UUID: CGPoint] { get set }
     var edgeLayers: [CanvasView.EdgeLayer] { get set }
-    var plusIconPosition: CGPoint? { get set }
+    var plusIconState: CanvasView.PlusIconState { get set }
     var configuration: CanvasView.Configuration { get }
     var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
     var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
@@ -70,12 +70,12 @@ extension CanvasPlatformView {
         }
     }
 
-    var plusIconPosition: CGPoint? {
+    var plusIconState: CanvasView.PlusIconState {
         get {
-            self.gridView.plusIconPosition
+            self.gridView.plusIconState
         }
         set {
-            self.gridView.plusIconPosition = newValue
+            self.gridView.plusIconState = newValue
         }
     }
 
