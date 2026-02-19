@@ -342,6 +342,16 @@ public final class PreviewFeatureState {
             }
 
         }.store(in: &self.cancellables)
+
+        self.flow.emitter.on { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .edgesDidChange(_):
+                self.scanAfterBackendRun = true
+            default:
+                break
+            }
+        }.store(in: &self.cancellables)
     }
 
     public func exportImage() {
