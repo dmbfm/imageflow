@@ -220,7 +220,7 @@ extension Flow {
             self.emitter.emit(.didDeleteEdge(edge))
             return edge
         }
-        
+
         return nil
     }
 }
