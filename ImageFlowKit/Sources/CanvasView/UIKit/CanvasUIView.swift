@@ -63,6 +63,8 @@ public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {
     var interactionController: CanvasInteractionController!
     var cancellable: Set<AnyEventEmitterCancellable> = []
     var contextMenuInteraction: UIContextMenuInteraction!
+    var zoomAnimData: ZoomAnimData?
+    var zoomAnimLink: CADisplayLink?
 
     // MARK: - Subviews
 

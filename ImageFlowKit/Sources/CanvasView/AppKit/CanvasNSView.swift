@@ -49,6 +49,9 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
     private var leftPanInitialPos: CGPoint?
     var cancellable: Set<AnyEventEmitterCancellable> = []
 
+    var zoomAnimLink: CADisplayLink?
+    var zoomAnimData: ZoomAnimData?
+
     // MARK: - Subviews
 
     lazy var gridView: CanvasGridView = {

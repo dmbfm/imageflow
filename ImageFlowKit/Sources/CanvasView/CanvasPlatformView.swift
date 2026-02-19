@@ -184,29 +184,65 @@ extension CanvasPlatformView {
     }
 
     public func setZoom(_ value: CGFloat) {
-        self.viewport.zoom(
-            self.configuration.clampZoom(value),
-            atScreenPoint: self.safeAreaRect.center
-        )
+        self.zoomAnim(value, self.safeAreaRect.center)
     }
+
     public func zoomIn(_ animate: Bool = true) {
         let alpha = log2(self.viewport.scale)
         let nextAlpha = floor(alpha) + 1
         let zoom = pow(2.0, nextAlpha)
-        self.viewport.zoom(
-            self.configuration.clampZoom(zoom),
-            atScreenPoint: self.safeAreaRect.center
+        self.zoomAnim(zoom, self.safeAreaRect.center)
+    }
+
+    func zoomAnim(_ zoom: CGFloat, _ point: CGPoint) {
+        guard self.zoomAnimLink == nil else { return }
+
+        self.zoomAnimData = .init(
+            startScale: self.viewport.scale,
+            endScale: self.configuration.clampZoom(zoom),
+            point: point,
+            t: 0
         )
+        #if os(macOS)
+        self.zoomAnimLink = self.displayLink(target: self, selector: #selector(Self.zoomAnimStep(_:)))
+        self.zoomAnimLink?.preferredFrameRateRange = .init(minimum: 60, maximum: 120)
+        self.zoomAnimLink?.add(to: .current, forMode: .default)
+        #else
+        self.zoomAnimLink = CADisplayLink(target: self, selector: #selector(Self.zoomAnimStep(_:)))
+        self.zoomAnimLink?.preferredFrameRateRange = .init(minimum: 60, maximum: 120)
+        self.zoomAnimLink?.add(to: .current, forMode: .default)
+        #endif
+    }
+
+    @objc
+    func zoomAnimStep(_ link: CADisplayLink) {
+        guard let anim = self.zoomAnimData else {
+            self.zoomAnimLink?.invalidate()
+            self.zoomAnimLink = nil
+            return
+        }
+
+        var t = anim.t
+
+        let s = EasingCurve.cubic.easeInOut(t)
+        let scale = anim.startScale.lerp(to: anim.endScale, t: s)
+        self.viewport.zoom(scale, atScreenPoint: anim.point)
+
+        t += link.duration * 4
+
+        if t > 1.0 {
+            self.viewport.zoom(anim.endScale, atScreenPoint: anim.point)
+            self.zoomAnimData = nil
+        } else {
+            self.zoomAnimData = .init(startScale: anim.startScale, endScale: anim.endScale, point: anim.point, t: t)
+        }
     }
 
     public func zoomOut(_ animate: Bool = true) {
         let alpha = log2(self.viewport.scale)
         let nextAlpha = floor(alpha) - 1
         let zoom = pow(2.0, nextAlpha)
-        self.viewport.zoom(
-            self.configuration.clampZoom(zoom),
-            atScreenPoint: self.safeAreaRect.center
-        )
+        self.zoomAnim(zoom, self.safeAreaRect.center)
     }
 
     public func zoomToFitNodes() {
@@ -240,4 +276,11 @@ extension CanvasPlatformView {
             }
         )
     }
+}
+
+struct ZoomAnimData {
+    var startScale: CGFloat
+    var endScale: CGFloat
+    var point: CGPoint
+    var t: CGFloat
 }

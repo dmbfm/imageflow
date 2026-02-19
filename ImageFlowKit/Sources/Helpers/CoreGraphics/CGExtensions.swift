@@ -11,6 +11,13 @@ extension CGFloat {
     }
 }
 
+extension CGPoint {
+    public func lerp(to: CGPoint, t: CGFloat) -> CGPoint {
+        let t = Swift.min(1.0, Swift.max(0.0, t))
+        return self * (1 - t) + to * t
+    }
+}
+
 extension CGRect {
     public var center: CGPoint {
         CGPoint(x: self.midX, y: self.midY)
