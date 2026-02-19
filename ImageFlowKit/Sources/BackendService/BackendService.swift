@@ -9,12 +9,14 @@ import class SharedModels.Flow
 @MainActor
 public final class BackendService {
     var flow: Flow
+    var coordinator: GlobalCoordinator
     var assetManager: any BackendAssetProvider
     var cancellables: Set<AnyEventEmitterCancellable> = []
 
-    public init(_ flow: Flow, _ assetManager: any BackendAssetProvider) {
+    public init(_ flow: Flow, _ assetManager: any BackendAssetProvider, _ coordinator: GlobalCoordinator) {
         self.flow = flow
         self.assetManager = assetManager
+        self.coordinator = coordinator
     }
 
     public func start() {
@@ -72,6 +74,8 @@ public final class BackendService {
                 self.task = nil
             }
             await self.task!.value
+
+            self.coordinator.emitter.emit(.backendDidRun)
 
             if self.shouldRunAgain {
                 self.shouldRunAgain = false

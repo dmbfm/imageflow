@@ -18,6 +18,7 @@ final class MainViewModel {
     let canvas: CanvasFeatureState
     let assetStore: AssetStore
     let backendService: BackendService
+    let coordinator: GlobalCoordinator
 
     init(document: FlowDocument, documentInfo: DocumentInfo) {
         self.document = document
@@ -26,12 +27,14 @@ final class MainViewModel {
         let flow = Flow()
         let canvas = CanvasFeatureState()
         let assetStore = AssetStore()
+        let coordinator = GlobalCoordinator(GlobalCoordinatorDefaultImpl(flow: flow))
 
         self.canvas = canvas
         self.assetStore = assetStore
         self.assetStore.setDocumentInfo(documentInfo)
         self.flow = flow
-        self.backendService = .init(flow, assetStore.assetManager)
+        self.coordinator = coordinator
+        self.backendService = .init(flow, assetStore.assetManager, coordinator)
 
         self.flow.delegate = self
         self.assetStore.delegate = self

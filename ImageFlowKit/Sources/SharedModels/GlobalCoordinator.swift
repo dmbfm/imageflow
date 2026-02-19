@@ -111,6 +111,8 @@ public enum UserAction {
 }
 
 public enum GlobalCoordinatorEvent {
+    case backendDidRun
+    case assetBrowserDidClose
     case dummy
 }
 

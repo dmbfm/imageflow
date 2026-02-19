@@ -29,7 +29,11 @@ final class MainContentViewModel {
     /// The canvas viewport state
     let canvas: CanvasFeatureState
     /// If true show the Asset Browser sheet
-    var showAssetBrowser: Bool = false
+    var showAssetBrowser: Bool = false {
+        didSet {
+            self.coordinator.emitter.emit(.assetBrowserDidClose)
+        }
+    }
     /// If true show the file importer
     var showFileImporter: Bool = false {
         didSet {

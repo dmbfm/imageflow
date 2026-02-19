@@ -309,6 +309,9 @@ public final class PreviewFeatureState {
     @ObservationIgnored
     let pasteboardWriter = PasteboarImageWriter()
 
+    @ObservationIgnored
+    var scanAfterBackendRun = false
+
     init(
         flow: Flow,
         assetStore: some AssetStoreService,
@@ -322,6 +325,23 @@ public final class PreviewFeatureState {
 
         self.observeSelection()
         self.observeModifiedImages()
+        self.coordinator.emitter.on { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .assetBrowserDidClose:
+                self.scanAfterBackendRun = true
+            case .backendDidRun:
+                if self.scanAfterBackendRun {
+                    self.scanAfterBackendRun = false
+                    Task {
+                        await self.onSelectionChanged()
+                    }
+                }
+            default:
+                break
+            }
+
+        }.store(in: &self.cancellables)
     }
 
     public func exportImage() {

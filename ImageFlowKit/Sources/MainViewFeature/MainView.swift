@@ -9,7 +9,6 @@ public struct MainView: View {
     let documentInfo: DocumentInfo
 
     @ObservableState var vm: MainViewModel
-    @ObservableState var coordinator: GlobalCoordinator
 
     @Environment(\.dismissWindow) var dismissWindow
     @Environment(\.undoManager) var um
@@ -18,7 +17,6 @@ public struct MainView: View {
         self.documentInfo = documentInfo
         let vm = MainViewModel(document: document, documentInfo: documentInfo)
         self._vm = .init(wrappedValue: vm)
-        self._coordinator = .init(wrappedValue: .init(GlobalCoordinatorDefaultImpl(flow: vm.flow)))
     }
 
     func onAppear() {
@@ -38,14 +36,14 @@ public struct MainView: View {
             flow: self.vm.flow,
             canvas: self.vm.canvas,
             assetStore: self.vm.assetStore,
-            coordinator: self.coordinator,
+            coordinator: self.vm.coordinator,
         )
         .onChange(of: self.documentInfo, initial: true) { self.onChangeOfDocumentInfo() }
         .onChange(of: self.um, initial: true) {
             self.vm.undoManager = self.um
-            self.coordinator.undoManager = self.um
+            self.vm.coordinator.undoManager = self.um
         }
         .onAppear(perform: self.onAppear)
-        .activeViewObject(self.coordinator, key: "main")
+        .activeViewObject(self.vm.coordinator, key: "main")
     }
 }
