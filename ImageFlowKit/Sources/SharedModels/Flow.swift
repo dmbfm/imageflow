@@ -16,6 +16,7 @@ public enum FlowEvent {
         travelDistance: CGFloat
     )
     case didDeleteNode(UUID)
+    case didDeleteEdge(Edge)
 }
 
 public protocol FlowDelegate: AnyObject {
@@ -215,7 +216,12 @@ extension Flow {
 
     @discardableResult
     func removeEdge(_ edge: Edge) -> Edge? {
-        self.edges.remove(edge)
+        if let edge = self.edges.remove(edge) {
+            self.emitter.emit(.didDeleteEdge(edge))
+            return edge
+        }
+        
+        return nil
     }
 }
 

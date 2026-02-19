@@ -12,6 +12,7 @@ import SharedModels
 import SwiftUI
 import UniformTypeIdentifiers
 
+import struct SharedModels.Edge
 import class SharedModels.Flow
 
 @Observable
@@ -124,6 +125,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             }
         case let .didDeleteNode(id):
             self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: id)
+        case let .didDeleteEdge(edge):
+            self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: edge.to.node)
         default:
             break
         }
