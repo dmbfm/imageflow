@@ -446,6 +446,6 @@ struct PlusIconView: View {
 
 @Observable
 class PlusIconModel {
-    var visible: Bool = true
+    var visible: Bool = false
     var direction: CanvasView.PlusIconState.Direction = .xplus
 }
