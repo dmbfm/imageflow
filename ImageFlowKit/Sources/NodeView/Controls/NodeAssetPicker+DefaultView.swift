@@ -31,8 +31,9 @@ extension NodeAssetPicker {
 
         lazy var removeButtonView: NSButton = {
             let image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: nil)!
-                .withSymbolConfiguration(.init(pointSize: 12, weight: .regular))!
+                .withSymbolConfiguration(.init(pointSize: 16, weight: .regular, scale: .small))!
             let button = NSButton(image: image, target: nil, action: nil)
+            button.imageScaling = .scaleNone
             button.target = self
             button.action = #selector(Self.removeButtonHandler)
             button.isHidden = true
