@@ -97,10 +97,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
     }
 
     var showRemoveButton: Bool {
-        switch self.value.image {
-        case .asset: true
-        default: false
-        }
+        T.resolve(self.value) != nil
     }
 
     var isEditable: Bool {
