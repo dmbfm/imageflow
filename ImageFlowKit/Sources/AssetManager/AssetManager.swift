@@ -428,7 +428,7 @@ actor AssetManager {
     }
 }
 
-public enum AssetManagerError: Error {
+public enum AssetManagerError: LocalizedError {
     case other(any Error)
     case addGeneratedResource(AddGeneratedResource)
     case getGeneratedResource(GetGeneratedResource)
@@ -542,6 +542,7 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
             [kCGImageSourceShouldCache: false] as CFDictionary
         )
     else {
+        log("error: thumbCGImageSourceCreateWithURLError", level: .error)
         throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
     }
 
@@ -550,6 +551,7 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
     }
 
     guard let thumb = await thumbTask.value else {
+        log("error: thumbCGImageSourceCreateThumbnailError", level: .error)
         throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
     }
 

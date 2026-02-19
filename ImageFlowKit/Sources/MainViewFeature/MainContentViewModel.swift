@@ -288,7 +288,7 @@ final class MainContentViewModel {
                     try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                     self.undoManager?.setActionName("Import Image")
                 } catch {
-                    log("failed to import file: \(url): \(error)", level: .error)
+                    self.error = .init(inner: error)
                 }
             }
 

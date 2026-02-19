@@ -19,13 +19,12 @@ struct AssetBrowserGridItemView: View {
         self.first = false
 
         Task.immediate {
+            self.failed = false
             do {
                 self.image = try await self.thumbProvider.getThumb(forAsset: self.asset.id)
             } catch {
                 self.failed = true
             }
-
-            self.failed = false
         }
     }
 
