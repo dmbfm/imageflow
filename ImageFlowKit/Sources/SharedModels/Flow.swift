@@ -349,11 +349,11 @@ extension Flow {
         var slot: PortSlot?
         switch typedPortLocation.direction {
         case .input:
-            for (idx, output) in schema.outputs.enumerated() where output.type == typedPortLocation.type {
+            if let idx = schema.outputs.firstIndex(where: { $0.type == typedPortLocation.type }) {
                 slot = .output(idx)
             }
         case .output:
-            for (idx, input) in schema.inputs.enumerated() where input.type == typedPortLocation.type {
+            if let idx = schema.inputs.firstIndex(where: { $0.type == typedPortLocation.type }) {
                 slot = .input(idx)
             }
         }
