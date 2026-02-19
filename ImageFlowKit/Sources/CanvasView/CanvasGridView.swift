@@ -44,9 +44,8 @@ final class CanvasGridView: PlatformView {
     }
 
     lazy var plusIconViewModel: PlusIconModel = .init()
-    
-    #if os(macOS)
 
+    #if os(macOS)
 
     lazy var plusIconView: NSView = {
         return NSHostingView(rootView: PlusIconView(vm: self.plusIconViewModel))
