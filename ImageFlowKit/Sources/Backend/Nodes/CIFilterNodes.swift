@@ -876,7 +876,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].int, forKey: "inputNumberOfFolds")
                 filter.setValue(node.inputs[4].float, forKey: "inputFoldShadowAmount")
                 filter.setValue(node.inputs[5].float, forKey: "inputTime")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -898,7 +903,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAdditionCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -928,7 +938,12 @@ extension Nodes {
                 #else
                 filter.setValue(node.inputs[1].affineTransform.nsValue, forKey: "inputTransform")
                 #endif
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -958,7 +973,12 @@ extension Nodes {
                 #else
                 filter.setValue(node.inputs[1].affineTransform.nsValue, forKey: "inputTransform")
                 #endif
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -988,7 +1008,12 @@ extension Nodes {
                 #else
                 filter.setValue(node.inputs[1].affineTransform.nsValue, forKey: "inputTransform")
                 #endif
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1014,7 +1039,12 @@ extension Nodes {
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
                 filter.setValue(node.inputs[3].int, forKey: "inputCount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1036,7 +1066,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaAverage")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1058,7 +1093,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaAverageMaximumRed")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1080,7 +1120,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaBoundsRed")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1106,7 +1151,12 @@ extension Nodes {
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
                 filter.setValue(node.inputs[3].int, forKey: "inputCount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1136,7 +1186,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].int, forKey: "inputCount")
                 filter.setValue(node.inputs[4].float, forKey: "inputMinimumStop")
                 filter.setValue(node.inputs[5].float, forKey: "inputMaximumStop")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1158,7 +1213,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMaximum")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1180,7 +1240,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMaximumAlpha")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1202,7 +1267,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMinimum")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1224,7 +1294,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMinimumAlpha")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1246,7 +1321,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMinMax")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1268,7 +1348,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMinMaxRed")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1292,7 +1377,12 @@ extension Nodes {
                 filter.setValue(NSAttributedString(node.inputs[0].attributedString), forKey: "inputText")
                 filter.setValue(node.inputs[1].float, forKey: "inputScaleFactor")
                 filter.setValue(node.inputs[2].int, forKey: "inputPadding")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1322,7 +1412,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputBarOffset")
                 filter.setValue(node.inputs[5].float, forKey: "inputTime")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1350,7 +1445,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAspectRatio")
                 filter.setValue(node.inputs[3].float, forKey: "inputB")
                 filter.setValue(node.inputs[4].float, forKey: "inputC")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1374,7 +1474,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputMaskImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1398,7 +1503,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputMaskImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1422,7 +1532,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputMaskImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1446,7 +1561,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputMaskImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1470,7 +1590,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1498,7 +1623,12 @@ extension Nodes {
                 filter.setValue(CIVector(cgRect: node.inputs[0].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[1].float, forKey: "inputSigma")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1530,7 +1660,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
                 filter.setValue(node.inputs[3].float, forKey: "inputSigma")
                 filter.setValue(node.inputs[4].color4.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1558,7 +1693,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputRingAmount")
                 filter.setValue(node.inputs[3].float, forKey: "inputRingSize")
                 filter.setValue(node.inputs[4].float, forKey: "inputSoftness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1580,7 +1720,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIBoxBlur")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1606,7 +1751,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1634,7 +1784,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[4].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1664,7 +1819,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].float, forKey: "inputThresholdHigh")
                 filter.setValue(node.inputs[4].float, forKey: "inputThresholdLow")
                 filter.setValue(node.inputs[5].int, forKey: "inputHysteresisPasses")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1699,7 +1859,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor1")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1723,7 +1888,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1749,7 +1919,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[3].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1775,7 +1950,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1797,7 +1977,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIClamp")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1829,7 +2014,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
                 filter.setValue(node.inputs[5].float, forKey: "inputGCR")
                 filter.setValue(node.inputs[6].float, forKey: "inputUCR")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1851,7 +2041,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorAbsoluteDifference")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputImage2")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1873,7 +2068,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1895,7 +2095,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorBurnBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1919,7 +2124,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputMinComponents")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputMaxComponents")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1945,7 +2155,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].float, forKey: "inputSaturation")
                 filter.setValue(node.inputs[2].float, forKey: "inputBrightness")
                 filter.setValue(node.inputs[3].float, forKey: "inputContrast")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -1979,7 +2194,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputRedCoefficients")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGreenCoefficients")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBlueCoefficients")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2008,7 +2228,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].data, forKey: "inputCurvesData")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCurvesDomain")
                 filter.setValue(node.inputs[3].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2030,7 +2255,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorDodgeBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2048,7 +2278,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorInvert")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2070,7 +2305,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorMap")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputGradientImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2100,7 +2340,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBVector")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputAVector")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBiasVector")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2127,7 +2372,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].color3.ciColor, forKey: "inputColor")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2167,7 +2417,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGreenCoefficients")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBlueCoefficients")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputAlphaCoefficients")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2189,7 +2444,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorPosterize")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputLevels")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2211,7 +2471,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorThreshold")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputThreshold")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2229,7 +2494,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorThresholdOtsu")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2251,7 +2521,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColumnAverage")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2269,7 +2544,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIComicEffect")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2293,7 +2573,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIConstantColorGenerator")!
                 filter.setValue(node.inputs[0].color4.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2315,7 +2600,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIConvertLabToRGB")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputNormalize")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2337,7 +2627,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIConvertRGBtoLab")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputNormalize")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2361,7 +2656,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2385,7 +2685,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2409,7 +2714,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2433,7 +2743,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2457,7 +2772,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2481,7 +2801,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2505,7 +2830,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2529,7 +2859,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2553,7 +2888,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2577,7 +2917,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputWeights")
                 filter.setValue(node.inputs[2].float, forKey: "inputBias")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2614,7 +2959,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[7].float, forKey: "inputOpacity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2636,7 +2986,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CICrop")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputRectangle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2660,7 +3015,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCenter")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2682,7 +3042,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDarkenBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2714,7 +3079,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputUnsharpMaskRadius")
                 filter.setValue(node.inputs[5].float, forKey: "inputUnsharpMaskIntensity")
                 filter.setValue(node.inputs[6].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2732,7 +3102,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDepthToDisparity")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2754,7 +3129,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDifferenceBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2776,7 +3156,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDiscBlur")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2808,7 +3193,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputShadowRadius")
                 filter.setValue(node.inputs[5].float, forKey: "inputShadowDensity")
                 filter.setValue(node.inputs[6].vector2.ciVector, forKey: "inputShadowOffset")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2826,7 +3216,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDisparityToDepth")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2850,7 +3245,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputDisplacementImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2874,7 +3274,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputTime")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2896,7 +3301,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDistanceGradientFromRedMask")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputMaximumDistance")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2918,7 +3328,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDither")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2940,7 +3355,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDivideBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2962,7 +3382,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIDocumentEnhancer")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -2990,7 +3415,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3029,7 +3459,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputPeriodicity")
                 filter.setValue(node.inputs[5].float, forKey: "inputRotation")
                 filter.setValue(node.inputs[6].float, forKey: "inputZoom")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3055,7 +3490,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputSmallImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputSpatialSigma")
                 filter.setValue(node.inputs[3].float, forKey: "inputLumaSigma")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3077,7 +3517,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIEdges")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3099,7 +3544,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIEdgeWork")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3125,7 +3575,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3147,7 +3602,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIExclusionBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3169,7 +3629,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIExposureAdjust")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputEV")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3201,7 +3666,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor1")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3242,7 +3712,12 @@ extension Nodes {
                 filter.setValue(node.inputs[7].float, forKey: "inputStriationStrength")
                 filter.setValue(node.inputs[8].float, forKey: "inputStriationContrast")
                 filter.setValue(node.inputs[9].float, forKey: "inputFadeThreshold")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3270,7 +3745,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputAcuteAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3296,7 +3776,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3324,7 +3809,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputAcuteAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3342,7 +3832,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGaborGradients")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3364,7 +3859,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIGammaAdjust")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputPower")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3386,7 +3886,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIGaussianBlur")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3419,7 +3924,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor1")
                 filter.setValue(node.inputs[3].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3445,7 +3955,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTexture")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[3].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3473,7 +3988,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputPoint1")
                 filter.setValue(node.inputs[3].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[4].float, forKey: "inputRefraction")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3499,7 +4019,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3523,7 +4048,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3549,7 +4079,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputGuideImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputEpsilon")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3571,7 +4106,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIHardLightBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3599,7 +4139,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3621,7 +4166,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIHeightFieldFromMask")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3645,7 +4195,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3671,7 +4226,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputShadowAmount")
                 filter.setValue(node.inputs[3].float, forKey: "inputHighlightAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3697,7 +4257,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].float, forKey: "inputHeight")
                 filter.setValue(node.inputs[2].float, forKey: "inputHighLimit")
                 filter.setValue(node.inputs[3].float, forKey: "inputLowLimit")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3721,7 +4286,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3743,7 +4313,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIHueAdjust")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3765,7 +4340,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIHueBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3797,7 +4377,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputSoftness")
                 filter.setValue(node.inputs[3].float, forKey: "inputDither")
                 filter.setValue(node.inputs[4].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3823,7 +4408,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].int, forKey: "inputCount")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3853,7 +4443,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3883,7 +4478,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3913,7 +4513,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3943,7 +4548,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].int, forKey: "inputCount")
                 filter.setValue(node.inputs[4].int, forKey: "inputPasses")
                 filter.setValue(node.inputs[5].bool, forKey: "inputPerceptual")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3965,7 +4575,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILabDeltaE")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputImage2")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -3989,7 +4604,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputScale")
                 filter.setValue(node.inputs[2].float, forKey: "inputAspectRatio")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4026,7 +4646,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputStriationStrength")
                 filter.setValue(node.inputs[6].float, forKey: "inputStriationContrast")
                 filter.setValue(node.inputs[7].float, forKey: "inputTime")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4048,7 +4673,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILightenBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4074,7 +4704,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRotation")
                 filter.setValue(node.inputs[3].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4096,7 +4731,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILinearBurnBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4118,7 +4758,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILinearDodgeBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4152,7 +4797,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputPoint1")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor1")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4174,7 +4824,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILinearLightBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4192,7 +4847,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CILinearToSRGBToneCurve")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4222,7 +4882,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].float, forKey: "inputEdgeIntensity")
                 filter.setValue(node.inputs[4].float, forKey: "inputThreshold")
                 filter.setValue(node.inputs[5].float, forKey: "inputContrast")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4250,7 +4915,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4272,7 +4942,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CILuminosityBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4296,7 +4971,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputMask")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4314,7 +4994,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMaskToAlpha")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4332,7 +5017,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMaximumComponent")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4354,7 +5044,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMaximumCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4378,7 +5073,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputScale")
                 filter.setValue(node.inputs[2].float, forKey: "inputAspectRatio")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4396,7 +5096,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMedianFilter")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4414,7 +5119,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMinimumComponent")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4436,7 +5146,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMinimumCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4460,7 +5175,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4492,7 +5212,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[5].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[6].float, forKey: "inputCompression")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4514,7 +5239,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMorphologyGradient")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4536,7 +5266,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMorphologyMaximum")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4558,7 +5293,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMorphologyMinimum")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4582,7 +5322,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].int, forKey: "inputWidth")
                 filter.setValue(node.inputs[2].int, forKey: "inputHeight")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4606,7 +5351,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].int, forKey: "inputWidth")
                 filter.setValue(node.inputs[2].int, forKey: "inputHeight")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4630,7 +5380,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4652,7 +5407,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMultiplyBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4674,7 +5434,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIMultiplyCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4704,7 +5469,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputBreakpoint0")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputBreakpoint1")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputGrowAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4736,7 +5506,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputBreakpoint1")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputGrowAmount")
                 filter.setValue(node.inputs[4].bool, forKey: "inputFlipYTiles")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4760,7 +5535,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputNoiseLevel")
                 filter.setValue(node.inputs[2].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4788,7 +5568,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[4].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4810,7 +5595,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIOverlayBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4844,7 +5634,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputTime")
                 filter.setValue(node.inputs[6].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[7].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4882,7 +5677,12 @@ extension Nodes {
                 filter.setValue(node.inputs[7].float, forKey: "inputShadowSize")
                 filter.setValue(node.inputs[8].float, forKey: "inputShadowAmount")
                 filter.setValue(CIVector(cgRect: node.inputs[9].rect), forKey: "inputShadowExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4906,7 +5706,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputPaletteImage")
                 filter.setValue(node.inputs[2].bool, forKey: "inputPerceptual")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4930,7 +5735,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputPaletteImage")
                 filter.setValue(node.inputs[2].bool, forKey: "inputPerceptual")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4958,7 +5768,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputAcuteAngle")
                 filter.setValue(node.inputs[4].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -4980,7 +5795,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPersonSegmentation")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].int, forKey: "inputQualityLevel")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5017,7 +5837,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomLeft")
                 filter.setValue(node.inputs[5].bool, forKey: "inputCrop")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5045,7 +5870,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputPitch")
                 filter.setValue(node.inputs[3].float, forKey: "inputYaw")
                 filter.setValue(node.inputs[4].float, forKey: "inputRoll")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5081,7 +5911,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5117,7 +5952,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5155,7 +5995,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputTopRight")
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputBottomRight")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBottomLeft")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5177,7 +6022,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectChrome")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5199,7 +6049,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectFade")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5221,7 +6076,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectInstant")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5243,7 +6103,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectMono")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5265,7 +6130,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectNoir")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5287,7 +6157,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectProcess")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5309,7 +6184,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectTonal")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5331,7 +6211,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPhotoEffectTransfer")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5357,7 +6242,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5379,7 +6269,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIPinLightBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5403,7 +6298,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5427,7 +6327,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCenter")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5449,7 +6354,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIQRCodeGenerator")!
                 filter.setValue(node.inputs[0].data, forKey: "inputMessage")
                 filter.setValue(node.inputs[1].string, forKey: "inputCorrectionLevel")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5485,7 +6395,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius1")
                 filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[4].color4.ciColor, forKey: "inputColor1")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5503,7 +6418,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIRandomGenerator")!
 
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5537,7 +6457,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputTime")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[7].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5579,7 +6504,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputCenterSpaceSize")
                 filter.setValue(node.inputs[6].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[7].color4.ciColor, forKey: "inputColor1")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5609,7 +6539,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
                 filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5640,7 +6575,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputSmoothness")
                 filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
                 filter.setValue(node.inputs[4].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5662,7 +6602,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIRowAverage")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5680,7 +6625,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISaliencyMapFilter")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5698,7 +6648,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISampleNearest")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5720,7 +6675,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISaturationBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5742,7 +6702,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIScreenBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5764,7 +6729,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISepiaTone")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5788,7 +6758,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputShadingImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5812,7 +6787,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputSharpness")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5834,7 +6814,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISignedDistanceGradientFromRedMask")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputMaximumDistance")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5860,7 +6845,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5886,7 +6876,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5920,7 +6915,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputPoint1")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor0")
                 filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor1")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5938,7 +6938,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISobelGradients")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5960,7 +6965,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISoftLightBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -5982,7 +6992,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISourceAtopCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6004,7 +7019,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISourceInCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6026,7 +7046,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISourceOutCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6048,7 +7073,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISourceOverCompositing")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6113,7 +7143,12 @@ extension Nodes {
                 filter.setValue(node.inputs[10].color4.ciColor, forKey: "inputReplacementColor3")
                 filter.setValue(node.inputs[11].float, forKey: "inputCloseness3")
                 filter.setValue(node.inputs[12].float, forKey: "inputContrast3")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6154,7 +7189,12 @@ extension Nodes {
                 filter.setValue(node.inputs[3].float, forKey: "inputBrightness")
                 filter.setValue(node.inputs[4].float, forKey: "inputConcentration")
                 filter.setValue(node.inputs[5].color3.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6172,7 +7212,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISRGBToneCurveToLinear")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6209,7 +7254,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputCrossOpacity")
                 filter.setValue(node.inputs[6].float, forKey: "inputCrossWidth")
                 filter.setValue(node.inputs[7].float, forKey: "inputEpsilon")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6231,7 +7281,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIStraightenFilter")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6257,7 +7312,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputSize")
                 filter.setValue(node.inputs[2].float, forKey: "inputCropAmount")
                 filter.setValue(node.inputs[3].float, forKey: "inputCenterStretchAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6292,7 +7352,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor1")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputSharpness")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6314,7 +7379,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CISubtractBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6349,7 +7419,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].float, forKey: "inputStriationStrength")
                 filter.setValue(node.inputs[5].float, forKey: "inputStriationContrast")
                 filter.setValue(node.inputs[6].float, forKey: "inputTime")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6386,7 +7461,12 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[7].float, forKey: "inputOpacity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6410,7 +7490,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputNeutral")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTargetNeutral")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6438,7 +7523,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputFontSize")
                 filter.setValue(node.inputs[3].float, forKey: "inputScaleFactor")
                 filter.setValue(node.inputs[4].int, forKey: "inputPadding")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6456,7 +7546,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIThermal")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6488,7 +7583,12 @@ extension Nodes {
                 filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputPoint3")
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputPoint4")
                 filter.setValue(node.inputs[6].bool, forKey: "inputExtrapolate")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6512,7 +7612,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputSourceHeadroom")
                 filter.setValue(node.inputs[2].float, forKey: "inputTargetHeadroom")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6540,7 +7645,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputRefraction")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6568,7 +7678,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputSize")
                 filter.setValue(node.inputs[3].float, forKey: "inputRotation")
                 filter.setValue(node.inputs[4].float, forKey: "inputDecay")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6594,7 +7709,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6620,7 +7740,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6646,7 +7771,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6670,7 +7800,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6692,7 +7827,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIVibrance")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6716,7 +7856,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6744,7 +7889,12 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputIntensity")
                 filter.setValue(node.inputs[4].float, forKey: "inputFalloff")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6766,7 +7916,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIVividLightBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6792,7 +7947,12 @@ extension Nodes {
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6818,7 +7978,12 @@ extension Nodes {
                 let filter = CIFilter(name: "CIWhitePointAdjust")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6836,7 +8001,12 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIXRay")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }
@@ -6860,7 +8030,12 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAmount")
-                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
             }
         }
     }

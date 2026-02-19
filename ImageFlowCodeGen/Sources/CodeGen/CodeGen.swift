@@ -26,7 +26,12 @@ extension FilterInfo {
                     return .init(schema: schema) { node, context in
                         let filter = CIFilter(name: "\(raw: self.name)")!
                         \(self.filterAttrAssignmentsExprs())
-                        node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                        let outputImage = filter.outputImage
+                        if let outputImage, !outputImage.extent.isEmpty {
+                            node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                        } else {
+                            node.outputs[0] = .image(.none)
+                        }
                     }
                 }
             """

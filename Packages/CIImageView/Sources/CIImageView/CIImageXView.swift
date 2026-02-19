@@ -293,13 +293,22 @@ public class CIImageXView: XCommonView {
             mtlTextureProvider: { drawable.texture }
         )
 
-        let task = try! self.context.startTask(toRender: finalImage, from: finalImage.extent, to: dest, at: self.offset)
+        do {
+            let task = try self.context.startTask(
+                toRender: finalImage,
+                from: finalImage.extent,
+                to: dest,
+                at: self.offset
+            )
 
-        commandBuffer.commit()
-        commandBuffer.waitUntilScheduled()
-        drawable.present()
+            commandBuffer.commit()
+            commandBuffer.waitUntilScheduled()
+            drawable.present()
 
-        self.renderInfo = try! task.waitUntilCompleted()
+            self.renderInfo = try task.waitUntilCompleted()
+        } catch {
+            print("failed to render image: \(error)")
+        }
     }
 }
 
