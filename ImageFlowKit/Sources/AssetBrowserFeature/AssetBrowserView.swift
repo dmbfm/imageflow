@@ -31,8 +31,7 @@ public struct AssetBrowserView: View {
             .frame(minHeight: 600)
             .onKeyPress(.escape) {
                 self.vm.onDismiss(.cancel)
-                self.dismiss()
-                return .handled
+                return .ignored
             }
         #else
         self.content
