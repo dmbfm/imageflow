@@ -71,12 +71,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     var value: Value {
         didSet {
-            if self.value != oldValue {
-                if let undo = self.context.undo {
-                    undo.register(oldValue, self.value)
-                }
-                self.update()
-            }
+            self.update()
         }
     }
 

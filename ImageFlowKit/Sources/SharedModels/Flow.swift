@@ -603,6 +603,51 @@ extension Flow {
     }
 }
 
+// MARK: - setNodeValue
+
+extension Flow {
+    public func setNodeValue(
+        id: UUID,
+        index: Int,
+        oldValue: Value? = nil,
+        newValue: Value,
+        undoManager: UndoManager?,
+    ) {
+        guard let node = self.nodes[id] else {
+            log("Node not found: \(id)", level: .error)
+            return
+        }
+
+        guard node.inputs.indices.contains(index) else {
+            log("Node input index out of range: \(index)", level: .error)
+            return
+        }
+
+        let oldValue = oldValue ?? node.inputs[index].value
+
+        guard oldValue != newValue else {
+            log("New value is equal to old value; nothing to do", level: .info)
+            return
+        }
+
+        self.nodes[id]?.inputs[index].value = newValue
+
+        undoManager?.registerUndo(
+            withTarget: self,
+            handler: { [weak um = undoManager] this in
+                this.setNodeValue(
+                    id: id,
+                    index: index,
+                    oldValue: newValue,
+                    newValue: oldValue,
+                    undoManager: um
+                )
+            }
+        )
+        undoManager?.setActionName("\(newValue.type.displayName) Value Change")
+    }
+}
+
 // MARK: - Node Properties (Undo)
 
 extension Flow {

@@ -250,7 +250,13 @@ final class MainContentViewModel {
             assert(
                 self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)].type == assetKind.valueType
             )
-            self.flow.nodes[portLocation.node]![valueAt: .input(portLocation.index)] = value
+            self.flow.setNodeValue(
+                id: portLocation.node,
+                index: portLocation.index,
+                oldValue: nil,
+                newValue: value,
+                undoManager: self.undoManager
+            )
         } else {
             log("Failed to create value for asset: kind: \(assetStore), id: \(assetId)", level: .error)
         }
@@ -384,6 +390,7 @@ final class MainContentViewModel {
 extension MainContentViewModel: AssetBrowserViewModel.Delegate {
     func onDismiss(_ result: AssetBrowserResult) {
         self.onAssetBrowserDismiss(result)
+        self.coordinator.emitter.emit(.assetBrowserDidClose)
     }
 
     func openFileImporter(_ types: [UTType]) {

@@ -29,6 +29,11 @@ public struct AssetBrowserView: View {
         #if os(macOS)
         self.content
             .frame(minHeight: 600)
+            .onKeyPress(.escape) {
+                self.vm.onDismiss(.cancel)
+                self.dismiss()
+                return .handled
+            }
         #else
         self.content
             .ignoresSafeArea(.keyboard)
