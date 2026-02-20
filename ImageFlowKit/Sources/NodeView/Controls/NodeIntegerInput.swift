@@ -75,7 +75,6 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     #if os(macOS)
     lazy var stepper: NSStepper = {
         let view = NSStepper()
-        view.value = Double(self.value.int)
         view.minValue = -.infinity
         view.maxValue = .infinity
         view.increment = 1
@@ -83,6 +82,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         view.isContinuous = true
         view.target = self
         view.action = #selector(Self.stepperHandler)
+        view.value = Double(self.value.int)
         return view
     }()
     #endif
