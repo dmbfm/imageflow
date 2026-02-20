@@ -7,6 +7,7 @@ public enum ValueSemantics: String, Sendable, Hashable, Codable {
     case angle
     case boolean
     case integer
+    case nonZeroInteger
     case count
     case offset
     case position2

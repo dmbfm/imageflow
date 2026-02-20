@@ -26,6 +26,13 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .type(.count))),
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .valueType(.int))),
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .defaultValue(.int(3)))),
+        .init(
+            name: "CIBlurredRectangleGenerator",
+            filterOverride: .input(
+                "inputExtent",
+                .defaultValue(.rect(.init(x: 0, y: 0, width: 256, height: 256)))
+            )
+        ),
     ]
 
     static let fallbackCategories: [String: String] = [

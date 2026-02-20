@@ -1605,8 +1605,11 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blurred Rectangle Generator",
                 inputs: [
-                    .init(name: "Extent", type: .rect, semantics: .rectangle),
-                    .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 256.0, height: 256.0)),
+                        semantics: .rectangle
+                    ), .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),

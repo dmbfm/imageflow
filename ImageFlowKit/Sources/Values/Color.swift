@@ -31,6 +31,11 @@ public struct Color4: Sendable, Hashable, Codable {
     public var blue: Double
     public var alpha: Double
 
+    public static let white: Self = .init(red: 1, green: 1, blue: 1, alpha: 1)
+    public static let red: Self = .init(red: 1, green: 0, blue: 0, alpha: 1)
+    public static let black: Self = .init(red: 0, green: 0, blue: 0, alpha: 1)
+    public static let clear: Self = .init(red: 0, green: 0, blue: 0, alpha: 0)
+
     public init(red: Double, green: Double, blue: Double, alpha: Double) {
         self.red = red
         self.green = green

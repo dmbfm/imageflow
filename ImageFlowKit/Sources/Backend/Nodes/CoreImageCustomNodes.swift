@@ -1,6 +1,7 @@
 @preconcurrency import CoreImage
 @preconcurrency import CoreImage.CIFilterBuiltins
 import Foundation
+import GameKit
 import Helpers
 
 extension Nodes {
@@ -158,6 +159,355 @@ extension Nodes.CoreImageCustom {
                         highQualityDownsample: true
                     )
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
+    // MARK: - Generator Nodes
+
+    public struct RandomGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Random Generator",
+                displayName: "Random Generator",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256)),
+                    .init(name: "Height", defaultValue: .int(256)),
+                    .init(name: "Seed", defaultValue: .int(0), semantics: .count),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.randomGenerator()
+                    let seed = node.inputs[2].int
+                    let gm = GKMersenneTwisterRandomSource.init(seed: UInt64(seed.magnitude))
+                    let outputImage = filter.outputImage?.cropped(
+                        to: .init(
+                            x: CGFloat(gm.nextUniform() * 512),
+                            y: CGFloat(gm.nextUniform() * 512),
+                            // x: alwaysReseed ? CGFloat(gm.nextUniform()) * 512 : 0,  // .random(in: -1000...1000) : 0,
+                            // y: alwaysReseed ? .random(in: -1000...1000) : 0,
+                            width: CGFloat(node.inputs[0].int),
+                            height: CGFloat(node.inputs[1].int)
+                        )
+                    )
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct BlurredRectangleGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Blurred Rectangle",
+                displayName: "Blurred Rectangle",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Blur", defaultValue: .float(10)),
+                    .init(name: "Color", defaultValue: .color4(.white)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.blurredRectangleGenerator()
+                    let width = node.inputs[0].int
+                    let height = node.inputs[1].int
+                    let blur = node.inputs[2].float
+                    let color = node.inputs[3].color4
+                    filter.extent = .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    filter.sigma = Float(blur)
+                    filter.color = color.ciColor
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct BlurredRoundedRectangleGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Blurred Rounded Rectangle",
+                displayName: "Blurred Rounded Rectangle",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Radius", defaultValue: .float(10)),
+                    .init(name: "Smoothness", defaultValue: .float(0)),
+                    .init(name: "Blur", defaultValue: .float(10)),
+                    .init(name: "Color", defaultValue: .color4(.white)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.blurredRoundedRectangleGenerator()
+                    let width = node.inputs[0].int
+                    let height = node.inputs[1].int
+                    let radius = node.inputs[2].float
+                    let smoothness = node.inputs[3].float
+                    let blur = node.inputs[4].float
+                    let color = node.inputs[5].color4
+                    filter.extent = .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    filter.radius = Float(radius)
+                    filter.sigma = Float(blur)
+                    filter.smoothness = Float(smoothness)
+                    filter.color = color.ciColor
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct RoundedRectangleGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Rounded Rectangle",
+                displayName: "Rounded Rectangle",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Radius", defaultValue: .float(10)),
+                    .init(name: "Smoothness", defaultValue: .float(0)),
+                    .init(name: "Color", defaultValue: .color4(.white)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.roundedRectangleGenerator()
+                    let width = node.inputs[0].int
+                    let height = node.inputs[1].int
+                    let radius = node.inputs[2].float
+                    let smoothness = node.inputs[3].float
+                    let color = node.inputs[4].color4
+                    filter.extent = .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    filter.radius = Float(radius)
+                    filter.smoothness = Float(smoothness)
+                    filter.color = color.ciColor
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct RoundedRectangleStrokeGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Rounded Rectangle Stroke",
+                displayName: "Rounded Rectangle Stroke",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Radius", defaultValue: .float(10)),
+                    .init(name: "Smoothness", defaultValue: .float(0)),
+                    .init(name: "Color", defaultValue: .color4(.white)),
+                    .init(name: "Stroke Width", defaultValue: .float(10)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.roundedRectangleStrokeGenerator()
+                    let width = node.inputs[0].int
+                    let height = node.inputs[1].int
+                    let radius = node.inputs[2].float
+                    let smoothness = node.inputs[3].float
+                    let color = node.inputs[4].color4
+                    let sw = node.inputs[5].float
+                    filter.extent = .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    filter.radius = Float(radius)
+                    filter.smoothness = Float(smoothness)
+                    filter.color = color.ciColor
+                    filter.width = Float(sw)
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct StripesGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Stripes",
+                displayName: "Stripes",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
+                    .init(name: "Color 1", defaultValue: .color4(.red)),
+                    .init(name: "Color 2", defaultValue: .color4(.white)),
+                    .init(name: "Size", defaultValue: .float(40)),
+                    .init(name: "Sharpness", defaultValue: .float(1.0)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.stripesGenerator()
+                    filter.center = node.inputs[2].vector2.cgPoint
+                    filter.color0 = node.inputs[3].color4.ciColor
+                    filter.color1 = node.inputs[4].color4.ciColor
+                    filter.width = Float(node.inputs[5].float)
+                    filter.sharpness = Float(node.inputs[6].float)
+                    let width = node.inputs[0].int.clamped(to: 1...Int.max)
+                    let height = node.inputs[1].int.clamped(to: 1...Int.max)
+                    let outputImage = filter.outputImage?.cropped(
+                        to: .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    )
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct CheckerboardGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Checkerboard",
+                displayName: "Checkerboard",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
+                    .init(name: "Color 1", defaultValue: .color4(.red)),
+                    .init(name: "Color 2", defaultValue: .color4(.white)),
+                    .init(name: "Size", defaultValue: .float(40)),
+                    .init(name: "Sharpness", defaultValue: .float(1.0)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.checkerboardGenerator()
+                    filter.center = node.inputs[2].vector2.cgPoint
+                    filter.color0 = node.inputs[3].color4.ciColor
+                    filter.color1 = node.inputs[4].color4.ciColor
+                    filter.width = Float(node.inputs[5].float)
+                    filter.sharpness = Float(node.inputs[6].float)
+                    let width = node.inputs[0].int.clamped(to: 1...Int.max)
+                    let height = node.inputs[1].int.clamped(to: 1...Int.max)
+                    let outputImage = filter.outputImage?.cropped(
+                        to: .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    )
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct StarShineGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Star Shine",
+                displayName: "Star Shine",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
+                    .init(name: "Color", defaultValue: .color4(.red)),
+                    .init(name: "Radius", defaultValue: .float(50)),
+                    .init(name: "Cross Scale", defaultValue: .float(15)),
+                    .init(name: "Cross Angle", defaultValue: .float(0.6), semantics: .angle),
+                    .init(name: "Cross Opacity", defaultValue: .float(-2.0)),
+                    .init(name: "Cross Width", defaultValue: .float(0.5)),
+                    .init(name: "Epsilon", defaultValue: .float(1.0)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.starShineGenerator()
+                    filter.center = node.inputs[2].vector2.cgPoint
+                    filter.color = node.inputs[3].color4.ciColor
+                    filter.radius = Float(node.inputs[4].float)
+                    filter.crossScale = Float(node.inputs[5].float)
+                    filter.crossAngle = Float(node.inputs[6].float)
+                    filter.crossOpacity = Float(node.inputs[7].float)
+                    filter.crossWidth = Float(node.inputs[8].float)
+                    filter.epsilon = Float(node.inputs[9].float)
+                    let width = node.inputs[0].int.clamped(to: 1...Int.max)
+                    let height = node.inputs[1].int.clamped(to: 1...Int.max)
+                    let outputImage = filter.outputImage?.cropped(
+                        to: .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                    )
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
+    public struct ConstantColorGeneratorNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Constant Color",
+                displayName: "Constant Color",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256)),
+                    .init(name: "Height", defaultValue: .int(256)),
+                    .init(name: "Color", defaultValue: .color4(.red)),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ],
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter(name: "CIConstantColorGenerator")!
+                    filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor")
+                    let outputImage = filter.outputImage
+                    let width = node.inputs[0].int.clamped(to: 1...Int.max)
+                    let height = node.inputs[1].int.clamped(to: 1...Int.max)
+                    if let outputImage, !outputImage.extent.isEmpty {
+                        node.outputs[0] = .image(
+                            await context.addImage(
+                                outputImage.cropped(
+                                    to: .init(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                                ),
+                                0
+                            )
+                        )
+                    } else {
+                        node.outputs[0] = .image(.none)
+                    }
                 }
             )
         }

@@ -2,6 +2,185 @@ import Backend
 import Helpers
 import Values
 
+private struct Categories {
+    static let math: NodePaletteCategory = .init(
+        name: .math,
+        items: [
+            .init(
+                nodeKind: .addNode(.float),
+                categoryName: .math
+            )
+        ]
+    )
+
+    static let input: NodePaletteCategory =
+        .init(
+            name: .input,
+            items: ValueType.allCases
+                .excluding(
+                    elementsOf: [
+                        ValueType.data,
+                        .attributedString,
+                        .colorSpace,
+                        .affineTransform,
+                    ]
+                )
+                .map { NodeKind.valueNode($0) }
+                .appending(.valueCustomNode(.affineTransform))
+                .map { kind in
+                    return NodePaletteItem(
+                        nodeKind: kind,
+                        categoryName: .input
+                    )
+                }
+        )
+
+    static let blur: NodePaletteCategory = .init(
+        name: .blur,
+        items: CIFilterNodeKind.BlurNodeKind.allCases
+            .excluding(elementsOf: [
+                .CIMorphologyGradient, .CIMorphologyMaximum, .CIMorphologyMinimum, .CIMorphologyGradient,
+                .CIMorphologyRectangleMaximum, .CIMorphologyRectangleMinimum,
+            ])
+            .map { NodeKind.coreImageFilterNode(.blur($0)) }
+            .map { kind in
+                return NodePaletteItem(
+                    nodeKind: kind,
+                    categoryName: .blur
+                )
+            }
+    )
+
+    static let colorAdjustment: NodePaletteCategory =
+        .init(
+            name: .colorAdjustment,
+            items: CIFilterNodeKind.ColoradjustmentNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.colorAdjustment($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.ColorAdjustment.allKinds)
+                .map { kind in
+                    .init(nodeKind: kind, categoryName: .colorAdjustment)
+                }
+        )
+
+    static let colorEffect: NodePaletteCategory =
+        .init(
+            name: .colorEffect,
+            items: CIFilterNodeKind.ColoreffectNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .colorEffect) }
+        )
+
+    static let compositeOperation: NodePaletteCategory =
+        .init(
+            name: .compositeOperation,
+            items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .compositeOperation) }
+        )
+
+    static let distortionEffect: NodePaletteCategory =
+        .init(
+            name: .distortionEffect,
+            items: CIFilterNodeKind.DistortioneffectNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.distortionEffect($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .distortionEffect) }
+        )
+
+    static let generator: NodePaletteCategory =
+        .init(
+            name: .generator,
+            items: CIFilterNodeKind.GeneratorNodeKind.allCases
+                .excluding(elementsOf: [
+                    CIFilterNodeKind.GeneratorNodeKind.CIBlurredRectangleGenerator,
+                    .CIRandomGenerator,
+                    .CIBlurredRoundedRectangleGenerator,
+                    .CIRoundedRectangleGenerator,
+                    .CIRoundedRectangleStrokeGenerator,
+                    .CIStripesGenerator,
+                    .CICheckerboardGenerator,
+                    .CIStarShineGenerator,
+                    .CIConstantColorGenerator,
+                ]
+                )
+                .map { NodeKind.coreImageFilterNode(.generator($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.Generator.allKinds)
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .generator) }
+        )
+
+    static let geometryAdjustment: NodePaletteCategory =
+        .init(
+            name: .geometryAdjustment,
+            items: CIFilterNodeKind.GeometryadjustmentNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.geometryAdjustment($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .geometryAdjustment) }
+        )
+
+    static let gradient: NodePaletteCategory =
+        .init(
+            name: .gradient,
+            items: CIFilterNodeKind.GradientNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.gradient($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .gradient) }
+        )
+
+    static let halftone: NodePaletteCategory =
+        .init(
+            name: .halftoneEffect,
+            items: CIFilterNodeKind.HalftoneeffectNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.halftoneEffect($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .halftoneEffect) }
+        )
+
+    static let reduction: NodePaletteCategory =
+        .init(
+            name: .reduction,
+            items: CIFilterNodeKind.ReductionNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.reduction($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .reduction) }
+        )
+
+    static let sharpen: NodePaletteCategory =
+        .init(
+            name: .sharpen,
+            items: CIFilterNodeKind.SharpenNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.sharpen($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .sharpen) }
+        )
+
+    static let stylize: NodePaletteCategory =
+        .init(
+            name: .stylize,
+            items: CIFilterNodeKind.StylizeNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.stylize($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .stylize) }
+        )
+
+    static let tileEffect: NodePaletteCategory =
+        .init(
+            name: .tileEffect,
+            items: CIFilterNodeKind.TileeffectNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.tileEffect($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .tileEffect) }
+        )
+
+    static let transition: NodePaletteCategory =
+        .init(
+            name: .transition,
+            items: CIFilterNodeKind.TransitionNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.transition($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .transition) }
+        )
+
+    static let video: NodePaletteCategory =
+        .init(
+            name: .video,
+            items: CIFilterNodeKind.VideoNodeKind.allCases
+                .map { NodeKind.coreImageFilterNode(.video($0)) }
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .video) }
+        )
+}
+
 @MainActor
 public class NodePaletteService {
 
@@ -19,303 +198,32 @@ public class NodePaletteService {
 
         var result = [NodePaletteCategory]()
 
-        let excludedValueTypes: [ValueType] = [.data, .attributedString, .colorSpace, .affineTransform]
-
-        // math
-        result.append(
-            .init(
-                name: .math,
-                items: [
-                    .init(
-                        displayName: "Add",
-                        icon: NodeKind.addNode(.float).icon,
-                        nodeKind: .addNode(.float),
-                        categoryName: .math
-                    )
-                ]
-            )
-        )
-
-        // input
-        result.append(
-            .init(
-                name: .input,
-                items: ValueType.allCases.filter({ !excludedValueTypes.contains($0) }).map { type in
-                    let kind: NodeKind = .valueNode(type)
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .input
-                    )
-                }
-                    + [
-                        .init(
-                            displayName: "Affine Transform",
-                            icon: NodeKind.valueCustomNode(.affineTransform).icon,
-                            nodeKind: .valueCustomNode(.affineTransform),
-                            categoryName: .input
-                        )
-                    ]
-            )
-        )
-
-        // blur
-        result.append(
-            .init(
-                name: .blur,
-                items: CIFilterNodeKind.BlurNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.blur(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .blur
-                    )
-                }
-            )
-        )
-
-        // colorAdjustment
-        result.append(
-            .init(
-                name: .colorAdjustment,
-                items: (CIFilterNodeKind.ColoradjustmentNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.colorAdjustment(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .colorAdjustment
-                    )
-                }
-                    + CoreImageCustomNodeKind.ColorAdjustment.allCases
-                    .map { $0.kind }
-                    .map {
-                        .init(displayName: $0.displayName, icon: $0.icon, nodeKind: $0, categoryName: .colorAdjustment)
-                    })
-            )
-        )
-
-        // colorEffect
-        result.append(
-            .init(
-                name: .colorEffect,
-                items: CIFilterNodeKind.ColoreffectNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.colorEffect(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .colorEffect
-                    )
-                }
-            )
-        )
-
-        // compositeOperation
-        result.append(
-            .init(
-                name: .compositeOperation,
-                items: CIFilterNodeKind.CompositeoperationNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.compositeOperation(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .compositeOperation
-                    )
-                }
-            )
-        )
-
-        // distortionEffect
-        result.append(
-            .init(
-                name: .distortionEffect,
-                items: CIFilterNodeKind.DistortioneffectNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.distortionEffect(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .distortionEffect
-                    )
-                }
-            )
-        )
-
-        // Generator
-        result.append(
-            .init(
-                name: .generator,
-                items: CIFilterNodeKind.GeneratorNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.generator(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .generator
-                    )
-                }
-            )
-        )
-
-        // Geometry Adjustment
-        result.append(
-            .init(
-                name: .geometryAdjustment,
-                items: CIFilterNodeKind.GeometryadjustmentNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.geometryAdjustment(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .geometryAdjustment
-                    )
-                }
-                    + CoreImageCustomNodeKind.GeometryAdjustment.allCases
-                    .map { $0.kind }
-                    .map {
-                        .init(
-                            displayName: $0.displayName,
-                            icon: $0.icon,
-                            nodeKind: $0,
-                            categoryName: .geometryAdjustment
-                        )
-                    }
-            )
-        )
-
-        // gradient
-        result.append(
-            .init(
-                name: .gradient,
-                items: CIFilterNodeKind.GradientNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.gradient(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .gradient
-                    )
-                }
-            )
-        )
-
-        // halftone
-        result.append(
-            .init(
-                name: .halftoneEffect,
-                items: CIFilterNodeKind.HalftoneeffectNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.halftoneEffect(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .halftoneEffect
-                    )
-                }
-            )
-        )
-
-        // reduction
-        result.append(
-            .init(
-                name: .reduction,
-                items: CIFilterNodeKind.ReductionNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.reduction(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .reduction
-                    )
-                }
-            )
-        )
-
-        // sharpen
-        result.append(
-            .init(
-                name: .sharpen,
-                items: CIFilterNodeKind.SharpenNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.sharpen(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .sharpen
-                    )
-                }
-            )
-        )
-
-        // stylize
-        result.append(
-            .init(
-                name: .stylize,
-                items: CIFilterNodeKind.StylizeNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.stylize(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .stylize
-                    )
-                }
-            )
-        )
-
-        // tile effect
-        result.append(
-            .init(
-                name: .tileEffect,
-                items: CIFilterNodeKind.TileeffectNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.tileEffect(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .tileEffect
-                    )
-                }
-            )
-        )
-        // transition
-        result.append(
-            .init(
-                name: .transition,
-                items: CIFilterNodeKind.TransitionNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.transition(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .transition
-                    )
-                }
-            )
-        )
-        // Video
-        result.append(
-            .init(
-                name: .video,
-                items: CIFilterNodeKind.VideoNodeKind.allCases.map { type in
-                    let kind = NodeKind.coreImageFilterNode(.video(type))
-                    return NodePaletteItem(
-                        displayName: kind.displayName,
-                        icon: kind.icon,
-                        nodeKind: kind,
-                        categoryName: .video
-                    )
-                }
-            )
-        )
+        result.append(Categories.math)
+        result.append(Categories.input)
+        result.append(Categories.blur)
+        result.append(Categories.colorAdjustment)
+        result.append(Categories.colorEffect)
+        result.append(Categories.compositeOperation)
+        result.append(Categories.distortionEffect)
+        result.append(Categories.generator)
+        result.append(Categories.geometryAdjustment)
+        result.append(Categories.gradient)
+        result.append(Categories.halftone)
+        result.append(Categories.reduction)
+        result.append(Categories.sharpen)
+        result.append(Categories.stylize)
+        result.append(Categories.tileEffect)
+        result.append(Categories.transition)
+        result.append(Categories.video)
 
         return
             result
-            .map { .init(name: $0.name, items: $0.items.sorted(by: { $0.displayName < $1.displayName })) }
+            .map { cat in
+                NodePaletteCategory(
+                    name: cat.name,
+                    items: cat.items.sorted(by: { $0.displayName < $1.displayName })
+                )
+            }
     }()
 
     public init() {}
@@ -445,6 +353,23 @@ public struct NodePaletteItem: Sendable, Hashable, Identifiable, With {
     public var categoryName: NodePaletteCategoryName
 
     public var id: Self { self }
+
+    public init(nodeKind: NodeKind, categoryName: NodePaletteCategoryName) {
+        self.init(
+            displayName: nodeKind.displayName,
+            icon: nodeKind.icon,
+            nodeKind: nodeKind,
+            categoryName: categoryName
+        )
+    }
+
+    public init(displayName: String, icon: String, nodeKind: NodeKind, categoryName: NodePaletteCategoryName) {
+        self.displayName = displayName
+        self.icon = icon
+        self.nodeKind = nodeKind
+        self.categoryName = categoryName
+    }
+
 }
 
 extension NodePaletteItem {

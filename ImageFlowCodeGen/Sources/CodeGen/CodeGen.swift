@@ -172,8 +172,8 @@ extension Value {
             fatalError("Not supported: \(self.type)")
         case .lut(_):
             fatalError("Not supported: \(self.type)")
-        case .rect(_):
-            fatalError("Not supported: \(self.type)")
+        case .rect(let value):
+            "CGRect(x: \(value.minX), y: \(value.minY), width: \(value.width), height: \(value.height))"
         case .string(let value):
             "\"\(value)\""
         case .vector2(let value):

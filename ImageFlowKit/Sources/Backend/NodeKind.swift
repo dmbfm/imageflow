@@ -27,6 +27,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     case geometryAdjustment(GeometryAdjustment)
     case colorAdjustment(ColorAdjustment)
+    case generator(Generator)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
@@ -37,6 +38,10 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case rotateNode
         case scaleNode
         case translateNode
+
+        public static var allKinds: [NodeKind] {
+            GeometryAdjustment.allCases.map { .coreImageCustomNode(.geometryAdjustment($0)) }
+        }
 
         public var kind: NodeKind {
             .coreImageCustomNode(.geometryAdjustment(self))
@@ -59,6 +64,10 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     public enum ColorAdjustment: Sendable, Hashable, Codable, CaseIterable {
         case lutFilterNode
 
+        public static var allKinds: [NodeKind] {
+            ColorAdjustment.allCases.map { .coreImageCustomNode(.colorAdjustment($0)) }
+        }
+
         public var kind: NodeKind {
             .coreImageCustomNode(.colorAdjustment(self))
         }
@@ -71,10 +80,54 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         }
     }
 
+    public enum Generator: Sendable, Hashable, Codable, CaseIterable {
+        case randomGeneratorNode
+        case blurredRectangleGeneratorNode
+        case blurredRoundedRectangleGeneratorNode
+        case roundedRectangleGeneratorNode
+        case roundedRectangleStrokeGeneratorNode
+        case stripesGeneratorNode
+        case checkerboardGeneratorNode
+        case starShineGeneratorNode
+        case constantColorGeneratorNode
+
+        public static var allKinds: [NodeKind] {
+            Generator.allCases.map { .coreImageCustomNode(.generator($0)) }
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.generator(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .randomGeneratorNode:
+                Nodes.CoreImageCustom.RandomGeneratorNode.impl()
+            case .blurredRectangleGeneratorNode:
+                Nodes.CoreImageCustom.BlurredRectangleGeneratorNode.impl()
+            case .blurredRoundedRectangleGeneratorNode:
+                Nodes.CoreImageCustom.BlurredRoundedRectangleGeneratorNode.impl()
+            case .roundedRectangleGeneratorNode:
+                Nodes.CoreImageCustom.RoundedRectangleGeneratorNode.impl()
+            case .roundedRectangleStrokeGeneratorNode:
+                Nodes.CoreImageCustom.RoundedRectangleStrokeGeneratorNode.impl()
+            case .stripesGeneratorNode:
+                Nodes.CoreImageCustom.StripesGeneratorNode.impl()
+            case .checkerboardGeneratorNode:
+                Nodes.CoreImageCustom.CheckerboardGeneratorNode.impl()
+            case .starShineGeneratorNode:
+                Nodes.CoreImageCustom.StarShineGeneratorNode.impl()
+            case .constantColorGeneratorNode:
+                Nodes.CoreImageCustom.ConstantColorGeneratorNode.impl()
+            }
+        }
+    }
+
     public var impl: NodeImpl {
         switch self {
         case .colorAdjustment(let kind): kind.impl
         case .geometryAdjustment(let kind): kind.impl
+        case .generator(let kind): kind.impl
         }
     }
 }
