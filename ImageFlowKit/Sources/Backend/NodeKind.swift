@@ -4,21 +4,75 @@ import Foundation
 import Values
 
 public enum NodeKind: Sendable, Hashable, Codable {
-    case addNode(NumericValueType)
+    case math(MathNodeKind)
     case valueNode(ValueType)
+    case splitValue(SplitValueNodeKind)
     case valueCustomNode(ValueCustomNodeKind)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
 }
 
+public enum MathNodeKind: Sendable, Hashable, Codable {
+    case addNode(NumericValueType)
+    case subNode(NumericValueType)
+    case mulNode(NumericValueType)
+
+    public static var allCases: [Self] {
+        NumericValueType.allCases.flatMap {
+            [
+                .addNode($0),
+                .subNode($0),
+                .mulNode($0),
+            ]
+        }
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .addNode(let type): Nodes.AddNode.impl(type)
+        case .subNode(let type): Nodes.SubtractNode.impl(type)
+        case .mulNode(let type): Nodes.MulNode.impl(type)
+        }
+    }
+}
+
+public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case vector2
+    case vector3
+    case vector4
+    case color4
+    case rect
+    case imageInfo
+
+    public var impl: NodeImpl {
+        switch self {
+        case .vector2:
+            Nodes.SplitValueNodes.SlipVector2Node.impl()
+        case .vector3:
+            Nodes.SplitValueNodes.SlipVector3Node.impl()
+        case .vector4:
+            Nodes.SplitValueNodes.SlipVector4Node.impl()
+        case .color4:
+            Nodes.SplitValueNodes.SlipColorRGBNode.impl()
+        case .imageInfo:
+            Nodes.SplitValueNodes.ImageInfoNode.impl()
+        case .rect:
+            Nodes.SplitValueNodes.SlipRectNode.impl()
+        }
+    }
+}
+
 public enum ValueCustomNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case affineTransform
+    case colorRgba
 
     public var impl: NodeImpl {
         switch self {
         case .affineTransform:
             Nodes.AffineTransformValueNode.impl()
+        case .colorRgba:
+            Nodes.Color4RGBAValue.impl()
         }
     }
 }
@@ -135,8 +189,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 extension NodeKind {
     public var impl: NodeImpl {
         switch self {
-        case .addNode(let type):
-            Nodes.AddNode.impl(type)
+        case .math(let kind):
+            kind.impl
         case .valueNode(let type):
             Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
@@ -147,6 +201,8 @@ extension NodeKind {
             type.impl
         case .valueCustomNode(let type):
             type.impl
+        case .splitValue(let kind):
+            kind.impl
         }
     }
 

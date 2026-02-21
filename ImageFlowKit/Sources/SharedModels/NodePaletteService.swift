@@ -6,10 +6,9 @@ private struct Categories {
     static let math: NodePaletteCategory = .init(
         name: .math,
         items: [
-            .init(
-                nodeKind: .addNode(.float),
-                categoryName: .math
-            )
+            .init(nodeKind: .math(.addNode(.float)), categoryName: .math),
+            .init(nodeKind: .math(.subNode(.float)), categoryName: .math),
+            .init(nodeKind: .math(.mulNode(.float)), categoryName: .math),
         ]
     )
 
@@ -27,12 +26,21 @@ private struct Categories {
                 )
                 .map { NodeKind.valueNode($0) }
                 .appending(.valueCustomNode(.affineTransform))
+                .appending(.valueCustomNode(.colorRgba))
                 .map { kind in
                     return NodePaletteItem(
                         nodeKind: kind,
                         categoryName: .input
                     )
                 }
+        )
+
+    static let split: NodePaletteCategory =
+        .init(
+            name: .split,
+            items: SplitValueNodeKind.allCases
+                .map({ NodeKind.splitValue($0) })
+                .map { .init(nodeKind: $0, categoryName: .split) }
         )
 
     static let blur: NodePaletteCategory = .init(
@@ -200,6 +208,7 @@ public class NodePaletteService {
 
         result.append(Categories.math)
         result.append(Categories.input)
+        result.append(Categories.split)
         result.append(Categories.blur)
         result.append(Categories.colorAdjustment)
         result.append(Categories.colorEffect)
@@ -321,6 +330,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case input = "Input"
     case math = "Math"
     case blur = "Blur"
+    case split = "Split"
     case colorAdjustment = "Color Adjustment"
     case colorEffect = "Color Effect"
     case compositeOperation = "Composite Operation"

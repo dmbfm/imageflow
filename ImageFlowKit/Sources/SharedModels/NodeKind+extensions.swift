@@ -18,14 +18,22 @@ public extension NodeKind {
     var displayName: String {
         switch self {
         case .valueNode(let type):
-            "\(type.displayName)"
-        case .addNode(_): "Add"
+            switch type {
+            case .color4:
+                "Color Picker"
+            default:
+                "\(type.displayName)"
+            }
+        case .math(let kind):
+            kind.impl.schema.displayName
         case .passthroughNode(_): "Passthrough"
         case .coreImageFilterNode(let kind):
             kind.impl.schema.displayName
         case .coreImageCustomNode(let kind):
             kind.impl.schema.displayName
         case .valueCustomNode(let kind):
+            kind.impl.schema.displayName
+        case .splitValue(let kind):
             kind.impl.schema.displayName
         }
     }
@@ -36,17 +44,23 @@ public extension NodeKind {
             .orange
         case .valueNode(_), .valueCustomNode(_):
             .blue
-        case .addNode(_):
+        case .math(_):
             .blue
         case .passthroughNode(_):
+            .blue
+        case .splitValue(_):
             .blue
         }
     }
 
     var icon: String {
         switch self {
-        case .addNode(_):
+        case .math(.addNode(_)):
             "plus.circle.fill"
+        case .math(.subNode(_)):
+            "minus.circle.fill"
+        case .math(.mulNode(_)):
+            "multiply.circle.fill"
         case .coreImageFilterNode(_):
             "camera.filters"
         case .coreImageCustomNode(_):
@@ -59,14 +73,21 @@ public extension NodeKind {
             switch kind {
             case .affineTransform:
                 ValueType.affineTransform.icon
+            case .colorRgba:
+                ValueType.color4.icon
             }
+        case .splitValue(.imageInfo):
+            "photo.badge.magnifyingglass"
+        case .splitValue(_):
+            "arrow.trianglehead.branch"
         }
     }
 
     var variations: [NodeKind] {
         switch self {
-        case .addNode(_): NumericValueType.allCases.map { .addNode($0) }
-        case .valueNode(_): ValueType.allCases.map { .valueNode($0) }
+        case .math(.addNode(_)): NumericValueType.allCases.map { .math(.addNode($0)) }
+        case .math(.subNode(_)): NumericValueType.allCases.map { .math(.subNode($0)) }
+        case .math(.mulNode(_)): NumericValueType.allCases.map { .math(.mulNode($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
         default: [self]
         }
@@ -74,7 +95,7 @@ public extension NodeKind {
 
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
-        case .addNode, .passthroughNode, .valueNode:
+        case .math, .passthroughNode, .valueNode:
             if inputs.contains(true) || outputs.contains(true) {
                 [self]
             } else {
@@ -88,7 +109,9 @@ public extension NodeKind {
 
     var variationDisplayName: String {
         switch self {
-        case .addNode(let type): type.valueType.displayName
+        case .math(.addNode(let type)): type.valueType.displayName
+        case .math(.subNode(let type)): type.valueType.displayName
+        case .math(.mulNode(let type)): type.valueType.displayName
         case .valueNode(let type): type.displayName
         case .passthroughNode(let type): type.displayName
         default: self.displayName

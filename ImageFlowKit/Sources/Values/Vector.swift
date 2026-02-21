@@ -20,6 +20,10 @@ public struct Vector2: Sendable, Hashable, Codable {
         Vector2(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 
+    public static func * (lhs: Vector2, rhs: Vector2) -> Vector2 {
+        Vector2(x: lhs.x * rhs.x, y: lhs.y * rhs.y)
+    }
+
     public var cgPoint: CGPoint {
         .init(x: self.x, y: self.y)
     }
@@ -68,6 +72,10 @@ public struct Vector3: Sendable, Hashable, Codable {
         Vector3(x: lhs.x - rhs.x, y: lhs.y - rhs.y, z: lhs.z - rhs.z)
     }
 
+    public static func * (lhs: Vector3, rhs: Vector3) -> Vector3 {
+        Vector3(x: lhs.x * rhs.x, y: lhs.y * rhs.y, z: lhs.z * rhs.z)
+    }
+
     public var ciVector: CIVector {
         .init(x: self.x, y: self.y, z: self.z)
     }
@@ -114,6 +122,10 @@ public struct Vector4: Sendable, Hashable, Codable {
 
     public static func - (lhs: Vector4, rhs: Vector4) -> Vector4 {
         Vector4(x: lhs.x - rhs.x, y: lhs.y - rhs.y, z: lhs.z - rhs.z, w: lhs.w - rhs.w)
+    }
+
+    public static func * (lhs: Vector4, rhs: Vector4) -> Vector4 {
+        Vector4(x: lhs.x * rhs.x, y: lhs.y * rhs.y, z: lhs.z * rhs.z, w: lhs.w * rhs.w)
     }
 
     public var ciVector: CIVector {

@@ -227,10 +227,12 @@ public struct FlowNode: Sendable, Equatable, Codable {
             let kind = variation
             let schema = kind.schema
             switch slot {
-            case .output(let idx):
+            case .output(let idx) where schema.outputs.indices.contains(idx):
                 if schema.outputs[idx].type == type { return kind }
-            case .input(let idx):
+            case .input(let idx) where schema.inputs.indices.contains(idx):
                 if schema.inputs[idx].type == type { return kind }
+            default:
+                break
             }
         }
 

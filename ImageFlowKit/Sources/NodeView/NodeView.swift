@@ -483,7 +483,7 @@ extension NodeView {
 
 #Preview("Add", traits: .sizeThatFitsLayout) {
     VStack {
-        NodeView.Preview(node: .init(kind: .addNode(.float)))
+        NodeView.Preview(node: .init(kind: .math(.addNode(.float))))
     }
     .frame(minWidth: 300, minHeight: 300)
     .background(Colors.canvasBackground.color)

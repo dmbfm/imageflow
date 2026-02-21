@@ -20,6 +20,10 @@ public struct Color3: Sendable, Hashable, Codable {
         Color3(red: lhs.red - rhs.red, green: lhs.green - rhs.green, blue: lhs.blue - rhs.blue)
     }
 
+    public static func * (lhs: Color3, rhs: Color3) -> Color3 {
+        Color3(red: lhs.red * rhs.red, green: lhs.green * rhs.green, blue: lhs.blue * rhs.blue)
+    }
+
     public var ciColor: CIColor {
         .init(red: self.red, green: self.green, blue: self.blue)
     }
@@ -58,6 +62,15 @@ public struct Color4: Sendable, Hashable, Codable {
             green: lhs.green - rhs.green,
             blue: lhs.blue - rhs.blue,
             alpha: lhs.alpha - rhs.alpha
+        )
+    }
+
+    public static func * (lhs: Color4, rhs: Color4) -> Color4 {
+        Color4(
+            red: lhs.red * rhs.red,
+            green: lhs.green * rhs.green,
+            blue: lhs.blue * rhs.blue,
+            alpha: lhs.alpha * rhs.alpha
         )
     }
 
