@@ -42,4 +42,19 @@ public struct Node: Sendable {
     func validateSchema() -> Bool {
         self.kind.schema.validate(node: self) == .ok
     }
+
+    mutating func setInput(index: Int, value: Value) {
+        guard self.inputs.indices.contains(index) else {
+            fatalError("Index out of range")
+        }
+
+        let input = self.inputs[index]
+
+        if input.is(sameTypeAs: value) {
+            self.inputs[index] = value
+        } else if value.type.castable(to: input.type) {
+            let castedValue = value.cast(to: input.type)!
+            self.inputs[index] = castedValue
+        }
+    }
 }

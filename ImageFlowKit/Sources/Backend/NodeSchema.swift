@@ -52,11 +52,13 @@ extension NodeSchema {
             return .outputCountMismatch
         }
 
-        for (idx, (a, b)) in zip(node.inputs, self.inputs).enumerated() where !a.is(b.type) {
+        for (idx, (a, b)) in zip(node.inputs, self.inputs).enumerated()
+        where !a.is(b.type) && !a.type.castable(to: b.type) {
             return .inputTypeMismatch(idx)
         }
 
-        for (idx, (a, b)) in zip(node.outputs, self.outputs).enumerated() where !a.is(b.type) {
+        for (idx, (a, b)) in zip(node.outputs, self.outputs).enumerated()
+        where !a.is(b.type) && !a.type.castable(to: b.type) {
             return .outputTypeMismatch(idx)
         }
 

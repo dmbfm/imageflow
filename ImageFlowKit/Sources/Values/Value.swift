@@ -26,11 +26,20 @@ public enum Value: Sendable, Hashable, Codable {
         get {
             if case .float(let value) = self {
                 return value
+            } else if case .int(let value) = self {
+                return Double(value)
+            } else {
+                fatalError("Value is not a float: \(self.type)")
             }
-            fatalError("Value is not a float: \(self.type)")
         }
         set {
-            self = .float(newValue)
+            if case .float(_) = self {
+                self = .float(newValue)
+            } else if case .int(_) = self {
+                self = .int(Int(newValue))
+            } else {
+                fatalError("Value is not an int: \(self.type)")
+            }
         }
     }
 
@@ -38,12 +47,17 @@ public enum Value: Sendable, Hashable, Codable {
         get {
             if case .int(let value) = self {
                 return value
+            } else if case .float(let value) = self {
+                return Int(value)
+            } else {
+                fatalError("Value is not an int: \(self.type)")
             }
-            fatalError("Value is not an int: \(self.type)")
         }
         set {
             if case .int(_) = self {
                 self = .int(newValue)
+            } else if case .float(_) = self {
+                self = .int(Int(newValue))
             } else {
                 fatalError("Value is not an int: \(self.type)")
             }
@@ -850,6 +864,89 @@ extension Value {
             return .string(lhsValue + rhsValue)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
+        }
+    }
+
+    public static func - (lhs: Value, rhs: Value) -> Value {
+        switch (lhs, rhs) {
+        case (.float(let lhsValue), .float(let rhsValue)):
+            return .float(lhsValue - rhsValue)
+        case (.int(let lhsValue), .int(let rhsValue)):
+            return .int(lhsValue - rhsValue)
+        case (.vector2(let lhsValue), .vector2(let rhsValue)):
+            return .vector2(lhsValue - rhsValue)
+        case (.vector3(let lhsValue), .vector3(let rhsValue)):
+            return .vector3(lhsValue - rhsValue)
+        case (.vector4(let lhsValue), .vector4(let rhsValue)):
+            return .vector4(lhsValue - rhsValue)
+        case (.color3(let lhsValue), .color3(let rhsValue)):
+            return .color3(lhsValue - rhsValue)
+        case (.color4(let lhsValue), .color4(let rhsValue)):
+            return .color4(lhsValue - rhsValue)
+        default:
+            fatalError("Invalid types: \(lhs) + \(rhs)")
+        }
+    }
+
+    public static func * (lhs: Value, rhs: Value) -> Value {
+        switch (lhs, rhs) {
+        case (.float(let lhsValue), .float(let rhsValue)):
+            return .float(lhsValue * rhsValue)
+        case (.int(let lhsValue), .int(let rhsValue)):
+            return .int(lhsValue * rhsValue)
+        case (.vector2(let lhsValue), .vector2(let rhsValue)):
+            return .vector2(lhsValue * rhsValue)
+        case (.vector3(let lhsValue), .vector3(let rhsValue)):
+            return .vector3(lhsValue * rhsValue)
+        case (.vector4(let lhsValue), .vector4(let rhsValue)):
+            return .vector4(lhsValue * rhsValue)
+        case (.color3(let lhsValue), .color3(let rhsValue)):
+            return .color3(lhsValue * rhsValue)
+        case (.color4(let lhsValue), .color4(let rhsValue)):
+            return .color4(lhsValue * rhsValue)
+        default:
+            fatalError("Invalid types: \(lhs) + \(rhs)")
+        }
+    }
+}
+
+extension Value {
+    public func cast(to type: ValueType) -> Value? {
+        switch self {
+        case .int(let value):
+            switch type {
+            case .float:
+                .float(Double(value))
+            case .vector2:
+                .vector2(.init(x: Double(value), y: Double(value)))
+            case .vector3:
+                .vector3(.init(x: Double(value), y: Double(value), z: Double(value)))
+            case .vector4:
+                .vector4(.init(x: Double(value), y: Double(value), z: Double(value), w: Double(value)))
+            case .affineTransform:
+                .affineTransform(.init(m11: 0, m12: 0, m21: 0, m22: 0, tX: Double(value), tY: 0))
+            case .bool:
+                .bool(value != 0)
+            case .color3:
+                .color3(.init(red: Double(value) / 256, green: Double(value) / 256, blue: Double(value) / 256))
+            case .color4:
+                .color4(
+                    .init(red: Double(value) / 256, green: Double(value) / 256, blue: Double(value) / 256, alpha: 1.0)
+                )
+            case .rect:
+                .rect(.init(x: 0, y: 0, width: Double(value), height: Double(value)))
+            default:
+                nil
+            }
+        case .float(let value):
+            switch type {
+            case .int:
+                .int(Int(value))
+            default:
+                nil
+            }
+        default:
+            nil
         }
     }
 }

@@ -46,7 +46,10 @@ public struct Flow {
                 // Get the edge incoming to that input port, if there is one
                 if let edge = graph.incomindEdge(toNodeAtIndex: nodeIndex, inputPort: index) {
                     // Set the input value of the current node input to the output ot the connected node output port
-                    self.nodes[nodeIndex].inputs[index] = self.nodes[edge.start.nodeIndex].outputs[edge.start.slot]
+                    self.nodes[nodeIndex].setInput(
+                        index: index,
+                        value: self.nodes[edge.start.nodeIndex].outputs[edge.start.slot]
+                    )
                 }
             }
 

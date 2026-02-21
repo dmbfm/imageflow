@@ -520,12 +520,16 @@ extension Flow {
             return .success(())
         }
 
-        if let kind = self.nodes[edge.to.node]!.variation(soThatSlot: edge.to.slot, hasType: sourceType) {
-            return .failure(.fixable(.canFixConvertingDestNodeTo(kind)))
+        if sourceType.castable(to: destType) {
+            return .success(())
         }
 
         if let kind = self.nodes[edge.from.node]!.variation(soThatSlot: edge.from.slot, hasType: destType) {
             return .failure(.fixable(.canFixConvertingSourceNodeTo(kind)))
+        }
+
+        if let kind = self.nodes[edge.to.node]!.variation(soThatSlot: edge.to.slot, hasType: sourceType) {
+            return .failure(.fixable(.canFixConvertingDestNodeTo(kind)))
         }
 
         return .failure(.cantFix)
