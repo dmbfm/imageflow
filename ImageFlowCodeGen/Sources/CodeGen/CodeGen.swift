@@ -3,6 +3,22 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import Values
 
+let addCropToSourceOptionFilters: [String] =
+    [
+        "CIBokehBlur",
+        "CIBoxBlur",
+        "CIDiscBlur",
+        "CIGaussianBlur",
+        "CIMaskedVariableBlur",
+        "CIMotionBlur",
+        "CIZoomBlur",
+    ]
+
+let inputImageNilGuardFilters: [String] =
+    [
+        "CINoiseReduction"
+    ]
+
 extension FilterInfo {
     public func gen() throws -> StructDeclSyntax {
         let structName = self.name + "Node"
@@ -28,7 +44,7 @@ extension FilterInfo {
                         \(self.filterAttrAssignmentsExprs())
                         let outputImage = filter.outputImage
                         if let outputImage, !outputImage.extent.isEmpty {
-                            node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                            \(self.nodeOutputAssignExpr())
                         } else {
                             node.outputs[0] = .image(.none)
                         }
@@ -38,9 +54,49 @@ extension FilterInfo {
         )
     }
 
+    @CodeBlockItemListBuilder
+    private func nodeOutputAssignExpr() throws -> CodeBlockItemListSyntax {
+        if addCropToSourceOptionFilters.contains(self.name) {
+            """
+            if node.inputs[\(raw: self.inputs.count)].bool {
+                node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+            } else {
+                node.outputs[0] = .image(await context.addImage(outputImage, 0))
+            }
+            """
+        } else {
+            """
+            node.outputs[0] = .image(await context.addImage(outputImage, 0))
+            """
+        }
+    }
+
     private func genInputsArray() throws -> ArrayExprSyntax {
+
+        let inputs =
+            if addCropToSourceOptionFilters.contains(self.name) {
+                self.inputs + [
+                    .init(
+                        name: "cropToSource",
+                        displayName: "Crop to Source",
+                        description: "",
+                        className: .nsNumber,
+                        type: .boolean,
+                        min: nil,
+                        max: nil,
+                        sliderMin: nil,
+                        sliderMax: nil,
+                        valueType: .bool,
+                        defaultValue: .bool(true),
+                        identity: nil
+                    )
+                ]
+            } else {
+                self.inputs
+            }
+
         return ArrayExprSyntax(
-            expressions: self.inputs.map { input in
+            expressions: inputs.map { input in
                 if let defaultValue = input.defaultValue {
                     return .init(
                         stringLiteral:
@@ -63,8 +119,30 @@ extension FilterInfo {
     private func filterAttrAssignmentsExprs() throws -> CodeBlockItemListSyntax {
         .init() {
             for (idx, input) in self.inputs.enumerated() {
-                // NSValue(bytes: UnsafeRawPointer, objCType: UnsafePointer<CChar>)
-                if input.valueType == .affineTransform {
+                if input.valueType == .image && idx == 0
+                    && (inputImageNilGuardFilters.contains(self.name)
+                        || addCropToSourceOptionFilters.contains(self.name))
+                {
+                    """
+                    guard let inputImage = \(raw: input.valueType.assignExpr("node.inputs[\(idx)]")) else {
+                        node.outputs[0] = .image(.none)
+                        return
+                    }
+                    """
+                    if addCropToSourceOptionFilters.contains(self.name) {
+                        """
+                        if node.inputs[\(raw: self.inputs.count)].bool {
+                            filter.setValue(inputImage.clampedToExtent(), forKey: "\(raw: input.name)")
+                        } else {
+                            filter.setValue(inputImage, forKey: "\(raw: input.name)")
+                        }
+                        """
+                    } else {
+                        """
+                        filter.setValue(inputImage, forKey: "\(raw: input.name)")
+                        """
+                    }
+                } else if input.valueType == .affineTransform {
                     """
                     #if os(macOS)
                     filter.setValue(\(raw: input.valueType.assignExpr("node.inputs[\(idx)]")), forKey: "\(raw: input.name)")
