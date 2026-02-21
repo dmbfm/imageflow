@@ -187,16 +187,16 @@ extension Nodes.CoreImageCustom {
                     let filter = CIFilter.randomGenerator()
                     let seed = node.inputs[2].int
                     let gm = GKMersenneTwisterRandomSource.init(seed: UInt64(seed.magnitude))
+                    let x = CGFloat(gm.nextUniform() * 512)
+                    let y = CGFloat(gm.nextUniform() * 512)
                     let outputImage = filter.outputImage?.cropped(
                         to: .init(
-                            x: CGFloat(gm.nextUniform() * 512),
-                            y: CGFloat(gm.nextUniform() * 512),
-                            // x: alwaysReseed ? CGFloat(gm.nextUniform()) * 512 : 0,  // .random(in: -1000...1000) : 0,
-                            // y: alwaysReseed ? .random(in: -1000...1000) : 0,
+                            x: x,
+                            y: y,
                             width: CGFloat(node.inputs[0].int),
                             height: CGFloat(node.inputs[1].int)
                         )
-                    )
+                    ).transformed(by: .init(translationX: -x, y: -y))
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 }
             )
