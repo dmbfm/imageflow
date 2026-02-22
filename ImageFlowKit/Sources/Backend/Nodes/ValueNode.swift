@@ -65,7 +65,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, _  in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = .vector3(
                     .init(x: node.inputs[0].float, y: node.inputs[1].float, z: node.inputs[2].float)
                 )

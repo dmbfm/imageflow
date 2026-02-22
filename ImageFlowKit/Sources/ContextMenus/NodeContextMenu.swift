@@ -315,9 +315,13 @@ public class NodeContextMenuProvider {
             title: "Convert Node",
             options: [.singleSelection],
             children: node.variations.map { variation in
-                UIAction(title: variation.displayName, state: variation == node.kind ? .on : .off, handler: { _ in
-                    self.coordinator?.perform(userAction: .convertNode(node.id, variation))
-                })
+                UIAction(
+                    title: variation.displayName,
+                    state: variation == node.kind ? .on : .off,
+                    handler: { _ in
+                        self.coordinator?.perform(userAction: .convertNode(node.id, variation))
+                    }
+                )
             }
         )
     }
