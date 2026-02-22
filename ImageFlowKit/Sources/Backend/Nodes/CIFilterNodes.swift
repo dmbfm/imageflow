@@ -165,7 +165,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         }
     }
     public enum ColoreffectNodeKind: Sendable, Hashable, Codable, CaseIterable {
-        case CIColorCrossPolynomial
         case CIColorCurves
         case CIColorInvert
         case CIColorMap
@@ -180,7 +179,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIMaskToAlpha
         case CIMaximumComponent
         case CIMinimumComponent
-        case CIPaletteCentroid
         case CIPalettize
         case CIPhotoEffectChrome
         case CIPhotoEffectFade
@@ -197,8 +195,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIXRay
         public var impl: NodeImpl {
             switch self {
-            case .CIColorCrossPolynomial:
-                Nodes.CIColorCrossPolynomialNode.impl()
             case .CIColorCurves:
                 Nodes.CIColorCurvesNode.impl()
             case .CIColorInvert:
@@ -227,8 +223,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIMaximumComponentNode.impl()
             case .CIMinimumComponent:
                 Nodes.CIMinimumComponentNode.impl()
-            case .CIPaletteCentroid:
-                Nodes.CIPaletteCentroidNode.impl()
             case .CIPalettize:
                 Nodes.CIPalettizeNode.impl()
             case .CIPhotoEffectChrome:
@@ -1768,6 +1762,7 @@ extension Nodes {
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
                     .init(name: "Scale", defaultValue: .float(0.5), semantics: .default),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1776,13 +1771,25 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIBumpDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[4].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputScale")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[4].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -1914,12 +1921,16 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICircleSplashDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -2036,7 +2047,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICMYKHalftone")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
@@ -2202,45 +2217,6 @@ extension Nodes {
         }
     }
 
-    public struct CIColorCrossPolynomialNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Cross Polynomial",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Red Coefficients", defaultValue: .vector2(.init(x: 1.0, y: 0.0)), semantics: .default),
-                    .init(
-                        name: "Green Coefficients",
-                        defaultValue: .vector2(.init(x: 0.0, y: 1.0)),
-                        semantics: .default
-                    ),
-                    .init(
-                        name: "Blue Coefficients",
-                        defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
-                        semantics: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorCrossPolynomial")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputRedCoefficients")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGreenCoefficients")
-                filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBlueCoefficients")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(.none)
-                }
-            }
-        }
-    }
-
     public struct CIColorCurvesNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -2358,11 +2334,31 @@ extension Nodes {
                 name: "Color Matrix",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Red Vector", defaultValue: .vector2(.init(x: 1.0, y: 0.0)), semantics: .default),
-                    .init(name: "Green Vector", defaultValue: .vector2(.init(x: 0.0, y: 1.0)), semantics: .default),
-                    .init(name: "Blue Vector", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .default),
-                    .init(name: "Alpha Vector", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .default),
-                    .init(name: "Bias Vector", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .default),
+                    .init(
+                        name: "Red Vector",
+                        defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
+                        semantics: .default
+                    ),
+                    .init(
+                        name: "Green Vector",
+                        defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
+                        semantics: .default
+                    ),
+                    .init(
+                        name: "Blue Vector",
+                        defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)),
+                        semantics: .default
+                    ),
+                    .init(
+                        name: "Alpha Vector",
+                        defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)),
+                        semantics: .default
+                    ),
+                    .init(
+                        name: "Bias Vector",
+                        defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
+                        semantics: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2372,11 +2368,11 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorMatrix")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputRVector")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGVector")
-                filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBVector")
-                filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputAVector")
-                filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBiasVector")
+                filter.setValue(node.inputs[1].vector4.ciVector, forKey: "inputRVector")
+                filter.setValue(node.inputs[2].vector4.ciVector, forKey: "inputGVector")
+                filter.setValue(node.inputs[3].vector4.ciVector, forKey: "inputBVector")
+                filter.setValue(node.inputs[4].vector4.ciVector, forKey: "inputAVector")
+                filter.setValue(node.inputs[5].vector4.ciVector, forKey: "inputBiasVector")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -2425,20 +2421,24 @@ extension Nodes {
                 name: "Color Polynomial",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Red Coefficients", defaultValue: .vector2(.init(x: 0.0, y: 1.0)), semantics: .default),
+                    .init(
+                        name: "Red Coefficients",
+                        defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
+                        semantics: .default
+                    ),
                     .init(
                         name: "Green Coefficients",
-                        defaultValue: .vector2(.init(x: 0.0, y: 1.0)),
+                        defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default
                     ),
                     .init(
                         name: "Blue Coefficients",
-                        defaultValue: .vector2(.init(x: 0.0, y: 1.0)),
+                        defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default
                     ),
                     .init(
                         name: "Alpha Coefficients",
-                        defaultValue: .vector2(.init(x: 0.0, y: 1.0)),
+                        defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default
                     ),
                 ],
@@ -2450,10 +2450,10 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorPolynomial")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputRedCoefficients")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputGreenCoefficients")
-                filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputBlueCoefficients")
-                filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputAlphaCoefficients")
+                filter.setValue(node.inputs[1].vector4.ciVector, forKey: "inputRedCoefficients")
+                filter.setValue(node.inputs[2].vector4.ciVector, forKey: "inputGreenCoefficients")
+                filter.setValue(node.inputs[3].vector4.ciVector, forKey: "inputBlueCoefficients")
+                filter.setValue(node.inputs[4].vector4.ciVector, forKey: "inputAlphaCoefficients")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -3012,7 +3012,11 @@ extension Nodes {
                 name: "Crop",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Rectangle", type: .rect, semantics: .rectangle),
+                    .init(
+                        name: "Rectangle",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 100.0, height: 100.0)),
+                        semantics: .rectangle
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3138,7 +3142,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDepthToDisparity")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -3265,7 +3273,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDisparityToDepth")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -3341,6 +3353,7 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3349,11 +3362,23 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDistanceGradientFromRedMask")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[2].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].float, forKey: "inputMaximumDistance")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[2].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -3430,7 +3455,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDocumentEnhancer")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputAmount")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
@@ -3490,7 +3519,7 @@ extension Nodes {
                         name: "Inset Point 1",
                         defaultValue: .vector2(.init(x: 400.0, y: 400.0)),
                         semantics: .position2
-                    ), .init(name: "Strands", defaultValue: .float(1.0), semantics: .default),
+                    ), .init(name: "Strands", defaultValue: .float(1.0), semantics: .count),
                     .init(name: "Periodicity", defaultValue: .float(1.0), semantics: .default),
                     .init(name: "Rotation", defaultValue: .float(0.0), semantics: .angle),
                     .init(name: "Zoom", defaultValue: .float(1.0), semantics: .default),
@@ -3502,7 +3531,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDroste")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputInsetPoint0")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputInsetPoint1")
                 filter.setValue(node.inputs[3].float, forKey: "inputStrands")
@@ -3511,7 +3544,7 @@ extension Nodes {
                 filter.setValue(node.inputs[6].float, forKey: "inputZoom")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -3528,6 +3561,7 @@ extension Nodes {
                     .init(name: "Small Image", type: .image, semantics: .image),
                     .init(name: "Spatial Sigma", defaultValue: .float(3.0), semantics: .default),
                     .init(name: "Luma Sigma", defaultValue: .float(0.15), semantics: .default),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3536,13 +3570,25 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIEdgePreserveUpsampleFilter")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[4].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputSmallImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputSpatialSigma")
                 filter.setValue(node.inputs[3].float, forKey: "inputLumaSigma")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[4].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -4038,6 +4084,7 @@ extension Nodes {
                     .init(name: "Point 1", defaultValue: .vector2(.init(x: 350.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
                     .init(name: "Refraction", defaultValue: .float(1.7), semantics: .default),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4046,14 +4093,26 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGlassLozenge")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[5].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputPoint0")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputPoint1")
                 filter.setValue(node.inputs[3].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[4].float, forKey: "inputRefraction")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[5].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -4130,6 +4189,7 @@ extension Nodes {
                     .init(name: "A larger image to use as a guide.", type: .image, semantics: .image),
                     .init(name: "Radius", defaultValue: .float(1.0), semantics: .distance),
                     .init(name: "Epsilon", defaultValue: .float(0.0001), semantics: .default),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4138,13 +4198,25 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGuidedFilter")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[4].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputGuideImage")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputEpsilon")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[4].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -4338,6 +4410,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4346,12 +4419,24 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIHoleDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[3].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[3].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -4763,13 +4848,17 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CILightTunnel")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRotation")
                 filter.setValue(node.inputs[3].float, forKey: "inputRadius")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -5656,7 +5745,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIOpTile")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
@@ -5719,7 +5812,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPageCurlTransition")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputBacksideImage")
                 filter.setValue(await context.getImage(node.inputs[3].image), forKey: "inputShadingImage")
@@ -5760,7 +5857,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPageCurlWithShadowTransition")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
                 filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputBacksideImage")
                 filter.setValue(CIVector(cgRect: node.inputs[3].rect), forKey: "inputExtent")
@@ -5770,35 +5871,6 @@ extension Nodes {
                 filter.setValue(node.inputs[7].float, forKey: "inputShadowSize")
                 filter.setValue(node.inputs[8].float, forKey: "inputShadowAmount")
                 filter.setValue(CIVector(cgRect: node.inputs[9].rect), forKey: "inputShadowExtent")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(.none)
-                }
-            }
-        }
-    }
-
-    public struct CIPaletteCentroidNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Palette Centroid",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Palette Image", type: .image, semantics: .image),
-                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIPaletteCentroid")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputPaletteImage")
-                filter.setValue(node.inputs[2].bool, forKey: "inputPerceptual")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -6073,7 +6145,7 @@ extension Nodes {
                         name: "Bottom Left",
                         defaultValue: .vector2(.init(x: 155.0, y: 153.0)),
                         semantics: .position2
-                    ),
+                    ), .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6082,7 +6154,15 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPerspectiveTransformWithExtent")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[6].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTopLeft")
                 filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputTopRight")
@@ -6090,7 +6170,11 @@ extension Nodes {
                 filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputBottomLeft")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[6].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -7725,6 +7809,7 @@ extension Nodes {
                     .init(name: "Radius", defaultValue: .float(160.0), semantics: .distance),
                     .init(name: "Width", defaultValue: .float(80.0), semantics: .distance),
                     .init(name: "Refraction", defaultValue: .float(1.7), semantics: .default),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7733,14 +7818,26 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITorusLensDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[5].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[4].float, forKey: "inputRefraction")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[5].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -7798,7 +7895,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITriangleTile")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputWidth")
@@ -7852,6 +7953,7 @@ extension Nodes {
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
                     .init(name: "Angle", defaultValue: .float(3.141592653589793), semantics: .angle),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7860,13 +7962,25 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITwirlDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[4].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[4].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }
@@ -8028,6 +8142,7 @@ extension Nodes {
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
                     .init(name: "Angle", defaultValue: .float(56.548667764616276), semantics: .angle),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8036,13 +8151,25 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIVortexDistortion")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                if node.inputs[4].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[3].float, forKey: "inputAngle")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[4].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }

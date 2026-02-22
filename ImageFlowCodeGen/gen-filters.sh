@@ -1,1 +1,1 @@
-swift run Cli gen > ../ImageFlowKit/Sources/Backend/Nodes/CIFilterNodes.swift
+swift run -c release Cli gen > ../ImageFlowKit/Sources/Backend/Nodes/CIFilterNodes.swift

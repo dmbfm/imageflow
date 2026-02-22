@@ -20,6 +20,9 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIColorCube",
             "CIColorCubesMixedWithMask",
             "CIColorCubeWithColorSpace",
+            "CIColorCrossPolynomial",
+            "CIPaletteCentroid",
+            "CIApplyAffineTr",
         ]
 
     static let overrides: [Override] = [
@@ -39,15 +42,50 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
         ),
         .init(
             name: "CIColorClamp",
-            filterOverride: .input("inputMinComponents", .valueType(.vector4))
-        ),
-        .init(
-            name: "CIColorClamp",
             filterOverride: .input("inputMaxComponents", .defaultValue(.vector4(.init(x: 1, y: 1, z: 1, w: 1))))
         ),
         .init(
-            name: "CIColorClamp",
-            filterOverride: .input("inputMaxComponents", .valueType(.vector4))
+            name: "CIColorMatrix",
+            filterOverride: .inputs(
+                [
+                    ("inputRVector", .defaultValue(.vector4(.init(x: 1, y: 0, z: 0, w: 0)))),
+                    ("inputGVector", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputBVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 1, w: 0)))),
+                    ("inputAVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 1)))),
+                    ("inputBiasVector", .defaultValue(.vector4(.init(x: 1, y: 0, z: 0, w: 0)))),
+                ])
+        ),
+        .init(
+            name: "CIColorPolynomial",
+            filterOverride: .inputs(
+                [
+                    ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputAlphaCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                ])
+        ),
+        .init(
+            name: "CIColorCrossPolynomial",
+            filterOverride: .inputs(
+                [
+                    ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                ])
+        ),
+        .init(
+            name: "CIDroste",
+            filterOverride: .inputs(
+                [
+                    ("inputStrands", .defaultValue(.int(1))),
+                    ("inputStrands", .type(.count)),
+                ]
+            )
+        ),
+        .init(
+            name: "CICrop",
+            filterOverride: .input("inputRectangle", .defaultValue(.rect(.init(x: 0, y: 0, width: 100, height: 100))))
         ),
     ]
 
@@ -151,7 +189,7 @@ struct Override {
 
     enum FilterOverride {
         case input(String, InputOverride)
-
+        case inputs([(String, InputOverride)])
     }
 
     enum InputOverride {
@@ -385,6 +423,12 @@ public struct FilterInfo: Sendable, Hashable, Codable {
             if let index = self.inputs.firstIndex(where: { $0.name == inputName }) {
                 result.inputs[index] = self.inputs[index].applying(override: override)
             }
+        case .inputs(let overrides):
+            for (inputName, override) in overrides {
+                if let index = self.inputs.firstIndex(where: { $0.name == inputName }) {
+                    result.inputs[index] = self.inputs[index].applying(override: override)
+                }
+            }
         }
         return result
     }
@@ -481,6 +525,7 @@ public struct FilterInput: Sendable, Hashable, Codable {
             result.valueType = valueType
         case .defaultValue(let value):
             result.defaultValue = value
+            result.valueType = value.type
         }
         return result
     }

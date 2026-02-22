@@ -12,11 +12,39 @@ let addCropToSourceOptionFilters: [String] =
         "CIMaskedVariableBlur",
         "CIMotionBlur",
         "CIZoomBlur",
+        "CIBumpDistortion",
+        "CIGlassLozenge",
+        "CIHoleDistortion",
+        "CITorusLensDistortion",
+        "CITwirlDistortion",
+        "CIVortexDistortion",
+        "CIEdgePreserveUpsampleFilter",
+        "CIGuidedFilter",
+        "CIPerspectiveTransformWithExtent",
+        "CIDistanceGradientFromRedMask",
+    ]
+
+let forceCropToSourceFilters: [String] =
+    [
+        "CICircleSplashDistortion",
+        "CIDroste",
+        "CILightTunnel",
     ]
 
 let inputImageNilGuardFilters: [String] =
     [
-        "CINoiseReduction"
+        "CINoiseReduction",
+        "CIDepthToDisparity",
+        "CIDisparityToDepth",
+        "CIColorCrossPolynomial",
+        "CIDocumentEnhancer",
+        "CIGlassLozenge",
+        "CITorusLensDistortion",
+        "CICMYKHalftone",
+        "CIPageCurlWithShadowTransition",
+        "CIPageCurlTransition",
+        "CITriangleTile",
+        "CIOpTile",
     ]
 
 extension FilterInfo {
@@ -63,6 +91,10 @@ extension FilterInfo {
             } else {
                 node.outputs[0] = .image(await context.addImage(outputImage, 0))
             }
+            """
+        } else if forceCropToSourceFilters.contains(self.name) {
+            """
+            node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
             """
         } else {
             """
@@ -121,7 +153,8 @@ extension FilterInfo {
             for (idx, input) in self.inputs.enumerated() {
                 if input.valueType == .image && idx == 0
                     && (inputImageNilGuardFilters.contains(self.name)
-                        || addCropToSourceOptionFilters.contains(self.name))
+                        || addCropToSourceOptionFilters.contains(self.name)
+                        || forceCropToSourceFilters.contains(self.name))
                 {
                     """
                     guard let inputImage = \(raw: input.valueType.assignExpr("node.inputs[\(idx)]")) else {
