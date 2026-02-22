@@ -33,6 +33,22 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
                 .defaultValue(.rect(.init(x: 0, y: 0, width: 256, height: 256)))
             )
         ),
+        .init(
+            name: "CIColorClamp",
+            filterOverride: .input("inputMinComponents", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0))))
+        ),
+        .init(
+            name: "CIColorClamp",
+            filterOverride: .input("inputMinComponents", .valueType(.vector4))
+        ),
+        .init(
+            name: "CIColorClamp",
+            filterOverride: .input("inputMaxComponents", .defaultValue(.vector4(.init(x: 1, y: 1, z: 1, w: 1))))
+        ),
+        .init(
+            name: "CIColorClamp",
+            filterOverride: .input("inputMaxComponents", .valueType(.vector4))
+        ),
     ]
 
     static let fallbackCategories: [String: String] = [

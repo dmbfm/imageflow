@@ -2140,8 +2140,16 @@ extension Nodes {
                 name: "Color Clamp",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Min Components", defaultValue: .vector2(.init(x: 0.0, y: 0.0)), semantics: .default),
-                    .init(name: "Max Components", defaultValue: .vector2(.init(x: 1.0, y: 1.0)), semantics: .default),
+                    .init(
+                        name: "Min Components",
+                        defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 0.0)),
+                        semantics: .default
+                    ),
+                    .init(
+                        name: "Max Components",
+                        defaultValue: .vector4(.init(x: 1.0, y: 1.0, z: 1.0, w: 1.0)),
+                        semantics: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2151,8 +2159,8 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorClamp")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputMinComponents")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputMaxComponents")
+                filter.setValue(node.inputs[1].vector4.ciVector, forKey: "inputMinComponents")
+                filter.setValue(node.inputs[2].vector4.ciVector, forKey: "inputMaxComponents")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -5605,7 +5613,6 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Noise Level", defaultValue: .float(0.02), semantics: .default),
                     .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5618,20 +5625,12 @@ extension Nodes {
                     node.outputs[0] = .image(.none)
                     return
                 }
-                if node.inputs[3].bool {
-                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
-                } else {
-                    filter.setValue(inputImage, forKey: "inputImage")
-                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputNoiseLevel")
                 filter.setValue(node.inputs[2].float, forKey: "inputSharpness")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    if node.inputs[3].bool {
-                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
-                    } else {
-                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                    }
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }
