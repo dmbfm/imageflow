@@ -47,7 +47,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = .vector2(.init(x: node.inputs[0].float, y: node.inputs[1].float))
             }
         }
@@ -65,7 +65,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _  in
                 node.outputs[0] = .vector3(
                     .init(x: node.inputs[0].float, y: node.inputs[1].float, z: node.inputs[2].float)
                 )
@@ -86,7 +86,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = .vector4(
                     .init(
                         x: node.inputs[0].float,
@@ -112,7 +112,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: type)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = .rect(
                     .init(
                         x: node.inputs[0].float,
@@ -138,7 +138,7 @@ extension Nodes {
                 outputs: [.init(name: "Output", type: .color4)]
             )
 
-            return .init(schema: schema) { node, context in
+            return .init(schema: schema) { node, _ in
                 node.outputs[0] = .color4(
                     .init(
                         red: node.inputs[0].float,

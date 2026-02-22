@@ -15,7 +15,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
                         let value = node.inputs[0].vector2
                         node.outputs[0].float = value.x
                         node.outputs[1].float = value.y
@@ -38,7 +38,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
                         let value = node.inputs[0].vector3
                         node.outputs[0].float = value.x
                         node.outputs[1].float = value.y
@@ -63,7 +63,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
                         let value = node.inputs[0].vector4
                         node.outputs[0].float = value.x
                         node.outputs[1].float = value.y
@@ -89,7 +89,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
                         let value = node.inputs[0].rect
                         node.outputs[0].float = value.minX
                         node.outputs[1].float = value.minY
@@ -117,7 +117,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
                         let value = node.inputs[0].color4
                         node.outputs[0].float = value.red
                         node.outputs[1].float = value.green
