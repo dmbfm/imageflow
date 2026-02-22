@@ -6,9 +6,24 @@ private struct Categories {
     static let math: NodePaletteCategory = .init(
         name: .math,
         items: [
-            .init(nodeKind: .math(.addNode(.float)), categoryName: .math),
-            .init(nodeKind: .math(.subNode(.float)), categoryName: .math),
-            .init(nodeKind: .math(.mulNode(.float)), categoryName: .math),
+            .init(
+                displayName: "Add",
+                icon: NodeKind.math(.addNode(.float)).icon,
+                nodeKind: NodeKind.math(.addNode(.float)),
+                categoryName: .math
+            ),
+            .init(
+                displayName: "Subtract",
+                icon: NodeKind.math(.subNode(.float)).icon,
+                nodeKind: NodeKind.math(.subNode(.float)),
+                categoryName: .math
+            ),
+            .init(
+                displayName: "Multiply",
+                icon: NodeKind.math(.mulNode(.float)).icon,
+                nodeKind: NodeKind.math(.mulNode(.float)),
+                categoryName: .math
+            ),
         ]
     )
 
