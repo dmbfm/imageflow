@@ -85,6 +85,7 @@ public enum UserAction {
     case preview(PreviewAction)
     case newNodeWithKind(kind: NodeKind, at: Point?)
     case newNode(FlowNode, at: Point?, connectingToExistingPort: TypedPortLocation?)
+    case convertNode(UUID, NodeKind)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     case viewport(ViewportAction)
 

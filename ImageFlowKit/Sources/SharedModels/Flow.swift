@@ -416,6 +416,19 @@ extension Flow {
         um?.setActionName("Delete Node")
     }
 
+    public func convertNodeAction(_ id: UUID, kind: NodeKind, undoManager um: UndoManager?) {
+        guard let node = self.nodes[id] else { return }
+        if self.nodes[id]?.convert(toVariation: kind) == true {
+            um?.registerUndo(
+                withTarget: self,
+                handler: { [weak um] this in
+                    this.convertNodeAction(node.id, kind: node.kind, undoManager: um)
+                }
+            )
+            um?.setActionName("Convert Node")
+        }
+    }
+
     func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
         precondition(self.edges.contains(edge))
         precondition(self.isValidPort(edge.from))

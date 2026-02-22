@@ -1,3 +1,4 @@
+import Backend
 import Foundation
 import SharedModels
 import SwiftUI
@@ -144,9 +145,52 @@ public class NodeContextMenuProvider {
             menu.addItem(exportImageItem)
         }
 
+        if node.variations.count > 1 {
+            menu.addItem(self.variationsSubmenu(forNode: node))
+        }
+
         menu.items.forEach { $0.target = self }
 
         return menu
+    }
+
+    struct VariationsMenu: View {
+
+        let node: FlowNode
+        weak var coordinator: (any GlobalCoordinatorImpl)?
+
+        @State var selection: NodeKind?
+
+        var binding: Binding<NodeKind?> {
+            .init(
+                get: {
+                    self.node.kind
+                },
+                set: { newValue in
+                    if let kind = newValue {
+                        self.coordinator?.perform(userAction: .convertNode(self.node.id, kind))
+                    }
+                }
+            )
+        }
+
+        var body: some View {
+            Picker("Type", selection: self.binding) {
+                ForEach(node.variations, id: \.self) { variation in
+                    Text(variation.displayName)
+                        .tag(variation)
+                }
+            }.pickerStyle(.inline)
+        }
+    }
+
+    func variationsSubmenu(forNode node: FlowNode) -> NSMenuItem {
+        let item = NSMenuItem(title: "Convert Node", action: nil, keyEquivalent: "")
+        let menu = NSHostingMenu(
+            rootView: VariationsMenu(node: node, coordinator: self.coordinator)
+        )
+        item.submenu = menu
+        return item
     }
 
     @objc
@@ -258,12 +302,24 @@ public class NodeContextMenuProvider {
                 deleteAction,
                 selectAllAction,
             ]
-                + (hasImageOutput
-                    ? [
-                        UIMenu(title: "", options: [.displayInline], children: [exportImageAction])
-                    ] : [])
+            .appending(
+                UIMenu(title: "", options: [.displayInline], children: [exportImageAction]),
+                ifCondition: { hasImageOutput }
+            )
+            .appending(self.variationsSubmenu(forNode: node), ifCondition: { node.variations.count > 1 })
         )
+    }
 
+    func variationsSubmenu(forNode node: FlowNode) -> UIMenu {
+        UIMenu(
+            title: "Convert Node",
+            options: [.singleSelection],
+            children: node.variations.map { variation in
+                UIAction(title: variation.displayName, state: variation == node.kind ? .on : .off, handler: { _ in
+                    self.coordinator?.perform(userAction: .convertNode(node.id, variation))
+                })
+            }
+        )
     }
     #endif
 }

@@ -188,6 +188,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.canvasViewModel?.view?.perform(canvasAction: .zoomToFitContent)
         case .viewport(.zoomToFitSelection):
             self.canvasViewModel?.view?.perform(canvasAction: .zoomToFitSelection(self.flow.selection))
+        case .convertNode(let id, let kind):
+            self.flow.convertNodeAction(id, kind: kind, undoManager: self.undoManager)
         }
     }
 
