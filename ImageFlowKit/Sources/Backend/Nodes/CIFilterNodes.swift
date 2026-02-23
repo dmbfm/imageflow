@@ -831,12 +831,9 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         }
     }
     public enum VideoNodeKind: Sendable, Hashable, Codable, CaseIterable {
-        case CIPersonSegmentation
         case CISaliencyMapFilter
         public var impl: NodeImpl {
             switch self {
-            case .CIPersonSegmentation:
-                Nodes.CIPersonSegmentationNode.impl()
             case .CISaliencyMapFilter:
                 Nodes.CISaliencyMapFilterNode.impl()
             }
@@ -5933,33 +5930,6 @@ extension Nodes {
                 filter.setValue(node.inputs[2].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[3].float, forKey: "inputAcuteAngle")
                 filter.setValue(node.inputs[4].float, forKey: "inputWidth")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(.none)
-                }
-            }
-        }
-    }
-
-    public struct CIPersonSegmentationNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Person Segmentation",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Quality Level", defaultValue: .int(0), semantics: .integer),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIPersonSegmentation")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].int, forKey: "inputQualityLevel")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))

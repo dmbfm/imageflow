@@ -518,8 +518,22 @@ extension Nodes.CoreImageCustom {
             let schema = NodeSchema(
                 name: "Person Segmentation",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Quality Level", defaultValue: .int(2), semantics: .integer, range: 0...2),
+                    .init(
+                        name: "Image",
+                        type: .image,
+                        semantics: .image
+                    ),
+                    .init(
+                        name: "Quality Level",
+                        defaultValue: .int(2),
+                        semantics: .integer(
+                            .picker([
+                                .init(label: "Accurate", value: 0),
+                                .init(label: "Balanced", value: 1),
+                                .init(label: "Fast", value: 2),
+                            ])
+                        )
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)

@@ -1,3 +1,4 @@
+import Backend
 import Helpers
 import Logging
 import SharedModels
@@ -88,7 +89,25 @@ public final class NodeInputRowView: PlatformView {
             case .float:
                 NodeNumberInput(self.input.value, isEditable: self.isEditable)
             case .int:
-                NodeIntegerInput(self.input.value, isEditable: self.isEditable)
+                switch self.input.semantics {
+                case .integer(.range(let range)):
+                    NodeIntegerInput(
+                        self.input.value,
+                        range: range,
+                        isEditable: self.isEditable
+                    )
+                case .integer(.picker(let options)):
+                    NodeOptionPickerInput(
+                        self.input.value,
+                        options: options,
+                        isEditable: self.isEditable
+                    )
+                default:
+                    NodeIntegerInput(
+                        self.input.value,
+                        isEditable: self.isEditable
+                    )
+                }
             case .bool:
                 NodeBooleanInput(self.input.value, isEditable: self.isEditable)
             case .vector2, .vector3, .vector4:

@@ -39,6 +39,36 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     var tint: PlatformColor = .systemBlue
 
+    var range: ClosedRange<Int>? = nil {
+        didSet {
+            self.updateRange()
+        }
+    }
+
+    var min: Int? {
+        self.range?.lowerBound
+    }
+
+    var max: Int? {
+        self.range?.upperBound
+    }
+
+    #if os(macOS)
+    func updateRange(_ stepper: NSStepper? = nil) {
+        let stepper = stepper ?? self.stepper
+        stepper.minValue = Double(self.range?.lowerBound ?? .min)
+        stepper.maxValue = Double(self.range?.upperBound ?? .max)
+        stepper.valueWraps = false
+    }
+    #else
+    func updateRange(_ stepper: UIStepper? = nil) {
+        let stepper = stepper ?? self.stepper
+        stepper.minimumValue = Double(self.range?.lowerBound ?? .min)
+        stepper.maximumValue = Double(self.range?.upperBound ?? .max)
+        stepper.wraps = false
+    }
+    #endif
+
     private var style: Style = .default
 
     lazy var textField: NodeTextField = {
@@ -75,14 +105,15 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     #if os(macOS)
     lazy var stepper: NSStepper = {
         let view = NSStepper()
-        view.minValue = -.infinity
-        view.maxValue = .infinity
+        // view.minValue = self.min.map { Double($0) } ?? -.infinity
+        // view.maxValue = self.max.map { Double($0) } ?? .infinity
         view.increment = 1
         view.autorepeat = true
         view.isContinuous = true
         view.target = self
         view.action = #selector(Self.stepperHandler)
         view.value = Double(self.value.int)
+        self.updateRange(view)
         return view
     }()
     #endif
@@ -97,6 +128,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         view.autorepeat = true
         view.isContinuous = true
         view.addTarget(self, action: #selector(Self.stepperHandler), for: .valueChanged)
+        self.updateRange(view)
         return view
     }()
 
@@ -135,7 +167,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         }
     }
 
-    init(_ value: Value, isEditable: Bool = true) {
+    init(_ value: Value, range: ClosedRange<Int>? = nil, isEditable: Bool = true) {
+        self.range = range
         self.value = value
 
         super.init(frame: .zero)
