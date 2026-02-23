@@ -82,9 +82,31 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     case geometryAdjustment(GeometryAdjustment)
     case colorAdjustment(ColorAdjustment)
     case generator(Generator)
+    case segmentation(Segmentation)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
+    }
+
+    public enum Segmentation: Sendable, Hashable, Codable, CaseIterable {
+        case personSegmentation
+
+        public static var allKinds: [NodeKind] {
+            [
+                .coreImageCustomNode(.segmentation(.personSegmentation))
+            ]
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.segmentation(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .personSegmentation:
+                Nodes.CoreImageCustom.PersonSegmentationNode.impl()
+            }
+        }
     }
 
     public enum GeometryAdjustment: Sendable, Hashable, Codable, CaseIterable {
@@ -182,6 +204,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case .colorAdjustment(let kind): kind.impl
         case .geometryAdjustment(let kind): kind.impl
         case .generator(let kind): kind.impl
+        case .segmentation(let kind): kind.impl
         }
     }
 }

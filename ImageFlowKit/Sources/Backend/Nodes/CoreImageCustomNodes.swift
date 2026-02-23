@@ -512,4 +512,38 @@ extension Nodes.CoreImageCustom {
             )
         }
     }
+
+    public struct PersonSegmentationNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Person Segmentation",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Quality Level", defaultValue: .int(2), semantics: .integer, range: 0...2),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIPersonSegmentation")!
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
+                filter.setValue(node.inputs[1].int, forKey: "inputQualityLevel")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    let scaleX = inputImage.extent.width / outputImage.extent.width
+                    let scaleY = inputImage.extent.height / outputImage.extent.height
+                    let finalImage = outputImage.transformed(by: .init(scaleX: scaleX, y: scaleY))
+                    node.outputs[0] = .image(await context.addImage(finalImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
+            }
+        }
+    }
 }

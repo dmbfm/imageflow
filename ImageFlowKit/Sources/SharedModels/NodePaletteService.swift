@@ -202,6 +202,13 @@ private struct Categories {
                 .map { NodeKind.coreImageFilterNode(.video($0)) }
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .video) }
         )
+
+    static let segmentation: NodePaletteCategory =
+        .init(
+            name: .segmentation,
+            items: CoreImageCustomNodeKind.Segmentation.allKinds
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .segmentation) }
+        )
 }
 
 @MainActor
@@ -236,6 +243,7 @@ public class NodePaletteService {
         result.append(Categories.reduction)
         result.append(Categories.sharpen)
         result.append(Categories.stylize)
+        result.append(Categories.segmentation)
         result.append(Categories.tileEffect)
         result.append(Categories.transition)
         result.append(Categories.video)
@@ -357,6 +365,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case reduction = "Color Reduction"
     case sharpen = "Sharpen"
     case stylize = "Stylize"
+    case segmentation = "Segmentation"
     case tileEffect = "Tile Effect"
     case transition = "Transition"
     case video = "Video"

@@ -22,7 +22,7 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIColorCubeWithColorSpace",
             "CIColorCrossPolynomial",
             "CIPaletteCentroid",
-            "CIApplyAffineTr",
+            "CIPersonSegmentation",
         ]
 
     static let overrides: [Override] = [
