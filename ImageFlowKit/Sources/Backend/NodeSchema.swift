@@ -90,12 +90,19 @@ public struct InputPropertySchema: Sendable, Hashable {
     public var options: [NodeOptionSchema] = []
 
     /// Creates a new `InputPropertySchema` with the given name and type, without a default value.
-    public init(name: String, type: ValueType, semantics: ValueSemantics = .default, options: [NodeOptionSchema] = []) {
+    public init(
+        name: String,
+        type: ValueType,
+        semantics: ValueSemantics = .default,
+        options: [NodeOptionSchema] = [],
+        range: ClosedRange<Double>? = nil,
+    ) {
         self.name = name
         self.type = type
         self.defaultValue = nil
         self.semantics = semantics
         self.options = options
+        self.range = range
     }
 
     /// Creates a new `InputPropertySchema` with the given name, and default value.
@@ -103,13 +110,15 @@ public struct InputPropertySchema: Sendable, Hashable {
         name: String,
         defaultValue: Value,
         semantics: ValueSemantics = .default,
-        options: [NodeOptionSchema] = []
+        options: [NodeOptionSchema] = [],
+        range: ClosedRange<Double>? = nil,
     ) {
         self.name = name
         self.type = defaultValue.type
         self.defaultValue = defaultValue
         self.semantics = semantics
         self.options = options
+        self.range = range
     }
 }
 
