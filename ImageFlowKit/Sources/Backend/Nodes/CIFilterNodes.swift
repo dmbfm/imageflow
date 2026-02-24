@@ -792,10 +792,8 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         }
     }
     public enum TransitionNodeKind: Sendable, Hashable, Codable, CaseIterable {
-        case CIAccordionFoldTransition
         case CIBarsSwipeTransition
         case CICopyMachineTransition
-        case CIDisintegrateWithMaskTransition
         case CIDissolveTransition
         case CIFlashTransition
         case CIModTransition
@@ -805,14 +803,10 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CISwipeTransition
         public var impl: NodeImpl {
             switch self {
-            case .CIAccordionFoldTransition:
-                Nodes.CIAccordionFoldTransitionNode.impl()
             case .CIBarsSwipeTransition:
                 Nodes.CIBarsSwipeTransitionNode.impl()
             case .CICopyMachineTransition:
                 Nodes.CICopyMachineTransitionNode.impl()
-            case .CIDisintegrateWithMaskTransition:
-                Nodes.CIDisintegrateWithMaskTransitionNode.impl()
             case .CIDissolveTransition:
                 Nodes.CIDissolveTransitionNode.impl()
             case .CIFlashTransition:
@@ -841,41 +835,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     }
 }
 extension Nodes {
-
-    public struct CIAccordionFoldTransitionNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Accordion Fold Transition",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Target Image", type: .image, semantics: .image),
-                    .init(name: "Bottom Height", defaultValue: .float(0.0), semantics: .distance),
-                    .init(name: "Number of Folds", defaultValue: .int(3), semantics: .count),
-                    .init(name: "Fold Shadow Amount", defaultValue: .float(0.1), semantics: .default),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIAccordionFoldTransition")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
-                filter.setValue(node.inputs[2].float, forKey: "inputBottomHeight")
-                filter.setValue(node.inputs[3].int, forKey: "inputNumberOfFolds")
-                filter.setValue(node.inputs[4].float, forKey: "inputFoldShadowAmount")
-                filter.setValue(node.inputs[5].float, forKey: "inputTime")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(.none)
-                }
-            }
-        }
-    }
 
     public struct CIAdditionCompositingNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
@@ -3214,43 +3173,6 @@ extension Nodes {
                     } else {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
-                } else {
-                    node.outputs[0] = .image(.none)
-                }
-            }
-        }
-    }
-
-    public struct CIDisintegrateWithMaskTransitionNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Disintegrate With Mask",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Target Image", type: .image, semantics: .image),
-                    .init(name: "Mask Image", type: .image, semantics: .image),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Shadow Radius", defaultValue: .float(8.0), semantics: .distance),
-                    .init(name: "Shadow Density", defaultValue: .float(0.65), semantics: .default),
-                    .init(name: "Shadow Offset", defaultValue: .vector2(.init(x: 0.0, y: -10.0)), semantics: .offset),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIDisintegrateWithMaskTransition")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
-                filter.setValue(await context.getImage(node.inputs[2].image), forKey: "inputMaskImage")
-                filter.setValue(node.inputs[3].float, forKey: "inputTime")
-                filter.setValue(node.inputs[4].float, forKey: "inputShadowRadius")
-                filter.setValue(node.inputs[5].float, forKey: "inputShadowDensity")
-                filter.setValue(node.inputs[6].vector2.ciVector, forKey: "inputShadowOffset")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }
