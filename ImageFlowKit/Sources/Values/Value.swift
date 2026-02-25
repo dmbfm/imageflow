@@ -19,8 +19,65 @@ public enum Value: Sendable, Hashable, Codable {
     case affineTransform(AffineTransform)
     case attributedString(AttributedString)
     case lut(LutValue)
+    case matrix3x3(Matrix3x3)
+    case matrix5x5(Matrix5x5)
+    case matrix7x7(Matrix7x7)
 
     // Accessors for every case defined above
+
+    public var matrix3x3: Matrix3x3 {
+        get {
+            if case .matrix3x3(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a matrix3x3: \(self.type)")
+            }
+        }
+
+        set {
+            if case .matrix3x3(_) = self {
+                self = .matrix3x3(newValue)
+            } else {
+                fatalError("Value is not a matrix3x3: \(self.type)")
+            }
+        }
+    }
+
+    public var matrix5x5: Matrix5x5 {
+        get {
+            if case .matrix5x5(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a matrix5x5: \(self.type)")
+            }
+        }
+
+        set {
+            if case .matrix5x5(_) = self {
+                self = .matrix5x5(newValue)
+            } else {
+                fatalError("Value is not a matrix5x5: \(self.type)")
+            }
+        }
+    }
+
+    public var matrix7x7: Matrix7x7 {
+        get {
+            if case .matrix7x7(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a matrix7x7: \(self.type)")
+            }
+        }
+
+        set {
+            if case .matrix7x7(_) = self {
+                self = .matrix7x7(newValue)
+            } else {
+                fatalError("Value is not a matrix7x7: \(self.type)")
+            }
+        }
+    }
 
     public var float: Double {
         get {
@@ -288,10 +345,64 @@ public enum Value: Sendable, Hashable, Codable {
         }
     }
 
-    public var maybeFloat: Float? {
+    public var maybeMatrix3x3: Matrix3x3? {
+        get {
+            if case .matrix3x3(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .matrix3x3(value)
+            } else {
+                fatalError("Value is not a matrix3x3: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeMatrix5x5: Matrix5x5? {
+        get {
+            if case .matrix5x5(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .matrix5x5(value)
+            } else {
+                fatalError("Value is not a matrix5x5: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeMatrix7x7: Matrix7x7? {
+        get {
+            if case .matrix7x7(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .matrix7x7(value)
+            } else {
+                fatalError("Value is not a matrix7x7: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeFloat: Double? {
         get {
             if case .float(let value) = self {
-                return Float(value)
+                return value
             }
             return nil
         }
@@ -639,6 +750,12 @@ extension Value {
             return .affineTransform(.identity)
         case .attributedString:
             return .attributedString(AttributedString())
+        case .matrix3x3:
+            return .matrix3x3(.zero)
+        case .matrix5x5:
+            return .matrix5x5(.zero)
+        case .matrix7x7:
+            return .matrix7x7(.zero)
         }
     }
 
@@ -676,6 +793,12 @@ extension Value {
             return .affineTransform
         case .attributedString:
             return .attributedString
+        case .matrix3x3:
+            return .matrix3x3
+        case .matrix5x5:
+            return .matrix5x5
+        case .matrix7x7:
+            return .matrix7x7
         }
     }
 }
@@ -715,6 +838,12 @@ extension Value: CustomStringConvertible {
             return "AffineTransform(\(value))"
         case let .attributedString(value):
             return "AttributedString(\(value))"
+        case let .matrix3x3(value):
+            return "Matrix3x3(\(value))"
+        case let .matrix5x5(value):
+            return "Matrix5x5(\(value))"
+        case let .matrix7x7(value):
+            return "Matrix7x7(\(value))"
         }
     }
 }

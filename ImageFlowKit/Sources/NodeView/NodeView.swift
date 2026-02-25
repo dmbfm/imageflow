@@ -82,6 +82,7 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
 
     lazy var titleView: NodeTitleView = {
         let titleView = NodeTitleView(self.titleModel, style: self.style.title)
+        titleView.delegate = self
         return titleView
     }()
 
@@ -449,6 +450,14 @@ extension NodeView {
         if self.inputBlockView.rows.indices.contains(index) {
             self.inputBlockView.rows[index].controlView.value = value
         }
+    }
+}
+
+extension NodeView: NodeTitleView.Delegate {
+    func nodeTitleViewSizeDidChange() {
+        self.updateSize()
+        self.titleView.setNeedsLayout()
+        self.setNeedsLayout()
     }
 }
 

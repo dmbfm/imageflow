@@ -74,6 +74,7 @@ public struct ImageFlowApp: App {
         .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .suppressed : .automatic)
         .commands {
             SidebarCommands()
+            InspectorCommands()
             PreviewFeatureCommands()
             ZoomCommands()
             NodeEditCommands()

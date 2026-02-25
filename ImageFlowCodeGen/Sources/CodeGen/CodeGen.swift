@@ -3,6 +3,10 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import Values
 
+let semantics: [String: [String: String]] = [
+    "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"]
+]
+
 let addCropToSourceOptionFilters: [String] =
     [
         "CIBokehBlur",
@@ -129,18 +133,21 @@ extension FilterInfo {
 
         return ArrayExprSyntax(
             expressions: inputs.map { input in
+
+                let semanticsOverride = semantics[self.name]?[input.name]
+
                 if let defaultValue = input.defaultValue {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(input.type?.semanticsExpr ?? ".default"))
+                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")))
                             """
                     )
                 } else {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr ?? ".default"))
+                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr(input) ?? ".default"))
                             """
                     )
                 }
@@ -194,9 +201,17 @@ extension FilterInfo {
 }
 
 extension InputType {
-    var semanticsExpr: String {
+    // var semanticsExpr: String {
+    func semanticsExpr(_ input: FilterInput) -> String {
         switch self {
-        case .angle: ".angle"
+        case .angle:
+            {
+                if let min = input.sliderMin, let max = input.sliderMax {
+                    return ".float(.angle(\(min)...\(max)))"
+                } else {
+                    return ".float(.angle(nil))"
+                }
+            }()
         case .boolean: ".boolean"
         case .color: ".color"
         case .count: ".count"

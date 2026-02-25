@@ -2,10 +2,15 @@ import Foundation
 import Helpers
 import SharedModels
 import SwiftUI
+import Values
 
 @MainActor
 @Observable
 public class MockGlobalCoordinatorService: GlobalCoordinatorImpl {
+    public func titleForAsset(id: AssetIdentifier?) -> String? {
+        id.map({ _ in "Some Title" })
+    }
+
     public var canZoomIn: Bool = false
 
     public var canZoomOut: Bool = false

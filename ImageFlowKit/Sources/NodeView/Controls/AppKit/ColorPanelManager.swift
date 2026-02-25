@@ -1,76 +1,89 @@
-#if os(macOS)
+// #if os(macOS)
 
-import AppKit
-import Logging
+// import AppKit
+// import Logging
 
-@MainActor
-class ColorPanelManager {
+// @MainActor
+// class ColorPanelManager {
 
-    private var kvo: NSKeyValueObservation? = nil
-    private var onDiscreteChange: ((NSColor) -> ())?
-    private var onContinuousChange: ((NSColor) -> ())?
-    private var currentToken: UInt = 0
+//     private var kvo: NSKeyValueObservation? = nil
+//     private var onDiscreteChange: ((NSColor) -> ())?
+//     private var onContinuousChange: ((NSColor) -> ())?
+//     private var currentToken: UInt = 0
 
-    typealias Token = UInt
+//     typealias Token = UInt
 
-    static let shared: ColorPanelManager = .init()
+//     static let shared: ColorPanelManager = .init()
 
-    private lazy var panel: NSColorPanel = {
-        let panel = NSColorPanel.shared
-        panel.setTarget(self)
-        panel.setAction(#selector(Self.onPanelColorChanged(_:)))
+//     private lazy var panel: NSColorPanel = {
+//         let panel = NSColorPanel.shared
+//         panel.setTarget(self)
+//         panel.setAction(#selector(Self.onPanelColorChanged(_:)))
 
-        self.kvo = panel.observe(\.color, options: [.old, .new]) { [weak self] object, change in
-            MainActor.assumeIsolated {
-                self?.onObservation(of: object, change: change)
-            }
-        }
+//         self.kvo = panel.observe(\.color, options: [.old, .new]) { [weak self] object, change in
+//             MainActor.assumeIsolated {
+//                 log("change: \(change)")
+//                 self?.onObservation(of: object, change: change)
+//             }
+//         }
 
-        return panel
-    }()
+//         NotificationCenter.default.addObserver(
+//             self,
+//             selector: #selector(Self.handler),
+//             name: NSWindow.didBecomeMainNotification,
+//             object: panel
+//         )
 
-    public func open(
-        initialColor color: NSColor,
-        showsAlpha: Bool = true,
-        onDiscreteChange: @escaping (NSColor) -> (),
-        onContinuousChange: @escaping (NSColor) -> (),
-    ) -> Token {
-        self.onDiscreteChange = nil
-        self.onContinuousChange = nil
+//         return panel
+//     }()
 
-        self.panel.setTarget(nil)
-        self.panel.setAction(nil)
-        self.panel.color = color
-        self.panel.showsAlpha = showsAlpha
-        self.panel.setTarget(self)
-        self.panel.setAction(#selector(Self.onPanelColorChanged(_:)))
-        self.panel.orderFront(nil)
+//     @objc
+//     func handler() {
+//         log("handler!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//     }
 
-        self.onDiscreteChange = onDiscreteChange
-        self.onContinuousChange = onContinuousChange
+//     public func open(
+//         initialColor color: NSColor,
+//         showsAlpha: Bool = true,
+//         onDiscreteChange: @escaping (NSColor) -> (),
+//         onContinuousChange: @escaping (NSColor) -> (),
+//     ) -> Token {
+//         self.onDiscreteChange = nil
+//         self.onContinuousChange = nil
 
-        self.nextToken()
-        return self.currentToken
-    }
+//         self.panel.setTarget(nil)
+//         self.panel.setAction(nil)
+//         self.panel.color = color
+//         self.panel.showsAlpha = showsAlpha
+//         self.panel.setTarget(self)
+//         self.panel.setAction(#selector(Self.onPanelColorChanged(_:)))
+//         self.panel.orderFront(nil)
 
-    private func nextToken() {
-        self.currentToken = self.currentToken &+ 1
-    }
+//         self.onDiscreteChange = onDiscreteChange
+//         self.onContinuousChange = onContinuousChange
 
-    func setColor(color: NSColor, token: Token) {
-        if token == self.currentToken {
-            self.panel.color = color
-        }
-    }
+//         self.nextToken()
+//         return self.currentToken
+//     }
 
-    private func onObservation(of panel: NSColorPanel, change: NSKeyValueObservedChange<NSColor>) {
-        self.onContinuousChange?(panel.color)
-    }
+//     private func nextToken() {
+//         self.currentToken = self.currentToken &+ 1
+//     }
 
-    @objc
-    private func onPanelColorChanged(_ panel: NSColorPanel) {
-        self.onDiscreteChange?(panel.color)
-    }
-}
+//     func setColor(color: NSColor, token: Token) {
+//         if token == self.currentToken {
+//             self.panel.color = color
+//         }
+//     }
 
-#endif
+//     private func onObservation(of panel: NSColorPanel, change: NSKeyValueObservedChange<NSColor>) {
+//         self.onContinuousChange?(panel.color)
+//     }
+
+//     @objc
+//     private func onPanelColorChanged(_ panel: NSColorPanel) {
+//         self.onDiscreteChange?(panel.color)
+//     }
+// }
+
+// #endif

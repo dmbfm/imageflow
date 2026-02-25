@@ -4,10 +4,9 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
     case `default`
     case time
     case distance
-    case angle
     case boolean
     case integer(IntegerSemantics)
-    case nonZeroInteger
+    case float(FloatSemantics)
     case count
     case offset
     case position2
@@ -24,9 +23,15 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
         .integer(.default)
     }
 
+    public enum FloatSemantics: Sendable, Hashable, Codable {
+        case `default`
+        case range(ClosedRange<Double>)
+        case angle(ClosedRange<Double>?)
+    }
+
     public enum IntegerSemantics: Sendable, Hashable, Codable {
         case `default`
-        case range(ClosedRange<Int>? = nil)
+        case range(ClosedRange<Int>)
         case picker([PickerOption])
 
         public struct PickerOption: Sendable, Hashable, Codable {

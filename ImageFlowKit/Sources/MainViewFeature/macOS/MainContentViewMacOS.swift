@@ -17,6 +17,7 @@ import CanvasFeature
 import AssetManager
 import AssetBrowserFeature
 import SidebarFeature
+import InspectorFeature
 
 struct MainContentViewMacOS: View {
 
@@ -45,6 +46,20 @@ struct MainContentViewMacOS: View {
                 .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {
             DetailView(vm: self.vm, focus: self.$focus)
+        }
+        .inspector(isPresented: self.vm.showInspectorSafeBinding) {
+            InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
+                .toolbar {
+                    ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
+                        Button("Toggle Inspector", systemImage: "sidebar.right") {
+                            self.vm.showInspector.toggle()
+                        }
+                    }
+                }
+                .inspectorColumnWidth(min: 200, ideal: 350, max: 600)
+                .focusable()
+                .focusEffectDisabled()
+                .focused(self.$focus, equals: .inspector)
         }
         .toolbar { self.toolbarContent }
         .toolbarRole(.editor)
@@ -92,7 +107,6 @@ struct MainContentViewMacOS: View {
 
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
-
         ToolbarItemGroup(placement: .secondaryAction) {
             Button {
                 self.vm.coordinator.perform(userAction: .viewport(.zoomOut))
@@ -140,11 +154,9 @@ struct MainContentViewMacOS: View {
             }
         }
 
-        ToolbarItemGroup(placement: .primaryAction) {
-            Button {
+        ToolbarItem(placement: .confirmationAction) {
+            Button("Open Asset Browser", systemImage: "photo.badge.plus") {
                 self.vm.openAssetBrowser()
-            } label: {
-                Image(systemName: "photo.badge.plus")
             }
         }
     }

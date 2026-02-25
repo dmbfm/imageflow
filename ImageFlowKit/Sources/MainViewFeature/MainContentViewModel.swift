@@ -28,6 +28,8 @@ final class MainContentViewModel {
     let assetBrowserViewModel: AssetBrowserViewModel
     /// The canvas viewport state
     let canvas: CanvasFeatureState
+    /// If true, show the inspector panel
+    var showInspector: Bool = true
     /// If true show the Asset Browser sheet
     var showAssetBrowser: Bool = false {
         didSet {
@@ -70,6 +72,17 @@ final class MainContentViewModel {
     var error: LocalizedAlertError? = nil
     /// The undo manager from SwiftUI's evironment
     var undoManager: UndoManager? = nil
+
+    var showInspectorSafeBinding: Binding<Bool> {
+        .init(
+            get: { [weak self] in
+                self?.showInspector ?? false
+            },
+            set: { [weak self] newValue in
+                self?.showInspector = newValue
+            }
+        )
+    }
 
     @ObservationIgnored var fileImporterConfiguration: FileImporterConfiguration = .init(
         allowedContentTypes: [])

@@ -1344,8 +1344,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Target Image", type: .image, semantics: .image),
-                    .init(name: "Angle", defaultValue: .float(3.141592653589793), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(30.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(3.141592653589793),
+                        semantics: .float(.angle(0.0...6.283185307179586))
+                    ), .init(name: "Width", defaultValue: .float(30.0), semantics: .distance),
                     .init(name: "Bar Offset", defaultValue: .float(10.0), semantics: .default),
                     .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
                 ],
@@ -1761,7 +1764,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .float(.angle(0.0...6.283185307179586))),
                     .init(name: "Scale", defaultValue: .float(0.5), semantics: .default),
                 ],
                 outputs: [
@@ -1933,7 +1936,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1991,8 +1998,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .distance),
                     .init(name: "Gray Component Replacement", defaultValue: .float(1.0), semantics: .default),
                     .init(name: "Under Color Removal", defaultValue: .float(0.5), semantics: .default),
                 ],
@@ -2933,7 +2943,7 @@ extension Nodes {
                         defaultValue: .color3(.init(red: 0.6, green: 1.0, blue: 0.8)),
                         semantics: .opaqueColor
                     ), .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .float(.angle(0.0...6.283185307179586))),
                     .init(name: "Width", defaultValue: .float(200.0), semantics: .distance),
                     .init(name: "Opacity", defaultValue: .float(1.3), semantics: .default),
                 ],
@@ -3397,9 +3407,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
+                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .float(.range(0...1))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3440,8 +3453,11 @@ extension Nodes {
                         semantics: .position2
                     ), .init(name: "Strands", defaultValue: .float(1.0), semantics: .count),
                     .init(name: "Periodicity", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Rotation", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Zoom", defaultValue: .float(1.0), semantics: .default),
+                    .init(
+                        name: "Rotation",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(0.0...6.283185307179586))
+                    ), .init(name: "Zoom", defaultValue: .float(1.0), semantics: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3576,8 +3592,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3744,9 +3763,16 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
-                    .init(name: "Acute Angle", defaultValue: .float(1.5707963267948966), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Acute Angle",
+                        defaultValue: .float(1.5707963267948966),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3777,8 +3803,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3808,9 +3837,16 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
-                    .init(name: "Acute Angle", defaultValue: .float(1.5707963267948966), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Acute Angle",
+                        defaultValue: .float(1.5707963267948966),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4046,8 +4082,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4177,8 +4216,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
                     .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default),
                 ],
                 outputs: [
@@ -4369,7 +4411,11 @@ extension Nodes {
                 name: "Hue Adjust",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4462,7 +4508,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Count", defaultValue: .int(6), semantics: .count),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4757,8 +4807,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Rotation", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Rotation",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(0.0...1.5707963267948966))
+                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4970,8 +5023,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance),
                     .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default),
                 ],
                 outputs: [
@@ -5278,8 +5334,11 @@ extension Nodes {
                     .init(name: "Target Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Angle", defaultValue: .float(2.0), semantics: .angle),
-                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(2.0),
+                        semantics: .float(.angle(-6.283185307179586...6.283185307179586))
+                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance),
                     .init(name: "Compression", defaultValue: .float(300.0), semantics: .distance),
                 ],
                 outputs: [
@@ -5452,8 +5511,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5654,8 +5716,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Scale", defaultValue: .float(2.8), semantics: .default),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(65.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(65.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5721,8 +5786,11 @@ extension Nodes {
                     .init(name: "Shading Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5763,8 +5831,11 @@ extension Nodes {
                     .init(name: "Backside Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance),
                     .init(name: "Shadow Size", defaultValue: .float(0.5), semantics: .distance),
                     .init(name: "Shadow Amount", defaultValue: .float(0.7), semantics: .distance),
                     .init(name: "Shadow Extent", type: .rect, semantics: .rectangle),
@@ -5836,9 +5907,16 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Acute Angle", defaultValue: .float(1.5707963267948966), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
+                    .init(
+                        name: "Acute Angle",
+                        defaultValue: .float(1.5707963267948966),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5911,9 +5989,21 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Focal Length", defaultValue: .float(28.0), semantics: .default),
-                    .init(name: "Pitch", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Yaw", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Roll", defaultValue: .float(0.0), semantics: .angle),
+                    .init(
+                        name: "Pitch",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-0.5235987755982988...0.5235987755982988))
+                    ),
+                    .init(
+                        name: "Yaw",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-0.5235987755982988...0.5235987755982988))
+                    ),
+                    .init(
+                        name: "Roll",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-0.7853981633974483...0.7853981633974483))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6900,8 +6990,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6931,8 +7024,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7303,8 +7399,11 @@ extension Nodes {
                         semantics: .color
                     ), .init(name: "Radius", defaultValue: .float(50.0), semantics: .distance),
                     .init(name: "Cross Scale", defaultValue: .float(15.0), semantics: .default),
-                    .init(name: "Cross Angle", defaultValue: .float(0.6), semantics: .angle),
-                    .init(name: "Cross Opacity", defaultValue: .float(-2.0), semantics: .default),
+                    .init(
+                        name: "Cross Angle",
+                        defaultValue: .float(0.6),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Cross Opacity", defaultValue: .float(-2.0), semantics: .default),
                     .init(name: "Cross Width", defaultValue: .float(2.5), semantics: .distance),
                     .init(name: "Epsilon", defaultValue: .float(-2.0), semantics: .default),
                 ],
@@ -7339,7 +7438,11 @@ extension Nodes {
                 name: "Straighten",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7511,8 +7614,11 @@ extension Nodes {
                         defaultValue: .color3(.init(red: 1.0, green: 1.0, blue: 1.0)),
                         semantics: .opaqueColor
                     ), .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(300.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(300.0), semantics: .distance),
                     .init(name: "Opacity", defaultValue: .float(0.0), semantics: .default),
                 ],
                 outputs: [
@@ -7745,8 +7851,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Point", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Size", defaultValue: .float(700.0), semantics: .default),
-                    .init(name: "Rotation", defaultValue: .float(5.924285296593801), semantics: .angle),
-                    .init(name: "Decay", defaultValue: .float(0.85), semantics: .default),
+                    .init(
+                        name: "Rotation",
+                        defaultValue: .float(5.924285296593801),
+                        semantics: .float(.angle(0.0...6.283185307179586))
+                    ), .init(name: "Decay", defaultValue: .float(0.85), semantics: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7777,8 +7886,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7812,8 +7924,11 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Angle", defaultValue: .float(0.0), semantics: .angle),
-                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(-3.141592653589793...3.141592653589793))
+                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7844,8 +7959,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(3.141592653589793), semantics: .angle),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(3.141592653589793),
+                        semantics: .float(.angle(-12.566370614359172...12.566370614359172))
+                    ), .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8033,8 +8151,11 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
-                    .init(name: "Angle", defaultValue: .float(56.548667764616276), semantics: .angle),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                    .init(
+                        name: "Angle",
+                        defaultValue: .float(56.548667764616276),
+                        semantics: .float(.angle(-94.24777960769379...94.24777960769379))
+                    ), .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)

@@ -50,6 +50,19 @@ public enum Colors {
     public static let edgeWithSuccess: DynamicColor = .init(ImageFlowPalette.edgeWithSuccess)
 
     public static let imagePreviewBackground: DynamicColor = .init(ImageFlowPalette.imagePreviewBackground)
+
+    public static let inspectorControlBorder: DynamicColor = .init(
+        light: ImageFlowPalette.inspectorControlBorderLight,
+        dark: ImageFlowPalette.inspectorControlBorderDark
+    )
+    public static let inspectorControlBackground: DynamicColor = .init(
+        light: ImageFlowPalette.inspectorControlBackgroundLight,
+        dark: ImageFlowPalette.inspectorControlBackgroundDark
+    )
+    public static let inspectorControlForeground: DynamicColor = .init(
+        light: ImageFlowPalette.inspectorControlForegroundLight,
+        dark: ImageFlowPalette.inspectorControlForegroundDark
+    )
 }
 
 #if os(macOS)
@@ -163,6 +176,35 @@ class ImageFlowPalette {
         return NSColor(red: 0.588, green: 0.588, blue: 0.588, alpha: 1.0)
     }
 
+    /// Inspector Control Border Dark #3e3e3e
+    static var inspectorControlBorderDark: NSColor {
+        return NSColor(red: 0.242, green: 0.242, blue: 0.242, alpha: 1.0)
+    }
+
+    /// Inspector Control Background Dark #343434
+    static var inspectorControlBackgroundDark: NSColor {
+        return NSColor(red: 0.18, green: 0.18, blue: 0.18, alpha: 1.0)
+    }
+
+    /// Inspector Control Foreground Dark #e4e4e4
+    static var inspectorControlForegroundDark: NSColor {
+        return NSColor(red: 0.894, green: 0.894, blue: 0.894, alpha: 1.0)
+    }
+
+    /// Inspector Control Background Light #e2e2e2
+    static var inspectorControlBackgroundLight: NSColor {
+        return NSColor(red: 0.887, green: 0.887, blue: 0.887, alpha: 1.0)
+    }
+
+    /// Inspector Control Borded Light #dbdbdb
+    static var inspectorControlBorderLight: NSColor {
+        return NSColor(red: 0.78, green: 0.78, blue: 0.78, alpha: 1.0)
+    }
+
+    /// Inspector Control Foreground Light #262626
+    static var inspectorControlForegroundLight: NSColor {
+        return NSColor(red: 0.148, green: 0.148, blue: 0.148, alpha: 1.0)
+    }
 }
 #else
 
@@ -275,6 +317,36 @@ class ImageFlowPalette {
     /// Image Preview Background #969696
     static var imagePreviewBackground: UIColor {
         return UIColor(red: 0.588, green: 0.588, blue: 0.588, alpha: 1.0)
+    }
+
+    /// Inspector Control Border Dark #3e3e3e
+    static var inspectorControlBorderDark: UIColor {
+        return UIColor(red: 0.242, green: 0.242, blue: 0.242, alpha: 1.0)
+    }
+
+    /// Inspector Control Background Dark #343434
+    static var inspectorControlBackgroundDark: UIColor {
+        return UIColor(red: 0.205, green: 0.205, blue: 0.205, alpha: 1.0)
+    }
+
+    /// Inspector Control Foreground Dark #e4e4e4
+    static var inspectorControlForegroundDark: UIColor {
+        return UIColor(red: 0.894, green: 0.894, blue: 0.894, alpha: 1.0)
+    }
+
+    /// Inspector Control Background Light #e2e2e2
+    static var inspectorControlBackgroundLight: UIColor {
+        return UIColor(red: 0.887, green: 0.887, blue: 0.887, alpha: 1.0)
+    }
+
+    /// Inspector Control Border Light #dbdbdb
+    static var inspectorControlBorderLight: UIColor {
+        return UIColor(red: 0.859, green: 0.859, blue: 0.859, alpha: 1.0)
+    }
+
+    /// Inspector Control Foreground Light #262626
+    static var inspectorControlForegroundLight: UIColor {
+        return UIColor(red: 0.148, green: 0.148, blue: 0.148, alpha: 1.0)
     }
 
 }

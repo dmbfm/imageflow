@@ -1,4 +1,5 @@
 import Backend
+import Controls
 import Helpers
 import Logging
 import SwiftUI
@@ -40,8 +41,8 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         }
     }
 
-    lazy var colorPicker: NodeColorPicker = {
-        let picker = NodeColorPicker()
+    lazy var colorPicker: ColorPickerPlatformView = {
+        let picker = ColorPickerPlatformView()
         picker.color = self.platformColor
         picker.commitedColor = self.platformColor
         picker.showsAlpha = self.value.type == .color4
@@ -49,14 +50,9 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
             guard let self else { return }
             switch event {
             case .didChange(let newValue):
-                self.setValue(newValue)
-            case .didCommit(let old, let new):
-                if old != new,
-                    let undo = self.context.undo,
-                    let old = self.value(forPlatformColor: old),
-                    let new = self.value(forPlatformColor: new)
-                {
-                    undo.register(old, new)
+                if let new = self.value(forPlatformColor: newValue) {
+                    let old = self.value
+                    self.setValue(newValue: new, registerUndo: true)
                 }
             }
         }
@@ -111,13 +107,6 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         }
 
         return nil
-    }
-
-    private func setValue(_ color: PlatformColor) {
-        if let value = self.value(forPlatformColor: color) {
-            self.value = value
-            self.emit(.valueDidChange(self.value))
-        }
     }
 
     override var intrinsicContentSize: CGSize {

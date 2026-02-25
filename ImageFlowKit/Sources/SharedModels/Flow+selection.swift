@@ -56,6 +56,12 @@ extension Flow {
         self.select([node])
     }
 
+    public func select(nodeConnectedToNode id: UUID, atInputPort index: Int) {
+        if let edge = self.edges(ofPort: .init(node: id, port: .input(index))).first {
+            self.select([edge.from.node])
+        }
+    }
+
     public func liveSelectStart() {
         self.liveSelectSnapshot = self.selection
     }

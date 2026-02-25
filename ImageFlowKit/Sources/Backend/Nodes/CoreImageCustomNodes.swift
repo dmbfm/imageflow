@@ -77,10 +77,7 @@ extension Nodes.CoreImageCustom {
                     .init(
                         name: "Angle",
                         defaultValue: .float(0),
-                        semantics: .angle,
-                        options: [
-                            .init(name: "Units", pickerOptions: ["Degrees", "Radians"], defaultValue: 0)!
-                        ]
+                        semantics: .float(.angle(0...(2 * .pi))),
                     ),
                 ],
                 outputs: [
@@ -209,8 +206,8 @@ extension Nodes.CoreImageCustom {
                 name: "Blurred Rectangle",
                 displayName: "Blurred Rectangle",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Blur", defaultValue: .float(10)),
                     .init(name: "Color", defaultValue: .color4(.white)),
                 ],
@@ -242,8 +239,8 @@ extension Nodes.CoreImageCustom {
                 name: "Blurred Rounded Rectangle",
                 displayName: "Blurred Rounded Rectangle",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Radius", defaultValue: .float(10)),
                     .init(name: "Smoothness", defaultValue: .float(0)),
                     .init(name: "Blur", defaultValue: .float(10)),
@@ -281,8 +278,8 @@ extension Nodes.CoreImageCustom {
                 name: "Rounded Rectangle",
                 displayName: "Rounded Rectangle",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Radius", defaultValue: .float(10)),
                     .init(name: "Smoothness", defaultValue: .float(0)),
                     .init(name: "Color", defaultValue: .color4(.white)),
@@ -317,8 +314,8 @@ extension Nodes.CoreImageCustom {
                 name: "Rounded Rectangle Stroke",
                 displayName: "Rounded Rectangle Stroke",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(256), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(256), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Radius", defaultValue: .float(10)),
                     .init(name: "Smoothness", defaultValue: .float(0)),
                     .init(name: "Color", defaultValue: .color4(.white)),
@@ -356,8 +353,8 @@ extension Nodes.CoreImageCustom {
                 name: "Stripes",
                 displayName: "Stripes",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
                     .init(name: "Color 1", defaultValue: .color4(.red)),
                     .init(name: "Color 2", defaultValue: .color4(.white)),
@@ -395,8 +392,8 @@ extension Nodes.CoreImageCustom {
                 name: "Checkerboard",
                 displayName: "Checkerboard",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
                     .init(name: "Color 1", defaultValue: .color4(.red)),
                     .init(name: "Color 2", defaultValue: .color4(.white)),
@@ -434,13 +431,13 @@ extension Nodes.CoreImageCustom {
                 name: "Star Shine",
                 displayName: "Star Shine",
                 inputs: [
-                    .init(name: "Width", defaultValue: .int(300), semantics: .nonZeroInteger),
-                    .init(name: "Height", defaultValue: .int(300), semantics: .nonZeroInteger),
+                    .init(name: "Width", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
+                    .init(name: "Height", defaultValue: .int(300), semantics: .integer(.range(1...Int.max))),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150, y: 150))),
                     .init(name: "Color", defaultValue: .color4(.red)),
                     .init(name: "Radius", defaultValue: .float(50)),
                     .init(name: "Cross Scale", defaultValue: .float(15)),
-                    .init(name: "Cross Angle", defaultValue: .float(0.6), semantics: .angle),
+                    .init(name: "Cross Angle", defaultValue: .float(0.6), semantics: .float(.angle(0...(2 * .pi)))),
                     .init(name: "Cross Opacity", defaultValue: .float(-2.0)),
                     .init(name: "Cross Width", defaultValue: .float(0.5)),
                     .init(name: "Epsilon", defaultValue: .float(1.0)),
@@ -554,6 +551,141 @@ extension Nodes.CoreImageCustom {
                     let scaleY = inputImage.extent.height / outputImage.extent.height
                     let finalImage = outputImage.transformed(by: .init(scaleX: scaleX, y: scaleY))
                     node.outputs[0] = .image(await context.addImage(finalImage, 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
+            }
+        }
+    }
+
+    public struct CIConvolution3X3Node: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Convolution 3x3",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Kernel", defaultValue: .matrix3x3(.init([0, 0, 0, 0, 1, 0, 0, 0, 0]))),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIConvolutionRGB3X3")!
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+
+                filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                filter.setValue(
+                    CIVector(values: node.inputs[1].matrix3x3.values.map({ CGFloat($0) }), count: 9),
+                    forKey: "inputWeights"
+                )
+                filter.setValue(node.inputs[2].float, forKey: "inputBias")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
+            }
+        }
+    }
+
+    public struct CIConvolution5x5Node: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Convolution 5x5",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(
+                        name: "Kernel",
+                        defaultValue: .matrix5x5(
+                            .init([
+                                0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0,
+                                0, 0, 1, 0, 0,
+                                0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0,
+                            ])
+                        )
+                    ),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIConvolutionRGB5X5")!
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+
+                filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                filter.setValue(
+                    CIVector(values: node.inputs[1].matrix5x5.values.map({ CGFloat($0) }), count: 25),
+                    forKey: "inputWeights"
+                )
+                filter.setValue(node.inputs[2].float, forKey: "inputBias")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                } else {
+                    node.outputs[0] = .image(.none)
+                }
+            }
+        }
+    }
+
+    public struct CIConvolution7x7Node: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Convolution 7x7",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(
+                        name: "Kernel",
+                        defaultValue: .matrix7x7(
+                            .init([
+                                0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 1, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0,
+                            ])
+                        )
+                    ),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIConvolutionRGB7X7")!
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+
+                filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                filter.setValue(
+                    CIVector(values: node.inputs[1].matrix7x7.values.map({ CGFloat($0) }), count: 49),
+                    forKey: "inputWeights"
+                )
+                filter.setValue(node.inputs[2].float, forKey: "inputBias")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
                     node.outputs[0] = .image(.none)
                 }

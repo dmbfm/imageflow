@@ -147,7 +147,7 @@ extension Flow {
     /// - Returns: `true` if the node was added; `false` if there was another node
     /// with the same `id`, in which case nothing is done.
     @discardableResult
-    func addNode(_ node: FlowNode, at position: CGPoint) -> Bool {
+    public func addNode(_ node: FlowNode, at position: CGPoint) -> Bool {
         if !self.hasNode(node.id) {
             self.nodes[node.id] = node
             self.nodePositions[node.id] = position
@@ -158,7 +158,7 @@ extension Flow {
     }
 
     @discardableResult
-    func removeNode(_ id: UUID) -> (FlowNode, CGPoint)? {
+    public func removeNode(_ id: UUID) -> (FlowNode, CGPoint)? {
         let node = self.nodes.removeValue(forKey: id)
         let pos = self.nodePositions.removeValue(forKey: id)
 
@@ -640,12 +640,9 @@ extension Flow {
             return
         }
 
-        let oldValue = oldValue ?? node.inputs[index].value
+        let existingValue = node.inputs[index].value
 
-        guard oldValue != newValue else {
-            log("New value is equal to old value; nothing to do", level: .info)
-            return
-        }
+        let oldValue = oldValue ?? existingValue
 
         self.nodes[id]?.inputs[index].value = newValue
 

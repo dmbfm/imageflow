@@ -175,6 +175,11 @@ private struct Categories {
         .init(
             name: .stylize,
             items: CIFilterNodeKind.StylizeNodeKind.allCases
+                .excluding(elementsOf: [
+                    .CIConvolution3X3, .CIConvolution5X5, .CIConvolution7X7, .CIConvolutionRGB3X3, .CIConvolutionRGB5X5,
+                    .CIConvolutionRGB7X7, .CIConvolution9Vertical, .CIConvolution9Horizontal,
+                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal,
+                ])
                 .map { NodeKind.coreImageFilterNode(.stylize($0)) }
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .stylize) }
         )
@@ -208,6 +213,13 @@ private struct Categories {
             name: .segmentation,
             items: CoreImageCustomNodeKind.Segmentation.allKinds
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .segmentation) }
+        )
+
+    static let convolution: NodePaletteCategory =
+        .init(
+            name: .convolution,
+            items: CoreImageCustomNodeKind.Convolution.allKinds
+                .map { NodePaletteItem(nodeKind: $0, categoryName: .convolution) }
         )
 }
 
@@ -244,6 +256,7 @@ public class NodePaletteService {
         result.append(Categories.sharpen)
         result.append(Categories.stylize)
         result.append(Categories.segmentation)
+        result.append(Categories.convolution)
         result.append(Categories.tileEffect)
         result.append(Categories.transition)
         result.append(Categories.video)
@@ -369,6 +382,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case tileEffect = "Tile Effect"
     case transition = "Transition"
     case video = "Video"
+    case convolution = "Convolution"
 
     public var id: Self { self }
 }

@@ -35,11 +35,13 @@ let package = Package(
         .library(name: "AppFeature"),
         .library(name: "SettingsFeature"),
         .library(name: "ContextMenus"),
+        .library(name: "InspectorFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
         .package(path: "../Packages/CIImageView"),
         .package(path: "../CubeLutKit"),
+        .package(path: "../Packages/XViewKit"),
     ],
     targets: [
         .target(name: "Values"),
@@ -47,7 +49,12 @@ let package = Package(
         .target(name: "Logging"),
         .target(
             name: "Controls",
-            dependencies: ["Helpers", "Logging"]
+            dependencies: [
+                "Helpers",
+                "Logging",
+                "XViewKit",
+                "Values",
+            ]
         ),
         .target(
             name: "Backend",
@@ -134,6 +141,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "Logging",
+                "Controls",
                 "CanvasView",
                 "Design",
                 "Values",
@@ -214,6 +222,7 @@ let package = Package(
                 "FlowDocument",
                 "BackendService",
                 "ContextMenus",
+                "InspectorFeature",
             ]
         ),
         .target(
@@ -239,6 +248,19 @@ let package = Package(
             dependencies: [
                 "SharedModels",
                 "Helpers",
+            ]
+        ),
+        .target(
+            name: "InspectorFeature",
+            dependencies: [
+                "Helpers",
+                "Controls",
+                "Design",
+                "SharedModels",
+                "SharedMocking",
+                "Backend",
+                "Values",
+                "Logging",
             ]
         ),
         .testTarget(

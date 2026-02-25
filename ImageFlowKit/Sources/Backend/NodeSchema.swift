@@ -152,8 +152,6 @@ public struct NodeOptionSchema: Sendable, Hashable {
     public var name: String
     /// The default value of this option. Must have type `Value.int` when `pickerOptions` is not nil.
     public var defaultValue: Value
-    /// An optional array of strings denoting option values the user can choose from. When using this the `defaultValue` must be an `Value.int`.
-    public var pickerOptions: [String]?
 
     /// Initializes an option schema with a `name` and `defaultValue`. In this case the `pickerOptions` is `nil`.
     /// - Parameters:
@@ -162,7 +160,6 @@ public struct NodeOptionSchema: Sendable, Hashable {
     public init(name: String, defaultValue: Value) {
         self.name = name
         self.defaultValue = defaultValue
-        self.pickerOptions = nil
     }
 
     /// Initializes an option schema with a given set of `pickerOptions` and a
@@ -177,6 +174,5 @@ public struct NodeOptionSchema: Sendable, Hashable {
         }
         self.name = name
         self.defaultValue = .int(defaultValue)
-        self.pickerOptions = pickerOptions
     }
 }

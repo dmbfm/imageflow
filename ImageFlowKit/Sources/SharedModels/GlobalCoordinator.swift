@@ -3,6 +3,7 @@ import CoreImage
 import Foundation
 import Helpers
 import SwiftUI
+import Values
 
 public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
@@ -20,6 +21,8 @@ public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     var previewHasImage: Bool { get }
     var previewPositionBinding: Binding<PreviewPosition?> { get }
     var previewPinnedBinding: Binding<Bool> { get }
+
+    func titleForAsset(id: AssetIdentifier?) -> String?
 
     func perform(userAction: UserAction)
 
@@ -176,6 +179,10 @@ public class GlobalCoordinator: GlobalCoordinatorImpl {
 
     public func perform(userAction: UserAction) {
         self.impl.perform(userAction: userAction)
+    }
+
+    public func titleForAsset(id: Values.AssetIdentifier?) -> String? {
+        self.impl.titleForAsset(id: id)
     }
 
     public var previewIsDocked: Bool {

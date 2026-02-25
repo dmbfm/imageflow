@@ -154,6 +154,7 @@ extension CanvasPlatformView {
 
     func moveNode(_ id: UUID, to position: CGPoint) {
         self.nodeViews[id]?.frame.origin = position
+        self.nodeViews[id]?.setNeedsDisplay()
     }
 
     // MARK: - Mode View Due To Keyboard

@@ -16,6 +16,7 @@ import UIKit
 final class NodeBooleanInput: PlatformCommonView, NodeControl {
     var value: Value {
         didSet {
+            log("node bool input update: \(self.value)")
             if self.value != oldValue {
                 self.update()
             }

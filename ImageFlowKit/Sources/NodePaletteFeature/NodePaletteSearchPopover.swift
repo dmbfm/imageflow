@@ -68,6 +68,7 @@ public struct NodePaletteSearchPopoverView: View {
     var searchView: some View {
         SearchTextField(text: self.$text)
             .font(.system(size: 12))
+            .focusable()
             .focused(self.focus, equals: .nodeSearch)
             .padding(.horizontal)
             .padding(.top)
@@ -202,8 +203,7 @@ private struct SearchTextField: NSViewRepresentable {
         view.text = self.text
         view.delegate = context.coordinator
         view.maximumNumberOfLines = 1
-        view.isAutomaticTextCompletionEnabled = false
-        view.allowsWritingTools = false
+        view.contentType = .password
         context.coordinator.text = self.$text
         return view
     }

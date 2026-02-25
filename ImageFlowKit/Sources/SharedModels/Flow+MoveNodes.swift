@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 extension Flow {
     public var nodePositionsWithLiveMove: [UUID: CGPoint] {
@@ -28,9 +29,10 @@ extension Flow {
                     this.moveNode(id, to: prev, undoManager: um)
                 }
             )
+            return prev
         }
 
-        return prev
+        return nil
     }
 
     @discardableResult
@@ -81,10 +83,10 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
-        um?.setActionName("Mode Node" + (snap.count > 1 ? "s" : ""))
+        um?.setActionName("Move Node" + (snap.count > 1 ? "s" : ""))
 
         if !didMoveNode {
-            um?.undoNestedGroup()
+            um?.undo()
         }
 
         self.liveMoveNodesSnapshot = nil

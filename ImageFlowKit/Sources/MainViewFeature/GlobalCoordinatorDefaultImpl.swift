@@ -11,6 +11,7 @@ import PreviewFeature
 import SharedModels
 import SwiftUI
 import UniformTypeIdentifiers
+import Values
 
 import struct SharedModels.Edge
 import class SharedModels.Flow
@@ -129,6 +130,14 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.mainContentViewModel?.assetStore.remove(generatedAssetsForNode: edge.to.node)
         default:
             break
+        }
+    }
+
+    public func titleForAsset(id: AssetIdentifier?) -> String? {
+        if case let .asset(id) = id {
+            self.mainContentViewModel?.assetStore.assets[id]?.filename
+        } else {
+            nil
         }
     }
 

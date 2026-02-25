@@ -7,12 +7,19 @@ public final class NodeTitleView: PlatformCommonView {
     public var vm: ViewModel {
         didSet {
             if self.vm != oldValue {
+                print("NodeTitleView: update: \(self.vm.title)")
                 self.update(oldValue)
             }
         }
     }
 
+    weak var delegate: (any Delegate)?
+
     private var style: Style
+
+    protocol Delegate: AnyObject {
+        func nodeTitleViewSizeDidChange()
+    }
 
     // MARK: - Subviews
 
@@ -94,8 +101,15 @@ public final class NodeTitleView: PlatformCommonView {
         self.subtitleView.text = self.vm.subtitle
         self.updateIcon(oldValue)
 
-        self.invalidateIntrinsicContentSize()
-        self.setNeedsLayout()
+        // self.invalidateIntrinsicContentSize()
+        // self.layoutIfNeeded()
+        // Task {
+        self.delegate?.nodeTitleViewSizeDidChange()
+        // }
+        // Task { @MainActor in
+        //     self.setNeedsLayout()
+        //     self.setNeedsDisplay()
+        // }
     }
 
     #if os(macOS)
@@ -141,7 +155,7 @@ public final class NodeTitleView: PlatformCommonView {
     public override var intrinsicContentSize: CGSize {
         let size = CGSize(
             width: style.iconSize + self.style.iconTitleSpacing
-                + min(titleSize.width, max(subtitleSize.width, self.style.minTitleWidth)),
+                + max(titleSize.width, max(subtitleSize.width, self.style.minTitleWidth)),
             height: max(titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing, self.style.iconSize)
         )
         return size
@@ -158,6 +172,7 @@ public final class NodeTitleView: PlatformCommonView {
             width: min(titleSize.width, self.bounds.width - textGuide),
             height: titleSize.height
         )
+        print("NodeTitleView:layout:titleView.frame:\(self.titleView.frame)")
         self.subtitleView.frame = .init(
             x: textGuide,
             y: self.titleView.frame.maxY + style.titleSubtitleSpacing,
