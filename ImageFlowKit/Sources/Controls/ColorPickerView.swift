@@ -6,8 +6,9 @@ public struct ColorPickerView: XViewRepresentable {
 
     @Binding var color: Color4
     @Environment(\.isEnabled) var isEnabled
+    var onCommit: ((_ newValue: Color4, _ oldValue: Color4?) -> ())?
 
-    public init(color: Binding<Color4>) {
+    public init(color: Binding<Color4>, onCommit: ((_ newValue: Color4, _ oldValue: Color4?) -> ())? = nil) {
         self._color = color
     }
 
@@ -17,14 +18,15 @@ public struct ColorPickerView: XViewRepresentable {
         view.showsAlpha = true
         view.onEvent = { event in
             switch event {
-            case .didChange(let color):
-                if let color = Color4(xcolor: color), self.color != color {
+            case .didChange(let change):
+                if let color = Color4(xcolor: change.newValue), self.color != color {
                     self.color = color
+
+                    if change.commit, let onCommit = self.onCommit {
+                        let old = change.oldValue.flatMap({ Color4(xcolor: $0) })
+                        onCommit(color, old)
+                    }
                 }
-            #if os(iOS)
-            case .didCommit(old: _, new: _):
-                break
-            #endif
             }
         }
         view.isLocked = !self.isEnabled

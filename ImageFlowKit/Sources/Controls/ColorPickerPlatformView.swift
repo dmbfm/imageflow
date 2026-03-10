@@ -46,10 +46,6 @@ public final class ColorPickerPlatformView: NSView {
 
     public var showsAlpha: Bool = true
 
-    public enum Event {
-        case didChange(NSColor)
-    }
-
     public var onEvent: ((Event) -> ())?
 
     // MARK: - Private Properties
@@ -205,7 +201,7 @@ public final class ColorPickerPlatformView: NSView {
             initialColor: self.color,
             showsAlpha: self.showsAlpha,
             onChange: { [weak self] newValue in
-                self?.emit(.didChange(newValue))
+                self?.emit(.didChange(.init(newValue: newValue)))
             }
         )
     }
@@ -246,11 +242,6 @@ public final class ColorPickerPlatformView: UIView {
                 }
             }
         }
-    }
-
-    public enum Event {
-        case didChange(PlatformColor)
-        case didCommit(old: PlatformColor, new: PlatformColor)
     }
 
     public var onEvent: ((Event) -> ())?
@@ -337,6 +328,7 @@ public final class ColorPickerPlatformView: UIView {
             colorPicker.supportsAlpha = self.showsAlpha
             colorPicker.delegate = self
             colorPicker.modalPresentationStyle = .popover
+            colorPicker.selectedColor = self.color
             if let popover = colorPicker.popoverPresentationController {
                 popover.sourceView = self
                 popover.sourceRect = self.bounds
@@ -395,10 +387,10 @@ extension ColorPickerPlatformView: UIColorPickerViewControllerDelegate {
         self.color = color
 
         if continuously {
-            self.onEvent?(.didChange(color))
+            self.onEvent?(.didChange(.init(newValue: color)))
         } else {
             if self.commitedColor != color {
-                self.onEvent?(.didCommit(old: self.commitedColor, new: color))
+                self.onEvent?(.didChange(.init(newValue: color, oldValue: self.commitedColor, commit: true)))
                 self.commitedColor = color
             }
         }
@@ -407,6 +399,25 @@ extension ColorPickerPlatformView: UIColorPickerViewControllerDelegate {
 }
 
 #endif
+
+extension ColorPickerPlatformView {
+    public enum Event {
+        case didChange(Change)
+
+        public struct Change {
+            public var newValue: PlatformColor
+            public var oldValue: PlatformColor?
+            public var commit: Bool
+
+            public init(newValue: PlatformColor, oldValue: PlatformColor? = nil, commit: Bool = false) {
+                self.newValue = newValue
+                self.oldValue = oldValue
+                self.commit = commit
+            }
+
+        }
+    }
+}
 
 // MARK: - Style
 

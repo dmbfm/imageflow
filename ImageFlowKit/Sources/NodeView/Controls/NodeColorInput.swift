@@ -49,15 +49,11 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         picker.onEvent = { [weak self] event in
             guard let self else { return }
             switch event {
-            case .didChange(let newValue):
-                if let new = self.value(forPlatformColor: newValue) {
-                    let old = self.value
-                    self.setValue(newValue: new, registerUndo: true)
+            case .didChange(let change):
+                if let new = self.value(forPlatformColor: change.newValue) {
+                    let old = change.oldValue.flatMap({ self.value(forPlatformColor: $0 )})
+                    self.setValue(newValue: new, oldValue: old, registerUndo: change.commit)
                 }
-            #if os(iOS)
-            case .didCommit(old: _, new: _):
-                break
-            #endif
             }
         }
         return picker
