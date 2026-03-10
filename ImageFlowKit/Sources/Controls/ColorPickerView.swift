@@ -21,6 +21,10 @@ public struct ColorPickerView: XViewRepresentable {
                 if let color = Color4(xcolor: color), self.color != color {
                     self.color = color
                 }
+            #if os(iOS)
+            case .didCommit(old: _, new: _):
+                break
+            #endif
             }
         }
         view.isLocked = !self.isEnabled
@@ -61,6 +65,8 @@ extension Color4 {
     init?(xcolor: XColor) {
         #if os(macOS)
         self.init(nsColor: xcolor)
+        #else
+        self.init(uiColor: xcolor)
         #endif
     }
 }

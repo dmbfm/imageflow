@@ -54,6 +54,10 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
                     let old = self.value
                     self.setValue(newValue: new, registerUndo: true)
                 }
+            #if os(iOS)
+            case .didCommit(old: _, new: _):
+                break
+            #endif
             }
         }
         return picker

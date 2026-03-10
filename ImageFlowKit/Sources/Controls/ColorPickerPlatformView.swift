@@ -222,23 +222,23 @@ public final class ColorPickerPlatformView: NSView {
 #if canImport(UIKit)
 import UIKit
 
-final class NodeColorPicker: UIView {
+public final class ColorPickerPlatformView: UIView {
 
     // MARK: - Exposed Properties
 
     /// The selected color
-    var color: UIColor = .systemRed {
+    public var color: UIColor = .systemRed {
         didSet {
             self.setNeedsDisplay()
         }
     }
 
-    var commitedColor: UIColor = .systemRed
+    public var commitedColor: UIColor = .systemRed
 
     /// If true, the color picker can edit the color's alpha values
-    var showsAlpha: Bool = true
+    public var showsAlpha: Bool = true
 
-    var isLocked: Bool = false {
+    public var isLocked: Bool = false {
         didSet {
             if self.isLocked != oldValue {
                 if self.isLocked {
@@ -248,12 +248,12 @@ final class NodeColorPicker: UIView {
         }
     }
 
-    enum Event {
+    public enum Event {
         case didChange(PlatformColor)
         case didCommit(old: PlatformColor, new: PlatformColor)
     }
 
-    var onEvent: ((Event) -> ())?
+    public var onEvent: ((Event) -> ())?
 
     // MARK: - Private Properties
 
@@ -284,7 +284,7 @@ final class NodeColorPicker: UIView {
 
     // MARK: - Init
 
-    init() {
+    public init() {
         super.init(frame: .zero)
         self.addSubview(self.bgView)
         self.addSubview(self.fgView)
@@ -306,23 +306,23 @@ final class NodeColorPicker: UIView {
         self.bgView.layer.borderWidth = value
     }
 
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
 
         self.animBorder(to: self.style.borderWidthTouch)
     }
 
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
 
         self.animBorder(to: self.style.borderWidthDefault)
         self.presentColorPicker()
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !self.isLocked else { return }
 
         self.animBorder(to: self.style.borderWidthDefault)
@@ -349,7 +349,7 @@ final class NodeColorPicker: UIView {
 
     // MARK: - Drawing
 
-    override func draw(_ rect: CGRect) {
+    public override func draw(_ rect: CGRect) {
         self.fgView.backgroundColor = self.color
         self.fgView.layer.compositingFilter = self.isDarkMode ? "exclusionBlendMode" : "multiplyBlendMode"
         self.bgView.backgroundColor = self.isDarkMode ? .black : .white
@@ -358,11 +358,11 @@ final class NodeColorPicker: UIView {
 
     // MARK: - Layout
 
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         self.style.size
     }
 
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         self.bgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
         self.fgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
     }
@@ -384,8 +384,8 @@ final class NodeColorPicker: UIView {
 
 // MARK: - UIColorPickerViewControllerDelegate
 
-extension NodeColorPicker: UIColorPickerViewControllerDelegate {
-    func colorPickerViewController(
+extension ColorPickerPlatformView: UIColorPickerViewControllerDelegate {
+    public func colorPickerViewController(
         _ viewController: UIColorPickerViewController,
         didSelect color: UIColor,
         continuously: Bool
