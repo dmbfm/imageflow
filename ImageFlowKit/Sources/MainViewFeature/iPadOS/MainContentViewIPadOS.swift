@@ -87,6 +87,7 @@ struct MainContentViewIPadOS: View {
                 ScrollView([.vertical]) {
                     self.canvasView
                         .frame(width: proxy.size.width, height: proxy.size.height)
+                        
                 }
                 .scrollEdgeEffectStyle(.soft, for: .vertical)
                 .scrollDisabled(true)
@@ -95,7 +96,12 @@ struct MainContentViewIPadOS: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { self.toolbarContent }
             .toolbarRole(.editor)
+//            .inspector(isPresented: self.vm.showInspectorSafeBinding) {
+//                InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
+//                    .inspectorColumnWidth(min: 200, ideal: 350, max: 600)
+//            }
         }
+//        .inspector(isPresented: self.$vm.showInspector, content: { InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator) })
     }
 
     @ViewBuilder
@@ -111,7 +117,17 @@ struct MainContentViewIPadOS: View {
             .focusable()
             .focused(self.$focus, equals: .global)
             .focusEffectDisabled()
+            .inspector(isPresented: self.$vm.showInspector, content: { InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator) })
+//            .safeAreaInset(edge: .trailing) {
+//               RoundedRectangle(cornerRadius: 28)
+//                    .fill(Color.teal)
+//                    .frame(width: 320)
+//                    .padding(.top, 92)
+//                    .padding(.trailing, 12)
+//                    .padding(.bottom, 12)
+//            }
         }
+//        .inspector(isPresented: self.$vm.showInspector, content: { InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator) })
     }
     let zoomValues: [CGFloat] = [
         0.1,
@@ -233,6 +249,14 @@ struct MainContentViewIPadOS: View {
                 Image(systemName: "square.and.arrow.down.fill")
             }
         }
+        
+        ToolbarSpacer(.fixed, placement: .primaryAction)
+        
+        ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
+                            Button("Toggle Inspector", systemImage: "sidebar.right") {
+                                self.vm.showInspector.toggle()
+                            }
+                        }
     }
 }
 
