@@ -82,73 +82,43 @@ struct MainContentViewIPadOS: View {
             .toolbar { self.toolbarContent }
     }
 
+//    @State var height: CGFloat = 0.0
+//    @State var geo: Geo = .init()
+    
+    struct Geo: Equatable {
+        var height: CGFloat = 0.0
+        var safeAreaInsets: SwiftUI.EdgeInsets = .init()
+    }
+    
+    @State var geo: Geo  = .init()
+    
     @ViewBuilder
     var content: some View {
-        CanvasFeatureView(
+        ScrollView {
+            CanvasFeatureView(
                 self.vm.canvas,
                 self.vm.flow,
                 self.vm.assetStore,
                 self.$focus,
                 coordinator: self.vm.coordinator,
             )
-        .inspectorFeatureViewBar(self.$vm.showInspector, flow: self.vm.flow, coordinator: self.vm.coordinator)
+            .frame(height: self.geo.height)
+            .safeAreaPadding(.top, self.geo.safeAreaInsets.top)
+        }
+        .scrollDisabled(true)
+        .inspectorFeatureViewBar(self.$vm.showInspector, insets: self.geo.safeAreaInsets, flow: self.vm.flow, coordinator: self.vm.coordinator)
+        .ignoresSafeArea()
+        .onGeometryChange(for: Geo.self, of: { proxy in
+                .init(
+                    height: proxy.size.height + proxy.safeAreaInsets.bottom,
+                    safeAreaInsets: proxy.safeAreaInsets
+                )
+        }, action: {
+            self.geo = $0
+        })
         .animation(.easeInOut, value: self.vm.showInspector)
-            
-//            .toolbar { self.toolbarContent }
-//            .focusable()
-//            .focused(self.$focus, equals: .global)
-//            .focusEffectDisabled()
-//            .inspector(isPresented: self.$vm.showInspector, content: {
-//                InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
-//                    .toolbar {
-//                        ToolbarItem(id: "toggle-inspector-v2") {
-//                            Button("Toggle Inspector", systemImage: "sidebar.right") {
-//                                self.vm.showInspector.toggle()
-//                            }
-//                        }
-//                    }
-//            })
-//                    .toolbar { self.toolbarContent }
-//            .toolbarRole(.editor)
-//        NavigationStack {
-//            GeometryReader { proxy in
-//                ScrollView([.vertical]) {
-//                    self.canvasView
-//                        .frame(width: proxy.size.width, height: proxy.size.height)
-//                        
-//                }
-//                .scrollEdgeEffectStyle(.soft, for: .vertical)
-//                .scrollDisabled(true)
-//            }
-//            .ignoresSafeArea()
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbar { self.toolbarContent }
-//            .toolbarRole(.editor)
-//            .inspector(isPresented: self.vm.showInspectorSafeBinding) {
-//                InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
-//                    .inspectorColumnWidth(min: 200, ideal: 350, max: 600)
-//            }
-//        }
-//        .inspector(isPresented: self.$vm.showInspector, content: { InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator) })
     }
 
-//    @ViewBuilder
-//    var canvasView: some View {
-//        ZStack {
-//            CanvasFeatureView(
-//                self.vm.canvas,
-//                self.vm.flow,
-//                self.vm.assetStore,
-//                self.$focus,
-//                coordinator: self.vm.coordinator,
-//            )
-//            .focusable()
-//            .focused(self.$focus, equals: .global)
-//            .focusEffectDisabled()
-//            .inspector(isPresented: self.$vm.showInspector, content: { InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator) })
-//        }
-//    }
-    
     let zoomValues: [CGFloat] = [
         0.1,
         0.25,
@@ -156,7 +126,7 @@ struct MainContentViewIPadOS: View {
         0.75,
         1,
     ]
-    
+
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
 
@@ -261,20 +231,20 @@ struct MainContentViewIPadOS: View {
             .disabled(self.vm.primaryUndoAction == .disabled)
         }
 
-//        ToolbarSpacer(.fixed, placement: .primaryAction)
+        //        ToolbarSpacer(.fixed, placement: .primaryAction)
         ToolbarSpacer(.flexible)
 
         ToolbarItem(placement: .primaryAction) {
             Button {
                 self.vm.openAssetBrowser()
-//                                                self.vm.showInspector.toggle()
+                //                                                self.vm.showInspector.toggle()
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
             }
         }
-        
+
         ToolbarSpacer(.fixed, placement: .primaryAction)
-//        
+        //
         ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
             Button("Toggle Inspector", systemImage: "sidebar.right") {
                 self.vm.showInspector.toggle()
