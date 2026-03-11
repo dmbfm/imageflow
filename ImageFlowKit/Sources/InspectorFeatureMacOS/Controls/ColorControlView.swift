@@ -1,9 +1,9 @@
 import Controls
+import InspectorFeatureShared
 import Logging
 import SharedModels
 import SwiftUI
 import Values
-import InspectorFeatureShared
 
 struct ColorControlView: View {
 

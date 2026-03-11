@@ -51,7 +51,7 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
             switch event {
             case .didChange(let change):
                 if let new = self.value(forPlatformColor: change.newValue) {
-                    let old = change.oldValue.flatMap({ self.value(forPlatformColor: $0 )})
+                    let old = change.oldValue.flatMap({ self.value(forPlatformColor: $0) })
                     self.setValue(newValue: new, oldValue: old, registerUndo: change.commit)
                 }
             }

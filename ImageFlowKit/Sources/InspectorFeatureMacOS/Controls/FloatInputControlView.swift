@@ -1,7 +1,7 @@
+import InspectorFeatureShared
 import Logging
 import SharedModels
 import SwiftUI
-import InspectorFeatureShared
 
 struct FloatInputControlView: View {
     let vm: InspectorFeatureViewModel

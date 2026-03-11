@@ -1,8 +1,8 @@
 import Helpers
+import InspectorFeatureShared
 import SharedModels
 import SwiftUI
 import Values
-import InspectorFeatureShared
 
 struct IntegerInputControlView: View {
     let vm: InspectorFeatureViewModel

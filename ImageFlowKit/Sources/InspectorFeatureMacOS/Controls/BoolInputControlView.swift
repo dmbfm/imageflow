@@ -1,6 +1,6 @@
+import InspectorFeatureShared
 import SharedModels
 import SwiftUI
-import InspectorFeatureShared
 
 struct BoolInputControlView: View {
 

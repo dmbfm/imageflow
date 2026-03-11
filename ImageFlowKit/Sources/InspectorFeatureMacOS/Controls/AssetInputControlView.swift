@@ -1,8 +1,7 @@
+import InspectorFeatureShared
 import SharedModels
 import SwiftUI
 import Values
-import InspectorFeatureShared
-
 
 protocol AssetInputControlViewType {
     static var kind: AssetKind { get }
