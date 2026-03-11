@@ -1,4 +1,4 @@
-import InspectorFeature
+import InspectorFeatureMacOS
 import SharedModels
 import SwiftUI
 

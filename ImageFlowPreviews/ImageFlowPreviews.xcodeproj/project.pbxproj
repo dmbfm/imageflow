@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AE1FE5122EF32B4000AEF458 /* CIImageView in Frameworks */ = {isa = PBXBuildFile; productRef = AE1FE5112EF32B4000AEF458 /* CIImageView */; };
+		AE2515582F61B3B50041D180 /* InspectorFeatureIPadOS in Frameworks */ = {isa = PBXBuildFile; productRef = AE2515572F61B3B50041D180 /* InspectorFeatureIPadOS */; };
 		AE7E8A032EE46483004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A022EE46483004148B0 /* Controls */; };
 		AE7E8A142EE464CA004148B0 /* Controls in Frameworks */ = {isa = PBXBuildFile; productRef = AE7E8A132EE464CA004148B0 /* Controls */; };
 		AE927EF62E45290100EC4D7C /* NodeControls in Frameworks */ = {isa = PBXBuildFile; productRef = AE927EF52E45290100EC4D7C /* NodeControls */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CIImageViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE25154C2F61B3A60041D180 /* InspectorIPadOSPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InspectorIPadOSPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DockedPreviewGlassDesign.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE7E8A082EE46498004148B0 /* CardStateViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardStateViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE927EE92E4528F700EC4D7C /* NodeControlsPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NodeControlsPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -43,6 +45,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE25154D2F61B3A60041D180 /* InspectorIPadOSPreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = InspectorIPadOSPreview;
+			sourceTree = "<group>";
+		};
 		AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -98,6 +105,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE2515492F61B3A60041D180 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE2515582F61B3B50041D180 /* InspectorFeatureIPadOS in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +204,7 @@
 				AE3A54D22EF322A300529F5F /* DockedPreviewGlassDesign */,
 				AEA8D3CA2F10267D00418317 /* ImageExporterPreview */,
 				AED0759A2F59A84A00B58CEC /* InspectorPreview */,
+				AE25154D2F61B3A60041D180 /* InspectorIPadOSPreview */,
 				AEB76A7A2E2AEAE10020EE2F /* Frameworks */,
 				AEB76A552E2AE7750020EE2F /* Products */,
 			);
@@ -207,6 +223,7 @@
 				AE3A54D12EF322A300529F5F /* DockedPreviewGlassDesign.app */,
 				AEA8D3C92F10267D00418317 /* ImageExporterPreview.app */,
 				AED075992F59A84A00B58CEC /* InspectorPreview.app */,
+				AE25154C2F61B3A60041D180 /* InspectorIPadOSPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -238,6 +255,29 @@
 			);
 			productName = CIImageViewPreview;
 			productReference = AE0E8C8E2ECBE2310027AEF9 /* CIImageViewPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AE25154B2F61B3A60041D180 /* InspectorIPadOSPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE2515562F61B3A70041D180 /* Build configuration list for PBXNativeTarget "InspectorIPadOSPreview" */;
+			buildPhases = (
+				AE2515482F61B3A60041D180 /* Sources */,
+				AE2515492F61B3A60041D180 /* Frameworks */,
+				AE25154A2F61B3A60041D180 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE25154D2F61B3A60041D180 /* InspectorIPadOSPreview */,
+			);
+			name = InspectorIPadOSPreview;
+			packageProductDependencies = (
+				AE2515572F61B3B50041D180 /* InspectorFeatureIPadOS */,
+			);
+			productName = InspectorIPadOSPreview;
+			productReference = AE25154C2F61B3A60041D180 /* InspectorIPadOSPreview.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */ = {
@@ -461,6 +501,9 @@
 					AE0E8C8D2ECBE2310027AEF9 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
+					AE25154B2F61B3A60041D180 = {
+						CreatedOnToolsVersion = 26.3;
+					};
 					AE3A54D02EF322A300529F5F = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -517,12 +560,20 @@
 				AE3A54D02EF322A300529F5F /* DockedPreviewGlassDesign */,
 				AEA8D3C82F10267D00418317 /* ImageExporterPreview */,
 				AED075982F59A84A00B58CEC /* InspectorPreview */,
+				AE25154B2F61B3A60041D180 /* InspectorIPadOSPreview */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AE0E8C8C2ECBE2310027AEF9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE25154A2F61B3A60041D180 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -596,6 +647,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		AE0E8C8A2ECBE2310027AEF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE2515482F61B3A60041D180 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -753,6 +811,75 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		AE2515542F61B3A70041D180 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.InspectorIPadOSPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AE2515552F61B3A70041D180 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.InspectorIPadOSPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1652,6 +1779,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AE2515562F61B3A70041D180 /* Build configuration list for PBXNativeTarget "InspectorIPadOSPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE2515542F61B3A70041D180 /* Debug */,
+				AE2515552F61B3A70041D180 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE3A54DB2EF322A500529F5F /* Build configuration list for PBXNativeTarget "DockedPreviewGlassDesign" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1756,6 +1892,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AE1FE5102EF32B3000AEF458 /* XCLocalSwiftPackageReference "../Packages/CIImageView" */;
 			productName = CIImageView;
+		};
+		AE2515572F61B3B50041D180 /* InspectorFeatureIPadOS */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = InspectorFeatureIPadOS;
 		};
 		AE7E8A022EE46483004148B0 /* Controls */ = {
 			isa = XCSwiftPackageProductDependency;

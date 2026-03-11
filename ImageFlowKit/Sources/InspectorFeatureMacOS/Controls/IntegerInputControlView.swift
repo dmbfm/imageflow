@@ -2,6 +2,7 @@ import Helpers
 import SharedModels
 import SwiftUI
 import Values
+import InspectorFeatureShared
 
 struct IntegerInputControlView: View {
     let vm: InspectorFeatureViewModel

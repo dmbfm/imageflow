@@ -13,22 +13,17 @@ import Values
 
 @Observable
 @MainActor
-class InspectorFeatureViewModel {
+public class InspectorFeatureViewModel {
 
-    let flow: Flow
-    let coordinator: GlobalCoordinator
-    // let coordinator: GlobalCoordinator
-    var undoManager: UndoManager? {
-        didSet {
-            //             undoManager?.groupsByEvent = false
-        }
-    }
+    public let flow: Flow
+    public let coordinator: GlobalCoordinator
+    public var undoManager: UndoManager?
 
-    var hasNode: Bool {
+    public var hasNode: Bool {
         self.currentNode != nil
     }
 
-    var node: FlowNode {
+    public var node: FlowNode {
         get {
             self.currentNode ?? .init(kind: .valueNode(.float))
         }
@@ -44,7 +39,7 @@ class InspectorFeatureViewModel {
     @ObservationIgnored
     private var cancellables: Set<AnyEventEmitterCancellable> = []
 
-    init(flow: Flow, coordinator: GlobalCoordinator, undoManager: UndoManager?) {
+    public init(flow: Flow, coordinator: GlobalCoordinator, undoManager: UndoManager?) {
         self.flow = flow
         self.coordinator = coordinator
         // self.coordinator = coordinator
@@ -107,7 +102,7 @@ class InspectorFeatureViewModel {
 
     // MARK: - Bindings
 
-    var nodeName: Binding<String> {
+    public var nodeName: Binding<String> {
         .init(
             get: {
                 self.node.name
@@ -118,7 +113,7 @@ class InspectorFeatureViewModel {
         )
     }
 
-    func nodeInputValueBinding(_ index: Int) -> Binding<Value?> {
+    public func nodeInputValueBinding(_ index: Int) -> Binding<Value?> {
         .init(
             get: {
                 if let node = self.currentNode, node.inputs.indices.contains(index) {
@@ -135,7 +130,7 @@ class InspectorFeatureViewModel {
         )
     }
 
-    func nodeInputValue(_ index: Int) -> Value? {
+    public func nodeInputValue(_ index: Int) -> Value? {
         if let node = self.currentNode, node.inputs.indices.contains(index) {
             node.inputs[index].value
         } else {
@@ -143,12 +138,12 @@ class InspectorFeatureViewModel {
         }
     }
 
-    enum NodePropertyName {
+    public enum NodePropertyName {
         case name
         case input(Int, Value, Value?)
     }
 
-    func submit(_ name: NodePropertyName, registerUndo: Bool) {
+    public func submit(_ name: NodePropertyName, registerUndo: Bool) {
         guard let currentNode = self.currentNode else {
             log("submit: currentNode is nil!", level: .warning)
             return
@@ -179,7 +174,7 @@ class InspectorFeatureViewModel {
         }
     }
 
-    func cancel(_ name: NodePropertyName) {
+    public func cancel(_ name: NodePropertyName) {
         guard let node = self.currentNode, let flowNode = self.flow.nodes[node.id] else {
             return
         }

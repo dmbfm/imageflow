@@ -5,6 +5,7 @@ import SharedMocking
 import SharedModels
 import SwiftUI
 import Values
+import InspectorFeatureShared
 
 import class SharedModels.Flow
 

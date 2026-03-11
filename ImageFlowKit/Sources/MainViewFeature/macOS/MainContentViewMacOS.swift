@@ -17,7 +17,7 @@ import CanvasFeature
 import AssetManager
 import AssetBrowserFeature
 import SidebarFeature
-import InspectorFeature
+import InspectorFeatureMacOS
 
 struct MainContentViewMacOS: View {
 

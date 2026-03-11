@@ -1,6 +1,7 @@
 import SharedModels
 import SwiftUI
 import Values
+import InspectorFeatureShared
 
 struct InputBlockView: View {
 

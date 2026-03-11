@@ -35,7 +35,9 @@ let package = Package(
         .library(name: "AppFeature"),
         .library(name: "SettingsFeature"),
         .library(name: "ContextMenus"),
-        .library(name: "InspectorFeature"),
+        .library(name: "InspectorFeatureShared"),
+        .library(name: "InspectorFeatureMacOS"),
+        .library(name: "InspectorFeatureIPadOS"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -222,7 +224,8 @@ let package = Package(
                 "FlowDocument",
                 "BackendService",
                 "ContextMenus",
-                "InspectorFeature",
+                "InspectorFeatureMacOS",
+                "InspectorFeatureIPadOS",
             ]
         ),
         .target(
@@ -251,7 +254,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "InspectorFeature",
+            name: "InspectorFeatureShared",
             dependencies: [
                 "Helpers",
                 "Controls",
@@ -261,6 +264,34 @@ let package = Package(
                 "Backend",
                 "Values",
                 "Logging",
+            ]
+        ),
+        .target(
+            name: "InspectorFeatureMacOS",
+            dependencies: [
+                "Helpers",
+                "Controls",
+                "Design",
+                "SharedModels",
+                "SharedMocking",
+                "Backend",
+                "Values",
+                "Logging",
+                "InspectorFeatureShared",
+            ]
+        ),
+        .target(
+            name: "InspectorFeatureIPadOS",
+            dependencies: [
+                "Helpers",
+                "Controls",
+                "Design",
+                "SharedModels",
+                "SharedMocking",
+                "Backend",
+                "Values",
+                "Logging",
+                "InspectorFeatureShared",
             ]
         ),
         .testTarget(

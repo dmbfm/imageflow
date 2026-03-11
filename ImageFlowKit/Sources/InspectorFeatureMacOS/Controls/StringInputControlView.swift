@@ -1,6 +1,7 @@
 import Logging
 import SharedModels
 import SwiftUI
+import InspectorFeatureShared
 
 struct StringInputControlView: View {
 

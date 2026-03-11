@@ -2,6 +2,7 @@ import SharedMocking
 import SharedModels
 import SwiftUI
 import Values
+import InspectorFeatureShared
 
 struct MultiRowControlView<ControlView: View>: View {
     let vm: InspectorFeatureViewModel

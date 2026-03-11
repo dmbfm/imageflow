@@ -10,6 +10,7 @@ import AssetManager
 import PreviewFeature
 import NodePaletteFeature
 import AssetBrowserFeature
+import InspectorFeatureIPadOS
 
 struct MainContentViewIPadOS: View {
 
@@ -90,18 +91,7 @@ struct MainContentViewIPadOS: View {
                 self.$focus,
                 coordinator: self.vm.coordinator,
             )
-        .safeAreaInset(edge: .trailing) {
-            if self.vm.showInspector {
-                    VStack {
-                        InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
-                        Spacer()
-                    }
-                    .frame(width: 300)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 10))
-                    .padding(.trailing, 12)
-                .transition(.move(edge: .trailing))
-            }
-        }
+        .inspectorFeatureViewBar(self.$vm.showInspector, flow: self.vm.flow, coordinator: self.vm.coordinator)
         .animation(.easeInOut, value: self.vm.showInspector)
             
 //            .toolbar { self.toolbarContent }
@@ -276,21 +266,20 @@ struct MainContentViewIPadOS: View {
 
         ToolbarItem(placement: .primaryAction) {
             Button {
-//                self.vm.openAssetBrowser()
-                
-                                                self.vm.showInspector.toggle()
+                self.vm.openAssetBrowser()
+//                                                self.vm.showInspector.toggle()
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
             }
         }
         
-//        ToolbarSpacer(.fixed, placement: .primaryAction)
+        ToolbarSpacer(.fixed, placement: .primaryAction)
 //        
-//        ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
-//            Button("Toggle Inspector", systemImage: "sidebar.right") {
-//                self.vm.showInspector.toggle()
-//            }
-//        }
+        ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
+            Button("Toggle Inspector", systemImage: "sidebar.right") {
+                self.vm.showInspector.toggle()
+            }
+        }
     }
 }
 
