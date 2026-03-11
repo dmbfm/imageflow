@@ -1,121 +1,153 @@
-import SwiftUI
 import Backend
-import InspectorFeatureShared
-import SharedModels
-import SharedMocking
-import Helpers
 import Design
+import Helpers
+import InspectorFeatureShared
+import SharedMocking
+import SharedModels
+import SwiftUI
 
 public struct InspectorFeatureView: View {
     @ObservableState var vm: InspectorFeatureViewModel
     @Environment(\.undoManager) var undoManager
     @Environment(\.colorScheme) var cs
-    
-    
+
     public init(flow: SharedModels.Flow, coordinator: GlobalCoordinator) {
         self._vm = .init(wrappedValue: .init(flow: flow, coordinator: coordinator, undoManager: nil))
     }
-   
+
     public var body: some View {
         self.content
             .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
     }
-    
+
     @ViewBuilder
     var content: some View {
         if self.vm.hasNode {
             self.contentNodeView
         } else {
-            ContentUnavailableView("Node Inspector", systemImage: "list.bullet.rectangle.portrait.fill", description: Text("Select a node to inspect it"))
+            ContentUnavailableView(
+                "Node Inspector",
+                systemImage: "list.bullet.rectangle.portrait.fill",
+                description: Text("Select a node to inspect it")
+            )
+        }
+    }
+
+    @ViewBuilder
+    var contentNodeView: some View {
+        VStack {
+            NodeFormView(vm: self.vm)
+                .safeAreaBar(edge: .top) {
+                    NodeHeaderView(node: self.vm.node)
+                        .padding(.horizontal, 28)
+                        .padding(.top, 28)
+                }
+                .clipped()
+        }
+    }
+}
+
+struct NodeFormView: View {
+
+    let vm: InspectorFeatureViewModel
+    @Environment(\.colorScheme) var cs
+
+    var body: some View {
+        Form {
+            self.typeSectionView
+            self.inputsSectionView
+            self.outputsSectionView
+        }
+    }
+
+    var typeSectionView: some View {
+        LabeledContent("Type") {
+            Text(self.vm.node.kind.displayName)
+        }
+    }
+
+    var inputsSectionView: some View {
+        Section("Inputs") {
+            ForEach(self.vm.node.inputs) { input in
+                self.inputView(input)
+            }
+        }
+    }
+
+    var outputsSectionView: some View {
+        Section("Outputs") {
+            ForEach(self.vm.node.outputs) { output in
+                self.outputView(output)
+            }
+        }
+    }
+
+    func inputView(_ input: FlowNode.Input) -> some View {
+        LabeledContent {
+            self.controlView(for: input)
+        } label: {
+            HStack {
+                Text(input.label)
+                if input.connected {
+                    Button {
+                    } label: {
+                        Image(systemName: "arrow.right.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .tint(.secondary)
+                    .frame(width: 20)
+                } else {
+                    HStack {}.frame(width: 20)
+                }
+            }
         }
     }
     
     @ViewBuilder
-    var contentNodeView: some View {
-        VStack {
-            // TEMP
-            
-            Form {
-                LabeledContent("Type") {
-                    Text(self.vm.node.kind.displayName)
-                }
-                
-                Section("Inputs") {
-                    ForEach(self.vm.node.inputs) { input in
-                        LabeledContent {
-                            Toggle("", isOn: .constant(true))
-                        } label: {
-                            HStack {
-                                Text(input.label)
-                                if input.connected {
-                                    Button {
-                                    } label: {
-                                        Image(systemName: "arrow.right.circle")
-                                    }
-                                    .buttonStyle(.borderless)
-                                    .tint(.secondary)
-                                    .frame(width: 20)
-                                } else {
-                                    HStack {}.frame(width: 20)
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Section("Outputs") {
-                    ForEach(self.vm.node.outputs) { output in
-                        LabeledContent {
-                            if output.connected {
-                                Button {
-                                    } label: {
-                                        Image(systemName: "arrow.right.circle")
-                                    }
-                                    .buttonStyle(.borderless)
-                                    .tint(.secondary)
-                            } else {
-                                Image(systemName: "circle.dotted")
-                            }
-                        } label: {
-                            HStack(alignment: .lastTextBaseline) {
-                                Text(output.label)
-                                Text(output.type.displayName)
-//                                    .font(.)
-                                    .font(.caption.smallCaps())
-//                                    .fontDesign(.rounded)
-                                    .bold()
-                                    .foregroundStyle(.secondary)
-                                    .padding(4)
-                                    .background(Color(Color(white: cs == .dark ? 0.1 : 0.95)))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                        }
-                    }
-                }
-            }
-            .safeAreaBar(edge: .top) {
-                
-                NodeHeaderView(node: self.vm.node)
-                    .padding(.horizontal, 28)
-                    .padding(.top, 28)
-//                Text("NODE")
-//                    .font(.title)
-//                    .padding()
-            }
-            .clipped()
-//            .border(.gray)
-            
-            // END TEMP
+    func controlView(for input: FlowNode.Input) -> some View {
+        switch input.value.type {
+        case .bool:
+            BooleanInputControl(input: input, vm: self.vm)
+        case .float:
+            FloatInputControl(input: input, vm: self.vm)
+        default:
+            Text("")
+//            Toggle("", isOn: .constant(true))
         }
-//        .padding(.horizontal, 28)
-//        .padding(.top, 28)
+    }
+    
+    func outputView(_ output: FlowNode.Output) -> some View {
+        LabeledContent {
+            if output.connected {
+                Button {
+                } label: {
+                    Image(systemName: "arrow.right.circle")
+                }
+                .buttonStyle(.borderless)
+                .tint(.secondary)
+            } else {
+                Image(systemName: "circle.dotted")
+            }
+        } label: {
+            HStack(alignment: .lastTextBaseline) {
+                Text(output.label)
+                Text(output.type.displayName)
+                    .font(.caption.smallCaps())
+                    .bold()
+                    .foregroundStyle(.secondary)
+                    .padding(4)
+                    .background(Color(Color(white: cs == .dark ? 0.1 : 0.95)))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+
     }
 }
 
 struct NodeHeaderView: View {
-    
+
     let node: FlowNode
-    
+
     var body: some View {
         HStack {
             HStack {
@@ -123,11 +155,10 @@ struct NodeHeaderView: View {
                 Text(node.name)
                     .font(.headline)
             }
-//            .foregroundStyle(.secondary)
-//            .bold()
-            
+
             Spacer()
-            Button {} label: {
+            Button {
+            } label: {
                 Image(systemName: "lock")
             }
             Menu {
@@ -141,27 +172,44 @@ struct NodeHeaderView: View {
 
 extension InspectorFeatureView {
     public struct Preview: View {
-        
+
         @State var show: Bool = true
         @State var flow: SharedModels.Flow
         @State var coordinator: GlobalCoordinator
-        
+
         public init() {
             let flow = Flow()
-//            let node = FlowNode(kind: .valueNode(.bool))
-            var nodes = [NodeKind.coreImageCustomNode(.generator(.blurredRoundedRectangleGeneratorNode)),
-                         .valueNode(.bool),
-            ].map({ FlowNode(kind: $0)})
+            //            let node = FlowNode(kind: .valueNode(.bool))
+            var nodes = [
+                NodeKind.coreImageCustomNode(.generator(.blurredRoundedRectangleGeneratorNode)),
+                .valueNode(.bool),
+            ].map({ FlowNode(kind: $0) })
             nodes[0].inputs[2].connected = true
             for n in nodes {
                 flow.addNode(n, at: .zero)
             }
-//            flow.addNode(node, at: .zero)
+            //            flow.addNode(node, at: .zero)
             flow.selection = [nodes[0].id]
             self.flow = flow
             self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
         }
         
+        public init(nodes: [FlowNode], selected: Int? = nil) {
+            let flow = Flow()
+            for n in nodes {
+                flow.addNode(n, at: .zero)
+            }
+            
+            if let index = selected, nodes.indices.contains(index) {
+                flow.selection = [nodes[index].id]
+            } else if nodes.first != nil {
+                flow.selection = [nodes[0].id]
+            }
+            self.flow = flow
+            self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
+        
+        }
+
         public var body: some View {
             NavigationStack {
                 ZStack {
