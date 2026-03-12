@@ -55,7 +55,7 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
     }
 }
 
-//.safeAreaInset(edge: .trailing) {
+// .safeAreaInset(edge: .trailing) {
 //    if self.vm.showInspector {
 //            VStack {
 //                InspectorFeatureView(flow: self.vm.flow, coordinator: self.vm.coordinator)
@@ -66,4 +66,4 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
 //            .padding(.trailing, 12)
 //        .transition(.move(edge: .trailing))
 //    }
-//}
+// }

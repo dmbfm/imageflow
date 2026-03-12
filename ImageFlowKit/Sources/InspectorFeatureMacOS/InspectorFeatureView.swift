@@ -76,7 +76,7 @@ public struct InspectorFeatureView: View {
                     get: {
                         self.vm.node.kind
                     },
-                    set: { newValue in
+                    set: { _ in
                     }
                 )
             )

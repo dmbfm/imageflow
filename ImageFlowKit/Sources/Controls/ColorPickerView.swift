@@ -14,7 +14,7 @@ public struct ColorPickerView: XViewRepresentable {
 
     public func makeView(context: Context) -> ColorPickerPlatformView {
         let view = ColorPickerPlatformView()
-        view.color = self.color.xcolor  //XColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
+        view.color = self.color.xcolor  // XColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
         view.showsAlpha = true
         view.onEvent = { event in
             switch event {

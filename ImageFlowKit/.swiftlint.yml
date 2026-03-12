@@ -6,6 +6,7 @@ disabled_rules:
   - syntactic_sugar
   - opening_brace
   - type_body_length
+  - function_body_length
   - implicit_optional_initialization
   - file_length
   - unneeded_synthesized_initializer

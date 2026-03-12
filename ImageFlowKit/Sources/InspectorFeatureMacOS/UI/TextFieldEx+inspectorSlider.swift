@@ -118,7 +118,7 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
             .clipShape(RoundedRectangle(cornerRadius: self.style.cornerRadiusOuter))
             #if os(macOS)
         .gesture(
-            ValueDragGesture() { value in
+            ValueDragGesture { value in
                 let current = value.location.x / self.width
                 switch value.state {
                 case .began:

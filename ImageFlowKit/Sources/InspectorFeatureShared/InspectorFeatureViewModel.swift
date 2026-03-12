@@ -160,9 +160,10 @@ public class InspectorFeatureViewModel {
                     undoManager: registerUndo ? self.undoManager : nil
                 )
             }
-
         case .input(let index, let value, let oldValue):
-            if registerUndo && oldValue == value { return }
+            if registerUndo && oldValue == value {
+                return
+            }
             self.flow.setNodeValue(
                 id: currentNode.id,
                 index: index,
@@ -170,7 +171,6 @@ public class InspectorFeatureViewModel {
                 newValue: value,
                 undoManager: registerUndo ? self.undoManager : nil
             )
-            break
         }
     }
 
