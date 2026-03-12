@@ -15,7 +15,9 @@ extension View {
         flow: Flow,
         coordinator: GlobalCoordinator,
     ) -> some View {
-        self.modifier(InspectorFeatureViewBarModifier(isPresented, flow: flow, coordinator: coordinator, insets: insets))
+        self.modifier(
+            InspectorFeatureViewBarModifier(isPresented, flow: flow, coordinator: coordinator, insets: insets)
+        )
     }
 }
 

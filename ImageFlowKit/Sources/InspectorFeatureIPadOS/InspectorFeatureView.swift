@@ -102,7 +102,7 @@ struct NodeFormView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     func controlView(for input: FlowNode.Input) -> some View {
         switch input.value.type {
@@ -112,10 +112,10 @@ struct NodeFormView: View {
             FloatInputControl(input: input, vm: self.vm)
         default:
             Text("")
-//            Toggle("", isOn: .constant(true))
+        //            Toggle("", isOn: .constant(true))
         }
     }
-    
+
     func outputView(_ output: FlowNode.Output) -> some View {
         LabeledContent {
             if output.connected {
@@ -193,13 +193,13 @@ extension InspectorFeatureView {
             self.flow = flow
             self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
         }
-        
+
         public init(nodes: [FlowNode], selected: Int? = nil) {
             let flow = Flow()
             for n in nodes {
                 flow.addNode(n, at: .zero)
             }
-            
+
             if let index = selected, nodes.indices.contains(index) {
                 flow.selection = [nodes[index].id]
             } else if nodes.first != nil {
@@ -207,7 +207,7 @@ extension InspectorFeatureView {
             }
             self.flow = flow
             self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
-        
+
         }
 
         public var body: some View {

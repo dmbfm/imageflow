@@ -82,16 +82,16 @@ struct MainContentViewIPadOS: View {
             .toolbar { self.toolbarContent }
     }
 
-//    @State var height: CGFloat = 0.0
-//    @State var geo: Geo = .init()
-    
+    //    @State var height: CGFloat = 0.0
+    //    @State var geo: Geo = .init()
+
     struct Geo: Equatable {
         var height: CGFloat = 0.0
         var safeAreaInsets: SwiftUI.EdgeInsets = .init()
     }
-    
-    @State var geo: Geo  = .init()
-    
+
+    @State var geo: Geo = .init()
+
     @ViewBuilder
     var content: some View {
         ScrollView {
@@ -106,16 +106,25 @@ struct MainContentViewIPadOS: View {
             .safeAreaPadding(.top, self.geo.safeAreaInsets.top)
         }
         .scrollDisabled(true)
-        .inspectorFeatureViewBar(self.$vm.showInspector, insets: self.geo.safeAreaInsets, flow: self.vm.flow, coordinator: self.vm.coordinator)
+        .inspectorFeatureViewBar(
+            self.$vm.showInspector,
+            insets: self.geo.safeAreaInsets,
+            flow: self.vm.flow,
+            coordinator: self.vm.coordinator
+        )
         .ignoresSafeArea()
-        .onGeometryChange(for: Geo.self, of: { proxy in
+        .onGeometryChange(
+            for: Geo.self,
+            of: { proxy in
                 .init(
                     height: proxy.size.height + proxy.safeAreaInsets.bottom,
                     safeAreaInsets: proxy.safeAreaInsets
                 )
-        }, action: {
-            self.geo = $0
-        })
+            },
+            action: {
+                self.geo = $0
+            }
+        )
         .animation(.easeInOut, value: self.vm.showInspector)
     }
 
