@@ -486,8 +486,10 @@ extension MainContentViewModel {
     }
 
     func onUndoCheckpoint() {
-        self.canUndo = self.undoManager?.canUndo ?? false
-        self.canRedo = self.undoManager?.canRedo ?? false
+        Task {
+            self.canUndo = self.undoManager?.canUndo ?? false
+            self.canRedo = self.undoManager?.canRedo ?? false
+        }
     }
 }
 #endif

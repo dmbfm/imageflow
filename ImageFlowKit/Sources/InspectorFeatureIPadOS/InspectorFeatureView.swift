@@ -209,11 +209,27 @@ extension InspectorFeatureView {
             self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
 
         }
+        
+        var selection: Binding<UUID?> {
+            .init(get: {
+                self.flow.selection.first
+            }, set: { newValue in
+                if let newValue {
+                    self.flow.selection = [newValue]
+                }
+            })
+        }
 
         public var body: some View {
             NavigationStack {
                 ZStack {
                     Colors.canvasBackground.color
+                
+                    Picker("", selection: self.selection) {
+                        ForEach(Array(self.flow.nodes.values), id: \.id) { node in
+                            Text("\(node.name)").tag(node.id)
+                        }
+                    }
                 }
                 .ignoresSafeArea()
                 .inspectorFeatureViewBar(self.$show, flow: self.flow, coordinator: self.coordinator)

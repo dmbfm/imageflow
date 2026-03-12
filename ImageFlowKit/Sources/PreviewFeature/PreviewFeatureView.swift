@@ -89,6 +89,7 @@ public struct PreviewFeatureView: View {
             }
         }
         .onGeometryChange(for: CGSize.self, of: { $0.size }, action: { self.state.viewSizeDidChange($0) })
+        .ignoresSafeArea(.keyboard)
         .activeViewObject(self.state)
     }
 }
