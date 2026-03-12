@@ -23,8 +23,6 @@ struct MainContentViewIPadOS: View {
 
     @Environment(\.undoManager) var undoManager
 
-    var undoObserver = NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)
-
     init(
         flow: Flow,
         canvas: CanvasFeatureState,
@@ -42,90 +40,65 @@ struct MainContentViewIPadOS: View {
     }
 
     var body: some View {
-        self.content
-            .sheet(isPresented: self.$vm.nodePaletteState.isPresented) {
-                NodePaletteSheetView(port: self.vm.nodePaletteState.typedPortLocation, focus: self.$focus) {
-                    self.vm.onNodePaletteSheetTapItem($0)
-                }
+        ZStack(alignment: .top) {
+            self.content
+            ScrollView {}
+                .scrollEdgeEffectStyle(.soft, for: .top)
+                .ignoresSafeArea()
+                .scrollDisabled(true)
+                .allowsHitTesting(false)
+        }
+        .toolbar { self.toolbarContent }
+        .sheet(isPresented: self.$vm.nodePaletteState.isPresented) {
+            NodePaletteSheetView(port: self.vm.nodePaletteState.typedPortLocation, focus: self.$focus) {
+                self.vm.onNodePaletteSheetTapItem($0)
             }
-            .sheet(isPresented: self.$vm.showAssetBrowser) {
-                AssetBrowserView(self.vm.assetBrowserViewModel)
-                    .errorAlert(self.$vm.assetBrowserError)
-            }
-            .fileImporter(
-                isPresented: self.$vm.showFileImporter,
-                allowedContentTypes: self.vm.fileImporterConfiguration.allowedContentTypes,
-                allowsMultipleSelection: true,
-                onCompletion: self.vm.fileImporterCompletionHandler(_:)
-            )
-            .photosPicker(
-                isPresented: self.$vm.showPhotoPicker,
-                selection: self.$vm.selectedPhotoPickerItems,
-                matching: .images,
-                photoLibrary: .shared(),
-            )
-            .imageExporter(
-                isPresented: self.$vm.imageExporterState.isPresented,
-                image: self.vm.imageExporterState.image,
-                defaultFilename: self.vm.imageExporterState.defaultFilename,
-                errorMessage: self.$vm.error,
-            )
-            .errorAlert(self.$vm.error)
-            .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
-            .onChange(of: self.focus, initial: true, { self.vm.focusDidChange(self.$focus) })
-            .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
-            .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
-            .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
-            .onReceive(self.undoObserver) { _ in self.vm.onUndoCheckpoint() }
-            .defaultFocus(self.$focus, .global)
-            .activeViewObject(self.vm)
-            .toolbar { self.toolbarContent }
+        }
+        .sheet(isPresented: self.$vm.showAssetBrowser) {
+            AssetBrowserView(self.vm.assetBrowserViewModel)
+                .errorAlert(self.$vm.assetBrowserError)
+        }
+        .fileImporter(
+            isPresented: self.$vm.showFileImporter,
+            allowedContentTypes: self.vm.fileImporterConfiguration.allowedContentTypes,
+            allowsMultipleSelection: true,
+            onCompletion: self.vm.fileImporterCompletionHandler(_:)
+        )
+        .photosPicker(
+            isPresented: self.$vm.showPhotoPicker,
+            selection: self.$vm.selectedPhotoPickerItems,
+            matching: .images,
+            photoLibrary: .shared(),
+        )
+        .imageExporter(
+            isPresented: self.$vm.imageExporterState.isPresented,
+            image: self.vm.imageExporterState.image,
+            defaultFilename: self.vm.imageExporterState.defaultFilename,
+            errorMessage: self.$vm.error,
+        )
+        .errorAlert(self.$vm.error)
+        .onChange(of: self.undoManager, initial: true) { self.vm.undoManager = self.undoManager }
+        .onChange(of: self.focus, initial: true, { self.vm.focusDidChange(self.$focus) })
+        .onChange(of: self.vm.showFileImporter, initial: false, self.vm.onChangeOfShowFileImporter)
+        .onChange(of: self.vm.showPhotoPicker, initial: false, self.vm.onChangeOfShowPhotoPicker)
+        .onChange(of: self.vm.selectedPhotoPickerItems, initial: false, self.vm.onChangeOfPhotoPickerItems)
+        .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)) { _ in
+            self.vm.onUndoCheckpoint()
+        }
+        .defaultFocus(self.$focus, .global)
+        .activeViewObject(self.vm)
     }
-
-    //    @State var height: CGFloat = 0.0
-    //    @State var geo: Geo = .init()
-
-    struct Geo: Equatable {
-        var height: CGFloat = 0.0
-        var safeAreaInsets: SwiftUI.EdgeInsets = .init()
-    }
-
-    @State var geo: Geo = .init()
 
     @ViewBuilder
     var content: some View {
-        ScrollView {
-            CanvasFeatureView(
-                self.vm.canvas,
-                self.vm.flow,
-                self.vm.assetStore,
-                self.$focus,
-                coordinator: self.vm.coordinator,
-            )
-            .frame(height: self.geo.height)
-            .safeAreaPadding(.top, self.geo.safeAreaInsets.top)
-        }
-        .scrollDisabled(true)
-        .inspectorFeatureViewBar(
-            self.$vm.showInspector,
-            insets: self.geo.safeAreaInsets,
-            flow: self.vm.flow,
-            coordinator: self.vm.coordinator
+        CanvasFeatureView(
+            self.vm.canvas,
+            self.vm.flow,
+            self.vm.assetStore,
+            self.$focus,
+            coordinator: self.vm.coordinator,
         )
-        .ignoresSafeArea()
-        .onGeometryChange(
-            for: Geo.self,
-            of: { proxy in
-                .init(
-                    height: proxy.size.height + proxy.safeAreaInsets.bottom,
-                    safeAreaInsets: proxy.safeAreaInsets
-                )
-            },
-            action: {
-                self.geo = $0
-            }
-        )
-        .animation(.easeInOut, value: self.vm.showInspector)
+        .inspectorFeatureViewBar(self.$vm.showInspector, flow: self.vm.flow, coordinator: self.vm.coordinator)
     }
 
     let zoomValues: [CGFloat] = [
@@ -240,20 +213,18 @@ struct MainContentViewIPadOS: View {
             .disabled(self.vm.primaryUndoAction == .disabled)
         }
 
-        //        ToolbarSpacer(.fixed, placement: .primaryAction)
         ToolbarSpacer(.flexible)
 
         ToolbarItem(placement: .primaryAction) {
             Button {
                 self.vm.openAssetBrowser()
-                //                                                self.vm.showInspector.toggle()
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
             }
         }
 
         ToolbarSpacer(.fixed, placement: .primaryAction)
-        //
+
         ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
             Button("Toggle Inspector", systemImage: "sidebar.right") {
                 self.vm.showInspector.toggle()
