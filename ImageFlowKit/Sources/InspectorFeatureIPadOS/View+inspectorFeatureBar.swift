@@ -5,6 +5,8 @@
 //  Created by Daniel Fortes on 11/03/26.
 //
 
+#if os(iOS)
+
 import SharedModels
 import SwiftUI
 
@@ -68,3 +70,5 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
 //        .transition(.move(edge: .trailing))
 //    }
 // }
+
+#endif

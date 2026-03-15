@@ -1,3 +1,5 @@
+#if os(iOS)
+
 import Backend
 import Design
 import Helpers
@@ -251,3 +253,5 @@ extension InspectorFeatureView {
 #Preview {
     InspectorFeatureView.Preview()
 }
+
+#endif

@@ -64,7 +64,9 @@ struct NodePaletteListView: View {
             }
         }
         .listStyle(.sidebar)
+        #if os(iOS)
         .searchable(text: self.$searchText, placement: .navigationBarDrawer)
+        #endif
         .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) {
             self.expanded = [:]

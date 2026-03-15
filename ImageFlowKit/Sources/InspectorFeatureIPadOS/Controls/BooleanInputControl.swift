@@ -1,3 +1,5 @@
+#if os(iOS)
+
 import InspectorFeatureShared
 import SharedModels
 import SwiftUI
@@ -26,3 +28,5 @@ struct BooleanInputControl: View {
 #Preview {
     InspectorFeatureView.Preview(nodes: [.init(kind: .valueNode(.bool))])
 }
+
+#endif

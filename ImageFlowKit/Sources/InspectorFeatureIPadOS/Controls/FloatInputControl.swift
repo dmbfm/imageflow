@@ -1,3 +1,5 @@
+#if os(iOS)
+
 import Helpers
 import InspectorFeatureShared
 import Logging
@@ -100,3 +102,5 @@ let formatter = {
 #Preview {
     InspectorFeatureView.Preview(nodes: [.init(kind: .valueNode(.float))])
 }
+
+#endif
