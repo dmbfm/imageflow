@@ -8,6 +8,28 @@ import SharedMocking
 import SharedModels
 import SwiftUI
 
+struct InputLabel: View {
+    var label: String
+    var connected: Bool
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(label)
+            if connected {
+                Button {
+                } label: {
+                    Image(systemName: "arrow.right.circle")
+                }
+                .buttonStyle(.borderless)
+                .tint(.secondary)
+                .frame(width: 20)
+            } else {
+                HStack {}.frame(width: 20)
+            }
+        }
+    }
+}
+
 public struct InspectorFeatureView: View {
     @ObservableState var vm: InspectorFeatureViewModel
     @Environment(\.undoManager) var undoManager
@@ -55,11 +77,13 @@ struct NodeFormView: View {
     @Environment(\.colorScheme) var cs
 
     var body: some View {
-        Form {
+        List {
             self.typeSectionView
             self.inputsSectionView
+//                .listRowSeparator(.hidden)
             self.outputsSectionView
         }
+//        .listStyle(.plain)
     }
 
     var typeSectionView: some View {
@@ -84,25 +108,52 @@ struct NodeFormView: View {
         }
     }
 
+    @State var value: Double = 0.5
+    @ViewBuilder
     func inputView(_ input: FlowNode.Input) -> some View {
-        LabeledContent {
-            self.controlView(for: input)
-        } label: {
-            HStack {
-                Text(input.label)
-                if input.connected {
-                    Button {
-                    } label: {
-                        Image(systemName: "arrow.right.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .tint(.secondary)
-                    .frame(width: 20)
-                } else {
-                    HStack {}.frame(width: 20)
-                }
-            }
+        switch input.value.type {
+        case .bool:
+            BooleanInputControl(input: input, vm: self.vm)
+        case .float:
+            FloatInputControl(input: input, vm: self.vm)
+        default:
+            EmptyView()
         }
+//        switch input.semantics {
+//        case .float(.range(let range)):
+//            VStack {
+//                HStack {
+//                    Text(input.label)
+//                    Spacer()
+//                    Text("\(self.value)")
+//                }
+//                Slider(value: self.$value)
+////                    .controlSize(.mini)
+//                    .sliderThumbVisibility(.hidden)
+//                    .tint(.gray)
+//            }
+//            
+//            LabeledContent {} label: { Text("Other")}
+//        default:
+//            LabeledContent {
+//                self.controlView(for: input)
+//            } label: {
+//                HStack {
+//                    Text(input.label)
+//                    if input.connected {
+//                        Button {
+//                        } label: {
+//                            Image(systemName: "arrow.right.circle")
+//                        }
+//                        .buttonStyle(.borderless)
+//                        .tint(.secondary)
+//                        .frame(width: 20)
+//                    } else {
+//                        HStack {}.frame(width: 20)
+//                    }
+//                }
+//            }
+//        }
     }
 
     @ViewBuilder
@@ -142,7 +193,6 @@ struct NodeFormView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
-
     }
 }
 
@@ -183,6 +233,7 @@ extension InspectorFeatureView {
             let flow = Flow()
             //            let node = FlowNode(kind: .valueNode(.bool))
             var nodes = [
+                .coreImageFilterNode(.halftoneEffect(.CIDotScreen)),
                 NodeKind.coreImageCustomNode(.generator(.blurredRoundedRectangleGeneratorNode)),
                 .valueNode(.bool),
             ].map({ FlowNode(kind: $0) })

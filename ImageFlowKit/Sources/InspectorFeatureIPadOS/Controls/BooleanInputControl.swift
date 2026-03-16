@@ -21,7 +21,11 @@ struct BooleanInputControl: View {
     }
 
     var body: some View {
-        Toggle("", isOn: self.binding)
+        LabeledContent {
+            Toggle("", isOn: self.binding)
+        } label: {
+            InputLabel(label: input.label, connected: input.connected)
+        }
     }
 }
 
