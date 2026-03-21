@@ -233,33 +233,6 @@ private struct RegularControl: View {
     }
 }
 
-extension EnvironmentValues {
-    @Entry var draggableFloatInputLeadingSpacing: CGFloat = 0.0
-    @Entry var draggableFloatInputSnapping: DraggableFloatInput.Snapping? = nil
-}
-
-extension View {
-    func draggableFloatInputLeadingSpacing(_ value: CGFloat) -> some View {
-        self.environment(\.draggableFloatInputLeadingSpacing, value)
-    }
-
-    func draggableFloatInputSnapping(_ snapping: DraggableFloatInput.Snapping?) -> some View {
-        self.environment(\.draggableFloatInputSnapping, snapping)
-    }
-}
-
-extension Double {
-    func snapping(toIncrements inc: Double, epsilon: Double) -> Self {
-        let snapped = (self / inc).rounded() * inc
-        print("snapped: \(snapped), self = \(self), epsilon: \(epsilon)")
-        return if abs(self - snapped) < epsilon {
-            snapped
-        } else {
-            self
-        }
-    }
-}
-
 let formatter = {
     let f = NumberFormatter()
     f.locale = .init(identifier: "en-US")

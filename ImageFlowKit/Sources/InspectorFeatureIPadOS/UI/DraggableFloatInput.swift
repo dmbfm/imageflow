@@ -118,3 +118,18 @@ struct DraggableFloatInput: View {
         )
     }
 }
+
+extension EnvironmentValues {
+    @Entry var draggableFloatInputLeadingSpacing: CGFloat = 0.0
+    @Entry var draggableFloatInputSnapping: DraggableFloatInput.Snapping? = nil
+}
+
+extension View {
+    func draggableFloatInputLeadingSpacing(_ value: CGFloat) -> some View {
+        self.environment(\.draggableFloatInputLeadingSpacing, value)
+    }
+
+    func draggableFloatInputSnapping(_ snapping: DraggableFloatInput.Snapping?) -> some View {
+        self.environment(\.draggableFloatInputSnapping, snapping)
+    }
+}
