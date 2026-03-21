@@ -1,14 +1,14 @@
-import InspectorFeatureShared
-import SwiftUI
-import SharedModels
-import Helpers
-import Logging
 import Backend
+import Helpers
+import InspectorFeatureShared
+import Logging
+import SharedModels
+import SwiftUI
 
 struct IntegerInputControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     var body: some View {
         switch input.semantics {
         case .integer(.picker(let options)):
@@ -23,19 +23,22 @@ struct PickerIntegerInputControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
     let options: [ValueSemantics.IntegerSemantics.PickerOption]
-    
+
     var value: Int {
         self.vm.nodeInputValue(self.input.index)?.maybeInt ?? 0
     }
-    
+
     var binding: Binding<Int> {
-        .init(get: {
-            self.value
-        }, set: { newValue in
-            self.vm.submit(.input(self.input.index, .int(newValue), nil), registerUndo: true)
-        })
+        .init(
+            get: {
+                self.value
+            },
+            set: { newValue in
+                self.vm.submit(.input(self.input.index, .int(newValue), nil), registerUndo: true)
+            }
+        )
     }
-    
+
     var body: some View {
         LabeledContent {
             Picker("", selection: self.binding) {
@@ -53,45 +56,53 @@ struct PickerIntegerInputControl: View {
 struct RegularIntegerInputControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     @State var debouncer: FirstValueDebouncer<Int> = .init(0.5)
-    
+
     var value: Int {
         self.vm.nodeInputValue(self.input.index)?.maybeInt ?? 0
     }
-    
-    
+
     static var formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.numberStyle = .decimal
         return f
     }()
-    
+
     func onChange(_ change: DraggableFloatInput.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 .int(Int(change.value.rounded())),
-                change.previous.map({ .int(Int($0.rounded()))})
+                change.previous.map({ .int(Int($0.rounded())) })
             ),
             registerUndo: change.commit
         )
     }
-    
+
     var body: some View {
         LabeledContent {
             HStack {
                 DraggableFloatInput(value: Double(self.value), fractionalDigits: 0, onChange: self.onChange(_:))
                     .draggableFloatInputFormatter(Self.formatter)
-                Stepper("", value: .init(get: {
-                    self.value
-                }, set: { value in
-                    self.debouncer.debounce(value: self.value) { oldValue in
-                        log("submitting:oldValue:\(oldValue)newValue:\(value)...")
-                        self.vm.submit(.input(self.input.index, .int(value), .int(oldValue)), registerUndo: true)
-                    }
-                    self.vm.submit(.input(self.input.index, .int(value), nil), registerUndo: false)
-                }))
+                Stepper(
+                    "",
+                    value: .init(
+                        get: {
+                            self.value
+                        },
+                        set: { value in
+                            self.debouncer.debounce(value: self.value) { oldValue in
+                                log("submitting:oldValue:\(oldValue)newValue:\(value)...")
+                                self.vm.submit(
+                                    .input(self.input.index, .int(value), .int(oldValue)),
+                                    registerUndo: true
+                                )
+                            }
+                            self.vm.submit(.input(self.input.index, .int(value), nil), registerUndo: false)
+                        }
+                    )
+                )
                 .fixedSize()
             }
         } label: {

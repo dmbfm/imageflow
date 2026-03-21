@@ -130,11 +130,11 @@ extension View {
     func draggableFloatInputLeadingSpacing(_ value: CGFloat) -> some View {
         self.environment(\.draggableFloatInputLeadingSpacing, value)
     }
-    
+
     func draggableFloatInputSnapping(_ snapping: DraggableFloatInput.Snapping?) -> some View {
         self.environment(\.draggableFloatInputSnapping, snapping)
     }
-    
+
     func draggableFloatInputFormatter(_ formatter: NumberFormatter) -> some View {
         self.environment(\.draggableFloatInputFormatter, formatter)
     }
