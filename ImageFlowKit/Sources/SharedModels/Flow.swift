@@ -429,7 +429,7 @@ extension Flow {
         }
     }
 
-    func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
+    public func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
         precondition(self.edges.contains(edge))
         precondition(self.isValidPort(edge.from))
         precondition(self.isValidPort(edge.to))
@@ -454,6 +454,12 @@ extension Flow {
 
         um?.endUndoGrouping()
         um?.setActionName("Delete Edge")
+    }
+
+    public func deleteEdge(connectedToInput port: InputPortLocation, undoManager um: UndoManager?) {
+        if let edge = self.edges(ofPort: .init(node: port.node, port: .input(port.index))).first {
+            self.deleteEdgeAction(edge, undoManager: um)
+        }
     }
 
     public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {

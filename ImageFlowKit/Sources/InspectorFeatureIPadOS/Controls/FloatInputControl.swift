@@ -26,7 +26,7 @@ struct FloatInputControl: View {
                 LabeledContent {
                     RegularControl(input: self.input, vm: self.vm)
                 } label: {
-                    InputLabel(label: input.label, connected: input.connected)
+                    InputLabel(input: self.input, vm: self.vm)
                 }
             }
         }
@@ -114,7 +114,7 @@ fileprivate struct AngleControl: View {
                 }
                 .disabled(self.input.connected)
             } label: {
-                InputLabel(label: input.label, connected: input.connected)
+                InputLabel(input: self.input, vm: self.vm)
             }
             .onChange(of: self.input.connected, initial: true) {
                 if self.input.connected {
@@ -161,7 +161,7 @@ fileprivate struct RangeControl: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                InputLabel(label: input.label, connected: input.connected)
+                InputLabel(input: self.input, vm: self.vm)
                 DraggableFloatInput(value: self.value, sensitivity: self.sensitivity, fractionalDigits: 2) { change in
                     self.vm.submit(.input(self.input.index, .float(change.value), change.previous.map({ .float($0) })), registerUndo: change.commit)
                 }

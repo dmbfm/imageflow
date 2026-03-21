@@ -8,27 +8,6 @@ import SharedMocking
 import SharedModels
 import SwiftUI
 
-struct InputLabel: View {
-    var label: String
-    var connected: Bool
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(label)
-            if connected {
-                Button {
-                } label: {
-                    Image(systemName: "arrow.right.circle")
-                }
-                .buttonStyle(.borderless)
-                .tint(.secondary)
-                .frame(width: 20)
-            } else {
-                HStack {}.frame(width: 20)
-            }
-        }
-    }
-}
 
 public struct InspectorFeatureView: View {
     @ObservableState var vm: InspectorFeatureViewModel

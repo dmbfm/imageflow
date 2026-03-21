@@ -24,7 +24,7 @@ struct BooleanInputControl: View {
         LabeledContent {
             Toggle("", isOn: self.binding)
         } label: {
-            InputLabel(label: input.label, connected: input.connected)
+            InputLabel(input: self.input, vm: self.vm)
         }
     }
 }

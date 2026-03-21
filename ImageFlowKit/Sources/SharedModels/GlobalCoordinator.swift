@@ -91,6 +91,7 @@ public enum UserAction {
     case convertNode(UUID, NodeKind)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     case viewport(ViewportAction)
+    case disconnect(InputPortLocation)
 
     public enum Target {
         case selection
