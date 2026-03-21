@@ -60,14 +60,18 @@ private struct InputLabelInner: View {
 
 #Preview {
     @Previewable @State var connected: Bool = false
-    VStack(alignment: .leading) {
-        InputLabelInner(label: "Some Input", connected: connected) { action in
-            switch action {
-            case .disconnect: connected = false
-            case .selectConnected: break
+    HStack {
+        VStack(alignment: .leading) {
+            InputLabelInner(label: "Some Input", connected: connected) { action in
+                switch action {
+                case .disconnect: connected = false
+                case .selectConnected: break
+                }
             }
+            .border(.gray.opacity(0.5))
+            Button("Connect") { connected = true }
+            Spacer()
         }
-        Button("Connect") { connected = true }
         Spacer()
     }
 }
