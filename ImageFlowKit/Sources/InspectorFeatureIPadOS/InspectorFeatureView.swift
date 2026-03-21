@@ -94,6 +94,8 @@ struct NodeFormView: View {
             BooleanInputControl(input: input, vm: self.vm)
         case .float:
             FloatInputControl(input: input, vm: self.vm)
+        case .int:
+            IntegerInputControl(input: input, vm: self.vm)
         default:
             EmptyView()
         }
