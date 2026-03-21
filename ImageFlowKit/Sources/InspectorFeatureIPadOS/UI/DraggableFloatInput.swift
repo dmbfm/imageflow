@@ -5,7 +5,6 @@
 //  Created by Daniel Fortes on 21/03/26.
 //
 
-
 import Helpers
 import InspectorFeatureShared
 import Logging
@@ -17,33 +16,33 @@ struct DraggableFloatInput: View {
     var sensitivity: Double = 0.1
     var fractionalDigits: Int? = 2
     var onChange: (Change) -> ()
-    
+
     @State var initialValue: Double = 0.0
     @State var initialDragValue: Double? = nil
-    
+
     @Environment(\.colorScheme) var cs
     @Environment(\.draggableFloatInputLeadingSpacing) var spacing
     @Environment(\.draggableFloatInputSnapping) var snapping
     @Environment(\.isEnabled) var enabled
-    
+
     struct Snapping {
         var increment: Double
         var tolerance: Double
     }
-    
+
     init(value: Double, sensitivity: Double = 0.1, fractionalDigits: Int? = 2, onChange: @escaping (Change) -> Void) {
         self.value = value
         self.sensitivity = sensitivity
         self.onChange = onChange
         self.fractionalDigits = fractionalDigits
     }
-    
+
     struct Change {
         var value: Double
         var previous: Double?
         var commit: Bool
     }
-    
+
     func truncatingToFractionalDigits(_ value: Double) -> Double {
         if let fractionalDigits = self.fractionalDigits {
             value.truncateTo(fractionalDigits: fractionalDigits)
@@ -51,26 +50,27 @@ struct DraggableFloatInput: View {
             value
         }
     }
-    
+
     func newDraggedValue(initial: Double, translation: Double) -> Double {
         self.snapping
             .maybeReduce(
-                self.truncatingToFractionalDigits(initial + self.sensitivity * translation)) { acc, curr in
-                    acc.snapping(toIncrements: curr.increment, epsilon: curr.tolerance)
-                }
+                self.truncatingToFractionalDigits(initial + self.sensitivity * translation)
+            ) { acc, curr in
+                acc.snapping(toIncrements: curr.increment, epsilon: curr.tolerance)
+            }
     }
-    
+
     func onDragChanged(_ translation: CGSize) {
         if self.initialDragValue == nil {
             self.initialDragValue = self.value
         }
-        
+
         if let initial = self.initialDragValue {
             let newValue = newDraggedValue(initial: initial, translation: translation.width)
             self.onChange(.init(value: newValue, previous: initial, commit: false))
         }
     }
-    
+
     func onDragEnded(_ translation: CGSize) {
         if let initial = self.initialDragValue {
             let newValue = newDraggedValue(initial: initial, translation: translation.width)
@@ -78,7 +78,7 @@ struct DraggableFloatInput: View {
         }
         self.initialDragValue = nil
     }
-    
+
     var body: some View {
         HStack {
             Spacer(minLength: spacing)

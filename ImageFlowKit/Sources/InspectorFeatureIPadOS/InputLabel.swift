@@ -1,11 +1,11 @@
-import SwiftUI
 import InspectorFeatureShared
 import SharedModels
+import SwiftUI
 
 struct InputLabel: View {
     var input: FlowNode.Input
     var vm: InspectorFeatureViewModel
-    
+
     private func handle(_ action: InputLabelInner.Action) {
         switch action {
         case .selectConnected:
@@ -14,7 +14,7 @@ struct InputLabel: View {
             self.vm.coordinator.perform(userAction: .disconnect(.init(node: self.vm.node.id, index: self.input.index)))
         }
     }
-    
+
     var body: some View {
         InputLabelInner(label: input.label, connected: input.connected, handle: self.handle(_:))
     }
@@ -24,17 +24,17 @@ private struct InputLabelInner: View {
     var label: String
     var connected: Bool
     var handle: (Action) -> ()
-    
+
     enum Action {
         case selectConnected
         case disconnect
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Text(label)
             if connected {
-                
+
                 Menu {
                     Button("Select Connected Node") {
                         self.handle(.selectConnected)
@@ -49,8 +49,7 @@ private struct InputLabelInner: View {
                 }
                 .tint(.secondary)
                 .frame(width: 20)
-                
-                
+
             } else {
                 HStack {}.frame(width: 20)
             }

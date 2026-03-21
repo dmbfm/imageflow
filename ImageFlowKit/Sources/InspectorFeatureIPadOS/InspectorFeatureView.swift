@@ -8,7 +8,6 @@ import SharedMocking
 import SharedModels
 import SwiftUI
 
-
 public struct InspectorFeatureView: View {
     @ObservableState var vm: InspectorFeatureViewModel
     @Environment(\.undoManager) var undoManager
@@ -59,10 +58,10 @@ struct NodeFormView: View {
         List {
             self.typeSectionView
             self.inputsSectionView
-//                .listRowSeparator(.hidden)
+            //                .listRowSeparator(.hidden)
             self.outputsSectionView
         }
-//        .listStyle(.plain)
+        //        .listStyle(.plain)
     }
 
     var typeSectionView: some View {
@@ -98,41 +97,41 @@ struct NodeFormView: View {
         default:
             EmptyView()
         }
-//        switch input.semantics {
-//        case .float(.range(let range)):
-//            VStack {
-//                HStack {
-//                    Text(input.label)
-//                    Spacer()
-//                    Text("\(self.value)")
-//                }
-//                Slider(value: self.$value)
-////                    .controlSize(.mini)
-//                    .sliderThumbVisibility(.hidden)
-//                    .tint(.gray)
-//            }
-//            
-//            LabeledContent {} label: { Text("Other")}
-//        default:
-//            LabeledContent {
-//                self.controlView(for: input)
-//            } label: {
-//                HStack {
-//                    Text(input.label)
-//                    if input.connected {
-//                        Button {
-//                        } label: {
-//                            Image(systemName: "arrow.right.circle")
-//                        }
-//                        .buttonStyle(.borderless)
-//                        .tint(.secondary)
-//                        .frame(width: 20)
-//                    } else {
-//                        HStack {}.frame(width: 20)
-//                    }
-//                }
-//            }
-//        }
+        //        switch input.semantics {
+        //        case .float(.range(let range)):
+        //            VStack {
+        //                HStack {
+        //                    Text(input.label)
+        //                    Spacer()
+        //                    Text("\(self.value)")
+        //                }
+        //                Slider(value: self.$value)
+        ////                    .controlSize(.mini)
+        //                    .sliderThumbVisibility(.hidden)
+        //                    .tint(.gray)
+        //            }
+        //
+        //            LabeledContent {} label: { Text("Other")}
+        //        default:
+        //            LabeledContent {
+        //                self.controlView(for: input)
+        //            } label: {
+        //                HStack {
+        //                    Text(input.label)
+        //                    if input.connected {
+        //                        Button {
+        //                        } label: {
+        //                            Image(systemName: "arrow.right.circle")
+        //                        }
+        //                        .buttonStyle(.borderless)
+        //                        .tint(.secondary)
+        //                        .frame(width: 20)
+        //                    } else {
+        //                        HStack {}.frame(width: 20)
+        //                    }
+        //                }
+        //            }
+        //        }
     }
 
     @ViewBuilder
@@ -241,22 +240,25 @@ extension InspectorFeatureView {
             self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
 
         }
-        
+
         var selection: Binding<UUID?> {
-            .init(get: {
-                self.flow.selection.first
-            }, set: { newValue in
-                if let newValue {
-                    self.flow.selection = [newValue]
+            .init(
+                get: {
+                    self.flow.selection.first
+                },
+                set: { newValue in
+                    if let newValue {
+                        self.flow.selection = [newValue]
+                    }
                 }
-            })
+            )
         }
 
         public var body: some View {
             NavigationStack {
                 ZStack {
                     Colors.canvasBackground.color
-                
+
                     Picker("", selection: self.selection) {
                         ForEach(Array(self.flow.nodes.values), id: \.id) { node in
                             Text("\(node.name)").tag(node.id)

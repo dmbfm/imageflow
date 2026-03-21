@@ -34,49 +34,48 @@ extension EnvironmentValues {
     @Entry var textFieldExDragGestureHandler: TextFieldExDragGestureHandler? = nil
 }
 
-
 extension View {
     func uiFont(_ font: UIFont? = nil) -> some View {
         self
             .environment(\.uiFont, font)
     }
-    
+
     func textFieldExDragGestureHandler(_ handler: TextFieldExDragGestureHandler?) -> some View {
         self.environment(\.textFieldExDragGestureHandler, handler)
     }
-    
+
     func textFieldExBackgroundColor(_ color: UIColor?) -> some View {
         self.environment(\.textFieldExBackgroundColor, color)
     }
-    
+
     func textFieldExForegroundColor(_ color: UIColor?) -> some View {
         self.environment(\.textFieldExForegroundColor, color)
     }
-    
+
     func textFieldExUpdatesBinding(_ value: Bool) -> some View {
         self.environment(\.textFieldExUpdatesBinding, value)
     }
-    
+
     func textFieldExInspect(_ inspect: ((UITextField) -> ())? = nil) -> some View {
         self.environment(\.textFieldExInspect, inspect)
     }
-    
+
     func textFieldExClearMode(_ value: TextFieldEx.ClearMode) -> some View {
         self.environment(\.textFieldExClearMode, value)
     }
-    
+
     func textFieldExClearButton(_ value: UITextField.ViewMode) -> some View {
         self.environment(\.textFieldExClearButton, value)
     }
-    
+
     func textFieldExPlaceholder(_ text: String?) -> some View {
         self.environment(\.textFieldExPlaceholder, text)
     }
-    
+
     func textFieldExKeyboardType(_ value: UIKeyboardType) -> some View {
         self.environment(\.textFieldExKeyboardType, value)
     }
-    
+
     func textFieldExDidBeginEditing(_ action: @escaping @MainActor (String) -> ()) -> some View {
         self.environment(\.textFieldExDidBeginEditing, action)
     }
@@ -88,11 +87,11 @@ extension View {
     func textFieldExDidChange(_ action: @escaping @MainActor (String) -> ()) -> some View {
         self.environment(\.textFieldExDidChange, action)
     }
-    
+
     func textFieldExBorderStyle(_ style: UITextField.BorderStyle) -> some View {
         self.environment(\.textFieldExBorderStyle, style)
     }
-    
+
     func textFieldExReturnKeyType(_ value: UIReturnKeyType) -> some View {
         self.environment(\.textFieldExReturnKeyType, value)
     }
@@ -101,31 +100,31 @@ extension View {
 struct TextFieldEx: View {
 
     @Binding var text: String
-    
+
     @Environment(\.textFieldExStyle) var style
     @Environment(\.colorScheme) var cs
-    
+
     typealias ClearMode = TextFieldExBase.ClearMode
-    
+
     var body: some View {
         switch self.style {
         case .default:
             TextFieldExBase(text: $text)
         case .inspectorDefault:
             TextFieldExBase(text: $text)
-//                .padding(.vertical, 4)
-//                .padding(.horizontal, 12)
-//                .background(cs == .dark ? Color(white: 0.11) : Color(white: 0.82))
-//                .background(.ultraThickMaterial)
-//                .clipShape(RoundedRectangle(cornerRadius: 20))
+        //                .padding(.vertical, 4)
+        //                .padding(.horizontal, 12)
+        //                .background(cs == .dark ? Color(white: 0.11) : Color(white: 0.82))
+        //                .background(.ultraThickMaterial)
+        //                .clipShape(RoundedRectangle(cornerRadius: 20))
         }
     }
 }
 
 struct TextFieldExBase: UIViewRepresentable {
-    
+
     @Binding var text: String
-    
+
     @Environment(\.uiFont) var font
     @Environment(\.autocorrectionDisabled) var autocorrectionDisabled
     @Environment(\.textFieldExPlaceholder) var placeholder
@@ -143,20 +142,20 @@ struct TextFieldExBase: UIViewRepresentable {
     @Environment(\.textFieldExForegroundColor) var fgColor
     @Environment(\.textFieldExDragGestureHandler) var dragGestureHandler
     @Environment(\.multilineTextAlignment) var alignment
-    
+
     var autocorrectionType: UITextAutocorrectionType {
         self.autocorrectionDisabled ? .no : .default
     }
-    
+
     enum ClearMode: Equatable {
         case none
         case onInsert
         case onBeginEditting
-        
+
         var clearOnInsert: Bool {
             self == .onInsert
         }
-        
+
         var clearOnBeginEditting: Bool {
             self == .onBeginEditting
         }
@@ -167,10 +166,10 @@ struct TextFieldExBase: UIViewRepresentable {
         view.text = self.text
         view.delegate = context.coordinator
         view.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
-//        view.keyboardType = .numbersAndPunctuation
+        //        view.keyboardType = .numbersAndPunctuation
         view.enablesReturnKeyAutomatically = false
         view.autocorrectionType = .no
-        
+
         view.keyboardType = self.keyboardType
         view.placeholder = self.placeholder
         view.font = self.font
@@ -183,80 +182,85 @@ struct TextFieldExBase: UIViewRepresentable {
         view.autocorrectionType = self.autocorrectionType
         view.backgroundColor = self.bgColor
         view.textColor = self.fgColor
-        
+
         if self.dragGestureHandler != nil {
-            view.addGestureRecognizer(UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.dragHandler(_:))))
+            view.addGestureRecognizer(
+                UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.dragHandler(_:)))
+            )
         }
-        
+
         self.inspect?(view)
-        
+
         context.coordinator.text = self.$text
         context.coordinator.updatesBinding = self.updatesBinding
         context.coordinator.didChange = self.didChange
         context.coordinator.didEndEditing = self.didEndEditing
         context.coordinator.didBeginEditing = self.didBeginEditing
-        
+
         return view
     }
-    
+
     func sizeThatFits(_ proposal: ProposedViewSize, uiView view: Inner, context: Context) -> CGSize? {
         let proposal = proposal.replacingUnspecifiedDimensions()
-        return CGSize(width: min(view.intrinsicContentSize.width, proposal.width), height: view.intrinsicContentSize.height)
+        return CGSize(
+            width: min(view.intrinsicContentSize.width, proposal.width),
+            height: view.intrinsicContentSize.height
+        )
     }
-    
+
     func updateUIView(_ view: Inner, context: Context) {
         if view.text != self.text {
             view.text = self.text
         }
-        
+
         if view.font != self.font {
             view.font = self.font
         }
-        
+
         if view.placeholder != self.placeholder {
             view.placeholder = self.placeholder
         }
-        
+
         if view.keyboardType != self.keyboardType {
             view.keyboardType = self.keyboardType
         }
-        
+
         if view.textAlignment != self.alignment.nsTextAlignment {
             view.textAlignment = self.alignment.nsTextAlignment
         }
-        
+
         if view.borderStyle != self.borderStyle {
             view.borderStyle = self.borderStyle
         }
-        
+
         if view.returnKeyType != self.returnKeyType {
             view.returnKeyType = self.returnKeyType
         }
-        
+
         if view.clearButtonMode != self.clearButton {
             view.clearButtonMode = self.clearButton
         }
-        
+
         if view.clearsOnInsertion != self.clearMode.clearOnInsert {
             view.clearsOnInsertion = self.clearMode.clearOnInsert
         }
-        
+
         if view.clearsOnBeginEditing != self.clearMode.clearOnBeginEditting {
             view.clearsOnBeginEditing = self.clearMode.clearOnBeginEditting
         }
-        
+
         if view.autocorrectionType != self.autocorrectionType {
             view.autocorrectionType = self.autocorrectionType
         }
-        
+
         if view.backgroundColor != self.bgColor {
             view.backgroundColor = self.bgColor
         }
-        
+
         if view.textColor != self.fgColor {
             view.textColor = self.fgColor
         }
-        
+
         context.coordinator.text = self.$text
         context.coordinator.updatesBinding = self.updatesBinding
         context.coordinator.didChange = self.didChange
@@ -264,7 +268,7 @@ struct TextFieldExBase: UIViewRepresentable {
         context.coordinator.didBeginEditing = self.didBeginEditing
         context.coordinator.dragGestureHandler = self.dragGestureHandler
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
@@ -272,48 +276,48 @@ struct TextFieldExBase: UIViewRepresentable {
 
 extension TextFieldExBase {
     class Coordinator: NSObject, UITextFieldDelegate {
-        
+
         var text: Binding<String>?
         var updatesBinding: Bool = true
-        
+
         var didChange: ((String) -> ())?
         var didBeginEditing: ((String) -> ())?
         var didEndEditing: ((String) -> ())?
-        
+
         var dragGestureHandler: TextFieldExDragGestureHandler?
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
             log("begin: \(textField.text, default: "")")
             self.didBeginEditing?(textField.text ?? "")
         }
-        
+
         func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
             log("end:reason:\(reason): \(textField.text, default: "")")
             self.didEndEditing?(textField.text ?? "")
         }
-        
+
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             log("shouldReturn")
             textField.endEditing(false)
             return true
         }
-        
+
         func textFieldShouldClear(_ textField: UITextField) -> Bool {
             log("shouldClear")
             return true
         }
-        
+
         @objc
         func textFieldDidChange(_ textField: UITextField) {
             log("change: \(textField.text, default: "")")
-            
+
             if let text = textField.text, self.updatesBinding {
                 self.text?.wrappedValue = text
             }
-            
+
             self.didChange?(textField.text ?? "")
         }
-        
+
         @objc
         func dragHandler(_ gesture: UIPanGestureRecognizer) {
             guard let handler = self.dragGestureHandler else { return }
@@ -329,12 +333,14 @@ extension TextFieldExBase {
 
 extension TextFieldExBase {
     class Inner: UITextField {
-        
-        override var keyCommands: [UIKeyCommand]  {[
-            .init(input: "\r", modifierFlags: [], action: #selector(Self.enterKeyPressed)),
-//            .init(input: "\033", modifierFlags: [], action: #selector(Self.enterKeyPressed)),
-        ]}
-        
+
+        override var keyCommands: [UIKeyCommand] {
+            [
+                .init(input: "\r", modifierFlags: [], action: #selector(Self.enterKeyPressed))
+                //            .init(input: "\033", modifierFlags: [], action: #selector(Self.enterKeyPressed)),
+            ]
+        }
+
         @objc
         func enterKeyPressed() {
             log("enter!!!")
@@ -359,28 +365,27 @@ extension TextAlignment {
     }
 }
 
-
 #Preview {
     @Previewable @State var text: String = "3.1415"
     ZStack {
         Color.clear
         VStack {
             TextFieldEx(text: $text)
-//                .textFieldExStyle(TextFieldExInspectorStyle())
+                //                .textFieldExStyle(TextFieldExInspectorStyle())
                 .textFieldExUpdatesBinding(false)
                 .textFieldExDidEndEditing { value in
                     text = value
                 }
-            
+
             TextFieldEx(text: $text)
                 .uiFont(.boldSystemFont(ofSize: 22))
                 .textFieldExBorderStyle(.roundedRect)
                 .textFieldExBackgroundColor(.clear)
                 .textFieldExInspect { view in
-//                    view.backgroundColor = .clear
-//                    view.backgroundColor = .red
+                    //                    view.backgroundColor = .clear
+                    //                    view.backgroundColor = .red
                 }
-            
+
             Text("value: \(text)")
         }
         .textFieldExStyle(.inspectorDefault)

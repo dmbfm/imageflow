@@ -4,15 +4,15 @@ struct AngleDial: View {
     var angle: Double
     @Environment(\.colorScheme) var cs
     @Environment(\.isEnabled) var enabled
-    
+
     var color: Color {
         Color(white: cs == .dark ? 0.45 : 0.6)
     }
-    
+
     var fillColor: Color {
         Color(white: cs == .dark ? 0.15 : 0.85)
     }
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -32,7 +32,7 @@ struct AngleDial: View {
         .foregroundStyle(self.color)
         .opacity(self.enabled ? 1 : 0)
     }
-    
+
 }
 
 #Preview {
