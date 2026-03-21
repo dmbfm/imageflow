@@ -44,6 +44,11 @@ struct LUTAssetInputType: AssetInputControlViewType {
 struct AssetInputControlView<AssetType: AssetInputControlViewType>: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+    
+    public init(vm: InspectorFeatureViewModel, input: FlowNode.Input) {
+        self.vm = vm
+        self.input = input
+    }
 
     var label: String {
         if let id = AssetType.resolve(input.value) {

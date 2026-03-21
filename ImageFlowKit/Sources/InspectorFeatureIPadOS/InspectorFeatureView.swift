@@ -96,44 +96,13 @@ struct NodeFormView: View {
             FloatInputControl(input: input, vm: self.vm)
         case .int:
             IntegerInputControl(input: input, vm: self.vm)
+        case .image:
+            AssetInputControlView<ImageAssetInputType>(input: input, vm: self.vm)
+        case .lut:
+            AssetInputControlView<LUTAssetInputType>(input: input, vm: self.vm)
         default:
-            EmptyView()
+            Text("TODO: \(input.value.type), \(input.semantics, default: "")")
         }
-        //        switch input.semantics {
-        //        case .float(.range(let range)):
-        //            VStack {
-        //                HStack {
-        //                    Text(input.label)
-        //                    Spacer()
-        //                    Text("\(self.value)")
-        //                }
-        //                Slider(value: self.$value)
-        ////                    .controlSize(.mini)
-        //                    .sliderThumbVisibility(.hidden)
-        //                    .tint(.gray)
-        //            }
-        //
-        //            LabeledContent {} label: { Text("Other")}
-        //        default:
-        //            LabeledContent {
-        //                self.controlView(for: input)
-        //            } label: {
-        //                HStack {
-        //                    Text(input.label)
-        //                    if input.connected {
-        //                        Button {
-        //                        } label: {
-        //                            Image(systemName: "arrow.right.circle")
-        //                        }
-        //                        .buttonStyle(.borderless)
-        //                        .tint(.secondary)
-        //                        .frame(width: 20)
-        //                    } else {
-        //                        HStack {}.frame(width: 20)
-        //                    }
-        //                }
-        //            }
-        //        }
     }
 
     @ViewBuilder
@@ -145,7 +114,6 @@ struct NodeFormView: View {
             FloatInputControl(input: input, vm: self.vm)
         default:
             Text("")
-        //            Toggle("", isOn: .constant(true))
         }
     }
 
