@@ -11,7 +11,7 @@ protocol AssetInputControlViewType {
 
 struct ImageAssetInputType: AssetInputControlViewType {
     static var kind: SharedModels.AssetKind { .image }
-    
+
     static func resolve(_ value: Values.Value) -> Values.AssetIdentifier? {
         if case let .image(id) = value {
             id
@@ -19,7 +19,7 @@ struct ImageAssetInputType: AssetInputControlViewType {
             nil
         }
     }
-    
+
     static func value(_ identifier: Values.AssetIdentifier?) -> Values.Value {
         .image(identifier)
     }
@@ -27,7 +27,7 @@ struct ImageAssetInputType: AssetInputControlViewType {
 
 struct LUTAssetInputType: AssetInputControlViewType {
     static var kind: SharedModels.AssetKind { .lut }
-    
+
     static func resolve(_ value: Values.Value) -> Values.AssetIdentifier? {
         if case let .lut(id) = value {
             id
@@ -35,7 +35,7 @@ struct LUTAssetInputType: AssetInputControlViewType {
             nil
         }
     }
-    
+
     static func value(_ identifier: Values.AssetIdentifier?) -> Values.Value {
         .lut(identifier)
     }
@@ -44,12 +44,12 @@ struct LUTAssetInputType: AssetInputControlViewType {
 struct AssetInputControlView<AssetType: AssetInputControlViewType>: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
-    
+
     public init(input: FlowNode.Input, vm: InspectorFeatureViewModel) {
         self.vm = vm
         self.input = input
     }
-    
+
     var label: String {
         if let id = AssetType.resolve(input.value) {
             self.vm.coordinator.titleForAsset(id: id) ?? ""
@@ -57,20 +57,19 @@ struct AssetInputControlView<AssetType: AssetInputControlViewType>: View {
             "Select..."
         }
     }
-    
+
     var hasAsset: Bool {
         AssetType.resolve(self.input.value) != nil
     }
-    
+
     func removeButtonHandler() {
         self.vm.submit(.input(self.input.index, AssetType.value(nil), nil), registerUndo: true)
     }
-    
-    
+
     private func buttonHandler(_ target: InputViewInner.Target) {
         switch target {
         case .label:
-            
+
             self.vm.coordinator.perform(
                 userAction: .openAssetPicker(
                     node: self.vm.node.id,
@@ -78,42 +77,45 @@ struct AssetInputControlView<AssetType: AssetInputControlViewType>: View {
                     kind: AssetType.kind
                 )
             )
-            
+
         case .remove:
             self.removeButtonHandler()
         }
     }
-    
+
     var body: some View {
         LabeledContent {
             InputViewInner(
-                connected: self.input.connected, hasAsset: self.hasAsset, label: self.label, onButton: self.buttonHandler(_:))
+                connected: self.input.connected,
+                hasAsset: self.hasAsset,
+                label: self.label,
+                onButton: self.buttonHandler(_:)
+            )
         } label: {
             InputLabel(input: self.input, vm: self.vm)
         }
     }
 }
 
-
 private struct InputViewInner: View {
-    
+
     let connected: Bool
     let hasAsset: Bool
     let label: String
-    
+
     var onButton: ((Target) -> ())?
-    
+
     enum Target {
         case label
         case remove
     }
-    
+
     @Environment(\.colorScheme) var cs
-    
+
     var buttonStyle: any PrimitiveButtonStyle {
         self.cs == .dark ? BorderedButtonStyle() : BorderedProminentButtonStyle()
     }
-    
+
     var body: some View {
         if !self.connected {
             HStack(spacing: 10) {
@@ -123,7 +125,7 @@ private struct InputViewInner: View {
                 .font(.system(size: 15))
                 .buttonStyle(.borderless)
                 .tint(.orange)
-                
+
                 if self.hasAsset {
                     HStack {
                         Button {
@@ -160,4 +162,3 @@ private struct InputViewInner: View {
         Toggle("hasAsset", isOn: $hasAsset)
     }
 }
-
