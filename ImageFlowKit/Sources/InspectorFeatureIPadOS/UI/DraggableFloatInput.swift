@@ -20,9 +20,9 @@ struct DraggableFloatInput: View {
     @State var initialValue: Double = 0.0
     @State var initialDragValue: Double? = nil
 
-    @Environment(\.colorScheme) var cs
     @Environment(\.draggableFloatInputLeadingSpacing) var spacing
     @Environment(\.draggableFloatInputSnapping) var snapping
+    @Environment(\.draggableFloatInputFormatter) var formatter
     @Environment(\.isEnabled) var enabled
 
     struct Snapping {
@@ -91,6 +91,7 @@ struct DraggableFloatInput: View {
                     }
                 )
             )
+            .textFieldExKeyboardType(.numbersAndPunctuation)
             .textFieldExStyle(.inspectorDefault)
             .textFieldExForegroundColor(self.enabled ? nil : .secondaryLabel)
             .textFieldExDidBeginEditing { _ in
@@ -122,14 +123,19 @@ struct DraggableFloatInput: View {
 extension EnvironmentValues {
     @Entry var draggableFloatInputLeadingSpacing: CGFloat = 0.0
     @Entry var draggableFloatInputSnapping: DraggableFloatInput.Snapping? = nil
+    @Entry var draggableFloatInputFormatter: NumberFormatter = formatter
 }
 
 extension View {
     func draggableFloatInputLeadingSpacing(_ value: CGFloat) -> some View {
         self.environment(\.draggableFloatInputLeadingSpacing, value)
     }
-
+    
     func draggableFloatInputSnapping(_ snapping: DraggableFloatInput.Snapping?) -> some View {
         self.environment(\.draggableFloatInputSnapping, snapping)
+    }
+    
+    func draggableFloatInputFormatter(_ formatter: NumberFormatter) -> some View {
+        self.environment(\.draggableFloatInputFormatter, formatter)
     }
 }
