@@ -31,7 +31,7 @@ struct FloatInputControl: View {
     }
 }
 
-fileprivate struct AngleControl: View {
+private struct AngleControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
 
@@ -150,7 +150,7 @@ fileprivate struct AngleControl: View {
     }
 }
 
-fileprivate struct RangeControl: View {
+private struct RangeControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
     let range: ClosedRange<Double>
@@ -214,7 +214,7 @@ fileprivate struct RangeControl: View {
     }
 }
 
-fileprivate struct RegularControl: View {
+private struct RegularControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
 

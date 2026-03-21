@@ -87,16 +87,16 @@ struct DraggableFloatInput: View {
                     get: {
                         formatter.string(for: self.value) ?? ""
                     },
-                    set: { newValue in
+                    set: { _ in
                     }
                 )
             )
             .textFieldExStyle(.inspectorDefault)
             .textFieldExForegroundColor(self.enabled ? nil : .secondaryLabel)
-            .textFieldExDidBeginEditing { text in
+            .textFieldExDidBeginEditing { _ in
                 self.initialValue = self.value
             }
-            .textFieldExDidChange { text in
+            .textFieldExDidChange { _ in
             }
             .textFieldExDidEndEditing { text in
                 if let number = Double(text) {

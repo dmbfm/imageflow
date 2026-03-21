@@ -381,7 +381,7 @@ extension TextAlignment {
                 .uiFont(.boldSystemFont(ofSize: 22))
                 .textFieldExBorderStyle(.roundedRect)
                 .textFieldExBackgroundColor(.clear)
-                .textFieldExInspect { view in
+                .textFieldExInspect { _ in
                     //                    view.backgroundColor = .clear
                     //                    view.backgroundColor = .red
                 }
