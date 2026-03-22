@@ -1,15 +1,15 @@
-import SwiftUI
 import InspectorFeatureShared
 import SharedModels
+import SwiftUI
 import Values
 
 struct VectorInputControl: View {
-    
+
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     @Environment(\.colorScheme) var cs
-    
+
     var dim: Int {
         switch input.value.type {
         case .vector2: 2
@@ -18,7 +18,7 @@ struct VectorInputControl: View {
         default: 0
         }
     }
-    
+
     func label(_ index: Int) -> String {
         switch index {
         case 0: "x"
@@ -28,26 +28,26 @@ struct VectorInputControl: View {
         default: ""
         }
     }
-    
+
     var value: Value? {
         self.vm.nodeInputValue(self.input.index)
     }
-    
+
     func value(_ index: Int) -> Double {
         self.value?.vector(index: index) ?? 0.0
     }
-    
-    func value(updatingIndex  index: Int, _ value: Double) -> Value? {
+
+    func value(updatingIndex index: Int, _ value: Double) -> Value? {
         self.value?.vector(settingIndex: index, to: value) ?? nil
     }
-    
+
     func onChange(_ index: Int, _ change: DraggableFloatInput.Change) {
         if let value = self.value(updatingIndex: index, change.value) {
             let previous = change.previous.flatMap({ self.value(updatingIndex: index, $0) })
             self.vm.submit(.input(self.input.index, value, previous), registerUndo: change.commit)
         }
     }
-    
+
     var backgroundColor: Color {
         if cs == .dark {
             Color(white: 0.234)
@@ -55,7 +55,7 @@ struct VectorInputControl: View {
             Color(white: 0.81)
         }
     }
-    
+
     var body: some View {
         HStack(alignment: .top) {
             InputLabel(input: self.input, vm: self.vm)
@@ -92,7 +92,7 @@ extension Value {
             0.0
         }
     }
-    
+
     func vector(settingIndex index: Int, to value: Double) -> Value {
         switch self {
         case .vector2:
@@ -112,7 +112,6 @@ extension Value {
         }
     }
 }
-
 
 #Preview {
     InspectorFeatureView.Preview(nodes: [
