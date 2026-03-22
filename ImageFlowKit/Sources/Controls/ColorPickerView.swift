@@ -1,7 +1,7 @@
+import Logging
 import SwiftUI
 import Values
 import XViewKit
-import Logging
 
 public struct ColorPickerView: XViewRepresentable {
 
@@ -31,7 +31,7 @@ public struct ColorPickerView: XViewRepresentable {
         }
 
         view.isLocked = !self.isEnabled
-        
+
         context.coordinator.onCommit = self.onCommit
         context.coordinator.color = self._color
     }
@@ -42,16 +42,16 @@ public struct ColorPickerView: XViewRepresentable {
         let width = proposal.width
         return .init(width: width, height: height)
     }
-    
+
     public func makeCoordinator() -> Coordinator {
         Coordinator()
     }
-    
+
     public class Coordinator {
-        
+
         var onCommit: ((_ newValue: Color4, _ oldValue: Color4?) -> ())?
         var color: Binding<Color4>?
-        
+
         func onEvent(_ event: ColorPickerPlatformView.Event) {
             switch event {
             case .didChange(let change):
@@ -60,7 +60,7 @@ public struct ColorPickerView: XViewRepresentable {
                         let old = change.oldValue.flatMap({ Color4(xcolor: $0) })
                         onCommit(color, old)
                     }
-                    
+
                     self.color?.wrappedValue = color
                 }
             }

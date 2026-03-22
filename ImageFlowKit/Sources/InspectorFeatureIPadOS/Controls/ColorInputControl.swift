@@ -8,23 +8,26 @@ import Values
 import Logging
 
 struct ColorInputControl: View {
-    
+
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     var binding: Binding<Color4> {
-        .init(get: {
-            self.vm.nodeInputValue(self.input.index)?.maybeColor4 ?? .black
-        }, set: { newValue in
-            self.vm.submit(.input(self.input.index, .color4(newValue), nil), registerUndo: false)
-        })
+        .init(
+            get: {
+                self.vm.nodeInputValue(self.input.index)?.maybeColor4 ?? .black
+            },
+            set: { newValue in
+                self.vm.submit(.input(self.input.index, .color4(newValue), nil), registerUndo: false)
+            }
+        )
     }
-    
+
     func onCommit(_ value: Color4, _ oldValue: Color4?) {
         log("onCommit:\(value), \(oldValue)")
-        self.vm.submit(.input(self.input.index, .color4(value), oldValue.map({ .color4($0)})), registerUndo: true)
+        self.vm.submit(.input(self.input.index, .color4(value), oldValue.map({ .color4($0) })), registerUndo: true)
     }
-    
+
     var body: some View {
         LabeledContent {
             HStack {
@@ -36,7 +39,6 @@ struct ColorInputControl: View {
         }
     }
 }
-
 
 #Preview {
     InspectorFeatureView.Preview(nodes: [
