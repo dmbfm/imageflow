@@ -87,9 +87,6 @@ public struct CanvasFeatureView: View {
                 assetStore: self.vm.assetStore,
                 coordinator: self.vm.coordinator
             )
-            #if os(iOS)
-            .safeAreaPadding(.top, 60)
-            #endif
             .opacity(self.vm.hidePreviews ? 0 : 1)
             .animation(.smooth(duration: 0.2), value: self.vm.hidePreviews)
 
