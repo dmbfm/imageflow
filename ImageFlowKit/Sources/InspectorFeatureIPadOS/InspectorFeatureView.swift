@@ -40,9 +40,11 @@ public struct InspectorFeatureView: View {
         VStack {
             NodeFormView(vm: self.vm)
                 .safeAreaBar(edge: .top) {
-                    NodeHeaderView(node: self.vm.node)
-                        .padding(.horizontal, 28)
-                        .padding(.top, 28)
+                    NodeHeaderView(node: self.vm.node, locked: self.vm.isLocked) {
+                        self.vm.toggleLocked()
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.top, 28)
                 }
                 .clipped()
         }
@@ -155,6 +157,12 @@ struct NodeFormView: View {
 struct NodeHeaderView: View {
 
     let node: FlowNode
+    let locked: Bool
+    var action: (() -> ())?
+
+    var lockIcon: String {
+        self.locked ? "lock" : "lock.open"
+    }
 
     var body: some View {
         HStack {
@@ -166,14 +174,18 @@ struct NodeHeaderView: View {
 
             Spacer()
             Button {
+                self.action?()
             } label: {
-                Image(systemName: "lock")
+                Image(systemName: self.lockIcon)
             }
+            .buttonStyle(.plain)
+
             Menu {
                 Button("Delete") {}
             } label: {
                 Image(systemName: "ellipsis")
             }
+            .buttonStyle(.plain)
         }
     }
 }

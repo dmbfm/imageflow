@@ -17,7 +17,9 @@ public class InspectorFeatureViewModel {
 
     public let flow: Flow
     public let coordinator: GlobalCoordinator
-    public var undoManager: UndoManager?
+    @ObservationIgnored public var undoManager: UndoManager?
+
+    public var isLocked: Bool = false
 
     public var hasNode: Bool {
         self.currentNode != nil
@@ -68,6 +70,7 @@ public class InspectorFeatureViewModel {
 
         guard let newValue = self.flow.nodes[current.id] else {
             self.currentNode = nil
+            self.isLocked = false
             return
         }
 
@@ -76,7 +79,19 @@ public class InspectorFeatureViewModel {
         }
     }
 
+    public func toggleLocked() {
+        self.isLocked.toggle()
+
+        if !self.isLocked {
+            self.selectionDidChange()
+        }
+    }
+
     func selectionDidChange() {
+        guard !self.isLocked else {
+            return
+        }
+
         guard let currentNode = self.currentNode else {
             self.setCurrentNodeToSelection()
             return
