@@ -355,8 +355,8 @@ public final class ColorPickerPlatformView: UIView {
     }
 
     public override func layoutSubviews() {
-        self.bgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
-        self.fgView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
+        self.bgView.frame = self.bounds
+        self.fgView.frame = self.bounds
     }
 
     // MARK: - Helpers

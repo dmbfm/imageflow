@@ -1,6 +1,7 @@
 import SwiftUI
 import Values
 import XViewKit
+import Logging
 
 public struct ColorPickerView: XViewRepresentable {
 
@@ -10,24 +11,15 @@ public struct ColorPickerView: XViewRepresentable {
 
     public init(color: Binding<Color4>, onCommit: ((_ newValue: Color4, _ oldValue: Color4?) -> ())? = nil) {
         self._color = color
+        self.onCommit = onCommit
     }
 
     public func makeView(context: Context) -> ColorPickerPlatformView {
         let view = ColorPickerPlatformView()
-        view.color = self.color.xcolor  // XColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
+        view.color = self.color.xcolor
         view.showsAlpha = true
-        view.onEvent = { event in
-            switch event {
-            case .didChange(let change):
-                if let color = Color4(xcolor: change.newValue), self.color != color {
-                    self.color = color
-
-                    if change.commit, let onCommit = self.onCommit {
-                        let old = change.oldValue.flatMap({ Color4(xcolor: $0) })
-                        onCommit(color, old)
-                    }
-                }
-            }
+        view.onEvent = { [weak coordinator = context.coordinator] event in
+            coordinator?.onEvent(event)
         }
         view.isLocked = !self.isEnabled
         return view
@@ -39,6 +31,9 @@ public struct ColorPickerView: XViewRepresentable {
         }
 
         view.isLocked = !self.isEnabled
+        
+        context.coordinator.onCommit = self.onCommit
+        context.coordinator.color = self._color
     }
 
     public func sizeThatFits(_ proposal: ProposedViewSize, view: ColorPickerPlatformView, context: Context) -> CGSize? {
@@ -46,6 +41,30 @@ public struct ColorPickerView: XViewRepresentable {
         let height = view.intrinsicContentSize.height
         let width = proposal.width
         return .init(width: width, height: height)
+    }
+    
+    public func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    public class Coordinator {
+        
+        var onCommit: ((_ newValue: Color4, _ oldValue: Color4?) -> ())?
+        var color: Binding<Color4>?
+        
+        func onEvent(_ event: ColorPickerPlatformView.Event) {
+            switch event {
+            case .didChange(let change):
+                if let color = Color4(xcolor: change.newValue), self.color?.wrappedValue != color || change.commit {
+                    if change.commit, let onCommit = self.onCommit {
+                        let old = change.oldValue.flatMap({ Color4(xcolor: $0) })
+                        onCommit(color, old)
+                    }
+                    
+                    self.color?.wrappedValue = color
+                }
+            }
+        }
     }
 }
 

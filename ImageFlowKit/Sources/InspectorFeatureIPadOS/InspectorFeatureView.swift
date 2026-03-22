@@ -102,6 +102,8 @@ struct NodeFormView: View {
             AssetInputControlView<LUTAssetInputType>(input: input, vm: self.vm)
         case .vector2, .vector3, .vector4:
             VectorInputControl(input: input, vm: self.vm)
+        case .color4:
+            ColorInputControl(input: input, vm: self.vm)
         default:
             Text("TODO: \(input.value.type), \(input.semantics, default: "")")
         }
