@@ -48,7 +48,7 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
                     }
                     .frame(width: 340)
                     .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-                    .padding(.trailing, 24)
+                    .padding(.trailing, 12)
                     .safeAreaPadding(self.insets)
                     //                    .ignoresSafeArea(.keyboard)
                     .transition(.move(edge: .trailing))
