@@ -106,6 +106,8 @@ struct NodeFormView: View {
             ColorInputControl(input: input, vm: self.vm)
         case .string:
             StringInputControl(input: input, vm: self.vm)
+        case .matrix3x3, .matrix5x5, .matrix7x7:
+            MatrixInputControl(input: input, vm: self.vm)
         default:
             Text("TODO: \(input.value.type), \(input.semantics, default: "")")
         }

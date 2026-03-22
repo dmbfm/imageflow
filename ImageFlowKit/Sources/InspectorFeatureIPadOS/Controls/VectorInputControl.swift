@@ -4,6 +4,7 @@ import InspectorFeatureShared
 import SharedModels
 import SwiftUI
 import Values
+import Design
 
 struct VectorInputControl: View {
 
@@ -50,14 +51,6 @@ struct VectorInputControl: View {
         }
     }
 
-    var backgroundColor: Color {
-        if cs == .dark {
-            Color(white: 0.234)
-        } else {
-            Color(white: 0.81)
-        }
-    }
-
     var body: some View {
         HStack(alignment: .top) {
             InputLabel(input: self.input, vm: self.vm)
@@ -72,7 +65,7 @@ struct VectorInputControl: View {
                     .padding(.vertical, 4)
                     .padding(.horizontal, 8)
                     .background {
-                        self.backgroundColor
+                        Colors.inspectorControlBgIOS.color
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }

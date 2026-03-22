@@ -63,10 +63,16 @@ public enum Colors {
         light: ImageFlowPalette.inspectorControlForegroundLight,
         dark: ImageFlowPalette.inspectorControlForegroundDark
     )
+
+    public static let inspectorControlBgIOS: DynamicColor = .init(
+        light: ImageFlowPalette.inspectorControlBgIOSLight,
+        dark: ImageFlowPalette.inspectorControlBgIOSDark
+    )
 }
 
 #if os(macOS)
 import AppKit
+
 /// Image Flow Palette
 /// Created with ColorSlurp
 class ImageFlowPalette {
@@ -183,7 +189,7 @@ class ImageFlowPalette {
 
     /// Inspector Control Background Dark #343434
     static var inspectorControlBackgroundDark: NSColor {
-        return NSColor(red: 0.18, green: 0.18, blue: 0.18, alpha: 1.0)
+        return NSColor(red: 0.205, green: 0.205, blue: 0.205, alpha: 1.0)
     }
 
     /// Inspector Control Foreground Dark #e4e4e4
@@ -196,15 +202,26 @@ class ImageFlowPalette {
         return NSColor(red: 0.887, green: 0.887, blue: 0.887, alpha: 1.0)
     }
 
-    /// Inspector Control Borded Light #dbdbdb
+    /// Inspector Control Border Light #dbdbdb
     static var inspectorControlBorderLight: NSColor {
-        return NSColor(red: 0.78, green: 0.78, blue: 0.78, alpha: 1.0)
+        return NSColor(red: 0.859, green: 0.859, blue: 0.859, alpha: 1.0)
     }
 
     /// Inspector Control Foreground Light #262626
     static var inspectorControlForegroundLight: NSColor {
         return NSColor(red: 0.148, green: 0.148, blue: 0.148, alpha: 1.0)
     }
+
+    /// Inspector Control Bg IOS Light #cfcfcf
+    static var inspectorControlBgIOSLight: NSColor {
+        return NSColor(red: 0.81, green: 0.81, blue: 0.81, alpha: 1.0)
+    }
+
+    /// Inspector Control Bg IOS Dark #3d3d3d
+    static var inspectorControlBgIOSDark: NSColor {
+        return NSColor(red: 0.237, green: 0.237, blue: 0.237, alpha: 1.0)
+    }
+
 }
 #else
 
@@ -347,6 +364,16 @@ class ImageFlowPalette {
     /// Inspector Control Foreground Light #262626
     static var inspectorControlForegroundLight: UIColor {
         return UIColor(red: 0.148, green: 0.148, blue: 0.148, alpha: 1.0)
+    }
+
+    /// Inspector Control Bg IOS Light #cfcfcf
+    static var inspectorControlBgIOSLight: UIColor {
+        return UIColor(red: 0.81, green: 0.81, blue: 0.81, alpha: 1.0)
+    }
+
+    /// Inspector Control Bg IOS Dark #3d3d3d
+    static var inspectorControlBgIOSDark: UIColor {
+        return UIColor(red: 0.237, green: 0.237, blue: 0.237, alpha: 1.0)
     }
 
 }

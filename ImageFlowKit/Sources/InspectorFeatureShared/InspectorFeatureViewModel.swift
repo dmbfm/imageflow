@@ -162,6 +162,7 @@ public class InspectorFeatureViewModel {
             }
         case .input(let index, let value, let oldValue):
             if registerUndo && oldValue == value {
+                log("skipping undo registration: new value is equal to old value")
                 return
             }
             self.flow.setNodeValue(
