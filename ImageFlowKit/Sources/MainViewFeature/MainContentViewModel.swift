@@ -29,7 +29,7 @@ final class MainContentViewModel {
     /// The canvas viewport state
     let canvas: CanvasFeatureState
     /// If true, show the inspector panel
-    var showInspector: Bool = true
+    var showInspector: Bool = false
     /// If true show the Asset Browser sheet
     var showAssetBrowser: Bool = false {
         didSet {
