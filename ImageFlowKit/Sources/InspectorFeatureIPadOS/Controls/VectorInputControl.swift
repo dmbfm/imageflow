@@ -1,3 +1,5 @@
+#if os(iOS)
+
 import InspectorFeatureShared
 import SharedModels
 import SwiftUI
@@ -120,3 +122,5 @@ extension Value {
         .init(kind: .splitValue(.vector4)),
     ])
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if os(iOS)
+
 import Backend
 import Helpers
 import InspectorFeatureShared
@@ -122,3 +124,5 @@ struct RegularIntegerInputControl: View {
         .init(kind: .coreImageCustomNode(.segmentation(.personSegmentation)))
     ])
 }
+
+#endif

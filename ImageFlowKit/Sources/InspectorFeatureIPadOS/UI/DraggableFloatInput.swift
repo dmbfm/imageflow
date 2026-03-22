@@ -1,9 +1,4 @@
-//
-//  DraggableFloatInput.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 21/03/26.
-//
+#if os(iOS)
 
 import Helpers
 import InspectorFeatureShared
@@ -139,3 +134,5 @@ extension View {
         self.environment(\.draggableFloatInputFormatter, formatter)
     }
 }
+
+#endif
