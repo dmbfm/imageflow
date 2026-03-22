@@ -40,9 +40,7 @@ public struct InspectorFeatureView: View {
         VStack {
             NodeFormView(vm: self.vm)
                 .safeAreaBar(edge: .top) {
-                    NodeHeaderView(node: self.vm.node, locked: self.vm.isLocked) {
-                        self.vm.toggleLocked()
-                    }
+                    NodeHeaderView(node: self.vm.node, vm: self.vm)
                     .padding(.horizontal, 28)
                     .padding(.top, 28)
                 }
@@ -157,11 +155,10 @@ struct NodeFormView: View {
 struct NodeHeaderView: View {
 
     let node: FlowNode
-    let locked: Bool
-    var action: (() -> ())?
+    let vm: InspectorFeatureViewModel
 
     var lockIcon: String {
-        self.locked ? "lock" : "lock.open"
+        self.vm.isLocked ? "lock" : "lock.open"
     }
 
     var body: some View {
@@ -174,14 +171,25 @@ struct NodeHeaderView: View {
 
             Spacer()
             Button {
-                self.action?()
+                self.vm.toggleLocked()
             } label: {
                 Image(systemName: self.lockIcon)
             }
             .buttonStyle(.plain)
 
             Menu {
-                Button("Delete") {}
+                Button("Cut Node", systemImage: .systemIconMenuCut) {
+                    self.vm.coordinator.perform(userAction: .cut(.node(self.vm.node.id)))
+                }
+                Button("Copy Node", systemImage: .systemIconMenuCopy) {
+                    self.vm.coordinator.perform(userAction: .copy(.node(self.vm.node.id)))
+                }
+                Button("Duplicate Node", systemImage: .systemIconMenuDuplicate) {
+                    self.vm.coordinator.perform(userAction: .duplicate(.node(self.vm.node.id)))
+                }
+                Button("Delete Node", systemImage: .systemIconMenuDelete, role: .destructive) {
+                    self.vm.coordinator.perform(userAction: .delete(.node(self.vm.node.id)))
+                }
             } label: {
                 Image(systemName: "ellipsis")
             }
