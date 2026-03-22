@@ -104,6 +104,8 @@ struct NodeFormView: View {
             VectorInputControl(input: input, vm: self.vm)
         case .color4:
             ColorInputControl(input: input, vm: self.vm)
+        case .string:
+            StringInputControl(input: input, vm: self.vm)
         default:
             Text("TODO: \(input.value.type), \(input.semantics, default: "")")
         }
