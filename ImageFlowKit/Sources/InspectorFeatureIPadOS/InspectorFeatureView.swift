@@ -41,8 +41,8 @@ public struct InspectorFeatureView: View {
             NodeFormView(vm: self.vm)
                 .safeAreaBar(edge: .top) {
                     NodeHeaderView(node: self.vm.node, vm: self.vm)
-                    .padding(.horizontal, 28)
-                    .padding(.top, 28)
+                        .padding(.horizontal, 28)
+                        .padding(.top, 28)
                 }
                 .clipped()
         }
