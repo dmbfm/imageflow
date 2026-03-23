@@ -126,7 +126,7 @@ extension Flow {
         self.edges.count(where: { edge in edge.from.node == id || edge.to.node == id })
     }
 
-    func edges(ofPort port: PortLocation) -> [Edge] {
+    public func edges(ofPort port: PortLocation) -> [Edge] {
         self.edges.filter({ edge in edge.from == port || edge.to == port })
     }
 

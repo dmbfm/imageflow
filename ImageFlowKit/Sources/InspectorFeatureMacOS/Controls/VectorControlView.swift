@@ -17,7 +17,7 @@ struct MultiRowControlView<ControlView: View>: View {
     }
 
     var body: some View {
-        InspectorInputTitle(input: input)
+        InspectorPropertyLabel(label: input.label)
 
         ForEach(0..<self.rowCount, id: \.self) { n in
             let row = self.row(n)
@@ -36,7 +36,7 @@ struct MultiRowControlView<ControlView: View>: View {
             }
         }
 
-        ConnectedNodeButton(vm: self.vm, input: self.input)
+        InputConnectedNodeButton(vm: self.vm, input: self.input)
     }
 }
 

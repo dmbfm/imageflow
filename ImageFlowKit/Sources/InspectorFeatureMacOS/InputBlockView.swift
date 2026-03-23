@@ -7,12 +7,6 @@ struct InputBlockView: View {
 
     let vm: InspectorFeatureViewModel
 
-    @State var expanded: Bool = true
-
-    var chevronIcon: String {
-        self.expanded ? "chevron.down" : "chevron.right"
-    }
-
     var configuration: BlockGridLayout.Configuartion {
         .init(
             horizontalSpacing: .init().with(\.control, 4),
@@ -39,39 +33,11 @@ struct InputBlockView: View {
         )
     }
 
-    func onTapHeader() {
-        self.expanded.toggle()
-    }
-
     var body: some View {
-        BlockContainer {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    HStack(spacing: 6) {
-                        Image(systemName: self.chevronIcon)
-                            .bold()
-                            .foregroundStyle(.tertiary)
-                            .font(.system(size: 10))
-                            .frame(width: 10)
-                        Text("Inputs")
-                            .bold()
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.onTapHeader()
-                    }
-                    Spacer()
-                }
-
-                if self.expanded {
-                    BlockGridLayout(self.configuration) {
-                        ForEach(self.vm.node.inputs) { input in
-                            self.gridRow(input)
-                        }
-                    }
-                    .padding(.leading, 16)
-                    .padding(.top, 12)
-                    .frame(maxWidth: .infinity)
+        InspectorBlock("Inputs") {
+            BlockGridLayout(self.configuration) {
+                ForEach(self.vm.node.inputs) { input in
+                    self.gridRow(input)
                 }
             }
         }
@@ -95,7 +61,7 @@ struct InputBlockView: View {
 
     @ViewBuilder
     func gridSingleRow(_ input: FlowNode.Input) -> some View {
-        InspectorInputTitle(input: input)
+        InspectorPropertyLabel(label: input.label)
 
         Text("")
 
@@ -105,20 +71,31 @@ struct InputBlockView: View {
             Spacer(minLength: 0)
         }
 
-        ConnectedNodeButton(vm: self.vm, input: input)
+        InputConnectedNodeButton(vm: self.vm, input: input)
     }
 }
 
-struct ConnectedNodeButton: View {
+struct InputConnectedNodeButton: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
 
     var body: some View {
-        Button {
+        ConnectedNodeButton(connected: input.connected) {
             self.vm.flow.select(
                 nodeConnectedToNode: self.vm.node.id,
                 atInputPort: input.index
             )
+        }
+    }
+}
+
+struct ConnectedNodeButton: View {
+    var connected: Bool
+    var action: () -> ()
+
+    var body: some View {
+        Button {
+            self.action()
         } label: {
             Image(systemName: "arrow.right.circle")
                 .font(.system(size: 14))
@@ -127,17 +104,15 @@ struct ConnectedNodeButton: View {
         .help("Select the connected node.")
         .buttonBorderShape(.roundedRectangle)
         .buttonStyle(.borderless)
-        .padding(.leading, 0)
-        .disabled(!input.connected)
-        .opacity(input.connected ? 1 : 0)
+        .disabled(!self.connected)
+        .opacity(self.connected ? 1 : 0)
     }
-
 }
 
-struct InspectorInputTitle: View {
-    var input: FlowNode.Input
+struct InspectorPropertyLabel: View {
+    var label: String
     var body: some View {
-        Text(input.label)
+        Text(self.label)
             .lineLimit(1)
             .foregroundStyle(.secondary)
             .truncationMode(.tail)

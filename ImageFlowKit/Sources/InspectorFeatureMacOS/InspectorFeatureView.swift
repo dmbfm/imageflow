@@ -91,6 +91,9 @@ public struct InspectorFeatureView: View {
             .padding(.bottom, 12)
 
             InputBlockView(vm: self.vm)
+                .padding(.bottom, 12)
+
+            OutputBlockView(vm: self.vm)
 
             Spacer()
         }
@@ -189,32 +192,11 @@ struct TypeBlockView: View {
     }
 }
 
-struct BlockContainer<Content: View>: View {
-    var content: Content
-
-    init(@ViewBuilder _ content: () -> Content) {
-        self.content = content()
-    }
-
-    var body: some View {
-        VStack {
-            HStack {
-                self.content
-            }
-            .padding(.leading, 6)
-            .padding(.trailing, 6)
-            .padding(.vertical, 8)
-        }
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-    }
-}
-
 extension Flow {
     static func preview(_ kind: NodeKind) -> Flow {
         let flow = Flow()
         var node = FlowNode(kind: kind)
-        node.inputs[2].connected = true
+//        node.inputs[2].connected = true
         flow.addNode(node, at: .zero)
         flow.select([node.id])
         return flow
@@ -229,7 +211,7 @@ extension Flow {
 }
 
 #Preview("Float Node") {
-    @Previewable @State var flow: Flow = .preview(.valueNode(.float))
+    @Previewable @State var flow: Flow = .preview(.valueNode(.vector2))
     let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
     InspectorFeatureView(flow: flow, coordinator: coordinator)
         .frame(width: 350)
