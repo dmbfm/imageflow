@@ -49,6 +49,40 @@ public struct InspectorFeatureView: View {
     }
 }
 
+struct TypeSectionView: View {
+    let vm: InspectorFeatureViewModel
+
+    var types: [NodeKind] {
+        self.vm.node.variations
+    }
+
+    var binding: Binding<NodeKind> {
+        .init(
+            get: {
+                self.vm.node.kind
+            },
+            set: { newValue in
+                self.vm.flow.convertNodeAction(self.vm.node.id, kind: newValue, undoManager: self.vm.undoManager)
+            }
+        )
+    }
+
+    var body: some View {
+        LabeledContent("Type") {
+            if types.count <= 1 {
+                Text(self.vm.node.kind.displayName)
+            } else {
+                Picker("", selection: self.binding) {
+                    ForEach(self.types, id: \.self) { ty in
+                        Text(ty.displayName)
+                            .tag(ty)
+                    }
+                }
+            }
+        }
+    }
+}
+
 struct NodeFormView: View {
 
     let vm: InspectorFeatureViewModel
@@ -56,18 +90,14 @@ struct NodeFormView: View {
 
     var body: some View {
         List {
-            self.typeSectionView
+
+            TypeSectionView(vm: self.vm)
+
             self.inputsSectionView
             //                .listRowSeparator(.hidden)
             self.outputsSectionView
         }
         //        .listStyle(.plain)
-    }
-
-    var typeSectionView: some View {
-        LabeledContent("Type") {
-            Text(self.vm.node.kind.displayName)
-        }
     }
 
     var inputsSectionView: some View {
