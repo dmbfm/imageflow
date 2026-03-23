@@ -13,7 +13,7 @@ import Values
 
 @Observable
 @MainActor
-public class InspectorFeatureViewModel {
+public class InspectorFeatureViewModel: Observable {
 
     public let flow: Flow
     public let coordinator: GlobalCoordinator

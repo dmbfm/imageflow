@@ -32,20 +32,28 @@ public struct InspectorFeatureView: View {
             }
         }
         .onChange(of: self.um, initial: true) { self.vm.undoManager = um }
-        // .background(Color.randomHue())
     }
 
     @ViewBuilder
     public var content: some View {
         VStack(spacing: 0) {
-
-            self.headerView
-                .padding(.horizontal, 12)
-                .padding(.top, 12)
-
             ScrollView {
                 self.nodeContentView
             }
+            .safeAreaBar(edge: .top) {
+                self.headerView
+                    .padding(.horizontal, 12)
+                    .padding(.top, 14)
+                    .padding(.leading, 4)
+                    .padding(.bottom, 4)
+            }
+            .safeAreaBar(edge: .bottom) {
+                HStack {
+                    Color(white: 1.0, opacity: 0.0001)
+                }
+                .frame(height: 20)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 22))
         }
     }
 

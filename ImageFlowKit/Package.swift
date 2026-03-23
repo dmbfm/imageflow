@@ -226,6 +226,7 @@ let package = Package(
                 "ContextMenus",
                 "InspectorFeatureMacOS",
                 "InspectorFeatureIPadOS",
+                "InspectorFeatureShared",
             ]
         ),
         .target(

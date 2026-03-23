@@ -17,7 +17,6 @@ import CanvasFeature
 import AssetManager
 import AssetBrowserFeature
 import SidebarFeature
-import InspectorFeatureMacOS
 
 struct MainContentViewMacOS: View {
 
@@ -47,21 +46,17 @@ struct MainContentViewMacOS: View {
         } detail: {
             DetailView(vm: self.vm, focus: self.$focus)
         }
-        .inspector(isPresented: self.vm.showInspectorSafeBinding) {
-            InspectorView(flow: self.vm.flow, coordinator: self.vm.coordinator)
-                .toolbar {
-                    ToolbarItem(id: "toggle-inspector-v2", placement: .primaryAction) {
-                        Button("Toggle Inspector", systemImage: "sidebar.right") {
-                            self.vm.showInspector.toggle()
-                        }
-                    }
-                }
-                .inspectorColumnWidth(min: 200, ideal: 350, max: 600)
-                .focusable()
-                .focusEffectDisabled()
-                .focused(self.$focus, equals: .inspector)
-        }
         .toolbar { self.toolbarContent }
+        .toolbar {
+            ToolbarSpacer()
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    self.vm.showInspector.toggle()
+                } label: {
+                    Image(systemName: "sidebar.right")
+                }
+            }
+        }
         .toolbarRole(.editor)
         .sheet(
             isPresented: self.$vm.showAssetBrowser,
@@ -159,6 +154,8 @@ struct MainContentViewMacOS: View {
                 self.vm.openAssetBrowser()
             }
         }
+
+        ToolbarSpacer()
     }
 }
 
