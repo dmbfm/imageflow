@@ -41,7 +41,7 @@ public struct InspectorFeatureView: View {
                 self.nodeContentView
             }
             .safeAreaBar(edge: .top) {
-                self.headerView
+                HeaderView(vm: self.vm)
                     .padding(.horizontal, 12)
                     .padding(.top, 14)
                     .padding(.leading, 4)
@@ -54,30 +54,6 @@ public struct InspectorFeatureView: View {
                 .frame(height: 20)
             }
             .clipShape(RoundedRectangle(cornerRadius: 22))
-        }
-    }
-
-    var headerView: some View {
-        HeaderView(
-            icon: self.vm.node.kind.icon,
-            title: .init(
-                get: {
-                    self.vm.node.name
-                },
-                set: { newValue in
-                    self.vm.node.name = newValue
-                }
-            ),
-            locked: self.vm.isLocked,
-        ) { [weak vm = self.vm] action in
-            switch action {
-            case .submitName:
-                vm?.submit(.name, registerUndo: true)
-            case .cancelName:
-                vm?.cancel(.name)
-            case .toggleLock:
-                vm?.toggleLocked()
-            }
         }
     }
 
@@ -111,33 +87,34 @@ public struct InspectorFeatureView: View {
 
 struct HeaderView: View {
 
-    let icon: String
-    let title: Binding<String>
-    let locked: Bool
-    let action: (Action) -> ()
-
-    var lockIcon: String {
-        self.locked ? "lock" : "lock.open"
-    }
-
-    enum Action {
-        case submitName
-        case cancelName
-        case toggleLock
-    }
-
+    let vm: InspectorFeatureViewModel
     @FocusState var textFieldFocused: Bool
 
-    internal init(
-        icon: String,
-        title: Binding<String>,
-        locked: Bool,
-        action: @escaping (Action) -> (),
-    ) {
-        self.icon = icon
-        self.title = title
-        self.locked = locked
-        self.action = action
+    var lockIcon: String {
+        self.vm.isLocked ? "lock" : "lock.open"
+    }
+
+    var icon: String {
+        self.vm.node.kind.icon
+    }
+
+    var title: Binding<String> {
+        .init(
+            get: {
+                self.vm.node.name
+            },
+            set: { newValue in
+                self.vm.node.name = newValue
+            }
+        )
+    }
+
+    func submitName() {
+        self.vm.submit(.name, registerUndo: true)
+    }
+
+    func cancelName() {
+        self.vm.cancel(.name)
     }
 
     var body: some View {
@@ -150,30 +127,27 @@ struct HeaderView: View {
                 .textFieldStyle(.plain)
                 .focused(self.$textFieldFocused)
                 .onSubmit {
-                    self.action(.submitName)
+                    self.submitName()
                     self.textFieldFocused = false
                 }
                 #if os(macOS)
             .onExitCommand {
-                self.action(.cancelName)
+                self.cancelName()
                 self.textFieldFocused = false
             }
                 #endif
                 .font(.headline)
             Spacer()
             Button("", systemImage: self.lockIcon) {
-                self.action(.toggleLock)
+                self.vm.toggleLocked()
             }
             .buttonStyle(.borderless)
-            Menu("", systemImage: "ellipsis") {
-                Button("Delete") {}
-            }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
+
+            InspectorNodeMenuButton(node: self.vm.node, vm: self.vm)
         }
         .onChange(of: self.textFieldFocused, initial: false) {
             if !self.textFieldFocused {
-                self.action(.submitName)
+                self.submitName()
             }
         }
     }
@@ -213,7 +187,7 @@ struct TypeBlockView: View {
 extension Flow {
     static func preview(_ kind: NodeKind) -> Flow {
         let flow = Flow()
-        var node = FlowNode(kind: kind)
+        let node = FlowNode(kind: kind)
         //        node.inputs[2].connected = true
         flow.addNode(node, at: .zero)
         flow.select([node.id])

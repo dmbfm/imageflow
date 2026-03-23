@@ -177,23 +177,7 @@ struct NodeHeaderView: View {
             }
             .buttonStyle(.plain)
 
-            Menu {
-                Button("Cut Node", systemImage: .systemIconMenuCut) {
-                    self.vm.coordinator.perform(userAction: .cut(.node(self.vm.node.id)))
-                }
-                Button("Copy Node", systemImage: .systemIconMenuCopy) {
-                    self.vm.coordinator.perform(userAction: .copy(.node(self.vm.node.id)))
-                }
-                Button("Duplicate Node", systemImage: .systemIconMenuDuplicate) {
-                    self.vm.coordinator.perform(userAction: .duplicate(.node(self.vm.node.id)))
-                }
-                Button("Delete Node", systemImage: .systemIconMenuDelete, role: .destructive) {
-                    self.vm.coordinator.perform(userAction: .delete(.node(self.vm.node.id)))
-                }
-            } label: {
-                Image(systemName: "ellipsis")
-            }
-            .buttonStyle(.plain)
+            InspectorNodeMenuButton(node: self.node, vm: self.vm)
         }
     }
 }
