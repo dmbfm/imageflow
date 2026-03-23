@@ -102,7 +102,7 @@ struct PreviewFeatureViewStyle: Sendable, Equatable {
 
     static var iOS: Self {
         .init(
-            padding: .init(width: 25, height: 25),
+            padding: .init(width: 18, height: 0),
             dokcedDragHandleHeight: 30,
             dockedContentPadding: 0,
             dockedPreviewStyle: .glass,
