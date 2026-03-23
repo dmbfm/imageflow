@@ -211,7 +211,7 @@ extension Flow {
 }
 
 #Preview("Float Node") {
-    @Previewable @State var flow: Flow = .preview(.valueNode(.vector2))
+    @Previewable @State var flow: Flow = .preview(.valueNode(.bool))
     let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
     InspectorFeatureView(flow: flow, coordinator: coordinator)
         .frame(width: 350)

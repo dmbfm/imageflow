@@ -11,18 +11,10 @@ struct OutputBlockView: View {
         InspectorBlock("Outputs") {
             VStack(alignment: .leading) {
                 ForEach(self.vm.node.outputs) { output in
-                    HStack(alignment: .firstTextBaseline) {
+                    HStack(alignment: .bottom) {
                         InspectorPropertyLabel(label: output.label)
 
-                        Text(output.type.displayName.uppercased())
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(Color(white: 0.13))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                            .background {
-                                Color(white: 0.45)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        Pill(text: output.type.displayName.uppercased())
 
                         Spacer()
 
@@ -31,6 +23,42 @@ struct OutputBlockView: View {
                 }
             }
         }
+    }
+}
+
+struct Pill: View {
+
+    var text: String
+    @Environment(\.colorScheme) var cs
+
+    var bg: Color {
+        switch self.cs {
+        case .dark:
+            Color(white: 0.45)
+        default:
+            Color(white: 0.45)
+        }
+    }
+
+    var fg: Color {
+        switch self.cs {
+        case .dark:
+            Color(white: 0.13)
+        default:
+            Color(white: 0.90)
+        }
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 8, weight: .bold))
+            .foregroundStyle(self.fg)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background {
+                self.bg
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -52,6 +80,18 @@ struct OutputConnectedNodeButton: View {
     }
 
     var body: some View {
+        if nodes.count == 0 {
+            Button {
+            } label: {
+                Image(systemName: "arrow.right.circle.dotted")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+            }
+            .help("Select the connected node.")
+            .buttonBorderShape(.roundedRectangle)
+            .buttonStyle(.borderless)
+            .disabled(true)
+        }
         if nodes.count == 1 {
             ConnectedNodeButton(connected: output.connected) {
                 if let first = self.nodes.first {

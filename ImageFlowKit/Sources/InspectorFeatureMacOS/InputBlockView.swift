@@ -10,6 +10,7 @@ struct InputBlockView: View {
     var configuration: BlockGridLayout.Configuartion {
         .init(
             horizontalSpacing: .init().with(\.control, 4),
+            labelWidthPercent: 0.45,
             properties: self.vm.node.inputs.map({ input in
                 switch input.value.type {
                 case .vector2:
@@ -93,11 +94,15 @@ struct ConnectedNodeButton: View {
     var connected: Bool
     var action: () -> ()
 
+    var icon: String {
+        self.connected ? "arrow.right.circle" : "arrow.right.circle.dotted"
+    }
+
     var body: some View {
         Button {
             self.action()
         } label: {
-            Image(systemName: "arrow.right.circle")
+            Image(systemName: self.icon)
                 .font(.system(size: 14))
                 .foregroundStyle(.secondary)
         }
@@ -105,7 +110,6 @@ struct ConnectedNodeButton: View {
         .buttonBorderShape(.roundedRectangle)
         .buttonStyle(.borderless)
         .disabled(!self.connected)
-        .opacity(self.connected ? 1 : 0)
     }
 }
 

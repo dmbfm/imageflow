@@ -22,7 +22,5 @@ struct BoolInputControlView: View {
 
     var body: some View {
         BoolInputView(isOn: self.binding)
-        //        Toggle("", isOn: self.binding)
-        //            .toggleStyle(.switch)
     }
 }
