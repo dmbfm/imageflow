@@ -83,7 +83,7 @@ public struct CustomSidebarModifier<V: View>: ViewModifier {
                                         .onEnded({ self.onResizeHandleDrag($0, ended: true) })
                                 )
                                 #if os(macOS)
-                                .pointerStyle(self.resizePointer)
+                            .pointerStyle(self.resizePointer)
                                 #endif
                             Spacer()
                         }

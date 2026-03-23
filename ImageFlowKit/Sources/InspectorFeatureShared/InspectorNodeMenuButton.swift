@@ -27,8 +27,8 @@ public struct InspectorNodeMenuButton: View {
         } label: {
             Image(systemName: "ellipsis")
                 #if os(iOS)
-                .frame(height: 25)
-                .contentShape(Rectangle())
+            .frame(height: 25)
+            .contentShape(Rectangle())
                 #endif
         }
         #if os(iOS)
