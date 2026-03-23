@@ -28,9 +28,11 @@ public struct CustomSidebarModifier<V: View>: ViewModifier {
         }
     }
 
+    #if os(macOS)
     var resizePointer: PointerStyle? {
         self.isResizable ? .columnResize : nil
     }
+    #endif
 
     func onChangeOfWidthConfiguration() {
         switch self.widthConfiguration {
@@ -80,7 +82,9 @@ public struct CustomSidebarModifier<V: View>: ViewModifier {
                                         .onChanged({ self.onResizeHandleDrag($0) })
                                         .onEnded({ self.onResizeHandleDrag($0, ended: true) })
                                 )
+                                #if os(macOS)
                                 .pointerStyle(self.resizePointer)
+                                #endif
                             Spacer()
                         }
 

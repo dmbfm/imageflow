@@ -1,3 +1,5 @@
+#if os(macOS)
+
 import InspectorFeatureShared
 import SharedModels
 import SwiftUI
@@ -36,3 +38,5 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
             .customSidebarInsets(.init(top: 0, leading: 0, bottom: 8, trailing: 8))
     }
 }
+
+#endif
