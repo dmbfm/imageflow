@@ -68,11 +68,17 @@ public struct InspectorFeatureView: View {
                     self.vm.node.name = newValue
                 }
             ),
-            onSubmitName: { [weak vm = self.vm] in
+            locked: self.vm.isLocked,
+        ) { [weak vm = self.vm] action in
+            switch action {
+            case .submitName:
                 vm?.submit(.name, registerUndo: true)
-            },
-            onCancelName: { [weak vm = self.vm] in vm?.cancel(.name) }
-        )
+            case .cancelName:
+                vm?.cancel(.name)
+            case .toggleLock:
+                vm?.toggleLocked()
+            }
+        }
     }
 
     @ViewBuilder
@@ -107,21 +113,31 @@ struct HeaderView: View {
 
     let icon: String
     let title: Binding<String>
-    var onSubmitName: () -> ()
-    var onCancelName: () -> ()
+    let locked: Bool
+    let action: (Action) -> ()
+
+    var lockIcon: String {
+        self.locked ? "lock" : "lock.open"
+    }
+
+    enum Action {
+        case submitName
+        case cancelName
+        case toggleLock
+    }
 
     @FocusState var textFieldFocused: Bool
 
     internal init(
         icon: String,
         title: Binding<String>,
-        onSubmitName: @escaping () -> (),
-        onCancelName: @escaping () -> ()
+        locked: Bool,
+        action: @escaping (Action) -> (),
     ) {
         self.icon = icon
         self.title = title
-        self.onSubmitName = onSubmitName
-        self.onCancelName = onCancelName
+        self.locked = locked
+        self.action = action
     }
 
     var body: some View {
@@ -134,19 +150,21 @@ struct HeaderView: View {
                 .textFieldStyle(.plain)
                 .focused(self.$textFieldFocused)
                 .onSubmit {
-                    self.onSubmitName()
+                    self.action(.submitName)
                     self.textFieldFocused = false
                 }
                 #if os(macOS)
             .onExitCommand {
-                self.onCancelName()
+                self.action(.cancelName)
                 self.textFieldFocused = false
             }
                 #endif
                 .font(.headline)
             Spacer()
-            Button("", systemImage: "lock") {}
-                .buttonStyle(.borderless)
+            Button("", systemImage: self.lockIcon) {
+                self.action(.toggleLock)
+            }
+            .buttonStyle(.borderless)
             Menu("", systemImage: "ellipsis") {
                 Button("Delete") {}
             }
@@ -155,7 +173,7 @@ struct HeaderView: View {
         }
         .onChange(of: self.textFieldFocused, initial: false) {
             if !self.textFieldFocused {
-                self.onSubmitName()
+                self.action(.submitName)
             }
         }
     }
@@ -196,7 +214,7 @@ extension Flow {
     static func preview(_ kind: NodeKind) -> Flow {
         let flow = Flow()
         var node = FlowNode(kind: kind)
-//        node.inputs[2].connected = true
+        //        node.inputs[2].connected = true
         flow.addNode(node, at: .zero)
         flow.select([node.id])
         return flow
