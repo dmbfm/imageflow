@@ -66,7 +66,8 @@ public struct InspectorFeatureView: View {
                     get: {
                         self.vm.node.kind
                     },
-                    set: { _ in
+                    set: { newType in
+                        self.vm.flow.convertNodeAction(self.vm.node.id, kind: newType, undoManager: self.vm.undoManager)
                     }
                 )
             )
