@@ -111,7 +111,7 @@ struct NodeFormView: View {
     var outputsSectionView: some View {
         Section("Outputs") {
             ForEach(self.vm.node.outputs) { output in
-                self.outputView(output)
+                OutputRowView(vm: self.vm, output: output)
             }
         }
     }
@@ -154,16 +154,51 @@ struct NodeFormView: View {
             Text("")
         }
     }
+}
 
-    func outputView(_ output: FlowNode.Output) -> some View {
+struct OutputRowView: View {
+    let vm: InspectorFeatureViewModel
+    let output: FlowNode.Output
+
+    @Environment(\.colorScheme) var cs
+
+    var items: [Item] {
+        self.vm.flow
+            .edges(ofPort: .init(node: self.vm.node.id, port: .output(self.output.index)))
+            .compactMap({ self.vm.flow.nodes[$0.to.node] })
+            .map({ .init(id: $0.id, name: $0.name) })
+    }
+
+    struct Item: Identifiable {
+        var id: UUID
+        var name: String
+    }
+
+    var body: some View {
         LabeledContent {
             if output.connected {
-                Button {
-                } label: {
-                    Image(systemName: "arrow.right.circle")
+                if self.items.count == 1 {
+                    Button {
+                        self.vm.flow.select([self.items.first!.id])
+                    } label: {
+                        Image(systemName: "arrow.right.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .tint(.secondary)
+                } else {
+                    Menu {
+                        ForEach(self.items) { item in
+                            Button(item.name) {
+                                self.vm.flow.select([item.id])
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.right.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .tint(.secondary)
+                    .compositingGroup()
                 }
-                .buttonStyle(.borderless)
-                .tint(.secondary)
             } else {
                 Image(systemName: "circle.dotted")
             }
