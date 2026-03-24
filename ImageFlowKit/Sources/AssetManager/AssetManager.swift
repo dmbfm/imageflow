@@ -416,7 +416,10 @@ actor AssetManager {
             task = t
         case .notLoaded:
             task = Task {
-                try await Task.detached { try await loader.loadFromFile(self.assetURL(filename: filename)) }.value
+                let loadFromFile = loader.loadFromFile
+                return try await Task.detached {
+                    try await loadFromFile(self.assetURL(filename: filename))
+                }.value
             }
         }
 
@@ -428,7 +431,7 @@ actor AssetManager {
     }
 }
 
-public enum AssetManagerError: LocalizedError {
+public enum AssetManagerError: LocalizedError, Sendable {
     case other(any Error)
     case addGeneratedResource(AddGeneratedResource)
     case getGeneratedResource(GetGeneratedResource)
