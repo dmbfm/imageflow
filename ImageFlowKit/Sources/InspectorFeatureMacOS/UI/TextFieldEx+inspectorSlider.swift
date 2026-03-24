@@ -49,16 +49,13 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
 
     struct Style {
         var foregroundColor: PlatformColor = Colors.inspectorControlForeground.platformColor
-        var backgroundColor: Color = Colors.inspectorControlBackground.color
-        var borderColor: Color = Colors.inspectorControlBorder.color
+        var sliderColor: Color = DS.textInputSlider.color
+        var backgroundColor: Color = DS.textInputBackground.color
+        var backgroundColorHighlighted: Color = DS.textInputSliderHighlight.color
         var verticalPadding: CGFloat = 4
         var borderWidth: CGFloat = 1
         var cornerRadiusInner: CGFloat = 6
         var cornerRadiusOuter: CGFloat = 7
-
-        var backgroundColorHighlighted: @Sendable (_ style: Self, _ colorScheme: ColorScheme) -> Color = { style, cs in
-            style.backgroundColor.exposureAdjust(cs == .dark ? -1.0 : 0.5)
-        }
 
         static let `default`: Self = .init()
     }
@@ -77,8 +74,8 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
 
     var backgroundColor: Color {
         self.showHighlight
-            ? self.style.backgroundColorHighlighted(self.style, self.colorScheme)
-            : self.style.backgroundColor
+            ? self.style.backgroundColorHighlighted
+            : self.style.sliderColor
     }
 
     func body(content: Content) -> some View {
@@ -114,7 +111,7 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
             )
             .clipShape(RoundedRectangle(cornerRadius: self.style.cornerRadiusInner))
             .padding(self.style.borderWidth)
-            .background(self.style.borderColor)
+            .background(self.style.backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: self.style.cornerRadiusOuter))
             #if os(macOS)
         .gesture(

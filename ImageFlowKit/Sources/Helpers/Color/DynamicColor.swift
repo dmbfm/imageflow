@@ -34,6 +34,10 @@ public struct DynamicColor: Sendable, Equatable {
             }
         })
     }
+    
+    public init(lightColor: ColorDesc, darkColor: ColorDesc) {
+        self.init(light: .init(colorDesc: lightColor), dark: .init(colorDesc: darkColor))
+    }
 }
 
 #else
@@ -72,9 +76,68 @@ public struct DynamicColor: Sendable, Equatable {
             }
         )
     }
+
+    public init(lightColor: ColorDesc, darkColor: ColorDesc) {
+        self.init(light: .init(colorDesc: lightColor), dark: .init(colorDesc: darkColor))
+    }
 }
 #endif
 
+extension DynamicColor {
+    public enum ColorDesc: Sendable, Equatable {
+        case rbga(Rgba)
+        case grayscale(Grayscale)
+    }
+
+    public struct Rgba: Sendable, Equatable {
+        public var red: Double
+        public var green: Double
+        public var blue: Double
+        public var alpha: Double
+
+        public init(red: Double, green: Double, blue: Double, alpha: Double = 1.0) {
+            self.red = red
+            self.green = green
+            self.blue = blue
+            self.alpha = alpha
+        }
+    }
+
+    public struct Grayscale: Sendable, Equatable {
+        public var white: CGFloat
+        public var alpha: CGFloat
+        public init(white: CGFloat, alpha: CGFloat = 1.0) {
+            self.white = white
+            self.alpha = alpha
+        }
+    }
+}
+
+#if os(macOS)
+extension NSColor {
+    convenience init(colorDesc: DynamicColor.ColorDesc) {
+        switch colorDesc {
+        case .rbga(let rgba):
+            self.init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+        case .grayscale(let value):
+            self.init(white: value.white, alpha: value.alpha)
+        }
+    }
+}
+#endif
+
+#if os(iOS)
+extension UIColor {
+    convenience init(colorDesc: DynamicColor.ColorDesc) {
+        switch colorDesc {
+        case .rbga(let rgba):
+            self.init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+        case .grayscale(let grayscale):
+            self.init(white: grayscale.white, alpha: grayscale.alpha)
+        }
+    }
+}
+#endif
 extension DynamicColor {
     public static let red: Self = .init(.red)
     public static let blue: Self = .init(.systemBlue)

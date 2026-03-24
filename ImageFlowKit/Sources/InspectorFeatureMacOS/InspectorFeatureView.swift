@@ -196,8 +196,8 @@ extension Flow {
     }
 }
 
-#Preview("Add Node") {
-    @Previewable @State var flow: Flow = .preview(.math(.addNode(.float)))
+#Preview {
+    @Previewable @State var flow: Flow = .preview(.coreImageFilterNode(.halftoneEffect(.CIDotScreen)))
     let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
     InspectorFeatureView(flow: flow, coordinator: coordinator)
         .frame(width: 350)

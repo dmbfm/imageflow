@@ -182,14 +182,14 @@ class ImageFlowPalette {
         return NSColor(red: 0.588, green: 0.588, blue: 0.588, alpha: 1.0)
     }
 
-    /// Inspector Control Border Dark #3e3e3e
+    /// Inspector Control Border Dark #363636
     static var inspectorControlBorderDark: NSColor {
-        return NSColor(red: 0.242, green: 0.242, blue: 0.242, alpha: 1.0)
+        return NSColor(red: 0.212, green: 0.212, blue: 0.212, alpha: 1.0)
     }
 
-    /// Inspector Control Background Dark #343434
+    /// Inspector Control Background Dark #4c4c4c
     static var inspectorControlBackgroundDark: NSColor {
-        return NSColor(red: 0.205, green: 0.205, blue: 0.205, alpha: 1.0)
+        return NSColor(red: 0.298, green: 0.298, blue: 0.298, alpha: 1.0)
     }
 
     /// Inspector Control Foreground Dark #e4e4e4
