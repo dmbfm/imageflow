@@ -226,11 +226,26 @@ struct NodeHeaderView: View {
         self.vm.isLocked ? "lock" : "lock.open"
     }
 
+    var name: Binding<String> {
+        .init(
+            get: {
+                self.vm.node.name
+            },
+            set: { newValue in
+                self.vm.node.name = newValue
+            }
+        )
+    }
+
     var body: some View {
         HStack {
             HStack {
                 Image(systemName: node.kind.icon)
-                Text(node.name)
+                TextField("", text: self.name)
+                    .onSubmit {
+                        self.vm.submit(.name, registerUndo: true)
+                    }
+                    .textFieldStyle(kind: .plain)
                     .font(.headline)
             }
 
