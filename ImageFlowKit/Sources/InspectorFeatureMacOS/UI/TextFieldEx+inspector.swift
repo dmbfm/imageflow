@@ -15,7 +15,7 @@ extension TextFieldEx {
             .background(style.backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: style.cornerRadiusInner))
             .padding(style.borderWidth)
-//            .background(style.borderColor)
+            //            .background(style.borderColor)
             .clipShape(RoundedRectangle(cornerRadius: style.cornerRadiusOuter))
     }
 }
@@ -23,7 +23,7 @@ extension TextFieldEx {
 struct InspectorTextFieldStyle {
     var foregroundColor: PlatformColor = Colors.inspectorControlForeground.platformColor
     var backgroundColor: Color = DS.textInputBackground.color
-//    var borderColor: Color = Colors.inspectorControlBorder.color
+    //    var borderColor: Color = Colors.inspectorControlBorder.color
     var verticalPadding: CGFloat = 4
     var borderWidth: CGFloat = 1
     var cornerRadiusInner: CGFloat = 6

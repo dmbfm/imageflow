@@ -34,7 +34,7 @@ public struct DynamicColor: Sendable, Equatable {
             }
         })
     }
-    
+
     public init(lightColor: ColorDesc, darkColor: ColorDesc) {
         self.init(light: .init(colorDesc: lightColor), dark: .init(colorDesc: darkColor))
     }
