@@ -44,4 +44,12 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
             }
         }
     }
+
+    public var isAngle: Bool {
+        if case .float(.angle(_)) = self {
+            true
+        } else {
+            false
+        }
+    }
 }

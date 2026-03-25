@@ -49,12 +49,19 @@ struct InputBlockView: View {
         switch input.value.type {
         case .vector2, .vector3, .vector4:
             VectorControlView(vm: self.vm, input: input)
+                .disabled(input.connected)
         case .rect:
             RectInputControlView(vm: self.vm, input: input)
+                .disabled(input.connected)
         case .matrix3x3:
             Matrix3x3InputControlView(vm: self.vm, input: input)
+                .disabled(input.connected)
         case .matrix5x5:
             Matrix5x5InputControlView(vm: self.vm, input: input)
+                .disabled(input.connected)
+        case .float where input.semantics.isAngle:
+            AngleInputControlView(vm: self.vm, input: input)
+                .disabled(input.connected)
         default:
             self.gridSingleRow(input)
         }

@@ -54,6 +54,7 @@ struct FloatInputView: View {
     struct Change {
         var oldValue: Double?
         var newValue: Double
+        var shiftDown: Bool = false
         var commit: Bool
     }
 
@@ -91,19 +92,29 @@ struct FloatInputView: View {
         )
         .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
             if let range = self.range {
-                let newValue = (data.current * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
+                let speed = self.isShiftDown ? 0.1 : 1.0
+                let pos = data.initial + speed * (data.current - data.initial)
+                let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
                     to: range
                 )
                 let oldValue = data.initial * (range.upperBound - range.lowerBound) + range.lowerBound
                 switch data.phase {
                 case .began:
-                    self.onChange(.init(oldValue: oldValue, newValue: newValue, commit: false))
+                    self.onChange(
+                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
+                    )
                 case .changed:
-                    self.onChange(.init(oldValue: oldValue, newValue: newValue, commit: false))
+                    self.onChange(
+                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
+                    )
                 case .ended:
-                    self.onChange(.init(oldValue: oldValue, newValue: newValue, commit: true))
+                    self.onChange(
+                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
+                    )
                 case .cancelled:
-                    self.onChange(.init(oldValue: oldValue, newValue: oldValue, commit: false))
+                    self.onChange(
+                        .init(oldValue: oldValue, newValue: oldValue, shiftDown: self.isShiftDown, commit: false)
+                    )
                 }
             } else {
                 let speed = self.isShiftDown ? self.sensitivity.slow : self.sensitivity.normal
@@ -115,11 +126,20 @@ struct FloatInputView: View {
                 case .began:
                     self.startValue = self.value
                 case .changed:
-                    self.onChange(.init(oldValue: nil, newValue: newValue, commit: false))
+                    self.onChange(.init(oldValue: nil, newValue: newValue, shiftDown: self.isShiftDown, commit: false))
                 case .ended:
-                    self.onChange(.init(oldValue: self.startValue, newValue: newValue, commit: true))
+                    self.onChange(
+                        .init(oldValue: self.startValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
+                    )
                 case .cancelled:
-                    self.onChange(.init(oldValue: self.startValue, newValue: self.startValue, commit: false))
+                    self.onChange(
+                        .init(
+                            oldValue: self.startValue,
+                            newValue: self.startValue,
+                            shiftDown: self.isShiftDown,
+                            commit: false
+                        )
+                    )
                 }
             }
         }

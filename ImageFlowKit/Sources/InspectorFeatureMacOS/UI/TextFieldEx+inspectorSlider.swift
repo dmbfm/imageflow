@@ -34,6 +34,7 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
     @FocusState var focused: Bool
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.hoverEffect) var highlightOnHover
+    @Environment(\.isEnabled) var isEnabled
 
     class DragState {
         var initialValue: CGFloat? = nil
@@ -81,7 +82,7 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textFieldExStyle(.plain)
-            .textFieldExForegroudColor(self.style.foregroundColor)
+            .textFieldExForegroudColor(self.isEnabled ? self.style.foregroundColor : .secondaryLabel)
             .textFieldExInteractionMode(.commit)
             .textFieldExIsEditable(self.editable)
             .textFieldExDidEndEditing {
@@ -116,6 +117,9 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
             #if os(macOS)
         .gesture(
             ValueDragGesture { value in
+
+                guard self.isEnabled else { return }
+
                 let current = value.location.x / self.width
                 switch value.state {
                 case .began:
@@ -182,7 +186,7 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
                 }
             }
             #if os(macOS)
-        .pointerStyle(.frameResize(position: .leading, directions: .all))
+        .pointerStyle(self.isEnabled ? .frameResize(position: .leading, directions: .all) : nil)
         #endif
         .onHover {
             self.hover = $0
