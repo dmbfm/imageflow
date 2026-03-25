@@ -285,8 +285,11 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             let point = point ?? .canvasView(view.safeAreaRect.center)
             let nodeView = NodeView(node)
             let nodeSize = nodeView.intrinsicContentSize
+            nodeView.frame.size = nodeSize
             let nodeTopLeft = point.canvas(view: view, viewport: viewport).cgPoint
             let pos = nodeTopLeft - (nodeSize.cgPoint * 0.5)
+            nodeView.setNeedsLayout()
+            nodeView.layoutIfNeeded()
             if let typedPort {
                 let maybeSlot = self.flow.newNodeAction(
                     node,
@@ -295,9 +298,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
                     undoManager: self.undoManager
                 )
                 if let slot = maybeSlot, let portView = nodeView.portView(slot) {
-                    nodeView.setNeedsLayout()
-                    nodeView.layoutIfNeeded()
-                    let newPos = nodeTopLeft - portView.convert(portView.frame.center, to: nodeView)
+                    let portPos = nodeView.convert(portView.bounds.center, from: portView)
+                    let newPos = nodeTopLeft - portPos
                     self.flow.nodePositions[node.id] = newPos
                 }
             } else {
