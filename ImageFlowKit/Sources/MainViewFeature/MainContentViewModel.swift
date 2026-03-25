@@ -475,16 +475,6 @@ extension MainContentViewModel {
         }
     }
 
-    var primaryUndoAction: UndoAction {
-        if self.canUndo {
-            .undo
-        } else if self.canRedo {
-            .redo
-        } else {
-            .disabled
-        }
-    }
-
     func onUndoCheckpoint() {
         Task {
             self.canUndo = self.undoManager?.canUndo ?? false

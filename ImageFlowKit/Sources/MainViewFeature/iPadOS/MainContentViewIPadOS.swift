@@ -190,27 +190,16 @@ struct MainContentViewIPadOS: View {
 
         ToolbarSpacer(.fixed, placement: .primaryAction)
 
-        ToolbarItem(placement: .primaryAction) {
-            Menu(self.vm.primaryUndoAction.label, systemImage: self.vm.primaryUndoAction.icon) {
-                Button("Undo", systemImage: "arrow.uturn.backward") {
-                    self.undoManager?.undo()
-                }
-                .disabled(!self.vm.canUndo)
-                Button("Redo", systemImage: "arrow.uturn.forward") {
-                    self.undoManager?.redo()
-                }
-                .disabled(!self.vm.canRedo)
-            } primaryAction: {
-                switch self.vm.primaryUndoAction {
-                case .disabled:
-                    break
-                case .undo:
-                    self.undoManager?.undo()
-                case .redo:
-                    self.undoManager?.redo()
-                }
+        ToolbarItemGroup(placement: .primaryAction) {
+            Button("Undo", systemImage: "arrow.uturn.backward") {
+                self.undoManager?.undo()
             }
-            .disabled(self.vm.primaryUndoAction == .disabled)
+            .disabled(!self.vm.canUndo)
+
+            Button("Redo", systemImage: "arrow.uturn.forward") {
+                self.undoManager?.redo()
+            }
+            .disabled(!self.vm.canRedo)
         }
 
         ToolbarSpacer(.flexible)
