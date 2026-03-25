@@ -27,6 +27,8 @@ struct FloatInputView: View {
 
     @State private var startValue: Double = 0
 
+    @Environment(\.floatInputViewNumberFormatter) var formatter
+
     /// - Parameters:
     ///   - value: The current value being shown
     ///   - range: An optional range. When suppliend, will make the background be drawn as
@@ -84,67 +86,120 @@ struct FloatInputView: View {
         }
     }
 
-    var body: some View {
-        TextFieldEx(
-            value: self.textFieldBinding,
-            format: .number.locale(.init(identifier: "en-US")).precision(.significantDigits(3...10)),
-            suffix: self.suffix,
-        )
-        .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
-            if let range = self.range {
-                let speed = self.isShiftDown ? 0.1 : 1.0
-                let pos = data.initial + speed * (data.current - data.initial)
-                let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
-                    to: range
-                )
-                let oldValue = data.initial * (range.upperBound - range.lowerBound) + range.lowerBound
-                switch data.phase {
-                case .began:
-                    self.onChange(
-                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
-                    )
-                case .changed:
-                    self.onChange(
-                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
-                    )
-                case .ended:
-                    self.onChange(
-                        .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
-                    )
-                case .cancelled:
-                    self.onChange(
-                        .init(oldValue: oldValue, newValue: oldValue, shiftDown: self.isShiftDown, commit: false)
-                    )
+    var textBinding: Binding<String> {
+        if let suffix {
+            .init(
+                get: {
+                    (self.formatter.string(for: self.value) ?? "") + suffix
+                },
+                set: { newValue in
+                    if let value = Double(newValue.trimmingSuffix(suffix)) {
+                        self.onChange(.init(oldValue: nil, newValue: value, shiftDown: false, commit: true))
+                    }
                 }
-            } else {
-                let speed = self.isShiftDown ? self.sensitivity.slow : self.sensitivity.normal
-                let digits = self.isShiftDown ? 2 : 1
-                let newValue = (self.startValue + speed * (data.currentPos - data.initialPos)).roundTo(
-                    fractionalDigits: digits
-                )
-                switch data.phase {
-                case .began:
-                    self.startValue = self.value
-                case .changed:
-                    self.onChange(.init(oldValue: nil, newValue: newValue, shiftDown: self.isShiftDown, commit: false))
-                case .ended:
-                    self.onChange(
-                        .init(oldValue: self.startValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
-                    )
-                case .cancelled:
-                    self.onChange(
-                        .init(
-                            oldValue: self.startValue,
-                            newValue: self.startValue,
-                            shiftDown: self.isShiftDown,
-                            commit: false
-                        )
-                    )
+            )
+        } else {
+            .init(
+                get: {
+                    (self.formatter.string(for: self.value) ?? "")
+                },
+                set: { newValue in
+                    if let value = Double(newValue) {
+                        self.onChange(.init(oldValue: nil, newValue: value, shiftDown: false, commit: true))
+                    }
                 }
-            }
+            )
         }
     }
+
+    var body: some View {
+        TextFieldEx(text: self.textBinding)
+            // TextFieldEx(// value: self.textFieldBinding,
+            // format: .number.locale(.init(identifier: "en-US")).precision(.significantDigits(3...10)),
+            // format: .number.rounded().precision(.)
+            // suffix: self.suffix,
+            // )
+            .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
+                if let range = self.range {
+                    let speed = self.isShiftDown ? 0.1 : 1.0
+                    let pos = data.initial + speed * (data.current - data.initial)
+                    let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
+                        to: range
+                    )
+                    let oldValue = data.initial * (range.upperBound - range.lowerBound) + range.lowerBound
+                    switch data.phase {
+                    case .began:
+                        self.onChange(
+                            .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
+                        )
+                    case .changed:
+                        self.onChange(
+                            .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
+                        )
+                    case .ended:
+                        self.onChange(
+                            .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
+                        )
+                    case .cancelled:
+                        self.onChange(
+                            .init(oldValue: oldValue, newValue: oldValue, shiftDown: self.isShiftDown, commit: false)
+                        )
+                    }
+                } else {
+                    let speed = self.isShiftDown ? self.sensitivity.slow : self.sensitivity.normal
+                    let digits = self.isShiftDown ? 2 : 1
+                    let newValue = (self.startValue + speed * (data.currentPos - data.initialPos)).roundTo(
+                        fractionalDigits: digits
+                    )
+                    switch data.phase {
+                    case .began:
+                        self.startValue = self.value
+                    case .changed:
+                        self.onChange(
+                            .init(oldValue: nil, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
+                        )
+                    case .ended:
+                        self.onChange(
+                            .init(
+                                oldValue: self.startValue,
+                                newValue: newValue,
+                                shiftDown: self.isShiftDown,
+                                commit: true
+                            )
+                        )
+                    case .cancelled:
+                        self.onChange(
+                            .init(
+                                oldValue: self.startValue,
+                                newValue: self.startValue,
+                                shiftDown: self.isShiftDown,
+                                commit: false
+                            )
+                        )
+                    }
+                }
+            }
+    }
 }
+
+extension EnvironmentValues {
+    @Entry var floatInputViewNumberFormatter: NumberFormatter = formatter
+}
+
+extension View {
+    func floatInputViewNumberFormatter(_ formatter: NumberFormatter) -> some View {
+        self.environment(\.floatInputViewNumberFormatter, formatter)
+    }
+}
+
+let formatter = {
+    let f = NumberFormatter()
+    f.locale = .init(identifier: "en-US")
+    f.minimumIntegerDigits = 1
+    f.minimumFractionDigits = 2
+    f.maximumFractionDigits = 1000
+    return f
+}()
 
 #Preview {
     @Previewable @State var value: Double = 1
