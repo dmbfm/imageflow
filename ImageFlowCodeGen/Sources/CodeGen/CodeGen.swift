@@ -50,6 +50,7 @@ let inputImageNilGuardFilters: [String] =
         "CITriangleTile",
         "CIOpTile",
         "CIPointillize",
+        "CISpotLight",
     ]
 
 extension FilterInfo {

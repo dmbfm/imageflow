@@ -7352,7 +7352,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISpotLight")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector3.ciVector, forKey: "inputLightPosition")
                 filter.setValue(node.inputs[2].vector3.ciVector, forKey: "inputLightPointsAt")
                 filter.setValue(node.inputs[3].float, forKey: "inputBrightness")
