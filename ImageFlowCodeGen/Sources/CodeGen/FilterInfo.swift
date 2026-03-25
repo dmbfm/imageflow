@@ -291,6 +291,8 @@ func defaultValue(_ type: ValueType, _ obj: Any??) -> Value? {
         } else {
             return nil
         }
+    case .matrix3x3, .matrix5x5, .matrix7x7:
+        fatalError()
     }
 }
 

@@ -49,6 +49,7 @@ let inputImageNilGuardFilters: [String] =
         "CIPageCurlTransition",
         "CITriangleTile",
         "CIOpTile",
+        "CIPointillize",
     ]
 
 extension FilterInfo {
@@ -266,6 +267,8 @@ extension ValueType {
             "CIVector(cgRect: \(base).rect)"
         case .string:
             "\(base).string"
+        case .matrix3x3, .matrix5x5, .matrix7x7:
+            fatalError()
         }
     }
 }
@@ -308,6 +311,8 @@ extension Value {
             ".init(x: \(value.x), y: \(value.y), z: \(value.z))"
         case .vector4(let value):
             ".init(x: \(value.x), y: \(value.y), z: \(value.z), w: \(value.w))"
+        case .matrix3x3, .matrix5x5, .matrix7x7:
+            fatalError()
         }
     }
 }
