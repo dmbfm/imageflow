@@ -1,6 +1,6 @@
 import Helpers
 
-struct DS {
+struct Design {
     static let textInputBackground: DynamicColor =
         .init(
             lightColor: .grayscale(.init(white: 0.83)),

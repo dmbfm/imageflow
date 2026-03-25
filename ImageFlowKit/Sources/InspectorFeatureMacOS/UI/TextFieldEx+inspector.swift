@@ -22,7 +22,7 @@ extension TextFieldEx {
 
 struct InspectorTextFieldStyle {
     var foregroundColor: PlatformColor = Colors.inspectorControlForeground.platformColor
-    var backgroundColor: Color = DS.textInputBackground.color
+    var backgroundColor: Color = Design.textInputBackground.color
     //    var borderColor: Color = Colors.inspectorControlBorder.color
     var verticalPadding: CGFloat = 4
     var borderWidth: CGFloat = 1

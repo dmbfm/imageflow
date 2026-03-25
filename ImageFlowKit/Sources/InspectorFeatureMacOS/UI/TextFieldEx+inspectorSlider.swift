@@ -50,9 +50,9 @@ struct InspectorTextFieldSliderModifier: ViewModifier {
 
     struct Style {
         var foregroundColor: PlatformColor = Colors.inspectorControlForeground.platformColor
-        var sliderColor: Color = DS.textInputSlider.color
-        var backgroundColor: Color = DS.textInputBackground.color
-        var backgroundColorHighlighted: Color = DS.textInputSliderHighlight.color
+        var sliderColor: Color = Design.textInputSlider.color
+        var backgroundColor: Color = Design.textInputBackground.color
+        var backgroundColorHighlighted: Color = Design.textInputSliderHighlight.color
         var verticalPadding: CGFloat = 4
         var borderWidth: CGFloat = 1
         var cornerRadiusInner: CGFloat = 6
