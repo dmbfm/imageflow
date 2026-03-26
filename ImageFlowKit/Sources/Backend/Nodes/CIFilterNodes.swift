@@ -6479,6 +6479,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6491,12 +6492,20 @@ extension Nodes {
                     node.outputs[0] = .image(.none)
                     return
                 }
-                filter.setValue(inputImage, forKey: "inputImage")
+                if node.inputs[3].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCenter")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[3].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(.none)
                 }

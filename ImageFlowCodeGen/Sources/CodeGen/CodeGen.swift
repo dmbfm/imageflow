@@ -26,6 +26,7 @@ let addCropToSourceOptionFilters: [String] =
         "CIGuidedFilter",
         "CIPerspectiveTransformWithExtent",
         "CIDistanceGradientFromRedMask",
+        "CIPointillize",
     ]
 
 let forceCropToSourceFilters: [String] =
