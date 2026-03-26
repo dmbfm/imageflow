@@ -120,7 +120,7 @@ struct AngleInputControlView: View {
             FloatInputView(
                 value: self.transformedValue,
                 range: self.range,
-                // sensitivity: FloatInputView.Sensitivity,
+                step: 0.01,
                 suffix: self.suffix,
                 onChange: self.onChange(_:)
             )

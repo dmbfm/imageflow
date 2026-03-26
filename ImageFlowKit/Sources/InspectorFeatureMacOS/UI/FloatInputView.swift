@@ -16,6 +16,10 @@ struct FloatInputView: View {
     /// a slider, and  values dragged with the mouse will be limited to the range. The
     /// range *is not* enforced for numbers the user types-in.
     private var range: ClosedRange<Double>?
+    /// An optional step value. Used only when `range` is not nil. When provider, dragged
+    /// numbers will only change by the amount defined by `step`. Has no effect on typed-in
+    /// numbers
+    private var step: Double?
     /// The sensitivity/speed when the user changes  the value by dragging with
     /// the mouse. Used only when `range` is nil.
     private var sensitivity: Sensitivity = .init()
@@ -42,12 +46,14 @@ struct FloatInputView: View {
     internal init(
         value: Double,
         range: ClosedRange<Double>? = nil,
+        step: Double? = nil,
         sensitivity: FloatInputView.Sensitivity = .init(),
         suffix: String? = nil,
         onChange: @escaping (FloatInputView.Change) -> ()
     ) {
         self.value = value
         self.range = range
+        self.step = step
         self.sensitivity = sensitivity
         self.suffix = suffix
         self.onChange = onChange
@@ -119,9 +125,13 @@ struct FloatInputView: View {
                 if let range = self.range {
                     let speed = self.isShiftDown ? 0.1 : (self.isOptionDown ? 10.0 : 1.0)
                     let pos = data.initial + speed * (data.current - data.initial)
-                    let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
-                        to: range
-                    )
+                    let newValue = self.step.maybeReduce(
+                        (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
+                            to: range
+                        )
+                    ) { acc, value in
+                        acc.snapping(toIncrements: value, epsilon: value)
+                    }
                     let oldValue = data.initial * (range.upperBound - range.lowerBound) + range.lowerBound
                     switch data.phase {
                     case .began:
