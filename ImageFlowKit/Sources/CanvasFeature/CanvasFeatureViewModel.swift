@@ -330,6 +330,19 @@ public final class CanvasFeatureViewModel {
             .init(
                 color: Colors.portConnected.platformColor,
                 edges: self.flow.edges.compactMap { edge in
+                    if let view = self.nodeViews[edge.from.node] {
+                        if view.superview == nil {
+                            return nil
+                        }
+                        view.layoutIfNeeded()
+                    }
+                    if let view = self.nodeViews[edge.to.node] {
+                        if view.superview == nil {
+                            return nil
+                        }
+                        view.layoutIfNeeded()
+                    }
+
                     guard let src = self.portFrameCenter(edge.from), let dst = self.portFrameCenter(edge.to) else {
                         return nil
                     }
