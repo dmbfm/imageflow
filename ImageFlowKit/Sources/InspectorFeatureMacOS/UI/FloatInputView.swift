@@ -117,7 +117,7 @@ struct FloatInputView: View {
         TextFieldEx(text: self.textBinding)
             .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
                 if let range = self.range {
-                    let speed = self.isShiftDown ? 0.1 : (self.isControlDown ? 10.0 : 1.0)
+                    let speed = self.isShiftDown ? 0.1 : (self.isOptionDown ? 10.0 : 1.0)
                     let pos = data.initial + speed * (data.current - data.initial)
                     let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
                         to: range
@@ -144,7 +144,7 @@ struct FloatInputView: View {
                 } else {
                     let speed =
                         self.isShiftDown
-                        ? self.sensitivity.slow : (self.isControlDown ? self.sensitivity.high : self.sensitivity.normal)
+                        ? self.sensitivity.slow : (self.isOptionDown ? self.sensitivity.high : self.sensitivity.normal)
                     let digits = self.isShiftDown ? 2 : 1
                     let newValue = (self.startValue + speed * (data.currentPos - data.initialPos)).roundTo(
                         fractionalDigits: digits

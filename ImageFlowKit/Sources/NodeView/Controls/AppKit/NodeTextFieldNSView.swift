@@ -258,7 +258,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
                     dx: t.x,
                     dy: t.y,
                     shiftDown: gesture.modifierFlags.contains(.shift),
-                    controlDown: gesture.modifierFlags.contains(.control)
+                    controlDown: gesture.modifierFlags.contains(.option)
                 )
             )
         )

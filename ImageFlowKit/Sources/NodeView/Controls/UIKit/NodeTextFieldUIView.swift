@@ -277,7 +277,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         guard self.isEditable else { return }
         let t = gesture.translation(in: nil)
         let shiftDown = gesture.modifierFlags.contains(.shift)
-        let controlDown = gesture.modifierFlags.contains(.control)
+        let controlDown = gesture.modifierFlags.contains(.alternate)
         self.onEvent?(
             .drag(
                 .init(

@@ -13,6 +13,10 @@ extension View {
         Self.isControlDown
     }
 
+    public var isOptionDown: Bool {
+        Self.isOptionDown
+    }
+
     public static var isShiftDown: Bool {
         #if os(macOS)
         NSEvent.modifierFlags.contains(.shift)
@@ -24,6 +28,14 @@ extension View {
     public static var isControlDown: Bool {
         #if os(macOS)
         NSEvent.modifierFlags.contains(.control)
+        #else
+        false
+        #endif
+    }
+
+    public static var isOptionDown: Bool {
+        #if os(macOS)
+        NSEvent.modifierFlags.contains(.option)
         #else
         false
         #endif
