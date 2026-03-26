@@ -278,7 +278,17 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         let t = gesture.translation(in: nil)
         let shiftDown = gesture.modifierFlags.contains(.shift)
         let controlDown = gesture.modifierFlags.contains(.control)
-        self.onEvent?(.drag(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: t.y, shiftDown: shiftDown, controlDown: controlDown)))
+        self.onEvent?(
+            .drag(
+                .init(
+                    phase: .init(gestureRecognizerState: gesture.state),
+                    dx: t.x,
+                    dy: t.y,
+                    shiftDown: shiftDown,
+                    controlDown: controlDown
+                )
+            )
+        )
     }
 
 }

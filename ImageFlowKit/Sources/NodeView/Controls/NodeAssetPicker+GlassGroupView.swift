@@ -90,8 +90,13 @@ extension NodeAssetPicker {
         override func layoutSubviews() {
             super.layoutSubviews()
             self.containerView.frame = .init(origin: .zero, size: self.bounds.size)
-            self.buttonView.frame = .init(origin: .zero, size:
-                    .init(width: self.bounds.width - self.removeButtonView.intrinsicContentSize.width, height: self.buttonView.intrinsicContentSize.height)
+            self.buttonView.frame = .init(
+                origin: .zero,
+                size:
+                    .init(
+                        width: self.bounds.width - self.removeButtonView.intrinsicContentSize.width,
+                        height: self.buttonView.intrinsicContentSize.height
+                    )
             )
             self.removeButtonView.frame = .init(
                 origin: .init(x: self.buttonView.frame.maxX, y: 0),
