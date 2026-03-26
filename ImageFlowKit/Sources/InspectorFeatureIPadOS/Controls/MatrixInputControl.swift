@@ -54,7 +54,7 @@ struct MatrixInputControl: View {
     }
 
     func onChange(_ row: Int, col: Int, _ change: DraggableFloatInput.Change) {
-        var value = self.value(settingRow: row, col: col, to: change.value)
+        let value = self.value(settingRow: row, col: col, to: change.value)
 
         let prev = change.previous.map({ x in
             self.value(settingRow: row, col: col, to: x)

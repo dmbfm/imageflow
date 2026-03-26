@@ -63,6 +63,7 @@ struct FloatInputView: View {
     struct Sensitivity {
         var normal: CGFloat = 0.1
         var slow: CGFloat = 0.05 * 0.1
+        var high: CGFloat = 1.0
     }
 
     var textFieldBinding: Binding<Double> {
@@ -114,14 +115,9 @@ struct FloatInputView: View {
 
     var body: some View {
         TextFieldEx(text: self.textBinding)
-            // TextFieldEx(// value: self.textFieldBinding,
-            // format: .number.locale(.init(identifier: "en-US")).precision(.significantDigits(3...10)),
-            // format: .number.rounded().precision(.)
-            // suffix: self.suffix,
-            // )
             .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
                 if let range = self.range {
-                    let speed = self.isShiftDown ? 0.1 : 1.0
+                    let speed = self.isShiftDown ? 0.1 : (self.isControlDown ? 10.0 : 1.0)
                     let pos = data.initial + speed * (data.current - data.initial)
                     let newValue = (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(
                         to: range
@@ -146,7 +142,9 @@ struct FloatInputView: View {
                         )
                     }
                 } else {
-                    let speed = self.isShiftDown ? self.sensitivity.slow : self.sensitivity.normal
+                    let speed =
+                        self.isShiftDown
+                        ? self.sensitivity.slow : (self.isControlDown ? self.sensitivity.high : self.sensitivity.normal)
                     let digits = self.isShiftDown ? 2 : 1
                     let newValue = (self.startValue + speed * (data.currentPos - data.initialPos)).roundTo(
                         fractionalDigits: digits

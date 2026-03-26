@@ -24,7 +24,6 @@ struct ColorInputControl: View {
     }
 
     func onCommit(_ value: Color4, _ oldValue: Color4?) {
-        log("onCommit:\(value), \(oldValue)")
         self.vm.submit(.input(self.input.index, .color4(value), oldValue.map({ .color4($0) })), registerUndo: true)
     }
 
