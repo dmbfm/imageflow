@@ -39,8 +39,12 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
             self.imageView.image = newValue
 
             if isDifferentSize {
+                self.scrollView.setZoomScale(1.0, animated: false)
+                
                 self.imageView.frame.size = self.imageView.imageLogicalSize
                 self.scrollView.contentSize = self.imageView.imageLogicalSize
+                
+                self.zoomToFit(false)
             }
 
             self.setNeedsLayout()
