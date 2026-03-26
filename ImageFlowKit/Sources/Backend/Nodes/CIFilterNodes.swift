@@ -1808,7 +1808,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICannyEdgeDetector")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(.none)
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputGaussianSigma")
                 filter.setValue(node.inputs[2].bool, forKey: "inputPerceptual")
                 filter.setValue(node.inputs[3].float, forKey: "inputThresholdHigh")
