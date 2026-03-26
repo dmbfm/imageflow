@@ -92,9 +92,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             case .sizeDidChange:
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
-            case .drag:
-                // NOTE: We don't use dragging for integer inputs currently
-                break
+            case .drag(let drag):
+                self?.onDrag(drag)
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
@@ -217,6 +216,32 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         self.stepper.value = Double(self.value.int)
         self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
+    }
+
+    @State var valueAtDragStart: Int = 0
+
+    func onDrag(_ value: NodeTextFieldEvent.Drag) {
+        let phase = value.phase
+        let controlDown = value.controlDown
+        let shiftDown = value.shiftDown
+        let dx = value.dx
+
+        switch phase {
+        case .began:
+            self.valueAtDragStart = self.value.int
+        default:
+            break
+        }
+
+        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
+        let t = dx * sensitivity
+        let newValue = Int(round(Double(self.valueAtDragStart) + t).truncateTo(fractionalDigits: 2))
+
+        if phase == .ended {
+            self.setValue(newValue: .int(newValue), oldValue: .int(self.valueAtDragStart), registerUndo: true)
+        } else {
+            self.setValue(newValue: .int(newValue))
+        }
     }
 }
 
