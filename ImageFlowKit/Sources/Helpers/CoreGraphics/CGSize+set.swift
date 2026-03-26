@@ -27,6 +27,10 @@ extension CGSize {
         CGSize(width: width(self.width, other.width), height: height(self.height, other.height))
     }
 
+    public func clampWidth(to range: ClosedRange<CGFloat>) -> CGSize {
+        .init(width: self.width.clamped(to: range), height: self.height)
+    }
+
     public enum MinMax {
         case min
         case max

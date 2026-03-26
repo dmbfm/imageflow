@@ -20,6 +20,7 @@ extension NodeAssetPicker {
 
         lazy var buttonView: NSButton = {
             let button = NSButton(title: self.vm.label, target: nil, action: nil)
+            button.toolTip = self.vm.label
             button.target = self
             button.action = #selector(Self.buttonHandler)
             button.isBordered = false
@@ -59,6 +60,7 @@ extension NodeAssetPicker {
 
         func update() {
             self.buttonView.title = self.vm.label
+            self.buttonView.toolTip = self.vm.label
             self.removeButtonView.isHidden = !self.vm.showRemoveButton
             self.setNeedsLayout()
         }
@@ -81,7 +83,10 @@ extension NodeAssetPicker {
 
         override func doLayout() {
             self.buttonView.frame.origin = .zero
-            self.buttonView.frame.size = self.buttonView.intrinsicContentSize
+            self.buttonView.frame.size = .init(
+                width: self.bounds.width - self.removeButtonView.intrinsicContentSize.width - self.padding,
+                height: self.bounds.height
+            )
             self.removeButtonView.frame.origin = .init(x: self.buttonView.frame.maxX + self.padding, y: 0)
             self.removeButtonView.frame.size = self.removeButtonView.intrinsicContentSize
 

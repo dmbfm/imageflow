@@ -29,9 +29,11 @@ extension NodeAssetPicker {
             let btn = UIButton(configuration: .glass())
             btn.setTitle(self.vm.label, for: .normal)
             btn.configuration?.buttonSize = .mini
+            btn.configuration?.titleLineBreakMode = .byTruncatingTail
             btn.titleLabel?.font = .systemFont(ofSize: 8)
             btn.configuration?.baseForegroundColor = .systemOrange
             btn.addTarget(self, action: #selector(Self.buttonHandler), for: .touchUpInside)
+            btn.toolTip = self.vm.label
             return btn
         }()
 
@@ -74,6 +76,7 @@ extension NodeAssetPicker {
 
         func update() {
             self.buttonView.setTitle(self.vm.label, for: .normal)
+            self.buttonView.toolTip = self.vm.label
             self.removeButtonView.isHidden = !self.vm.showRemoveButton
             self.setNeedsLayout()
         }
@@ -86,8 +89,10 @@ extension NodeAssetPicker {
 
         override func layoutSubviews() {
             super.layoutSubviews()
-            self.containerView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
-            self.buttonView.frame = .init(origin: .zero, size: self.buttonView.intrinsicContentSize)
+            self.containerView.frame = .init(origin: .zero, size: self.bounds.size)
+            self.buttonView.frame = .init(origin: .zero, size:
+                    .init(width: self.bounds.width - self.removeButtonView.intrinsicContentSize.width, height: self.buttonView.intrinsicContentSize.height)
+            )
             self.removeButtonView.frame = .init(
                 origin: .init(x: self.buttonView.frame.maxX, y: 0),
                 size: self.removeButtonView.intrinsicContentSize

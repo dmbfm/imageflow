@@ -168,11 +168,11 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
     }
 
     override var intrinsicContentSize: CGSize {
-        return self.isEditable ? self.innerView.intrinsicContentSize : .zero
+        return self.isEditable ? (self.innerView.intrinsicContentSize.clampWidth(to: 0...160)) : .zero
     }
 
     override func doLayout() {
-        self.innerView.frame = .init(origin: .zero, size: self.innerView.intrinsicContentSize)
+        self.innerView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
         Layout.align(views: [self.innerView], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }
 }
