@@ -74,8 +74,8 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
             case .sizeDidChange:
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
-            case let .drag(phase, dx, dy):
-                self?.onDrag(phase, dx, dy)
+            case let .drag(drag):
+                self?.onDrag(drag.phase, drag.dx, drag.dy, drag.shiftDown, drag.controlDown)
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
@@ -126,7 +126,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     private var valueAtDragStart: CGFloat = 0.0
 
-    func onDrag(_ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat) {
+    func onDrag(_ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat, _ shiftDown: Bool, _ controlDown: Bool) {
         switch phase {
         case .began:
             self.valueAtDragStart = self.value.float
@@ -134,7 +134,8 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
             break
         }
 
-        let t = dx * 0.001
+        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
+        let t = dx * sensitivity
         let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
 
         if phase == .ended {

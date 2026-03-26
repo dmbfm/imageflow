@@ -276,7 +276,9 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
     func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
         guard self.isEditable else { return }
         let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
+        let shiftDown = gesture.modifierFlags.contains(.shift)
+        let controlDown = gesture.modifierFlags.contains(.control)
+        self.onEvent?(.drag(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: t.y, shiftDown: shiftDown, controlDown: controlDown)))
     }
 
 }

@@ -251,7 +251,17 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
         guard self.state != .nonEditable else { return }
         let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(gestureRecognizerState: gesture.state), t.x, t.y))
+        self.onEvent?(
+            .drag(
+                .init(
+                    phase: .init(gestureRecognizerState: gesture.state),
+                    dx: t.x,
+                    dy: t.y,
+                    shiftDown: gesture.modifierFlags.contains(.shift),
+                    controlDown: gesture.modifierFlags.contains(.control)
+                )
+            )
+        )
     }
 
     public override func mouseDown(with event: NSEvent) {

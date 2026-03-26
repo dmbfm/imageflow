@@ -31,8 +31,16 @@ protocol NodeTextFieldProtocol: PlatformView {
 enum NodeTextFieldEvent {
     case textDidChange(String)
     case sizeDidChange
-    case drag(GesturePhase, CGFloat, CGFloat)
+    case drag(Drag)
     case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
+
+    struct Drag {
+        var phase: GesturePhase
+        var dx: CGFloat
+        var dy: CGFloat
+        var shiftDown: Bool
+        var controlDown: Bool
+    }
 }
 
 struct NodeTextFieldStyle: Sendable, Hashable, With {
