@@ -18,7 +18,7 @@ struct NodeNumberInputFormat: FormatStyle {
         value.formatted(
             .number
                 .locale(.init(identifier: "en-US"))
-                .precision(.significantDigits(2...100))
+                .precision(.fractionLength(2...8))
                 .grouping(.never)
         )
     }
