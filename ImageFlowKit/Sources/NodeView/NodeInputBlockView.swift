@@ -112,6 +112,7 @@ final class NodeInputBlockView: PlatformCommonView {
 
         for (idx, input) in self.inputs.enumerated() where input != self.rows[idx].input {
             self.rows[idx].input = input
+            self.rows[idx].setNeedsLayout()
         }
     }
 
