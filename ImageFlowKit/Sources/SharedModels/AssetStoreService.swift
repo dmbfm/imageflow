@@ -17,6 +17,7 @@ public protocol AssetStoreService:
 
 public enum AssetStoreServiceEvent {
     case modifiedGeneratedAsset(OutputPortLocation)
+    case assetsChanged
 }
 
 public protocol AssetStoreServiceDelegate: AnyObject {

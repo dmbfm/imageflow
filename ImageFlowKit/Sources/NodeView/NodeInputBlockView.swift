@@ -7,6 +7,7 @@ import Values
 public protocol NodeInputBlockViewDelegate: AnyObject {
     func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     func titleForAsset(id: AssetIdentifier) -> String?
+    var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
 final class NodeInputBlockView: PlatformCommonView {
@@ -68,7 +69,10 @@ final class NodeInputBlockView: PlatformCommonView {
 
         func titleForAsset(id: Values.AssetIdentifier) -> String? {
             self.delegate?.titleForAsset(id: id)
+        }
 
+        var emitter: EventEmitter<NodeViewDelegateEvent> {
+            self.delegate?.emitter ?? .init()
         }
     }
 

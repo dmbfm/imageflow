@@ -86,4 +86,8 @@ extension CanvasFeatureViewModel: NodeViewDelegate {
             nil
         }
     }
+
+    public var emitter: EventEmitter<NodeViewDelegateEvent> {
+        self.nodeViewDelegateEmitter
+    }
 }

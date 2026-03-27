@@ -62,6 +62,7 @@ struct NodeAssetPickerInnerViewModel {
 protocol NodeAssetPickerDelegate: AnyObject {
     func openAssetPicker(kind: AssetKind)
     func titleForAsset(id: AssetIdentifier) -> String?
+    var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
 final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl {
@@ -77,7 +78,13 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
 
     var tint: PlatformColor = .systemBlue
 
-    weak var delegate: (any NodeAssetPickerDelegate)?
+    var cancellables: Set<AnyEventEmitterCancellable> = []
+
+    weak var delegate: (any NodeAssetPickerDelegate)? {
+        didSet {
+            self.observeAssets()
+        }
+    }
 
     var label: String {
         let maybeID = T.resolve(self.value)
@@ -134,8 +141,9 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         super.init(frame: .zero)
 
         self.clipsToBounds = false
-
         self.addSubview(self.innerView)
+
+        self.observeAssets()
 
         self.update()
     }
@@ -157,6 +165,14 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         }
         self.value = T.none
         self.emit(.valueDidChange(self.value))
+    }
+
+    func observeAssets() {
+        self.cancellables = []
+        self.delegate?.emitter.on({ [weak self] _ in
+            guard let self else { return }
+            self.innerView.vm = self.vm
+        }).store(in: &self.cancellables)
     }
 
     private func update() {

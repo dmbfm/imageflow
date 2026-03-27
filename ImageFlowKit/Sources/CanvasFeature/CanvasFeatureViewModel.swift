@@ -61,6 +61,8 @@ public final class CanvasFeatureViewModel {
         self.interactionMode == .interactiveSelection
     }
 
+    @ObservationIgnored var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
+
     public typealias Delegate = NodeViewDelegate
 
     #if os(macOS)
@@ -90,6 +92,12 @@ public final class CanvasFeatureViewModel {
         self.coordinator.emitter.on({ [weak self] event in self?.onCoordinatorEvent(event) }).store(
             in: &self.cancellables
         )
+
+        self.assetStore.emitter.on({ [weak self] event in
+            if case .assetsChanged = event {
+                self?.nodeViewDelegateEmitter.emit(.assetsChanged)
+            }
+        }).store(in: &self.cancellables)
     }
 
     // MARK: - Computed variables

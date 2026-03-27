@@ -464,6 +464,8 @@ public final class PreviewFeatureState {
             switch event {
             case .modifiedGeneratedAsset(let loc):
                 self?.previewContentViewModel(input: .imageUpdated(loc))
+            case .assetsChanged:
+                break
             }
         }.store(in: &self.cancellables)
     }

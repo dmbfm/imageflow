@@ -13,6 +13,10 @@ public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeViewSelectedNodesCount() -> Int
 }
 
+public enum NodeViewDelegateEvent {
+    case assetsChanged
+}
+
 public final class NodeView: PlatformCommonView, CanvasNodeView {
 
     // MARK: - Exposed properties

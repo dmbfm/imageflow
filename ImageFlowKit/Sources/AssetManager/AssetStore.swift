@@ -14,6 +14,7 @@ public final class AssetStore: AssetStoreService {
     public private(set) var assets: [UUID: Asset] = [:] {
         didSet {
             self.delegate?.assetsStore(assetsDidChange: self.assets)
+            self.emitter.emit(.assetsChanged)
         }
     }
 

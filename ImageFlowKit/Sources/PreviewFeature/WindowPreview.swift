@@ -159,6 +159,8 @@ public class WindowPreviewViewModel: Observable {
                 if loc == self?.location {
                     self?.startLoadingImage()
                 }
+            case .assetsChanged:
+                break
             }
         }.store(in: &self.cancellable)
 
