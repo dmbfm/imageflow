@@ -58,7 +58,7 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
                     self?.invalidateIntrinsicContentSize()
                     self?.emit(.sizeDidChange)
                 case let .drag(drag):
-                    self?.onDrag(idx, drag.phase, drag.dx, drag.dy, drag.shiftDown, drag.controlDown)
+                    self?.onDrag(idx, drag)
                 case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                     self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
                 }
@@ -161,8 +161,11 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         self.emit(.sizeDidChange)
     }
 
-    func onDrag(_ idx: Int, _ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat, _ shiftDown: Bool, _ controlDown: Bool)
-    {
+    func onDrag(_ idx: Int, _ value: NodeTextFieldEvent.Drag) {
+        let phase = value.phase
+        let shiftDown = value.shiftDown
+        let optionDown = value.optionDown
+        let dx = value.dx
         switch phase {
         case .began:
             self.valueAtDragStart = self.value[idx]
@@ -170,7 +173,7 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
             break
         }
 
-        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
+        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
         let t = dx * sensitivity
         let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
 

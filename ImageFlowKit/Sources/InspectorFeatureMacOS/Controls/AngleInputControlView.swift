@@ -67,15 +67,15 @@ struct AngleInputControlView: View {
     func onChange(_ change: FloatInputView.Change) {
         func transform(_ value: Double) -> Double {
             #if os(macOS)
-            let snap = self.snapping || (NSApp.keyWindow?.currentEvent?.modifierFlags.contains(.option) ?? false)
+            let snap = self.snapping || (NSApp.keyWindow?.currentEvent?.modifierFlags.contains(.command) ?? false)
             #else
             let snap = self.snapping
             #endif
-            return if snap {
-                self.unit.radians(value)
+            if snap {
+                return self.unit.radians(value)
                     .snapping(toIncrements: 45.0.radians, epsilon: change.shiftDown ? 3.radians : 12.radians)
             } else {
-                self.unit.radians(value)
+                return self.unit.radians(value)
             }
         }
 

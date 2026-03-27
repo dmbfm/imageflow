@@ -87,7 +87,12 @@ public final class NodeInputRowView: PlatformView {
         let view: any NodeControl =
             switch self.input.value.type {
             case .float:
-                NodeNumberInput(self.input.value, isEditable: self.isEditable)
+                switch self.input.semantics {
+                case .float(.angle(let range)):
+                    NodeAngleInput(self.input.value, isEditable: self.isEditable)
+                default:
+                    NodeNumberInput(self.input.value, isEditable: self.isEditable)
+                }
             case .int:
                 switch self.input.semantics {
                 case .integer(.range(let range)):

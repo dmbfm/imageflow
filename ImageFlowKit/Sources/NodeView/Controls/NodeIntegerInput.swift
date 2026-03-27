@@ -222,7 +222,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     func onDrag(_ value: NodeTextFieldEvent.Drag) {
         let phase = value.phase
-        let controlDown = value.controlDown
+        let optionDown = value.optionDown
         let shiftDown = value.shiftDown
         let dx = value.dx
 
@@ -233,7 +233,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             break
         }
 
-        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
+        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
         let t = dx * sensitivity
         let newValue = Int(round(Double(self.valueAtDragStart) + t).truncateTo(fractionalDigits: 2))
 

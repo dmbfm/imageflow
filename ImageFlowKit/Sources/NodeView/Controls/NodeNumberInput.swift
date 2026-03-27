@@ -45,6 +45,13 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     var context: NodeControlContext = .init()
 
+    var snap: Snap? = nil
+
+    struct Snap {
+        var increments: Double
+        var epsilon: Double
+    }
+
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.decimalSeparator = "."
@@ -75,7 +82,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
             case let .drag(drag):
-                self?.onDrag(drag.phase, drag.dx, drag.dy, drag.shiftDown, drag.controlDown)
+                self?.onDrag(drag)
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
@@ -126,7 +133,14 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     private var valueAtDragStart: CGFloat = 0.0
 
-    func onDrag(_ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat, _ shiftDown: Bool, _ controlDown: Bool) {
+    func onDrag(_ value: NodeTextFieldEvent.Drag) {
+
+        let phase = value.phase
+        let shiftDown = value.shiftDown
+        let optionDown = value.optionDown
+        let commandDown = value.commandDown
+        let dx = value.dx
+
         switch phase {
         case .began:
             self.valueAtDragStart = self.value.float
@@ -134,9 +148,18 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
             break
         }
 
-        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
+        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
         let t = dx * sensitivity
-        let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
+        let newValue = self.snap.maybeReduce(
+            (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2),
+            { v, snap in
+                if commandDown {
+                    v.snapping(toIncrements: snap.increments, epsilon: snap.epsilon)
+                } else {
+                    v
+                }
+            }
+        )
 
         if phase == .ended {
             self.setValue(newValue: .float(newValue), oldValue: .float(self.valueAtDragStart), registerUndo: true)

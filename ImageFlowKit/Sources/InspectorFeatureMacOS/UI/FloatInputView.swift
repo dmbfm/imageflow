@@ -123,7 +123,7 @@ struct FloatInputView: View {
         TextFieldEx(text: self.textBinding)
             .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
                 if let range = self.range {
-                    let speed = self.isShiftDown ? 0.1 : (self.isOptionDown ? 10.0 : 1.0)
+                    let speed = self.isShiftDown ? 0.1 : 1.0
                     let pos = data.initial + speed * (data.current - data.initial)
                     let newValue = self.step.maybeReduce(
                         (pos * (range.upperBound - range.lowerBound) + range.lowerBound).clamped(

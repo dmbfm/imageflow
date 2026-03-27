@@ -39,7 +39,8 @@ enum NodeTextFieldEvent {
         var dx: CGFloat
         var dy: CGFloat
         var shiftDown: Bool
-        var controlDown: Bool
+        var optionDown: Bool
+        var commandDown: Bool
     }
 }
 
