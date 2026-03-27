@@ -17,7 +17,13 @@ extension MainContentViewMacOS {
         @Environment(\.undoManager) var um
 
         func onKeyPressSpace() -> KeyPress.Result {
-            if self.focus.wrappedValue != .nodeSearch {
+            if let responder = NSApp.keyWindow?.firstResponder {
+                if responder is NSText {
+                    return .ignored
+                }
+            }
+
+            if self.focus.wrappedValue == .global || self.focus.wrappedValue == nil {
                 self.vm.coordinator.perform(userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: nil))
                 return .handled
             }
