@@ -33,14 +33,40 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
             self.numberInput.context = context
         }
     }
+    
+    var snap: Bool = false {
+        didSet {
+            self.numberInput.forceSnap = self.snap
+            #if os(iOS)
+            if let child = (self.unitButton.menu?.children[2] as? UIMenu)?.children[0] as? UIAction {
+                child.state = self.snap ? .on : .off
+            }
+            #endif
+        }
+    }
 
     var unit: AngleUnit = .degrees {
         didSet {
-            Task {
-                // NOTE: Hack because `NSPopupButton` is buggy as hell
+            if self.unit != oldValue {
+                #if os(iOS)
+                self.unitButton.setTitle(self.unit.shortLabel, for: .normal)
+                if let child = self.unitButton.menu?.children[0] as? UIAction {
+                    child.state = self.unit == .degrees ? .on : .off
+                }
+                if let child = self.unitButton.menu?.children[1] as? UIAction {
+                    child.state = self.unit == .radians ? .on : .off
+                }
+                #endif
                 self.updateSize()
-                try await Task.sleep(for: .milliseconds(10))
-                self.updateSize()
+                #if os(macOS)
+                Task {
+                    // NOTE: Hack because `NSPopupButton` is buggy as hell
+                    self.updateSize()
+                    try await Task.sleep(for: .milliseconds(10))
+                    self.updateSize()
+                    
+                }
+                #endif
             }
         }
     }
@@ -59,6 +85,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     lazy var numberInput: NodeNumberInput = {
         let view = NodeNumberInput(self.value, isEditable: true)
         view.context = self.context
+        view.forceSnap = false
         view.onEvent = { [weak self] event in
             switch event {
             case .sizeDidChange:
@@ -100,7 +127,6 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         view.cell?.title = self.unit.shortLabel
         return view
     }()
-    #endif
 
     @objc func onPopupDegrees() {
         self.unit = .degrees
@@ -109,10 +135,32 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     @objc func onPopupRadians() {
         self.unit = .radians
     }
+    #endif
+
+    #if os(iOS)
+    lazy var unitButton: UIButton = {
+        let view = UIButton(configuration: .plain(), primaryAction: nil)
+        view.setTitle(self.unit.shortLabel, for: .normal)
+        view.configuration?.buttonSize = .mini
+        view.configuration?.contentInsets.leading = 1
+        view.configuration?.contentInsets.trailing = 4
+        view.layer.borderColor = UIColor.systemTeal.cgColor
+        view.layer.borderWidth = 1
+        view.menu = UIMenu(title: "Units", children: [
+            UIAction(title: AngleUnit.degrees.shortLabel, state: self.unit == .degrees ? .on : .off, handler: { _ in self.unit = .degrees }),
+            UIAction(title: AngleUnit.radians.shortLabel, state: self.unit == .radians ? .on : .off,  handler: { _ in self.unit = .radians }),
+            UIMenu(title: "", options: .displayInline, children: [
+                UIAction(title: "Snap", state: self.snap ? .on : .off, handler: { _ in self.snap.toggle() })
+            ])
+        ])
+        view.showsMenuAsPrimaryAction = true
+        return view
+    }()
+    #endif
 
     func updateSize() {
         self.invalidateIntrinsicContentSize()
-        self.needsLayout = true
+        self.setNeedsLayout()
         self.emit(.sizeDidChange)
     }
 
@@ -161,7 +209,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     // MARK: - Layout
 
-    override var intrinsicContentSize: NSSize {
+    override var intrinsicContentSize: CGSize {
         let text = self.numberInput.intrinsicContentSize
         let buttonSize = self.unitButton.intrinsicContentSize
 
@@ -178,9 +226,9 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
             height: self.bounds.height
         )
         self.unitButton.frame.origin = .init(x: self.numberInput.frame.maxX, y: 0)
+        self.unitButton.frame.size = self.unitButton.intrinsicContentSize
         self.dialView.frame.origin = .init(x: self.unitButton.frame.maxX, y: 0)
         self.dialView.frame.size = .init(width: Style.dialSize, height: Style.dialSize)
-        self.unitButton.frame.size = self.unitButton.intrinsicContentSize
         Layout.align(
             views: [
                 self.numberInput,
@@ -232,38 +280,92 @@ extension NodeAngleInput {
 }
 
 private class AngleDial: PlatformCommonView {
-
     var angle: Double = 15.0.radians {
         didSet {
-            self.needsDisplay = true
+            self.setNeedsDisplay()
         }
     }
 
     var smallRadiusRatio: Double = 0.25 {
         didSet {
-            self.needsDisplay = true
+            self.setNeedsDisplay()
         }
     }
 
-    override func draw(_ dirtyRect: NSRect) {
-        let boundsMinSide = min(self.bounds.width - 2, self.bounds.height - 2)
-        let alpha = self.smallRadiusRatio
+    var drawData: DrawData {
+        .init(self.bounds, self.angle, self.smallRadiusRatio)
+    }
 
-        let largeRadius = boundsMinSide / (2 * (1.0 + alpha))
-        let smallRadius = largeRadius * alpha
-        let bounds = self.bounds.insetBy(dx: smallRadius + 2, dy: smallRadius + 2)
+    #if os(iOS)
+    lazy var largeCircleShape: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        return layer
+    }()
 
-        let square = CGRect(origin: bounds.origin, size: .init(width: 2 * largeRadius, height: 2 * largeRadius))
-        let center = square.center
-        let x = center.x + largeRadius * cos(self.angle) - smallRadius
-        let y = center.y - largeRadius * sin(self.angle) - smallRadius
-        let smallCircleRect = CGRect(x: x, y: y, width: 2 * smallRadius, height: 2 * smallRadius)
+    lazy var smallCricleShape: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        return layer
+    }()
+
+    init(angle: Double = 0.0, smallRadiusRatio: Double = 0.25) {
+        self.angle = angle
+        self.smallRadiusRatio = smallRadiusRatio
+        super.init(frame: .zero)
+
+        self.layer.addSublayer(self.largeCircleShape)
+        self.layer.addSublayer(self.smallCricleShape)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override func draw(_ rect: CGRect) {
+        let data = self.drawData
+
+        self.largeCircleShape.path = CGPath(ellipseIn: data.largeCircleRect, transform: nil)
+        self.largeCircleShape.strokeColor = Style.dialStrokeColor.cgColor
+        self.largeCircleShape.fillColor = nil
+
+        self.smallCricleShape.path = CGPath(ellipseIn: data.smallCircleRect, transform: nil)
+        self.smallCricleShape.strokeColor = nil
+        self.smallCricleShape.fillColor = Style.dialFillColor.cgColor
+    }
+    #endif
+
+    #if os(macOS)
+    override func draw(_ dirtyRect: CGRect) {
+        let data = self.drawData
 
         Style.dialStrokeColor.platformColor.setStroke()
         Style.dialFillColor.platformColor.setFill()
 
-        NSBezierPath(ovalIn: square).stroke()
-        NSBezierPath(ovalIn: smallCircleRect).fill()
+        NSBezierPath(ovalIn: data.largeCircleRect).stroke()
+        NSBezierPath(ovalIn: data.smallCircleRect).fill()
+    }
+    #endif
+
+    struct DrawData {
+        var largeCircleRect: CGRect
+        var smallCircleRect: CGRect
+
+        init(_ bounds: CGRect, _ angle: Double, _ smallRadiusRatio: Double) {
+            let boundsMinSide = min(bounds.width - 2, bounds.height - 2)
+            let alpha = smallRadiusRatio
+
+            let largeRadius = boundsMinSide / (2 * (1.0 + alpha))
+            let smallRadius = largeRadius * alpha
+            let bounds = bounds.insetBy(dx: smallRadius + 2, dy: smallRadius + 2)
+
+            let square = CGRect(origin: bounds.origin, size: .init(width: 2 * largeRadius, height: 2 * largeRadius))
+            let center = square.center
+            let x = center.x + largeRadius * cos(angle) - smallRadius
+            let y = center.y - largeRadius * sin(angle) - smallRadius
+            let smallCircleRect = CGRect(x: x, y: y, width: 2 * smallRadius, height: 2 * smallRadius)
+
+            self.largeCircleRect = square
+            self.smallCircleRect = smallCircleRect
+        }
     }
 
     struct Preview: PlatformViewRepresentable {

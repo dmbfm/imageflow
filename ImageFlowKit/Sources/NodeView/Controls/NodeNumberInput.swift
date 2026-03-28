@@ -46,6 +46,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
     var context: NodeControlContext = .init()
 
     var snap: Snap? = nil
+    var forceSnap: Bool = false
 
     struct Snap {
         var increments: Double
@@ -153,7 +154,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         let newValue = self.snap.maybeReduce(
             (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2),
             { v, snap in
-                if commandDown {
+                if commandDown || self.forceSnap {
                     v.snapping(toIncrements: snap.increments, epsilon: snap.epsilon)
                 } else {
                     v
