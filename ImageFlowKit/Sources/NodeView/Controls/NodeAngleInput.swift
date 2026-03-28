@@ -63,6 +63,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
                 }
                 #endif
+                self.update()
             }
         }
     }
@@ -79,22 +80,23 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     private var valueAtDragStart: CGFloat = 0.0
 
     lazy var numberInput: NodeNumberTextField = {
-        let view = NodeNumberTextField(self.value.float, isEditable: true)
+        let view = NodeNumberTextField(self.value.float.fromRadians(to: self.unit), isEditable: true)
         // view.context = self.context
         view.forceSnap = false
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case .sizeDidChange:
-                self?.updateSize()
+                self.updateSize()
             case .valueDidChange(let change):
-                self?.setValue(
-                    newValue: .float(change.newValue),
-                    oldValue: change.oldValue.map({ .float($0) }),
+                self.setValue(
+                    newValue: .float(self.unit.radians(change.newValue)),
+                    oldValue: change.oldValue.map({ .float(self.unit.radians($0)) }),
                     registerUndo: change.commit
                 )
-                self?.updateSize()
+                self.updateSize()
             case .keyboardWillShow(let windowVerticalOverlap, let duration):
-                self?.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
+                self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
             }
         }
         view.snap = .init(increments: 45.0.radians, epsilon: 3.radians)
@@ -198,27 +200,9 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     }
 
     func update() {
+        log("update: \(self.unit), \(self.value), \(self.value.float.fromRadians(to: self.unit))")
         self.dialView.angle = self.value.float
-        self.numberInput.value = self.value.float
-    }
-
-    func onDrag(_ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat, _ shiftDown: Bool, _ controlDown: Bool) {
-        switch phase {
-        case .began:
-            self.valueAtDragStart = self.value.float
-        default:
-            break
-        }
-
-        let sensitivity = shiftDown ? 0.01 : (controlDown ? 1.0 : 0.1)
-        let t = dx * sensitivity
-        let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
-
-        if phase == .ended {
-            self.setValue(newValue: .float(newValue), oldValue: .float(self.valueAtDragStart), registerUndo: true)
-        } else {
-            self.setValue(newValue: .float(newValue))
-        }
+        self.numberInput.value = self.value.float.fromRadians(to: self.unit)
     }
 
     // MARK: - Layout
