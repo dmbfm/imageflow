@@ -13,23 +13,6 @@ import AppKit
 import UIKit
 #endif
 
-struct NodeNumberInputFormat: FormatStyle {
-    func format(_ value: Double) -> String {
-        value.formatted(
-            .number
-                .locale(.init(identifier: "en-US"))
-                .precision(.fractionLength(2...8))
-                .grouping(.never)
-        )
-    }
-}
-
-extension FormatStyle where Self == NodeNumberInputFormat {
-    static var nodeNumber: NodeNumberInputFormat {
-        .init()
-    }
-}
-
 final class NodeNumberInput: PlatformCommonView, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
@@ -45,45 +28,22 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     var context: NodeControlContext = .init()
 
-    var snap: Snap? = nil
-    var forceSnap: Bool = false
-
-    struct Snap {
-        var increments: Double
-        var epsilon: Double
-    }
-
-    lazy var formatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.decimalSeparator = "."
-        return f
-    }()
-
-    lazy var locale: Locale = { .init(identifier: "en-US") }()
-
-    lazy var textField: NodeTextField = {
-        let view = NodeTextField(
-            self.value.float.formatted(.nodeNumber),
-            style: .default.with(\.borderColor, self.tint)
+    lazy var textField: NodeNumberTextField = {
+        let view = NodeNumberTextField(
+            self.value.float,
+            isEditable: true
         )
         view.onEvent = { [weak self] event in
             switch event {
-            case .textDidChange(let value):
-                guard let self else { return }
-                if let number = Double(value) {
-                    self.setValue(newValue: .float(number), registerUndo: true)
-                } else {
-                    if value == "" {
-                        self.setValue(newValue: .float(0.0), registerUndo: true)
-                    } else {
-                        self.update()
-                    }
-                }
             case .sizeDidChange:
                 self?.invalidateIntrinsicContentSize()
                 self?.emit(.sizeDidChange)
-            case let .drag(drag):
-                self?.onDrag(drag)
+            case .valueDidChange(let change):
+                self?.setValue(
+                    newValue: .float(change.newValue),
+                    oldValue: change.oldValue.map({ .float($0) }),
+                    registerUndo: change.commit
+                )
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             }
@@ -127,53 +87,9 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
     }
 
     func update() {
-        self.textField.text = self.value.float.formatted(.nodeNumber)
-        self.invalidateIntrinsicContentSize()
-        self.emit(.sizeDidChange)
-    }
-
-    private var valueAtDragStart: CGFloat = 0.0
-
-    func onDrag(_ value: NodeTextFieldEvent.Drag) {
-
-        let phase = value.phase
-        let shiftDown = value.shiftDown
-        let optionDown = value.optionDown
-        let commandDown = value.commandDown
-        let dx = value.dx
-
-        switch phase {
-        case .began:
-            self.valueAtDragStart = self.value.float
-        default:
-            break
-        }
-
-        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
-        let t = dx * sensitivity
-        let newValue = self.snap.maybeReduce(
-            (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2),
-            { v, snap in
-                if commandDown || self.forceSnap {
-                    v.snapping(toIncrements: snap.increments, epsilon: snap.epsilon)
-                } else {
-                    v
-                }
-            }
-        )
-
-        if phase == .ended {
-            self.setValue(newValue: .float(newValue), oldValue: .float(self.valueAtDragStart), registerUndo: true)
-        } else {
-            self.setValue(newValue: .float(newValue))
-        }
+        self.textField.value = self.value.float
     }
 }
-
-#if os(macOS)
-extension NodeNumberInput: NSTextFieldDelegate {
-}
-#endif
 
 extension NodeNumberInput {
     public struct Preview: PlatformViewRepresentable {

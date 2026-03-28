@@ -28,12 +28,8 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     public var tint: PlatformColor = .systemBlue
 
-    var context: NodeControlContext = .init() {
-        didSet {
-            self.numberInput.context = context
-        }
-    }
-    
+    var context: NodeControlContext = .init()
+
     var snap: Bool = false {
         didSet {
             self.numberInput.forceSnap = self.snap
@@ -64,7 +60,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
                     self.updateSize()
                     try await Task.sleep(for: .milliseconds(10))
                     self.updateSize()
-                    
+
                 }
                 #endif
             }
@@ -82,20 +78,23 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     private var valueAtDragStart: CGFloat = 0.0
 
-    lazy var numberInput: NodeNumberInput = {
-        let view = NodeNumberInput(self.value, isEditable: true)
-        view.context = self.context
+    lazy var numberInput: NodeNumberTextField = {
+        let view = NodeNumberTextField(self.value.float, isEditable: true)
+        // view.context = self.context
         view.forceSnap = false
         view.onEvent = { [weak self] event in
             switch event {
             case .sizeDidChange:
                 self?.updateSize()
-            case .valueDidChange(let value):
-                self?.value = value
-                self?.dialView.angle = value.float
-                self?.emit(.valueDidChange(value))
-            case .keyboardWillShow:
-                break
+            case .valueDidChange(let change):
+                self?.setValue(
+                    newValue: .float(change.newValue),
+                    oldValue: change.oldValue.map({ .float($0) }),
+                    registerUndo: change.commit
+                )
+                self?.updateSize()
+            case .keyboardWillShow(let windowVerticalOverlap, let duration):
+                self?.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
             }
         }
         view.snap = .init(increments: 45.0.radians, epsilon: 3.radians)
@@ -146,13 +145,28 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         view.configuration?.contentInsets.trailing = 4
         view.layer.borderColor = UIColor.systemTeal.cgColor
         view.layer.borderWidth = 1
-        view.menu = UIMenu(title: "Units", children: [
-            UIAction(title: AngleUnit.degrees.shortLabel, state: self.unit == .degrees ? .on : .off, handler: { _ in self.unit = .degrees }),
-            UIAction(title: AngleUnit.radians.shortLabel, state: self.unit == .radians ? .on : .off,  handler: { _ in self.unit = .radians }),
-            UIMenu(title: "", options: .displayInline, children: [
-                UIAction(title: "Snap", state: self.snap ? .on : .off, handler: { _ in self.snap.toggle() })
-            ])
-        ])
+        view.menu = UIMenu(
+            title: "Units",
+            children: [
+                UIAction(
+                    title: AngleUnit.degrees.shortLabel,
+                    state: self.unit == .degrees ? .on : .off,
+                    handler: { _ in self.unit = .degrees }
+                ),
+                UIAction(
+                    title: AngleUnit.radians.shortLabel,
+                    state: self.unit == .radians ? .on : .off,
+                    handler: { _ in self.unit = .radians }
+                ),
+                UIMenu(
+                    title: "",
+                    options: .displayInline,
+                    children: [
+                        UIAction(title: "Snap", state: self.snap ? .on : .off, handler: { _ in self.snap.toggle() })
+                    ]
+                ),
+            ]
+        )
         view.showsMenuAsPrimaryAction = true
         return view
     }()
@@ -185,7 +199,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     func update() {
         self.dialView.angle = self.value.float
-        self.numberInput.value = self.value
+        self.numberInput.value = self.value.float
     }
 
     func onDrag(_ phase: GesturePhase, _ dx: CGFloat, _ dy: CGFloat, _ shiftDown: Bool, _ controlDown: Bool) {
