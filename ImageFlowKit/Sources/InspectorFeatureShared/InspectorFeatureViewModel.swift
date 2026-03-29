@@ -16,6 +16,7 @@ import Values
 public class InspectorFeatureViewModel: Observable {
 
     public let flow: Flow
+    public let assetStore: (any AssetStoreService)
     public let coordinator: GlobalCoordinator
     @ObservationIgnored public var undoManager: UndoManager?
 
@@ -41,11 +42,23 @@ public class InspectorFeatureViewModel: Observable {
     @ObservationIgnored
     private var cancellables: Set<AnyEventEmitterCancellable> = []
 
-    public init(flow: Flow, coordinator: GlobalCoordinator, undoManager: UndoManager?) {
+    #if IF_INSPECTOR_DEBUG
+    public let showDebugBlock: Bool = true
+    #else
+    public let showDebugBlock: Bool = true
+    #endif
+
+    public init(
+        flow: Flow,
+        coordinator: GlobalCoordinator,
+        assetStore: (any AssetStoreService),
+        undoManager: UndoManager?
+    ) {
         self.flow = flow
         self.coordinator = coordinator
         // self.coordinator = coordinator
         self.undoManager = undoManager
+        self.assetStore = assetStore
 
         self.flow.emitter.on { [weak self] event in
             self?.onFlowEvent(event)

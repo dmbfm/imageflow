@@ -4,6 +4,7 @@ import SwiftUI
 import SharedModels
 import CanvasFeature
 import InspectorFeatureShared
+import InspectorFeatureMacOS
 
 extension MainContentViewMacOS {
     struct DetailView: View {
@@ -44,6 +45,7 @@ extension MainContentViewMacOS {
                 .inspectorFeatureViewBar(
                     self.vm.showInspectorSafeBinding,
                     flow: self.vm.flow,
+                    assetStore: self.vm.assetStore,
                     coordinator: self.vm.coordinator
                 )
                 .focusable(true, interactions: .edit)

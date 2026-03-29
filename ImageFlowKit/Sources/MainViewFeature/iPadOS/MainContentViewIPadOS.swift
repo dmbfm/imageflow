@@ -98,7 +98,12 @@ struct MainContentViewIPadOS: View {
             self.$focus,
             coordinator: self.vm.coordinator,
         )
-        .inspectorFeatureViewBar(self.$vm.showInspector, flow: self.vm.flow, coordinator: self.vm.coordinator)
+        .inspectorFeatureViewBar(
+            self.$vm.showInspector,
+            flow: self.vm.flow,
+            assetStore: self.vm.assetStore,
+            coordinator: self.vm.coordinator
+        )
     }
 
     let zoomValues: [CGFloat] = [

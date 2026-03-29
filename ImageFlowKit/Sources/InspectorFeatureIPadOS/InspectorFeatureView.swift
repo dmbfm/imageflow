@@ -13,8 +13,10 @@ public struct InspectorFeatureView: View {
     @Environment(\.undoManager) var undoManager
     @Environment(\.colorScheme) var cs
 
-    public init(flow: SharedModels.Flow, coordinator: GlobalCoordinator) {
-        self._vm = .init(wrappedValue: .init(flow: flow, coordinator: coordinator, undoManager: nil))
+    public init(flow: SharedModels.Flow, assetStore: any AssetStoreService, coordinator: GlobalCoordinator) {
+        self._vm = .init(
+            wrappedValue: .init(flow: flow, coordinator: coordinator, assetStore: assetStore, undoManager: nil)
+        )
     }
 
     public var body: some View {
@@ -268,6 +270,7 @@ extension InspectorFeatureView {
         @State var show: Bool = true
         @State var flow: SharedModels.Flow
         @State var coordinator: GlobalCoordinator
+        @State var assetStore: MockAssetStore
 
         public init() {
             let flow = Flow()
@@ -283,8 +286,10 @@ extension InspectorFeatureView {
             }
             //            flow.addNode(node, at: .zero)
             flow.selection = [nodes[0].id]
-            self.flow = flow
-            self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
+            self._flow = .init(wrappedValue: flow)
+            self._coordinator = .init(wrappedValue: .init(flow: flow))
+            //            self_.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
+            self._assetStore = .init(wrappedValue: .init())
         }
 
         public init(nodes: [FlowNode], selected: Int? = nil) {
@@ -298,9 +303,9 @@ extension InspectorFeatureView {
             } else if nodes.first != nil {
                 flow.selection = [nodes[0].id]
             }
-            self.flow = flow
-            self.coordinator = .init(MockGlobalCoordinatorService(flow: flow))
-
+            self._flow = .init(wrappedValue: flow)
+            self._coordinator = .init(wrappedValue: .init(flow: flow))
+            self._assetStore = .init(wrappedValue: .init())
         }
 
         var selection: Binding<UUID?> {
@@ -328,7 +333,12 @@ extension InspectorFeatureView {
                     }
                 }
                 .ignoresSafeArea()
-                .inspectorFeatureViewBar(self.$show, flow: self.flow, coordinator: self.coordinator)
+                .inspectorFeatureViewBar(
+                    self.$show,
+                    flow: self.flow,
+                    assetStore: self.assetStore,
+                    coordinator: self.coordinator
+                )
                 .toolbar {
                     ToolbarItem {
                         Button {

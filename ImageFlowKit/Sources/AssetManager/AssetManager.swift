@@ -58,9 +58,9 @@ actor AssetManager {
 
     // MARK: - Private Properties
 
-    private var assetResources: AssetResources = .init()
-    private var generatedResources: GeneratedResources = .init()
-    private var documentInfo: DocumentInfo?
+    private(set) var assetResources: AssetResources = .init()
+    private(set) var generatedResources: GeneratedResources = .init()
+    private(set) var documentInfo: DocumentInfo?
 
     // MARK: - Private Types
 

@@ -49,4 +49,5 @@ public protocol AssetManagerProvider: AnyObject {
 public protocol GeneratedResourceProvider: AnyObject {
     func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage>
     func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool
+    var generatedImageLocations: [OutputPortLocation] { get }
 }

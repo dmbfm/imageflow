@@ -295,14 +295,12 @@ struct VectorControlView: View {
 
 #Preview("Zoom Blur") {
     @Previewable @State var flow: Flow = .preview(.coreImageFilterNode(.blur(.CIZoomBlur)))
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }
 
 #Preview("Slit") {
     @Previewable @State var flow: Flow = .preview(.splitValue(.vector4))
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }

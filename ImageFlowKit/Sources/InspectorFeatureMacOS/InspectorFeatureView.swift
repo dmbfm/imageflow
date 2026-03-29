@@ -15,8 +15,10 @@ public struct InspectorFeatureView: View {
 
     @Environment(\.undoManager) var um
 
-    public init(flow: Flow, coordinator: GlobalCoordinator) {
-        self._vm = .init(wrappedValue: .init(flow: flow, coordinator: coordinator, undoManager: nil))
+    public init(flow: Flow, assetStore: (any AssetStoreService), coordinator: GlobalCoordinator) {
+        self._vm = .init(
+            wrappedValue: .init(flow: flow, coordinator: coordinator, assetStore: assetStore, undoManager: nil)
+        )
     }
 
     public var body: some View {
@@ -77,6 +79,11 @@ public struct InspectorFeatureView: View {
                 .padding(.bottom, 12)
 
             OutputBlockView(vm: self.vm)
+
+            if self.vm.showDebugBlock {
+                DebugBlockView(vm: self.vm)
+                    .padding(.top, 12)
+            }
 
             Spacer()
         }
@@ -196,30 +203,43 @@ extension Flow {
     }
 }
 
+extension InspectorFeatureView {
+
+    struct Preview: View {
+        @State var flow: Flow
+        @State var coordinator: GlobalCoordinator
+        @State var assetsProvider: MockAssetStore = .init()
+
+        init(_ flow: Flow) {
+            self._flow = .init(wrappedValue: flow)
+            self._coordinator = .init(initialValue: .init(flow: flow))
+        }
+        var body: some View {
+            InspectorFeatureView(flow: flow, assetStore: assetsProvider, coordinator: coordinator)
+        }
+    }
+}
+
 #Preview {
     @Previewable @State var flow: Flow = .preview(.coreImageFilterNode(.halftoneEffect(.CIDotScreen)))
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }
 
 #Preview("Float Node") {
     @Previewable @State var flow: Flow = .preview(.valueNode(.bool))
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }
 
 #Preview("Color Matrix") {
     @Previewable @State var flow: Flow = .preview(.coreImageFilterNode(.colorAdjustment(.CIColorMatrix)))
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }
 
 #Preview("No Node Selected") {
     @Previewable @State var flow: Flow = .init()
-    let coordinator: GlobalCoordinator = .init(MockGlobalCoordinatorService(flow: flow))
-    InspectorFeatureView(flow: flow, coordinator: coordinator)
+    InspectorFeatureView.Preview(flow)
         .frame(width: 350)
 }

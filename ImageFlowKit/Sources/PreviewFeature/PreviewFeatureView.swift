@@ -187,6 +187,8 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 @Observable
 @MainActor
 private final class MockAssetStore: AssetStoreService {
+    let generatedImageLocations: [SharedModels.OutputPortLocation] = []
+
     var assetManager: any BackendAssetProvider {
         fatalError()
     }
