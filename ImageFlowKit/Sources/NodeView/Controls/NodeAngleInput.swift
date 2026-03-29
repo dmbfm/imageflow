@@ -32,13 +32,23 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     var snap: Bool = false {
         didSet {
-            self.numberInput.forceSnap = self.snap
-            #if os(iOS)
-            if let child = (self.unitButton.menu?.children[2] as? UIMenu)?.children[0] as? UIAction {
-                child.state = self.snap ? .on : .off
+            if self.snap != oldValue {
+                self.updateSnap()
             }
-            #endif
         }
+    }
+
+    func updateSnap() {
+        self.numberInput.forceSnap = self.snap
+        self.numberInput.snap = .init(
+            increments: 45.0.fromDegrees(to: self.unit),
+            epsilon: 3.0.fromDegrees(to: self.unit)
+        )
+        #if os(iOS)
+        if let child = (self.unitButton.menu?.children[2] as? UIMenu)?.children[0] as? UIAction {
+            child.state = self.snap ? .on : .off
+        }
+        #endif
     }
 
     var unit: AngleUnit = .degrees {
@@ -63,6 +73,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
                 }
                 #endif
+                self.updateSnap()
                 self.update()
             }
         }
@@ -99,7 +110,6 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
                 self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
             }
         }
-        view.snap = .init(increments: 45.0.radians, epsilon: 3.radians)
         return view
     }()
 
@@ -192,6 +202,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         self.addSubview(self.unitButton)
         self.addSubview(self.dialView)
 
+        self.updateSnap()
     }
 
     @available(*, unavailable)
