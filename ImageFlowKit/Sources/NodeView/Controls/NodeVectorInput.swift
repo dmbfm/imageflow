@@ -1,6 +1,7 @@
 import Backend
 import Helpers
 import Logging
+import SharedModels
 import SwiftUI
 import Values
 
@@ -166,6 +167,9 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         let shiftDown = value.shiftDown
         let optionDown = value.optionDown
         let dx = value.dx
+
+        self.updateStatusBarMessage(phase)
+
         switch phase {
         case .began:
             self.valueAtDragStart = self.value[idx]
@@ -182,6 +186,16 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
             self.setValue(newValue: self.value(settingIndex: idx, to: newValue), oldValue: oldValue, registerUndo: true)
         } else {
             self.setValue(newValue: self.value(settingIndex: idx, to: newValue))
+        }
+    }
+
+    func updateStatusBarMessage(_ phase: GesturePhase) {
+        switch phase {
+        case .began:
+            self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+        case .ended, .cancelled:
+            self.onEvent?(.statusBarMessage(nil))
+        default: break
         }
     }
 }

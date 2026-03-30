@@ -12,6 +12,7 @@ struct FloatInputControlView: View {
     }
 
     @State var initialValue: Double?
+    @State var dragState: DragState = .notDragging
 
     var range: ClosedRange<Double>? {
         switch self.input.semantics {
@@ -48,6 +49,7 @@ struct FloatInputControlView: View {
             value: self.transformedValue,
             range: self.range,
             suffix: self.suffix,
+            dragState: self.$dragState,
             onChange: { change in
                 self.vm.submit(
                     .input(
@@ -59,5 +61,14 @@ struct FloatInputControlView: View {
                 )
             },
         )
+        .onChange(of: self.dragState, initial: false) {
+            log("onChange(of: self.dragState)")
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
+            }
+        }
     }
 }

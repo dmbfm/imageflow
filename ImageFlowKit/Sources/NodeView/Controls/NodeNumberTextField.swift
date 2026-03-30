@@ -45,6 +45,7 @@ final class NodeNumberTextField: PlatformCommonView {
         case valueDidChange(Change)
         case sizeDidChange
         case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
+        case dragStateChanged(DragState)
     }
 
     struct Change {
@@ -168,6 +169,9 @@ final class NodeNumberTextField: PlatformCommonView {
         switch phase {
         case .began:
             self.valueAtDragStart = self.value
+            self.onEvent?(.dragStateChanged(.dragging))
+        case .ended, .cancelled:
+            self.onEvent?(.dragStateChanged(.notDragging))
         default:
             break
         }

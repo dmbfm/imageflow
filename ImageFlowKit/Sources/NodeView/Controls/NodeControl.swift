@@ -40,6 +40,7 @@ public enum NodeControlEvent {
     case valueDidChange(Value)
     case sizeDidChange
     case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
+    case statusBarMessage(String?)
 }
 
 public struct NodeControlContext {

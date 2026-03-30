@@ -10,6 +10,7 @@ struct IntegerInputControlView: View {
     let input: FlowNode.Input
 
     @State private var debouncer: FirstValueDebouncer<Value> = .init(0.25)
+    @State private var dragState: DragState = .notDragging
 
     var range: ClosedRange<Int>? {
         switch input.semantics {
@@ -67,7 +68,16 @@ struct IntegerInputControlView: View {
 
     var body: some View {
         HStack {
-            IntegerInputView(value: self.value, onChange: self.onChange(_:))
+            IntegerInputView(value: self.value, dragState: self.$dragState, onChange: self.onChange(_:))
+        }
+        .onChange(of: self.dragState, initial: false) {
+            log("onChange(of: self.dragState)")
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
+            }
         }
     }
 }

@@ -183,6 +183,8 @@ extension NodeOptionPickerInput {
                     break
                 case .keyboardWillShow:
                     break
+                case .statusBarMessage:
+                    break
                 }
             }
             return view

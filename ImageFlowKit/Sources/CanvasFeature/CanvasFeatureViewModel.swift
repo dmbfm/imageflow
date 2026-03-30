@@ -60,6 +60,8 @@ public final class CanvasFeatureViewModel {
     var interactiveSelectionToolbarIsPresented: Bool {
         self.interactionMode == .interactiveSelection
     }
+    /// The state of the Status Bar (used only on macOS currently)
+    var statusBarState: StatusBarState = .init(visible: false, text: "")
 
     @ObservationIgnored var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
 

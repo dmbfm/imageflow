@@ -23,6 +23,7 @@ struct AngleInputControlView: View {
 
     @State var unit: Unit = .degrees
     @State var snapping: Bool = false
+    @State var dragState: DragState = .notDragging
 
     var value: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
@@ -122,8 +123,17 @@ struct AngleInputControlView: View {
                 range: self.range,
                 step: 0.01,
                 suffix: self.suffix,
+                dragState: self.$dragState,
                 onChange: self.onChange(_:)
             )
+            .onChange(of: self.dragState, initial: false) {
+                switch self.dragState {
+                case .dragging:
+                    self.vm.coordinator.statusBar(StatusBarMessage.dragFloatSnap.rawValue)
+                case .notDragging:
+                    self.vm.coordinator.statusBar(nil)
+                }
+            }
 
             Spacer(minLength: 0)
         }

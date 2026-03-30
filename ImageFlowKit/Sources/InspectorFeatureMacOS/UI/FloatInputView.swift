@@ -29,6 +29,7 @@ struct FloatInputView: View {
     /// Called whennever the value is changed due to user input.
     private var onChange: (Change) -> ()
 
+    @Binding var dragState: DragState
     @State private var startValue: Double = 0
 
     @Environment(\.floatInputViewNumberFormatter) var formatter
@@ -49,6 +50,7 @@ struct FloatInputView: View {
         step: Double? = nil,
         sensitivity: FloatInputView.Sensitivity = .init(),
         suffix: String? = nil,
+        dragState: Binding<DragState> = .constant(.notDragging),
         onChange: @escaping (FloatInputView.Change) -> ()
     ) {
         self.value = value
@@ -57,6 +59,7 @@ struct FloatInputView: View {
         self.sensitivity = sensitivity
         self.suffix = suffix
         self.onChange = onChange
+        self._dragState = dragState
     }
 
     struct Change {
@@ -122,6 +125,7 @@ struct FloatInputView: View {
     var body: some View {
         TextFieldEx(text: self.textBinding)
             .inspectorSlider(percentage: self.percentage, showSlider: self.range != nil) { data in
+
                 if let range = self.range {
                     let speed = self.isShiftDown ? 0.1 : 1.0
                     let pos = data.initial + speed * (data.current - data.initial)
@@ -135,18 +139,22 @@ struct FloatInputView: View {
                     let oldValue = data.initial * (range.upperBound - range.lowerBound) + range.lowerBound
                     switch data.phase {
                     case .began:
+                        self.dragState = .dragging
                         self.onChange(
                             .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
                         )
                     case .changed:
+                        self.dragState = .dragging
                         self.onChange(
                             .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
                         )
                     case .ended:
+                        self.dragState = .notDragging
                         self.onChange(
                             .init(oldValue: oldValue, newValue: newValue, shiftDown: self.isShiftDown, commit: true)
                         )
                     case .cancelled:
+                        self.dragState = .notDragging
                         self.onChange(
                             .init(oldValue: oldValue, newValue: oldValue, shiftDown: self.isShiftDown, commit: false)
                         )
@@ -161,12 +169,15 @@ struct FloatInputView: View {
                     )
                     switch data.phase {
                     case .began:
+                        self.dragState = .dragging
                         self.startValue = self.value
                     case .changed:
+                        self.dragState = .dragging
                         self.onChange(
                             .init(oldValue: nil, newValue: newValue, shiftDown: self.isShiftDown, commit: false)
                         )
                     case .ended:
+                        self.dragState = .dragging
                         self.onChange(
                             .init(
                                 oldValue: self.startValue,

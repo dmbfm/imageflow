@@ -44,6 +44,8 @@ struct Matrix3x3InputControlView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
 
+    @State var dragState: DragState = .notDragging
+
     func floatValue(_ row: Int, _ column: Int) -> Double {
         self.input.value.maybeMatrix3x3?[row, column] ?? 0.0
     }
@@ -68,11 +70,25 @@ struct Matrix3x3InputControlView: View {
             .init(
                 label: "",
                 control: HStack(spacing: 2) {
-                    FloatInputView(value: self.floatValue(row, 0)) { change in self.onChange(row, 0, change) }
-                    FloatInputView(value: self.floatValue(row, 1)) { change in self.onChange(row, 1, change) }
-                    FloatInputView(value: self.floatValue(row, 2)) { change in self.onChange(row, 2, change) }
+                    FloatInputView(value: self.floatValue(row, 0), dragState: self.$dragState) { change in
+                        self.onChange(row, 0, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 1), dragState: self.$dragState) { change in
+                        self.onChange(row, 1, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 2), dragState: self.$dragState) { change in
+                        self.onChange(row, 2, change)
+                    }
                 }
             )
+        }
+        .onChange(of: self.dragState, initial: false) {
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
+            }
         }
     }
 }
@@ -80,6 +96,8 @@ struct Matrix3x3InputControlView: View {
 struct Matrix5x5InputControlView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var dragState: DragState = .notDragging
 
     func floatValue(_ row: Int, _ column: Int) -> Double {
         self.input.value.maybeMatrix5x5?[row, column] ?? 0.0
@@ -105,13 +123,31 @@ struct Matrix5x5InputControlView: View {
             .init(
                 label: "",
                 control: HStack(spacing: 2) {
-                    FloatInputView(value: self.floatValue(row, 0)) { change in self.onChange(row, 0, change) }
-                    FloatInputView(value: self.floatValue(row, 1)) { change in self.onChange(row, 1, change) }
-                    FloatInputView(value: self.floatValue(row, 2)) { change in self.onChange(row, 2, change) }
-                    FloatInputView(value: self.floatValue(row, 3)) { change in self.onChange(row, 3, change) }
-                    FloatInputView(value: self.floatValue(row, 4)) { change in self.onChange(row, 4, change) }
+                    FloatInputView(value: self.floatValue(row, 0), dragState: self.$dragState) { change in
+                        self.onChange(row, 0, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 1), dragState: self.$dragState) { change in
+                        self.onChange(row, 1, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 2), dragState: self.$dragState) { change in
+                        self.onChange(row, 2, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 3), dragState: self.$dragState) { change in
+                        self.onChange(row, 3, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 4), dragState: self.$dragState) { change in
+                        self.onChange(row, 4, change)
+                    }
                 }
             )
+        }
+        .onChange(of: self.dragState, initial: false) {
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
+            }
         }
     }
 }
@@ -119,6 +155,8 @@ struct Matrix5x5InputControlView: View {
 struct Matrix7x7InputControlView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var dragState: DragState = .notDragging
 
     func floatValue(_ row: Int, _ column: Int) -> Double {
         self.input.value.maybeMatrix7x7?[row, column] ?? 0.0
@@ -143,14 +181,36 @@ struct Matrix7x7InputControlView: View {
         VStack(spacing: 2) {
             ForEach(0..<7, id: \.self) { row in
                 HStack(spacing: 2) {
-                    FloatInputView(value: self.floatValue(row, 0)) { change in self.onChange(row, 0, change) }
-                    FloatInputView(value: self.floatValue(row, 1)) { change in self.onChange(row, 1, change) }
-                    FloatInputView(value: self.floatValue(row, 2)) { change in self.onChange(row, 2, change) }
-                    FloatInputView(value: self.floatValue(row, 3)) { change in self.onChange(row, 3, change) }
-                    FloatInputView(value: self.floatValue(row, 4)) { change in self.onChange(row, 4, change) }
-                    FloatInputView(value: self.floatValue(row, 5)) { change in self.onChange(row, 5, change) }
-                    FloatInputView(value: self.floatValue(row, 6)) { change in self.onChange(row, 6, change) }
+                    FloatInputView(value: self.floatValue(row, 0), dragState: self.$dragState) { change in
+                        self.onChange(row, 0, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 1), dragState: self.$dragState) { change in
+                        self.onChange(row, 1, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 2), dragState: self.$dragState) { change in
+                        self.onChange(row, 2, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 3), dragState: self.$dragState) { change in
+                        self.onChange(row, 3, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 4), dragState: self.$dragState) { change in
+                        self.onChange(row, 4, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 5), dragState: self.$dragState) { change in
+                        self.onChange(row, 5, change)
+                    }
+                    FloatInputView(value: self.floatValue(row, 6), dragState: self.$dragState) { change in
+                        self.onChange(row, 6, change)
+                    }
                 }
+            }
+        }
+        .onChange(of: self.dragState, initial: false) {
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
             }
         }
     }
@@ -224,6 +284,8 @@ struct VectorControlView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
 
+    @State var dragState: DragState = .notDragging
+
     var rowCount: Int {
         switch input.value.type {
         case .vector2: 2
@@ -277,7 +339,7 @@ struct VectorControlView: View {
                 .init(
                     label: self.componentLabel(row),
                     control:
-                        FloatInputView(value: self.floatValue(row)) { change in
+                        FloatInputView(value: self.floatValue(row), dragState: self.$dragState) { change in
                             self.vm.submit(
                                 .input(
                                     self.input.index,
@@ -290,6 +352,14 @@ struct VectorControlView: View {
                 )
             }
         )
+        .onChange(of: self.dragState, initial: false) {
+            switch self.dragState {
+            case .dragging:
+                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+            case .notDragging:
+                self.vm.coordinator.statusBar(nil)
+            }
+        }
     }
 }
 

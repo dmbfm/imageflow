@@ -78,6 +78,8 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
             // self?.setValue(vec)
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+            case .statusBarMessage:
+                break
             }
         }
 

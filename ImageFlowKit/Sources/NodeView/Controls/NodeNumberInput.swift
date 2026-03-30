@@ -1,6 +1,7 @@
 import Backend
 import Helpers
 import Logging
+import SharedModels
 import SwiftUI
 import Values
 
@@ -46,6 +47,14 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
                 )
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+            case .dragStateChanged(let dragState):
+                switch dragState {
+                case .dragging:
+                    self?.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+                case .notDragging:
+                    self?.onEvent?(.statusBarMessage(nil))
+                }
+                break
             }
         }
         return view
@@ -109,6 +118,7 @@ extension NodeNumberInput {
                 case .valueDidChange(let value): self.value = value
                 case .sizeDidChange: break
                 case .keyboardWillShow: break
+                case .statusBarMessage(_): break
                 }
             }
             return view

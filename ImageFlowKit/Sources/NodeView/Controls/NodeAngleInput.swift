@@ -108,6 +108,13 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
                 self.updateSize()
             case .keyboardWillShow(let windowVerticalOverlap, let duration):
                 self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
+            case .dragStateChanged(let dragState):
+                switch dragState {
+                case .dragging:
+                    self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloatSnap.rawValue))
+                case .notDragging:
+                    self.onEvent?(.statusBarMessage(nil))
+                }
             }
         }
         return view

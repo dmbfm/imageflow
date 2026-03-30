@@ -24,6 +24,8 @@ public protocol GlobalCoordinatorImpl: AnyObject, Observable {
 
     func titleForAsset(id: AssetIdentifier?) -> String?
 
+    func statusBar(_ text: String?)
+
     func perform(userAction: UserAction)
 
     init(flow: Flow)
@@ -124,6 +126,10 @@ public enum GlobalCoordinatorEvent {
 @Observable
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorImpl {
+    public func statusBar(_ text: String?) {
+        self.impl.statusBar(text)
+    }
+
     public var canZoomIn: Bool { self.impl.canZoomIn }
 
     public var canZoomOut: Bool { self.impl.canZoomOut }

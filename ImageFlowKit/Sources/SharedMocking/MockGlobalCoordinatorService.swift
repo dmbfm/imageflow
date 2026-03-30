@@ -7,6 +7,10 @@ import Values
 @MainActor
 @Observable
 public class MockGlobalCoordinatorService: GlobalCoordinatorImpl {
+    public func statusBar(_ text: String?) {
+
+    }
+
     public func titleForAsset(id: AssetIdentifier?) -> String? {
         id.map({ _ in "Some Title" })
     }

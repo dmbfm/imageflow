@@ -7,6 +7,7 @@ import Values
 public protocol NodeInputBlockViewDelegate: AnyObject {
     func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     func titleForAsset(id: AssetIdentifier) -> String?
+    func statusBarMessage(message: String?)
     var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
@@ -153,6 +154,8 @@ final class NodeInputBlockView: PlatformCommonView {
                     self?.updateSize()
                 case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                     self?.onEvent?(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+                case .statusBarMessage(let message):
+                    self?.delegate?.statusBarMessage(message: message)
                 }
             }
             if let makeContext = self.makeNodeControlContext, let context = makeContext(idx) {

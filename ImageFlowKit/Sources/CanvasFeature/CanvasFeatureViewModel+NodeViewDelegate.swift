@@ -87,6 +87,10 @@ extension CanvasFeatureViewModel: NodeViewDelegate {
         }
     }
 
+    public func statusBarMessage(message: String?) {
+        self.coordinator.statusBar(message)
+    }
+
     public var emitter: EventEmitter<NodeViewDelegateEvent> {
         self.nodeViewDelegateEmitter
     }

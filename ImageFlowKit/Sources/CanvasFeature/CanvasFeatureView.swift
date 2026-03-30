@@ -94,6 +94,10 @@ public struct CanvasFeatureView: View {
             self.interactiveSelectionToolbarView
             #endif
 
+            #if os(macOS)
+            self.statusBarOverlay
+            #endif
+
             DropOverlay(vm: self.vm)
         }
         .activeViewObject(self.vm)
@@ -110,6 +114,13 @@ public struct CanvasFeatureView: View {
                 .dropDestination(for: NodeKindDragItem.self, action: self.vm.dropDestinationHandler(_:_:))
         }
 
+    }
+
+    @ViewBuilder
+    var statusBarOverlay: some View {
+        StatusBarView(state: self.vm.statusBarState)
+            .padding(.leading, 25)
+            .padding(.bottom, 12)
     }
 
     #if os(iOS)

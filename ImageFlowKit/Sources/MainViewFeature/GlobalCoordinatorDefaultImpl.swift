@@ -488,6 +488,16 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         .constant(false)
         #endif
     }
+
+    public func statusBar(_ text: String?) {
+        if let canvas = self.canvasViewModel {
+            if let text {
+                canvas.statusBarShow(text)
+            } else {
+                canvas.statusBarHide()
+            }
+        }
+    }
 }
 
 @MainActor

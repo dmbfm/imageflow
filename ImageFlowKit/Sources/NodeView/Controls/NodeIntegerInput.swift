@@ -1,6 +1,7 @@
 import Backend
 import Helpers
 import Logging
+import SharedModels
 import SwiftUI
 import Values
 
@@ -226,6 +227,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         let shiftDown = value.shiftDown
         let dx = value.dx
 
+        self.updateStatusBarMessage(phase)
+
         switch phase {
         case .began:
             self.valueAtDragStart = self.value.int
@@ -241,6 +244,16 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             self.setValue(newValue: .int(newValue), oldValue: .int(self.valueAtDragStart), registerUndo: true)
         } else {
             self.setValue(newValue: .int(newValue))
+        }
+    }
+
+    func updateStatusBarMessage(_ phase: GesturePhase) {
+        switch phase {
+        case .began:
+            self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+        case .ended, .cancelled:
+            self.onEvent?(.statusBarMessage(nil))
+        default: break
         }
     }
 }
@@ -293,6 +306,7 @@ extension NodeIntegerInput {
                 case .valueDidChange(let value): self.value = value
                 case .sizeDidChange: break
                 case .keyboardWillShow: break
+                case .statusBarMessage: break
                 }
             }
             return view

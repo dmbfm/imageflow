@@ -154,6 +154,8 @@ public final class NodeInputRowView: PlatformView {
                 self.onEvent?(.valueDidChange(value))
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
                 self.onEvent?(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+            case .statusBarMessage(let message):
+                self.onEvent?(.statusBarMessage(message))
             }
         }
         return view
@@ -321,6 +323,7 @@ extension NodeInputRowView {
         case valueDidChange(Value)
         case dragPort(PortView.DragData)
         case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
+        case statusBarMessage(String?)
     }
 }
 

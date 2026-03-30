@@ -4,6 +4,7 @@ import SwiftUI
 struct IntegerInputView: View {
 
     @Binding var value: Int
+    @Binding var dragState: DragState
 
     var range: ClosedRange<Int>?
     var onChange: (Change) -> ()
@@ -48,7 +49,7 @@ struct IntegerInputView: View {
     var body: some View {
         ZStack {
 
-            FloatInputView(value: self.doubleValue, onChange: self.onFloatInputChange(_:))
+            FloatInputView(value: self.doubleValue, dragState: self.$dragState, onChange: self.onFloatInputChange(_:))
                 .floatInputViewNumberFormatter(self.formatter)
 
             HStack {
