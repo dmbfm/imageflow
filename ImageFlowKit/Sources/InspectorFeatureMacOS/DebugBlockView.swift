@@ -15,10 +15,6 @@ struct DebugBlockView: View {
         Array(self.vm.assetStore.assets.values)
     }
 
-    var generatedLocations: [OutputPortLocation] {
-        self.vm.assetStore.generatedImageLocations
-    }
-
     let maxWidth = 160.0
 
     var body: some View {
@@ -90,17 +86,6 @@ struct DebugBlockView: View {
                             .lineLimit(1)
                             .frame(maxWidth: maxWidth)
                             .help("state[\(asset.id.uuidString)]")
-                    }
-                }
-
-                ForEach(self.generatedLocations, id: \.self) { loc in
-                    LabeledContent {
-                        Text("\(loc.index)")
-                    } label: {
-                        Text("\(loc.node)")
-                            .lineLimit(1)
-                            .frame(maxWidth: maxWidth)
-                            .help("\(loc.node)")
                     }
                 }
             }

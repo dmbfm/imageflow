@@ -15,8 +15,6 @@ public final class MockAssetStore: AssetStoreService {
 
     public init() {}
 
-    public let generatedImageLocations: [SharedModels.OutputPortLocation] = []
-
     public var assetManager: any BackendAssetProvider {
         fatalError()
     }

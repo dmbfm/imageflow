@@ -18,8 +18,6 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
-    public private(set) var generatedImageLocations: [OutputPortLocation] = []
-
     public weak var delegate: AssetStoreServiceDelegate? = nil
 
     @ObservationIgnored
@@ -167,7 +165,6 @@ public final class AssetStore: AssetStoreService {
         case .assetsDidChange:
             self.assets = await self._assetManager.assets
         case .modifiedGeneratedAsset(let location):
-            self._generatedImageLocations = await self._assetManager.generatedResources.ciImages.map({ k, v in k })
             self.emitter.emit(.modifiedGeneratedAsset(location))
         }
     }

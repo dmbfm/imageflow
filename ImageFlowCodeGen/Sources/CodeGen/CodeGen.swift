@@ -82,7 +82,7 @@ extension FilterInfo {
                         if let outputImage, !outputImage.extent.isEmpty {
                             \(self.nodeOutputAssignExpr())
                         } else {
-                            node.outputs[0] = .image(.none)
+                            node.outputs[0] = .image(await context.addImage(nil, 0))
                         }
                     }
                 }
@@ -169,7 +169,7 @@ extension FilterInfo {
                 {
                     """
                     guard let inputImage = \(raw: input.valueType.assignExpr("node.inputs[\(idx)]")) else {
-                        node.outputs[0] = .image(.none)
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
                         return
                     }
                     """

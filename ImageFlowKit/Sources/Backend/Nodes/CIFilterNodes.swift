@@ -857,7 +857,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -892,7 +892,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -927,7 +927,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -962,7 +962,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -993,7 +993,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1020,7 +1020,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1047,7 +1047,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1074,7 +1074,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1105,7 +1105,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1140,7 +1140,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1167,7 +1167,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1194,7 +1194,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1221,7 +1221,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1248,7 +1248,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1275,7 +1275,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1302,7 +1302,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1331,7 +1331,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1369,7 +1369,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1402,7 +1402,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1431,7 +1431,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1460,7 +1460,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1489,7 +1489,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1518,7 +1518,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1547,7 +1547,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1583,7 +1583,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1620,7 +1620,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1646,7 +1646,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIBokehBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[5].bool {
@@ -1666,7 +1666,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1689,7 +1689,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIBoxBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[2].bool {
@@ -1706,7 +1706,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1731,7 +1731,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIBumpDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[4].bool {
@@ -1750,7 +1750,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1783,7 +1783,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1809,7 +1809,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICannyEdgeDetector")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -1822,7 +1822,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1862,7 +1862,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1885,7 +1885,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICircleSplashDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -1895,7 +1895,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1926,7 +1926,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1961,7 +1961,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -1988,7 +1988,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2018,7 +2018,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CICMYKHalftone")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -2032,7 +2032,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2059,7 +2059,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2086,7 +2086,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2113,7 +2113,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2150,7 +2150,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2181,7 +2181,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2215,7 +2215,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2242,7 +2242,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2265,7 +2265,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2292,7 +2292,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2347,7 +2347,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2379,7 +2379,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2428,7 +2428,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2455,7 +2455,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2482,7 +2482,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2505,7 +2505,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2532,7 +2532,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2555,7 +2555,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2584,7 +2584,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2611,7 +2611,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2638,7 +2638,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2667,7 +2667,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2696,7 +2696,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2725,7 +2725,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2754,7 +2754,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2783,7 +2783,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2812,7 +2812,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2841,7 +2841,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2870,7 +2870,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2899,7 +2899,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2928,7 +2928,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -2970,7 +2970,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3001,7 +3001,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3030,7 +3030,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3057,7 +3057,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3094,7 +3094,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3113,7 +3113,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDepthToDisparity")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -3121,7 +3121,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3148,7 +3148,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3171,7 +3171,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDiscBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[2].bool {
@@ -3188,7 +3188,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3207,7 +3207,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDisparityToDepth")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -3215,7 +3215,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3244,7 +3244,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3273,7 +3273,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3296,7 +3296,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDistanceGradientFromRedMask")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[2].bool {
@@ -3313,7 +3313,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3340,7 +3340,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3367,7 +3367,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3389,7 +3389,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDocumentEnhancer")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -3398,7 +3398,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3434,7 +3434,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3471,7 +3471,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDroste")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -3485,7 +3485,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3510,7 +3510,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIEdgePreserveUpsampleFilter")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[4].bool {
@@ -3529,7 +3529,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3556,7 +3556,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3583,7 +3583,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3617,7 +3617,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3644,7 +3644,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3671,7 +3671,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3708,7 +3708,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3754,7 +3754,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3794,7 +3794,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3828,7 +3828,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3868,7 +3868,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3891,7 +3891,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3918,7 +3918,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3941,7 +3941,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGaussianBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[2].bool {
@@ -3958,7 +3958,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -3996,7 +3996,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4027,7 +4027,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4053,7 +4053,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGlassLozenge")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[5].bool {
@@ -4073,7 +4073,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4107,7 +4107,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4136,7 +4136,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4161,7 +4161,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGuidedFilter")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[4].bool {
@@ -4180,7 +4180,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4207,7 +4207,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4243,7 +4243,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4270,7 +4270,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4299,7 +4299,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4330,7 +4330,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4361,7 +4361,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4385,7 +4385,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIHoleDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[3].bool {
@@ -4403,7 +4403,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4434,7 +4434,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4461,7 +4461,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4498,7 +4498,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4533,7 +4533,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4568,7 +4568,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4603,7 +4603,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4638,7 +4638,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4673,7 +4673,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4700,7 +4700,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4729,7 +4729,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4771,7 +4771,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4798,7 +4798,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4825,7 +4825,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CILightTunnel")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -4836,7 +4836,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4863,7 +4863,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4890,7 +4890,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4929,7 +4929,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4956,7 +4956,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -4979,7 +4979,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5014,7 +5014,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5050,7 +5050,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5077,7 +5077,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5101,7 +5101,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMaskedVariableBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[3].bool {
@@ -5119,7 +5119,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5142,7 +5142,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5165,7 +5165,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5192,7 +5192,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5221,7 +5221,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5244,7 +5244,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5267,7 +5267,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5294,7 +5294,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5323,7 +5323,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5363,7 +5363,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5390,7 +5390,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5417,7 +5417,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5444,7 +5444,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5473,7 +5473,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5502,7 +5502,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5529,7 +5529,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIMotionBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[3].bool {
@@ -5547,7 +5547,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5574,7 +5574,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5601,7 +5601,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5636,7 +5636,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5673,7 +5673,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5696,7 +5696,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CINoiseReduction")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -5706,7 +5706,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5734,7 +5734,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIOpTile")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -5746,7 +5746,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5773,7 +5773,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5804,7 +5804,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPageCurlTransition")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -5819,7 +5819,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5852,7 +5852,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPageCurlWithShadowTransition")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -5869,7 +5869,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5898,7 +5898,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5938,7 +5938,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -5980,7 +5980,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6025,7 +6025,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6066,7 +6066,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6107,7 +6107,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6141,7 +6141,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPerspectiveTransformWithExtent")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[6].bool {
@@ -6162,7 +6162,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6189,7 +6189,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6216,7 +6216,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6243,7 +6243,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6270,7 +6270,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6297,7 +6297,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6324,7 +6324,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6351,7 +6351,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6378,7 +6378,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6409,7 +6409,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6436,7 +6436,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6465,7 +6465,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6489,7 +6489,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIPointillize")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[3].bool {
@@ -6507,7 +6507,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6534,7 +6534,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6575,7 +6575,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6598,7 +6598,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6637,7 +6637,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6684,7 +6684,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6719,7 +6719,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6755,7 +6755,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6782,7 +6782,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6805,7 +6805,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6828,7 +6828,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6855,7 +6855,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6882,7 +6882,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6909,7 +6909,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6938,7 +6938,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6967,7 +6967,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -6994,7 +6994,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7028,7 +7028,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7062,7 +7062,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7101,7 +7101,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7124,7 +7124,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7151,7 +7151,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7178,7 +7178,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7205,7 +7205,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7232,7 +7232,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7259,7 +7259,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7329,7 +7329,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7366,7 +7366,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISpotLight")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -7379,7 +7379,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7402,7 +7402,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7447,7 +7447,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7478,7 +7478,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7509,7 +7509,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7549,7 +7549,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7576,7 +7576,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7616,7 +7616,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7661,7 +7661,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7690,7 +7690,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7723,7 +7723,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7746,7 +7746,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7783,7 +7783,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7812,7 +7812,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7838,7 +7838,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITorusLensDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[5].bool {
@@ -7858,7 +7858,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7894,7 +7894,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7921,7 +7921,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITriangleTile")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 filter.setValue(inputImage, forKey: "inputImage")
@@ -7932,7 +7932,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7966,7 +7966,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -7994,7 +7994,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CITwirlDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[4].bool {
@@ -8013,7 +8013,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8042,7 +8042,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8069,7 +8069,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8098,7 +8098,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8131,7 +8131,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8158,7 +8158,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8186,7 +8186,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIVortexDistortion")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[4].bool {
@@ -8205,7 +8205,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8236,7 +8236,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8259,7 +8259,7 @@ extension Nodes {
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
@@ -8283,7 +8283,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIZoomBlur")!
                 guard let inputImage = await context.getImage(node.inputs[0].image) else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                     return
                 }
                 if node.inputs[3].bool {
@@ -8301,7 +8301,7 @@ extension Nodes {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
                 } else {
-                    node.outputs[0] = .image(.none)
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
         }
