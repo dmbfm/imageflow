@@ -172,6 +172,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         self.delegate?.emitter.on({ [weak self] _ in
             guard let self else { return }
             self.innerView.vm = self.vm
+            self.update()
         }).store(in: &self.cancellables)
     }
 
