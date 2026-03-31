@@ -60,6 +60,7 @@ struct RegularIntegerInputControl: View {
     let vm: InspectorFeatureViewModel
 
     @State var debouncer: FirstValueDebouncer<Int> = .init(0.5)
+    @State var dragState: DragState = .notDragging
 
     var value: Int {
         self.vm.nodeInputValue(self.input.index)?.maybeInt ?? 0
@@ -80,6 +81,15 @@ struct RegularIntegerInputControl: View {
             ),
             registerUndo: change.commit
         )
+    }
+    
+    func onDragStateChange() {
+        switch self.dragState {
+        case .dragging:
+            self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+        case .notDragging:
+            self.vm.coordinator.statusBar(nil)
+        }
     }
 
     var body: some View {
@@ -110,6 +120,7 @@ struct RegularIntegerInputControl: View {
         } label: {
             InputLabel(input: self.input, vm: self.vm)
         }
+        .onChange(of: self.dragState, initial: false, self.onDragStateChange)
     }
 }
 

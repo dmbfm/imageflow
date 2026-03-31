@@ -94,9 +94,7 @@ public struct CanvasFeatureView: View {
             self.interactiveSelectionToolbarView
             #endif
 
-            #if os(macOS)
             self.statusBarOverlay
-            #endif
 
             DropOverlay(vm: self.vm)
         }

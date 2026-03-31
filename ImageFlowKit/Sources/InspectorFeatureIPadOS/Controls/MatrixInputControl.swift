@@ -11,6 +11,8 @@ import Design
 struct MatrixInputControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
+    
+    @State var dragState: DragState = .notDragging
 
     var emptyValue: Value {
         switch self.input.value.type {
@@ -82,6 +84,15 @@ struct MatrixInputControl: View {
         default: nil
         }
     }
+    
+    func onDragStateChange() {
+        switch self.dragState {
+        case .dragging:
+            self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+        case .notDragging:
+            self.vm.coordinator.statusBar(nil)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -94,6 +105,7 @@ struct MatrixInputControl: View {
                                 DraggableFloatInput(
                                     value: self.value(row: row, col: col),
                                     fractionalDigits: 2,
+                                    dragState: self.$dragState,
                                     onChange: { self.onChange(row, col: col, $0) },
                                 )
                                 .padding(.vertical, 4)
@@ -109,6 +121,7 @@ struct MatrixInputControl: View {
                 .uiFont(self.font)
             }
         }
+        .onChange(of: self.dragState, initial: false, self.onDragStateChange)
     }
 }
 

@@ -1,4 +1,5 @@
 import Helpers
+import InspectorFeatureShared
 import Logging
 import SwiftUI
 

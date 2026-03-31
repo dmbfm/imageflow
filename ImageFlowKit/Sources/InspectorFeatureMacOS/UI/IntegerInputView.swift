@@ -1,3 +1,4 @@
+import InspectorFeatureShared
 import Logging
 import SwiftUI
 

@@ -10,6 +10,7 @@ struct VectorInputControl: View {
 
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
+    @State var dragState: DragState = .notDragging
 
     @Environment(\.colorScheme) var cs
 
@@ -50,6 +51,14 @@ struct VectorInputControl: View {
             self.vm.submit(.input(self.input.index, value, previous), registerUndo: change.commit)
         }
     }
+    
+    func onDragStateChange() {
+        if self.dragState == .dragging {
+            self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
+        } else {
+            self.vm.coordinator.statusBar(nil)
+        }
+    }
 
     var body: some View {
         HStack(alignment: .top) {
@@ -60,7 +69,7 @@ struct VectorInputControl: View {
                         Text("\(self.label(index))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        DraggableFloatInput(value: self.value(index), onChange: { self.onChange(index, $0) })
+                        DraggableFloatInput(value: self.value(index), dragState: self.$dragState, onChange: { self.onChange(index, $0) })
                     }
                     .padding(.vertical, 4)
                     .padding(.horizontal, 8)
@@ -71,6 +80,7 @@ struct VectorInputControl: View {
                 }
             }
         }
+        .onChange(of: self.dragState, initial: false, self.onDragStateChange)
     }
 }
 

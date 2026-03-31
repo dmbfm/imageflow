@@ -5,15 +5,17 @@ import InspectorFeatureShared
 import Logging
 import SharedModels
 import SwiftUI
+import UIKit
 
 struct DraggableFloatInput: View {
     let value: Double
-    var sensitivity: Double = 0.1
+    var sensitivity: Sensitivity = .init()
     var fractionalDigits: Int? = 2
     var onChange: (Change) -> ()
 
     @State var initialValue: Double = 0.0
     @State var initialDragValue: Double? = nil
+    @Binding var dragState: DragState
 
     @Environment(\.draggableFloatInputLeadingSpacing) var spacing
     @Environment(\.draggableFloatInputSnapping) var snapping
@@ -21,15 +23,23 @@ struct DraggableFloatInput: View {
     @Environment(\.isEnabled) var enabled
 
     struct Snapping {
+        var enabled: Bool
         var increment: Double
         var tolerance: Double
     }
+    
+    struct Sensitivity {
+        var normal: Double = 0.1
+        var slow: Double = 0.025
+        var fast: Double = 10.0
+    }
 
-    init(value: Double, sensitivity: Double = 0.1, fractionalDigits: Int? = 2, onChange: @escaping (Change) -> Void) {
+    init(value: Double, sensitivity: Sensitivity = .init(), fractionalDigits: Int? = 2, dragState: Binding<DragState> = .constant(.notDragging), onChange: @escaping (Change) -> Void) {
         self.value = value
         self.sensitivity = sensitivity
         self.onChange = onChange
         self.fractionalDigits = fractionalDigits
+        self._dragState = dragState
     }
 
     struct Change {
@@ -46,32 +56,45 @@ struct DraggableFloatInput: View {
         }
     }
 
-    func newDraggedValue(initial: Double, translation: Double) -> Double {
-        self.snapping
+    func newDraggedValue(initial: Double, value: TextFieldExDragGestureHandler.Value) -> Double {
+        let translation = value.translation
+        let shiftDown = value.shiftDown
+        let commandDown = value.commandDown
+        let optionDown = value.optionDown
+        
+        let sensitivity: Double = shiftDown ? self.sensitivity.slow : (optionDown ? self.sensitivity.fast : self.sensitivity.normal)
+        
+        return self.snapping
             .maybeReduce(
-                self.truncatingToFractionalDigits(initial + self.sensitivity * translation)
+                self.truncatingToFractionalDigits(initial + sensitivity * translation.width)
             ) { acc, curr in
-                acc.snapping(toIncrements: curr.increment, epsilon: curr.tolerance)
+                if curr.enabled || commandDown {
+                    acc.snapping(toIncrements: curr.increment, epsilon: curr.tolerance)
+                } else {
+                    acc
+                }
             }
     }
 
-    func onDragChanged(_ translation: CGSize) {
+    func onDragChanged(_ value: TextFieldExDragGestureHandler.Value) {
         if self.initialDragValue == nil {
             self.initialDragValue = self.value
+            self.dragState = .dragging
         }
 
         if let initial = self.initialDragValue {
-            let newValue = newDraggedValue(initial: initial, translation: translation.width)
+            let newValue = newDraggedValue(initial: initial,  value: value)
             self.onChange(.init(value: newValue, previous: initial, commit: false))
         }
     }
 
-    func onDragEnded(_ translation: CGSize) {
+    func onDragEnded(_ value: TextFieldExDragGestureHandler.Value) {
         if let initial = self.initialDragValue {
-            let newValue = newDraggedValue(initial: initial, translation: translation.width)
+            let newValue = newDraggedValue(initial: initial, value: value)
             self.onChange(.init(value: newValue, previous: initial, commit: true))
         }
         self.initialDragValue = nil
+        self.dragState = .notDragging
     }
 
     var body: some View {
@@ -108,10 +131,38 @@ struct DraggableFloatInput: View {
                 .contentShape(Rectangle())
         }
         .gesture(
-            DragGesture()
-                .onChanged({ value in self.onDragChanged(value.translation) })
-                .onEnded({ value in self.onDragEnded(value.translation) })
+            CustomDragGesture(onChange: { self.onDragChanged($0)}, onEnded: { self.onDragEnded($0)})
         )
+    }
+}
+
+struct CustomDragGesture: UIGestureRecognizerRepresentable {
+    
+    typealias Value = TextFieldExDragGestureHandler.Value
+    
+    var onChange: (Value) -> ()
+    var onEnded: (Value) -> ()
+    
+    @State var startLocation: CGPoint? = nil
+    
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let gesture = UIPanGestureRecognizer()
+        return gesture
+    }
+    
+    func handleUIGestureRecognizerAction(_ gesture: UIPanGestureRecognizer, context: Context) {
+        let shiftDown = gesture.modifierFlags.contains(.shift)
+        let optionDown = gesture.modifierFlags.contains(.alternate)
+        let commandDown = gesture.modifierFlags.contains(.command)
+        let translation = gesture.translation(in: nil).cgSize
+        let value = TextFieldExDragGestureHandler.Value(
+            translation: translation, shiftDown: shiftDown, commandDown: commandDown, optionDown: optionDown
+        )
+        switch gesture.state {
+        case .began, .changed: self.onChange(value)
+        case .ended, .cancelled: self.onEnded(value)
+        default: break
+        }
     }
 }
 

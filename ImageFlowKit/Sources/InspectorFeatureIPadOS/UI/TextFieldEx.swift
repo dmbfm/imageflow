@@ -11,8 +11,15 @@ enum TextFieldExStyle {
 }
 
 struct TextFieldExDragGestureHandler {
-    var onChange: (CGSize) -> ()
-    var onEnded: (CGSize) -> ()
+    var onChange: (Value) -> ()
+    var onEnded: (Value) -> ()
+    
+    struct Value: Equatable {
+        var translation: CGSize
+        var shiftDown: Bool = false
+        var commandDown: Bool = false
+        var optionDown: Bool = false
+    }
 }
 
 extension EnvironmentValues {
@@ -321,12 +328,18 @@ extension TextFieldExBase {
         @objc
         func dragHandler(_ gesture: UIPanGestureRecognizer) {
             guard let handler = self.dragGestureHandler else { return }
+            let shiftDown = gesture.modifierFlags.contains(.shift)
+            let optionDown = gesture.modifierFlags.contains(.alternate)
+            let commandDown = gesture.modifierFlags.contains(.command)
+            let translation = gesture.translation(in: nil).cgSize
+            let value = TextFieldExDragGestureHandler.Value(
+                translation: translation, shiftDown: shiftDown, commandDown: commandDown, optionDown: optionDown
+            )
             switch gesture.state {
-            case .began, .changed: handler.onChange(gesture.translation(in: nil).cgSize)
-            case .ended, .cancelled: handler.onEnded(gesture.translation(in: nil).cgSize)
+            case .began, .changed: handler.onChange(value)
+            case .ended, .cancelled: handler.onEnded(value)
             default: break
             }
-            log("drag:\(gesture.translation(in: nil))")
         }
     }
 }

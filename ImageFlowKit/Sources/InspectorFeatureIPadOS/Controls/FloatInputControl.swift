@@ -10,30 +10,49 @@ struct FloatInputControl: View {
 
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
+    
+    @State var dragState: DragState = .notDragging
 
     var doubleValue: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
+    
+    func onChangeOfDragState() {
+        if self.dragState == .dragging {
+            let message: String? = switch self.input.semantics {
+            case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
+            case .float(.default), .distance, .time, .position2, .position3, .offset, .color, .opaqueColor: StatusBarMessage.dragFloat.rawValue
+            default: nil
+            }
+            self.vm.coordinator.statusBar(message)
+        } else {
+            self.vm.coordinator.statusBar(nil)
+        }
+    }
 
     var body: some View {
-        switch input.semantics {
-        case .float(.angle(_)):
-            AngleControl(input: self.input, vm: self.vm)
-        case .float(.range(let range)):
-            RangeControl(input: self.input, vm: self.vm, range: range)
-        default:
-            LabeledContent {
-                RegularControl(input: self.input, vm: self.vm)
-            } label: {
-                InputLabel(input: self.input, vm: self.vm)
+        Group {
+            switch input.semantics {
+            case .float(.angle(_)):
+                AngleControl(input: self.input, vm: self.vm, dragState: self.$dragState)
+            case .float(.range(let range)):
+                RangeControl(input: self.input, vm: self.vm, range: range)
+            default:
+                LabeledContent {
+                    RegularControl(input: self.input, vm: self.vm, dragState: self.$dragState)
+                } label: {
+                    InputLabel(input: self.input, vm: self.vm)
+                }
             }
         }
+        .onChange(of: self.dragState, initial: true, self.onChangeOfDragState)
     }
 }
 
 private struct AngleControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
+    @Binding var dragState: DragState
 
     @State var units: Units = .degrees
     @State var snap: Bool = false
@@ -66,10 +85,12 @@ private struct AngleControl: View {
         }
     }
 
-    var sensitivity: Double {
+    var sensitivity: DraggableFloatInput.Sensitivity {
         switch self.units {
-        case .radians: 1.0.radians
-        case .degrees: 1.0
+        case .radians:
+                .init(normal: 1.0.radians, slow: 0.025.radians, fast: 10.0.radians)
+        case .degrees:
+                .init(normal: 1.0, slow: 0.025, fast: 10.0)
         }
     }
 
@@ -99,16 +120,12 @@ private struct AngleControl: View {
         }
     }
 
-    var snapping: DraggableFloatInput.Snapping? {
-        if self.snap {
+    var snapping: DraggableFloatInput.Snapping {
             if self.units == .degrees {
-                .init(increment: 45.0, tolerance: 10.0)
+                .init(enabled: self.snap, increment: 45.0, tolerance: 10.0)
             } else {
-                .init(increment: 45.0.radians, tolerance: 10.0.radians)
+                .init(enabled: self.snap, increment: 45.0.radians, tolerance: 10.0.radians)
             }
-        } else {
-            nil
-        }
     }
 
     var body: some View {
@@ -120,6 +137,7 @@ private struct AngleControl: View {
                         value: self.value,
                         sensitivity: self.sensitivity,
                         fractionalDigits: 2,
+                        dragState: self.$dragState,
                         onChange: self.onChange(_:)
                     )
                     .draggableFloatInputLeadingSpacing(40)
@@ -182,8 +200,9 @@ private struct RangeControl: View {
         self.width.value == 0.0 ? 1.0 : self.width.value
     }
 
-    var sensitivity: Double {
-        (self.range.upperBound - self.range.lowerBound) / self.nonZeroWidth
+    var sensitivity: DraggableFloatInput.Sensitivity {
+        let s = (self.range.upperBound - self.range.lowerBound) / self.nonZeroWidth
+        return .init(normal: s, slow: s, fast: s)
     }
 
     var value: Double {
@@ -217,13 +236,14 @@ private struct RangeControl: View {
 private struct RegularControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
+    @Binding var dragState: DragState
 
     var value: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
 
     var body: some View {
-        DraggableFloatInput(value: self.value, sensitivity: 0.1, fractionalDigits: 2) { change in
+        DraggableFloatInput(value: self.value, fractionalDigits: 2, dragState: self.$dragState) { change in
             self.vm.submit(
                 .input(self.input.index, .float(change.value), change.previous.map({ .float($0) })),
                 registerUndo: change.commit
