@@ -323,8 +323,15 @@ public final class PreviewFeatureState {
         self.cardDockLocation = cardDockLocation
         self.coordinator = coordinator
 
-        self.observeSelection()
-        self.observeModifiedImages()
+        self.assetStore.emitter.on { [weak self] event in
+            switch event {
+            case .modifiedGeneratedAsset(let loc):
+                self?.previewContentViewModel(input: .imageUpdated(loc))
+            case .assetsChanged:
+                break
+            }
+        }.store(in: &self.cancellables)
+
         self.coordinator.emitter.on { [weak self] event in
             guard let self else { return }
             switch event {
@@ -348,6 +355,14 @@ public final class PreviewFeatureState {
             switch event {
             case .edgesDidChange(_):
                 self.scanAfterBackendRun = true
+            case .didDeleteNode(let id):
+                if self.previewContentViewModel.currentLocation?.node == id && self.previewContentViewModel.locked {
+                    self.previewContentViewModel.state = .nothing
+                }
+            case .selectionDidChange(_):
+                Task { @MainActor in
+                    await self.onSelectionChanged()
+                }
             default:
                 break
             }
@@ -430,19 +445,6 @@ public final class PreviewFeatureState {
         self.previewContentViewModel(input: .toggleLock)
     }
 
-    private func observeSelection() {
-        self.flow.emitter.on({ [weak self] event in
-            switch event {
-            case .selectionDidChange(_):
-                Task { @MainActor in
-                    await self?.onSelectionChanged()
-                }
-            default:
-                break
-            }
-        }).store(in: &self.cancellables)
-    }
-
     func onSelectionChanged() async {
         var avail: Set<PreviewContentViewModel.AvailableEntry> = []
 
@@ -457,17 +459,6 @@ public final class PreviewFeatureState {
         }
 
         self.previewContentViewModel(input: .sel(avail))
-    }
-
-    private func observeModifiedImages() {
-        self.assetStore.emitter.on { [weak self] event in
-            switch event {
-            case .modifiedGeneratedAsset(let loc):
-                self?.previewContentViewModel(input: .imageUpdated(loc))
-            case .assetsChanged:
-                break
-            }
-        }.store(in: &self.cancellables)
     }
 
     func copy() {
