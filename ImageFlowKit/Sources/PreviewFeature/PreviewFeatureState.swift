@@ -16,6 +16,7 @@ extension Set where Element == PreviewContentViewModel.AvailableEntry {
 struct PreviewContentViewModel {
 
     var available: Set<AvailableEntry> = []
+    var selection: Set<AvailableEntry> = []
 
     var state: State = .nothing
 
@@ -105,7 +106,7 @@ struct PreviewContentViewModel {
     }
 
     enum Input {
-        case sel(Set<AvailableEntry>)
+        case sel(Set<AvailableEntry>, Set<AvailableEntry>)
         case pick(OutputPortLocation)
         case imageUpdated(OutputPortLocation)
         case imageLoaded(OutputPortLocation, CIImage)
@@ -117,6 +118,7 @@ struct PreviewContentViewModel {
 
     init?(available: Set<AvailableEntry> = [], state: State = .nothing) {
         self.available = available
+        self.selection = available
         self.state = state
 
         switch self.state {
@@ -145,8 +147,8 @@ struct PreviewContentViewModel {
             return self.toggleLock()
         case .pick(let loc):
             return self.pick(loc)
-        case .sel(let sel):
-            return self.selection(sel)
+        case .sel(let avail, let sel):
+            return self.selection(avail, sel)
         }
     }
 
@@ -175,6 +177,9 @@ struct PreviewContentViewModel {
     mutating func imageUpdated(_ loc: OutputPortLocation) -> Effect? {
         if self.currentLocation == loc {
             self.state = .loading(self.locked, loc, self.image)
+            return .startLoading(loc)
+        } else if self.currentLocation == nil && self.selection.contains(loc) {
+            self.state = .loading(false, loc, self.image)
             return .startLoading(loc)
         }
 
@@ -223,8 +228,9 @@ struct PreviewContentViewModel {
         return nil
     }
 
-    mutating func selection(_ sel: Set<AvailableEntry>) -> Effect? {
+    mutating func selection(_ sel: Set<AvailableEntry>, _ actualSel: Set<AvailableEntry>) -> Effect? {
         self.available = sel
+        self.selection = actualSel
 
         switch self.state.lockAndLocation {
         case .none:
@@ -447,18 +453,22 @@ public final class PreviewFeatureState {
 
     func onSelectionChanged() async {
         var avail: Set<PreviewContentViewModel.AvailableEntry> = []
+        var sel: Set<PreviewContentViewModel.AvailableEntry> = []
 
         for id in self.flow.selection {
             guard let node = self.flow.nodes[id] else { continue }
             for output in node.outputs {
-                let loc = OutputPortLocation(node: id, index: output.index)
-                if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
-                    avail.insert(.init(location: loc, name: node.name))
+                if output.type == .image {
+                    let loc = OutputPortLocation(node: id, index: output.index)
+                    sel.insert(.init(location: loc, name: node.name))
+                    if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
+                        avail.insert(.init(location: loc, name: node.name))
+                    }
                 }
             }
         }
 
-        self.previewContentViewModel(input: .sel(avail))
+        self.previewContentViewModel(input: .sel(avail, sel))
     }
 
     func copy() {
