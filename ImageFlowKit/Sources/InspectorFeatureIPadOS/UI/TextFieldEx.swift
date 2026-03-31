@@ -13,7 +13,7 @@ enum TextFieldExStyle {
 struct TextFieldExDragGestureHandler {
     var onChange: (Value) -> ()
     var onEnded: (Value) -> ()
-    
+
     struct Value: Equatable {
         var translation: CGSize
         var shiftDown: Bool = false
@@ -333,7 +333,10 @@ extension TextFieldExBase {
             let commandDown = gesture.modifierFlags.contains(.command)
             let translation = gesture.translation(in: nil).cgSize
             let value = TextFieldExDragGestureHandler.Value(
-                translation: translation, shiftDown: shiftDown, commandDown: commandDown, optionDown: optionDown
+                translation: translation,
+                shiftDown: shiftDown,
+                commandDown: commandDown,
+                optionDown: optionDown
             )
             switch gesture.state {
             case .began, .changed: handler.onChange(value)

@@ -10,20 +10,22 @@ struct FloatInputControl: View {
 
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     @State var dragState: DragState = .notDragging
 
     var doubleValue: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
-    
+
     func onChangeOfDragState() {
         if self.dragState == .dragging {
-            let message: String? = switch self.input.semantics {
-            case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
-            case .float(.default), .distance, .time, .position2, .position3, .offset, .color, .opaqueColor: StatusBarMessage.dragFloat.rawValue
-            default: nil
-            }
+            let message: String? =
+                switch self.input.semantics {
+                case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
+                case .float(.default), .distance, .time, .position2, .position3, .offset, .color, .opaqueColor:
+                    StatusBarMessage.dragFloat.rawValue
+                default: nil
+                }
             self.vm.coordinator.statusBar(message)
         } else {
             self.vm.coordinator.statusBar(nil)
@@ -88,9 +90,9 @@ private struct AngleControl: View {
     var sensitivity: DraggableFloatInput.Sensitivity {
         switch self.units {
         case .radians:
-                .init(normal: 1.0.radians, slow: 0.025.radians, fast: 10.0.radians)
+            .init(normal: 1.0.radians, slow: 0.025.radians, fast: 10.0.radians)
         case .degrees:
-                .init(normal: 1.0, slow: 0.025, fast: 10.0)
+            .init(normal: 1.0, slow: 0.025, fast: 10.0)
         }
     }
 
@@ -121,11 +123,11 @@ private struct AngleControl: View {
     }
 
     var snapping: DraggableFloatInput.Snapping {
-            if self.units == .degrees {
-                .init(enabled: self.snap, increment: 45.0, tolerance: 10.0)
-            } else {
-                .init(enabled: self.snap, increment: 45.0.radians, tolerance: 10.0.radians)
-            }
+        if self.units == .degrees {
+            .init(enabled: self.snap, increment: 45.0, tolerance: 10.0)
+        } else {
+            .init(enabled: self.snap, increment: 45.0.radians, tolerance: 10.0.radians)
+        }
     }
 
     var body: some View {

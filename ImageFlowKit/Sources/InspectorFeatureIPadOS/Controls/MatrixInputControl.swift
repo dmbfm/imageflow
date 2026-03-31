@@ -11,7 +11,7 @@ import Design
 struct MatrixInputControl: View {
     let input: FlowNode.Input
     let vm: InspectorFeatureViewModel
-    
+
     @State var dragState: DragState = .notDragging
 
     var emptyValue: Value {
@@ -84,7 +84,7 @@ struct MatrixInputControl: View {
         default: nil
         }
     }
-    
+
     func onDragStateChange() {
         switch self.dragState {
         case .dragging:

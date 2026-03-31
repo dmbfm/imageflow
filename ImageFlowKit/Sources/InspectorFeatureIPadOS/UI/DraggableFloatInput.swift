@@ -27,14 +27,20 @@ struct DraggableFloatInput: View {
         var increment: Double
         var tolerance: Double
     }
-    
+
     struct Sensitivity {
         var normal: Double = 0.1
         var slow: Double = 0.025
         var fast: Double = 10.0
     }
 
-    init(value: Double, sensitivity: Sensitivity = .init(), fractionalDigits: Int? = 2, dragState: Binding<DragState> = .constant(.notDragging), onChange: @escaping (Change) -> Void) {
+    init(
+        value: Double,
+        sensitivity: Sensitivity = .init(),
+        fractionalDigits: Int? = 2,
+        dragState: Binding<DragState> = .constant(.notDragging),
+        onChange: @escaping (Change) -> Void
+    ) {
         self.value = value
         self.sensitivity = sensitivity
         self.onChange = onChange
@@ -61,9 +67,10 @@ struct DraggableFloatInput: View {
         let shiftDown = value.shiftDown
         let commandDown = value.commandDown
         let optionDown = value.optionDown
-        
-        let sensitivity: Double = shiftDown ? self.sensitivity.slow : (optionDown ? self.sensitivity.fast : self.sensitivity.normal)
-        
+
+        let sensitivity: Double =
+            shiftDown ? self.sensitivity.slow : (optionDown ? self.sensitivity.fast : self.sensitivity.normal)
+
         return self.snapping
             .maybeReduce(
                 self.truncatingToFractionalDigits(initial + sensitivity * translation.width)
@@ -83,7 +90,7 @@ struct DraggableFloatInput: View {
         }
 
         if let initial = self.initialDragValue {
-            let newValue = newDraggedValue(initial: initial,  value: value)
+            let newValue = newDraggedValue(initial: initial, value: value)
             self.onChange(.init(value: newValue, previous: initial, commit: false))
         }
     }
@@ -131,32 +138,35 @@ struct DraggableFloatInput: View {
                 .contentShape(Rectangle())
         }
         .gesture(
-            CustomDragGesture(onChange: { self.onDragChanged($0)}, onEnded: { self.onDragEnded($0)})
+            CustomDragGesture(onChange: { self.onDragChanged($0) }, onEnded: { self.onDragEnded($0) })
         )
     }
 }
 
 struct CustomDragGesture: UIGestureRecognizerRepresentable {
-    
+
     typealias Value = TextFieldExDragGestureHandler.Value
-    
+
     var onChange: (Value) -> ()
     var onEnded: (Value) -> ()
-    
+
     @State var startLocation: CGPoint? = nil
-    
+
     func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
         let gesture = UIPanGestureRecognizer()
         return gesture
     }
-    
+
     func handleUIGestureRecognizerAction(_ gesture: UIPanGestureRecognizer, context: Context) {
         let shiftDown = gesture.modifierFlags.contains(.shift)
         let optionDown = gesture.modifierFlags.contains(.alternate)
         let commandDown = gesture.modifierFlags.contains(.command)
         let translation = gesture.translation(in: nil).cgSize
         let value = TextFieldExDragGestureHandler.Value(
-            translation: translation, shiftDown: shiftDown, commandDown: commandDown, optionDown: optionDown
+            translation: translation,
+            shiftDown: shiftDown,
+            commandDown: commandDown,
+            optionDown: optionDown
         )
         switch gesture.state {
         case .began, .changed: self.onChange(value)

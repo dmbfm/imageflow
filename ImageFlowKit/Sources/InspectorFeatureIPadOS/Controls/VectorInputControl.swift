@@ -51,7 +51,7 @@ struct VectorInputControl: View {
             self.vm.submit(.input(self.input.index, value, previous), registerUndo: change.commit)
         }
     }
-    
+
     func onDragStateChange() {
         if self.dragState == .dragging {
             self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
@@ -69,7 +69,11 @@ struct VectorInputControl: View {
                         Text("\(self.label(index))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        DraggableFloatInput(value: self.value(index), dragState: self.$dragState, onChange: { self.onChange(index, $0) })
+                        DraggableFloatInput(
+                            value: self.value(index),
+                            dragState: self.$dragState,
+                            onChange: { self.onChange(index, $0) }
+                        )
                     }
                     .padding(.vertical, 4)
                     .padding(.horizontal, 8)

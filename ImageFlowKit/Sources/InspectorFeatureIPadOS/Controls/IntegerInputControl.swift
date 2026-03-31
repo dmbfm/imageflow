@@ -82,7 +82,7 @@ struct RegularIntegerInputControl: View {
             registerUndo: change.commit
         )
     }
-    
+
     func onDragStateChange() {
         switch self.dragState {
         case .dragging:

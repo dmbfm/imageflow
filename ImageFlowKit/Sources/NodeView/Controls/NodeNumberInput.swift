@@ -54,7 +54,6 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
                 case .notDragging:
                     self?.onEvent?(.statusBarMessage(nil))
                 }
-                break
             }
         }
         return view

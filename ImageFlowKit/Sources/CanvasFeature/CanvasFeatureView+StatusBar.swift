@@ -19,7 +19,7 @@ extension CanvasFeatureViewModel {
             self.statusBarState.visible = false
         }
     }
-    
+
     private var hasKeyboard: Bool {
         #if os(iOS)
         GCKeyboard.coalesced != nil
