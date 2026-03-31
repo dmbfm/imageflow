@@ -115,7 +115,7 @@ private struct AngleControl: View {
                 .input(
                     self.input.index,
                     .float(change.value.truncateTo(fractionalDigits: 2).radians),
-                    change.previous.map(({ .float($0) }))
+                    change.previous.map(({ .float($0.radians) }))
                 ),
                 registerUndo: change.commit
             )
