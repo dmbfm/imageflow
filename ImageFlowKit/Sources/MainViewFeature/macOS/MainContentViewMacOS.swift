@@ -91,7 +91,6 @@ struct MainContentViewMacOS: View {
         4,
     ]
 
-    
 }
 
 #endif

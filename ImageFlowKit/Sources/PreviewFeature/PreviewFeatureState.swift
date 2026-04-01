@@ -457,13 +457,11 @@ public final class PreviewFeatureState {
 
         for id in self.flow.selection {
             guard let node = self.flow.nodes[id] else { continue }
-            for output in node.outputs {
-                if output.type == .image {
-                    let loc = OutputPortLocation(node: id, index: output.index)
-                    sel.insert(.init(location: loc, name: node.name))
-                    if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
-                        avail.insert(.init(location: loc, name: node.name))
-                    }
+            for output in node.outputs where output.type == .image {
+                let loc = OutputPortLocation(node: id, index: output.index)
+                sel.insert(.init(location: loc, name: node.name))
+                if await self.assetStore.hasGeneratedResource(ciImageAt: loc) {
+                    avail.insert(.init(location: loc, name: node.name))
                 }
             }
         }

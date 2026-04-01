@@ -3,7 +3,6 @@
 import SharedModels
 import SwiftUI
 
-
 extension MainContentViewMacOS {
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
