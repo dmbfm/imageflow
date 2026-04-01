@@ -126,14 +126,11 @@ struct AngleInputControlView: View {
                 dragState: self.$dragState,
                 onChange: self.onChange(_:)
             )
-            .onChange(of: self.dragState, initial: false) {
-                switch self.dragState {
-                case .dragging:
-                    self.vm.coordinator.statusBar(StatusBarMessage.dragFloatSnap.rawValue)
-                case .notDragging:
-                    self.vm.coordinator.statusBar(nil)
-                }
-            }
+            .dragStateStatusBarMessage(
+                coordinator: self.vm.coordinator,
+                dragState: self.dragState,
+                message: StatusBarMessage.dragFloatSnap.rawValue
+            )
 
             Spacer(minLength: 0)
         }

@@ -82,14 +82,11 @@ struct Matrix3x3InputControlView: View {
                 }
             )
         }
-        .onChange(of: self.dragState, initial: false) {
-            switch self.dragState {
-            case .dragging:
-                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-            case .notDragging:
-                self.vm.coordinator.statusBar(nil)
-            }
-        }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 
@@ -141,14 +138,11 @@ struct Matrix5x5InputControlView: View {
                 }
             )
         }
-        .onChange(of: self.dragState, initial: false) {
-            switch self.dragState {
-            case .dragging:
-                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-            case .notDragging:
-                self.vm.coordinator.statusBar(nil)
-            }
-        }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 
@@ -205,20 +199,19 @@ struct Matrix7x7InputControlView: View {
                 }
             }
         }
-        .onChange(of: self.dragState, initial: false) {
-            switch self.dragState {
-            case .dragging:
-                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-            case .notDragging:
-                self.vm.coordinator.statusBar(nil)
-            }
-        }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 
 struct RectInputControlView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var dragState: DragState = .notDragging
 
     func floatValue(_ n: Int) -> Double {
         switch n {
@@ -263,6 +256,7 @@ struct RectInputControlView: View {
                 control:
                     FloatInputView(
                         value: self.floatValue(row),
+                        dragState: self.$dragState,
                         onChange: { change in
                             self.vm.submit(
                                 .input(
@@ -276,6 +270,11 @@ struct RectInputControlView: View {
                     )
             )
         }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 
@@ -352,14 +351,11 @@ struct VectorControlView: View {
                 )
             }
         )
-        .onChange(of: self.dragState, initial: false) {
-            switch self.dragState {
-            case .dragging:
-                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-            case .notDragging:
-                self.vm.coordinator.statusBar(nil)
-            }
-        }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 

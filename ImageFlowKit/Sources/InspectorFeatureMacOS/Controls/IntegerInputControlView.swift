@@ -70,14 +70,10 @@ struct IntegerInputControlView: View {
         HStack {
             IntegerInputView(value: self.value, dragState: self.$dragState, onChange: self.onChange(_:))
         }
-        .onChange(of: self.dragState, initial: false) {
-            log("onChange(of: self.dragState)")
-            switch self.dragState {
-            case .dragging:
-                self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-            case .notDragging:
-                self.vm.coordinator.statusBar(nil)
-            }
-        }
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }

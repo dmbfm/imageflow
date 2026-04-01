@@ -16,19 +16,13 @@ struct FloatInputControl: View {
     var doubleValue: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
-
-    func onChangeOfDragState() {
-        if self.dragState == .dragging {
-            let message: String? =
-                switch self.input.semantics {
-                case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
-                case .float(.default), .distance, .time, .position2, .position3, .offset, .color, .opaqueColor:
-                    StatusBarMessage.dragFloat.rawValue
-                default: nil
-                }
-            self.vm.coordinator.statusBar(message)
-        } else {
-            self.vm.coordinator.statusBar(nil)
+    
+    var statusBarMessage: String {
+        switch self.input.semantics {
+        case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
+        case .float(.default), .distance, .time, .position2, .position3, .offset, .color, .opaqueColor:
+            StatusBarMessage.dragFloat.rawValue
+        default: ""
         }
     }
 
@@ -37,17 +31,18 @@ struct FloatInputControl: View {
             switch input.semantics {
             case .float(.angle(_)):
                 AngleControl(input: self.input, vm: self.vm, dragState: self.$dragState)
+                    .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: self.statusBarMessage)
             case .float(.range(let range)):
                 RangeControl(input: self.input, vm: self.vm, range: range)
             default:
                 LabeledContent {
                     RegularControl(input: self.input, vm: self.vm, dragState: self.$dragState)
+                        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: self.statusBarMessage)
                 } label: {
                     InputLabel(input: self.input, vm: self.vm)
                 }
             }
         }
-        .onChange(of: self.dragState, initial: true, self.onChangeOfDragState)
     }
 }
 

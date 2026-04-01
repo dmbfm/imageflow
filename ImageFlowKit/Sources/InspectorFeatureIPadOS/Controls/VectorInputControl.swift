@@ -52,14 +52,6 @@ struct VectorInputControl: View {
         }
     }
 
-    func onDragStateChange() {
-        if self.dragState == .dragging {
-            self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-        } else {
-            self.vm.coordinator.statusBar(nil)
-        }
-    }
-
     var body: some View {
         HStack(alignment: .top) {
             InputLabel(input: self.input, vm: self.vm)
@@ -84,7 +76,7 @@ struct VectorInputControl: View {
                 }
             }
         }
-        .onChange(of: self.dragState, initial: false, self.onDragStateChange)
+        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: StatusBarMessage.dragFloat.rawValue)
     }
 }
 

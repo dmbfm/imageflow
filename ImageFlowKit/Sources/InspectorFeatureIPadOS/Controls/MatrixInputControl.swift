@@ -85,15 +85,6 @@ struct MatrixInputControl: View {
         }
     }
 
-    func onDragStateChange() {
-        switch self.dragState {
-        case .dragging:
-            self.vm.coordinator.statusBar(StatusBarMessage.dragFloat.rawValue)
-        case .notDragging:
-            self.vm.coordinator.statusBar(nil)
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading) {
             InputLabel(input: self.input, vm: self.vm)
@@ -121,7 +112,7 @@ struct MatrixInputControl: View {
                 .uiFont(self.font)
             }
         }
-        .onChange(of: self.dragState, initial: false, self.onDragStateChange)
+        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: StatusBarMessage.dragFloat.rawValue)
     }
 }
 
