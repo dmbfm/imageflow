@@ -73,6 +73,8 @@ final class MainContentViewModel {
     /// The undo manager from SwiftUI's evironment
     var undoManager: UndoManager? = nil
 
+    var showNodeListPopover: Bool = false
+
     var showInspectorSafeBinding: Binding<Bool> {
         .init(
             get: { [weak self] in

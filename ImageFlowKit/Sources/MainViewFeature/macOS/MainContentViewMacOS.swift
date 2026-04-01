@@ -46,18 +46,9 @@ struct MainContentViewMacOS: View {
         } detail: {
             DetailView(vm: self.vm, focus: self.$focus)
         }
-        .toolbar { self.toolbarContent }
         .toolbar {
-            ToolbarSpacer()
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    self.vm.showInspector.toggle()
-                } label: {
-                    Image(systemName: "sidebar.right")
-                }
-            }
+            self.toolbarContent
         }
-        .toolbarRole(.editor)
         .sheet(
             isPresented: self.$vm.showAssetBrowser,
             content: {
@@ -100,68 +91,7 @@ struct MainContentViewMacOS: View {
         4,
     ]
 
-    @ToolbarContentBuilder
-    var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .secondaryAction) {
-            Button {
-                self.vm.coordinator.perform(userAction: .viewport(.zoomOut))
-            } label: {
-                Image(systemName: "minus")
-            }
-
-            Menu {
-                Button("Fit Content") {
-                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitContent))
-                }
-                .disabled(self.vm.flow.nodes.isEmpty)
-
-                Button("Fit Selection") {
-                    self.vm.coordinator.perform(userAction: .viewport(.zoomToFitSelection))
-                }
-                .disabled(self.vm.flow.selection.isEmpty)
-
-                Divider()
-
-                ForEach(self.zoomValues, id: \.self) { value in
-                    Button(zoomFormatter.string(for: value) ?? "") {
-                        self.vm.coordinator.perform(userAction: .viewport(.setZoom(value)))
-                    }
-                }
-            } label: {
-                HStack(alignment: .center, spacing: 2) {
-                    Text(zoomFormatter.string(for: self.vm.canvas.viewport.scale) ?? "100%")
-                        .frame(width: 45)
-                    Image(systemName: "chevron.down")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 6)
-                        .frame(height: 20)
-                }
-                .contentShape(.rect)
-            }
-            .menuStyle(.button)
-            .buttonStyle(.plain)
-
-            Button {
-                self.vm.coordinator.perform(userAction: .viewport(.zoomIn))
-            } label: {
-                Image(systemName: "plus")
-            }
-        }
-
-        ToolbarItem(placement: .confirmationAction) {
-            Button("Open Asset Browser", systemImage: "photo.badge.plus") {
-                self.vm.openAssetBrowser()
-            }
-        }
-
-        ToolbarSpacer()
-    }
+    
 }
 
-private let zoomFormatter: NumberFormatter = {
-    let f = NumberFormatter()
-    f.numberStyle = .percent
-    return f
-}()
 #endif

@@ -83,7 +83,7 @@
          <EnvironmentVariable
             key = "IF_INSPECTOR_DEBUG"
             value = "1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
