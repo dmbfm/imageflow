@@ -26,42 +26,69 @@ struct NodeListView: View {
             self.flow.selection = $0
         })
     }
-
+    
     var body: some View {
         if nodes.isEmpty {
             ContentUnavailableView("No nodes created!", systemImage: "list.bullet.rectangle.portrait.fill")
         } else {
             List(selection: self.selection) {
-                ForEach(self.nodes) { item in
-                    HStack(alignment: .center) {
-                        Image(systemName: item.kind.icon)
-                            .padding(.bottom, 10)
-                            .foregroundStyle(item.kind.frontendNodeColor.color)
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .fontWeight(.medium)
-                            Text(item.kind.displayName)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                Section("Nodes") {
+                    ForEach(self.nodes) { item in
+                        let isSelected = self.selection.wrappedValue.contains(item.id)
+                        HStack(alignment: .center) {
+                            Image(systemName: item.kind.icon)
+                                .padding(.bottom, 10)
+#if os(iOS)
+                                .foregroundStyle( isSelected ? .white : item.kind.frontendNodeColor.color)
+#endif
+                            VStack(alignment: .leading) {
+                                Text(item.name)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
+                                Text(item.kind.displayName)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                    }
                         .tag(item.id)
+                    }
                 }
             }
+            #if os(macOS)
             .listStyle(.sidebar)
+            #else
+            .listStyle(.plain)
+            #endif
         }
     }
 }
 
 #Preview {
+    @Previewable @State var show: Bool = true
     let flow: SharedModels::Flow = {
         let flow = Flow()
 
         flow.addNode(.init(kind: .valueNode(.float)), at: .zero)
         flow.addNode(.init(kind: .valueNode(.int)), at: .zero)
+        flow.addNode(.init(kind: .valueNode(.bool), name: "Some very very extremely long name!!!"), at: .zero)
+         flow.addNode(.init(kind: .valueNode(.float)), at: .zero)
+        flow.addNode(.init(kind: .valueNode(.int)), at: .zero)
+        flow.addNode(.init(kind: .valueNode(.bool)), at: .zero)
+         flow.addNode(.init(kind: .valueNode(.float)), at: .zero)
+        flow.addNode(.init(kind: .valueNode(.int)), at: .zero)
         flow.addNode(.init(kind: .valueNode(.bool)), at: .zero)
         
         return flow
     }()
-    NodeListView(flow: flow)
+    
+    HStack {
+        
+        Button("Toggle") {
+            show = true
+        }
+        .popover(isPresented: $show, arrowEdge: .top) {
+            NodeListView(flow: flow)
+                .frame(width: 250, height: 400)
+        }
+    }
 }

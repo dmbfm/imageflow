@@ -67,9 +67,7 @@ extension MainContentViewMacOS {
                 }
             )
 
-            Button("Open Asset Browser", systemImage: "photo.badge.plus") {
-                // Button("Open Asset Browser", systemImage: "paperclip.badge.ellipsis") {
-                // Button("Open Asset Browser", systemImage: "plus") {
+            Button("Open Asset Browser", systemImage: "photo.stack") {
                 self.vm.openAssetBrowser()
             }
             .help("Open Asset Browser")
