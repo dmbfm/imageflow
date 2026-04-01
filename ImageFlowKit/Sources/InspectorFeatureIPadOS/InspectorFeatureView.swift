@@ -51,6 +51,29 @@ public struct InspectorFeatureView: View {
     }
 }
 
+struct MultiSelectionSectionView: View {
+    let vm: InspectorFeatureViewModel
+    
+    var items: [Item]
+    @Binding var current: UUID
+
+    struct Item: Identifiable, Hashable {
+        var id: UUID
+        var label: String
+    }
+
+    var body: some View {
+        LabeledContent("Node") {
+                Picker("", selection: self.$current) {
+                    ForEach(self.items, id: \.self) { item in
+                        Text(item.label)
+                            .tag(item.id)
+                    }
+                }
+        }
+    }
+}
+
 struct TypeSectionView: View {
     let vm: InspectorFeatureViewModel
 
@@ -89,9 +112,29 @@ struct NodeFormView: View {
 
     let vm: InspectorFeatureViewModel
     @Environment(\.colorScheme) var cs
+    
+    var selectedItems: [MultiSelectionSectionView.Item] {
+        self.vm.flow.selection.map({
+            .init(id: $0, label: self.vm.flow.nodes[$0]?.name ?? $0.uuidString)
+        })
+    }
+    
+    var currentItem: Binding<UUID> {
+        .init(get: {
+            self.vm.node.id
+        }, set: {
+            if let node = self.vm.flow.nodes[$0] {
+                self.vm.node = node
+            }
+        })
+    }
 
     var body: some View {
         List {
+            
+            if self.vm.flow.selection.count > 1 {
+                MultiSelectionSectionView(vm: self.vm, items: self.selectedItems, current: self.currentItem)
+            }
 
             TypeSectionView(vm: self.vm)
 

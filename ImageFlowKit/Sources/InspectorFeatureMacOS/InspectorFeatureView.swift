@@ -59,9 +59,33 @@ public struct InspectorFeatureView: View {
         }
     }
 
+    var selectionItems: [MultipleSelectionBlockView.Item] {
+        self.vm.flow.selection.map({
+            .init(id: $0, name: self.vm.flow.nodes[$0]?.name ?? $0.uuidString)
+        })
+    }
+
     @ViewBuilder
     var nodeContentView: some View {
         VStack(spacing: 0) {
+
+            if self.vm.flow.selection.count > 1 {
+                MultipleSelectionBlockView(
+                    items: self.selectionItems,
+                    current: .init(
+                        get: {
+                            self.vm.node.id
+                        },
+                        set: { id in
+                            if let node = self.vm.flow.nodes[id] {
+                                self.vm.node = node
+                            }
+                        }
+                    )
+                )
+                .padding(.bottom, 12)
+            }
+
             TypeBlockView(
                 types: self.vm.node.variations,
                 current: .init(
@@ -163,6 +187,33 @@ struct HeaderView: View {
     }
 }
 
+struct MultipleSelectionBlockView: View {
+
+    var items: [Item]
+    @Binding var current: UUID
+
+    struct Item: Identifiable, Hashable {
+        var id: UUID
+        var name: String
+    }
+
+    var body: some View {
+        BlockContainer {
+            Text("Node")
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 14)
+            Spacer()
+            Picker("", selection: self.$current) {
+                ForEach(self.items, id: \.self) { item in
+                    Text(item.name)
+                        .tag(item.id)
+                }
+            }
+        }
+    }
+}
+
 struct TypeBlockView: View {
 
     var types: [NodeKind]
@@ -179,6 +230,9 @@ struct TypeBlockView: View {
             switch self.types.count {
             case 1:
                 Text(self.types[0].displayName)
+                    .font(.system(size: 14))
+                    .padding(.trailing, 12)
+                    .frame(height: 24)
             case let n where n > 1:
                 Picker("", selection: self.$current) {
                     ForEach(self.types, id: \.self) { ty in
@@ -186,7 +240,6 @@ struct TypeBlockView: View {
                             .tag(ty)
                     }
                 }
-                .controlSize(.small)
             default:
                 EmptyView()
             }
