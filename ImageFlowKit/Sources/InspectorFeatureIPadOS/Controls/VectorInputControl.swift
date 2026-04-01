@@ -76,7 +76,11 @@ struct VectorInputControl: View {
                 }
             }
         }
-        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: StatusBarMessage.dragFloat.rawValue)
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 

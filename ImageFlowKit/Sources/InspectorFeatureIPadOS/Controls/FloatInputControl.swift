@@ -16,7 +16,7 @@ struct FloatInputControl: View {
     var doubleValue: Double {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
-    
+
     var statusBarMessage: String {
         switch self.input.semantics {
         case .float(.angle): StatusBarMessage.dragFloatSnap.rawValue
@@ -31,13 +31,21 @@ struct FloatInputControl: View {
             switch input.semantics {
             case .float(.angle(_)):
                 AngleControl(input: self.input, vm: self.vm, dragState: self.$dragState)
-                    .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: self.statusBarMessage)
+                    .dragStateStatusBarMessage(
+                        coordinator: self.vm.coordinator,
+                        dragState: self.dragState,
+                        message: self.statusBarMessage
+                    )
             case .float(.range(let range)):
                 RangeControl(input: self.input, vm: self.vm, range: range)
             default:
                 LabeledContent {
                     RegularControl(input: self.input, vm: self.vm, dragState: self.$dragState)
-                        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: self.statusBarMessage)
+                        .dragStateStatusBarMessage(
+                            coordinator: self.vm.coordinator,
+                            dragState: self.dragState,
+                            message: self.statusBarMessage
+                        )
                 } label: {
                     InputLabel(input: self.input, vm: self.vm)
                 }

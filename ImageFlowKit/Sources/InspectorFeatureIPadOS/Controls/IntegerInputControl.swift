@@ -111,7 +111,11 @@ struct RegularIntegerInputControl: View {
         } label: {
             InputLabel(input: self.input, vm: self.vm)
         }
-        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: StatusBarMessage.dragFloat.rawValue)
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 

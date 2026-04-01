@@ -112,7 +112,11 @@ struct MatrixInputControl: View {
                 .uiFont(self.font)
             }
         }
-        .dragStateStatusBarMessage(coordinator: self.vm.coordinator, dragState: self.dragState, message: StatusBarMessage.dragFloat.rawValue)
+        .dragStateStatusBarMessage(
+            coordinator: self.vm.coordinator,
+            dragState: self.dragState,
+            message: StatusBarMessage.dragFloat.rawValue
+        )
     }
 }
 
