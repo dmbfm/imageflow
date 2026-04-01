@@ -80,10 +80,12 @@ public struct InspectorFeatureView: View {
 
             OutputBlockView(vm: self.vm)
 
+            #if IF_INSPECTOR_DEBUG
             if self.vm.showDebugBlock {
                 DebugBlockView(vm: self.vm)
                     .padding(.top, 12)
             }
+            #endif
 
             Spacer()
         }

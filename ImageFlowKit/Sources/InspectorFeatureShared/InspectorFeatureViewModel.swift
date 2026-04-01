@@ -45,7 +45,7 @@ public class InspectorFeatureViewModel: Observable {
     #if IF_INSPECTOR_DEBUG
     public let showDebugBlock: Bool = true
     #else
-    public let showDebugBlock: Bool = true
+    public let showDebugBlock: Bool = false
     #endif
 
     public init(
