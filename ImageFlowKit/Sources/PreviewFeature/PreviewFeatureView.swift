@@ -7,6 +7,7 @@ import Logging
 import SharedMocking
 import SharedModels
 import SwiftUI
+import Values
 
 @MainActor
 class ScrollCache: @MainActor CIImageScrollViewCache {
@@ -187,6 +188,10 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 @Observable
 @MainActor
 private final class MockAssetStore: AssetStoreService {
+    func titleForAsset(id: AssetIdentifier) -> String? {
+        nil
+    }
+
     var assetManager: any BackendAssetProvider {
         fatalError()
     }

@@ -15,6 +15,7 @@ public final class AssetStore: AssetStoreService {
         didSet {
             self.delegate?.assetsStore(assetsDidChange: self.assets)
             self.emitter.emit(.assetsChanged)
+            self.filenameCache.refresh(assets: self.assets)
         }
     }
 
@@ -22,6 +23,9 @@ public final class AssetStore: AssetStoreService {
 
     @ObservationIgnored
     var thumbCache: [UUID: CGImage] = [:]
+
+    @ObservationIgnored
+    var filenameCache: FilenameCache = .init()
 
     @ObservationIgnored
     public var emitter: EventEmitter<AssetStoreServiceEvent> = .init()
@@ -43,6 +47,14 @@ public final class AssetStore: AssetStoreService {
     public func setDocumentInfo(_ info: DocumentInfo) {
         Task {
             await self._assetManager.setDocumentInfo(info)
+        }
+    }
+
+    public func titleForAsset(id: AssetIdentifier) -> String? {
+        if case let .asset(id) = id {
+            self.filenameCache.get(id: id) ?? self.assets[id]?.filename
+        } else {
+            nil
         }
     }
 
@@ -173,6 +185,7 @@ public final class AssetStore: AssetStoreService {
 extension AssetStore: Storable {
     convenience public init(_ data: StorableData) {
         self.init()
+        self.filenameCache = data.filenameCache ?? .init()
         Task {
             await self._assetManager.restore(assets: data.assets)
         }
@@ -180,6 +193,7 @@ extension AssetStore: Storable {
 
     public func restore(_ snapshot: StorableData) {
         self.assets = [:]
+        self.filenameCache = snapshot.filenameCache ?? .init()
         Task {
             await self._assetManager.restore(assets: snapshot.assets)
         }
@@ -191,9 +205,11 @@ extension AssetStore: Storable {
 
     public struct StorableData: Sendable, Codable {
         public var assets: [UUID: Asset] = [:]
+        public var filenameCache: FilenameCache? = .init()
 
-        public init(assets: [UUID: Asset] = [:]) {
+        public init(assets: [UUID: Asset] = [:], filenameCache: FilenameCache = .init()) {
             self.assets = assets
+            self.filenameCache = filenameCache
         }
     }
 }

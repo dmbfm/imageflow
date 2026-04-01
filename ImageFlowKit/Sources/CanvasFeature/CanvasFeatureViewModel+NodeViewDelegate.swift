@@ -80,11 +80,7 @@ extension CanvasFeatureViewModel: NodeViewDelegate {
     }
 
     public func titleForAsset(id: AssetIdentifier) -> String? {
-        return if case let .asset(id) = id {
-            self.assetStore.assets[id]?.filename
-        } else {
-            nil
-        }
+        self.assetStore.titleForAsset(id: id)
     }
 
     public func statusBarMessage(message: String?) {

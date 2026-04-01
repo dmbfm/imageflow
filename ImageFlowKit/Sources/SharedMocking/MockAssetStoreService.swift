@@ -2,8 +2,13 @@ import CoreImage
 import Foundation
 import Helpers
 import SharedModels
+import Values
 
 public class MockAssetProvider: AssetsProvider {
+    public func titleForAsset(id: AssetIdentifier) -> String? {
+        nil
+    }
+
     public let assets: [UUID: SharedModels.Asset] = [:]
 
     public init() {}
@@ -12,6 +17,9 @@ public class MockAssetProvider: AssetsProvider {
 @Observable
 @MainActor
 public final class MockAssetStore: AssetStoreService {
+    public func titleForAsset(id: Values.AssetIdentifier) -> String? {
+        nil
+    }
 
     public init() {}
 

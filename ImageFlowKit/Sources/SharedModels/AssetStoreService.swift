@@ -38,6 +38,7 @@ public protocol AssetThumbProvider: AnyObject {
 @MainActor
 public protocol AssetsProvider: AnyObject {
     var assets: [UUID: Asset] { get }
+    func titleForAsset(id: AssetIdentifier) -> String?
 }
 
 @MainActor
