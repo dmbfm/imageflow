@@ -88,8 +88,16 @@ public final class NodeInputRowView: PlatformView {
             switch self.input.value.type {
             case .float:
                 switch self.input.semantics {
-                case .float(.angle(let range)):
-                    NodeAngleInput(self.input.value, isEditable: self.isEditable)
+                case .float(.angle(.some(let range))):
+                    if abs(range.span - 2.0 * .pi) < 0.001 {
+                        NodeAngleInput(self.input.value, range: nil, isEditable: self.isEditable)
+                    } else {
+                        NodeAngleInput(self.input.value, range: range, isEditable: self.isEditable)
+                    }
+                case .float(.angle(.none)):
+                    NodeAngleInput(self.input.value, range: nil, isEditable: self.isEditable)
+                case .float(.range(let range)):
+                    NodeNumberInput(self.input.value, range: range, isEditable: self.isEditable)
                 default:
                     NodeNumberInput(self.input.value, isEditable: self.isEditable)
                 }

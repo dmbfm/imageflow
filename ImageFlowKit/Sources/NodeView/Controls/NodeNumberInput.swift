@@ -29,33 +29,58 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     var context: NodeControlContext = .init()
 
+    var range: ClosedRange<Double>? = nil
+
+    var progress: CGFloat? {
+        get {
+            self.textField.progress
+        }
+
+        set {
+            self.textField.progress = newValue
+        }
+    }
+
     lazy var textField: NodeNumberTextField = {
         let view = NodeNumberTextField(
             self.value.float,
             isEditable: true
         )
         view.onEvent = { [weak self] event in
+            guard let self else { return }
             switch event {
             case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.emit(.sizeDidChange)
+                self.invalidateIntrinsicContentSize()
+                self.emit(.sizeDidChange)
             case .valueDidChange(let change):
-                self?.setValue(
-                    newValue: .float(change.newValue),
+                let newValue =
+                    if change.drag {
+                        self.range.maybeReduce(change.newValue, { value, range in value.clamped(to: range) })
+                    } else {
+                        change.newValue
+                    }
+
+                self.setValue(
+                    newValue: .float(newValue),
                     oldValue: change.oldValue.map({ .float($0) }),
                     registerUndo: change.commit
                 )
+
+                self.textField.value = newValue
+                self.updateProgress(nil)
+
             case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
-                self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+                self.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
             case .dragStateChanged(let dragState):
                 switch dragState {
                 case .dragging:
-                    self?.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+                    self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
                 case .notDragging:
-                    self?.onEvent?(.statusBarMessage(nil))
+                    self.onEvent?(.statusBarMessage(nil))
                 }
             }
         }
+        self.updateProgress(view)
         return view
     }()
 
@@ -68,8 +93,9 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public init(_ value: Value, isEditable: Bool = true) {
+    public init(_ value: Value, range: ClosedRange<Double>? = nil, isEditable: Bool = true) {
         self.value = value
+        self.range = range
 
         super.init(frame: .zero)
 
@@ -96,6 +122,16 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     func update() {
         self.textField.value = self.value.float
+        self.updateProgress()
+    }
+
+    func updateProgress(_ textField: NodeNumberTextField? = nil) {
+        let textField = textField ?? self.textField
+        if let range = self.range {
+            textField.progress = range.progress(self.value.float)
+        } else {
+            textField.progress = nil
+        }
     }
 }
 

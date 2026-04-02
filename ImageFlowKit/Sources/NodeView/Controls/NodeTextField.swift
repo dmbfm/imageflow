@@ -23,6 +23,7 @@ typealias NodeTextField = NodeTextFieldUIView
 
 protocol NodeTextFieldProtocol: PlatformView {
     var text: String { get set }
+    var progress: CGFloat? { get set }
     var onEvent: ((NodeTextFieldEvent) -> ())? { get set }
     var placeholder: String? { get set }
     init(_ text: String, placeholder: String?, isEditable: Bool, style: NodeTextFieldStyle)
@@ -57,6 +58,8 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
     var borderColor: PlatformColor
     var borderWidth: CGFloat
     var shadowStyle: ShadowStyle
+    var progressFillHeight: CGFloat
+    var progressFillColor: DynamicColor
 
     enum FontDesign: Sendable, Hashable {
         case regular
@@ -82,7 +85,9 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
             backgroundColorNonEditable: Colors.numberInputBackground.platformColor.withAlphaComponent(0.25),
             borderColor: Colors.numberInputBorder.platformColor,
             borderWidth: 2,
-            shadowStyle: .init(radius: 4, color: .black, opacity: 0.6, offset: .init(width: 0, height: 2))
+            shadowStyle: .init(radius: 4, color: .black, opacity: 0.6, offset: .init(width: 0, height: 2)),
+            progressFillHeight: 2,
+            progressFillColor: .init(light: .init(white: 0.5, alpha: 0.5), dark: .init(white: 0.5, alpha: 0.5))
         )
     }
 }
@@ -94,8 +99,13 @@ extension NodeTextField {
         let placeholder: String?
 
         func makeView(context: Context) -> NodeTextField {
-            let view = NodeTextField(self.text, style: .default.with(\.borderColor, .systemBlue))
+            let view = NodeTextField(
+                self.text,
+                style: .default
+                    .with(\.borderColor, .systemBlue)
+            )
             view.placeholder = self.placeholder
+            view.progress = 0.8
             view.onEvent = { event in
                 log("event: \(event)")
                 switch event {
@@ -133,5 +143,4 @@ extension NodeTextField {
 
     }
     .frame(minWidth: 500, minHeight: 500)
-    .background(.white)
 }

@@ -179,7 +179,7 @@ struct CustomDragGesture: UIGestureRecognizerRepresentable {
 extension EnvironmentValues {
     @Entry var draggableFloatInputLeadingSpacing: CGFloat = 0.0
     @Entry var draggableFloatInputSnapping: DraggableFloatInput.Snapping? = nil
-    @Entry var draggableFloatInputFormatter: NumberFormatter = formatter
+    @Entry var draggableFloatInputFormatter: NumberFormatter = floatInputFormatter
 }
 
 extension View {

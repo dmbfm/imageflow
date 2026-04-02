@@ -16,4 +16,7 @@
    <FileRef
       location = "group:CubeLutKit">
    </FileRef>
+   <FileRef
+      location = "group:AngleControl.swift">
+   </FileRef>
 </Workspace>

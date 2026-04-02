@@ -31,11 +31,27 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         }
     }
 
+    var progress: CGFloat? {
+        get {
+            self.backgroundView.progress
+        }
+
+        set {
+            self.backgroundView.progress = newValue
+        }
+    }
+
     var placeholder: String?
 
     var onEvent: ((NodeTextFieldEvent) -> ())?
 
-    var style: NodeTextFieldStyle
+    var style: NodeTextFieldStyle {
+        didSet {
+            self.setNeedsLayout()
+            self.setNeedsDisplay()
+            self.backgroundView.style = self.style
+        }
+    }
 
     var isEditable: Bool {
         get {
@@ -111,12 +127,8 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         return view
     }()
 
-    lazy var backgroundView: NSView = {
-        let view = NSView()
-        view.wantsLayer = true
-        view.layer?.backgroundColor = self.style.backgroundColor.cgColor
-        view.layer?.cornerRadius = self.style.innerCornerRadius
-        view.layer?.cornerCurve = .continuous
+    lazy var backgroundView: BackgroundView = {
+        let view = BackgroundView(self.style)
         return view
     }()
 
@@ -313,4 +325,63 @@ extension NodeTextFieldNSView: @preconcurrency CALayerDelegate {
     }
 }
 
+extension NodeTextFieldNSView {
+
+    class BackgroundView: NSView {
+        var style: NodeTextFieldStyle {
+            didSet {
+                self.needsDisplay = true
+                self.needsLayout = true
+            }
+        }
+
+        var progress: CGFloat? {
+            didSet {
+                if self.progress != oldValue {
+                    self.progressFillView.isHidden = self.progress == nil
+                    self.needsDisplay = true
+                    self.needsLayout = true
+                }
+            }
+        }
+
+        init(_ style: NodeTextFieldStyle) {
+            self.style = style
+            super.init(frame: .zero)
+            self.wantsLayer = true
+            self.layer?.backgroundColor = self.style.backgroundColor.cgColor
+            self.layer?.cornerRadius = self.style.innerCornerRadius
+            self.layer?.cornerCurve = .continuous
+            self.layer?.masksToBounds = true
+            self.addSubview(self.progressFillView)
+        }
+
+        lazy var progressFillView: NSView = {
+            let view = NSView()
+            view.wantsLayer = true
+            view.layer?.backgroundColor = self.style.progressFillColor.cgColor
+            return view
+        }()
+
+        required init?(coder: NSCoder) {
+            nil
+        }
+
+        override var wantsUpdateLayer: Bool {
+            true
+        }
+
+        override func updateLayer() {
+            self.progressFillView.layer?.backgroundColor = self.style.progressFillColor.cgColor
+        }
+
+        override func layout() {
+            if let progress = self.progress {
+                self.progressFillView.frame = self.bounds
+                self.progressFillView.frame.size.width *= progress.clamped(to: 0...1)
+                self.progressFillView.frame.size.height = self.style.progressFillHeight
+            }
+        }
+    }
+}
 #endif

@@ -28,6 +28,20 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             }
         }
     }
+    
+    var progress: CGFloat? {
+        didSet {
+            if self.progress != nil {
+                if self.progress == nil {
+                    self.bgLayer.isHidden = true
+                } else {
+                    self.bgLayer.isHidden = false
+                }
+                self.setNeedsLayout()
+                self.setNeedsDisplay()
+            }
+        }
+    }
 
     var onEvent: ((NodeTextFieldEvent) -> ())?
 
@@ -81,14 +95,37 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             .monospacedSystemFont(ofSize: self.style.fontSize, weight: .regular)
         }
     }()
+    
+    lazy var fillLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.backgroundColor = .red
+        return layer
+    }()
+    
+    lazy var bgLayer: CALayer = {
+        let layer = CALayer()
+        layer.backgroundColor = self.style.progressFillColor.cgColor
+        layer.frame = .init(x: 0, y: 0, width: 100, height: 2)
+        return layer
+    }()
 
     lazy var backgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = self.style.backgroundColor
+        view.backgroundColor = .clear
+        view.layer.isOpaque = false
         view.layer.cornerRadius = self.style.innerCornerRadius
         view.layer.cornerCurve = .continuous
+        view.layer.masksToBounds = true
+        self.bgLayer.frame.origin.y = self.bounds.origin.y
+        view.layer.addSublayer(self.bgLayer)
         return view
     }()
+    
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        
+        self.bgLayer.backgroundColor = self.style.progressFillColor.cgColor
+    }
 
     lazy var textField: UITextField = {
         let view = UITextField()
@@ -256,6 +293,14 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         self.backgroundView.frame = rect.inset(by: self.style.backgroundInsets.platformEdgeInsets)
         self.label.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
         self.textField.frame = rect.inset(by: self.style.textInsets.platformEdgeInsets)
+        if let progress = self.progress {
+            self.bgLayer.frame.origin.x = self.backgroundView.layer.bounds.minX
+            self.bgLayer.frame.origin.y = self.backgroundView.layer.bounds.maxY - self.style.progressFillHeight
+            self.bgLayer.frame.size.width = self.backgroundView.layer.bounds.width * progress
+            self.bgLayer.frame.size.height = self.style.progressFillHeight
+        } else {
+            self.bgLayer.frame = .zero
+        }
     }
     func resize() {
         self.invalidateIntrinsicContentSize()

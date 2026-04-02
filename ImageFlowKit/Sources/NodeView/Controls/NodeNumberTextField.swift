@@ -41,6 +41,16 @@ final class NodeNumberTextField: PlatformCommonView {
 
     public var onEvent: ((Event) -> ())?
 
+    public var progress: CGFloat? {
+        get {
+            self.textField.progress
+        }
+
+        set {
+            self.textField.progress = newValue
+        }
+    }
+
     enum Event {
         case valueDidChange(Change)
         case sizeDidChange
@@ -52,6 +62,7 @@ final class NodeNumberTextField: PlatformCommonView {
         var newValue: Double
         var oldValue: Double?
         var commit: Bool
+        var drag: Bool
     }
 
     public var tint: PlatformColor = .systemBlue
@@ -64,12 +75,14 @@ final class NodeNumberTextField: PlatformCommonView {
         var epsilon: Double
     }
 
-    func setValue(newValue: Double, oldValue: Double? = nil, registerUndo: Bool = false) {
+    func setValue(newValue: Double, oldValue: Double? = nil, drag: Bool = false, registerUndo: Bool = false) {
         let oldValue = oldValue ?? self.value
 
         if newValue != oldValue {
             self.value = newValue
-            self.onEvent?(.valueDidChange(.init(newValue: newValue, oldValue: oldValue, commit: registerUndo)))
+            self.onEvent?(
+                .valueDidChange(.init(newValue: newValue, oldValue: oldValue, commit: registerUndo, drag: drag))
+            )
         }
     }
 
@@ -190,9 +203,9 @@ final class NodeNumberTextField: PlatformCommonView {
         )
 
         if phase == .ended {
-            self.setValue(newValue: newValue, oldValue: self.valueAtDragStart, registerUndo: true)
+            self.setValue(newValue: newValue, oldValue: self.valueAtDragStart, drag: true, registerUndo: true)
         } else {
-            self.setValue(newValue: newValue)
+            self.setValue(newValue: newValue, drag: true)
         }
     }
 }

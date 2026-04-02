@@ -5992,7 +5992,7 @@ extension Nodes {
                 name: "Perspective Rotate",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Focal Length", defaultValue: .float(28.0), semantics: .default),
+                    .init(name: "Focal Length", defaultValue: .float(28.0), semantics: .float(.range(15.0...100.0))),
                     .init(
                         name: "Pitch",
                         defaultValue: .float(0.0),

@@ -2,7 +2,7 @@
 import UIKit
 import SwiftUI
 
-public struct DynamicColor: Sendable, Equatable {
+public struct DynamicColor: Sendable, Equatable, Hashable {
 
     private var uiColor: UIColor
 
@@ -44,7 +44,7 @@ public struct DynamicColor: Sendable, Equatable {
 import AppKit
 import SwiftUI
 
-public struct DynamicColor: Sendable, Equatable {
+public struct DynamicColor: Sendable, Equatable, Hashable {
     private var nsColor: NSColor
 
     public var platformColor: NSColor {

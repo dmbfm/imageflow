@@ -4,7 +4,8 @@ import SwiftSyntaxBuilder
 import Values
 
 let semantics: [String: [String: String]] = [
-    "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"]
+    "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"],
+    "CIPerspectiveRotate": ["inputFocalLength": ".float(.range(15.0...100.0))"],
 ]
 
 let addCropToSourceOptionFilters: [String] =

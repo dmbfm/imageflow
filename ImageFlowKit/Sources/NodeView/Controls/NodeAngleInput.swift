@@ -22,6 +22,8 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         didSet {
             if self.value != oldValue {
                 self.update()
+            } else if self.numberInput.value != self.value.float {
+                self.numberInput.value = self.value.float.fromRadians(to: self.unit)
             }
         }
     }
@@ -29,6 +31,8 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     public var tint: PlatformColor = .systemBlue
 
     var context: NodeControlContext = .init()
+
+    var range: ClosedRange<Double>? = nil
 
     var snap: Bool = false {
         didSet {
@@ -90,9 +94,19 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     private var valueAtDragStart: CGFloat = 0.0
 
+    func transformValue(_ value: Double, _ drag: Bool = false) -> Double {
+        if drag {
+            self.range.maybeReduce(
+                self.unit.radians(value),
+                { value, range in value.clamped(to: range) }
+            )
+        } else {
+            self.unit.radians(value)
+        }
+    }
+
     lazy var numberInput: NodeNumberTextField = {
         let view = NodeNumberTextField(self.value.float.fromRadians(to: self.unit), isEditable: true)
-        // view.context = self.context
         view.forceSnap = false
         view.onEvent = { [weak self] event in
             guard let self else { return }
@@ -100,12 +114,15 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
             case .sizeDidChange:
                 self.updateSize()
             case .valueDidChange(let change):
+                let newValue = self.transformValue(change.newValue, change.drag)
+                self.numberInput.value = newValue.fromRadians(to: self.unit)
                 self.setValue(
-                    newValue: .float(self.unit.radians(change.newValue)),
-                    oldValue: change.oldValue.map({ .float(self.unit.radians($0)) }),
+                    newValue: .float(newValue),
+                    oldValue: change.oldValue.map({ .float(self.transformValue($0)) }),
                     registerUndo: change.commit
                 )
                 self.updateSize()
+                self.updateProgress()
             case .keyboardWillShow(let windowVerticalOverlap, let duration):
                 self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
             case .dragStateChanged(let dragState):
@@ -117,12 +134,13 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
                 }
             }
         }
+
+        self.updateProgress(view)
         return view
     }()
 
-    private lazy var dialView: AngleDial = {
-        let view = AngleDial()
-        view.angle = self.value.float
+    private lazy var dialView: AngleDialView = {
+        let view = AngleDialView(angle: self.value.float, range: self.range)
         return view
     }()
 
@@ -162,8 +180,6 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         view.configuration?.buttonSize = .mini
         view.configuration?.contentInsets.leading = 1
         view.configuration?.contentInsets.trailing = 4
-        view.layer.borderColor = UIColor.systemTeal.cgColor
-        view.layer.borderWidth = 1
         view.menu = UIMenu(
             title: "Units",
             children: [
@@ -197,8 +213,9 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         self.emit(.sizeDidChange)
     }
 
-    public init(_ value: Value, isEditable: Bool = true) {
+    public init(_ value: Value, range: ClosedRange<Double>? = nil, isEditable: Bool = true) {
         self.value = value
+        self.range = range
 
         super.init(frame: .zero)
 
@@ -221,6 +238,17 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         log("update: \(self.unit), \(self.value), \(self.value.float.fromRadians(to: self.unit))")
         self.dialView.angle = self.value.float
         self.numberInput.value = self.value.float.fromRadians(to: self.unit)
+        self.updateProgress()
+    }
+
+    func updateProgress(_ input: NodeNumberTextField? = nil) {
+        let input = input ?? self.numberInput
+
+        if let range = self.range {
+            input.progress = range.progress(self.value.float)
+        } else {
+            input.progress = nil
+        }
     }
 
     // MARK: - Layout
@@ -257,16 +285,18 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     }
 }
 
-private struct Style {
-    static let dialSize: CGFloat = 25.0
-    static let dialStrokeColor: DynamicColor = .init(
-        light: .init(white: 0.45, alpha: 1.0),
-        dark: .init(white: 0.45, alpha: 1.0)
-    )
-    static let dialFillColor: DynamicColor = .init(
-        light: .init(white: 0.45, alpha: 1.0),
-        dark: .init(white: 0.45, alpha: 1.0)
-    )
+extension NodeAngleInput {
+    struct Style {
+        static let dialSize: CGFloat = 25.0
+        static let dialStrokeColor: DynamicColor = .init(
+            light: .init(white: 0.45, alpha: 1.0),
+            dark: .init(white: 0.45, alpha: 1.0)
+        )
+        static let dialFillColor: DynamicColor = .init(
+            light: .init(white: 0.45, alpha: 1.0),
+            dark: .init(white: 0.45, alpha: 1.0)
+        )
+    }
 }
 
 extension NodeAngleInput {
@@ -295,121 +325,12 @@ extension NodeAngleInput {
     }
 }
 
-private class AngleDial: PlatformCommonView {
-    var angle: Double = 15.0.radians {
-        didSet {
-            self.setNeedsDisplay()
-        }
-    }
-
-    var smallRadiusRatio: Double = 0.25 {
-        didSet {
-            self.setNeedsDisplay()
-        }
-    }
-
-    var drawData: DrawData {
-        .init(self.bounds, self.angle, self.smallRadiusRatio)
-    }
-
-    #if os(iOS)
-    lazy var largeCircleShape: CAShapeLayer = {
-        let layer = CAShapeLayer()
-        return layer
-    }()
-
-    lazy var smallCricleShape: CAShapeLayer = {
-        let layer = CAShapeLayer()
-        return layer
-    }()
-
-    init(angle: Double = 0.0, smallRadiusRatio: Double = 0.25) {
-        self.angle = angle
-        self.smallRadiusRatio = smallRadiusRatio
-        super.init(frame: .zero)
-
-        self.layer.addSublayer(self.largeCircleShape)
-        self.layer.addSublayer(self.smallCricleShape)
-    }
-
-    required init?(coder: NSCoder) {
-        nil
-    }
-
-    override func draw(_ rect: CGRect) {
-        let data = self.drawData
-
-        self.largeCircleShape.path = CGPath(ellipseIn: data.largeCircleRect, transform: nil)
-        self.largeCircleShape.strokeColor = Style.dialStrokeColor.cgColor
-        self.largeCircleShape.fillColor = nil
-
-        self.smallCricleShape.path = CGPath(ellipseIn: data.smallCircleRect, transform: nil)
-        self.smallCricleShape.strokeColor = nil
-        self.smallCricleShape.fillColor = Style.dialFillColor.cgColor
-    }
-    #endif
-
-    #if os(macOS)
-    override func draw(_ dirtyRect: CGRect) {
-        let data = self.drawData
-
-        Style.dialStrokeColor.platformColor.setStroke()
-        Style.dialFillColor.platformColor.setFill()
-
-        NSBezierPath(ovalIn: data.largeCircleRect).stroke()
-        NSBezierPath(ovalIn: data.smallCircleRect).fill()
-    }
-    #endif
-
-    struct DrawData {
-        var largeCircleRect: CGRect
-        var smallCircleRect: CGRect
-
-        init(_ bounds: CGRect, _ angle: Double, _ smallRadiusRatio: Double) {
-            let boundsMinSide = min(bounds.width - 2, bounds.height - 2)
-            let alpha = smallRadiusRatio
-
-            let largeRadius = boundsMinSide / (2 * (1.0 + alpha))
-            let smallRadius = largeRadius * alpha
-            let bounds = bounds.insetBy(dx: smallRadius + 2, dy: smallRadius + 2)
-
-            let square = CGRect(origin: bounds.origin, size: .init(width: 2 * largeRadius, height: 2 * largeRadius))
-            let center = square.center
-            let x = center.x + largeRadius * cos(angle) - smallRadius
-            let y = center.y - largeRadius * sin(angle) - smallRadius
-            let smallCircleRect = CGRect(x: x, y: y, width: 2 * smallRadius, height: 2 * smallRadius)
-
-            self.largeCircleRect = square
-            self.smallCircleRect = smallCircleRect
-        }
-    }
-
-    struct Preview: PlatformViewRepresentable {
-        var angle: Double = 0.0
-        func makeView(context: Context) -> AngleDial {
-            let view = AngleDial()
-            view.angle = self.angle
-            return view
-        }
-
-        func updateView(_ view: AngleDial, context: Context) {
-            view.angle = self.angle
-        }
-    }
-}
-
 #Preview {
     @Previewable @State var value: Value = .float(75.0.radians)
     VStack {
         NodeAngleInput.Preview(value: $value)
             .fixedSize()
             .border(.red)
-
-        AngleDial.Preview(angle: value.float)
-            .frame(width: 25, height: 25)
-
-        AngleDial.Preview(angle: value.float)
-            .frame(width: 50, height: 50)
     }
 
     .frame(minWidth: 200, minHeight: 200)
