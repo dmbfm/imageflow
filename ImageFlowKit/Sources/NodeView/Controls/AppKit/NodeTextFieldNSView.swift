@@ -107,6 +107,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         view.focusRingType = .none
         view.maximumNumberOfLines = 1
         view.delegate = self
+        view.contentType = .password
         return view
     }()
 
