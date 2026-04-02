@@ -100,3 +100,6 @@ fastlane/test_output
 iOSInjectionProject/
 
 xcodebuild.log
+
+ImageFlowCodeGen/dump
+./ImageFlowCodeGen/dump
