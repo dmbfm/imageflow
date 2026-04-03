@@ -103,7 +103,7 @@ final class AngleDialView: PlatformCommonView {
             self.largeCircleLayer.fillColor = self.style.fillColor.cgColor
             self.largeCircleLayer.strokeColor = self.style.color.cgColor
         } else {
-            self.largeCircleLayer.fillColor = .init(gray: 0, alpha: 0)  //self.style.fillColor.cgColor
+            self.largeCircleLayer.fillColor = .init(gray: 0, alpha: 0)
             self.largeCircleLayer.strokeColor = self.style.color.cgColor
             self.largeCircleLayer.lineDashPattern = [2.0, 2.0]
         }
