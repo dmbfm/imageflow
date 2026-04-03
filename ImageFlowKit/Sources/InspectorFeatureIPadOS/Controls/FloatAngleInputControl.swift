@@ -11,7 +11,7 @@ struct FloatAngleInputControl: View {
 
     @State var units: Units = .degrees
     @State var snap: Bool = false
-    
+
     var range: ClosedRange<Double>? {
         switch self.input.semantics {
         case .float(.angle(.none)):
@@ -74,25 +74,27 @@ struct FloatAngleInputControl: View {
     func onChange(_ change: DraggableFloatInput.Change) {
         switch self.units {
         case .radians:
-            
-            let newValue = if let range, self.dragState == .dragging {
-                change.value.clamped(to: range)
-            } else {
-                change.value
-            }
-            
+
+            let newValue =
+                if let range, self.dragState == .dragging {
+                    change.value.clamped(to: range)
+                } else {
+                    change.value
+                }
+
             self.vm.submit(
                 .input(self.input.index, .float(newValue), change.previous.map(({ .float($0) }))),
                 registerUndo: change.commit
             )
         case .degrees:
-            
-            let newValue = if let range, self.dragState == .dragging {
-                change.value.truncateTo(fractionalDigits: 2).radians.clamped(to: range)
-            } else {
-                change.value.truncateTo(fractionalDigits: 2).radians
-            }
-            
+
+            let newValue =
+                if let range, self.dragState == .dragging {
+                    change.value.truncateTo(fractionalDigits: 2).radians.clamped(to: range)
+                } else {
+                    change.value.truncateTo(fractionalDigits: 2).radians
+                }
+
             self.vm.submit(
                 .input(
                     self.input.index,

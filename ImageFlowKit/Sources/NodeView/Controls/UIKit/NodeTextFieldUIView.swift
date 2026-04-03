@@ -28,7 +28,7 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             }
         }
     }
-    
+
     var progress: CGFloat? {
         didSet {
             if self.progress != nil {
@@ -95,13 +95,13 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
             .monospacedSystemFont(ofSize: self.style.fontSize, weight: .regular)
         }
     }()
-    
+
     lazy var fillLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.backgroundColor = .red
         return layer
     }()
-    
+
     lazy var bgLayer: CALayer = {
         let layer = CALayer()
         layer.backgroundColor = self.style.progressFillColor.cgColor
@@ -120,10 +120,10 @@ final class NodeTextFieldUIView: UIView, NodeTextFieldProtocol {
         view.layer.addSublayer(self.bgLayer)
         return view
     }()
-    
+
     override func draw(_ rect: CGRect) {
         super.draw(rect)
-        
+
         self.bgLayer.backgroundColor = self.style.progressFillColor.cgColor
     }
 
