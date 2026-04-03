@@ -1350,7 +1350,7 @@ extension Nodes {
                         semantics: .float(.angle(0.0...6.283185307179586))
                     ), .init(name: "Width", defaultValue: .float(30.0), semantics: .distance),
                     .init(name: "Bar Offset", defaultValue: .float(10.0), semantics: .default),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1531,7 +1531,8 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance),
-                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default),
+                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .float(.range(0...1))),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1540,12 +1541,24 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIBloom")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                if node.inputs[3].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[3].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
@@ -2946,7 +2959,7 @@ extension Nodes {
                         name: "Color",
                         defaultValue: .color3(.init(red: 0.6, green: 1.0, blue: 0.8)),
                         semantics: .opaqueColor
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(name: "Angle", defaultValue: .float(0.0), semantics: .float(.angle(0.0...6.283185307179586))),
                     .init(name: "Width", defaultValue: .float(200.0), semantics: .distance),
                     .init(name: "Opacity", defaultValue: .float(1.3), semantics: .default),
@@ -3257,7 +3270,7 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Target Image", type: .image, semantics: .image),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3727,7 +3740,7 @@ extension Nodes {
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.8, blue: 0.6, alpha: 1.0)),
                         semantics: .color
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(name: "Maximum Striation Radius", defaultValue: .float(2.58), semantics: .distance),
                     .init(name: "Striation Strength", defaultValue: .float(0.5), semantics: .default),
                     .init(name: "Striation Contrast", defaultValue: .float(1.375), semantics: .default),
@@ -5337,7 +5350,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Target Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(
                         name: "Angle",
                         defaultValue: .float(2.0),
@@ -5789,7 +5802,7 @@ extension Nodes {
                     .init(name: "Backside Image", type: .image, semantics: .image),
                     .init(name: "Shading Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
@@ -5834,7 +5847,7 @@ extension Nodes {
                     .init(name: "Target Image", type: .image, semantics: .image),
                     .init(name: "Backside Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
@@ -6614,7 +6627,7 @@ extension Nodes {
                     .init(name: "Shading Image", type: .image, semantics: .image),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
-                    .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(name: "Width", defaultValue: .float(100.0), semantics: .distance),
                     .init(name: "Scale", defaultValue: .float(50.0), semantics: .default),
                 ],
@@ -7634,7 +7647,7 @@ extension Nodes {
                         name: "Color",
                         defaultValue: .color3(.init(red: 1.0, green: 1.0, blue: 1.0)),
                         semantics: .opaqueColor
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .time),
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),

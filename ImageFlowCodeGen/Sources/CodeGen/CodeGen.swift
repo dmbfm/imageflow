@@ -6,6 +6,7 @@ import Values
 let semantics: [String: [String: String]] = [
     "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"],
     "CIPerspectiveRotate": ["inputFocalLength": ".float(.range(15.0...100.0))"],
+    "CIBloom": ["inputIntensity": ".float(.range(0...1))"],
 ]
 
 let addCropToSourceOptionFilters: [String] =
@@ -28,6 +29,7 @@ let addCropToSourceOptionFilters: [String] =
         "CIPerspectiveTransformWithExtent",
         "CIDistanceGradientFromRedMask",
         "CIPointillize",
+        "CIBloom",
     ]
 
 let forceCropToSourceFilters: [String] =
@@ -230,7 +232,14 @@ extension InputType {
         case .position3: ".position3"
         case .rectangle: ".rectangle"
         case .scalar: ".default"
-        case .time: ".time"
+        case .time:
+            {
+                if let min = input.sliderMin, let max = input.sliderMax {
+                    return ".float(.range(\(min)...\(max)))"
+                } else {
+                    return ".float(.default)"
+                }
+            }()
         case .transform: ".transform"
         }
     }
