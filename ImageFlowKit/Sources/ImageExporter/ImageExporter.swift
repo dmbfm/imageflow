@@ -623,7 +623,7 @@ private struct ImageExportSettingsView: View {
             HStack(spacing: 8) {
                 Text("W")
                     .font(.caption)
-                IntegerInputView(
+                LegacyIntegerInputView(
                     "",
                     value: self.widthBinding,
                     in: 1...1_000_000
@@ -635,7 +635,7 @@ private struct ImageExportSettingsView: View {
             HStack(spacing: 8) {
                 Text("H")
                     .font(.caption)
-                IntegerInputView(
+                LegacyIntegerInputView(
                     "",
                     value: self.heightBinding,
                     in: 1...1_000_000

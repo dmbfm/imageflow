@@ -55,6 +55,7 @@ let package = Package(
                 "Logging",
                 "XViewKit",
                 "Values",
+                "Design",
             ]
         ),
         .target(

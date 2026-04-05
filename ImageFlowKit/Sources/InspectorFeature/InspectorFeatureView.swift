@@ -128,34 +128,38 @@ public struct InspectorFeatureView: View {
                                     .multilineTextAlignment(.trailing)
                                     .textFieldStyle(kind: .roundedBorder)
                                 
-                                TextFieldEx(text: self.$text)
-//                                    .fixedSize()
-                                    .textFieldExStyle(.plain)
-                                    .textFieldExInteractionMode(.commit)
-                                    .textFieldExDidBeginEditing { value in
-//                                        log("begin!")
-//                                        self.focused = false
-                                    }
-                                    .textFieldExDidEndEditing { value in
-                                        self.focused = false
-                                    }
-                                    .textFieldExCancelAction {  
-                                        self.focused = false
-                                    }
-                                    .focused(self.$focused)
-//                                    .border(.red)
+                                NumberInputView(value: 0.5, configuration: .free(.init())) { _ in }
                                     .multilineTextAlignment(.trailing)
-                                    .padding()
-                                    .background {}
-                                    .clipShape(Rectangle())
-                                    .background {
-                                        Rectangle()
-                                            .fill(.secondaryFill)
-                                    }
-                                    .clipShape(Rectangle())
-                                    .gesture(ValueDragGesture(focused: self.focused, handler: { value in log("value: \(value)") }))
-//                                    .gesture(DragGesture().onChanged({ value in log("value: \(value)")}))
-                                    .border(.red)
+                                    .betterTextFieldBorderShapeStyle(.secondaryFill)
+                                
+//                                 TextFieldEx(text: self.$text)
+// //                                    .fixedSize()
+//                                     .textFieldExStyle(.plain)
+//                                     .textFieldExInteractionMode(.commit)
+//                                     .textFieldExDidBeginEditing { value in
+// //                                        log("begin!")
+// //                                        self.focused = false
+//                                     }
+//                                     .textFieldExDidEndEditing { value in
+//                                         self.focused = false
+//                                     }
+//                                     .textFieldExCancelAction {  
+//                                         self.focused = false
+//                                     }
+//                                     .focused(self.$focused)
+// //                                    .border(.red)
+//                                     .multilineTextAlignment(.trailing)
+//                                     .padding()
+//                                     .background {}
+//                                     .clipShape(Rectangle())
+//                                     .background {
+//                                         Rectangle()
+//                                             .fill(.secondaryFill)
+//                                     }
+//                                     .clipShape(Rectangle())
+//                                     .gesture(ValueDragGesture(focused: self.focused, handler: { value in log("value: \(value)") }))
+// //                                    .gesture(DragGesture().onChanged({ value in log("value: \(value)")}))
+//                                     .border(.red)
                             }
                         }
                     }

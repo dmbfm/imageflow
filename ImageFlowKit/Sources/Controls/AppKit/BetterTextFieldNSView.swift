@@ -4,9 +4,10 @@ import AppKit
 import SwiftUI
 import Logging
 
-public final class TextFieldExNSView: NSTextField {
+public final class BetterTextFieldNSView: NSTextField {
 
     var allowsCancelation: Bool = false
+    var cancelAction: (() -> ())? = nil
 
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -30,12 +31,13 @@ public final class TextFieldExNSView: NSTextField {
     public override func cancelOperation(_ sender: Any?) {
         if self.allowsCancelation {
             self.abortEditing()
+            self.cancelAction?()
         }
     }
 
-    var currentStyle: TextFieldEx.Style? = nil
+    var currentStyle: BetterTextFieldBase.Style? = nil
 
-    func updateStyle(_ style: TextFieldEx.Style) {
+    func updateStyle(_ style: BetterTextFieldBase.Style) {
         if self.currentStyle == style { return }
 
         switch style {
@@ -58,7 +60,7 @@ public final class TextFieldExNSView: NSTextField {
         self.currentStyle = style
     }
 
-    func update(_ view: TextFieldEx) {
+    func update(_ view: BetterTextFieldBase) {
 
         if view.font != self.font {
             self.font = view.font
@@ -78,6 +80,7 @@ public final class TextFieldExNSView: NSTextField {
 
         if self.alignment != view.alignment.nsTextAlignment {
             self.alignment = view.alignment.nsTextAlignment
+            self.cell?.alignment = view.alignment.nsTextAlignment
         }
 
         if self.allowsCancelation != view.allowsCancellation {
@@ -92,17 +95,19 @@ public final class TextFieldExNSView: NSTextField {
             self.placeholderString = view.placeholder
         }
 
+        self.cancelAction = view.cancelAction
+
         self.updateStyle(view.style)
     }
 }
 
-extension TextFieldExNSView {
+extension BetterTextFieldNSView {
     @MainActor
     public class Coordinator: NSObject, NSTextFieldDelegate {
 
         var text: Binding<String>?
-        var mode: TextFieldEx.InteractionMode = .continuous
-        var currentStyle: TextFieldEx.Style?
+        var mode: BetterTextFieldBase.InteractionMode = .continuous
+        var currentStyle: BetterTextFieldBase.Style?
         var didBeginEditing: ((String) -> ())?
         var didEndEditing: ((String) -> ())?
         var didChange: ((String) -> ())?
@@ -114,7 +119,7 @@ extension TextFieldExNSView {
         }
 
         public func controlTextDidEndEditing(_ obj: Notification) {
-            if let view = obj.object as? TextFieldExNSView {
+            if let view = obj.object as? BetterTextFieldNSView {
                 if self.mode == .commit,
                     let text = self.text
                 {
@@ -126,9 +131,8 @@ extension TextFieldExNSView {
         }
 
         public func controlTextDidChange(_ obj: Notification) {
-                if let textField = obj.object as? TextFieldExNSView
-            {
-                
+            if let textField = obj.object as? BetterTextFieldNSView {
+
                 if self.mode == .continuous, let text = self.text {
                     text.wrappedValue = textField.text
                 }
