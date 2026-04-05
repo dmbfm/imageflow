@@ -18,6 +18,7 @@ let package = Package(
         .library(name: "Helpers"),
         .library(name: "Logging"),
         .library(name: "Controls"),
+        .library(name: "Design"),
         .library(name: "SharedModels"),
         .library(name: "PreviewFeature"),
         .library(name: "NodePaletteFeature"),
@@ -35,9 +36,7 @@ let package = Package(
         .library(name: "AppFeature"),
         .library(name: "SettingsFeature"),
         .library(name: "ContextMenus"),
-        .library(name: "InspectorFeatureShared"),
-        .library(name: "InspectorFeatureMacOS"),
-        .library(name: "InspectorFeatureIPadOS"),
+        .library(name: "InspectorFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -224,9 +223,7 @@ let package = Package(
                 "FlowDocument",
                 "BackendService",
                 "ContextMenus",
-                "InspectorFeatureMacOS",
-                "InspectorFeatureIPadOS",
-                "InspectorFeatureShared",
+                "InspectorFeature",
             ]
         ),
         .target(
@@ -234,6 +231,7 @@ let package = Package(
             dependencies: [
                 "Controls",
                 "Helpers",
+                "Design",
                 "SharedModels",
                 "MainViewFeature",
                 "AssetManager",
@@ -255,7 +253,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "InspectorFeatureShared",
+            name: "InspectorFeature",
             dependencies: [
                 "Helpers",
                 "Controls",
@@ -265,34 +263,6 @@ let package = Package(
                 "Backend",
                 "Values",
                 "Logging",
-            ]
-        ),
-        .target(
-            name: "InspectorFeatureMacOS",
-            dependencies: [
-                "Helpers",
-                "Controls",
-                "Design",
-                "SharedModels",
-                "SharedMocking",
-                "Backend",
-                "Values",
-                "Logging",
-                "InspectorFeatureShared",
-            ]
-        ),
-        .target(
-            name: "InspectorFeatureIPadOS",
-            dependencies: [
-                "Helpers",
-                "Controls",
-                "Design",
-                "SharedModels",
-                "SharedMocking",
-                "Backend",
-                "Values",
-                "Logging",
-                "InspectorFeatureShared",
             ]
         ),
         .testTarget(

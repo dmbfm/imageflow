@@ -3,8 +3,7 @@
 import SwiftUI
 import SharedModels
 import CanvasFeature
-import InspectorFeatureShared
-import InspectorFeatureMacOS
+import InspectorFeature
 
 extension MainContentViewMacOS {
     struct DetailView: View {

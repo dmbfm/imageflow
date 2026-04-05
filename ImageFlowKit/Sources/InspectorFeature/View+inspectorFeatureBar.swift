@@ -1,6 +1,3 @@
-#if os(macOS)
-
-import InspectorFeatureShared
 import SharedModels
 import SwiftUI
 
@@ -42,9 +39,7 @@ public struct InspectorFeatureViewBarModifier: ViewModifier {
                 InspectorFeatureView(flow: self.flow, assetStore: self.assetStore, coordinator: self.coordinator)
             }
             .customSidebarRadius(22)
-            .customSidebarWidth(.range(range: 200...600, ideal: 350))
+            .customSidebarWidth(.range(range: 200...600, ideal: 250))
             .customSidebarInsets(.init(top: 0, leading: 0, bottom: 8, trailing: 8))
     }
 }
-
-#endif

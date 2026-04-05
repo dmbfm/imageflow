@@ -10,7 +10,7 @@ import AssetManager
 import PreviewFeature
 import NodePaletteFeature
 import AssetBrowserFeature
-import InspectorFeatureIPadOS
+import InspectorFeature
 
 struct MainContentViewIPadOS: View {
 
