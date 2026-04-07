@@ -20,26 +20,65 @@ public struct NumberInputView: View {
         case free(FreeConfiguration)
         case range(RangeConfiguration)
 
+        public var snapping: Snapping {
+            switch self {
+            case .free(let cfg): cfg.snapping
+            case .range(let cfg): cfg.snapping
+            }
+        }
+
         public struct FreeConfiguration {
             public var sensitivity: Sensitiviy
             public var dragMaxDigits: Int?
+            public var snapping: Snapping
 
-            public init(sensitivity: Sensitiviy = .init(), dragMaxDigits: Int? = 2) {
+            public init(sensitivity: Sensitiviy = .init(), snapping: Snapping = .init(), dragMaxDigits: Int? = 2) {
                 self.sensitivity = sensitivity
                 self.dragMaxDigits = dragMaxDigits
+                self.snapping = snapping
             }
         }
 
         public struct RangeConfiguration {
             public var dragMaxDigits: Int?
+            public var snapping: Snapping
             public var range: ClosedRange<Double>
 
             public init(
                 dragMaxDigits: Int? = 2,
+                snapping: Snapping = .init(),
                 range: ClosedRange<Double>
             ) {
                 self.dragMaxDigits = dragMaxDigits
                 self.range = range
+                self.snapping = snapping
+            }
+        }
+
+        public struct Snapping {
+            var increments: Double
+            var epsilon: Double
+            var enabled: Bool
+            var modifier: EventModifiers?
+
+            func isEnabled(withModifiers modifiers: EventModifiers) -> Bool {
+                if let modifier = self.modifier {
+                    self.enabled || modifiers.contains(modifier)
+                } else {
+                    self.enabled
+                }
+            }
+
+            public init(
+                increments: Double = 0.1,
+                epsilon: Double = 0.025,
+                enabled: Bool = false,
+                modifier: EventModifiers? = nil
+            ) {
+                self.increments = increments
+                self.epsilon = epsilon
+                self.enabled = enabled
+                self.modifier = modifier
             }
 
         }
@@ -47,6 +86,7 @@ public struct NumberInputView: View {
 
     public struct Change {
         public var newValue: Double
+        public var oldValue: Double?
         public var commit: Bool
     }
 
@@ -76,7 +116,7 @@ public struct NumberInputView: View {
 
     var binding: Binding<String> {
         .init {
-            "\(value)"
+            "\(value.roundTo(fractionalDigits: 8))"
         } set: { text in
             if let newValue = Double(text), newValue != self.value {
                 self.onChange(.init(newValue: newValue, commit: true))
@@ -106,34 +146,53 @@ public struct NumberInputView: View {
         let optionDown = value.modifiers.contains(.option)
 
         func makeNewValue() -> Double {
-            switch self.configuration {
-            case .free(let config):
-                {
-                    let t = value.location.x - value.startLocation.x
-                    let s =
-                        shiftDown
-                        ? config.sensitivity.slow : (optionDown ? config.sensitivity.fast : config.sensitivity.regular)
-                    let newValue = config.dragMaxDigits.maybeReduce(
-                        self.valueAtDragStart + s * t,
-                        { value, digits in value.truncateTo(fractionalDigits: digits) }
-                    )
-                    return newValue
-                }()
-            case .range(let config):
-                {
-                    if self.width != 0.00 {
-                        config.dragMaxDigits.maybeReduce(
-                            (config.range.lowerBound + config.range.span * (value.location.x / self.width)).clamped(
-                                to: config.range
-                            ),
-                            { value, digits in
-                                value.truncateTo(fractionalDigits: digits)
-                            }
+            let newValue =
+                switch self.configuration {
+                case .free(let config):
+                    {
+                        let t = value.location.x - value.startLocation.x
+                        let s =
+                            shiftDown
+                            ? config.sensitivity.slow
+                            : (optionDown ? config.sensitivity.fast : config.sensitivity.regular)
+                        let newValue = config.dragMaxDigits.maybeReduce(
+                            self.valueAtDragStart + s * t,
+                            { value, digits in value.truncateTo(fractionalDigits: digits) }
                         )
-                    } else {
-                        config.range.lowerBound
-                    }
-                }()
+
+                        // if config.snapping.isEnabled(withModifiers: value.modifiers) {
+                        //     return newValue.snapping(
+                        //         toIncrements: config.snapping.increments,
+                        //         epsilon: config.snapping.epsilon
+                        //     )
+                        // } else {
+                        return newValue
+                        // }
+                    }()
+                case .range(let config):
+                    {
+                        if self.width != 0.00 {
+                            config.dragMaxDigits.maybeReduce(
+                                (config.range.lowerBound + config.range.span * (value.location.x / self.width)).clamped(
+                                    to: config.range
+                                ),
+                                { value, digits in
+                                    value.truncateTo(fractionalDigits: digits)
+                                }
+                            )
+                        } else {
+                            config.range.lowerBound
+                        }
+                    }()
+                }
+
+            if self.configuration.snapping.isEnabled(withModifiers: value.modifiers) {
+                return newValue.snapping(
+                    toIncrements: self.configuration.snapping.increments,
+                    epsilon: self.configuration.snapping.epsilon
+                )
+            } else {
+                return newValue
             }
         }
 
@@ -144,6 +203,10 @@ public struct NumberInputView: View {
             self.distance = value.location.x
         }
 
+        // if self.configuration.snapping.isEnabled(withModifiers: value.modifiers) {
+
+        // }
+
         switch value.phase {
         case .began:
             self.valueAtDragStart = self.value
@@ -152,7 +215,7 @@ public struct NumberInputView: View {
         case .changed:
             self.onChange(.init(newValue: newValue, commit: false))
         case .ended:
-            self.onChange(.init(newValue: newValue, commit: true))
+            self.onChange(.init(newValue: newValue, oldValue: self.valueAtDragStart, commit: true))
             self.onDragStateChange?(false)
             self.isDragging = false
         case .cancelled:

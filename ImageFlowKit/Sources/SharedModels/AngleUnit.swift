@@ -25,6 +25,21 @@ public enum AngleUnit: Hashable, Sendable, Codable {
 }
 
 extension Double {
+
+    public func toDegrees(from unit: AngleUnit) -> Double {
+        switch unit {
+        case .degrees: self
+        case .radians: self.degrees
+        }
+    }
+
+    public func toRadians(from unit: AngleUnit) -> Double {
+        switch unit {
+        case .degrees: self.radians
+        case .radians: self
+        }
+    }
+
     public func fromDegrees(to unit: AngleUnit) -> Double {
         switch unit {
         case .degrees: self

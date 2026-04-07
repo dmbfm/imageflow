@@ -218,4 +218,8 @@ public class InspectorFeatureViewModel: Observable {
             break
         }
     }
+
+    public func selectConnectedNode(_ input: FlowNode.Input) {
+
+    }
 }
