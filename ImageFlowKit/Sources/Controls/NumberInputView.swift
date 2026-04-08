@@ -91,11 +91,11 @@ public struct NumberInputView: View {
     }
 
     public struct Sensitiviy {
-        public var slow: Double = 0.01
-        public var regular: Double = 0.1
-        public var fast: Double = 1.0
+        public var slow: Double
+        public var regular: Double
+        public var fast: Double
 
-        public init(slow: Double = 0.01, regular: Double = 0.1, fast: Double = 1.0) {
+        public init(slow: Double = 0.05, regular: Double = 1.0, fast: Double = 10.0) {
             self.slow = slow
             self.regular = regular
             self.fast = fast
