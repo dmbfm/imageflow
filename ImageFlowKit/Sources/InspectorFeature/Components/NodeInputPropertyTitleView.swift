@@ -36,7 +36,7 @@ private struct NodeInputPropertyTitleInner: View {
                     .foregroundStyle(.secondaryLabel)
             }
             .buttonStyle(.plain)
-            .disabled(!self.connected)
+            .environment(\.isEnabled, self.connected)
 
             Text(self.name)
                 .font(.system(size: 12))
