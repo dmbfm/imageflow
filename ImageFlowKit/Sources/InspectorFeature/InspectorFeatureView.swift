@@ -223,7 +223,11 @@ struct InputPropertyFloatView: View {
         case .float(.angle(.none)):
             AngleInput(vm: self.vm, input: self.input)
         case .float(.angle(.some(let range))):
-            AngleInput(vm: self.vm, input: self.input, range: range)
+            if abs(range.span - 2.0 * .pi) < 0.001 {
+                AngleInput(vm: self.vm, input: self.input)
+            } else {
+                AngleInput(vm: self.vm, input: self.input, range: range)
+            }
         case .float(.range(let range)):
             DefaultInput(vm: self.vm, input: self.input, range: range)
         default:
@@ -255,15 +259,18 @@ struct InputPropertyFloatView: View {
         }
 
         var transformedRange: ClosedRange<Double>? {
-            switch self.unit {
+
+            let range: ClosedRange<Double>? = self.range ?? -.pi...(.pi)
+
+            return switch self.unit {
             case .degrees:
-                self.range.map({ range in
+                range.map({ range in
                     let lower = range.lowerBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
                     let upper = range.upperBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
                     return lower...upper
                 })
             case .radians:
-                self.range
+                range
             }
         }
 
