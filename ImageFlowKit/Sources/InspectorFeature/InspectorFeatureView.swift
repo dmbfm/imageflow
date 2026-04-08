@@ -326,6 +326,7 @@ struct InputPropertyFloatView: View {
                     }
                     HStack {
                         AngleDial(angle: self.value, range: self.range)
+                            .angleDialRangeStrokeStyle(.dimmed)
                         NumberInputView(
                             value: self.transformedValue,
                             configuration: self.numberInputConfiguration,

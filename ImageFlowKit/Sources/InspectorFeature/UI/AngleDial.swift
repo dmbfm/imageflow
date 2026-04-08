@@ -8,6 +8,13 @@ public struct AngleDial: View {
     @Environment(\.angleDialRadius) var radius
     @Environment(\.angleDialThumbRadius) var thumbRadius
     @Environment(\.angleDialDisabledBehavior) var disabledBehavior
+    @Environment(\.angleDialRangeStrokeStyle) var rangeStrokeStyle
+    
+    public enum RangeStrokeStyle: Sendable, Equatable {
+        case regular
+        case dimmed
+        case dashed
+    }
 
     public init(angle: Double, range: ClosedRange<Double>? = nil) {
         self.angle = angle
@@ -71,7 +78,10 @@ public struct AngleDial: View {
         let range = self.range!
 
         Circle()
-            .stroke(.primary, style: .init(dash: [4, 2]))
+            .stroke(
+                self.rangeStrokeStyle == .dimmed ? .secondary : .primary,
+                style: self.rangeStrokeStyle == .dashed ? .init(dash: [4, 2]) : .init()
+            )
 
         CircleArc(startAngle: .radians(range.lowerBound), endAngle: .radians(range.upperBound))
             .fill(self.fillColor)
@@ -119,6 +129,7 @@ public extension EnvironmentValues {
     @Entry var angleDialRadius: CGFloat = 14
     @Entry var angleDialThumbRadius: CGFloat = 3
     @Entry var angleDialDisabledBehavior: AngleDial.DisabledBehavior = .hide
+    @Entry var angleDialRangeStrokeStyle: AngleDial.RangeStrokeStyle = .regular
 }
 
 public extension View {
@@ -133,6 +144,10 @@ public extension View {
     func angleDialDisabledBehavior(_ value: AngleDial.DisabledBehavior) -> some View {
         self.environment(\.angleDialDisabledBehavior, value)
     }
+    
+    func angleDialRangeStrokeStyle(_ value: AngleDial.RangeStrokeStyle) -> some View {
+        self.environment(\.angleDialRangeStrokeStyle, value)
+    }
 }
 
 #Preview {
@@ -141,4 +156,5 @@ public extension View {
         AngleDial(angle: 45.radians)
         AngleDial(angle: -40.radians, range: (-.pi * 0.25)...(.pi * 0.25))
     }
+    .padding()
 }
