@@ -153,7 +153,6 @@ extension InspectorFeatureView {
         .frame(width: 600, height: 500)
 }
 
-
 #Preview("Dot Screen") {
     InspectorFeatureView.Preview([.init(kind: .coreImageFilterNode(.halftoneEffect(.CIDotScreen)))])
         .frame(width: 600, height: 500)
