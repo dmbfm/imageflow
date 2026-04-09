@@ -58,6 +58,9 @@ public struct InspectorFeatureView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
+                    NodeTypeBlockView(vm: self.vm)
+                        .padding(.bottom, 10)
+
                     if self.vm.node.inputs.count > 0 {
                         NodeInputsSectionView(vm: self.vm)
                     }
@@ -139,6 +142,12 @@ extension InspectorFeatureView {
     InspectorFeatureView.Preview([.init(kind: .valueNode(.float))])
         .frame(width: 600, height: 500)
 }
+
+#Preview("Add Node") {
+    InspectorFeatureView.Preview([.init(kind: .math(.addNode(.float)))])
+        .frame(width: 600, height: 500)
+}
+
 
 #Preview("Dot Screen") {
     InspectorFeatureView.Preview([.init(kind: .coreImageFilterNode(.halftoneEffect(.CIDotScreen)))])
