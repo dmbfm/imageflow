@@ -18,6 +18,8 @@ struct NodeInputPropertyView: View {
                 AssetInputView(vm: self.vm, input: input)
             case .bool:
                 BoolInputView(vm: self.vm, input: input)
+            case .color4:
+                ColorInputView(vm: self.vm, input: input)
             default:
                 Block {
                     HStack {
