@@ -32,11 +32,18 @@ public struct NumberInputView: View {
             public var sensitivity: Sensitiviy
             public var dragMaxDigits: Int?
             public var snapping: Snapping
+            public var minValue: Double?
 
-            public init(sensitivity: Sensitiviy = .init(), snapping: Snapping = .init(), dragMaxDigits: Int? = 2) {
+            public init(
+                sensitivity: Sensitiviy = .init(),
+                snapping: Snapping = .init(),
+                dragMaxDigits: Int? = 2,
+                minValue: Double? = nil
+            ) {
                 self.sensitivity = sensitivity
                 self.dragMaxDigits = dragMaxDigits
                 self.snapping = snapping
+                self.minValue = minValue
             }
         }
 
@@ -170,19 +177,16 @@ public struct NumberInputView: View {
                             shiftDown
                             ? config.sensitivity.slow
                             : (optionDown ? config.sensitivity.fast : config.sensitivity.regular)
-                        let newValue = config.dragMaxDigits.maybeReduce(
+                        var newValue = config.dragMaxDigits.maybeReduce(
                             self.valueAtDragStart + s * t,
                             { value, digits in value.truncateTo(fractionalDigits: digits) }
                         )
 
-                        // if config.snapping.isEnabled(withModifiers: value.modifiers) {
-                        //     return newValue.snapping(
-                        //         toIncrements: config.snapping.increments,
-                        //         epsilon: config.snapping.epsilon
-                        //     )
-                        // } else {
+                        if let minValue = config.minValue {
+                            newValue = newValue.clamped(to: minValue...)
+                        }
+
                         return newValue
-                        // }
                     }()
                 case .range(let config):
                     {

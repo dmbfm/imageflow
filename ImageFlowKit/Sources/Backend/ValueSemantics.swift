@@ -32,6 +32,7 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
     public enum IntegerSemantics: Sendable, Hashable, Codable {
         case `default`
         case range(ClosedRange<Int>)
+        case partialRangeFrom(Int)
         case picker([PickerOption])
 
         public struct PickerOption: Sendable, Hashable, Codable {

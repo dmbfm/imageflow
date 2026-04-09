@@ -11,10 +11,15 @@ struct NodeInputPropertyView: View {
             case .float:
                 FloatInputView(vm: self.vm, input: input)
             case .int:
-                IntegerInputView(vm: self.vm, input: input)
+                switch input.semantics {
+                case .integer(.picker(let options)):
+                    IntegerPickerInputView(vm: self.vm, input: input, options: options)
+                default:
+                    IntegerInputView(vm: self.vm, input: input)
+                }
             case .vector2, .vector3, .vector4:
                 VectorInputView(vm: self.vm, input: input)
-            case .image:
+            case .image, .lut:
                 AssetInputView(vm: self.vm, input: input)
             case .bool:
                 BoolInputView(vm: self.vm, input: input)

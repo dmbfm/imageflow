@@ -13,18 +13,43 @@ struct IntegerInputView: View {
     @State private var debouncer: FirstValueDebouncer<Value> = .init(0.5)
     @State var valueAtStepperStart: Int = 0
 
+    var range: ClosedRange<Int>? {
+        if case let .integer(.range(range)) = self.input.semantics {
+            range
+        } else {
+            nil
+        }
+    }
+
+    var minValue: Int? {
+        if case let .integer(.partialRangeFrom(minValue)) = self.input.semantics {
+            minValue
+        } else {
+            nil
+        }
+    }
+
+    var doubleRange: ClosedRange<Double>? {
+        self.range.map({ Double($0.lowerBound)...Double($0.upperBound) })
+    }
+
     var value: Int {
         self.vm.nodeInputValue(self.input.index)?.maybeInt ?? 0
     }
 
     var numberInputConfiguration: NumberInputView.Configuration {
-        .free(
-            .init(
-                sensitivity: .init(),
-                snapping: .init(increments: 1.0, epsilon: 1.0, enabled: true, modifier: nil),
-                dragMaxDigits: 0
+        if let range = self.doubleRange {
+            .range(.init(range: range))
+        } else {
+            .free(
+                .init(
+                    sensitivity: .init(),
+                    snapping: .init(increments: 1.0, epsilon: 1.0, enabled: true, modifier: nil),
+                    dragMaxDigits: 0,
+                    minValue: self.minValue.map({ Double($0) })
+                )
             )
-        )
+        }
     }
 
     func onChange(_ change: NumberInputView.Change) {
@@ -36,11 +61,19 @@ struct IntegerInputView: View {
     }
 
     func inc() {
-        self.setValue(newValue: self.value + 1, oldValue: nil, commit: false)
+        self.setValue(newValue: self.transform(value: self.value + 1), oldValue: nil, commit: false)
     }
 
     func dec() {
-        self.setValue(newValue: self.value - 1, oldValue: nil, commit: false)
+        self.setValue(newValue: self.transform(value: self.value - 1), oldValue: nil, commit: false)
+    }
+
+    func transform(value: Int) -> Int {
+        switch input.semantics {
+        case .integer(.range(let range)): value.clamped(to: range)
+        case .integer(.partialRangeFrom(let minValue)): value.clamped(to: minValue...)
+        default: value
+        }
     }
 
     func setValue(newValue: Int, oldValue: Int?, commit: Bool) {
