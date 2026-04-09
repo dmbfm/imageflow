@@ -29,6 +29,14 @@ struct NodeInputPropertyView: View {
                 RectInputView(vm: self.vm, input: input)
             case .string:
                 TextInputView(vm: self.vm, input: input)
+            case .affineTransform:
+                Text("TODO")
+            case .colorSpace:
+                Text("TODO")
+            case .data:
+                Text("TODO")
+            case .matrix3x3, .matrix5x5, .matrix7x7:
+                Text("TODO")
             default:
                 Block {
                     HStack {
