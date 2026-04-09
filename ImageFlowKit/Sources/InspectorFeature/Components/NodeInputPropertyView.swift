@@ -27,6 +27,8 @@ struct NodeInputPropertyView: View {
                 ColorInputView(vm: self.vm, input: input)
             case .rect:
                 RectInputView(vm: self.vm, input: input)
+            case .string:
+                TextInputView(vm: self.vm, input: input)
             default:
                 Block {
                     HStack {
