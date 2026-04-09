@@ -10,6 +10,8 @@ struct NodeInputPropertyView: View {
             switch input.value.type {
             case .float:
                 FloatInputView(vm: self.vm, input: input)
+            case .int:
+                IntegerInputView(vm: self.vm, input: input)
             case .vector2, .vector3, .vector4:
                 VectorInputView(vm: self.vm, input: input)
             case .image:

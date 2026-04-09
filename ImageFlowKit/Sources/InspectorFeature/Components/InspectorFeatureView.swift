@@ -143,6 +143,11 @@ extension InspectorFeatureView {
         .frame(width: 600, height: 500)
 }
 
+#Preview("Int Node") {
+    InspectorFeatureView.Preview([.init(kind: .valueNode(.int))])
+        .frame(width: 600, height: 500)
+}
+
 #Preview("Add Node") {
     InspectorFeatureView.Preview([.init(kind: .math(.addNode(.float)))])
         .frame(width: 600, height: 500)

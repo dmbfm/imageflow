@@ -7,6 +7,7 @@ public struct NumberInputView: View {
     private var configuration: Configuration
     private var onChange: (NumberInputView.Change) -> ()
     private var onDragStateChange: ((Bool) -> ())?
+    private var formatting: Formatting
 
     @State private var isEditable: Bool = false
     @State private var valueAtDragStart: Double = 0.0
@@ -84,6 +85,11 @@ public struct NumberInputView: View {
         }
     }
 
+    public enum Formatting {
+        case raw(fractionalDigits: Int? = 8)
+        case integer
+    }
+
     public struct Change {
         public var newValue: Double
         public var oldValue: Double?
@@ -105,6 +111,7 @@ public struct NumberInputView: View {
     public init(
         value: Double,
         configuration: Configuration,
+        formatting: Formatting = .raw(fractionalDigits: 8),
         onChange: @escaping (NumberInputView.Change) -> (),
         onDragStateChange: ((Bool) -> ())? = nil
     ) {
@@ -112,11 +119,19 @@ public struct NumberInputView: View {
         self.configuration = configuration
         self.onChange = onChange
         self.onDragStateChange = onDragStateChange
+        self.formatting = formatting
     }
 
     var binding: Binding<String> {
         .init {
-            "\(value.roundTo(fractionalDigits: 8))"
+            switch self.formatting {
+            case .raw(fractionalDigits: .some(let digits)):
+                "\(value.roundTo(fractionalDigits: digits))"
+            case .raw(fractionalDigits: .none):
+                "\(value)"
+            case .integer:
+                "\(Int(value))"
+            }
         } set: { text in
             if let newValue = Double(text), newValue != self.value {
                 self.onChange(.init(newValue: newValue, commit: true))
