@@ -71,19 +71,33 @@ struct MatrixInputViewInner: View {
             VStack(alignment: .leading) {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
 
-                Grid(horizontalSpacing: 4, verticalSpacing: 4) {
+                MatrixControlView(
+                    dim: self.dim,
+                    floatValue: self.floatValue(row:col:),
+                    onChange: self.onChange(_:row:col:)
+                )
+            }
+        }
+    }
+}
 
-                    ForEach(0..<self.dim, id: \.self) { row in
-                        GridRow {
-                            ForEach(0..<dim, id: \.self) { col in
-                                NumberInputView(
-                                    value: self.floatValue(row: row, col: col),
-                                    configuration: .free(.init()),
-                                    onChange: { self.onChange($0, row: row, col: col) }
-                                )
-                                .inspectorNumberInput()
-                            }
-                        }
+struct MatrixControlView: View {
+
+    var dim: Int
+    var floatValue: (_ row: Int, _ col: Int) -> Double
+    var onChange: (_ change: NumberInputView.Change, _ row: Int, _ col: Int) -> ()
+
+    var body: some View {
+        Grid(horizontalSpacing: 4, verticalSpacing: 4) {
+            ForEach(0..<self.dim, id: \.self) { row in
+                GridRow {
+                    ForEach(0..<dim, id: \.self) { col in
+                        NumberInputView(
+                            value: self.floatValue(row, col),
+                            configuration: .free(.init()),
+                            onChange: { self.onChange($0, row, col) }
+                        )
+                        .inspectorNumberInput()
                     }
                 }
             }

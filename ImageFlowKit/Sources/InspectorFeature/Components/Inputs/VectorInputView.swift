@@ -64,23 +64,39 @@ struct VectorInputView: View {
             VStack(alignment: .leading) {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
 
-                Grid(verticalSpacing: 4) {
-                    ForEach(0..<self.dim, id: \.self) { idx in
-                        GridRow {
-                            Text(Self.label[idx])
-                                .font(.system(size: 10))
-                                .bold()
-                                .foregroundStyle(.secondaryLabel)
-                                .gridColumnAlignment(.trailing)
-                            NumberInputView(
-                                value: self.floatValue(idx),
-                                configuration: .free(.init()),
-                                onChange: { self.onChange(idx, $0) },
-                                onDragStateChange: { _ in }
-                            )
-                            .inspectorNumberInput()
-                        }
-                    }
+                VectorControlView(
+                    dim: self.dim,
+                    labels: Self.label,
+                    floatValue: self.floatValue(_:),
+                    onChange: self.onChange(_:_:)
+                )
+            }
+        }
+    }
+}
+
+struct VectorControlView: View {
+    var dim: Int
+    var labels: [String]
+    var floatValue: (Int) -> Double
+    var onChange: (Int, NumberInputView.Change) -> ()
+
+    var body: some View {
+        Grid(verticalSpacing: 4) {
+            ForEach(0..<self.dim, id: \.self) { idx in
+                GridRow {
+                    Text(self.labels[idx])
+                        .font(.system(size: 10))
+                        .bold()
+                        .foregroundStyle(.secondaryLabel)
+                        .gridColumnAlignment(.trailing)
+                    NumberInputView(
+                        value: self.floatValue(idx),
+                        configuration: .free(.init()),
+                        onChange: { self.onChange(idx, $0) },
+                        onDragStateChange: { _ in }
+                    )
+                    .inspectorNumberInput()
                 }
             }
         }

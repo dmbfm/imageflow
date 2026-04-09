@@ -44,24 +44,12 @@ struct RectInputView: View {
             VStack(alignment: .leading) {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
 
-                Grid(verticalSpacing: 4) {
-                    ForEach(0..<4, id: \.self) { idx in
-                        GridRow {
-                            Text(Self.label[idx])
-                                .font(.system(size: 10))
-                                .bold()
-                                .foregroundStyle(.secondaryLabel)
-                                .gridColumnAlignment(.trailing)
-                            NumberInputView(
-                                value: self.floatValue(idx),
-                                configuration: .free(.init()),
-                                onChange: { self.onChange(idx, $0) },
-                                onDragStateChange: { _ in }
-                            )
-                            .inspectorNumberInput()
-                        }
-                    }
-                }
+                VectorControlView(
+                    dim: 4,
+                    labels: Self.label,
+                    floatValue: self.floatValue(_:),
+                    onChange: self.onChange(_:_:)
+                )
             }
         }
     }

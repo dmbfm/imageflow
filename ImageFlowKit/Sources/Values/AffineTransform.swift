@@ -26,6 +26,40 @@ public struct AffineTransform: Sendable, Codable, Hashable {
         .init(self.m11, self.m12, self.m21, self.m22, self.tX, self.tY)
     }
 
+    public subscript(row: Int, col: Int) -> CGFloat {
+        get {
+            switch (row, col) {
+            case (0, 0): self.m11
+            case (0, 1): self.m12
+            case (0, 2): self.tX
+            case (1, 0): self.m21
+            case (1, 1): self.m22
+            case (1, 2): self.tY
+            case (2, 0): 0.0
+            case (2, 1): 0.0
+            case (2, 2): 1.0
+            default:
+                fatalError("Index out of range: (\(row), \(col))")
+            }
+        }
+
+        set {
+            switch (row, col) {
+            case (0, 0): self.m11 = newValue
+            case (0, 1): self.m12 = newValue
+            case (0, 2): self.tX = newValue
+            case (1, 0): self.m21 = newValue
+            case (1, 1): self.m22 = newValue
+            case (1, 2): self.tY = newValue
+            case (2, 0): break
+            case (2, 1): break
+            case (2, 2): break
+            default:
+                fatalError("Index out of range: (\(row), \(col))")
+            }
+        }
+    }
+
     #if os(macOS)
     public var fAffineTransform: Foundation.AffineTransform {
         .init(m11: self.m11, m12: self.m12, m21: self.m21, m22: self.m22, tX: self.tX, tY: self.tY)
