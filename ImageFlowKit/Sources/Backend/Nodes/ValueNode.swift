@@ -11,6 +11,8 @@ extension Nodes {
                 vector3Impl(type)
             case .vector4:
                 vector4Impl(type)
+            case .color4:
+                color4Impl(type)
             case .rect:
                 rectImpl(type)
             default:
@@ -22,6 +24,23 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Value \(type)",
                 inputs: [.init(name: "Value", type: type)],
+                outputs: [.init(name: "Output", type: type)]
+            )
+
+            return .init(schema: schema) { node, context in
+                if type == .image {
+                    let image = await context.getImage(node.inputs[0].image)
+                    node.outputs[0] = .image(await context.addImage(image, 0))
+                } else {
+                    node.outputs[0] = node.inputs[0]
+                }
+            }
+        }
+
+        static func color4Impl(_ type: ValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Value \(type)",
+                inputs: [.init(name: "Value", defaultValue: .color4(.red))],
                 outputs: [.init(name: "Output", type: type)]
             )
 
@@ -130,7 +149,7 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color RGBA",
                 inputs: [
-                    .init(name: "Red", type: .float),
+                    .init(name: "Red", defaultValue: .float(1.0)),
                     .init(name: "Green", type: .float),
                     .init(name: "Blue", type: .float),
                     .init(name: "Alpha", defaultValue: .float(1.0)),
