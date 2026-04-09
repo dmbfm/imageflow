@@ -63,13 +63,15 @@ struct VectorInputView: View {
         Block {
             VStack(alignment: .leading) {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
-                VStack {
+
+                Grid(verticalSpacing: 4) {
                     ForEach(0..<self.dim, id: \.self) { idx in
-                        HStack {
+                        GridRow {
                             Text(Self.label[idx])
                                 .font(.system(size: 10))
                                 .bold()
                                 .foregroundStyle(.secondaryLabel)
+                                .gridColumnAlignment(.trailing)
                             NumberInputView(
                                 value: self.floatValue(idx),
                                 configuration: .free(.init()),
@@ -80,13 +82,6 @@ struct VectorInputView: View {
                         }
                     }
                 }
-                // NumberInputView(
-                //     value: self.value,
-                //     configuration: self.numberInputConfiguration,
-                //     onChange: self.onChange(_:),
-                //     onDragStateChange: { _ in }
-                // )
-                // .inspectorNumberInput()
             }
         }
     }
