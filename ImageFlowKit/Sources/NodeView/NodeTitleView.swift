@@ -1,7 +1,7 @@
 import Helpers
+import Logging
 import SharedModels
 import SwiftUI
-import Logging
 
 public final class NodeTitleView: PlatformCommonView {
 

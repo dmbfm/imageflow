@@ -1,6 +1,6 @@
-import SwiftUI
-import SharedModels
 import Logging
+import SharedModels
+import SwiftUI
 
 struct NodeTitleView: View {
 
@@ -48,4 +48,3 @@ struct NodeTitleView: View {
         .padding(.bottom, self.style.paddingNodeTitleBottom)
     }
 }
-

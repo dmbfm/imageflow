@@ -650,8 +650,8 @@ public enum AssetIdentifier: Sendable, Hashable, Codable {
 
     public var id: UUID {
         switch self {
-            case .asset(let id): id
-            case .nodeOutput(let id, _): id
+        case .asset(let id): id
+        case .nodeOutput(let id, _): id
         }
     }
 }

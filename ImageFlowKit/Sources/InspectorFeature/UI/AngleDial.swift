@@ -9,7 +9,7 @@ public struct AngleDial: View {
     @Environment(\.angleDialThumbRadius) var thumbRadius
     @Environment(\.angleDialDisabledBehavior) var disabledBehavior
     @Environment(\.angleDialRangeStrokeStyle) var rangeStrokeStyle
-    
+
     public enum RangeStrokeStyle: Sendable, Equatable {
         case regular
         case dimmed
@@ -144,7 +144,7 @@ public extension View {
     func angleDialDisabledBehavior(_ value: AngleDial.DisabledBehavior) -> some View {
         self.environment(\.angleDialDisabledBehavior, value)
     }
-    
+
     func angleDialRangeStrokeStyle(_ value: AngleDial.RangeStrokeStyle) -> some View {
         self.environment(\.angleDialRangeStrokeStyle, value)
     }
