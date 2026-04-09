@@ -289,7 +289,7 @@ func defaultValue(_ type: ValueType, inputType: InputType?, _ obj: Any??) -> Val
         } else {
             return nil
         }
-    case .matrix3x3, .matrix5x5, .matrix7x7:
+    case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
         fatalError()
     }
 }

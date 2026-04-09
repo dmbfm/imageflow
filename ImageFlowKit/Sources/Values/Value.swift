@@ -18,11 +18,30 @@ public enum Value: Sendable, Hashable, Codable {
     case affineTransform(AffineTransform)
     case attributedString(AttributedString)
     case lut(LutValue)
+    case matrix2x2(Matrix2x2)
     case matrix3x3(Matrix3x3)
     case matrix5x5(Matrix5x5)
     case matrix7x7(Matrix7x7)
 
     // Accessors for every case defined above
+
+    public var matrix2x2: Matrix2x2 {
+        get {
+            if case .matrix2x2(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a matrix2x2: \(self.type)")
+            }
+        }
+
+        set {
+            if case .matrix2x2(_) = self {
+                self = .matrix2x2(newValue)
+            } else {
+                fatalError("Value is not a matrix2x2: \(self.type)")
+            }
+        }
+    }
 
     public var matrix3x3: Matrix3x3 {
         get {
@@ -324,6 +343,24 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .attributedString(newValue)
             } else {
                 fatalError("Value is not an attributedString: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeMatrix2x2: Matrix2x2? {
+        get {
+            if case .matrix2x2(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .matrix2x2(value)
+            } else {
+                fatalError("Value is not a matrix2x2: \(self.type)")
             }
         }
     }
@@ -712,6 +749,8 @@ extension Value {
             return .affineTransform(.identity)
         case .attributedString:
             return .attributedString(AttributedString())
+        case .matrix2x2:
+            return .matrix2x2(.zero)
         case .matrix3x3:
             return .matrix3x3(.zero)
         case .matrix5x5:
@@ -753,6 +792,8 @@ extension Value {
             return .affineTransform
         case .attributedString:
             return .attributedString
+        case .matrix2x2:
+            return .matrix2x2
         case .matrix3x3:
             return .matrix3x3
         case .matrix5x5:
@@ -796,6 +837,8 @@ extension Value: CustomStringConvertible {
             return "AffineTransform(\(value))"
         case let .attributedString(value):
             return "AttributedString(\(value))"
+        case let .matrix2x2(value):
+            return "Matrix2x2(\(value))"
         case let .matrix3x3(value):
             return "Matrix3x3(\(value))"
         case let .matrix5x5(value):

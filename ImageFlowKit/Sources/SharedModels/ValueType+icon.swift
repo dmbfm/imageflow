@@ -36,6 +36,8 @@ extension ValueType {
             return "squareshape.split.2x2"
         case .attributedString:
             return "textformat"
+        case .matrix2x2:
+            return "square.grid.3x3.fill"
         case .matrix3x3:
             return "square.grid.3x3.fill"
         case .matrix5x5:

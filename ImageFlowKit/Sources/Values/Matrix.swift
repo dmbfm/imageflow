@@ -1,5 +1,41 @@
 import Foundation
 
+public struct Matrix2x2: Sendable, Hashable, Codable {
+    public var values: [Double]
+
+    public init() {
+        self.values = Array(repeating: 0.0, count: 4)
+    }
+
+    public init(_ values: [Double]) {
+        self.values = .init(repeating: 0.0, count: 4)
+        for i in 0..<4 {
+            if values.indices.contains(i) {
+                self.values[i] = values[i]
+            } else {
+                self.values[i] = 0
+            }
+        }
+    }
+
+    public static var zero: Self {
+        .init()
+    }
+
+    public static var identity: Self {
+        .init([1, 0, 0, 1])
+    }
+
+    public subscript(row: Int, column: Int) -> Double {
+        get {
+            self.values[row * 2 + column]
+        }
+        set {
+            self.values[row * 2 + column] = newValue
+        }
+    }
+}
+
 public struct Matrix3x3: Sendable, Hashable, Codable {
     public var values: [Double]
 

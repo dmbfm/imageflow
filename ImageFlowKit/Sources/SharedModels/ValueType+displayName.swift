@@ -18,6 +18,7 @@ extension ValueType {
         case .vector2: "Vector 2"
         case .vector3: "Vector 3"
         case .vector4: "Vector 4"
+        case .matrix2x2: "Matrix 2x2"
         case .matrix3x3: "Matrix 3x3"
         case .matrix5x5: "Matrix 5x5"
         case .matrix7x7: "Matrix 7x7"

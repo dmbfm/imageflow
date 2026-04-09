@@ -14,6 +14,7 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case colorSpace
     case affineTransform
     case attributedString
+    case matrix2x2
     case matrix3x3
     case matrix5x5
     case matrix7x7
@@ -41,6 +42,7 @@ extension ValueType: CustomStringConvertible {
         case .colorSpace: return "ColorSpace"
         case .affineTransform: return "AffineTransform"
         case .attributedString: return "AttributedString"
+        case .matrix2x2: return "Matrix2x2"
         case .matrix3x3: return "Matrix3x3"
         case .matrix5x5: return "Matrix5x5"
         case .matrix7x7: return "Matrix7x7"
