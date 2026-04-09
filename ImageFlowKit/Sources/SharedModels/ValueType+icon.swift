@@ -24,7 +24,7 @@ extension ValueType {
             return "photo"
         case .lut:
             return "squareshape.split.3x3"
-        case .color3, .color4:
+        case .color4:
             return "swatchpalette"
         case .rect:
             return "square.dashed"

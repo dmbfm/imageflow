@@ -10,7 +10,6 @@ public enum Value: Sendable, Hashable, Codable {
     case vector2(Vector2)
     case vector3(Vector3)
     case vector4(Vector4)
-    case color3(Color3)
     case color4(Color4)
     case image(ImageValue)
     case string(String)
@@ -197,22 +196,6 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .vector4(newValue)
             } else {
                 fatalError("Value is not a vector4: \(self.type)")
-            }
-        }
-    }
-
-    public var color3: Color3 {
-        get {
-            if case .color3(let value) = self {
-                return value
-            }
-            fatalError("Value is not a color3: \(self.type)")
-        }
-        set {
-            if case .color3(_) = self {
-                self = .color3(newValue)
-            } else {
-                fatalError("Value is not a color3: \(self.type)")
             }
         }
     }
@@ -511,22 +494,6 @@ public enum Value: Sendable, Hashable, Codable {
         }
     }
 
-    public var maybeColor3: Color3? {
-        get {
-            if case .color3(let value) = self {
-                return value
-            }
-            return nil
-        }
-        set {
-            if let newValue = newValue {
-                self = .color3(newValue)
-            } else {
-                fatalError("Value is not a color3: \(self.type)")
-            }
-        }
-    }
-
     public var maybeColor4: Color4? {
         get {
             if case .color4(let value) = self {
@@ -677,8 +644,6 @@ extension Value {
             return .vector3(Vector3(x: value, y: 0, z: 0))
         case (.float(let value), .vector4):
             return .vector4(Vector4(x: value, y: 0, z: 0, w: 0))
-        case (.float(let value), .color3):
-            return .color3(Color3(red: value, green: 0, blue: 0))
         case (.float(let value), .color4):
             return .color4(Color4(red: value, green: 0, blue: 0, alpha: 0))
 
@@ -691,8 +656,6 @@ extension Value {
             return .vector4(Vector4(x: Double(value), y: 0, z: 0, w: 0))
         case (.int(let value), .float):
             return .float(Double(value))
-        case (.int(let value), .color3):
-            return .color3(Color3(red: Double(value), green: 0, blue: 0))
         case (.int(let value), .color4):
             return .color4(Color4(red: Double(value), green: 0, blue: 0, alpha: 1))
 
@@ -705,18 +668,12 @@ extension Value {
             return .vector3(Vector3(x: value.x, y: value.y, z: 0))
         case (.vector2(let value), .vector4):
             return .vector4(Vector4(x: value.x, y: value.y, z: 0, w: 0))
-        case (.vector2(let value), .color3):
-            return .color3(Color3(red: value.x, green: value.y, blue: 0))
         case (.vector2(let value), .color4):
             return .color4(Color4(red: value.x, green: value.y, blue: 0, alpha: 1))
 
         case (.vector3, .vector4):
             return nil
         case (.vector4, .vector3):
-            return nil
-        case (.color3, .color4):
-            return nil
-        case (.color4, .color3):
             return nil
         default:
             return nil
@@ -735,8 +692,6 @@ extension Value {
             return .vector3(Vector3(x: 0, y: 0, z: 0))
         case .vector4:
             return .vector4(Vector4(x: 0, y: 0, z: 0, w: 0))
-        case .color3:
-            return .color3(Color3(red: 0, green: 0, blue: 0))
         case .color4:
             return .color4(Color4(red: 0, green: 0, blue: 0, alpha: 0))
         case .image:
@@ -778,8 +733,6 @@ extension Value {
             return .vector3
         case .vector4:
             return .vector4
-        case .color3:
-            return .color3
         case .color4:
             return .color4
         case .image:
@@ -823,8 +776,6 @@ extension Value: CustomStringConvertible {
             return "Vector3(\(value.x), \(value.y), \(value.z))"
         case let .vector4(value):
             return "Vector4(\(value.x), \(value.y), \(value.z), \(value.w))"
-        case let .color3(value):
-            return "Color3(\(value.red), \(value.green), \(value.blue))"
         case let .color4(value):
             return "Color4(\(value.red), \(value.green), \(value.blue), \(value.alpha))"
         case let .image(value):
@@ -992,8 +943,6 @@ extension Value {
             return .vector3(lhsValue + rhsValue)
         case (.vector4(let lhsValue), .vector4(let rhsValue)):
             return .vector4(lhsValue + rhsValue)
-        case (.color3(let lhsValue), .color3(let rhsValue)):
-            return .color3(lhsValue + rhsValue)
         case (.color4(let lhsValue), .color4(let rhsValue)):
             return .color4(lhsValue + rhsValue)
         case (.string(let lhsValue), .string(let rhsValue)):
@@ -1015,8 +964,6 @@ extension Value {
             return .vector3(lhsValue - rhsValue)
         case (.vector4(let lhsValue), .vector4(let rhsValue)):
             return .vector4(lhsValue - rhsValue)
-        case (.color3(let lhsValue), .color3(let rhsValue)):
-            return .color3(lhsValue - rhsValue)
         case (.color4(let lhsValue), .color4(let rhsValue)):
             return .color4(lhsValue - rhsValue)
         default:
@@ -1036,8 +983,6 @@ extension Value {
             return .vector3(lhsValue * rhsValue)
         case (.vector4(let lhsValue), .vector4(let rhsValue)):
             return .vector4(lhsValue * rhsValue)
-        case (.color3(let lhsValue), .color3(let rhsValue)):
-            return .color3(lhsValue * rhsValue)
         case (.color4(let lhsValue), .color4(let rhsValue)):
             return .color4(lhsValue * rhsValue)
         default:
@@ -1063,8 +1008,6 @@ extension Value {
                 .affineTransform(.init(m11: 0, m12: 0, m21: 0, m22: 0, tX: Double(value), tY: 0))
             case .bool:
                 .bool(value != 0)
-            case .color3:
-                .color3(.init(red: Double(value) / 256, green: Double(value) / 256, blue: Double(value) / 256))
             case .color4:
                 .color4(
                     .init(red: Double(value) / 256, green: Double(value) / 256, blue: Double(value) / 256, alpha: 1.0)

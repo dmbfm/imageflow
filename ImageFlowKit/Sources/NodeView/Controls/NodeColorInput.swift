@@ -32,8 +32,6 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 
     var platformColor: PlatformColor {
         switch self.value {
-        case .color3(let color):
-            return color.platformColor
         case .color4(let color):
             return color.platformColor
         default:
@@ -86,7 +84,6 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 
     private func update() {
         switch self.value {
-        case .color3(let c): self.colorPicker.color = c.platformColor
         case .color4(let c): self.colorPicker.color = c.platformColor
         default: break
         }
@@ -94,10 +91,6 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 
     private func value(forPlatformColor color: PlatformColor) -> Value? {
         switch self.value.type {
-        case .color3:
-            if let color = Color3(platformColor: color) {
-                return .color3(color)
-            }
         case .color4:
             if let color = Color4(platformColor: color) {
                 return .color4(color)
@@ -117,24 +110,6 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         self.colorPicker.frame = .init(origin: .zero, size: self.colorPicker.intrinsicContentSize)
 
         Layout.align(views: [self.colorPicker], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
-    }
-}
-
-extension Color3 {
-    var platformColor: PlatformColor {
-        #if os(macOS)
-        self.nsColor
-        #else
-        self.uiColor
-        #endif
-    }
-
-    init?(platformColor: PlatformColor) {
-        #if os(macOS)
-        self.init(nsColor: platformColor)
-        #else
-        self.init(uiColor: platformColor)
-        #endif
     }
 }
 
@@ -178,7 +153,6 @@ extension NodeColorInput {
 
 #Preview {
     VStack {
-        NodeColorInput.Preview(value: .color3(.init(red: 1, green: 0, blue: 0)))
         NodeColorInput.Preview(value: .color4(.init(red: 1, green: 0, blue: 0, alpha: 0.5)))
 
         NodeView.Preview(node: .init(kind: .valueNode(.color4)))

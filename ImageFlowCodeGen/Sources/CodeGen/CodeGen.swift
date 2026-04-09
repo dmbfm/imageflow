@@ -260,8 +260,6 @@ extension ValueType {
             "\(base).vector3.ciVector"
         case .vector4:
             "\(base).vector4.ciVector"
-        case .color3:
-            "\(base).color3.ciColor"
         case .color4:
             "\(base).color4.ciColor"
         case .affineTransform:
@@ -295,8 +293,6 @@ extension Value {
             "\(value)"
         case .bool(let value):
             "\(value)"
-        case .color3(let c):
-            ".init(red: \(c.red), green: \(c.green), blue: \(c.blue))"
         case .color4(let c):
             ".init(red: \(c.red), green: \(c.green), blue: \(c.blue), alpha: \(c.alpha))"
         case .affineTransform(let t):

@@ -2374,7 +2374,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(
                         name: "Color",
-                        defaultValue: .color3(.init(red: 0.6, green: 0.45, blue: 0.3)),
+                        defaultValue: .color4(.init(red: 0.6, green: 0.45, blue: 0.3, alpha: 1.0)),
                         semantics: .opaqueColor
                     ), .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default),
                 ],
@@ -2386,7 +2386,7 @@ extension Nodes {
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIColorMonochrome")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].color3.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
@@ -2957,7 +2957,7 @@ extension Nodes {
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(
                         name: "Color",
-                        defaultValue: .color3(.init(red: 0.6, green: 1.0, blue: 0.8)),
+                        defaultValue: .color4(.init(red: 0.6, green: 1.0, blue: 0.8, alpha: 1.0)),
                         semantics: .opaqueColor
                     ), .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(name: "Angle", defaultValue: .float(0.0), semantics: .float(.angle(0.0...6.283185307179586))),
@@ -2974,7 +2974,7 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
                 filter.setValue(CIVector(cgRect: node.inputs[2].rect), forKey: "inputExtent")
-                filter.setValue(node.inputs[3].color3.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
                 filter.setValue(node.inputs[4].float, forKey: "inputTime")
                 filter.setValue(node.inputs[5].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")
@@ -7367,7 +7367,7 @@ extension Nodes {
                     .init(name: "Concentration", defaultValue: .float(0.1), semantics: .default),
                     .init(
                         name: "Color",
-                        defaultValue: .color3(.init(red: 1.0, green: 1.0, blue: 1.0)),
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .opaqueColor
                     ),
                 ],
@@ -7387,7 +7387,7 @@ extension Nodes {
                 filter.setValue(node.inputs[2].vector3.ciVector, forKey: "inputLightPointsAt")
                 filter.setValue(node.inputs[3].float, forKey: "inputBrightness")
                 filter.setValue(node.inputs[4].float, forKey: "inputConcentration")
-                filter.setValue(node.inputs[5].color3.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[5].color4.ciColor, forKey: "inputColor")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -7645,7 +7645,7 @@ extension Nodes {
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(
                         name: "Color",
-                        defaultValue: .color3(.init(red: 1.0, green: 1.0, blue: 1.0)),
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .opaqueColor
                     ), .init(name: "Time", defaultValue: .float(0.0), semantics: .float(.range(0.0...1.0))),
                     .init(
@@ -7665,7 +7665,7 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputTargetImage")
                 filter.setValue(CIVector(cgRect: node.inputs[2].rect), forKey: "inputExtent")
-                filter.setValue(node.inputs[3].color3.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor")
                 filter.setValue(node.inputs[4].float, forKey: "inputTime")
                 filter.setValue(node.inputs[5].float, forKey: "inputAngle")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")

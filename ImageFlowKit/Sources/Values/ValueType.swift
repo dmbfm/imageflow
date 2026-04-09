@@ -6,7 +6,6 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case vector2
     case vector3
     case vector4
-    case color3
     case color4
     case image
     case lut
@@ -34,7 +33,6 @@ extension ValueType: CustomStringConvertible {
         case .vector2: return "Vector2"
         case .vector3: return "Vector3"
         case .vector4: return "Vector4"
-        case .color3: return "Color3"
         case .color4: return "Color4"
         case .image: return "Image"
         case .lut: return "LUT"
@@ -59,7 +57,7 @@ extension ValueType {
 extension ValueType {
     public func castableTypes() -> [ValueType] {
         switch self {
-        case .int: [.float, .vector2, .vector3, .vector4, .affineTransform, .bool, .color3, .color4, .rect]
+        case .int: [.float, .vector2, .vector3, .vector4, .affineTransform, .bool, .color4, .rect]
         case .float: [.int]
         default: []
         }

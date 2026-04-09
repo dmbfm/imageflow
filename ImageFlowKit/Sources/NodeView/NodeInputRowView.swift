@@ -131,7 +131,7 @@ public final class NodeInputRowView: PlatformView {
                     isEditable: self.isEditable,
                     delegate: self.delegate
                 )
-            case .color3, .color4:
+            case .color4:
                 NodeColorInput(self.input.value, isEditable: self.isEditable)
             case .rect:
                 NodeRectInput(self.input.value, isEditable: self.isEditable)

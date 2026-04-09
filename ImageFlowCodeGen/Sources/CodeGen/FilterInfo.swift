@@ -156,8 +156,8 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
                         sliderMin: (attrs[kCIAttributeSliderMin] as? NSNumber)?.doubleValue,
                         sliderMax: (attrs[kCIAttributeSliderMax] as? NSNumber)?.doubleValue,
                         valueType: valueType,
-                        defaultValue: defaultValue(valueType, attrs[kCIAttributeDefault]),
-                        identity: defaultValue(valueType, attrs[kCIAttributeIdentity])
+                        defaultValue: defaultValue(valueType, inputType: type, attrs[kCIAttributeDefault]),
+                        identity: defaultValue(valueType, inputType: type, attrs[kCIAttributeIdentity])
                     )
                 )
             }
@@ -202,7 +202,7 @@ struct Override {
     }
 }
 
-func defaultValue(_ type: ValueType, _ obj: Any??) -> Value? {
+func defaultValue(_ type: ValueType, inputType: InputType?, _ obj: Any??) -> Value? {
     guard let obj else { return nil }
     switch type {
     case .float:
@@ -223,15 +223,13 @@ func defaultValue(_ type: ValueType, _ obj: Any??) -> Value? {
         } else {
             return nil
         }
-    case .color3:
-        if let color = obj as? CIColor {
-            return .color3(.init(red: color.red, green: color.green, blue: color.blue))
-        } else {
-            return nil
-        }
     case .color4:
         if let color = obj as? CIColor {
-            return .color4(.init(red: color.red, green: color.green, blue: color.blue, alpha: color.alpha))
+            if inputType == .opaqueColor {
+                return .color4(.init(red: color.red, green: color.green, blue: color.blue, alpha: 1.0))
+            } else {
+                return .color4(.init(red: color.red, green: color.green, blue: color.blue, alpha: color.alpha))
+            }
         } else {
             return nil
         }
@@ -348,7 +346,7 @@ func valueType(_ className: InputClassName, _ type: InputType?) -> ValueType? {
             if className != .ciColor {
                 return nil
             }
-            return .color3
+            return .color4
         case .position:
             if className != .ciVector {
                 return nil

@@ -6,7 +6,6 @@ extension ValueType {
         case .affineTransform: "Affine Transform"
         case .attributedString: "Attributed String"
         case .bool: "Boolean"
-        case .color3: "Color (Opaque)"
         case .color4: "Color"
         case .colorSpace: "Color Space"
         case .data: "Data"
