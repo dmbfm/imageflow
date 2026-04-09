@@ -29,8 +29,11 @@ struct NodeInputPropertyView: View {
                 RectInputView(vm: self.vm, input: input)
             case .string:
                 TextInputView(vm: self.vm, input: input)
+            case .matrix2x2:
+                MatrixInputView(vm: self.vm, input: input)
             case .affineTransform:
-                Text("TODO")
+                AffineTransforminputView(vm: self.vm, input: input)
+            // TitleOnlyInputView(vm: self.vm, input: input)
             case .colorSpace:
                 Text("TODO")
             case .data:

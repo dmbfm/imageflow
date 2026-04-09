@@ -143,7 +143,7 @@ public final class NodeInputRowView: PlatformView {
                     isEditable: self.isEditable,
                     delegate: self.delegate
                 )
-            case .affineTransform, .matrix3x3, .matrix5x5, .matrix7x7:
+            case .affineTransform, .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
                 EmptyControlView(value: self.input.value)
             default:
                 StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
