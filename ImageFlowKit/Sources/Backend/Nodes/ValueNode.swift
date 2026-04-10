@@ -5,16 +5,8 @@ extension Nodes {
     public struct ValueNode: NodeImplProvider {
         static func impl(_ type: ValueType) -> NodeImpl {
             switch type {
-            case .vector2:
-                vector2Impl(type)
-            case .vector3:
-                vector3Impl(type)
-            case .vector4:
-                vector4Impl(type)
             case .color4:
                 color4Impl(type)
-            case .rect:
-                rectImpl(type)
             default:
                 defaultImpl(type)
             }

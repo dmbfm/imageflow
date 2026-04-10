@@ -36,12 +36,9 @@ private struct Categories {
                         ValueType.data,
                         .attributedString,
                         .colorSpace,
-                        .affineTransform,
                     ]
                 )
                 .map { NodeKind.valueNode($0) }
-                .appending(.valueCustomNode(.affineTransform))
-                .appending(.valueCustomNode(.colorRgba))
                 .map { kind in
                     return NodePaletteItem(
                         nodeKind: kind,

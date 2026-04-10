@@ -18,20 +18,13 @@ public extension NodeKind {
     var displayName: String {
         switch self {
         case .valueNode(let type):
-            switch type {
-            case .color4:
-                "Color Picker"
-            default:
-                "\(type.displayName)"
-            }
+            "\(type.displayName)"
         case .math(let kind):
             kind.impl.schema.displayName
         case .passthroughNode(_): "Passthrough"
         case .coreImageFilterNode(let kind):
             kind.impl.schema.displayName
         case .coreImageCustomNode(let kind):
-            kind.impl.schema.displayName
-        case .valueCustomNode(let kind):
             kind.impl.schema.displayName
         case .splitValue(let kind):
             kind.impl.schema.displayName
@@ -42,7 +35,7 @@ public extension NodeKind {
         switch self {
         case .coreImageFilterNode(_), .coreImageCustomNode(_):
             .orange
-        case .valueNode(_), .valueCustomNode(_):
+        case .valueNode(_):
             .blue
         case .math(_):
             .blue
@@ -69,13 +62,6 @@ public extension NodeKind {
             "arrow.right.circle.dotted"
         case .valueNode(let valueType):
             valueType.icon
-        case .valueCustomNode(let kind):
-            switch kind {
-            case .affineTransform:
-                ValueType.affineTransform.icon
-            case .colorRgba:
-                ValueType.color4.icon
-            }
         case .splitValue(.imageInfo):
             "photo.badge.magnifyingglass"
         case .splitValue(_):
