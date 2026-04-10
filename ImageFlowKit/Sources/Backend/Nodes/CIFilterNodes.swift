@@ -165,7 +165,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         }
     }
     public enum ColoreffectNodeKind: Sendable, Hashable, Codable, CaseIterable {
-        case CIColorCurves
         case CIColorInvert
         case CIColorMap
         case CIColorMonochrome
@@ -195,8 +194,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIXRay
         public var impl: NodeImpl {
             switch self {
-            case .CIColorCurves:
-                Nodes.CIColorCurvesNode.impl()
             case .CIColorInvert:
                 Nodes.CIColorInvertNode.impl()
             case .CIColorMap:
@@ -512,7 +509,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     public enum GradientNodeKind: Sendable, Hashable, Codable, CaseIterable {
         case CIDistanceGradientFromRedMask
         case CIGaussianGradient
-        case CIHueSaturationValueGradient
         case CILinearGradient
         case CIRadialGradient
         case CISignedDistanceGradientFromRedMask
@@ -523,8 +519,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIDistanceGradientFromRedMaskNode.impl()
             case .CIGaussianGradient:
                 Nodes.CIGaussianGradientNode.impl()
-            case .CIHueSaturationValueGradient:
-                Nodes.CIHueSaturationValueGradientNode.impl()
             case .CILinearGradient:
                 Nodes.CILinearGradientNode.impl()
             case .CIRadialGradient:
@@ -2190,40 +2184,6 @@ extension Nodes {
                 filter.setValue(node.inputs[1].float, forKey: "inputSaturation")
                 filter.setValue(node.inputs[2].float, forKey: "inputBrightness")
                 filter.setValue(node.inputs[3].float, forKey: "inputContrast")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIColorCurvesNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Curves",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image),
-                    .init(
-                        name: "Curves Data",
-                        defaultValue: .data(Data(base64Encoded: "AAAAAAAAAAAAAAAAAAAAPwAAAD8AAAA/AACAPwAAgD8AAIA/")!),
-                        semantics: .default
-                    ), .init(name: "Curves Domain", defaultValue: .vector2(.init(x: 0.0, y: 1.0)), semantics: .default),
-                    .init(name: "Color Space", type: .colorSpace, semantics: .default),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorCurves")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].data, forKey: "inputCurvesData")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputCurvesDomain")
-                filter.setValue(node.inputs[3].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -4470,43 +4430,6 @@ extension Nodes {
                 let filter = CIFilter(name: "CIHueBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIHueSaturationValueGradientNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Hue/Saturation/Value Gradient",
-                inputs: [
-                    .init(name: "Value", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance),
-                    .init(name: "Softness", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Dither", defaultValue: .float(1.0), semantics: .default),
-                    .init(
-                        name: "Color Space",
-                        defaultValue: .colorSpace(.named("kCGColorSpaceSRGB")),
-                        semantics: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIHueSaturationValueGradient")!
-                filter.setValue(node.inputs[0].float, forKey: "inputValue")
-                filter.setValue(node.inputs[1].float, forKey: "inputRadius")
-                filter.setValue(node.inputs[2].float, forKey: "inputSoftness")
-                filter.setValue(node.inputs[3].float, forKey: "inputDither")
-                filter.setValue(node.inputs[4].colorSpace.cgColorSpace(), forKey: "inputColorSpace")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))

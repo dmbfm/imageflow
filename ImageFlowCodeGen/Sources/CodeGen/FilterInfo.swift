@@ -26,6 +26,8 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CISaliencyMap",
             "CIDisintegrateWithMaskTransition",
             "CIAccordionFoldTransition",
+            "CIHueSaturationValueGradient",
+            "CIColorCurves",
         ]
 
     static let overrides: [Override] = [

@@ -40,6 +40,7 @@ extension Nodes.CoreImageCustom {
             )
         }
     }
+
     public struct ApplyAffineTransformFilterNode: NodeImplProvider {
         static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -77,7 +78,7 @@ extension Nodes.CoreImageCustom {
                     .init(
                         name: "Angle",
                         defaultValue: .float(0),
-                        semantics: .float(.angle(0...(2 * .pi))),
+                        semantics: .float(.angle(nil)),
                     ),
                 ],
                 outputs: [
@@ -89,12 +90,7 @@ extension Nodes.CoreImageCustom {
                 schema: schema,
                 runImpl: { node, context in
                     let inputImage = await context.getImage(node.inputs[0].image)
-                    let rawAngle = node.inputs[1].float
-                    let angle =
-                        switch node.inputOptions[1][0].int {
-                        case 0: rawAngle.radians
-                        default: rawAngle
-                        }
+                    let angle = node.inputs[1].float
                     let outputImage = inputImage?.transformed(
                         by: .init(rotationAngle: angle),
                         highQualityDownsample: true
