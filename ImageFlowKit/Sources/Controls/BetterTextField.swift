@@ -52,6 +52,8 @@ public struct BetterTextField: View {
                     }
                     .clipShape(RoundedRectangle(cornerRadius: self.radius))
             }
+            // allow maximum compressability
+            .frame(minWidth: 0)
     }
 }
 

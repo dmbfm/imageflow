@@ -22,6 +22,8 @@ public final class BetterTextFieldNSView: NSTextField {
         self.allowsWritingToolsAffordance = false
         self.maximumNumberOfLines = 1
         self.isAutomaticTextCompletionEnabled = false
+        self.lineBreakMode = .byTruncatingTail
+        self.cell?.lineBreakMode = .byTruncatingTail
     }
 
     public required init?(coder: NSCoder) {

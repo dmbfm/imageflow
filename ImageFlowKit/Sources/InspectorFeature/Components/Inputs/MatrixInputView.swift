@@ -13,7 +13,7 @@ struct MatrixInputView: View {
 
     var body: some View {
         switch self.input.value.type {
-        case .matrix2x2:
+        case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
             MatrixInputViewInner(vm: self.vm, input: self.input)
         default:
             EmptyView()
@@ -29,6 +29,9 @@ struct MatrixInputViewInner: View {
     var dim: Int {
         switch self.input.value.type {
         case .matrix2x2: 2
+        case .matrix3x3: 3
+        case .matrix5x5: 5
+        case .matrix7x7: 7
         default: 0
         }
     }
@@ -36,6 +39,9 @@ struct MatrixInputViewInner: View {
     func floatValue(row: Int, col: Int) -> Double {
         switch self.input.value {
         case .matrix2x2(let m): m[row, col]
+        case .matrix3x3(let m): m[row, col]
+        case .matrix5x5(let m): m[row, col]
+        case .matrix7x7(let m): m[row, col]
         default: 0.0
         }
     }
@@ -46,6 +52,18 @@ struct MatrixInputViewInner: View {
             var result = m
             result[row, col] = value
             return .matrix2x2(result)
+        case .matrix3x3(let m):
+            var result = m
+            result[row, col] = value
+            return .matrix3x3(result)
+        case .matrix5x5(let m):
+            var result = m
+            result[row, col] = value
+            return .matrix5x5(result)
+        case .matrix7x7(let m):
+            var result = m
+            result[row, col] = value
+            return .matrix7x7(result)
         default:
             return nil
         }

@@ -29,7 +29,7 @@ struct NodeInputPropertyView: View {
                 RectInputView(vm: self.vm, input: input)
             case .string:
                 TextInputView(vm: self.vm, input: input)
-            case .matrix2x2:
+            case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
                 MatrixInputView(vm: self.vm, input: input)
             case .affineTransform:
                 AffineTransforminputView(vm: self.vm, input: input)

@@ -120,7 +120,16 @@ public struct BetterTextFieldBase: XViewRepresentable {
 
     #if os(macOS)
     public func sizeThatFits(_ proposal: ProposedViewSize, view: BetterTextFieldNSView, context: Context) -> CGSize? {
-        nil
+        if proposal == .zero {
+            return view.intrinsicContentSize
+        } else if proposal == .infinity {
+            return nil
+        } else if proposal == .unspecified {
+            return view.intrinsicContentSize
+        } else {
+            let p = proposal.replacingUnspecifiedDimensions()
+            return .init(width: p.width, height: view.intrinsicContentSize.height)
+        }
     }
     #endif
 
