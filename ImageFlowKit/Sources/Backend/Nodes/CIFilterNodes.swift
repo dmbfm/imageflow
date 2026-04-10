@@ -411,9 +411,7 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CICheckerboardGenerator
         case CIConstantColorGenerator
         case CILenticularHaloGenerator
-        case CIQRCodeGenerator
         case CIRandomGenerator
-        case CIRoundedQRCodeGenerator
         case CIRoundedRectangleGenerator
         case CIRoundedRectangleStrokeGenerator
         case CIStarShineGenerator
@@ -434,12 +432,8 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIConstantColorGeneratorNode.impl()
             case .CILenticularHaloGenerator:
                 Nodes.CILenticularHaloGeneratorNode.impl()
-            case .CIQRCodeGenerator:
-                Nodes.CIQRCodeGeneratorNode.impl()
             case .CIRandomGenerator:
                 Nodes.CIRandomGeneratorNode.impl()
-            case .CIRoundedQRCodeGenerator:
-                Nodes.CIRoundedQRCodeGeneratorNode.impl()
             case .CIRoundedRectangleGenerator:
                 Nodes.CIRoundedRectangleGeneratorNode.impl()
             case .CIRoundedRectangleStrokeGenerator:
@@ -6449,33 +6443,6 @@ extension Nodes {
         }
     }
 
-    public struct CIQRCodeGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "QR Code Generator",
-                inputs: [
-                    .init(name: "Message", type: .data, semantics: .default),
-                    .init(name: "Correction Level", defaultValue: .string("M"), semantics: .default),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIQRCodeGenerator")!
-                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
-                filter.setValue(node.inputs[1].string, forKey: "inputCorrectionLevel")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
     public struct CIRadialGradientNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -6569,53 +6536,6 @@ extension Nodes {
                 filter.setValue(node.inputs[5].float, forKey: "inputTime")
                 filter.setValue(node.inputs[6].float, forKey: "inputWidth")
                 filter.setValue(node.inputs[7].float, forKey: "inputScale")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIRoundedQRCodeGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Rounded QR Code Generator",
-                inputs: [
-                    .init(name: "Message", type: .data, semantics: .default),
-                    .init(name: "Correction Level", defaultValue: .string("M"), semantics: .default),
-                    .init(name: "Scale", defaultValue: .float(16.0), semantics: .default),
-                    .init(name: "Rounded Markers", defaultValue: .int(1), semantics: .integer),
-                    .init(name: "Rounded Data", defaultValue: .bool(true), semantics: .boolean),
-                    .init(name: "Center Space Size", defaultValue: .float(0.25), semantics: .default),
-                    .init(
-                        name: "Color 0",
-                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
-                        semantics: .color
-                    ),
-                    .init(
-                        name: "Color 1",
-                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
-                        semantics: .color
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIRoundedQRCodeGenerator")!
-                filter.setValue(node.inputs[0].data, forKey: "inputMessage")
-                filter.setValue(node.inputs[1].string, forKey: "inputCorrectionLevel")
-                filter.setValue(node.inputs[2].float, forKey: "inputScale")
-                filter.setValue(node.inputs[3].int, forKey: "inputRoundedMarkers")
-                filter.setValue(node.inputs[4].bool, forKey: "inputRoundedData")
-                filter.setValue(node.inputs[5].float, forKey: "inputCenterSpaceSize")
-                filter.setValue(node.inputs[6].color4.ciColor, forKey: "inputColor0")
-                filter.setValue(node.inputs[7].color4.ciColor, forKey: "inputColor1")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
