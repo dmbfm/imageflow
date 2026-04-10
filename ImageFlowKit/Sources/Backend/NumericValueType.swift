@@ -8,6 +8,7 @@ public enum NumericValueType: Sendable, Equatable, Codable, CaseIterable {
     case vector3
     case vector4
     case color4
+    case affineTransform
 
     public var valueType: ValueType {
         switch self {
@@ -17,6 +18,7 @@ public enum NumericValueType: Sendable, Equatable, Codable, CaseIterable {
         case .vector3: .vector3
         case .vector4: .vector4
         case .color4: .color4
+        case .affineTransform: .affineTransform
         }
     }
 }

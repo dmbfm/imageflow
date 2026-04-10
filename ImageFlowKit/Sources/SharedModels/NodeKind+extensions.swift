@@ -30,6 +30,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .combineValue(let kind):
             kind.impl.schema.displayName
+        case .transform(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -47,6 +49,8 @@ public extension NodeKind {
             .blue
         case .combineValue(_):
             .blue
+        case .transform(_):
+            .purple
         }
     }
 
@@ -72,6 +76,14 @@ public extension NodeKind {
             "arrow.trianglehead.branch"
         case .combineValue(_):
             "arrow.trianglehead.merge"
+        case .transform(.rotate):
+            "rectangle.landscape.rotate"
+        case .transform(.scale), .transform(.scaleUniform):
+            "square.resize"
+        case .transform(.translate):
+            "arrow.up.and.down.and.arrow.left.and.right"
+        case .transform(.srt):
+            NodeKind.valueNode(.affineTransform).icon
         }
     }
 

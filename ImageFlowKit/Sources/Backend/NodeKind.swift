@@ -8,6 +8,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
     case combineValue(CombineValueNodeKind)
+    case transform(TransformNodeKind)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
@@ -33,6 +34,29 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
         case .addNode(let type): Nodes.AddNode.impl(type)
         case .subNode(let type): Nodes.SubtractNode.impl(type)
         case .mulNode(let type): Nodes.MulNode.impl(type)
+        }
+    }
+}
+
+public enum TransformNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case rotate
+    case scale
+    case scaleUniform
+    case translate
+    case srt
+
+    public var impl: NodeImpl {
+        switch self {
+        case .rotate:
+            Nodes.TransformNodes.TransformRotate.impl()
+        case .scale:
+            Nodes.TransformNodes.TransformScale.impl()
+        case .scaleUniform:
+            Nodes.TransformNodes.TransformScaleUniform.impl()
+        case .translate:
+            Nodes.TransformNodes.TransformTranslate.impl()
+        case .srt:
+            Nodes.TransformNodes.TransformSRT.impl()
         }
     }
 }
@@ -261,6 +285,8 @@ extension NodeKind {
             Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
             Nodes.PassthroughNode.impl(type)
+        case .transform(let type):
+            type.impl
         case .coreImageFilterNode(let type):
             type.impl
         case .coreImageCustomNode(let type):

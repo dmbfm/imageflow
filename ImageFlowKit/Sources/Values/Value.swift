@@ -990,6 +990,8 @@ extension Value {
             return .color4(lhsValue + rhsValue)
         case (.string(let lhsValue), .string(let rhsValue)):
             return .string(lhsValue + rhsValue)
+        case (.affineTransform(let lhs), .affineTransform(let rhs)):
+            return .affineTransform(lhs + rhs)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }
@@ -1009,6 +1011,8 @@ extension Value {
             return .vector4(lhsValue - rhsValue)
         case (.color4(let lhsValue), .color4(let rhsValue)):
             return .color4(lhsValue - rhsValue)
+        case (.affineTransform(let lhs), .affineTransform(let rhs)):
+            return .affineTransform(lhs - rhs)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }
@@ -1028,6 +1032,8 @@ extension Value {
             return .vector4(lhsValue * rhsValue)
         case (.color4(let lhsValue), .color4(let rhsValue)):
             return .color4(lhsValue * rhsValue)
+        case (.affineTransform(let lhs), .affineTransform(let rhs)):
+            return .affineTransform(lhs * rhs)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }
