@@ -55,6 +55,14 @@ private struct Categories {
                 .map { .init(nodeKind: $0, categoryName: .split) }
         )
 
+    static let combine: NodePaletteCategory =
+        .init(
+            name: .combine,
+            items: CombineValueNodeKind.allCases
+                .map({ NodeKind.combineValue($0) })
+                .map { .init(nodeKind: $0, categoryName: .combine) }
+        )
+
     static let blur: NodePaletteCategory = .init(
         name: .blur,
         items: CIFilterNodeKind.BlurNodeKind.allCases
@@ -240,6 +248,7 @@ public class NodePaletteService {
         result.append(Categories.math)
         result.append(Categories.input)
         result.append(Categories.split)
+        result.append(Categories.combine)
         result.append(Categories.blur)
         result.append(Categories.colorAdjustment)
         result.append(Categories.colorEffect)
@@ -364,6 +373,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case math = "Math"
     case blur = "Blur"
     case split = "Split"
+    case combine = "Combine"
     case colorAdjustment = "Color Adjustment"
     case colorEffect = "Color Effect"
     case compositeOperation = "Composite Operation"

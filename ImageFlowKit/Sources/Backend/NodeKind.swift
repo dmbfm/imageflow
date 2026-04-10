@@ -7,6 +7,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case math(MathNodeKind)
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
+    case combineValue(CombineValueNodeKind)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
@@ -58,6 +59,32 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.SplitValueNodes.ImageInfoNode.impl()
         case .rect:
             Nodes.SplitValueNodes.SlipRectNode.impl()
+        }
+    }
+}
+
+public enum CombineValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case affineTransform
+    case vector2
+    case vector3
+    case vector4
+    case color4
+    case rect
+
+    public var impl: NodeImpl {
+        switch self {
+        case .affineTransform:
+            Nodes.CombineValueNodes.CombineAffineTransformNode.impl()
+        case .vector2:
+            Nodes.CombineValueNodes.CombineVector2Node.impl()
+        case .vector3:
+            Nodes.CombineValueNodes.CombineVector3Node.impl()
+        case .vector4:
+            Nodes.CombineValueNodes.CombineVector4Node.impl()
+        case .color4:
+            Nodes.CombineValueNodes.CombineColor4Node.impl()
+        case .rect:
+            Nodes.CombineValueNodes.CombineRectNode.impl()
         }
     }
 }
@@ -239,6 +266,8 @@ extension NodeKind {
         case .coreImageCustomNode(let type):
             type.impl
         case .splitValue(let kind):
+            kind.impl
+        case .combineValue(let kind):
             kind.impl
         }
     }

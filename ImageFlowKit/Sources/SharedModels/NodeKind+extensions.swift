@@ -28,6 +28,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .splitValue(let kind):
             kind.impl.schema.displayName
+        case .combineValue(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -42,6 +44,8 @@ public extension NodeKind {
         case .passthroughNode(_):
             .blue
         case .splitValue(_):
+            .blue
+        case .combineValue(_):
             .blue
         }
     }
@@ -66,6 +70,8 @@ public extension NodeKind {
             "photo.badge.magnifyingglass"
         case .splitValue(_):
             "arrow.trianglehead.branch"
+        case .combineValue(_):
+            "arrow.trianglehead.merge"
         }
     }
 
