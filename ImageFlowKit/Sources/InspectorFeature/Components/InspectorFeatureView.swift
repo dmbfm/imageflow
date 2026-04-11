@@ -65,9 +65,14 @@ public struct InspectorFeatureView: View {
                         NodeInputsSectionView(vm: self.vm)
                     }
 
+                    if self.vm.node.outputs.count > 0 {
+                        NodeOutputsSectionView(vm: self.vm)
+                            .padding(.top, 10)
+                    }
                 }
                 .padding(.horizontal, self.style.paddingHorizontal)
                 .padding(.top, 10)
+                .padding(.bottom, 10)
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
             .safeAreaBar(edge: .top) {
