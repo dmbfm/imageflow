@@ -72,6 +72,11 @@ struct AssetInputView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
+                        #if os(iOS)
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.roundedRectangle)
+                        .foregroundStyle(.secondaryLabel)
+                        #endif
 
                         Button {
                             if let value = self.value(nil) {
@@ -80,10 +85,20 @@ struct AssetInputView: View {
                         } label: {
                             Image(systemName: "trash")
                         }
+                        #if os(iOS)
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.roundedRectangle)
+                        .foregroundStyle(.secondaryLabel)
+                        #endif
                     }
                     .controlSize(.small)
                 }
             }
         }
     }
+}
+
+#Preview {
+    InspectorFeatureView.Preview([.init(kind: .valueNode(.image))])
+        .frame(width: 600, height: 500)
 }
