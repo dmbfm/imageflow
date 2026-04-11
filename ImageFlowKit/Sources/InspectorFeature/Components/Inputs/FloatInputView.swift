@@ -184,7 +184,6 @@ private struct DefaultInput: View {
     }
 }
 
-
 #Preview {
     InspectorFeatureView.Preview([.init(kind: .coreImageFilterNode(.geometryAdjustment(.CIPerspectiveRotate)))])
         .frame(width: 600, height: 500)

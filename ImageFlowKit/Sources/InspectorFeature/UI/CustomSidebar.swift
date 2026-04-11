@@ -64,34 +64,44 @@ public struct CustomSidebarModifier<V: View>: ViewModifier {
         }
     }
 
+    #if os(macOS)
+    let resizeWidth: CGFloat = 12
+    #else
+    let resizeWidth: CGFloat = 22
+    #endif
+
     public func body(content: Content) -> some View {
         content
             .safeAreaInset(edge: .trailing) {
                 if self.isPresented {
-                    ZStack {
-                        Color.clear
-                        self.content()
+                    HStack(spacing: 0) {
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: self.resizeWidth)
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(coordinateSpace: .global)
+                                    .onChanged({ self.onResizeHandleDrag($0) })
+                                    .onEnded({ self.onResizeHandleDrag($0, ended: true) })
+                            )
+                            .offset(x: self.resizeWidth * 0.5)
+                            .zIndex(1)
+                            #if os(macOS)
+                        .pointerStyle(.columnResize)
+                            #endif
 
-                        HStack {
-                            Rectangle()
-                                .fill(.clear)
-                                .frame(width: 8)
-                                .contentShape(Rectangle())
-                                .gesture(
-                                    DragGesture(coordinateSpace: .global)
-                                        .onChanged({ self.onResizeHandleDrag($0) })
-                                        .onEnded({ self.onResizeHandleDrag($0, ended: true) })
-                                )
-                                #if os(macOS)
-                            .pointerStyle(self.resizePointer)
-                                #endif
-                            Spacer()
+                        ZStack {
+
+                            Color.clear
+
+                            self.content()
+                                .frame(minWidth: 0)
+                                .clipped()
                         }
-
+                        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: self.radius, style: .continuous))
+                        .frame(minWidth: 0)
                     }
                     .frame(width: self.width)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: self.radius, style: .continuous))
-                    // .padding(.trailing, 12)
                     .safeAreaPadding(self.insets)
                     .transition(.move(edge: .trailing))
                 }
@@ -157,6 +167,7 @@ private struct PreviewCommon: View {
                 }
                 Color.clear
             }
+            .ignoresSafeArea()
 
             RoundedRectangle(cornerRadius: 8)
                 .fill(.purple)
@@ -179,5 +190,5 @@ private struct PreviewCommon: View {
 
 #Preview("Resizable") {
     PreviewCommon()
-        .customSidebarWidth(.range(range: 100...400, ideal: 200))
+        .customSidebarWidth(.range(range: 200...600, ideal: 300))
 }
