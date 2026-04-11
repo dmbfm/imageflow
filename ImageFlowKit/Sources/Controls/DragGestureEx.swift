@@ -56,6 +56,56 @@ extension NSEvent.ModifierFlags {
 #endif
 
 #if os(iOS)
+
+import UIKit
+
+public struct DragGestureEx: UIGestureRecognizerRepresentable {
+    var isEditable: Bool
+    var handler: (Value) -> ()
+    @State var startLocation: CGPoint = .zero
+
+    public init(_ isEditable: Bool, _ handler: @escaping (Value) -> ()) {
+        self.isEditable = isEditable
+        self.handler = handler
+    }
+    
+    public func makeUIGestureRecognizer(context: Context) -> some UIGestureRecognizer {
+        let gesture = UIPanGestureRecognizer()
+        return gesture
+    }
+    
+    public func updateUIGestureRecognizer(_ recognizer: UIGestureRecognizerType, context: Context) {
+        recognizer.isEnabled = !self.isEditable
+    }
+    
+    public func handleUIGestureRecognizerAction(_ recognizer: UIGestureRecognizerType, context: Context) {
+        if recognizer.state == .began {
+            self.startLocation = context.converter.location(in: .local)
+        }
+
+        self.handler(
+            .init(
+                phase: .init(gestureRecognizerState: recognizer.state),
+                startLocation: self.startLocation,
+                location: context.converter.location(in: .local),
+                modifiers: recognizer.modifierFlags.eventModifiers
+            )
+        )
+    }
+}
+
+extension UIKeyModifierFlags {
+    var eventModifiers: EventModifiers {
+        var result: EventModifiers = []
+        if self.contains(.command) { result.insert(.command) }
+        if self.contains(.shift) { result.insert(.shift) }
+        if self.contains(.alternate) { result.insert(.option) }
+        if self.contains(.control) { result.insert(.control) }
+        if self.contains(.numericPad) { result.insert(.numericPad) }
+        return result
+    }
+}
+
 #endif
 
 extension DragGestureEx {

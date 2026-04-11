@@ -27,7 +27,9 @@ struct BoolInputView: View {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
                 Spacer()
                 Toggle("", isOn: self.value)
+                #if os(macOS)
                     .toggleStyle(.checkbox)
+                #endif
                     .focusEffectDisabled()
             }
         }

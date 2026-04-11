@@ -4,7 +4,7 @@ import UIKit
 import SwiftUI
 import Logging
 
-public final class TextFieldExUIView: UITextField {
+public final class BetterTextFieldUIView: UITextField {
     public override var keyCommands: [UIKeyCommand] {
         [
             .init(input: "\r", modifierFlags: [], action: #selector(Self.enterKeyPressed))
@@ -17,7 +17,7 @@ public final class TextFieldExUIView: UITextField {
         self.endEditing(false)
     }
 
-    var currentStyle: TextFieldEx.Style? = nil
+    var currentStyle: BetterTextFieldBase.Style? = nil
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -27,7 +27,7 @@ public final class TextFieldExUIView: UITextField {
         nil
     }
 
-    func update(_ view: TextFieldEx) {
+    func update(_ view: BetterTextFieldBase) {
         if view.text != self.text {
             self.text = view.text
         }
@@ -81,22 +81,22 @@ public final class TextFieldExUIView: UITextField {
         }
     }
 
-    func updateStyle(_ style: TextFieldEx.Style) {
+    func updateStyle(_ style: BetterTextFieldBase.Style) {
     }
 }
 
-extension TextFieldExUIView {
+extension BetterTextFieldUIView {
     public final class Coordinator: NSObject, UITextFieldDelegate {
 
         var text: Binding<String>?
-        var mode: TextFieldEx.InteractionMode = .continuous
+        var mode: BetterTextFieldBase.InteractionMode = .continuous
         //            var updatesBinding: Bool = true
 
         var didChange: ((String) -> ())?
         var didBeginEditing: ((String) -> ())?
         var didEndEditing: ((String) -> ())?
 
-        var dragGestureHandler: TextFieldEx.DragGestureHandler?
+        var dragGestureHandler: BetterTextFieldBase.DragGestureHandler?
 
         public func textFieldDidBeginEditing(_ textField: UITextField) {
             log("begin: \(textField.text, default: "")")
@@ -137,7 +137,7 @@ extension TextFieldExUIView {
             let optionDown = gesture.modifierFlags.contains(.alternate)
             let commandDown = gesture.modifierFlags.contains(.command)
             let translation = gesture.translation(in: nil).cgSize
-            let value = TextFieldEx.DragGestureHandler.Value(
+            let value = BetterTextFieldBase.DragGestureHandler.Value(
                 translation: translation,
                 shiftDown: shiftDown,
                 commandDown: commandDown,

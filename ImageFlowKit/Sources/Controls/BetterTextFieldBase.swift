@@ -8,7 +8,7 @@ public typealias BetterTextFieldXView = BetterTextFieldNSView
 
 #if os(iOS)
 import UIKit
-public typealias BetterTextFieldXView = TextFieldExUIView
+public typealias BetterTextFieldXView = BetterTextFieldUIView
 #endif
 
 public struct BetterTextFieldBase: XViewRepresentable {
@@ -109,7 +109,7 @@ public struct BetterTextFieldBase: XViewRepresentable {
     }
 
     #if os(iOS)
-    public func sizeThatFits(_ proposal: ProposedViewSize, view: TextFieldExUIView, context: Context) -> CGSize? {
+    public func sizeThatFits(_ proposal: ProposedViewSize, view: BetterTextFieldUIView, context: Context) -> CGSize? {
         let proposal = proposal.replacingUnspecifiedDimensions()
         return CGSize(
             width: proposal.width,
@@ -172,7 +172,7 @@ extension BetterTextFieldBase {
         }
     }
 
-    enum ClearMode: Equatable {
+    public enum ClearMode: Equatable {
         case none
         case onInsert
         case onBeginEditting
