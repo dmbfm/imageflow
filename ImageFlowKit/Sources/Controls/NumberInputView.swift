@@ -15,6 +15,7 @@ public struct NumberInputView: View {
     @State private var distance: CGFloat = 0
     @State private var isDragging: Bool = false
     @Environment(\.controlSize) private var controlSize
+    @Environment(\.isEnabled) private var isEnabled
     @FocusState private var focused: Bool
 
     public enum Configuration {
@@ -164,6 +165,9 @@ public struct NumberInputView: View {
     }
 
     private func onDrag(_ value: DragGestureEx.Value) {
+
+        guard self.isEnabled else { return }
+
         let shiftDown = value.modifiers.contains(.shift)
         let optionDown = value.modifiers.contains(.option)
 
@@ -252,8 +256,19 @@ public struct NumberInputView: View {
         }
     }
 
+    #if os(macOS)
+    var pointerStyle: PointerStyle {
+        if !self.isEnabled || self.isEditable {
+            return .default
+        } else {
+            return .columnResize
+        }
+    }
+    #endif
+
     public var body: some View {
         BetterTextField(text: self.binding, progress: self.progress, onWidthChange: { self.width = $0 })
+            .betterTextFieldForegroundColor(self.isEnabled ? nil : .secondaryLabel)
             .betterTextFieldInteractionMode(.commit)
             .betterTextFieldDidEndEditing(self.didEndEditing(_:))
             .betterTextFieldIsEditable(self.isEditable)
@@ -267,7 +282,7 @@ public struct NumberInputView: View {
                 }
             }
             #if os(macOS)
-        .pointerStyle(self.isEditable ? .default : .columnResize)
+        .pointerStyle(self.pointerStyle)
             #endif
     }
 }
