@@ -98,9 +98,9 @@ extension View {
             .betterTextFieldBorderShapeStyle(.primaryFill)
             .betterTextFieldForegroundColor(.secondaryLabel)
             .betterTextFieldBorderStrokeStyle(.init(lineWidth: hover ? 4 : 1))
-        #if os(macOS)
-            .pointerStyle(hover ? .columnResize : .default)
-        #endif
+            #if os(macOS)
+        .pointerStyle(hover ? .columnResize : .default)
+            #endif
             .onHover { value in
                 withAnimation {
                     hover = value

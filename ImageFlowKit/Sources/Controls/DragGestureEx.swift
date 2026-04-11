@@ -68,16 +68,16 @@ public struct DragGestureEx: UIGestureRecognizerRepresentable {
         self.isEditable = isEditable
         self.handler = handler
     }
-    
+
     public func makeUIGestureRecognizer(context: Context) -> some UIGestureRecognizer {
         let gesture = UIPanGestureRecognizer()
         return gesture
     }
-    
+
     public func updateUIGestureRecognizer(_ recognizer: UIGestureRecognizerType, context: Context) {
         recognizer.isEnabled = !self.isEditable
     }
-    
+
     public func handleUIGestureRecognizerAction(_ recognizer: UIGestureRecognizerType, context: Context) {
         if recognizer.state == .began {
             self.startLocation = context.converter.location(in: .local)
