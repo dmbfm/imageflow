@@ -103,20 +103,26 @@ private struct AngleInput: View {
             VStack(alignment: .leading) {
                 HStack(spacing: 2) {
                     NodeInputPropertyTitleView(vm: self.vm, input: self.input)
-                    Spacer()
                     Picker("", selection: self.$unit) {
                         Text("Degrees").tag(AngleUnit.degrees)
                         Text("Radians").tag(AngleUnit.radians)
                     }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                     .pickerStyle(.menu)
                     .buttonStyle(.borderless)
                     .controlSize(.small)
+                    #if os(iOS)
+                    .tint(.secondary)
+                    #endif
 
                     Toggle(isOn: self.$snap) {
                         Image(systemName: "lines.measurement.horizontal.aligned.bottom")
                     }
                     .toggleStyle(.button)
                     .controlSize(.small)
+                    #if os(iOS)
+                    .tint(.primary)
+                    #endif
                 }
                 HStack {
                     AngleDial(angle: self.value, range: self.range)
@@ -176,4 +182,10 @@ private struct DefaultInput: View {
             }
         }
     }
+}
+
+
+#Preview {
+    InspectorFeatureView.Preview([.init(kind: .coreImageFilterNode(.geometryAdjustment(.CIPerspectiveRotate)))])
+        .frame(width: 600, height: 500)
 }
