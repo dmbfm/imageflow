@@ -61,17 +61,15 @@ struct NodeTitleView: View {
                 #endif
             Spacer()
 
-            Button("", systemImage: self.lockIcon) {
-                self.vm.toggleLocked()
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondaryLabel)
+            HStack(spacing: 0) {
+                Button("", systemImage: self.lockIcon) {
+                    self.vm.toggleLocked()
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondaryLabel)
 
-            Button("", systemImage: "ellipsis") {
-                log("TODO", level: .error)
+                InspectorNodeMenuButton(vm: self.vm)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondaryLabel)
         }
         .padding(.horizontal, self.style.paddingHorizontal)
         .padding(.top, self.style.paddingTop)

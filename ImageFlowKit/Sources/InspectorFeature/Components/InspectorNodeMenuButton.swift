@@ -2,11 +2,9 @@ import SharedModels
 import SwiftUI
 
 public struct InspectorNodeMenuButton: View {
-    let node: FlowNode
     let vm: InspectorFeatureViewModel
 
-    public init(node: FlowNode, vm: InspectorFeatureViewModel) {
-        self.node = node
+    public init(vm: InspectorFeatureViewModel) {
         self.vm = vm
     }
 
@@ -31,6 +29,7 @@ public struct InspectorNodeMenuButton: View {
             .contentShape(Rectangle())
                 #endif
         }
+        .foregroundStyle(.secondaryLabel)
         #if os(iOS)
         .buttonStyle(.plain)
         #else
