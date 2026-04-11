@@ -33,13 +33,10 @@ struct NodeInputPropertyView: View {
                 MatrixInputView(vm: self.vm, input: input)
             case .affineTransform:
                 AffineTransforminputView(vm: self.vm, input: input)
-            // TitleOnlyInputView(vm: self.vm, input: input)
             case .colorSpace:
-                Text("TODO")
+                EmptyView()
             case .data:
-                Text("TODO")
-            case .matrix3x3, .matrix5x5, .matrix7x7:
-                Text("TODO")
+                EmptyView()
             default:
                 Block {
                     HStack {
