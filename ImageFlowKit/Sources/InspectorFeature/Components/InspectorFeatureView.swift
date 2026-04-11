@@ -86,7 +86,7 @@ public struct InspectorFeatureView: View {
 extension InspectorFeatureView {
     struct Style {
         let paddingHorizontal: CGFloat = 10
-        let paddingTop: CGFloat = 10
+        let paddingTop: CGFloat = 12
         let paddingNodeTitleBottom: CGFloat = 10
 
         static var `default`: Self {

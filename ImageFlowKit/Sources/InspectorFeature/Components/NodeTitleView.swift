@@ -4,8 +4,9 @@ import SwiftUI
 
 struct NodeTitleView: View {
 
-    @Environment(\.inspectorStyle) var style
     let vm: InspectorFeatureViewModel
+    @Environment(\.inspectorStyle) var style
+    @FocusState var textFieldFocused
 
     var node: FlowNode {
         self.vm.node
@@ -19,16 +20,45 @@ struct NodeTitleView: View {
         }
     }
 
+    var nodeName: Binding<String> {
+        .init(
+            get: {
+                self.vm.node.name
+            },
+            set: { newValue in
+                self.vm.node.name = newValue
+            }
+        )
+    }
+
+    func submitNodeName() {
+        self.vm.submit(.name, registerUndo: true)
+        self.textFieldFocused = false
+    }
+
+    func cancelNodeName() {
+        self.vm.cancel(.name)
+    }
+
     var body: some View {
         HStack {
             Image(systemName: node.kind.icon)
                 .foregroundStyle(.secondaryLabel)
                 .font(.headline)
 
-            Text(node.name)
+            TextField("", text: self.nodeName)
+                .textFieldStyle(kind: .plain)
+                .textContentType(.password)
+                .focused(self.$textFieldFocused)
+                .onSubmit(self.submitNodeName)
                 .font(.headline)
                 .foregroundStyle(.primaryLabel)
-
+                #if os(macOS)
+            .onExitCommand {
+                self.cancelNodeName()
+                self.textFieldFocused = false
+            }
+                #endif
             Spacer()
 
             Button("", systemImage: self.lockIcon) {
