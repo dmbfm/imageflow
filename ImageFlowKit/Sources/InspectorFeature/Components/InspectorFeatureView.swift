@@ -56,10 +56,13 @@ public struct InspectorFeatureView: View {
     public var nodeContentView: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 10) {
+
+                    if self.vm.flow.selection.count > 1 {
+                        NodeMultiSelectBlockView(vm: self.vm)
+                    }
 
                     NodeTypeBlockView(vm: self.vm)
-                        .padding(.bottom, 10)
 
                     if self.vm.node.inputs.count > 0 {
                         NodeInputsSectionView(vm: self.vm)
@@ -67,7 +70,6 @@ public struct InspectorFeatureView: View {
 
                     if self.vm.node.outputs.count > 0 {
                         NodeOutputsSectionView(vm: self.vm)
-                            .padding(.top, 10)
                     }
                 }
                 .padding(.horizontal, self.style.paddingHorizontal)
@@ -113,7 +115,7 @@ extension InspectorFeatureView {
         @State var assetStore: MockAssetStore = .init()
         @State var coordinator: GlobalCoordinator
 
-        public init(_ nodes: [FlowNode] = [], _ selected: UUID? = nil) {
+        public init(_ nodes: [FlowNode] = [], _ selected: Set<UUID> = []) {
             let flow = Flow()
 
             self._flow = .init(wrappedValue: flow)
@@ -124,7 +126,12 @@ extension InspectorFeatureView {
             }
 
             if let first = nodes.first {
-                flow.select([selected ?? first.id])
+                if !selected.isEmpty {
+                    flow.select(selected)
+                } else {
+                    flow.select([first.id])
+                }
+                //     flow.select([selected ?? first.id])
             }
         }
 
@@ -170,5 +177,14 @@ extension InspectorFeatureView {
 
 #Preview("No Selection") {
     InspectorFeatureView.Preview()
+        .frame(width: 600, height: 500)
+}
+
+#Preview("Multiple Selection") {
+    let nodes: [FlowNode] = [
+        .init(kind: .valueNode(.float)),
+        .init(kind: .valueNode(.int)),
+    ]
+    InspectorFeatureView.Preview(nodes, Set(nodes.map({ $0.id })))
         .frame(width: 600, height: 500)
 }
