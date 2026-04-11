@@ -76,6 +76,9 @@ private struct NodeInputPropertyTitleInner: View {
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.borderless)
+                #if os(iOS)
+                .foregroundStyle(.secondaryLabel)
+                #endif
                 .help("Restore default value")
             }
         }
