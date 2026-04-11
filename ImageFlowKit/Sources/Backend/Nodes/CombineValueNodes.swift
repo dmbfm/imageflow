@@ -17,7 +17,7 @@ extension Nodes {
 
                 return .init(
                     schema: schema,
-                    runImpl: { node, context in
+                    runImpl: { node, _ in
 
                         let m = node.inputs[0].matrix2x2
                         let t = node.inputs[1].vector2
