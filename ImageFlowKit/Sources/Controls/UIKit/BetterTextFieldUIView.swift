@@ -79,6 +79,10 @@ public final class BetterTextFieldUIView: UITextField {
         if self.textColor != view.textColor {
             self.textColor = view.textColor
         }
+        
+        if self.isEnabled != view.isEditable {
+            self.isEnabled = view.isEditable
+        }
     }
 
     func updateStyle(_ style: BetterTextFieldBase.Style) {
