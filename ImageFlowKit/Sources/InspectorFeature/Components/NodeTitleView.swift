@@ -74,5 +74,8 @@ struct NodeTitleView: View {
         .padding(.horizontal, self.style.paddingHorizontal)
         .padding(.top, self.style.paddingTop)
         .padding(.bottom, self.style.paddingNodeTitleBottom)
+        #if os(iOS)
+        .contentShape(Rectangle())
+        #endif
     }
 }
