@@ -1,10 +1,3 @@
-//
-//  InspectorFeatureViewModel.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 24/02/26.
-//
-
 import Helpers
 import Logging
 import SharedModels
