@@ -37,6 +37,7 @@ let package = Package(
         .library(name: "SettingsFeature"),
         .library(name: "ContextMenus"),
         .library(name: "InspectorFeature"),
+        .library(name: "TextInput"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -265,6 +266,13 @@ let package = Package(
                 "Values",
                 "Logging",
             ]
+        ),
+        .target(
+            name: "TextInput",
+            dependencies: [
+                "Helpers",
+                "Design",
+            ],
         ),
         .testTarget(
             name: "SharedModelsTests",

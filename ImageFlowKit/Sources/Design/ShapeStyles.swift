@@ -1,4 +1,29 @@
+import Helpers
 import SwiftUI
+
+func opacityLevelColor(_ opacity: CGFloat, _ dark: CGFloat? = nil) -> PlatformColor {
+    .init(
+        light: .init(white: 0.0, alpha: opacity),
+        dark: .init(white: 1.0, alpha: dark ?? opacity)
+    )
+}
+
+public extension PlatformColor {
+    static let primaryFill: PlatformColor = opacityLevelColor(0.10)
+    static let secondaryFill: PlatformColor = opacityLevelColor(0.08)
+    static let tertiaryFill: PlatformColor = opacityLevelColor(0.05)
+    static let quaternaryFill: PlatformColor = opacityLevelColor(0.03)
+    static let quinaryFill: PlatformColor = opacityLevelColor(0.02)
+
+    static let primaryLabel: PlatformColor = opacityLevelColor(0.85)
+    #if os(macOS)
+    static let secondaryLabel: PlatformColor = opacityLevelColor(0.5, 0.55)
+    #endif
+    static let tertiaryLabel: PlatformColor = opacityLevelColor(0.25)
+    static let quaternaryLabel: PlatformColor = opacityLevelColor(0.10)
+    static let quinaryLabel: PlatformColor = opacityLevelColor(0.05)
+    static let seximalLabel: PlatformColor = opacityLevelColor(0.03)
+}
 
 public struct OpacityLevelShapeStyle: ShapeStyle {
     var lightValue: Double
