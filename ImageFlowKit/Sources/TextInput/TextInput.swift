@@ -293,7 +293,7 @@ public final class TextInput: PlatformCommonView {
 
     public override func resetCursorRects() {
         if self.behaviours.contains(.dragWhenNotEditable) {
-            let canDrag = self.isEditable && self.isEnabled
+            let canDrag = !self.isEditable && self.isEnabled
             self.addCursorRect(self.backgroundView.frame, cursor: canDrag ? .columnResize : .arrow)
         }
     }
