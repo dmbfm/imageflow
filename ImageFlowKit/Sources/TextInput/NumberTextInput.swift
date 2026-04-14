@@ -14,6 +14,8 @@ import UIKit
 @MainActor
 public class NumberInputController {
 
+    public let view: TextInput
+
     public var value: Double = 0.0 {
         didSet {
             if self.value != oldValue {
@@ -29,6 +31,11 @@ public class NumberInputController {
     }
 
     public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter()
+
+    public var style: TextInputStyle {
+        get { self.view.style }
+        set { self.view.style = newValue }
+    }
 
     public var sizingMode: TextInput.SizingMode {
         get { self.view.sizingMode }
@@ -63,11 +70,9 @@ public class NumberInputController {
         self.dragConfiguration.range
     }
 
-    public var sensitivity: Sensitivity? {
+    public var sensitivity: DragConfiguration.Sensitivity? {
         self.dragConfiguration.sensitivity
     }
-
-    private let view: TextInput
 
     private var valueAtDragStart: Double = 0.0
 
@@ -76,6 +81,7 @@ public class NumberInputController {
         self.view.delegate = self
         self.view.style = style
         self.view.alignment = .right
+        self.view.keyboardType = .numbersAndPunctuation
 
         self.update()
     }
@@ -94,13 +100,19 @@ public class NumberInputController {
 
     func handleDragNoRange(
         dragData: TextInput.DragData,
-        sensitivity: Sensitivity,
+        sensitivity: DragConfiguration.Sensitivity,
+        fractionalDigits: Int? = nil,
         partialRange: PartialRangeFrom<Double>? = nil
     ) {
         let s = sensitivity.normal
-        let newValue = partialRange.maybeReduce(
-            self.valueAtDragStart + s * dragData.translation.x,
-            { value, range in value.clamped(to: range) }
+        let newValue = fractionalDigits.maybeReduce(
+            partialRange.maybeReduce(
+                self.valueAtDragStart + s * dragData.translation.x,
+                { value, range in value.clamped(to: range) }
+            ),
+            { value, digits in
+                value.truncateTo(fractionalDigits: digits)
+            }
         )
         self.value = newValue
 
@@ -134,7 +146,7 @@ public class NumberInputController {
     func handleDragRange(
         dragData: TextInput.DragData,
         range: ClosedRange<Double>,
-        snap: Range.Snap? = nil,
+        snap: DragConfiguration.Snap? = nil,
         fractionalDigits: Int? = nil
     ) {
         let p = ((dragData.current.x - dragData.region.minX) / dragData.region.width).clamped(to: 0...1)
@@ -200,7 +212,12 @@ extension NumberInputController: TextInputDelegate {
         }
 
         switch self.dragConfiguration {
-        case .free(let sensitivity): self.handleDragNoRange(dragData: dragData, sensitivity: sensitivity)
+        case .free(let free):
+            self.handleDragNoRange(
+                dragData: dragData,
+                sensitivity: free.sensitivity,
+                fractionalDigits: free.fractionalDigits
+            )
         case .range(.closed(let closed)):
             self.handleDragRange(
                 dragData: dragData,
@@ -212,6 +229,7 @@ extension NumberInputController: TextInputDelegate {
             self.handleDragNoRange(
                 dragData: dragData,
                 sensitivity: partial.sensitivity,
+                fractionalDigits: partial.fractionalDigits,
                 partialRange: partial.lowerBound...
             )
         }
@@ -223,15 +241,15 @@ extension NumberInputController: TextInputDelegate {
 }
 
 extension NumberInputController {
-    public struct Change {
+    public struct Change: Sendable, Equatable {
         public var newValue: Double
         public var oldValue: Double
         public var commit: Bool
         public var drag: Bool
     }
 
-    public enum DragConfiguration {
-        case free(Sensitivity)
+    public enum DragConfiguration: Sendable, Equatable {
+        case free(Free)
         case range(Range)
 
         public var range: ClosedRange<Double>? {
@@ -243,52 +261,57 @@ extension NumberInputController {
 
         public var sensitivity: Sensitivity? {
             switch self {
-            case .free(let s): s
+            case .free(let s): s.sensitivity
             case .range(.partialFrom(let p)): p.sensitivity
             default: nil
             }
         }
-    }
 
-    public struct Sensitivity {
-        public var normal: Double
-        public var optionDown: Double?
-        public var shiftDown: Double?
-
-        public init(normal: Double = 1.0, optionDown: Double? = 10.0, shiftDown: Double? = 0.1) {
-            self.normal = normal
-            self.optionDown = optionDown
-            self.shiftDown = shiftDown
-        }
-    }
-
-    public enum Range {
-        case closed(Closed)
-        case partialFrom(PartialFrom)
-
-        public struct PartialFrom {
-            public var lowerBound: Double
+        public struct Free: Sendable, Equatable {
             public var sensitivity: Sensitivity
-
-            public init(lowerBound: Double, sensitivity: NumberInputController.Sensitivity) {
-                self.lowerBound = lowerBound
-                self.sensitivity = sensitivity
-            }
-        }
-
-        public struct Closed {
-            public var range: ClosedRange<Double>
-            public var snap: Snap?
             public var fractionalDigits: Int?
 
-            public init(range: ClosedRange<Double>, snap: Snap? = nil, fractionalDigits: Int? = nil) {
-                self.range = range
-                self.snap = snap
+            public init(sensitivity: DragConfiguration.Sensitivity = .init(), fractionalDigits: Int? = nil) {
+                self.sensitivity = sensitivity
                 self.fractionalDigits = fractionalDigits
             }
+
         }
 
-        public struct Snap {
+        public enum Range: Sendable, Equatable {
+            case closed(Closed)
+            case partialFrom(PartialFrom)
+
+            public struct PartialFrom: Sendable, Equatable {
+                public var lowerBound: Double
+                public var sensitivity: Sensitivity
+                public var fractionalDigits: Int?
+
+                public init(
+                    lowerBound: Double,
+                    sensitivity: DragConfiguration.Sensitivity,
+                    fractionalDigits: Int? = nil
+                ) {
+                    self.lowerBound = lowerBound
+                    self.sensitivity = sensitivity
+                    self.fractionalDigits = fractionalDigits
+                }
+            }
+
+            public struct Closed: Sendable, Equatable {
+                public var range: ClosedRange<Double>
+                public var snap: Snap?
+                public var fractionalDigits: Int?
+
+                public init(range: ClosedRange<Double>, snap: Snap? = nil, fractionalDigits: Int? = nil) {
+                    self.range = range
+                    self.snap = snap
+                    self.fractionalDigits = fractionalDigits
+                }
+            }
+
+        }
+        public struct Snap: Sendable, Equatable {
             public var increments: Double
             public var epsilon: Double
 
@@ -297,7 +320,20 @@ extension NumberInputController {
                 self.epsilon = epsilon ?? increments
             }
         }
+
+        public struct Sensitivity: Sendable, Equatable {
+            public var normal: Double
+            public var optionDown: Double?
+            public var shiftDown: Double?
+
+            public init(normal: Double = 1.0, optionDown: Double? = 10.0, shiftDown: Double? = 0.1) {
+                self.normal = normal
+                self.optionDown = optionDown
+                self.shiftDown = shiftDown
+            }
+        }
     }
+
 }
 
 public protocol NumberTextInputDelegate: AnyObject {
@@ -341,7 +377,7 @@ extension NumberInputController {
 
     struct Representable: PlatformViewRepresentable {
 
-        func makeView(context: Context) -> some NSView {
+        func makeView(context: Context) -> TextInput {
             context.coordinator.controller = .init()
             context.coordinator.controller.delegate = context.coordinator
             context.coordinator.controller.dragConfiguration = .range(
@@ -350,7 +386,7 @@ extension NumberInputController {
             return context.coordinator.controller.view
         }
 
-        func updateView(_ view: ViewType, context: Context) {
+        func updateView(_ view: TextInput, context: Context) {
         }
 
         func makeCoordinator() -> Coordinator {

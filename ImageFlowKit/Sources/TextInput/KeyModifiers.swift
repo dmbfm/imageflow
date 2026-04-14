@@ -2,6 +2,10 @@
 import AppKit
 #endif
 
+#if os(iOS)
+import UIKit
+#endif
+
 public struct KeyModifiers: Sendable, OptionSet {
     public var rawValue: Int
 
@@ -22,6 +26,27 @@ public struct KeyModifiers: Sendable, OptionSet {
         }
 
         if flags.contains(.option) {
+            self.insert(.option)
+        }
+
+        if flags.contains(.command) {
+            self.insert(.command)
+        }
+
+        if flags.contains(.control) {
+            self.insert(.control)
+        }
+    }
+    #endif
+    
+    #if os(iOS)
+    public init(flags: UIKeyModifierFlags) {
+        self = []
+        if flags.contains(.shift) {
+            self.insert(.shift)
+        }
+
+        if flags.contains(.alternate) {
             self.insert(.option)
         }
 

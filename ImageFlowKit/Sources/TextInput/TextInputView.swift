@@ -40,10 +40,10 @@ public struct TextInputView: PlatformViewRepresentable {
         let view = TextInput(behaviours: self.behaviours)
         view.sizingMode = self.sizingMode
         view.text = self.text
-        view.style = self.style
+        view.style = self.style ?? .default
         view.delegate = context.coordinator
         view.progress = self.progress
-        view.alignment = self.alignment
+        view.alignment = self.alignment ?? .left
         #if os(iOS)
         view.keyboardType = self.keyboardType
         #endif
@@ -63,16 +63,16 @@ public struct TextInputView: PlatformViewRepresentable {
             view.text = self.text
         }
 
-        if view.style != self.style {
-            view.style = self.style
+        if view.style != (self.style ?? .default) {
+            view.style = self.style ?? .default
         }
 
         if view.progress != self.progress {
             view.progress = self.progress
         }
 
-        if view.alignment != self.alignment {
-            view.alignment = self.alignment
+        if view.alignment != (self.alignment ?? .left) {
+            view.alignment = self.alignment ?? .left
         }
 
         #if os(iOS)
@@ -88,45 +88,7 @@ public struct TextInputView: PlatformViewRepresentable {
     }
 
     public func sizeThatFits(_ proposal: ProposedViewSize, view: TextInput, context: Context) -> CGSize? {
-        let intrinsicContentSize = view.intrinsicContentSize
-
-        switch proposal {
-        case .zero:
-            return intrinsicContentSize
-        case .infinity:
-            // max size
-            switch self.sizingMode {
-            case .fixedWidth:
-                return intrinsicContentSize
-            case .fillWidth:
-                return .init(width: intrinsicContentSize.height, height: .infinity)
-            case .textWidth:
-                return intrinsicContentSize
-            }
-        case .unspecified:
-            return intrinsicContentSize
-        default:
-            break
-        }
-
-        let proposal = proposal.replacingUnspecifiedDimensions()
-
-        switch self.sizingMode {
-        case .fillWidth:
-            return .init(width: proposal.width, height: intrinsicContentSize.height)
-        case .fixedWidth(let width):
-            if proposal.width > width {
-                return intrinsicContentSize
-            } else {
-                return .init(width: proposal.width, height: intrinsicContentSize.height)
-            }
-        case .textWidth:
-            if proposal.width > intrinsicContentSize.width {
-                return intrinsicContentSize
-            } else {
-                return .init(width: proposal.width, height: intrinsicContentSize.height)
-            }
-        }
+        Self.sizeThatFitsCommon(proposal, view: view, sizingMode: self.sizingMode)
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -170,8 +132,8 @@ extension TextInputView {
 
 public extension EnvironmentValues {
     @Entry var textInputSizingMode: TextInput.SizingMode = .fillWidth
-    @Entry var textInputStyle: TextInputStyle = .default
-    @Entry var textInputAlignment: NSTextAlignment = .left
+    @Entry var textInputStyle: TextInputStyle? = nil
+    @Entry var textInputAlignment: NSTextAlignment? = nil
     #if os(iOS)
     @Entry var textInputKeyboardType: UIKeyboardType = .default
     #endif
@@ -228,6 +190,55 @@ public extension TextInputView {
                 Text("[\(text)]")
             }
             .padding()
+        }
+    }
+}
+
+extension TextInputView {
+    @MainActor
+    static func sizeThatFitsCommon(
+        _ proposal: ProposedViewSize,
+        view: TextInput,
+        sizingMode: TextInput.SizingMode,
+    ) -> CGSize? {
+        let intrinsicContentSize = view.intrinsicContentSize
+
+        switch proposal {
+        case .zero:
+            return intrinsicContentSize
+        case .infinity:
+            // max size
+            switch sizingMode {
+            case .fixedWidth:
+                return intrinsicContentSize
+            case .fillWidth:
+                return .init(width: intrinsicContentSize.height, height: .infinity)
+            case .textWidth:
+                return intrinsicContentSize
+            }
+        case .unspecified:
+            return intrinsicContentSize
+        default:
+            break
+        }
+
+        let proposal = proposal.replacingUnspecifiedDimensions()
+
+        switch sizingMode {
+        case .fillWidth:
+            return .init(width: proposal.width, height: intrinsicContentSize.height)
+        case .fixedWidth(let width):
+            if proposal.width > width {
+                return intrinsicContentSize
+            } else {
+                return .init(width: proposal.width, height: intrinsicContentSize.height)
+            }
+        case .textWidth:
+            if proposal.width > intrinsicContentSize.width {
+                return intrinsicContentSize
+            } else {
+                return .init(width: proposal.width, height: intrinsicContentSize.height)
+            }
         }
     }
 }

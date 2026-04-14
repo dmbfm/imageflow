@@ -118,7 +118,8 @@ public final class TextInput: PlatformCommonView {
 
     let behaviours: Behaviors
     var textAtEditingStart: String = ""
-
+    private var dragStartLocation: CGPoint = .zero
+    
     // MARK: - Subviews
 
     lazy var backgroundView: BackgroundView = {
@@ -306,7 +307,6 @@ public final class TextInput: PlatformCommonView {
         }
     }
 
-    private var dragStartLocation: CGPoint = .zero
 
     @objc
     func panGestureHandler(_ gesture: NSPanGestureRecognizer, _ event: NSEvent) {
@@ -361,10 +361,35 @@ public final class TextInput: PlatformCommonView {
         self.isEditable = true
         self.textField.becomeFirstResponder()
     }
+    
+    var isDragging: Bool = false
 
     @objc
     func dragGestureHandler(_ gesture: UIPanGestureRecognizer) {
-        print("drag: \(gesture.translation(in: nil))")
+        guard let delegate = self.delegate else { return }
+
+        let location = self.backgroundView.convert(gesture.location(in: nil), from: nil)
+
+        if gesture.state == .began {
+            self.dragStartLocation = location
+            self.isDragging = true
+        }
+
+        delegate.textInputDidDrag(
+            self,
+            dragData: .init(
+                phase: .init(gestureRecognizerState: gesture.state),
+                modifiers: .init(flags: gesture.modifierFlags),
+                region: self.backgroundView.bounds,
+                translation: gesture.translation(in: nil),
+                start: self.dragStartLocation,
+                current: location,
+            )
+        )
+        
+        if gesture.state == .ended || gesture.state == .cancelled {
+            self.isDragging = false
+        }
     }
 
     func onEndEditing() {
