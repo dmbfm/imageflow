@@ -12,7 +12,7 @@ import TextInput
 struct TextInputPreviewApp: App {
     var body: some Scene {
         WindowGroup {
-            TextInputView.Preview()
+            NumberInputController.Preview()
         }
     }
 }

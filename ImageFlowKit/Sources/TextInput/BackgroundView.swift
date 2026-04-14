@@ -27,7 +27,6 @@ final class BackgroundView: PlatformCommonView {
     lazy var fillLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.path = CGPath(rect: .init(origin: .zero, size: .init(width: 100, height: 30)), transform: nil)
-        layer.fillColor = .red
         return layer
     }()
 
@@ -70,7 +69,7 @@ final class BackgroundView: PlatformCommonView {
                 rect: .init(x: 0, y: 0, width: self.bounds.width * progress, height: self.bounds.height),
                 transform: nil
             )
-            self.fillLayer.fillColor = PlatformColor.secondaryFill.cgColor
+            self.fillLayer.fillColor = self.style.progressColor?.cgColor
         } else {
             self.fillLayer.isHidden = true
         }
@@ -80,16 +79,19 @@ final class BackgroundView: PlatformCommonView {
 public struct TextInputBackgroundStyle: Sendable, Equatable, With {
     public var backgroundColor: PlatformColor?
     public var borderColor: PlatformColor?
+    public var progressColor: PlatformColor?
     public var borderWidth: CGFloat
     public var radius: CGFloat
 
     internal init(
         backgroundColor: PlatformColor?,
+        progressColor: PlatformColor?,
         borderColor: PlatformColor?,
         borderWidth: CGFloat,
         radius: CGFloat
     ) {
         self.backgroundColor = backgroundColor
+        self.progressColor = progressColor
         self.borderColor = borderColor
         self.borderWidth = borderWidth
         self.radius = radius
@@ -97,6 +99,7 @@ public struct TextInputBackgroundStyle: Sendable, Equatable, With {
 
     static let `default`: Self = .init(
         backgroundColor: .secondaryFill,
+        progressColor: .secondaryFill,
         borderColor: .primaryFill,
         borderWidth: 1,
         radius: 6

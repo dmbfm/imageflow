@@ -324,6 +324,7 @@ public final class TextInput: PlatformCommonView {
             self,
             dragData: .init(
                 phase: .init(gestureRecognizerState: gesture.state),
+                modifiers: .init(flags: event.modifierFlags),
                 region: self.backgroundView.bounds,
                 translation: gesture.translation(in: nil),
                 start: self.dragStartLocation,
@@ -618,6 +619,7 @@ public protocol TextInputDelegate: AnyObject {
 extension TextInput {
     public struct DragData: Sendable, Equatable {
         public var phase: GesturePhase
+        public var modifiers: KeyModifiers
         public var region: CGRect
         public var translation: CGPoint
         public var start: CGPoint
@@ -630,6 +632,7 @@ extension TextInputDelegate {
     public func textInputDidBeginEditing(_ textInput: TextInput) {}
     public func textInputDidEndEditing(_ textInput: TextInput) {}
     public func textInputDidCancel(_ textInput: TextInput) {}
+    public func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData) {}
 }
 
 // MARK: - Style
