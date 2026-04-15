@@ -85,6 +85,8 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
             let controller = NumberInputController()
             controller.sizingMode = .fixedWidth(68)
             controller.dragConfiguration = .free(.init(fractionalDigits: 2))
+            controller.style = .default
+                .with(\.font, .systemFont(ofSize: 12))
             let delegate = DelegateForNumberInput(control: self, index: idx)
             self.numberInputDelegates.append(delegate)
             controller.delegate = delegate

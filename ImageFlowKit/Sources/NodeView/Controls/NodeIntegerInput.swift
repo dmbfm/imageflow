@@ -116,6 +116,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         controller.sizingMode = .fixedWidth(60)
         controller.value = Double(self.value.int)
         controller.dragConfiguration = self.dragConfiguration
+        controller.style = .default
+            .with(\.font, .systemFont(ofSize: 12))
         controller.delegate = self
         controller.formatter = Formatter()
         return controller

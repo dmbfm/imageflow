@@ -54,7 +54,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         let controller = NumberInputController()
         controller.sizingMode = .fixedWidth(84)
         controller.style = .default
-            .with(\.background.borderColor, .primaryFill)
+            .with(\.font, .systemFont(ofSize: 12))
         controller.value = self.value.float
         controller.dragConfiguration = self.dragConfiguration
         controller.delegate = self
