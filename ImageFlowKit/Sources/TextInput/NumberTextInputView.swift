@@ -13,7 +13,7 @@ public struct NumberTextInputView: PlatformViewRepresentable {
         // self.style ?? .default.with(\.insets, .init(horizontal: 10, vertical: 8))
         self.style ?? .default
     }
-    
+
     public init(
         _ value: Double,
         isDragging: Binding<Bool>? = nil,
@@ -90,7 +90,7 @@ public struct NumberTextInputView: PlatformViewRepresentable {
 
             #if os(iOS)
             if controller.keyboardType != self.keyboardType ?? .numbersAndPunctuation {
-                controller.keyboardType = self.keyboardType  ?? .numbersAndPunctuation
+                controller.keyboardType = self.keyboardType ?? .numbersAndPunctuation
             }
             #endif
         }
@@ -142,7 +142,7 @@ extension EnvironmentValues {
 }
 
 extension View {
-    
+
     #if os(iOS)
     func numberTextInputKeyboardType(_ type: UIKeyboardType?) -> some View {
         self.environment(\.numberTextInputKeyboardType, type)

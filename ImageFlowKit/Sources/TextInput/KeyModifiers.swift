@@ -38,7 +38,7 @@ public struct KeyModifiers: Sendable, OptionSet {
         }
     }
     #endif
-    
+
     #if os(iOS)
     public init(flags: UIKeyModifierFlags) {
         self = []
