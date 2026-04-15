@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 #if os(macOS)
@@ -13,6 +14,47 @@ import AppKit
 #if os(iOS)
 import UIKit
 #endif
+
+extension NodeVectorInput {
+    @MainActor
+    class DelegateForNumberInput: NumberTextInputDelegate {
+        weak var control: NodeVectorInput?
+        var index: Int
+
+        init(control: NodeVectorInput?, index: Int) {
+            self.control = control
+            self.index = index
+        }
+
+        func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
+            guard let view = self.control else { return }
+
+            view.setValue(
+                newValue: view.value(settingIndex: self.index, to: change.newValue),
+                oldValue: view.value(settingIndex: self.index, to: change.oldValue),
+                registerUndo: change.commit
+            )
+        }
+
+        func numberInputDragStarted(_ numberInput: NumberInputController) {
+            self.control?.emit(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+        }
+
+        func numberInputDragEnded(_ numberInput: NumberInputController) {
+            self.control?.emit(.statusBarMessage(nil))
+        }
+
+        func numberInputKeyboardWillShow(
+            _ numberInput: NumberInputController,
+            windowVerticalOverlap: Double,
+            animationDuration: Double
+        ) {
+            self.control?.emit(
+                .keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration)
+            )
+        }
+    }
+}
 
 final class NodeVectorInput: PlatformCommonView, NodeControl {
     var context: NodeControlContext = .init()
@@ -36,36 +78,18 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
 
     lazy var locale: Locale = { .init(identifier: "en-US") }()
 
-    lazy var textFields: [NodeTextField] = {
-        (0..<dim).map { idx in
-            let view = NodeTextField(
-                self.value[idx].formatted(.nodeNumber),
-                style: .default.with(\.borderColor, self.tint)
-            )
-            view.onEvent = { [weak self] event in
-                switch event {
-                case .textDidChange(let value):
-                    guard let self else { return }
-                    if let number = Double(value) {
-                        self.setValue(newValue: self.value(settingIndex: idx, to: number), registerUndo: true)
-                    } else {
-                        if value == "" {
-                            self.setValue(newValue: self.value(settingIndex: idx, to: 0.0), registerUndo: true)
-                        } else {
-                            self.update()
-                        }
-                    }
-                case .sizeDidChange:
-                    self?.invalidateIntrinsicContentSize()
-                    self?.emit(.sizeDidChange)
-                case let .drag(drag):
-                    self?.onDrag(idx, drag)
-                case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
-                    self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
-                }
-            }
-            return view
-        }
+    var numberInputDelegates: [DelegateForNumberInput] = []
+
+    lazy var textFields: [NumberInputController] = {
+        (0..<dim).map({ idx in
+            let controller = NumberInputController()
+            controller.sizingMode = .fixedWidth(68)
+            controller.dragConfiguration = .free(.init(fractionalDigits: 2))
+            let delegate = DelegateForNumberInput(control: self, index: idx)
+            self.numberInputDelegates.append(delegate)
+            controller.delegate = delegate
+            return controller
+        })
     }()
 
     var dim: Int {
@@ -83,12 +107,12 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
 
     var isEditable: Bool {
         get {
-            self.textFields.contains(where: { $0.isEditable })
+            self.textFields.contains(where: { $0.isEnabled })
         }
 
         set {
             self.textFields.forEach { view in
-                view.isEditable = newValue
+                view.isEnabled = newValue
             }
         }
     }
@@ -103,11 +127,11 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         self.clipsToBounds = false
 
         self.textFields.forEach { view in
-            view.isEditable = isEditable
+            view.isEnabled = isEditable
         }
 
         for v in self.textFields {
-            self.addSubview(v)
+            self.addSubview(v.view)
         }
     }
 
@@ -115,25 +139,29 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         nil
     }
 
+    let spacing: CGFloat = 4
+
     override var intrinsicContentSize: CGSize {
-        self.textFields.reduce(
+        let size = self.textFields.reduce(
             CGSize.zero,
-            { acc, view in
+            { acc, controller in
                 .init(
-                    width: acc.width + view.intrinsicContentSize.width,
-                    height: max(view.intrinsicContentSize.height, acc.height)
+                    width: acc.width + controller.view.intrinsicContentSize.width,
+                    height: max(controller.view.intrinsicContentSize.height, acc.height)
                 )
             }
         )
+
+        return size + .init(width: self.spacing * CGFloat(self.dim - 1), height: 0)
     }
 
     override func doLayout() {
         _ = self.textFields.reduce(
             0.0,
-            { acc, view in
-                view.frame.origin = .init(x: acc, y: 0)
-                view.frame.size = view.intrinsicContentSize
-                return view.frame.maxX
+            { acc, controller in
+                controller.view.frame.origin = .init(x: acc, y: 0)
+                controller.view.frame.size = controller.view.intrinsicContentSize
+                return controller.view.frame.maxX + self.spacing
             }
         )
     }
@@ -156,47 +184,10 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
 
     private func update() {
         for (idx, view) in self.textFields.enumerated() {
-            view.text = self.value[idx].formatted(.nodeNumber)
+            view.value = self.value[idx]
         }
         self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
-    }
-
-    func onDrag(_ idx: Int, _ value: NodeTextFieldEvent.Drag) {
-        let phase = value.phase
-        let shiftDown = value.shiftDown
-        let optionDown = value.optionDown
-        let dx = value.dx
-
-        self.updateStatusBarMessage(phase)
-
-        switch phase {
-        case .began:
-            self.valueAtDragStart = self.value[idx]
-        default:
-            break
-        }
-
-        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
-        let t = dx * sensitivity
-        let newValue = (self.valueAtDragStart + t).truncateTo(fractionalDigits: 2)
-
-        if phase == .ended {
-            let oldValue = self.value(settingIndex: idx, to: self.valueAtDragStart)
-            self.setValue(newValue: self.value(settingIndex: idx, to: newValue), oldValue: oldValue, registerUndo: true)
-        } else {
-            self.setValue(newValue: self.value(settingIndex: idx, to: newValue))
-        }
-    }
-
-    func updateStatusBarMessage(_ phase: GesturePhase) {
-        switch phase {
-        case .began:
-            self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
-        case .ended, .cancelled:
-            self.onEvent?(.statusBarMessage(nil))
-        default: break
-        }
     }
 }
 

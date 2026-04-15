@@ -53,8 +53,8 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         view.context = self.innerContext
 
         #if os(macOS)
-        for (idx, view) in view.textFields.enumerated() {
-            view.toolTip =
+        for (idx, controller) in view.textFields.enumerated() {
+            controller.view.toolTip =
                 switch idx {
                 case 0: "origin x coordinate"
                 case 1: "origin y coordinate"
