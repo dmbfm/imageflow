@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 #if os(macOS)
@@ -31,7 +32,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     var range: ClosedRange<Double>? = nil
 
-    var progress: CGFloat? {
+    var progress: Double? {
         get {
             self.textField.progress
         }
@@ -41,55 +42,75 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         }
     }
 
-    lazy var textField: NodeNumberTextField = {
-        let view = NodeNumberTextField(
-            self.value.float,
-            isEditable: true
-        )
-        view.onEvent = { [weak self] event in
-            guard let self else { return }
-            switch event {
-            case .sizeDidChange:
-                self.invalidateIntrinsicContentSize()
-                self.emit(.sizeDidChange)
-            case .valueDidChange(let change):
-                let newValue =
-                    if change.drag {
-                        self.range.maybeReduce(change.newValue, { value, range in value.clamped(to: range) })
-                    } else {
-                        change.newValue
-                    }
-
-                self.setValue(
-                    newValue: .float(newValue),
-                    oldValue: change.oldValue.map({ .float($0) }),
-                    registerUndo: change.commit
-                )
-
-                self.textField.value = newValue
-                self.updateProgress(nil)
-
-            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
-                self.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
-            case .dragStateChanged(let dragState):
-                switch dragState {
-                case .dragging:
-                    self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
-                case .notDragging:
-                    self.onEvent?(.statusBarMessage(nil))
-                }
-            }
-        }
-        self.updateProgress(view)
-        return view
+    lazy var textField: NumberInputController = {
+        let controller = NumberInputController()
+        controller.sizingMode = .fixedWidth(80)
+        controller.style = .default
+            .with(\.background.borderWidth, 1)
+            .with(\.background.borderColor, .primaryFill)
+        controller.value = self.value.float
+        controller.dragConfiguration = .free(.init(sensitivity: .init(), fractionalDigits: 2))
+        controller.delegate = self
+        return controller
     }()
+
+    // var textField: TextInput {
+    //     self.numberTextInput.view
+    // }
+    // lazy var textField: TextInput = {
+    // lazy var textField: TextInput = {
+    // fatalError()
+
+    // let view =
+
+    // let view = NodeNumberTextField(
+    //     self.value.float,
+    //     isEditable: true
+    // )
+    // view.onEvent = { [weak self] event in
+    //     guard let self else { return }
+    //     switch event {
+    //     case .sizeDidChange:
+    //         self.invalidateIntrinsicContentSize()
+    //         self.emit(.sizeDidChange)
+    //     case .valueDidChange(let change):
+    //         let newValue =
+    //             if change.drag {
+    //                 self.range.maybeReduce(change.newValue, { value, range in value.clamped(to: range) })
+    //             } else {
+    //                 change.newValue
+    //             }
+
+    //         self.setValue(
+    //             newValue: .float(newValue),
+    //             oldValue: change.oldValue.map({ .float($0) }),
+    //             registerUndo: change.commit
+    //         )
+
+    //         self.textField.value = newValue
+    //         self.updateProgress(nil)
+
+    //     case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
+    //         self.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
+    //     case .dragStateChanged(let dragState):
+    //         switch dragState {
+    //         case .dragging:
+    //             self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+    //         case .notDragging:
+    //             self.onEvent?(.statusBarMessage(nil))
+    //         }
+    //     }
+    // }
+    // self.updateProgress(view)
+    // return view
+    // }()
 
     var isEditable: Bool {
         get {
-            self.textField.isEditable
+            self.textField.isEnabled
         }
         set {
-            self.textField.isEditable = newValue
+            self.textField.isEnabled = newValue
         }
     }
 
@@ -101,9 +122,9 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
         self.clipsToBounds = false
 
-        self.textField.isEditable = isEditable
+        self.textField.isEnabled = isEditable
 
-        self.addSubview(self.textField)
+        self.addSubview(self.textField.view)
     }
 
     public required init?(coder: NSCoder) {
@@ -111,13 +132,13 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
     }
 
     public override var intrinsicContentSize: CGSize {
-        let result = self.textField.intrinsicContentSize
+        let result = self.textField.view.intrinsicContentSize
         return result
     }
 
     override func doLayout() {
-        self.textField.frame.origin = .zero
-        self.textField.frame.size = self.textField.intrinsicContentSize
+        self.textField.view.frame.origin = .zero
+        self.textField.view.frame.size = self.textField.view.intrinsicContentSize
     }
 
     func update() {
@@ -126,12 +147,34 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
     }
 
     func updateProgress(_ textField: NodeNumberTextField? = nil) {
-        let textField = textField ?? self.textField
+        // let textField = textField ?? self.textField
         if let range = self.range {
-            textField.progress = range.progress(self.value.float)
+            self.textField.progress = range.progress(self.value.float)
         } else {
-            textField.progress = nil
+            self.textField.progress = nil
         }
+    }
+}
+
+extension NodeNumberInput: NumberTextInputDelegate {
+    func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
+        self.setValue(newValue: .float(change.newValue), oldValue: .float(change.oldValue), registerUndo: change.commit)
+    }
+
+    func numberInputDragStarted(_ numberInput: NumberInputController) {
+        self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+    }
+
+    func numberInputDragEnded(_ numberInput: NumberInputController) {
+        self.onEvent?(.statusBarMessage(nil))
+    }
+
+    func numberInputKeyboardWillShow(
+        _ numberInput: NumberInputController,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {
+        self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration))
     }
 }
 

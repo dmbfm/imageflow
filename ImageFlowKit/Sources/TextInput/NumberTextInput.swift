@@ -32,6 +32,11 @@ public class NumberInputController {
 
     public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter()
 
+    public var progress: Double? {
+        get { self.view.progress }
+        set { self.view.progress = newValue }
+    }
+
     public var style: TextInputStyle {
         get { self.view.style }
         set { self.view.style = newValue }
@@ -76,7 +81,7 @@ public class NumberInputController {
 
     private var valueAtDragStart: Double = 0.0
 
-    init(_ style: TextInputStyle = .default) {
+    public init(_ style: TextInputStyle = .default) {
         self.view = TextInput(behaviours: .draggableTextInput)
         self.view.delegate = self
         self.view.style = style
@@ -240,6 +245,10 @@ extension NumberInputController: TextInputDelegate {
             self.delegate?.numberInputDragEnded(self)
         }
     }
+    
+    public func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double) {
+        self.delegate?.numberInputKeyboardWillShow(self, windowVerticalOverlap: windowVerticalOverlap, animationDuration: animationDuration)
+    }
 }
 
 extension NumberInputController {
@@ -342,12 +351,14 @@ public protocol NumberTextInputDelegate: AnyObject {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change)
     func numberInputDragStarted(_ numberInput: NumberInputController)
     func numberInputDragEnded(_ numberInput: NumberInputController)
+    func numberInputKeyboardWillShow(_ numberInput: NumberInputController, windowVerticalOverlap: Double, animationDuration: Double)
 }
 
 extension NumberTextInputDelegate {
     public func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {}
     public func numberInputDragStarted(_ numberInput: NumberInputController) {}
     public func numberInputDragEnded(_ numberInput: NumberInputController) {}
+    public func numberInputKeyboardWillShow(_ numberInput: NumberInputController, windowVerticalOverlap: Double, animationDuration: Double) {}
 }
 
 public protocol NumberTextInputFormatter {

@@ -8,6 +8,7 @@ import AppKit
 
 #if os(iOS)
 import UIKit
+import Combine
 #endif
 
 @MainActor
@@ -292,10 +293,48 @@ public final class TextInput: PlatformCommonView {
         }
     }
 
-    public override func resetCursorRects() {
-        if self.behaviours.contains(.dragWhenNotEditable) {
-            let canDrag = !self.isEditable && self.isEnabled
-            self.addCursorRect(self.backgroundView.frame, cursor: canDrag ? .columnResize : .arrow)
+    public override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        for t in self.trackingAreas {
+            self.removeTrackingArea(t)
+        }
+        let trackingArea = NSTrackingArea(
+            rect: self.bounds,
+            options: [.cursorUpdate, .activeInKeyWindow, .mouseEnteredAndExited, .mouseMoved],
+            owner: self,
+            userInfo: nil
+        )
+        self.addTrackingArea(trackingArea)
+    }
+
+    private var hasPushedCursor: Bool = false
+
+    // public override func mouseEntered(with event: NSEvent) {
+    //     if self.behaviours.contains(.dragWhenNotEditable) && !self.isEditable && self.isEnabled {
+    //         if !self.hasPushedCursor {
+    //             NSCursor.columnResize.push()
+    //             self.hasPushedCursor = true
+    //         }
+    //     }
+    // }
+
+    // public override func mouseExited(with event: NSEvent) {
+    //     print("--> mouseExited: \(self.hasPushedCursor)")
+    //     if self.hasPushedCursor {
+    //         NSCursor.pop()
+    //         self.hasPushedCursor = false
+    //     }
+    // }
+
+    public override func mouseMoved(with event: NSEvent) {
+        if self.behaviours.contains(.dragWhenNotEditable) && !self.isEditable && self.isEnabled
+            && self.window?.firstResponder != self.textField
+        {
+            NSCursor.columnResize.set()
+            // if !self.hasPushedCursor {
+            //     NSCursor.columnResize.push()
+            //     self.hasPushedCursor = true
+            // }
         }
     }
 
@@ -353,7 +392,36 @@ public final class TextInput: PlatformCommonView {
             let interaction = UIPointerInteraction(delegate: self)
             self.addInteraction(interaction)
         }
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .sink { [weak self] notification in
+                guard let self else { return }
+                if let frameValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+
+                    let maybeDuration =
+                        (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?
+                        .doubleValue
+                    let duration = maybeDuration ?? 0.4
+
+                    let keyboardFrame = frameValue.cgRectValue
+                    MainActor.assumeIsolated {
+                        if !self.textField.isEditing { return }
+
+                        let bounds = self.convert(self.bounds, to: nil)
+                        let dy = bounds.maxY - keyboardFrame.minY
+
+                        if dy > 0 {
+                            self.delegate?.textInputKeyboardWillShow(
+                                self,
+                                windowVerticalOverlap: dy + 10,
+                                animationDuration: duration
+                            )
+                        }
+                    }
+                }
+            }.store(in: &self.cancellables)
     }
+
+    var cancellables: Set<AnyCancellable>
 
     @objc
     func tapGestureHandler(_ gesture: UITapGestureRecognizer) {
@@ -638,6 +706,7 @@ public protocol TextInputDelegate: AnyObject {
     func textInputDidEndEditing(_ textInput: TextInput)
     func textInputDidCancel(_ textInput: TextInput)
     func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData)
+    func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double)
 }
 
 extension TextInput {
@@ -657,6 +726,11 @@ extension TextInputDelegate {
     public func textInputDidEndEditing(_ textInput: TextInput) {}
     public func textInputDidCancel(_ textInput: TextInput) {}
     public func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData) {}
+    public func textInputKeyboardWillShow(
+        _ textInput: TextInput,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {}
 }
 
 // MARK: - Style

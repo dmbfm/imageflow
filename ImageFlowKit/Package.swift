@@ -150,6 +150,7 @@ let package = Package(
                 "Values",
                 "Backend",
                 "SharedModels",
+                "TextInput",
             ]
         ),
         .target(
