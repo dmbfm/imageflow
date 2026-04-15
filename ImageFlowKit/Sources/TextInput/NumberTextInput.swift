@@ -111,7 +111,7 @@ public class NumberInputController {
         fractionalDigits: Int? = nil,
         partialRange: PartialRangeFrom<Double>? = nil
     ) {
-        let s = sensitivity.normal
+        let s = sensitivity.value(forKeyModifiers: dragData.modifiers)
         let newValue = fractionalDigits.maybeReduce(
             partialRange.maybeReduce(
                 self.valueAtDragStart + s * dragData.translation.x,
@@ -245,9 +245,17 @@ extension NumberInputController: TextInputDelegate {
             self.delegate?.numberInputDragEnded(self)
         }
     }
-    
-    public func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double) {
-        self.delegate?.numberInputKeyboardWillShow(self, windowVerticalOverlap: windowVerticalOverlap, animationDuration: animationDuration)
+
+    public func textInputKeyboardWillShow(
+        _ textInput: TextInput,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {
+        self.delegate?.numberInputKeyboardWillShow(
+            self,
+            windowVerticalOverlap: windowVerticalOverlap,
+            animationDuration: animationDuration
+        )
     }
 }
 
@@ -337,10 +345,20 @@ extension NumberInputController {
             public var optionDown: Double?
             public var shiftDown: Double?
 
-            public init(normal: Double = 1.0, optionDown: Double? = 10.0, shiftDown: Double? = 0.1) {
+            public init(normal: Double = 0.5, optionDown: Double? = 2.0, shiftDown: Double? = 0.001) {
                 self.normal = normal
                 self.optionDown = optionDown
                 self.shiftDown = shiftDown
+            }
+
+            public func value(forKeyModifiers modifiers: KeyModifiers) -> Double {
+                if modifiers.contains(.shift) {
+                    return self.shiftDown ?? self.normal
+                } else if modifiers.contains(.option) {
+                    return self.optionDown ?? self.normal
+                } else {
+                    return self.normal
+                }
             }
         }
     }
@@ -351,14 +369,22 @@ public protocol NumberTextInputDelegate: AnyObject {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change)
     func numberInputDragStarted(_ numberInput: NumberInputController)
     func numberInputDragEnded(_ numberInput: NumberInputController)
-    func numberInputKeyboardWillShow(_ numberInput: NumberInputController, windowVerticalOverlap: Double, animationDuration: Double)
+    func numberInputKeyboardWillShow(
+        _ numberInput: NumberInputController,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    )
 }
 
 extension NumberTextInputDelegate {
     public func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {}
     public func numberInputDragStarted(_ numberInput: NumberInputController) {}
     public func numberInputDragEnded(_ numberInput: NumberInputController) {}
-    public func numberInputKeyboardWillShow(_ numberInput: NumberInputController, windowVerticalOverlap: Double, animationDuration: Double) {}
+    public func numberInputKeyboardWillShow(
+        _ numberInput: NumberInputController,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {}
 }
 
 public protocol NumberTextInputFormatter {
