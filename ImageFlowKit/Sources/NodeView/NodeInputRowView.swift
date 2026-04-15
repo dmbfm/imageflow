@@ -109,6 +109,12 @@ public final class NodeInputRowView: PlatformView {
                         range: range,
                         isEditable: self.isEditable
                     )
+                case .integer(.partialRangeFrom(let lowerBound)):
+                    NodeIntegerInput(
+                        self.input.value,
+                        lowerBound: lowerBound,
+                        isEditable: self.isEditable,
+                    )
                 case .integer(.picker(let options)):
                     NodeOptionPickerInput(
                         self.input.value,

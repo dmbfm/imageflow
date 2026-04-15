@@ -52,7 +52,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
 
     lazy var textField: NumberInputController = {
         let controller = NumberInputController()
-        controller.sizingMode = .fixedWidth(80)
+        controller.sizingMode = .fixedWidth(84)
         controller.style = .default
             .with(\.background.borderColor, .primaryFill)
         controller.value = self.value.float
@@ -118,7 +118,6 @@ extension NodeNumberInput: NumberTextInputDelegate {
     }
 
     func numberInputDragStarted(_ numberInput: NumberInputController) {
-
         let message: String? =
             if self.range != nil {
                 StatusBarMessage.dragFloatRange.rawValue

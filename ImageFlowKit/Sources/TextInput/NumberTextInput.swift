@@ -30,7 +30,11 @@ public class NumberInputController {
         }
     }
 
-    public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter()
+    public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter() {
+        didSet {
+            self.update()
+        }
+    }
 
     public var progress: Double? {
         get { self.view.progress }

@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 #if os(macOS)
@@ -46,6 +47,12 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var lowerBound: Int? = nil {
+        didSet {
+            self.updateRange()
+        }
+    }
+
     var min: Int? {
         self.range?.lowerBound
     }
@@ -57,14 +64,14 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     #if os(macOS)
     func updateRange(_ stepper: NSStepper? = nil) {
         let stepper = stepper ?? self.stepper
-        stepper.minValue = Double(self.range?.lowerBound ?? .min)
+        stepper.minValue = Double(self.range?.lowerBound ?? self.lowerBound ?? .min)
         stepper.maxValue = Double(self.range?.upperBound ?? .max)
         stepper.valueWraps = false
     }
     #else
     func updateRange(_ stepper: UIStepper? = nil) {
         let stepper = stepper ?? self.stepper
-        stepper.minimumValue = Double(self.range?.lowerBound ?? .min)
+        stepper.minimumValue = Double(self.range?.lowerBound ?? self.lowerBound ?? .min)
         stepper.maximumValue = Double(self.range?.upperBound ?? .max)
         stepper.wraps = false
     }
@@ -72,34 +79,46 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     private var style: Style = .default
 
-    lazy var textField: NodeTextField = {
-        let view = NodeTextField(
-            self.value.int.formatted(.nodeInterger),
-            style: .default.with(\.borderColor, self.tint)
-        )
-        view.onEvent = { [weak self] event in
-            switch event {
-            case .textDidChange(let value):
-                guard let self else { return }
-                if let number = Int(value) {
-                    self.setValue(newValue: .int(number), registerUndo: true)
-                } else {
-                    if value == "" {
-                        self.setValue(newValue: .int(0), registerUndo: true)
-                    } else {
-                        self.update()
-                    }
-                }
-            case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.emit(.sizeDidChange)
-            case .drag(let drag):
-                self?.onDrag(drag)
-            case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
-                self?.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
-            }
+    var dragConfiguration: NumberInputController.DragConfiguration {
+        if let range = self.range {
+            return .range(
+                .closed(
+                    .init(
+                        range: .init(uncheckedBounds: (Double(range.lowerBound), Double(range.upperBound))),
+                        sensitivity: .init(slow: 0.1, modifier: .shift),
+                        snap: .init(increments: 1.0),
+                        fractionalDigits: 0
+                    )
+                )
+            )
+        } else if let lowerBound = self.lowerBound {
+            return .range(
+                .partialFrom(
+                    .init(
+                        lowerBound: Double(lowerBound),
+                        sensitivity: .init(shiftDown: 0.1),
+                        fractionalDigits: 0
+                    )
+                )
+            )
+        } else {
+            return .free(
+                .init(
+                    sensitivity: .init(shiftDown: 0.1),
+                    fractionalDigits: 0
+                )
+            )
         }
-        return view
+    }
+
+    lazy var textField: NumberInputController = {
+        let controller = NumberInputController()
+        controller.sizingMode = .fixedWidth(60)
+        controller.value = Double(self.value.int)
+        controller.dragConfiguration = self.dragConfiguration
+        controller.delegate = self
+        controller.formatter = Formatter()
+        return controller
     }()
 
     #if os(macOS)
@@ -158,27 +177,28 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
 
     var isEditable: Bool {
         get {
-            self.textField.isEditable
+            self.textField.isEnabled
         }
 
         set {
-            self.textField.isEditable = newValue
+            self.textField.isEnabled = newValue
             self.stepper.isHidden = !newValue
         }
     }
 
-    init(_ value: Value, range: ClosedRange<Int>? = nil, isEditable: Bool = true) {
+    init(_ value: Value, range: ClosedRange<Int>? = nil, lowerBound: Int? = nil, isEditable: Bool = true) {
         self.range = range
         self.value = value
+        self.lowerBound = lowerBound
 
         super.init(frame: .zero)
 
         self.clipsToBounds = false
 
-        self.textField.isEditable = isEditable
+        self.textField.isEnabled = isEditable
         self.stepper.isHidden = !isEditable
 
-        self.addSubview(self.textField)
+        self.addSubview(self.textField.view)
         self.addSubview(self.stepper)
     }
 
@@ -187,19 +207,19 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     }
 
     public override var intrinsicContentSize: CGSize {
-        self.textField.intrinsicContentSize.minMax(self.stepper.intrinsicContentSize, width: .sum, height: .max)
+        self.textField.view.intrinsicContentSize.minMax(self.stepper.intrinsicContentSize, width: .sum, height: .max)
             + .init(width: self.style.textFieldStepperPadding, height: 0)
     }
 
     override func doLayout() {
-        self.textField.frame.origin = .zero
-        self.textField.frame.size = self.textField.intrinsicContentSize
-        self.stepper.frame.origin = .init(x: self.textField.frame.maxX + self.style.textFieldStepperPadding, y: 0)
+        self.textField.view.frame.origin = .zero
+        self.textField.view.frame.size = self.textField.view.intrinsicContentSize
+        self.stepper.frame.origin = .init(x: self.textField.view.frame.maxX + self.style.textFieldStepperPadding, y: 0)
         self.stepper.frame.size = self.stepper.intrinsicContentSize
 
         Layout.align(
             views: [
-                self.textField,
+                self.textField.view,
                 self.stepper,
             ],
             alignment: .verticalCenter,
@@ -213,7 +233,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
     }
 
     func update() {
-        self.textField.text = self.value.int.formatted(.nodeInterger)
+        // self.textField.text = self.value.int.formatted(.nodeInterger)
+        self.textField.value = Double(self.value.int)
         self.stepper.value = Double(self.value.int)
         self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
@@ -254,6 +275,52 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         case .ended, .cancelled:
             self.onEvent?(.statusBarMessage(nil))
         default: break
+        }
+    }
+}
+
+extension NodeIntegerInput: NumberTextInputDelegate {
+
+    func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
+        self.setValue(
+            newValue: .int(Int(change.newValue)),
+            oldValue: .int(Int(change.oldValue)),
+            registerUndo: change.commit
+        )
+    }
+
+    func numberInputDragStarted(_ numberInput: NumberInputController) {
+        let message: String? =
+            if self.range != nil {
+                StatusBarMessage.dragFloatRange.rawValue
+            } else {
+                StatusBarMessage.dragFloat.rawValue
+            }
+
+        self.onEvent?(.statusBarMessage(message))
+    }
+
+    func numberInputDragEnded(_ numberInput: NumberInputController) {
+        self.onEvent?(.statusBarMessage(nil))
+    }
+
+    func numberInputKeyboardWillShow(
+        _ numberInput: NumberInputController,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {
+        self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration))
+    }
+}
+
+extension NodeIntegerInput {
+    struct Formatter: NumberTextInputFormatter {
+        func numperInputFormatter(formatValue value: Double) -> String {
+            "\(Int(value.rounded()))"
+        }
+
+        func numperInputFormatter(parseString string: String) -> Double? {
+            Int(string).map({ Double($0) })
         }
     }
 }
