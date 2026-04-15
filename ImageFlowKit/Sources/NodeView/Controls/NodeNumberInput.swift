@@ -42,67 +42,24 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         }
     }
 
+    var dragConfiguration: NumberInputController.DragConfiguration {
+        if let range = self.range {
+            return .range(.closed(.init(range: range, snap: nil, fractionalDigits: 2)))
+        } else {
+            return .free(.init(sensitivity: .init(), fractionalDigits: 2))
+        }
+    }
+
     lazy var textField: NumberInputController = {
         let controller = NumberInputController()
         controller.sizingMode = .fixedWidth(80)
         controller.style = .default
             .with(\.background.borderColor, .primaryFill)
         controller.value = self.value.float
-        controller.dragConfiguration = .free(.init(sensitivity: .init(), fractionalDigits: 2))
+        controller.dragConfiguration = self.dragConfiguration
         controller.delegate = self
         return controller
     }()
-
-    // var textField: TextInput {
-    //     self.numberTextInput.view
-    // }
-    // lazy var textField: TextInput = {
-    // lazy var textField: TextInput = {
-    // fatalError()
-
-    // let view =
-
-    // let view = NodeNumberTextField(
-    //     self.value.float,
-    //     isEditable: true
-    // )
-    // view.onEvent = { [weak self] event in
-    //     guard let self else { return }
-    //     switch event {
-    //     case .sizeDidChange:
-    //         self.invalidateIntrinsicContentSize()
-    //         self.emit(.sizeDidChange)
-    //     case .valueDidChange(let change):
-    //         let newValue =
-    //             if change.drag {
-    //                 self.range.maybeReduce(change.newValue, { value, range in value.clamped(to: range) })
-    //             } else {
-    //                 change.newValue
-    //             }
-
-    //         self.setValue(
-    //             newValue: .float(newValue),
-    //             oldValue: change.oldValue.map({ .float($0) }),
-    //             registerUndo: change.commit
-    //         )
-
-    //         self.textField.value = newValue
-    //         self.updateProgress(nil)
-
-    //     case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
-    //         self.emit(.keyboardWillShow(windowVerticalOverlap: value, duration: duration))
-    //     case .dragStateChanged(let dragState):
-    //         switch dragState {
-    //         case .dragging:
-    //             self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
-    //         case .notDragging:
-    //             self.onEvent?(.statusBarMessage(nil))
-    //         }
-    //     }
-    // }
-    // self.updateProgress(view)
-    // return view
-    // }()
 
     var isEditable: Bool {
         get {
@@ -161,7 +118,15 @@ extension NodeNumberInput: NumberTextInputDelegate {
     }
 
     func numberInputDragStarted(_ numberInput: NumberInputController) {
-        self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+
+        let message: String? =
+            if self.range != nil {
+                StatusBarMessage.dragFloatRange.rawValue
+            } else {
+                StatusBarMessage.dragFloat.rawValue
+            }
+
+        self.onEvent?(.statusBarMessage(message))
     }
 
     func numberInputDragEnded(_ numberInput: NumberInputController) {
