@@ -261,13 +261,19 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
     }
 
     func updateContentView() {
-        self.contentView.bounds = CGRect(
-            origin: self.viewport.origin,
-            size: self.viewport.convert(
-                self.bounds.size,
-                from: .screen,
-                to: .viewport
-            )
+        self.contentView.bounds = self.backingAlignedRect(
+            CGRect(
+                origin: self.viewport.origin,
+                size: self.viewport.convert(
+                    self.bounds.size,
+                    from: .screen,
+                    to: .viewport
+                )
+            ),
+            options: [
+                .alignMinXInward, .alignWidthNearest,
+                .alignMinYInward, .alignHeightNearest,
+            ]
         )
     }
 
