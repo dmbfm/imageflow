@@ -112,19 +112,27 @@ public class NumberInputController {
     func handleDragNoRange(
         dragData: TextInput.DragData,
         sensitivity: DragConfiguration.Sensitivity,
+        snap: DragConfiguration.Snap? = nil,
         fractionalDigits: Int? = nil,
-        partialRange: PartialRangeFrom<Double>? = nil
+        partialRange: PartialRangeFrom<Double>? = nil,
     ) {
         let s = sensitivity.value(forKeyModifiers: dragData.modifiers)
-        let newValue = fractionalDigits.maybeReduce(
-            partialRange.maybeReduce(
-                self.valueAtDragStart + s * dragData.translation.x,
-                { value, range in value.clamped(to: range) }
+        let snap: DragConfiguration.Snap? = snap?.resolve(dragData.modifiers)
+        let newValue = snap.maybeReduce(
+            fractionalDigits.maybeReduce(
+                partialRange.maybeReduce(
+                    self.valueAtDragStart + s * dragData.translation.x,
+                    { value, range in value.clamped(to: range) }
+                ),
+                { value, digits in
+                    value.truncateTo(fractionalDigits: digits)
+                }
             ),
-            { value, digits in
-                value.truncateTo(fractionalDigits: digits)
+            { value, snap in
+                value.snapping(toIncrements: snap.increments, epsilon: snap.epsilon)
             }
         )
+
         self.value = newValue
 
         switch dragData.phase {
@@ -158,8 +166,7 @@ public class NumberInputController {
         dragData: TextInput.DragData,
         configuration: DragConfiguration.Range.Closed
     ) {
-
-        let snap = configuration.snap
+        let snap: DragConfiguration.Snap? = configuration.snap?.resolve(dragData.modifiers)
         let fractionalDigits = configuration.fractionalDigits
         let range = configuration.range
         let s = configuration.sensitivity.value(forKeyModifiers: dragData.modifiers)
@@ -233,6 +240,7 @@ extension NumberInputController: TextInputDelegate {
             self.handleDragNoRange(
                 dragData: dragData,
                 sensitivity: free.sensitivity,
+                snap: free.snap,
                 fractionalDigits: free.fractionalDigits
             )
         case .range(.closed(let closed)):
@@ -244,6 +252,7 @@ extension NumberInputController: TextInputDelegate {
             self.handleDragNoRange(
                 dragData: dragData,
                 sensitivity: partial.sensitivity,
+                snap: partial.snap,
                 fractionalDigits: partial.fractionalDigits,
                 partialRange: partial.lowerBound...
             )
@@ -297,12 +306,17 @@ extension NumberInputController {
         public struct Free: Sendable, Equatable {
             public var sensitivity: Sensitivity
             public var fractionalDigits: Int?
+            public var snap: Snap?
 
-            public init(sensitivity: DragConfiguration.Sensitivity = .init(), fractionalDigits: Int? = nil) {
+            public init(
+                sensitivity: DragConfiguration.Sensitivity = .init(),
+                snap: Snap? = nil,
+                fractionalDigits: Int? = nil
+            ) {
                 self.sensitivity = sensitivity
                 self.fractionalDigits = fractionalDigits
+                self.snap = snap
             }
-
         }
 
         public enum Range: Sendable, Equatable {
@@ -312,16 +326,19 @@ extension NumberInputController {
             public struct PartialFrom: Sendable, Equatable {
                 public var lowerBound: Double
                 public var sensitivity: Sensitivity
+                public var snap: Snap?
                 public var fractionalDigits: Int?
 
                 public init(
                     lowerBound: Double,
                     sensitivity: DragConfiguration.Sensitivity,
+                    snap: Snap? = nil,
                     fractionalDigits: Int? = nil
                 ) {
                     self.lowerBound = lowerBound
                     self.sensitivity = sensitivity
                     self.fractionalDigits = fractionalDigits
+                    self.snap = snap
                 }
             }
 
@@ -348,10 +365,31 @@ extension NumberInputController {
         public struct Snap: Sendable, Equatable {
             public var increments: Double
             public var epsilon: Double
+            public var modifier: KeyModifiers?
+            public var alwaysEnabled: Bool
 
-            public init(increments: Double, epsilon: Double? = nil) {
+            public init(
+                increments: Double,
+                epsilon: Double? = nil,
+                alwaysEnabled: Bool = false,
+                modifier: KeyModifiers? = nil
+            ) {
                 self.increments = increments
                 self.epsilon = epsilon ?? increments
+                self.alwaysEnabled = alwaysEnabled
+                self.modifier = modifier
+            }
+
+            public func resolve(_ modifiers: KeyModifiers) -> Self? {
+                if self.alwaysEnabled {
+                    return self
+                }
+
+                if let modifier = self.modifier, modifiers.contains(modifier) {
+                    return self
+                }
+
+                return nil
             }
         }
 

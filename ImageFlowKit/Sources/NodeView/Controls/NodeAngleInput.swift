@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 #if os(macOS)
@@ -22,8 +23,6 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         didSet {
             if self.value != oldValue {
                 self.update()
-            } else if self.numberInput.value != self.value.float {
-                self.numberInput.value = self.value.float.fromRadians(to: self.unit)
             }
         }
     }
@@ -34,25 +33,15 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     var range: ClosedRange<Double>? = nil
 
+    var dontUpdateText: Bool = false
+
     var snap: Bool = false {
         didSet {
             if self.snap != oldValue {
-                self.updateSnap()
+                self.updateDragConfiguration()
+                self.updateSnapMenu()
             }
         }
-    }
-
-    func updateSnap() {
-        self.numberInput.forceSnap = self.snap
-        self.numberInput.snap = .init(
-            increments: 45.0.fromDegrees(to: self.unit),
-            epsilon: 3.0.fromDegrees(to: self.unit)
-        )
-        #if os(iOS)
-        if let child = (self.unitButton.menu?.children[2] as? UIMenu)?.children[0] as? UIAction {
-            child.state = self.snap ? .on : .off
-        }
-        #endif
     }
 
     var unit: AngleUnit = .degrees {
@@ -77,7 +66,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
                 }
                 #endif
-                self.updateSnap()
+                self.updateDragConfiguration()
                 self.update()
             }
         }
@@ -85,58 +74,49 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
 
     var isEditable: Bool {
         get {
-            self.numberInput.isEditable
+            self.numberInput.isEnabled
         }
         set {
-            self.numberInput.isEditable = newValue
+            self.numberInput.isEnabled = newValue
         }
     }
 
-    private var valueAtDragStart: CGFloat = 0.0
-
-    func transformValue(_ value: Double, _ drag: Bool = false) -> Double {
-        if drag {
-            self.range.maybeReduce(
-                self.unit.radians(value),
-                { value, range in value.clamped(to: range) }
-            )
-        } else {
-            self.unit.radians(value)
-        }
-    }
-
-    lazy var numberInput: NodeNumberTextField = {
-        let view = NodeNumberTextField(self.value.float.fromRadians(to: self.unit), isEditable: true)
-        view.forceSnap = false
-        view.onEvent = { [weak self] event in
-            guard let self else { return }
-            switch event {
-            case .sizeDidChange:
-                self.updateSize()
-            case .valueDidChange(let change):
-                let newValue = self.transformValue(change.newValue, change.drag)
-                self.numberInput.value = newValue.fromRadians(to: self.unit)
-                self.setValue(
-                    newValue: .float(newValue),
-                    oldValue: change.oldValue.map({ .float(self.transformValue($0)) }),
-                    registerUndo: change.commit
-                )
-                self.updateSize()
-                self.updateProgress()
-            case .keyboardWillShow(let windowVerticalOverlap, let duration):
-                self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: duration))
-            case .dragStateChanged(let dragState):
-                switch dragState {
-                case .dragging:
-                    self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloatSnap.rawValue))
-                case .notDragging:
-                    self.onEvent?(.statusBarMessage(nil))
-                }
+    var dragConfiguration: NumberInputController.DragConfiguration {
+        let actualRange =
+            if let range = self.range {
+                range.lowerBound.fromRadians(to: self.unit).roundTo(
+                    fractionalDigits: 6
+                )...range.upperBound.fromRadians(to: self.unit).roundTo(fractionalDigits: 6)
+            } else {
+                -(.pi.fromRadians(to: self.unit))...(.pi.fromRadians(to: self.unit))
             }
-        }
 
-        self.updateProgress(view)
-        return view
+        return .range(
+            .closed(
+                .init(
+                    range: actualRange,
+                    sensitivity: .init(),
+                    snap: .init(
+                        increments: 15,
+                        epsilon: 15,
+                        alwaysEnabled: self.snap,
+                        modifier: .command
+                    ),
+                    fractionalDigits: self.unit == .degrees ? 1 : 2
+                )
+            )
+        )
+    }
+
+    lazy var numberInput: NumberInputController = {
+        let controller = NumberInputController()
+        controller.sizingMode = .fixedWidth(84)
+        controller.style = .default
+            .with(\.font, .systemFont(ofSize: 12))
+        controller.value = self.value.float.fromRadians(to: self.unit)
+        controller.dragConfiguration = self.dragConfiguration
+        controller.delegate = self
+        return controller
     }()
 
     private lazy var dialView: AngleDialView = {
@@ -207,12 +187,6 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     }()
     #endif
 
-    func updateSize() {
-        self.invalidateIntrinsicContentSize()
-        self.setNeedsLayout()
-        self.emit(.sizeDidChange)
-    }
-
     public init(_ value: Value, range: ClosedRange<Double>? = nil, isEditable: Bool = true) {
         self.value = value
         self.range = range
@@ -220,13 +194,13 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         super.init(frame: .zero)
 
         self.clipsToBounds = false
-        self.numberInput.isEditable = isEditable
+        self.numberInput.isEnabled = isEditable
 
-        self.addSubview(self.numberInput)
+        self.addSubview(self.numberInput.view)
         self.addSubview(self.unitButton)
         self.addSubview(self.dialView)
 
-        self.updateSnap()
+        self.updateSnapMenu()
     }
 
     @available(*, unavailable)
@@ -234,54 +208,109 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         nil
     }
 
+    func updateSize() {
+        self.invalidateIntrinsicContentSize()
+        self.setNeedsLayout()
+        self.emit(.sizeDidChange)
+    }
+
+    func transformValue(_ value: Double, _ drag: Bool = false) -> Double {
+        if drag {
+            self.range.maybeReduce(
+                self.unit.radians(value),
+                { value, range in value.clamped(to: range) }
+            )
+        } else {
+            self.unit.radians(value)
+        }
+    }
+
     func update() {
-        log("update: \(self.unit), \(self.value), \(self.value.float.fromRadians(to: self.unit))")
         self.dialView.angle = self.value.float
-        self.numberInput.value = self.value.float.fromRadians(to: self.unit)
+        if !self.dontUpdateText {
+            self.numberInput.value = self.value.float.fromRadians(to: self.unit)
+        }
         self.updateProgress()
     }
 
-    func updateProgress(_ input: NodeNumberTextField? = nil) {
-        let input = input ?? self.numberInput
-
+    func updateProgress() {
         if let range = self.range {
-            input.progress = range.progress(self.value.float)
+            self.numberInput.progress = range.progress(self.value.float)
         } else {
-            input.progress = nil
+            self.numberInput.progress = nil
         }
+    }
+
+    func updateDragConfiguration() {
+        self.numberInput.dragConfiguration = self.dragConfiguration
+    }
+
+    func updateSnapMenu() {
+        #if os(iOS)
+        if let child = (self.unitButton.menu?.children[2] as? UIMenu)?.children[0] as? UIAction {
+            child.state = self.snap ? .on : .off
+        }
+        #endif
     }
 
     // MARK: - Layout
 
     override var intrinsicContentSize: CGSize {
-        let text = self.numberInput.intrinsicContentSize
+        let text = self.numberInput.view.intrinsicContentSize
         let buttonSize = self.unitButton.intrinsicContentSize
 
         return .init(
-            width: text.width + buttonSize.width + Style.dialSize,
+            width: text.width + buttonSize.width + Style.dialSize + Style.dialInputSpacing,
             height: max(text.height, buttonSize.height, Style.dialSize)
         )
     }
 
     override func doLayout() {
-        self.numberInput.frame.origin = .init(x: 0, y: 0)
-        self.numberInput.frame.size = .init(
+        self.dialView.frame.origin = .init(x: 0, y: 0)
+        self.dialView.frame.size = .init(width: Style.dialSize, height: Style.dialSize)
+        self.numberInput.view.frame.origin = .init(x: self.dialView.frame.maxX + Style.dialInputSpacing, y: 0)
+        self.numberInput.view.frame.size = .init(
             width: self.bounds.width - self.unitButton.intrinsicContentSize.width - Style.dialSize,
             height: self.bounds.height
         )
-        self.unitButton.frame.origin = .init(x: self.numberInput.frame.maxX, y: 0)
+        self.unitButton.frame.origin = .init(x: self.numberInput.view.frame.maxX, y: 0)
         self.unitButton.frame.size = self.unitButton.intrinsicContentSize
-        self.dialView.frame.origin = .init(x: self.unitButton.frame.maxX, y: 0)
-        self.dialView.frame.size = .init(width: Style.dialSize, height: Style.dialSize)
         Layout.align(
             views: [
-                self.numberInput,
+                self.numberInput.view,
                 self.unitButton,
                 self.dialView,
             ],
             alignment: .verticalCenter,
             guide: .constant(self.bounds.midY)
         )
+    }
+}
+
+extension NodeAngleInput: NumberTextInputDelegate {
+    func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
+        let newValue = self.transformValue(change.newValue, change.drag)
+        let oldValue = self.transformValue(change.oldValue, change.drag)
+
+        self.dontUpdateText = true
+        self.setValue(newValue: .float(newValue), oldValue: .float(oldValue), registerUndo: change.commit)
+        self.dontUpdateText = false
+    }
+
+    func numberInputDragStarted(_ numberInput: NumberInputController) {
+        self.onEvent?(.statusBarMessage(StatusBarMessageBuilder.build([.dragSlower, .dragSnap])))
+    }
+
+    func numberInputDragEnded(_ numberInput: NumberInputController) {
+        self.onEvent?(.statusBarMessage(nil))
+    }
+
+    func numberInputKeyboardWillShow(
+        _ numberInput: NumberInputController,
+        windowVerticalOverlap: Double,
+        animationDuration: Double
+    ) {
+        self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration))
     }
 }
 
@@ -296,6 +325,7 @@ extension NodeAngleInput {
             light: .init(white: 0.45, alpha: 1.0),
             dark: .init(white: 0.45, alpha: 1.0)
         )
+        static let dialInputSpacing: CGFloat = 4
     }
 }
 
