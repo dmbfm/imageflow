@@ -132,7 +132,7 @@ public final class TextInput: PlatformCommonView {
 
     #if os(macOS)
     lazy var textField: NSTextField = {
-        let view = NSTextField()
+        let view = NSTextFieldEx()
         view.isBezeled = false
         view.isBordered = false
         view.drawsBackground = false
@@ -147,6 +147,11 @@ public final class TextInput: PlatformCommonView {
         view.lineBreakMode = .byTruncatingTail
         view.cell?.lineBreakMode = .byTruncatingTail
         view.delegate = self
+        view.didBecomeFirstResponder = { [weak self] in
+            guard let self else { return }
+            self.textAtEditingStart = self.textField.text
+        }
+        view.didResignFirstResponder = { [weak self] in }
         return view
     }()
     #endif
@@ -477,6 +482,32 @@ public final class TextInput: PlatformCommonView {
     #endif
 }
 
+// MARK: - NSTextFieldEx
+
+#if os(macOS)
+final class NSTextFieldEx: NSTextField {
+    var didBecomeFirstResponder: (() -> ())?
+    var didResignFirstResponder: (() -> ())?
+
+    override func becomeFirstResponder() -> Bool {
+        let result = super.becomeFirstResponder()
+        if result {
+            self.didBecomeFirstResponder?()
+        }
+        return result
+    }
+
+    override func resignFirstResponder() -> Bool {
+        let result = super.resignFirstResponder()
+        if result {
+            self.didResignFirstResponder?()
+        }
+        return result
+    }
+}
+
+#endif
+
 // MARK: - TextInput + Types
 
 extension TextInput {
@@ -596,8 +627,8 @@ extension TextInput: NSTextFieldDelegate {
     }
 
     public func controlTextDidBeginEditing(_ obj: Notification) {
-        self.delegate?.textInputDidBeginEditing(self)
         self.textAtEditingStart = self.textField.stringValue
+        self.delegate?.textInputDidBeginEditing(self)
     }
 }
 #endif
@@ -886,6 +917,10 @@ extension TextInput {
 
             func textInputDidEndEditing(_ textInput: TextInput) {
                 // self.binding?.wrappedValue = textInput.text
+            }
+
+            func textInputDidCancel(_ textInput: TextInput) {
+                self.binding?.wrappedValue = textInput.text
             }
         }
     }

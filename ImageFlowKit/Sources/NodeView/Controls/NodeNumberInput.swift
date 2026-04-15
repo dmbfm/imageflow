@@ -46,7 +46,6 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         let controller = NumberInputController()
         controller.sizingMode = .fixedWidth(80)
         controller.style = .default
-            .with(\.background.borderWidth, 1)
             .with(\.background.borderColor, .primaryFill)
         controller.value = self.value.float
         controller.dragConfiguration = .free(.init(sensitivity: .init(), fractionalDigits: 2))
