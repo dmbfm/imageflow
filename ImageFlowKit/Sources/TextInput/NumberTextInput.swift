@@ -81,7 +81,9 @@ public class NumberInputController {
         self.view.delegate = self
         self.view.style = style
         self.view.alignment = .right
+        #if os(iOS)
         self.view.keyboardType = .numbersAndPunctuation
+        #endif
 
         self.update()
     }
