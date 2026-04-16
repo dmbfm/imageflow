@@ -426,7 +426,7 @@ public final class TextInput: PlatformCommonView {
             }.store(in: &self.cancellables)
     }
 
-    var cancellables: Set<AnyCancellable>
+    var cancellables: Set<AnyCancellable> = []
 
     @objc
     func tapGestureHandler(_ gesture: UITapGestureRecognizer) {
