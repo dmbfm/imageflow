@@ -458,7 +458,7 @@ extension NumberTextInputDelegate {
     ) {}
 }
 
-public protocol NumberTextInputFormatter {
+public protocol NumberTextInputFormatter: Sendable, Equatable {
     func numperInputFormatter(formatValue value: Double) -> String
     func numperInputFormatter(parseString string: String) -> Double?
 }
@@ -470,6 +470,34 @@ public struct DefaultNumberInputFormatter: NumberTextInputFormatter {
 
     public func numperInputFormatter(parseString string: String) -> Double? {
         Double(string.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+}
+
+extension NumberTextInputFormatter where Self == DefaultNumberInputFormatter {
+    public static var `default`: Self {
+        DefaultNumberInputFormatter()
+    }
+}
+
+public struct RoundingDigitsNumberInputFormatter: NumberTextInputFormatter {
+    var digits: Int
+
+    public init(digits: Int) {
+        self.digits = digits
+    }
+
+    public func numperInputFormatter(formatValue value: Double) -> String {
+        "\(value.roundTo(fractionalDigits: self.digits))"
+    }
+
+    public func numperInputFormatter(parseString string: String) -> Double? {
+        Double(string.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+}
+
+extension NumberTextInputFormatter where Self == RoundingDigitsNumberInputFormatter {
+    public static func roundingDigits(fractionalDigits digits: Int) -> Self {
+        .init(digits: digits)
     }
 }
 

@@ -10,7 +10,6 @@ public struct NumberTextInputView: PlatformViewRepresentable {
     var onChange: ((NumberInputController.Change) -> ())?
 
     var effectiveStyle: TextInputStyle {
-        // self.style ?? .default.with(\.insets, .init(horizontal: 10, vertical: 8))
         self.style ?? .default
     }
 
@@ -47,6 +46,7 @@ public struct NumberTextInputView: PlatformViewRepresentable {
     @Environment(\.textInputStyle) var style
     @Environment(\.textInputSizingMode) var sizingMode
     @Environment(\.textInputAlignment) var alignment
+    @Environment(\.numberTextInputFormatter) var formatter
     #if os(iOS)
     @Environment(\.numberTextInputKeyboardType) var keyboardType
     #endif
@@ -86,6 +86,10 @@ public struct NumberTextInputView: PlatformViewRepresentable {
 
             if controller.dragConfiguration != self.dragConfiguration {
                 controller.dragConfiguration = self.dragConfiguration
+            }
+
+            if let formatter = self.formatter, type(of: controller.formatter).self != type(of: formatter) {
+                controller.formatter = formatter
             }
 
             #if os(iOS)
@@ -136,15 +140,19 @@ public struct NumberTextInputView: PlatformViewRepresentable {
 }
 
 extension EnvironmentValues {
+    @Entry var numberTextInputFormatter: (any NumberTextInputFormatter)? = nil
     #if os(iOS)
     @Entry var numberTextInputKeyboardType: UIKeyboardType? = nil
     #endif
 }
 
 extension View {
+    public func numberTextInputFormatter<F: NumberTextInputFormatter>(_ formatter: F) -> some View {
+        self.environment(\.numberTextInputFormatter, formatter)
+    }
 
     #if os(iOS)
-    func numberTextInputKeyboardType(_ type: UIKeyboardType?) -> some View {
+    public func numberTextInputKeyboardType(_ type: UIKeyboardType?) -> some View {
         self.environment(\.numberTextInputKeyboardType, type)
     }
     #endif

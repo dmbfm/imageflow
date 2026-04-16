@@ -20,6 +20,8 @@ public struct StatusBarMessageBuilder {
         public static let dragFaster: Self = .init(.option, label: "Faster")
         public static let dragSnap: Self = .init(.command, label: "Snap")
 
+        public static let empty: Self = .init(.shift, label: "")
+
         public var text: String {
             "\(self.key.rawValue) \(self.label)"
         }
@@ -31,11 +33,15 @@ public struct StatusBarMessageBuilder {
     }
 
     public static func build(_ items: [Item], spacing: Int = 4) -> String {
-        let spacer = String(repeating: "  ", count: 4)
+        let spacer = String(repeating: "  ", count: 3)
         return items.reduce(
             "",
             { acc, item in
-                acc + item.text + spacer
+                if !item.label.isEmpty {
+                    acc + item.text + spacer
+                } else {
+                    acc
+                }
             }
         ).trimmingSuffix(spacer)
     }

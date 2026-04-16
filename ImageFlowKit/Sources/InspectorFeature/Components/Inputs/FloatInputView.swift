@@ -4,6 +4,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 struct FloatInputView: View {
@@ -34,7 +35,9 @@ private struct AngleInput: View {
     let input: FlowNode.Input
     var range: ClosedRange<Double>?
 
-    @State var unit: AngleUnit = .degrees
+    @State private var unit: AngleUnit = .degrees
+    @State private var isDragging: Bool = false
+    @State var snap: Bool = false
 
     var effectiveUnit: AngleUnit {
         if self.input.connected {
@@ -52,29 +55,26 @@ private struct AngleInput: View {
         self.value.fromRadians(to: self.unit)
     }
 
-    var transformedRange: ClosedRange<Double>? {
+    var transformedRange: ClosedRange<Double> {
 
-        let range: ClosedRange<Double>? = self.range ?? -.pi...(.pi)
+        let range: ClosedRange<Double> = self.range ?? -.pi...(.pi)
 
-        return switch self.unit {
+        switch self.unit {
         case .degrees:
-            range.map({ range in
-                let lower = range.lowerBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
-                let upper = range.upperBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
-                return lower...upper
-            })
+            let lower = range.lowerBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
+            let upper = range.upperBound.fromRadians(to: .degrees).roundTo(fractionalDigits: 6)
+            return lower...upper
         case .radians:
-            range
+            return range
         }
     }
 
-    func onChange(_ change: NumberInputView.Change) {
-        log("change: \(change)")
+    func onChange(_ change: NumberInputController.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 .float(change.newValue.toRadians(from: self.unit)),
-                change.oldValue.map({ .float($0.toRadians(from: self.unit)) })
+                .float(change.oldValue.toRadians(from: self.unit))
             ),
             registerUndo: change.commit
         )
@@ -88,15 +88,23 @@ private struct AngleInput: View {
         }
     }
 
-    var numberInputConfiguration: NumberInputView.Configuration {
-        if let range = self.transformedRange {
-            .range(.init(snapping: self.snapping, range: range))
-        } else {
-            .free(.init(snapping: self.snapping))
-        }
+    var dragConfiguration: NumberInputController.DragConfiguration {
+        .range(
+            .closed(
+                .init(
+                    range: self.transformedRange,
+                    sensitivity: .init(),
+                    snap: .init(
+                        increments: 15,
+                        epsilon: 15,
+                        alwaysEnabled: self.snap,
+                        modifier: .command
+                    ),
+                    fractionalDigits: self.unit == .degrees ? 1 : 2
+                )
+            )
+        )
     }
-
-    @State var snap: Bool = false
 
     var body: some View {
         Block {
@@ -127,20 +135,29 @@ private struct AngleInput: View {
                 HStack {
                     AngleDial(angle: self.value, range: self.range)
                         .angleDialRangeStrokeStyle(.dimmed)
-                    NumberInputView(
-                        value: self.transformedValue,
-                        configuration: self.numberInputConfiguration,
+                    NumberTextInputView(
+                        self.transformedValue,
+                        isDragging: self.$isDragging,
+                        dragConfiguration: self.dragConfiguration,
                         onChange: self.onChange(_:),
-                        onDragStateChange: { _ in }
                     )
-                    .inspectorNumberInput()
+                    .textInputStyle(.inspector)
+                    .numberTextInputFormatter(.roundingDigits(fractionalDigits: 8))
                 }
             }
         }
+        .dragStatusBarMessage(
+            self.$isDragging,
+            message: [.dragSlower, .dragSnap],
+            coordinator: self.vm.coordinator
+        )
     }
 }
 
 private struct DefaultInput: View {
+
+    @State var isDragging: Bool = false
+
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
     var range: ClosedRange<Double>?
@@ -149,12 +166,12 @@ private struct DefaultInput: View {
         self.vm.nodeInputValue(self.input.index)?.maybeFloat ?? 0.0
     }
 
-    func onChange(_ change: NumberInputView.Change) {
+    func onChange(_ change: NumberInputController.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 .float(change.newValue),
-                change.oldValue.map({ .float($0) })
+                .float(change.oldValue),
             ),
             registerUndo: change.commit
         )
@@ -168,23 +185,58 @@ private struct DefaultInput: View {
         }
     }
 
+    var configuration: NumberInputController.DragConfiguration {
+        if let range = self.range {
+            return .range(.closed(.init(range: range, snap: nil, fractionalDigits: 2)))
+        } else {
+            return .free(.init(sensitivity: .init(), fractionalDigits: 2))
+        }
+    }
+
+    func onDragStateChange() {
+        if self.isDragging {
+            self.vm.coordinator.statusBar(
+                StatusBarMessageBuilder.build([
+                    .dragSlower,
+                    self.range == nil ? .dragFaster : .empty,
+                ])
+            )
+        } else {
+            self.vm.coordinator.statusBar(nil)
+        }
+    }
+
+    var dragStatusMessage: [StatusBarMessageBuilder.Item] {
+        [
+            .dragSlower,
+            self.range == nil ? .dragFaster : .empty,
+        ]
+    }
+
     var body: some View {
         Block {
             VStack(alignment: .leading) {
                 NodeInputPropertyTitleView(vm: self.vm, input: self.input)
-                NumberInputView(
-                    value: self.value,
-                    configuration: self.numberInputConfiguration,
-                    onChange: self.onChange(_:),
-                    onDragStateChange: { _ in }
-                )
-                .inspectorNumberInput()
+                VStack {
+                    NumberTextInputView(
+                        self.value,
+                        isDragging: self.$isDragging,
+                        dragConfiguration: self.configuration,
+                        onChange: self.onChange(_:),
+                    )
+                    .textInputStyle(.inspector)
+                }
             }
         }
+        .dragStatusBarMessage(self.$isDragging, message: self.dragStatusMessage, coordinator: self.vm.coordinator)
     }
 }
 
 #Preview {
     InspectorFeatureView.Preview([.init(kind: .coreImageFilterNode(.geometryAdjustment(.CIPerspectiveRotate)))])
+        .frame(width: 600, height: 500)
+}
+#Preview("Float") {
+    InspectorFeatureView.Preview([.init(kind: .valueNode(.float))])
         .frame(width: 600, height: 500)
 }

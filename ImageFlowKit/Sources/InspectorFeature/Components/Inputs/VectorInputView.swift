@@ -5,12 +5,15 @@ import Logging
 import SharedMocking
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 struct VectorInputView: View {
 
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State private var isDragging: Bool = false
 
     var dim: Int {
         switch self.input.value.type {
@@ -48,12 +51,12 @@ struct VectorInputView: View {
         }
     }
 
-    func onChange(_ idx: Int, _ change: NumberInputView.Change) {
+    func onChange(_ idx: Int, _ change: NumberInputController.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 self.value(settingIndex: idx, to: change.newValue),
-                change.oldValue.map({ self.value(settingIndex: idx, to: $0) })
+                self.value(settingIndex: idx, to: change.oldValue),
             ),
             registerUndo: change.commit,
         )
@@ -68,10 +71,12 @@ struct VectorInputView: View {
                     dim: self.dim,
                     labels: Self.label,
                     floatValue: self.floatValue(_:),
+                    isDragging: self.$isDragging,
                     onChange: self.onChange(_:_:)
                 )
             }
         }
+        .dragStatusBarMessage(self.$isDragging, message: [.dragFaster, .dragSlower], coordinator: self.vm.coordinator)
     }
 }
 
@@ -79,7 +84,8 @@ struct VectorControlView: View {
     var dim: Int
     var labels: [String]
     var floatValue: (Int) -> Double
-    var onChange: (Int, NumberInputView.Change) -> ()
+    @Binding var isDragging: Bool
+    var onChange: (Int, NumberInputController.Change) -> ()
 
     var body: some View {
         Grid(verticalSpacing: 4) {
@@ -90,13 +96,14 @@ struct VectorControlView: View {
                         .bold()
                         .foregroundStyle(.secondaryLabel)
                         .gridColumnAlignment(.trailing)
-                    NumberInputView(
-                        value: self.floatValue(idx),
-                        configuration: .free(.init()),
-                        onChange: { self.onChange(idx, $0) },
-                        onDragStateChange: { _ in }
+                    NumberTextInputView(
+                        self.floatValue(idx),
+                        isDragging: self.$isDragging,
+                        dragConfiguration: .free(.init(fractionalDigits: 2)),
+                        onChange: { self.onChange(idx, $0) }
                     )
-                    .inspectorNumberInput()
+                    .textInputStyle(.inspector)
+                    .frame(maxWidth: .infinity)
                 }
             }
         }

@@ -205,7 +205,11 @@ public final class TextInput: PlatformCommonView {
     func updateStyle() {
         self.backgroundView.style = self.style.background
         self.textField.textColor = self.isEnabled ? self.style.textColor : self.style.textColorDisabled
-        self.textField.font = self.style.font ?? .preferredFont(forTextStyle: .body)
+
+        if let font = self.style.font {
+            self.textField.font = font
+        }
+        // self.textField.font = self.style.font ?? .preferredFont(forTextStyle: .body)
 
         self.setNeedsDisplay()
     }
@@ -811,12 +815,14 @@ public struct TextInputStyle: Sendable, Equatable, With {
 
     public init(
         background: TextInputBackgroundStyle,
+        font: PlatformFont? = nil,
         textColor: PlatformColor? = .primaryLabel,
         textColorDisabled: PlatformColor? = .secondaryLabel,
         insets: Insets
     ) {
         self.background = background
         self.insets = insets
+        self.font = font
         self.textColor = textColor
         self.textColorDisabled = textColorDisabled
     }

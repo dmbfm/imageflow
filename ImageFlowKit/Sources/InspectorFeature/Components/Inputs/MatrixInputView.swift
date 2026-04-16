@@ -4,6 +4,7 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 struct MatrixInputView: View {
@@ -25,6 +26,8 @@ struct MatrixInputViewInner: View {
 
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var isDragging: Bool = false
 
     var dim: Int {
         switch self.input.value.type {
@@ -69,15 +72,13 @@ struct MatrixInputViewInner: View {
         }
     }
 
-    func onChange(_ change: NumberInputView.Change, row: Int, col: Int) {
+    func onChange(_ change: NumberInputController.Change, row: Int, col: Int) {
         if let newValue = self.value(value: change.newValue, row: row, col: col) {
             self.vm.submit(
                 .input(
                     self.input.index,
                     newValue,
-                    change.oldValue.flatMap({
-                        self.value(value: $0, row: row, col: col)
-                    })
+                    self.value(value: change.oldValue, row: row, col: col)
                 ),
                 registerUndo: change.commit
             )
@@ -92,10 +93,12 @@ struct MatrixInputViewInner: View {
                 MatrixControlView(
                     dim: self.dim,
                     floatValue: self.floatValue(row:col:),
+                    isDragging: self.$isDragging,
                     onChange: self.onChange(_:row:col:)
                 )
             }
         }
+        .dragStatusBarMessage(self.$isDragging, message: [.dragFaster, .dragSlower], coordinator: self.vm.coordinator)
     }
 }
 
@@ -103,19 +106,21 @@ struct MatrixControlView: View {
 
     var dim: Int
     var floatValue: (_ row: Int, _ col: Int) -> Double
-    var onChange: (_ change: NumberInputView.Change, _ row: Int, _ col: Int) -> ()
+    @Binding var isDragging: Bool
+    var onChange: (_ change: NumberInputController.Change, _ row: Int, _ col: Int) -> ()
 
     var body: some View {
         Grid(horizontalSpacing: 4, verticalSpacing: 4) {
             ForEach(0..<self.dim, id: \.self) { row in
                 GridRow {
                     ForEach(0..<dim, id: \.self) { col in
-                        NumberInputView(
-                            value: self.floatValue(row, col),
-                            configuration: .free(.init()),
+                        NumberTextInputView(
+                            self.floatValue(row, col),
+                            isDragging: self.$isDragging,
+                            dragConfiguration: .free(.init(fractionalDigits: 2)),
                             onChange: { self.onChange($0, row, col) }
                         )
-                        .inspectorNumberInput()
+                        .textInputStyle(.inspector)
                     }
                 }
             }

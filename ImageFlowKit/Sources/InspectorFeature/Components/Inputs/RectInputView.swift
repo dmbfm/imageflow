@@ -5,12 +5,15 @@ import Logging
 import SharedMocking
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 struct RectInputView: View {
 
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var isDragging: Bool = false
 
     static let label: [String] = ["X", "Y", "Width", "Height"]
 
@@ -28,12 +31,12 @@ struct RectInputView: View {
         return .rect(rect)
     }
 
-    func onChange(_ idx: Int, _ change: NumberInputView.Change) {
+    func onChange(_ idx: Int, _ change: NumberInputController.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 self.value(settingIndex: idx, to: change.newValue),
-                change.oldValue.map({ self.value(settingIndex: idx, to: $0) })
+                self.value(settingIndex: idx, to: change.oldValue),
             ),
             registerUndo: change.commit,
         )
@@ -48,10 +51,12 @@ struct RectInputView: View {
                     dim: 4,
                     labels: Self.label,
                     floatValue: self.floatValue(_:),
+                    isDragging: self.$isDragging,
                     onChange: self.onChange(_:_:)
                 )
             }
         }
+        .dragStatusBarMessage(self.$isDragging, message: [.dragFaster, .dragSlower], coordinator: self.vm.coordinator)
     }
 }
 

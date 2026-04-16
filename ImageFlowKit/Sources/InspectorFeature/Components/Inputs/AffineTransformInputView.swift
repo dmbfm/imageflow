@@ -4,11 +4,14 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import TextInput
 import Values
 
 struct AffineTransforminputView: View {
     let vm: InspectorFeatureViewModel
     let input: FlowNode.Input
+
+    @State var isDragging: Bool = false
 
     var value: Values::AffineTransform {
         self.vm.nodeInputValue(self.input.index)?.maybeAffineTransform ?? .identity
@@ -24,12 +27,12 @@ struct AffineTransforminputView: View {
         return .affineTransform(m)
     }
 
-    func matrixOnChange(_ change: NumberInputView.Change, _ row: Int, _ col: Int) {
+    func matrixOnChange(_ change: NumberInputController.Change, _ row: Int, _ col: Int) {
         self.vm.submit(
             .input(
                 self.input.index,
                 self.valueSettingMatrix(row: row, col: col, toValue: change.newValue),
-                change.oldValue.map({ self.valueSettingMatrix(row: row, col: col, toValue: $0) })
+                self.valueSettingMatrix(row: row, col: col, toValue: change.oldValue),
             ),
             registerUndo: change.commit
         )
@@ -55,12 +58,12 @@ struct AffineTransforminputView: View {
         return .affineTransform(t)
     }
 
-    func translationOnChange(_ index: Int, _ change: NumberInputView.Change) {
+    func translationOnChange(_ index: Int, _ change: NumberInputController.Change) {
         self.vm.submit(
             .input(
                 self.input.index,
                 self.valueSettingTranslation(index: index, toValue: change.newValue),
-                change.oldValue.map({ self.valueSettingTranslation(index: index, toValue: $0) })
+                self.valueSettingTranslation(index: index, toValue: change.oldValue),
             ),
             registerUndo: change.commit
         )
@@ -79,6 +82,7 @@ struct AffineTransforminputView: View {
                 MatrixControlView(
                     dim: 2,
                     floatValue: self.matrixFloatValue(_:_:),
+                    isDragging: self.$isDragging,
                     onChange: self.matrixOnChange(_:_:_:)
                 )
 
@@ -91,10 +95,12 @@ struct AffineTransforminputView: View {
                     dim: 2,
                     labels: ["x", "y"],
                     floatValue: self.translationFloatValue(_:),
+                    isDragging: self.$isDragging,
                     onChange: self.translationOnChange(_:_:)
                 )
             }
         }
+        .dragStatusBarMessage(self.$isDragging, message: [.dragFaster, .dragSlower], coordinator: self.vm.coordinator)
     }
 }
 

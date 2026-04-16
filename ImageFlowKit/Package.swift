@@ -266,6 +266,7 @@ let package = Package(
                 "Backend",
                 "Values",
                 "Logging",
+                "TextInput",
             ]
         ),
         .target(

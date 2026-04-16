@@ -116,6 +116,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         controller.value = self.value.float.fromRadians(to: self.unit)
         controller.dragConfiguration = self.dragConfiguration
         controller.delegate = self
+        controller.formatter = .roundingDigits(fractionalDigits: 8)
         return controller
     }()
 
