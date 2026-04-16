@@ -266,12 +266,14 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
     }
 
     override func doLayout() {
+        let numberInputSize = self.numberInput.view.intrinsicContentSize
+
         self.dialView.frame.origin = .init(x: 0, y: 0)
         self.dialView.frame.size = .init(width: Style.dialSize, height: Style.dialSize)
         self.numberInput.view.frame.origin = .init(x: self.dialView.frame.maxX + Style.dialInputSpacing, y: 0)
         self.numberInput.view.frame.size = .init(
-            width: self.bounds.width - self.unitButton.intrinsicContentSize.width - Style.dialSize,
-            height: self.bounds.height
+            width: numberInputSize.width,
+            height: numberInputSize.height
         )
         self.unitButton.frame.origin = .init(x: self.numberInput.view.frame.maxX, y: 0)
         self.unitButton.frame.size = self.unitButton.intrinsicContentSize
