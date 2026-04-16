@@ -357,8 +357,6 @@ public final class TextInput: PlatformCommonView {
 
     @objc
     func panGestureHandler(_ gesture: NSPanGestureRecognizer, _ event: NSEvent) {
-        print("drag: \(gesture.translation(in: nil))")
-
         guard let delegate = self.delegate else { return }
 
         let location = self.backgroundView.convert(gesture.location(in: nil), from: nil)

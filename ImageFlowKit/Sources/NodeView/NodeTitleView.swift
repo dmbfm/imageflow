@@ -8,7 +8,6 @@ public final class NodeTitleView: PlatformCommonView {
     public var vm: ViewModel {
         didSet {
             if self.vm != oldValue {
-                print("NodeTitleView: update: \(self.vm.title)")
                 self.update(oldValue)
             }
         }
@@ -173,7 +172,6 @@ public final class NodeTitleView: PlatformCommonView {
             width: min(titleSize.width, self.bounds.width - textGuide),
             height: titleSize.height
         )
-        print("NodeTitleView:layout:titleView.frame:\(self.titleView.frame)")
         self.subtitleView.frame = .init(
             x: textGuide,
             y: self.titleView.frame.maxY + style.titleSubtitleSpacing,
