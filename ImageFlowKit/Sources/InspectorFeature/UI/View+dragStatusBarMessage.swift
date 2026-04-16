@@ -1,5 +1,5 @@
-import SwiftUI
 import SharedModels
+import SwiftUI
 
 struct DragStatusMessageModifier: ViewModifier {
     @Binding var isDragging: Bool

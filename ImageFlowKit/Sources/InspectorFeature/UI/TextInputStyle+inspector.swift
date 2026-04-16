@@ -6,4 +6,3 @@ extension TextInputStyle {
         .with(\.insets, .init(horizontal: 8, vertical: 7))
         .with(\.font, .systemFont(ofSize: 12))
 }
-

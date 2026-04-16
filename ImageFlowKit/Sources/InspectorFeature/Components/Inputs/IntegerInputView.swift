@@ -161,4 +161,3 @@ struct IntegerInputView: View {
         .dragStatusBarMessage(self.$isDragging, message: self.statusMessage, coordinator: self.vm.coordinator)
     }
 }
-
