@@ -2,6 +2,7 @@ import Backend
 import Helpers
 import Logging
 import SwiftUI
+import TextInput
 import Values
 
 #if os(macOS)
@@ -28,34 +29,26 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
 
     var isEditable: Bool {
         get {
-            self.textField.isEditable
+            self.textField.isEnabled
         }
 
         set {
-            self.textField.isEditable = newValue
+            self.textField.isEnabled = newValue
         }
     }
 
     var context: NodeControlContext = .init()
 
-    lazy var textField: NodeTextField = {
-        let view = NodeTextField(
-            self.value.string,
-            placeholder: "Insert text...",
-            style: .default.with(\.borderColor, self.tint)
-        )
-        view.onEvent = { [weak self] event in
-            switch event {
-            case .sizeDidChange:
-                self?.invalidateIntrinsicContentSize()
-                self?.emit(.sizeDidChange)
-                self?.setNeedsLayout()
-            case .textDidChange(let text):
-                self?.setValue(newValue: .string(text), registerUndo: true)
-            default:
-                break
-            }
-        }
+    lazy var textField: TextInput = {
+        let view = TextInput(behaviours: [
+            .cancelAbort,
+            .cancelBecomeNotEditable,
+            .submitBecomeNotEditable,
+            .clickBecomeEditableAndFocus,
+        ])
+        view.placeholder = "Insert text..."
+        view.delegate = self
+        view.sizingMode = .textWidth
         return view
     }()
 
@@ -90,6 +83,28 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         Layout.align(views: [self.textField], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }
 
+}
+
+extension NodeStringInput: TextInputDelegate {
+    func textInputDidChange(_ textInput: TextInput) {
+        self.invalidateRestorableState()
+        self.emit(.sizeDidChange)
+        self.setNeedsLayout()
+    }
+
+    func textInputDidEndEditing(_ textInput: TextInput) {
+        self.setValue(newValue: .string(textInput.text), oldValue: nil, registerUndo: true)
+    }
+
+    func textInputDidCancel(_ textInput: TextInput) {
+        self.invalidateRestorableState()
+        self.emit(.sizeDidChange)
+        self.setNeedsLayout()
+    }
+
+    func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double) {
+        self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration))
+    }
 }
 
 extension NodeStringInput {
