@@ -80,14 +80,6 @@ private struct AngleInput: View {
         )
     }
 
-    var snapping: NumberInputView.Configuration.Snapping {
-        switch self.unit {
-        case .degrees: .init(increments: 45.0, epsilon: 10.0, enabled: self.snap, modifier: [.option])
-        case .radians:
-            .init(increments: 45.0.radians, epsilon: 10.0.radians, enabled: self.snap, modifier: [.option])
-        }
-    }
-
     var dragConfiguration: NumberInputController.DragConfiguration {
         .range(
             .closed(
@@ -177,32 +169,11 @@ private struct DefaultInput: View {
         )
     }
 
-    var numberInputConfiguration: NumberInputView.Configuration {
-        if let range = self.range {
-            .range(.init(range: range))
-        } else {
-            .free(.init())
-        }
-    }
-
     var configuration: NumberInputController.DragConfiguration {
         if let range = self.range {
             return .range(.closed(.init(range: range, snap: nil, fractionalDigits: 2)))
         } else {
             return .free(.init(sensitivity: .init(), fractionalDigits: 2))
-        }
-    }
-
-    func onDragStateChange() {
-        if self.isDragging {
-            self.vm.coordinator.statusBar(
-                StatusBarMessageBuilder.build([
-                    .dragSlower,
-                    self.range == nil ? .dragFaster : .empty,
-                ])
-            )
-        } else {
-            self.vm.coordinator.statusBar(nil)
         }
     }
 

@@ -3,11 +3,13 @@ import SwiftUI
 
 public struct TextInputView: PlatformViewRepresentable {
 
-    @Binding var text: String
+    // @Binding var text: String
+    var textBinding: Binding<String>?
+    var text: String
     let progress: Double?
     let behaviours: TextInput.Behaviors
     let placeholder: String?
-    let doneAction: (() -> ())?
+    let onChangeAction: ((Change) -> ())?
     let cancelAction: (() -> ())?
     let dragAction: ((TextInput.DragData) -> ())?
 
@@ -18,20 +20,50 @@ public struct TextInputView: PlatformViewRepresentable {
     @Environment(\.textInputKeyboardType) var keyboardType
     #endif
 
+    public struct Change {
+        public var newValue: String
+        public var oldValue: String?
+        public var commit: Bool
+        public init(newValue: String, oldValue: String?, commit: Bool) {
+            self.newValue = newValue
+            self.oldValue = oldValue
+            self.commit = commit
+        }
+    }
+
     public init(
         _ text: Binding<String>,
         progress: Double? = nil,
         placeholder: String? = nil,
         behaviours: TextInput.Behaviors = .default,
-        doneAction: (() -> ())? = nil,
+        onChangeAction: ((Change) -> ())? = nil,
         cancelAction: (() -> ())? = nil,
         dragAction: ((TextInput.DragData) -> ())? = nil,
     ) {
-        self._text = text
+        self.text = ""
+        self.textBinding = text
         self.progress = progress
         self.behaviours = behaviours
         self.placeholder = placeholder
-        self.doneAction = doneAction
+        self.onChangeAction = onChangeAction
+        self.cancelAction = cancelAction
+        self.dragAction = dragAction
+    }
+
+    public init(
+        _ text: String,
+        progress: Double? = nil,
+        placeholder: String? = nil,
+        behaviours: TextInput.Behaviors = .default,
+        onChangeAction: ((Change) -> ())? = nil,
+        cancelAction: (() -> ())? = nil,
+        dragAction: ((TextInput.DragData) -> ())? = nil,
+    ) {
+        self.text = text
+        self.progress = progress
+        self.behaviours = behaviours
+        self.placeholder = placeholder
+        self.onChangeAction = onChangeAction
         self.cancelAction = cancelAction
         self.dragAction = dragAction
     }
@@ -59,7 +91,11 @@ public struct TextInputView: PlatformViewRepresentable {
             view.sizingMode = self.sizingMode
         }
 
-        if view.text != self.text {
+        if let textBinding = self.textBinding {
+            if view.text != textBinding.wrappedValue {
+                view.text = textBinding.wrappedValue
+            }
+        } else if view.text != self.text {
             view.text = self.text
         }
 
@@ -81,8 +117,8 @@ public struct TextInputView: PlatformViewRepresentable {
         }
         #endif
 
-        context.coordinator.text = self.$text
-        context.coordinator.doneAction = self.doneAction
+        context.coordinator.text = self.textBinding
+        context.coordinator.onChangeAction = self.onChangeAction
         context.coordinator.cancelAction = self.cancelAction
         context.coordinator.dragAction = self.dragAction
     }
@@ -100,21 +136,23 @@ public struct TextInputView: PlatformViewRepresentable {
 
         var text: Binding<String>?
 
-        var doneAction: (() -> ())?
+        var onChangeAction: ((Change) -> ())?
         var cancelAction: (() -> ())?
         var dragAction: ((TextInput.DragData) -> ())?
 
         public func textInputDidChange(_ textInput: TextInput) {
             self.text?.wrappedValue = textInput.text
+            self.onChangeAction?(.init(newValue: textInput.text, oldValue: textInput.textAtEditingStart, commit: false))
         }
 
         public func textInputDidCancel(_ textInput: TextInput) {
             self.text?.wrappedValue = textInput.text
+            self.onChangeAction?(.init(newValue: textInput.text, oldValue: nil, commit: false))
             self.cancelAction?()
         }
 
         public func textInputDidEndEditing(_ textInput: TextInput) {
-            self.doneAction?()
+            self.onChangeAction?(.init(newValue: textInput.text, oldValue: textInput.textAtEditingStart, commit: true))
         }
 
         public func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData) {
@@ -175,14 +213,14 @@ public extension TextInputView {
                 TextInputView($text, progress: 0.82)
                     .textInputAlignment(.right)
 
-                TextInputView($text, placeholder: "Type in something...", behaviours: .draggableTextInput) {
-                    print("done!")
-                } cancelAction: {
-                    print("cancel!")
-                } dragAction: { drag in
-                    print("drag: \(drag)")
-                }
-                .textInputStyle(.default.with(\.font, .preferredFont(forTextStyle: .caption2)))
+                // TextInputView($text, placeholder: "Type in something...", behaviours: .draggableTextInput) {
+                //     print("done!")
+                // } cancelAction: {
+                //     print("cancel!")
+                // } dragAction: { drag in
+                //     print("drag: \(drag)")
+                // }
+                // .textInputStyle(.default.with(\.font, .preferredFont(forTextStyle: .caption2)))
 
                 TextInputView($text)
                     .textInputSizingMode(.textWidth)

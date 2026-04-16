@@ -38,21 +38,6 @@ struct IntegerInputView: View {
         self.vm.nodeInputValue(self.input.index)?.maybeInt ?? 0
     }
 
-    var numberInputConfiguration: NumberInputView.Configuration {
-        if let range = self.doubleRange {
-            .range(.init(range: range))
-        } else {
-            .free(
-                .init(
-                    sensitivity: .init(),
-                    snapping: .init(increments: 1.0, epsilon: 1.0, enabled: true, modifier: nil),
-                    dragMaxDigits: 0,
-                    minValue: self.minValue.map({ Double($0) })
-                )
-            )
-        }
-    }
-
     func onChange(_ change: NumberInputController.Change) {
         self.setValue(
             newValue: Int(change.newValue),
