@@ -35,6 +35,9 @@ public final class NodeTitleView: PlatformCommonView {
         let title = NSTextField(labelWithString: self.vm.title)
         title.font = self.style.titleFont.font
         title.textColor = self.style.titleColor
+        title.maximumNumberOfLines = 1
+        title.lineBreakMode = .byTruncatingTail
+        title.cell?.lineBreakMode = .byTruncatingTail
         return title
     }()
 
@@ -155,7 +158,7 @@ public final class NodeTitleView: PlatformCommonView {
     public override var intrinsicContentSize: CGSize {
         let size = CGSize(
             width: style.iconSize + self.style.iconTitleSpacing
-                + max(titleSize.width, max(subtitleSize.width, self.style.minTitleWidth)),
+                + max(subtitleSize.width, self.style.minTitleWidth),
             height: max(titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing, self.style.iconSize)
         )
         return size
@@ -169,7 +172,7 @@ public final class NodeTitleView: PlatformCommonView {
         self.titleView.frame = .init(
             x: textGuide,
             y: 0,
-            width: min(titleSize.width, self.bounds.width - textGuide),
+            width: self.bounds.width - textGuide,
             height: titleSize.height
         )
         self.subtitleView.frame = .init(

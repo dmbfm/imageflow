@@ -259,7 +259,7 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
         self.titleView.frame = .init(
             x: self.style.titleLeft,
             y: self.style.titleTop,
-            width: titleSize.width,
+            width: self.bounds.width - self.style.titleLeft * 2,
             height: titleSize.height
         )
 
