@@ -266,8 +266,16 @@ public final class TextInput: PlatformCommonView {
     }
 
     var textBasedSize: CGSize {
+
+        let text =
+            if self.text.isEmpty {
+                self.placeholder ?? ""
+            } else {
+                self.text
+            }
+
         let str = NSAttributedString(
-            string: self.text,
+            string: text,
             attributes: [
                 NSAttributedString.Key.font: self.textField.font as Any
             ]
@@ -615,17 +623,8 @@ extension TextInput: NSTextFieldDelegate {
         } else if self.behaviours.contains(.submitUnfocus) {
             self.textField.window?.makeFirstResponder(nil)
         }
-        Task { @MainActor in
 
-            if self.behaviours.contains(.submitBecomeNotEditable) {
-                self.textField.window?.makeFirstResponder(nil)
-                self.textField.isEditable = false
-            } else if self.behaviours.contains(.submitUnfocus) {
-                self.textField.window?.makeFirstResponder(nil)
-            }
-
-            self.delegate?.textInputDidEndEditing(self)
-        }
+        self.delegate?.textInputDidEndEditing(self)
     }
 
     public func controlTextDidBeginEditing(_ obj: Notification) {
