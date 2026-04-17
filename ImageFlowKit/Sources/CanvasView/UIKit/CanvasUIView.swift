@@ -178,10 +178,10 @@ public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {
 
     func nodeHitTest(_ point: CGPoint) -> UUID? {
         let world = self.convert(point, to: nil)
-        for (id, nodeView) in self.nodeViews.reversed() {
-            let local = nodeView.convert(world, from: nil)
-            if nodeView.bounds.contains(local) {
-                return id
+        for view in self.contentView.subviews.reversed() {
+            let local = view.convert(world, from: nil)
+            if view.bounds.contains(local) {
+                return (view as? (any CanvasNodeView))?.id
             }
         }
 

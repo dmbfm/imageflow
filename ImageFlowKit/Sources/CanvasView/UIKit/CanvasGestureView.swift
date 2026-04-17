@@ -27,7 +27,7 @@ class CanvasGestureView: UIView {
 
         let windowPoint = self.convert(point, to: nil)
 
-        for (_, view) in canvas.nodeViews.reversed() {
+        for view in canvas.contentView.subviews.reversed() {
             let local = view.convert(windowPoint, from: nil)
             if let hit = view.hitTest(local, with: event) {
                 return hit
