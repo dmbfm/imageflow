@@ -276,7 +276,10 @@ final class MainContentViewModel {
         case let .pick(assetKind, assetId, portLocation):
             self.onAssetBrowserPick(assetKind, assetId, portLocation)
         case let .create(assetKind, assetId):
-            self.onAssetBrowserCreate(assetKind, assetId)
+            Task {
+                try await Task.sleep(for: .milliseconds(25))
+                self.onAssetBrowserCreate(assetKind, assetId)
+            }
         }
     }
 
