@@ -148,8 +148,16 @@ public struct FloatingPreviewContentView: View {
     var contentView: some View {
         switch self.vm.state {
         case .loaded(_, _, let image), .loading(_, _, .some(let image)):
-            CIImageView(image: image)
-                .placement(.fit)
+            if image.extent.isInfinite {
+                ContentUnavailableView(
+                    "Infinite-sized Image",
+                    systemImage: "photo.badge.exclamationmark.fill",
+                    description: Text("Apply a 'Crop' or a similar node to limit the image to a finite size.")
+                )
+            } else {
+                CIImageView(image: image)
+                    .placement(.fit)
+            }
         case .nothing:
             ContentUnavailableView("No Image!", systemImage: "photo.badge.exclamationmark.fill")
         default:
