@@ -87,7 +87,7 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
 
 extension NodeStringInput: TextInputDelegate {
     func textInputDidChange(_ textInput: TextInput) {
-        self.invalidateRestorableState()
+        self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
         self.setNeedsLayout()
     }
@@ -97,7 +97,7 @@ extension NodeStringInput: TextInputDelegate {
     }
 
     func textInputDidCancel(_ textInput: TextInput) {
-        self.invalidateRestorableState()
+        self.invalidateIntrinsicContentSize()
         self.emit(.sizeDidChange)
         self.setNeedsLayout()
     }
