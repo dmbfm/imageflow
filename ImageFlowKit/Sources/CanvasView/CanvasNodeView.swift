@@ -12,16 +12,10 @@ import UIKit
 public protocol CanvasNodeView: PlatformView {
     associatedtype Event = ()
     var id: UUID { get }
-    var level: Int { get }
+    var level: Int { get set }
     var emitter: EventEmitter<CanvasNodeEvent<Event>> { get }
     func emitDragGesture(_ drag: CanvasNodeDragGesture)
     func emitClick()
-}
-
-extension CanvasNodeView {
-    public var level: Int {
-        0
-    }
 }
 
 public enum CanvasNodeEvent<E> {

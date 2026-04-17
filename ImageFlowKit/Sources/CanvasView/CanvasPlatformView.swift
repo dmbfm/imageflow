@@ -45,6 +45,7 @@ public enum CanvasAction {
     case zoom(CGFloat)
     case zoomToFitContent
     case zoomToFitSelection(Set<UUID>)
+    case sortSubviews
 }
 
 public protocol CanvasViewDelegate: AnyObject {
@@ -181,6 +182,8 @@ extension CanvasPlatformView {
             self.zoomToFitNodes()
         case .zoomToFitSelection(let selection):
             self.zoomToFit(selection: selection)
+        case .sortSubviews:
+            self.contentView.sortSubviews()
         }
     }
 

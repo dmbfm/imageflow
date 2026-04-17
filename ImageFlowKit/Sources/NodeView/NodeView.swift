@@ -41,6 +41,8 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
 
     public var id: UUID { self.node.id }
 
+    public var level: Int = 0
+
     weak var delegate: NodeViewDelegate?
 
     // MARK: - Private properties

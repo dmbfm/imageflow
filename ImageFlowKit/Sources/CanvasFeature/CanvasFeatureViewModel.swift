@@ -100,6 +100,10 @@ public final class CanvasFeatureViewModel {
                 self?.nodeViewDelegateEmitter.emit(.assetsChanged)
             }
         }).store(in: &self.cancellables)
+
+        self.flow.emitter.on({ [weak self] event in
+            self?.onFlowEvent(event)
+        }).store(in: &self.cancellables)
     }
 
     // MARK: - Computed variables
@@ -171,6 +175,24 @@ public final class CanvasFeatureViewModel {
     private func onCanvasClickBackground() {
         self.flow.selectNone()
         self.focus.wrappedValue = .global
+    }
+
+    // MARK: - Flow
+
+    func onFlowEvent(_ event: FlowEvent) {
+        switch event {
+        case .selectionDidChange(let selection, liveSelect: false):
+            for (id, node) in self.nodeViews {
+                if selection.contains(id) {
+                    node.level = 1
+                } else {
+                    node.level = 0
+                }
+            }
+            self.canvasPlatformView?.perform(canvasAction: .sortSubviews)
+        default:
+            break
+        }
     }
 
     // MARK: - Nodes

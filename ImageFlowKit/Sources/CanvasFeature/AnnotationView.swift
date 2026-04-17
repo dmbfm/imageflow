@@ -25,6 +25,8 @@ final class AnnotationView: PlatformView, CanvasNodeView {
 
     public var id: UUID
 
+    var level: Int = 2
+
     public var emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
 
     var style: AnnotationStyle {

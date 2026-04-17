@@ -36,19 +36,38 @@ class CanvasContentView: PlatformView {
     }
 
     func sortSubviews() {
-        self.subviews.sort { a, b in
-            guard let a = a as? (any CanvasNodeView),
-                let b = b as? (any CanvasNodeView)
-            else { return false }
-            return a.level < b.level
-        }
+        self.sortSubviews(
+            { a, b, _ in
+                guard let a = a as? (any CanvasNodeView), let b = b as? (any CanvasNodeView) else {
+                    return .orderedSame
+                }
+
+                if a.level == b.level {
+                    return .orderedSame
+                } else if a.level > b.level {
+                    return .orderedDescending
+                } else {
+                    return .orderedAscending
+                }
+
+            },
+            context: nil
+        )
     }
 
     #endif
 
     #if os(iOS)
 
-    func sortSubviews() {}
+    func sortSubviews() {
+        let sortedSubviews = self.subviews.sorted(by: { a, b in
+            guard let a = a as? (any CanvasNodeView), let b = b as? (any CanvasNodeView) else { return false }
+            return b.level > a.level
+        })
+        for v in sortedSubviews {
+            self.bringSubviewToFront(v)
+        }
+    }
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         // 1) If inside our normal bounds, definitely handle it

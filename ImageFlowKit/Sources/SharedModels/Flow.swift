@@ -9,7 +9,7 @@ public enum FlowEvent {
     case nodesDidChange([UUID: FlowNode])
     case edgesDidChange(Set<Edge>)
     case nodePositionsDidChange([UUID: CGPoint])
-    case selectionDidChange(Set<UUID>)
+    case selectionDidChange(Set<UUID>, liveSelect: Bool)
     case didEndPortDragWithoutCreatingEdge(
         typedPortLocation: TypedPortLocation,
         canvasPosition: CGPoint?,
@@ -47,7 +47,7 @@ public final class Flow: ObservableObject {
     /// The set of node identifiers that are currently selected.
     public var selection: Set<UUID> {
         didSet {
-            self.emitter.emit(.selectionDidChange(self.selection))
+            self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
         }
     }
     /// All edges currently present in the graph.

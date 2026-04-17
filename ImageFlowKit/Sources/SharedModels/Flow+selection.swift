@@ -79,6 +79,7 @@ extension Flow {
         if snapshot != self.selection {
             self.select(self.selection, previousOverride: snapshot, mode: .replace)
         }
+        self.liveSelectSnapshot = nil
     }
 
     public func liveSelectUpdate(_ nodes: Set<UUID>, mode: SelectionMode = .replace) {
