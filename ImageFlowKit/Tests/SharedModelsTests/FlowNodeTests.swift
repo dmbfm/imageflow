@@ -136,37 +136,10 @@ func testNumConnectedSlots() {
     )
 }
 
-@Test(".valueNode(.float) should have variations")
-func valueFloatNodeShouldHaveVariations() {
-    let node = FlowNode(kind: .valueNode(.float))
-    #expect(node.hasVariations)
-}
-
-@Test(".valueNode(.float) should have variations for all ValueTypes")
-func valueFloatNodeShouldVariations() {
-    let node = FlowNode(kind: .valueNode(.float))
-    #expect(Set(node.variations) == Set(ValueType.allCases.map { .valueNode($0) }))
-}
-
-@Test("variation(soThatSlot:) returns a .valueNode(.int) for a .valueNode(.float) port")
-func variationSoThatFloatPortBecomesInt() {
-    let node = FlowNode(kind: .valueNode(.float))
-    #expect(node.variation(soThatSlot: .output(0), hasType: .int) == .valueNode(.int))
-}
-
-@Test
-func variationTest() {
-    let node = FlowNode(kind: .valueNode(.float))
-    #expect(
-        node.variation(.valueNode(.int))
-            == .init(id: node.id, kind: .valueNode(.int), name: node.name)
-    )
-}
-
 @Test
 func convertTest() {
-    let node = FlowNode(kind: .valueNode(.float))
+    let node = FlowNode(kind: .math(.addNode(.float)))
     var converted = node
-    #expect(converted.convert(toVariation: .valueNode(.int)) == true)
-    #expect(converted == .init(id: node.id, kind: .valueNode(.int), name: node.name))
+    #expect(converted.convert(toVariation: .math(.addNode(.int))) == true)
+    #expect(converted == .init(id: node.id, kind: .math(.addNode(.int)), name: node.name))
 }

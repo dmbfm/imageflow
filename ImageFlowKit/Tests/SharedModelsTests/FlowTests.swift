@@ -99,7 +99,7 @@ func testNodePositions() {
 @MainActor
 @Test
 func testIsValidPort() {
-    let (flow, ids) = makeFlow([.valueNode(.float), .valueNode(.float), .addNode(.float)], [])
+    let (flow, ids) = makeFlow([.valueNode(.float), .valueNode(.float), .math(.addNode(.float))], [])
     #expect(flow.isValidPort(.init(node: ids[0], port: .input(0))))
     #expect(flow.isValidPort(.init(node: ids[0], port: .output(0))))
     #expect(!flow.isValidPort(.init(node: ids[0], port: .output(1))))
@@ -130,7 +130,7 @@ func testEdgesOfNode() {
         [
             .valueNode(.float),
             .valueNode(.float),
-            .addNode(.float),
+            .math(.addNode(.float)),
         ],
         [
             ((0, 0), (2, 0)),
@@ -153,7 +153,7 @@ func testNumberOfEdgesOfNode() {
         [
             .valueNode(.float),
             .valueNode(.float),
-            .addNode(.float),
+            .math(.addNode(.float)),
         ],
         [
             ((0, 0), (2, 0)),
@@ -173,7 +173,7 @@ func testEdgesOfPort() {
         [
             .valueNode(.float),
             .valueNode(.float),
-            .addNode(.float),
+            .math(.addNode(.float)),
         ],
         [
             ((0, 0), (2, 0)),
@@ -197,7 +197,7 @@ func testNumberEdgesOfPort() {
         [
             .valueNode(.float),
             .valueNode(.float),
-            .addNode(.float),
+            .math(.addNode(.float)),
         ],
         [
             ((0, 0), (2, 0)),
@@ -246,7 +246,7 @@ func testRemoveNode() {
 func testUpdateNode() {
     let flow = Flow()
     let id = UUID()
-    let node = FlowNode(kind: .addNode(.vector2))
+    let node = FlowNode(kind: .math(.addNode(.vector2)))
     let node1 = FlowNode(id: id, kind: .valueNode(.float))
     let node2 = FlowNode(id: id, kind: .valueNode(.int))
     flow.addNode(node, at: .zero)
@@ -372,7 +372,7 @@ func testAddRemoveNodeUndoRedo() {
 func testUpdateNodeUndoRedo() {
     let flow = Flow()
     let id = UUID()
-    let node = FlowNode(kind: .addNode(.vector2))
+    let node = FlowNode(kind: .math(.addNode(.vector2)))
     let node1 = FlowNode(id: id, kind: .valueNode(.float))
     let node2 = FlowNode(id: id, kind: .valueNode(.int))
     um.withGroup { flow.addNode(node, at: .zero, undoManager: um) }
@@ -833,33 +833,14 @@ func testTypeCheckEdgeSameTypes() {
 }
 
 @MainActor
-@Test("`typeCheckEdge` should return `.success` if the port types of the edge are the same.")
-func testTypeCheckEdgeDifferentTypesConvert() {
-    let (flow, ids) = makeFlow(
-        [
-            .valueNode(.float),
-            .valueNode(.int),
-        ],
-        []
-    )
-
-    switch flow.typeCheckEdge(.init(((ids[0], 0), (ids[1], 0)))) {
-    case .failure(let fix):
-        #expect(fix == .fixable(.canFixConvertingDestNodeTo(.valueNode(.float))))
-    case .success(()):
-        #expect(Bool(false), ".success")
-    }
-}
-
-@MainActor
-@Test("`typeCheckEdge` should return `.success` if the port types of the edge are the same.")
+@Test("`typeCheckEdge` should return `.cantFix` if the port types of the edge are not compatible.")
 func testTypeCheckEdgeDifferentTypesNoFix() {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
-            .valueNode(.int),
-            .addNode(.int),
-            .addNode(.float),
+            .valueNode(.matrix2x2),
+            .math(.addNode(.matrix2x2)),
+            .math(.addNode(.float)),
         ],
         [
             ((1, 0), (2, 0)),
@@ -870,34 +851,6 @@ func testTypeCheckEdgeDifferentTypesNoFix() {
     switch flow.typeCheckEdge(.init(((ids[0], 0), (ids[1], 0)))) {
     case .failure(let fix):
         #expect(fix == .cantFix)
-    case .success(()):
-        #expect(Bool(false), ".success")
-    }
-}
-
-@MainActor
-@Test("`typeCheckEdge` should return `.success` if the port types of the edge are the same.")
-func newEdgeWithTypeErrorFixActionTest() {
-    let (flow, ids) = makeFlow(
-        [
-            .valueNode(.float),
-            .valueNode(.int),
-        ],
-        []
-    )
-
-    let edge = ids.edge(src: (0, 0), dst: (1, 0))
-
-    switch flow.typeCheckEdge(edge) {
-    case .failure(let fix):
-        #expect(fix == .fixable(.canFixConvertingDestNodeTo(.valueNode(.float))))
-        flow.newEdgeWithTypeErrorFixAction(edge, .canFixConvertingDestNodeTo(.valueNode(.float)), undoManager: nil)
-        #expect(flow.edges.contains(edge))
-        #expect(flow.nodes[ids[1]]!.kind == .valueNode(.float))
-        #expect(flow.nodes[ids[0]]!.kind == .valueNode(.float))
-        #expect(flow.nodes[ids[0]]!.outputs[0].connected)
-        #expect(flow.nodes[ids[1]]!.inputs[0].connected)
-
     case .success(()):
         #expect(Bool(false), ".success")
     }
@@ -974,36 +927,14 @@ func canCreateEdgeFailWithDestPortAlreadyConnected() {
 }
 
 @MainActor
-@Test("`canCreateEdge: fail with fixable type error`")
-func canCreateEdgeFailWithTypeErrorFix() {
-    let (flow, ids) = makeFlow(
-        [
-            .valueNode(.float),
-            .valueNode(.int),
-        ],
-        []
-    )
-
-    let edge = ids.edge(src: (0, 0), dst: (1, 0))
-
-    let result = flow.canCreateEdge(edge)
-    switch result {
-    case .failure(.typeError(.fixable(.canFixConvertingDestNodeTo))):
-        break
-    default:
-        #expect(Bool(false), "\(result)")
-    }
-}
-
-@MainActor
 @Test("`canCreateEdge: fail with not fixable type error`")
 func canCreateEdgeFailWithTypeErrorCantFix() {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
-            .valueNode(.int),
-            .addNode(.int),
-            .addNode(.float),
+            .valueNode(.matrix2x2),
+            .math(.addNode(.matrix2x2)),
+            .math(.addNode(.float)),
         ],
         [
             ((1, 0), (2, 0)),
@@ -1176,27 +1107,6 @@ func selectASingleNodeTest() {
 }
 
 @MainActor
-@Test("select a single should undo")
-func selectASingleNodeUndoTest() {
-    let ids = (0..<10).map { _ in UUID() }
-    let flow = Flow()
-    for id in ids {
-        flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
-    }
-    #expect(flow.selection.isEmpty)
-    um.withGroup {
-        flow.select([ids[5]], undoManager: um)
-    }
-    #expect(flow.selection.count == 1)
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.isEmpty)
-    um.redo()
-    #expect(flow.selection.count == 1)
-    #expect(flow.selection.contains(ids[5]))
-}
-
-@MainActor
 @Test("select a single node (union)")
 func selectASingleNodeUnionTest() {
     let ids = (0..<10).map { _ in UUID() }
@@ -1205,18 +1115,7 @@ func selectASingleNodeUnionTest() {
         flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
-    um.withGroup {
-        flow.select([ids[5]], mode: .union, undoManager: um)
-    }
-    #expect(flow.selection.count == 3)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.count == 2)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    um.redo()
+    flow.select([ids[5]], mode: .union)
     #expect(flow.selection.count == 3)
     #expect(flow.selection.contains(ids[0]))
     #expect(flow.selection.contains(ids[1]))
@@ -1233,18 +1132,7 @@ func selectMultipleNodesTest() {
         flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
-    um.withGroup {
-        flow.select([ids[5], ids[7], ids[9]], mode: .replace, undoManager: um)
-    }
-    #expect(flow.selection.count == 3)
-    #expect(flow.selection.contains(ids[9]))
-    #expect(flow.selection.contains(ids[7]))
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.count == 2)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    um.redo()
+    flow.select([ids[5], ids[7], ids[9]], mode: .replace)
     #expect(flow.selection.count == 3)
     #expect(flow.selection.contains(ids[9]))
     #expect(flow.selection.contains(ids[7]))
@@ -1261,20 +1149,7 @@ func selectMultipleNodesUnionTest() {
         flow.addNode(.init(id: id, kind: .valueNode(.float)), at: .zero)
     }
     flow.selection = [ids[0], ids[1]]
-    um.withGroup {
-        flow.select([ids[5], ids[7], ids[9]], mode: .union, undoManager: um)
-    }
-    #expect(flow.selection.count == 5)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    #expect(flow.selection.contains(ids[9]))
-    #expect(flow.selection.contains(ids[7]))
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.count == 2)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    um.redo()
+    flow.select([ids[5], ids[7], ids[9]], mode: .union)
     #expect(flow.selection.count == 5)
     #expect(flow.selection.contains(ids[0]))
     #expect(flow.selection.contains(ids[1]))
@@ -1299,18 +1174,7 @@ func liveSelectTest() {
     flow.liveSelectUpdate([], mode: .replace)
     flow.liveSelectUpdate([ids[4], ids[5], ids[6]], mode: .replace)
     flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .replace)
-    um.withGroup {
-        flow.liveSelectEnd(undoManager: um)
-    }
-    #expect(flow.selection.count == 3)
-    #expect(flow.selection.contains(ids[9]))
-    #expect(flow.selection.contains(ids[7]))
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.count == 2)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    um.redo()
+    flow.liveSelectEnd()
     #expect(flow.selection.count == 3)
     #expect(flow.selection.contains(ids[9]))
     #expect(flow.selection.contains(ids[7]))
@@ -1333,20 +1197,7 @@ func liveSelectUnionTest() {
     flow.liveSelectUpdate([], mode: .replace)
     flow.liveSelectUpdate([ids[4], ids[5], ids[6]], mode: .replace)
     flow.liveSelectUpdate([ids[5], ids[7], ids[9]], mode: .union)
-    um.withGroup {
-        flow.liveSelectEnd(undoManager: um)
-    }
-    #expect(flow.selection.count == 5)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    #expect(flow.selection.contains(ids[9]))
-    #expect(flow.selection.contains(ids[7]))
-    #expect(flow.selection.contains(ids[5]))
-    um.undo()
-    #expect(flow.selection.count == 2)
-    #expect(flow.selection.contains(ids[0]))
-    #expect(flow.selection.contains(ids[1]))
-    um.redo()
+    flow.liveSelectEnd()
     #expect(flow.selection.count == 5)
     #expect(flow.selection.contains(ids[0]))
     #expect(flow.selection.contains(ids[1]))
