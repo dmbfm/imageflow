@@ -55,6 +55,12 @@ struct MainContentViewMacOS: View {
                 AssetBrowserView(self.vm.assetBrowserViewModel)
             }
         )
+        .sheet(
+            isPresented: self.$vm.renameNodeModalState.isPresented,
+            content: {
+                RenameNodeSheetView(vm: self.vm, nodeId: self.vm.renameNodeModalState.node)
+            }
+        )
         .photosPicker(
             isPresented: self.$vm.showPhotoPicker,
             selection: self.$vm.selectedPhotoPickerItems,

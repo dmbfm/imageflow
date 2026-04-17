@@ -61,6 +61,16 @@ public class NodeContextMenuProvider {
 
         menu.autoenablesItems = false
 
+        let renameItem = NSMenuItem(
+            title: "Rename \(nodeName)",
+            action: #selector(Self.contextMenuRenameAction),
+            keyEquivalent: "",
+        )
+        renameItem.image = .init(
+            systemSymbolName: "character.cursor.ibeam",
+            accessibilityDescription: "Delete \(nodeName)"
+        )
+
         let deleteItem = NSMenuItem(
             title: "Delete \(nodeName)",
             action: #selector(Self.contextMenuDeleteAction),
@@ -133,6 +143,7 @@ public class NodeContextMenuProvider {
         )
 
         menu.addItem(.sectionHeader(title: "\(nodeName)"))
+        menu.addItem(renameItem)
         menu.addItem(cutItem)
         menu.addItem(copyItem)
         menu.addItem(pasteItem)
@@ -201,6 +212,13 @@ public class NodeContextMenuProvider {
     }
 
     @objc
+    func contextMenuRenameAction() {
+        if let id = self.id {
+            self.coordinator?.perform(userAction: .rename(id))
+        }
+    }
+
+    @objc
     func contextMenuDeleteAction() {
         self.coordinator?.perform(userAction: .delete(self.target))
     }
@@ -238,6 +256,15 @@ public class NodeContextMenuProvider {
 
         guard let node = self.node else {
             return nil
+        }
+        
+        let renameAction = UIAction(
+            title: "Rename Node",
+            image: .init(systemName: "character.cursor.ibeam"),
+        ) { _ in
+            if let id = self.id {
+                self.coordinator?.perform(userAction: .rename(id))
+            }
         }
 
         let deleteAction = UIAction(
@@ -295,6 +322,7 @@ public class NodeContextMenuProvider {
         return UIMenu(
             title: "Node",
             children: [
+                renameAction,
                 cutAction,
                 copyAction,
                 pasteAction,

@@ -36,6 +36,8 @@ final class MainContentViewModel {
             self.coordinator.emitter.emit(.assetBrowserDidClose)
         }
     }
+    /// The state of the "Rename Node" modal sheet
+    var renameNodeModalState: RenameNodeModalState = .hidden
     /// If true show the file importer
     var showFileImporter: Bool = false {
         didSet {
@@ -112,6 +114,24 @@ final class MainContentViewModel {
         var isPresented: Bool = false
         var image: CIImage?
         var defaultFilename: String?
+    }
+
+    struct RenameNodeModalState {
+        var isPresented: Bool = false {
+            didSet {
+                if !self.isPresented {
+                    self.node = nil
+                }
+            }
+        }
+        var node: UUID? = nil
+
+        static let hidden: Self = .init(isPresented: false, node: nil)
+
+        mutating func show(_ node: UUID) {
+            self.node = node
+            self.isPresented = true
+        }
     }
 
     struct FileImporterConfiguration {
@@ -399,6 +419,10 @@ final class MainContentViewModel {
 
     func showImageExporter(_ image: CIImage, _ defaultFilename: String?) {
         self.imageExporterState = .init(isPresented: true, image: image, defaultFilename: defaultFilename)
+    }
+
+    func renameNode(node: UUID, name: String) {
+        self.flow.setNodeName(id: node, newValue: name, undoManager: self.undoManager)
     }
 }
 

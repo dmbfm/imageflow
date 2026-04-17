@@ -72,6 +72,7 @@ public enum Point {
 
 public enum UserAction {
     case delete(Target)
+    case rename(UUID)
     case copy(Target)
     case cut(Target)
     case duplicate(Target)

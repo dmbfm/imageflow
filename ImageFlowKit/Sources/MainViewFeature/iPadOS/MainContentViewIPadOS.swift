@@ -54,6 +54,9 @@ struct MainContentViewIPadOS: View {
                 self.vm.onNodePaletteSheetTapItem($0)
             }
         }
+        .sheet(isPresented: self.$vm.renameNodeModalState.isPresented) {
+            RenameNodeSheetView(vm: self.vm, nodeId: self.vm.renameNodeModalState.node)
+        }
         .sheet(isPresented: self.$vm.showAssetBrowser) {
             AssetBrowserView(self.vm.assetBrowserViewModel)
                 .errorAlert(self.$vm.assetBrowserError)

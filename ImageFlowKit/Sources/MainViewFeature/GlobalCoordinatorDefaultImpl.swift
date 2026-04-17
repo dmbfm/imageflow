@@ -159,6 +159,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.cutSelectedNodes()
         case .delete(let target):
             self.delete(target)
+        case .rename(let node):
+            self.rename(node)
         case .deleteSelectedNodes:
             self.flow.deleteSelectedNodesAction(undoManager: self.undoManager)
         case .duplicate(let target):
@@ -385,6 +387,10 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         }
 
         vm.showImageExporter(image, filename)
+    }
+
+    func rename(_ node: UUID) {
+        self.mainContentViewModel?.renameNodeModalState.show(node)
     }
 
     func delete(_ target: UserAction.Target) {
