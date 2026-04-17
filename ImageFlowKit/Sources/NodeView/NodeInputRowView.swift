@@ -80,6 +80,9 @@ public final class NodeInputRowView: PlatformView {
                 self?.onEvent?(.dragPort(data))
             }
         }
+
+        view.toolTip = "\(self.input.value.type.displayName)"
+
         return view
     }()
 

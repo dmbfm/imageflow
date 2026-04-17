@@ -38,6 +38,8 @@ public final class NodeOutputRowView: PlatformCommonView {
             }
         }
 
+        view.toolTip = "\(self.output.type.displayName)"
+
         return view
     }()
 
