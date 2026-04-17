@@ -992,6 +992,14 @@ extension Value {
             return .string(lhsValue + rhsValue)
         case (.affineTransform(let lhs), .affineTransform(let rhs)):
             return .affineTransform(lhs + rhs)
+        case (.matrix2x2(let lhs), .matrix2x2(let rhs)):
+            return .matrix2x2(lhs + rhs)
+        case (.matrix3x3(let lhs), .matrix3x3(let rhs)):
+            return .matrix3x3(lhs + rhs)
+        case (.matrix5x5(let lhs), .matrix5x5(let rhs)):
+            return .matrix5x5(lhs + rhs)
+        case (.matrix7x7(let lhs), .matrix7x7(let rhs)):
+            return .matrix7x7(lhs + rhs)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }
@@ -1013,8 +1021,16 @@ extension Value {
             return .color4(lhsValue - rhsValue)
         case (.affineTransform(let lhs), .affineTransform(let rhs)):
             return .affineTransform(lhs - rhs)
+        case (.matrix2x2(let lhs), .matrix2x2(let rhs)):
+            return .matrix2x2(lhs - rhs)
+        case (.matrix3x3(let lhs), .matrix3x3(let rhs)):
+            return .matrix3x3(lhs - rhs)
+        case (.matrix5x5(let lhs), .matrix5x5(let rhs)):
+            return .matrix5x5(lhs - rhs)
+        case (.matrix7x7(let lhs), .matrix7x7(let rhs)):
+            return .matrix7x7(lhs - rhs)
         default:
-            fatalError("Invalid types: \(lhs) + \(rhs)")
+            fatalError("Invalid types: \(lhs) - \(rhs)")
         }
     }
 
@@ -1034,6 +1050,14 @@ extension Value {
             return .color4(lhsValue * rhsValue)
         case (.affineTransform(let lhs), .affineTransform(let rhs)):
             return .affineTransform(lhs * rhs)
+        case (.matrix2x2(let lhs), .matrix2x2(let rhs)):
+            return .matrix2x2(lhs * rhs)
+        case (.matrix3x3(let lhs), .matrix3x3(let rhs)):
+            return .matrix3x3(lhs * rhs)
+        case (.matrix5x5(let lhs), .matrix5x5(let rhs)):
+            return .matrix5x5(lhs * rhs)
+        case (.matrix7x7(let lhs), .matrix7x7(let rhs)):
+            return .matrix7x7(lhs * rhs)
         default:
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }

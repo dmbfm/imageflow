@@ -34,6 +34,30 @@ public struct Matrix2x2: Sendable, Hashable, Codable {
             self.values[row * 2 + column] = newValue
         }
     }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 + $1 }))
+    }
+
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 - $1 }))
+    }
+
+    public static func * (lhs: Self, rhs: Self) -> Self {
+        let dim = 2
+        var result = Self.init()
+        for i in 0..<dim {
+            for j in 0..<dim {
+                var s = 0.0
+                for k in 0..<dim {
+                    s += lhs[i, k] * rhs[k, j]
+                }
+                result[i, j] = s
+            }
+        }
+
+        return result
+    }
 }
 
 public struct Matrix3x3: Sendable, Hashable, Codable {
@@ -69,6 +93,27 @@ public struct Matrix3x3: Sendable, Hashable, Codable {
         set {
             self.values[row * 3 + column] = newValue
         }
+    }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 + $1 }))
+    }
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 - $1 }))
+    }
+    public static func * (lhs: Self, rhs: Self) -> Self {
+        var result = Self.init()
+        for i in 0..<3 {
+            for j in 0..<3 {
+                var s = 0.0
+                for k in 0..<3 {
+                    s += lhs[i, k] * rhs[k, j]
+                }
+                result[i, j] = s
+            }
+        }
+
+        return result
     }
 }
 
@@ -114,6 +159,30 @@ public struct Matrix5x5: Sendable, Hashable, Codable {
         set {
             self.values[row * dim + column] = newValue
         }
+    }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 + $1 }))
+    }
+
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 - $1 }))
+    }
+
+    public static func * (lhs: Self, rhs: Self) -> Self {
+        let dim = 5
+        var result = Self.init()
+        for i in 0..<dim {
+            for j in 0..<dim {
+                var s = 0.0
+                for k in 0..<dim {
+                    s += lhs[i, k] * rhs[k, j]
+                }
+                result[i, j] = s
+            }
+        }
+
+        return result
     }
 }
 
@@ -161,5 +230,28 @@ public struct Matrix7x7: Sendable, Hashable, Codable {
         set {
             self.values[row * dim + column] = newValue
         }
+    }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 + $1 }))
+    }
+
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        .init(zip(lhs.values, rhs.values).map({ $0 - $1 }))
+    }
+    public static func * (lhs: Self, rhs: Self) -> Self {
+        let dim = 7
+        var result = Self.init()
+        for i in 0..<dim {
+            for j in 0..<dim {
+                var s = 0.0
+                for k in 0..<dim {
+                    s += lhs[i, k] * rhs[k, j]
+                }
+                result[i, j] = s
+            }
+        }
+
+        return result
     }
 }
