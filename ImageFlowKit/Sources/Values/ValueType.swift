@@ -55,17 +55,3 @@ extension ValueType {
         .defaultValue(forType: self)
     }
 }
-
-extension ValueType {
-    public func castableTypes() -> [ValueType] {
-        switch self {
-        case .int: [.float, .vector2, .vector3, .vector4, .affineTransform, .bool, .color4, .rect]
-        case .float: [.int]
-        default: []
-        }
-    }
-
-    public func castable(to other: ValueType) -> Bool {
-        return self.castableTypes().contains(other)
-    }
-}
