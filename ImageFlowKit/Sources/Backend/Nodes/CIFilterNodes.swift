@@ -958,7 +958,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Scale", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Count", defaultValue: .int(64), semantics: .count),
+                    .init(name: "Count", defaultValue: .int(64), semantics: .integer(.partialRangeFrom(0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1070,7 +1070,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Scale", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Count", defaultValue: .int(64), semantics: .count),
+                    .init(name: "Count", defaultValue: .int(64), semantics: .integer(.partialRangeFrom(0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1101,7 +1101,7 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Scale", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Count", defaultValue: .int(64), semantics: .count),
+                    .init(name: "Count", defaultValue: .int(64), semantics: .integer(.partialRangeFrom(0))),
                     .init(name: "Minimum Stop", defaultValue: .float(-10.0), semantics: .default),
                     .init(name: "Maximum Stop", defaultValue: .float(4.0), semantics: .default),
                 ],
@@ -4405,7 +4405,7 @@ extension Nodes {
                 name: "Kaleidoscope",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    .init(name: "Count", defaultValue: .int(6), semantics: .count),
+                    .init(name: "Count", defaultValue: .int(6), semantics: .integer(.partialRangeFrom(0))),
                     .init(name: "Center", defaultValue: .vector2(.init(x: 150.0, y: 150.0)), semantics: .position2),
                     .init(
                         name: "Angle",
@@ -4547,8 +4547,8 @@ extension Nodes {
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Extent", type: .rect, semantics: .rectangle),
                     .init(name: "Means", type: .image, semantics: .image),
-                    .init(name: "Count", defaultValue: .int(8), semantics: .count),
-                    .init(name: "Passes", defaultValue: .int(5), semantics: .count),
+                    .init(name: "Count", defaultValue: .int(8), semantics: .integer(.partialRangeFrom(0))),
+                    .init(name: "Passes", defaultValue: .int(5), semantics: .integer(.partialRangeFrom(0))),
                     .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean),
                 ],
                 outputs: [

@@ -221,6 +221,7 @@ extension InputType {
             }()
         case .boolean: ".boolean"
         case .color: ".color"
+        case .count where input.valueType == .int: ".integer(.partialRangeFrom(0))"
         case .count: ".count"
         case .distance: ".distance"
         case .gradient: ".gradient"
