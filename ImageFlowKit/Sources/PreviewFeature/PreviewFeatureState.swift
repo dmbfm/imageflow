@@ -365,7 +365,7 @@ public final class PreviewFeatureState {
                 if self.previewContentViewModel.currentLocation?.node == id && self.previewContentViewModel.locked {
                     self.previewContentViewModel.state = .nothing
                 }
-            case .selectionDidChange(_):
+            case .selectionDidChange(_, _):
                 Task { @MainActor in
                     await self.onSelectionChanged()
                 }
