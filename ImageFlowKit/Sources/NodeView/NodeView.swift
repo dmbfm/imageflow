@@ -363,7 +363,7 @@ extension NodeView {
                 outputRow: .default,
                 background: .default,
                 titleLeft: 16,
-                titleRight: 26,
+                titleRight: 6,
                 titleTop: 14,
                 titleBottom: 10,
                 inputBlockBottomPadding: 4,
