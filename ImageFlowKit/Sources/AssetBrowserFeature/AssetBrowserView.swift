@@ -44,14 +44,36 @@ public struct AssetBrowserView: View {
     @ViewBuilder
     var content: some View {
         VStack {
-            self.gridView
-                .onTapGesture {
-                    self.vm.selected = nil
+            Group {
+                if self.vm.filteredAssets.isEmpty {
+                    self.contentUnavailableView
+                } else {
+                    self.gridView
+                        .onTapGesture {
+                            self.vm.selected = nil
+                        }
                 }
-                .safeAreaBar(edge: .top) { self.toolbarView }
-                .safeAreaBar(edge: .bottom) { self.footerView }
+            }
+            .safeAreaBar(edge: .top) { self.toolbarView }
+            .safeAreaBar(edge: .bottom) { self.footerView }
         }
         .ignoresSafeArea(.keyboard)
+    }
+
+    var contentUnavailableView: some View {
+        VStack {
+            Spacer()
+            ContentUnavailableView(
+                "No Assets Available",
+                systemImage: "folder",
+                description: Text(
+                    "Import your assets using the buttons on the toolbar above."
+                )
+            )
+            .frame(maxWidth: .infinity)
+            Spacer()
+        }
+        .frame(width: 794)
     }
 
     // MARK: - Toolbar
