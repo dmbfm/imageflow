@@ -38,7 +38,11 @@ public final class NodeOutputRowView: PlatformCommonView {
             }
         }
 
+        #if os(macOS)
         view.toolTip = "\(self.output.type.displayName)"
+        #else
+        view.addInteraction(UIToolTipInteraction(defaultToolTip: "\(self.output.type.displayName)"))
+        #endif
 
         return view
     }()

@@ -81,7 +81,11 @@ public final class NodeInputRowView: PlatformView {
             }
         }
 
+        #if os(macOS)
         view.toolTip = "\(self.input.value.type.displayName)"
+        #else
+        view.addInteraction(UIToolTipInteraction(defaultToolTip: "\(self.input.value.type.displayName)"))
+        #endif
 
         return view
     }()
