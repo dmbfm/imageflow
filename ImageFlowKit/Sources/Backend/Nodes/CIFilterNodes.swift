@@ -405,7 +405,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         }
     }
     public enum GeneratorNodeKind: Sendable, Hashable, Codable, CaseIterable {
-        case CIAttributedTextImageGenerator
         case CIBlurredRectangleGenerator
         case CIBlurredRoundedRectangleGenerator
         case CICheckerboardGenerator
@@ -417,11 +416,8 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIStarShineGenerator
         case CIStripesGenerator
         case CISunbeamsGenerator
-        case CITextImageGenerator
         public var impl: NodeImpl {
             switch self {
-            case .CIAttributedTextImageGenerator:
-                Nodes.CIAttributedTextImageGeneratorNode.impl()
             case .CIBlurredRectangleGenerator:
                 Nodes.CIBlurredRectangleGeneratorNode.impl()
             case .CIBlurredRoundedRectangleGenerator:
@@ -444,8 +440,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIStripesGeneratorNode.impl()
             case .CISunbeamsGenerator:
                 Nodes.CISunbeamsGeneratorNode.impl()
-            case .CITextImageGenerator:
-                Nodes.CITextImageGeneratorNode.impl()
             }
         }
     }
@@ -1286,35 +1280,6 @@ extension Nodes {
                 let filter = CIFilter(name: "CIAreaMinMaxRed")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(CIVector(cgRect: node.inputs[1].rect), forKey: "inputExtent")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIAttributedTextImageGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Attributed Text Image Generator",
-                inputs: [
-                    .init(name: "Text", type: .attributedString, semantics: .default),
-                    .init(name: "Scale Factor", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Padding", defaultValue: .int(0), semantics: .integer),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIAttributedTextImageGenerator")!
-                filter.setValue(NSAttributedString(node.inputs[0].attributedString), forKey: "inputText")
-                filter.setValue(node.inputs[1].float, forKey: "inputScaleFactor")
-                filter.setValue(node.inputs[2].int, forKey: "inputPadding")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -7542,39 +7507,6 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputNeutral")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTargetNeutral")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CITextImageGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Text Image Generator",
-                inputs: [
-                    .init(name: "Text", type: .string, semantics: .default),
-                    .init(name: "Font Name", defaultValue: .string("HelveticaNeue"), semantics: .default),
-                    .init(name: "Font Size", defaultValue: .float(12.0), semantics: .default),
-                    .init(name: "Scale Factor", defaultValue: .float(1.0), semantics: .default),
-                    .init(name: "Padding", defaultValue: .int(0), semantics: .integer),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CITextImageGenerator")!
-                filter.setValue(node.inputs[0].string, forKey: "inputText")
-                filter.setValue(node.inputs[1].string, forKey: "inputFontName")
-                filter.setValue(node.inputs[2].float, forKey: "inputFontSize")
-                filter.setValue(node.inputs[3].float, forKey: "inputScaleFactor")
-                filter.setValue(node.inputs[4].int, forKey: "inputPadding")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
