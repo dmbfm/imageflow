@@ -66,7 +66,7 @@ fileprivate struct InnerView: View {
                 .font(.headline)
             TextField("Node Name", text: self.$text)
                 #if os(macOS)
-                .textContentType(.password)
+            .textContentType(.password)
                 #endif
             HStack {
                 Spacer()
@@ -106,7 +106,7 @@ fileprivate struct InnerView: View {
                         self.onOk?()
                     }
                 }
-                
+
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", systemImage: "xmark") {
                         self.onCancel?()

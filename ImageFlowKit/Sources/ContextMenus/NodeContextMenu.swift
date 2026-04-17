@@ -257,7 +257,7 @@ public class NodeContextMenuProvider {
         guard let node = self.node else {
             return nil
         }
-        
+
         let renameAction = UIAction(
             title: "Rename Node",
             image: .init(systemName: "character.cursor.ibeam"),
