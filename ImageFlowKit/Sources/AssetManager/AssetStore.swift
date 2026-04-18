@@ -52,7 +52,7 @@ public final class AssetStore: AssetStoreService {
 
     public func titleForAsset(id: AssetIdentifier) -> String? {
         if case let .asset(id) = id {
-            self.filenameCache.get(id: id) ?? self.assets[id]?.filename
+            self.filenameCache.get(id: id) ?? self.assets[id]?.originalFilename
         } else {
             nil
         }

@@ -31,7 +31,7 @@ struct AssetBrowserGridItemView: View {
     var body: some View {
         AssetBrowserGridItemInnerView(
             image: self.image,
-            name: asset.filename,
+            name: asset.originalFilename,
             selected: self.selected,
             failed: self.failed,
         )
@@ -55,7 +55,12 @@ private class PreviewThumbProvider: AssetThumbProvider {
 }
 
 #Preview {
-    @Previewable @State var asset = Asset(id: .init(), kind: .image, timestamp: .now, state: .loaded(filename: ""))
+    @Previewable @State var asset = Asset(
+        id: .init(),
+        kind: .image,
+        timestamp: .now,
+        state: .loaded(filename: "", originalFilename: "")
+    )
     @Previewable @State var tp = PreviewThumbProvider()
     @Previewable @State var selected = false
 

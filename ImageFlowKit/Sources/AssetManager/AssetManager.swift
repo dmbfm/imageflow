@@ -112,7 +112,7 @@ actor AssetManager {
     }
 
     func importImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
-        try await self.importAsset(kind: .image) { assetsDir in
+        try await self.importAsset(kind: .image) { assetsDir, id in
             guard let identifier = item.itemIdentifier else {
                 throw AssetManagerError.importAsset(.photosMissingIdentifier)
             }
@@ -132,30 +132,30 @@ actor AssetManager {
             }
 
             let filename = resource.originalFilename
-            let assetFilename = self.name(forAssetWithFilename: filename)
+            let assetFilename = self.name(forAssetWithFilename: filename, id: id)
 
             try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
             let assetURL = assetsDir.appending(path: assetFilename)
 
             try data.write(to: assetURL)
 
-            return assetFilename
+            return .init(filename: assetFilename, originalFilename: filename)
         }
     }
 
     func importAsset(fromURL url: URL, kind: AssetKind) async throws(AssetManagerError) -> UUID {
-        try await self.importAsset(kind: kind) { assetsDir in
+        try await self.importAsset(kind: kind) { assetsDir, id in
             guard url.startAccessingSecurityScopedResource() else {
                 throw AssetManagerError.importAsset(.URLAccessError)
             }
             defer { url.stopAccessingSecurityScopedResource() }
 
-            let assetFilename = self.name(forAssetAt: url)
+            let assetFilename = self.name(forAssetAt: url, id: id)
             let assetURL = assetsDir.appending(path: assetFilename)
 
             try FileManager.default.copyItem(at: url, to: assetURL)
 
-            return assetFilename
+            return .init(filename: assetFilename, originalFilename: url.lastPathComponent)
         }
     }
 
@@ -277,10 +277,15 @@ actor AssetManager {
         }
     }
 
+    struct ImportFuncResult {
+        var filename: String
+        var originalFilename: String
+    }
+
     private func importAsset(
         id: UUID = UUID(),
         kind: AssetKind,
-        importFunc: (_ assetsDir: URL) async throws -> String
+        importFunc: (_ assetsDir: URL, _ id: UUID) async throws -> ImportFuncResult
     ) async throws(AssetManagerError) -> UUID {
         guard let documentID = self.documentInfo?.id else {
             throw .importAsset(.missingDocumentInfo)
@@ -293,9 +298,16 @@ actor AssetManager {
 
             try FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
 
-            let filename = try await importFunc(assetsDir)
+            let result = try await importFunc(assetsDir, id)
 
-            self.register(asset: .init(id: id, kind: kind, timestamp: .now, state: .loaded(filename: filename)))
+            self.register(
+                asset: .init(
+                    id: id,
+                    kind: kind,
+                    timestamp: .now,
+                    state: .loaded(filename: result.filename, originalFilename: result.originalFilename)
+                )
+            )
         } catch {
             throw .from(error)
         }
@@ -303,47 +315,22 @@ actor AssetManager {
         return id
     }
 
-    private var assetNames: [String] {
-        self.assets.values.compactMap { asset in
-            switch asset.state {
-            case .loading:
-                nil
-            case .loaded(let name):
-                name
-            }
-        }
-    }
-
-    private func name(forAssetAt url: URL) -> String {
-        let name = url.lastPathComponent
-        let basename = url.deletingPathExtension().lastPathComponent
+    private func name(forAssetAt url: URL, id: UUID) -> String {
+        // let name = url.lastPathComponent
+        // let basename = url.deletingPathExtension().lastPathComponent
         let ext = url.pathExtension
-
-        let names = self.assetNames
-
-        var modifiedName: String? = nil
-
-        if names.contains(name) {
-            for i in 2...10000 {
-                let attempt = basename + "(\(i))." + ext
-                if !names.contains(attempt) {
-                    modifiedName = attempt
-                    break
-                }
+        let storedName =
+            if ext.isEmpty {
+                "\(id.uuidString)"
+            } else {
+                "\(id.uuidString).\(ext)"
             }
-        } else {
-            return name
-        }
 
-        if let modifiedName {
-            return modifiedName
-        } else {
-            return basename + "\(UUID().uuidString)." + ext
-        }
+        return storedName
     }
 
-    private func name(forAssetWithFilename name: String) -> String {
-        self.name(forAssetAt: .init(filePath: name))
+    private func name(forAssetWithFilename name: String, id: UUID) -> String {
+        self.name(forAssetAt: .init(filePath: name), id: id)
     }
 
     private func documentAssetURL(filename: String) -> URL? {
@@ -402,7 +389,7 @@ actor AssetManager {
             throw .getAssetResource(.resourceNotFound)
         }
 
-        guard case let .loaded(filename: filename) = asset.state else {
+        guard case let .loaded(filename: filename, _) = asset.state else {
             throw .getAssetResource(.assetNotLoaded)
         }
 

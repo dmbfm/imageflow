@@ -28,7 +28,7 @@ public struct FilenameCache: Sendable, Equatable, Codable {
     mutating func refresh(assets: [UUID: Asset]) {
         self.cache.removeAll(keepingCapacity: true)
         for (id, asset) in assets {
-            self.cache[id] = asset.filename
+            self.cache[id] = asset.originalFilename
         }
     }
 }

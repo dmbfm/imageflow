@@ -69,7 +69,7 @@ public final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
         do {
             for (_, asset) in snapshot.assets.assets {
                 switch asset.state {
-                case .loaded(let filename):
+                case .loaded(let filename, _):
                     let url: URL = .tempAssetURL(forDocument: self.id, filename: filename)
                     if FileManager.default.fileExists(atPath: url.path) {
                         let fw = try FileWrapper(
