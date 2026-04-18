@@ -55,3 +55,12 @@ extension ValueType {
         .defaultValue(forType: self)
     }
 }
+
+extension ValueType {
+    public var isAsset: Bool {
+        switch self {
+        case .image, .lut: true
+        default: false
+        }
+    }
+}

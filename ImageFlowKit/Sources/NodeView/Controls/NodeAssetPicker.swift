@@ -86,16 +86,18 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         }
     }
 
+    private var currentLabel: String = ""
+
     var label: String {
         let maybeID = T.resolve(self.value)
-        return switch maybeID {
-        case .nodeOutput(let node, let port):
-            self.delegate?.titleForAsset(id: maybeID!) ?? "[\(node):\(port)]"
-        case .asset(let uuid):
-            self.delegate?.titleForAsset(id: maybeID!) ?? "[\(uuid)]"
-        case .none:
-            "Select..."
-        }
+        self.currentLabel =
+            switch maybeID {
+            case .nodeOutput, .asset:
+                self.delegate?.titleForAsset(id: maybeID!) ?? self.currentLabel
+            case .none:
+                "Select..."
+            }
+        return self.currentLabel
     }
 
     var showRemoveButton: Bool {

@@ -1063,3 +1063,19 @@ extension Value {
         }
     }
 }
+
+extension Value {
+    public var isAsset: Bool {
+        self.type.isAsset
+    }
+}
+
+extension Value {
+    public var assetIdentifier: AssetIdentifier? {
+        switch self {
+        case .image(let value): value
+        case .lut(let value): value
+        default: nil
+        }
+    }
+}
