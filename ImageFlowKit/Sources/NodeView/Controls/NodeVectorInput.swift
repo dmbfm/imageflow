@@ -135,6 +135,8 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         for v in self.textFields {
             self.addSubview(v.view)
         }
+
+        self.update()
     }
 
     public required init?(coder: NSCoder) {
