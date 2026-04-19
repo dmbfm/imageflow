@@ -157,7 +157,16 @@ private struct Categories {
         .init(
             name: .gradient,
             items: CIFilterNodeKind.GradientNodeKind.allCases
+                .filter({
+                    ![
+                        CIFilterNodeKind.GradientNodeKind.CIRadialGradient,
+                        CIFilterNodeKind.GradientNodeKind.CIGaussianGradient,
+                        CIFilterNodeKind.GradientNodeKind.CIDistanceGradientFromRedMask,
+                        CIFilterNodeKind.GradientNodeKind.CISignedDistanceGradientFromRedMask,
+                    ].contains($0)
+                })
                 .map { NodeKind.coreImageFilterNode(.gradient($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.Gradient.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .gradient) }
         )
 

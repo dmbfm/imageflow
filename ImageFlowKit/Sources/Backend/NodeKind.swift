@@ -122,9 +122,43 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     case segmentation(Segmentation)
     case convolution(Convolution)
     case reduction(Reduction)
+    case gradient(Gradient)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
+    }
+
+    public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
+        case radialGradient
+        case gaussianGradient
+        case distanceGradientFromRedMask
+        case signedDistanceGradientFromRedMask
+
+        public static var allKinds: [NodeKind] {
+            [
+                .coreImageCustomNode(.gradient(.radialGradient)),
+                .coreImageCustomNode(.gradient(.gaussianGradient)),
+                .coreImageCustomNode(.gradient(.distanceGradientFromRedMask)),
+                .coreImageCustomNode(.gradient(.signedDistanceGradientFromRedMask)),
+            ]
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.gradient(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .radialGradient:
+                Nodes.CoreImageCustom.RadialGradientNode.impl()
+            case .gaussianGradient:
+                Nodes.CoreImageCustom.GaussianGradientNode.impl()
+            case .distanceGradientFromRedMask:
+                Nodes.CoreImageCustom.DistanceGradientFromRedMaskNode.impl()
+            case .signedDistanceGradientFromRedMask:
+                Nodes.CoreImageCustom.SignedDistanceGradientFromRedMaskNode.impl()
+            }
+        }
     }
 
     public enum Reduction: Sendable, Hashable, Codable, CaseIterable {
@@ -316,6 +350,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case .segmentation(let kind): kind.impl
         case .convolution(let kind): kind.impl
         case .reduction(let kind): kind.impl
+        case .gradient(let kind): kind.impl
         }
     }
 }

@@ -796,4 +796,178 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public struct RadialGradientNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Radial Gradient",
+                inputs: [
+                    .init(name: "Radius 1", defaultValue: .float(5.0), semantics: .distance),
+                    .init(name: "Radius 2", defaultValue: .float(100.0), semantics: .distance),
+                    .init(
+                        name: "Color 0",
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                    .init(
+                        name: "Color 1",
+                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIRadialGradient")!
+
+                let center = CIVector(cgPoint: .zero)
+                let r0 = node.inputs[0].float
+                let r1 = node.inputs[1].float
+
+                filter.setValue(center, forKey: "inputCenter")
+                filter.setValue(r0, forKey: "inputRadius0")
+                filter.setValue(r1, forKey: "inputRadius1")
+                filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor0")
+                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor1")
+
+                let r = max(r0, r1)
+
+                let extent = CGRect(
+                    x: center.x - r,
+                    y: center.y - r,
+                    width: 2 * r,
+                    height: 2 * r
+                )
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: extent), 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct GaussianGradientNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Gaussian Gradient",
+                inputs: [
+                    .init(name: "Radius", defaultValue: .float(300), semantics: .distance),
+                    .init(
+                        name: "Color 0",
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                    .init(
+                        name: "Color 1",
+                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)),
+                        semantics: .color
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter.gaussianGradient()
+                filter.center = .zero
+                filter.radius = Float(node.inputs[0].float)
+                filter.color0 = node.inputs[1].color4.ciColor
+                filter.color1 = node.inputs[2].color4.ciColor
+                node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+            }
+        }
+    }
+
+    public struct DistanceGradientFromRedMaskNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Distance Gradient From Red Mask",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.distanceGradientFromRedMask()
+
+                    let inputImage = await context.getImage(node.inputs[0].image)
+
+                    filter.inputImage = inputImage
+                    filter.maximumDistance = Float(node.inputs[1].float)
+
+                    let cropToSource = node.inputs[2].bool
+                    let outputImage = filter.outputImage
+
+                    if let inputImage, let outputImage {
+                        if cropToSource {
+                            node.outputs[0] = .image(
+                                await context.addImage(outputImage.cropped(to: inputImage.extent), 0)
+                            )
+                        } else {
+                            node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                        }
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                    }
+                }
+            )
+        }
+    }
+
+    public struct SignedDistanceGradientFromRedMaskNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Signed Distance Gradient From Red Mask",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
+                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter.signedDistanceGradientFromRedMask()
+
+                    let inputImage = await context.getImage(node.inputs[0].image)
+
+                    filter.inputImage = inputImage
+                    filter.maximumDistance = Float(node.inputs[1].float)
+
+                    let cropToSource = node.inputs[2].bool
+                    let outputImage = filter.outputImage
+
+                    if let inputImage, let outputImage {
+                        if cropToSource {
+                            node.outputs[0] = .image(
+                                await context.addImage(outputImage.cropped(to: inputImage.extent), 0)
+                            )
+                        } else {
+                            node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                        }
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                    }
+                }
+            )
+        }
+    }
+
 }
