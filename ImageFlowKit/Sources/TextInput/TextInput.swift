@@ -359,7 +359,10 @@ public final class TextInput: PlatformCommonView {
     func clickGestureHandler(_ gesture: NSClickGestureRecognizer) {
         if self.behaviours.contains(.clickBecomeEditableAndFocus) {
             self.isEditable = true
-            self.textField.window?.makeFirstResponder(self.textField)
+            // NOTE: This task avoids some QOS priority warning bullshit
+            Task(priority: .medium) {
+                self.textField.window?.makeFirstResponder(self.textField)
+            }
         }
     }
 
