@@ -222,6 +222,8 @@ struct PreviewContentViewModel {
                 } else {
                     self.state = .nothing
                 }
+            } else {
+                self.state = self.state.mapLock { _ in false }
             }
         }
 
