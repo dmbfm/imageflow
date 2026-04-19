@@ -1,5 +1,6 @@
 import Helpers
 import Logging
+import SharedModels
 import SwiftUI
 import UniformTypeIdentifiers
 import Values
@@ -21,6 +22,21 @@ public struct AssetBrowserView: View {
 
     public init(_ vm: AssetBrowserViewModel) {
         self._vm = .init(wrappedValue: vm)
+    }
+
+    // MARK: - Methods
+
+    func gridItemTapGesture(_ asset: Asset) -> some Gesture {
+        TapGesture().onEnded({ _ in
+            self.vm.onTapItem(asset)
+        }).simultaneously(
+            with: TapGesture(count: 2).onEnded({ _ in
+                self.vm.onTapItem(asset)
+                self.vm.selectButtonHandler {
+                    self.dismiss()
+                }
+            })
+        )
     }
 
     // MARK: - Body
@@ -199,9 +215,7 @@ public struct AssetBrowserView: View {
                             self.vm.deleteButtonHandler(asset)
                         }
                         #endif
-                        .onTapGesture {
-                            self.vm.onTapItem(asset)
-                        }
+                        .gesture(self.gridItemTapGesture(asset))
                         .contextMenu {
                             Button("Delete") { self.vm.deleteButtonHandler(asset) }
                                 .disabled(!asset.isLoaded)
