@@ -688,4 +688,112 @@ extension Nodes.CoreImageCustom {
             }
         }
     }
+
+    public struct KMeansNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "KMeans Palette",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    // .init(name: "Extent", type: .rect, semantics: .rectangle),
+                    // .init(name: "Means", type: .image, semantics: .image),
+                    .init(name: "Count", defaultValue: .int(8), semantics: .integer(.partialRangeFrom(0))),
+                    .init(name: "Passes", defaultValue: .int(2), semantics: .integer(.partialRangeFrom(0))),
+                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIKMeans")!
+                let inputImage = await context.getImage(node.inputs[0].image)
+
+                if let image = inputImage, !image.extent.isEmpty, !image.extent.isInfinite {
+                    let size = 128.0
+                    let smallImage = image.transformed(
+                        by: .init(scaleX: size / image.extent.width, y: size / image.extent.height),
+                        highQualityDownsample: false
+                    )
+                    .cropped(to: .init(x: image.extent.origin.x, y: image.extent.origin.y, width: size, height: size))
+                    filter.setValue(smallImage, forKey: "inputImage")
+                    filter.setValue(CIVector(cgRect: smallImage.extent), forKey: "inputExtent")
+                }
+
+                filter.setValue(node.inputs[1].int, forKey: "inputCount")
+                filter.setValue(node.inputs[2].int, forKey: "inputPasses")
+                filter.setValue(node.inputs[3].bool, forKey: "inputPerceptual")
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(
+                        await context.addImage(outputImage.settingAlphaOne(in: outputImage.extent), 0)
+                    )
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct PalettizeKMeans: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Palettize (KMeans)",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    // .init(name: "Extent", type: .rect, semantics: .rectangle),
+                    // .init(name: "Means", type: .image, semantics: .image),
+                    .init(name: "Count", defaultValue: .int(8), semantics: .integer(.partialRangeFrom(0))),
+                    .init(name: "Passes", defaultValue: .int(5), semantics: .integer(.partialRangeFrom(0))),
+                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIKMeans")!
+                let inputImage = await context.getImage(node.inputs[0].image)
+
+                if let image = inputImage, !image.extent.isEmpty, !image.extent.isInfinite {
+                    let size = 128.0
+                    let smallImage = image.transformed(
+                        by: .init(scaleX: size / image.extent.width, y: size / image.extent.height),
+                        highQualityDownsample: false
+                    )
+                    .cropped(to: .init(x: image.extent.origin.x, y: image.extent.origin.y, width: size, height: size))
+                    filter.setValue(smallImage, forKey: "inputImage")
+                    filter.setValue(CIVector(cgRect: smallImage.extent), forKey: "inputExtent")
+                }
+
+                filter.setValue(node.inputs[1].int, forKey: "inputCount")
+                filter.setValue(node.inputs[2].int, forKey: "inputPasses")
+                filter.setValue(node.inputs[3].bool, forKey: "inputPerceptual")
+
+                let palettizeFilter = CIFilter.palettize()
+                palettizeFilter.inputImage = inputImage
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+
+                    palettizeFilter.paletteImage = outputImage.settingAlphaOne(in: outputImage.extent)
+                    palettizeFilter.perceptual = node.inputs[3].bool
+
+                    if let finalImage = palettizeFilter.outputImage {
+                        node.outputs[0] = .image(
+                            await context.addImage(finalImage, 0)
+                        )
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                    }
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
 }

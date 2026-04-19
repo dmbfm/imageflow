@@ -103,6 +103,7 @@ private struct Categories {
             name: .colorEffect,
             items: CIFilterNodeKind.ColoreffectNodeKind.allCases
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .colorEffect) }
         )
 
@@ -172,7 +173,9 @@ private struct Categories {
         .init(
             name: .reduction,
             items: CIFilterNodeKind.ReductionNodeKind.allCases
+                .filter({ $0 != .CIKMeans })
                 .map { NodeKind.coreImageFilterNode(.reduction($0)) }
+                .appending(elementsOf: CoreImageCustomNodeKind.Reduction.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .reduction) }
         )
 

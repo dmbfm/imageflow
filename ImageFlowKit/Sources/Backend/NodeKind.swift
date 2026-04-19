@@ -117,12 +117,54 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     case geometryAdjustment(GeometryAdjustment)
     case colorAdjustment(ColorAdjustment)
+    case colorEffect(ColorEffect)
     case generator(Generator)
     case segmentation(Segmentation)
     case convolution(Convolution)
+    case reduction(Reduction)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
+    }
+
+    public enum Reduction: Sendable, Hashable, Codable, CaseIterable {
+        case kmeans
+
+        public static var allKinds: [NodeKind] {
+            [.coreImageCustomNode(.reduction(.kmeans))]
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.reduction(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .kmeans:
+                Nodes.CoreImageCustom.KMeansNode.impl()
+            }
+        }
+
+    }
+
+    public enum ColorEffect: Sendable, Hashable, Codable, CaseIterable {
+        case palettizeKMeans
+
+        public static var allKinds: [NodeKind] {
+            [.coreImageCustomNode(.colorEffect(.palettizeKMeans))]
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.colorEffect(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .palettizeKMeans:
+                Nodes.CoreImageCustom.PalettizeKMeans.impl()
+            }
+        }
+
     }
 
     public enum Convolution: Sendable, Hashable, Codable, CaseIterable {
@@ -268,10 +310,12 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     public var impl: NodeImpl {
         switch self {
         case .colorAdjustment(let kind): kind.impl
+        case .colorEffect(let kind): kind.impl
         case .geometryAdjustment(let kind): kind.impl
         case .generator(let kind): kind.impl
         case .segmentation(let kind): kind.impl
         case .convolution(let kind): kind.impl
+        case .reduction(let kind): kind.impl
         }
     }
 }

@@ -3,6 +3,7 @@ import CoreImage
 import MetalKit
 import OSLog
 import XViewKit
+import os
 
 #if canImport(AppKit)
 import AppKit
@@ -263,6 +264,15 @@ public class CIImageXView: XCommonView {
     func render() {
         guard let image = self.image else { return }
         guard self.drawableSize.width > 0, self.drawableSize.height > 0 else { return }
+
+        #if os(iOS)
+        let available = os_proc_available_memory()
+
+        if available < 50 * 1024 * 1024 {
+            print("[CIImageXView] low memory, skipping render!")
+            return
+        }
+        #endif
 
         self.updatePlacement()
 
