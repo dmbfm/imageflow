@@ -15,14 +15,14 @@ struct AssetBrowserGridItemView: View {
     @State var first: Bool = true
 
     func load() {
-        if !self.first { return }
-        self.first = false
+        guard self.asset.isLoaded else { return }
 
         Task.immediate {
             self.failed = false
             do {
                 self.image = try await self.thumbProvider.getThumb(forAsset: self.asset.id)
             } catch {
+                log("failed: \(error)", level: .error)
                 self.failed = true
             }
         }
