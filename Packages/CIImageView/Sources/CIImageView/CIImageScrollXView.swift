@@ -219,15 +219,13 @@ struct ViewportRestoreState {
                     return .setZoom(zoom)
                 }
             }
-        case .adjusting(_):
+        case .adjusting(_), .done:
             if let cache, let entry = cache.get(id: id) {
                 self.state = .done
                 return .restore(entry)
             } else {
                 return nil
             }
-        case .done:
-            return nil
         }
     }
 

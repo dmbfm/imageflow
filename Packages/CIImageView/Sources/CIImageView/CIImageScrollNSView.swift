@@ -202,9 +202,9 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         let isDifferentSize = self.image?.extent.size != newValue?.extent.size
 
         self.imageView.image = newValue
+        self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
 
         if isDifferentSize {
-            self.scrollView.documentView?.frame.size = self.imageView.imageLogicalSize
             self.needsLayout = true
         }
     }
