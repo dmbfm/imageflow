@@ -32,6 +32,7 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIQRCodeGenerator",
             "CIAttributedTextImageGenerator",
             "CITextImageGenerator",
+            "CIGuidedFilter",
         ]
 
     static let overrides: [Override] = [
