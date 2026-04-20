@@ -71,6 +71,8 @@ public final class Flow: ObservableObject {
 
     var liveSelectSnapshot: Set<UUID>? = nil
 
+    let duplicateOrPasteOffset: CGPoint = .init(x: 100, y: 100)
+
     /// Creates a new flow model.
     /// - Parameters:
     ///   - nodes: Initial node map.
@@ -187,7 +189,6 @@ extension Flow {
     @discardableResult
     public func duplicateNode(
         _ id: UUID,
-        offset: CGPoint = .init(x: 50, y: 50),
         undoManager um: UndoManager? = nil
     ) -> FlowNode? {
         guard var node = self.nodes[id], let pos = self.nodePositions[id] else { return nil }
@@ -198,7 +199,7 @@ extension Flow {
         for i in node.inputs.indices { node.inputs[i].connected = false }
         for i in node.outputs.indices { node.outputs[i].connected = false }
 
-        self.addNode(node, at: pos + offset, undoManager: um)
+        self.addNode(node, at: pos + self.duplicateOrPasteOffset, undoManager: um)
         um?.setActionName("Duplicate Node")
 
         return node
@@ -391,14 +392,19 @@ extension Flow {
     }
 
     public func duplidateSelectedNodesAction(undoManager um: UndoManager?) {
-        var newSelection: Set<UUID> = []
-        self.withSelectedNodes(um) { id, um in
-            if let id = self.duplicateNode(id, undoManager: um)?.id {
-                newSelection.insert(id)
-            }
+        guard let data = self.pasteboardData(forNodes: self.selection) else {
+            return
         }
+
+        guard let center = Array(data.nodePositions.values).centerPoint else { return }
+        let newCenter = center + self.duplicateOrPasteOffset
+
+        self.paste(
+            pasteboardData: data,
+            at: newCenter,
+            undoManager: um
+        )
         um?.setActionName("Duplicate Node" + (self.selection.count > 1 ? "s" : ""))
-        self.select(newSelection)
     }
 
     public func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {
