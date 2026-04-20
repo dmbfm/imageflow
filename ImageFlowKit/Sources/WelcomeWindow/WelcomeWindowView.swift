@@ -5,6 +5,7 @@ import AppKit
 
 struct WelcomeWindowView: View {
 
+    let recentDocuments: [RecentDocumentItem]
     @State var closeButtonHover: Bool = false
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismissWindow) var dismissWindow
@@ -140,7 +141,7 @@ struct WelcomeWindowView: View {
         .padding(.leading, 12)
         .padding(.top, 12)
     }
-
+    
     var body: some View {
         HStack(spacing: 0) {
 
@@ -148,7 +149,7 @@ struct WelcomeWindowView: View {
                 .frame(width: 460)
 
             Group {
-                List {}
+                RecentDocumentsListView(items: self.recentDocuments)
             }
             .listStyle(.sidebar)
             .scrollContentBackground(.hidden)

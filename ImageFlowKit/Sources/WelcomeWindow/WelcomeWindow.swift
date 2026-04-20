@@ -4,10 +4,13 @@ import SwiftUI
 import AppKit
 import SharedModels
 import SettingsFeature
+import Logging
 
 public struct WelcomeWindow: Scene {
 
     @AppStorage(.settingsColorSchemeKey) var cs: PreferredColorScheme = .system
+
+    @State var recentDocuments: [RecentDocumentItem] = []
 
     let title: String
 
@@ -29,6 +32,15 @@ public struct WelcomeWindow: Scene {
             if !NSDocumentController.shared.documents.isEmpty {
                 window.close()
             }
+
+            for url in NSDocumentController.shared.recentDocumentURLs {
+                if !FileManager.default.fileExists(atPath: url.path()) {
+                    continue
+                }
+                let name = url.deletingPathExtension().lastPathComponent
+                let path = url.deletingLastPathComponent().path().trimmingSuffix("/")
+                self.recentDocuments.append(.init(url: url, name: name, path: path))
+            }
         }
     }
 
@@ -38,7 +50,7 @@ public struct WelcomeWindow: Scene {
 
     public var body: some Scene {
         Window(title, id: WindowID.welcome.rawValue) {
-            WelcomeWindowView()
+            WelcomeWindowView(recentDocuments: self.recentDocuments)
                 .preferredColorScheme(self.cs.value)
                 .task {
                     self.onAppear()
