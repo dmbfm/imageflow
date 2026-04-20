@@ -263,7 +263,7 @@ public final class CanvasFeatureViewModel {
                 0.0
             }
 
-        let hoveredPort = self.portHitTest(locationInWindow: gesture.locationInWindow)
+        let portHit = self.portHitTest(locationInWindow: gesture.locationInWindow)
 
         switch gesture.phase {
         case .began:
@@ -272,7 +272,13 @@ public final class CanvasFeatureViewModel {
             self.flow.portDragStart(port, pointer)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
         case .changed:
-            self.flow.portDragUpdate(pointer, hoveredPort)
+            if let hit = portHit {
+                let viewPos = self.canvasPlatformView?.convert(hit.center, from: nil) ?? hit.center
+                let pointer = self.state.viewport.convert(viewPos, from: .screen, to: .canvas)
+                self.flow.portDragUpdate(pointer, hit.location)
+            } else {
+                self.flow.portDragUpdate(pointer, nil)
+            }
         case .cancelled:
             self.flow.portDragCancel()
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
@@ -437,12 +443,17 @@ public final class CanvasFeatureViewModel {
 
     // MARK: - Port
 
-    func portHitTest(locationInWindow point: CGPoint) -> PortLocation? {
+    struct PortHit {
+        var location: PortLocation
+        var center: CGPoint
+    }
+
+    func portHitTest(locationInWindow point: CGPoint) -> PortHit? {
         for (_, view) in self.nodeViews {
             for (port, frame) in view.ports.map({ (loc, view) in
                 (loc, view.superview!.convert(view.frame, to: nil))
-            }) where frame.contains(point) {
-                return port
+            }) where frame.center.distance(to: point) < self.viewport.convert(32.0, from: .canvas, to: .screen) {
+                return .init(location: port, center: frame.center)
             }
         }
         return nil
