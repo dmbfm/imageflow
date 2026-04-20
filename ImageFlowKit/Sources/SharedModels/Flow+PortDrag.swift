@@ -169,11 +169,14 @@ extension Flow {
             um?.endUndoGrouping()
             um?.setActionName("Create Edge")
 
+            let cantConnect = self.partialEdge?.state == .cantConnect
+
             self.partialEdge = nil
 
             if result.edgeToCreate == nil,
                 !(result.port.slot.isInput && result.removedEdge != nil),
-                let portType = self.nodes[result.port.node]?[valueTypeAt: result.port.slot]
+                let portType = self.nodes[result.port.node]?[valueTypeAt: result.port.slot],
+                !cantConnect
             {
                 self.emitter.emit(
                     .didEndPortDragWithoutCreatingEdge(
