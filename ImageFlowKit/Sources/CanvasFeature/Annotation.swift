@@ -1,11 +1,19 @@
 import Foundation
 import Helpers
 
-struct Annotation: Equatable {
+public struct Annotation: Equatable {
     public var title: String
     public var message: String
     public var maxWidth: CGFloat
     public var type: AnnotationType = .regular
+
+    public init(title: String, message: String, maxWidth: CGFloat, type: AnnotationType = .regular) {
+        self.title = title
+        self.message = message
+        self.maxWidth = maxWidth
+        self.type = type
+    }
+
 }
 
 public enum AnnotationType {

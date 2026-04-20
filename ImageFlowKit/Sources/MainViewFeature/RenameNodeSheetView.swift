@@ -54,7 +54,7 @@ struct RenameNodeSheetView: View {
 }
 
 #if os(macOS)
-fileprivate struct InnerView: View {
+private struct InnerView: View {
 
     @Binding var text: String
     var onOk: (() -> ())?
@@ -84,7 +84,7 @@ fileprivate struct InnerView: View {
 #endif
 
 #if os(iOS)
-fileprivate struct InnerView: View {
+private struct InnerView: View {
 
     @Binding var text: String
     var onOk: (() -> ())?

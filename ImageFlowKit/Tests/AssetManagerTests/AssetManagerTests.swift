@@ -30,32 +30,10 @@ final class AssetManagerTests {
         let asset = await am.assets[id]
         #expect(asset != nil)
         #expect(asset!.id == id)
-        #expect(asset!.filename == "rethimno.png")
+        #expect(asset!.filename == "\(id.uuidString).png")
 
         let assetURL = URL.tempAssetsDirectory(forDocument: documentInfo.id)
-            .appending(path: "rethimno.png")
-
-        #expect(FileManager.default.fileExists(atPath: assetURL.path))
-    }
-
-    @Test(
-        "addImageAsset(fromURL:) with a repeated file name should add a numeric counter suffix to the new asset file."
-    )
-    func addImageAssetFromURLWithRepeatedNameShouldAddSuffix() async throws {
-        let am = await makeAssetManager()
-        let url = self.fixtureImageURL
-        await am.setDocumentInfo(documentInfo)
-        let _ = try await am.importAsset(fromURL: url, kind: .image)
-        let _ = try await am.importAsset(fromURL: url, kind: .image)
-        let _ = try await am.importAsset(fromURL: url, kind: .image)
-        let id = try await am.importAsset(fromURL: url, kind: .image)
-        let asset = await am.assets[id]
-        #expect(asset != nil)
-        #expect(asset!.id == id)
-        #expect(asset!.filename == "rethimno(4).png")
-
-        let assetURL = URL.tempAssetsDirectory(forDocument: documentInfo.id)
-            .appending(path: "rethimno.png")
+            .appending(path: "\(id.uuidString).png")
 
         #expect(FileManager.default.fileExists(atPath: assetURL.path))
     }
@@ -73,7 +51,12 @@ final class AssetManagerTests {
         let am = await makeAssetManager()
         let id = try await am.importAsset(fromURL: self.fixtureImageURL, kind: .image)
         let other = UUID()
-        let asset = Asset(id: other, kind: .image, timestamp: .now, state: .loaded(filename: "some_file.png"))
+        let asset = Asset(
+            id: other,
+            kind: .image,
+            timestamp: .now,
+            state: .loaded(filename: "\(other.uuidString).png", originalFilename: "some_file.png")
+        )
         // let asset = Asset(id: other), state: .loaded("some_file.png"), added: .now, kind: .image)
         await am.restore(assets: [other: asset])
         #expect(await am.assets[id] == nil)
@@ -84,7 +67,12 @@ final class AssetManagerTests {
     func testRegisterImageAsset() async {
         let am = await makeAssetManager()
         let id = UUID()
-        let asset = Asset(id: id, kind: .image, timestamp: .now, state: .loaded(filename: "some_file.png"))
+        let asset = Asset(
+            id: id,
+            kind: .image,
+            timestamp: .now,
+            state: .loaded(filename: "\(id.uuidString).png", originalFilename: "some_file.png")
+        )
         // let asset = Asset(id: .asset(id), state: .loaded(.file("some_file.png")), added: .now, kind: .image)
         await am.register(asset: asset)
         #expect(await am.assets[id] == asset)

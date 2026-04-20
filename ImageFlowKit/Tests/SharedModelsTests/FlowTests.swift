@@ -50,8 +50,8 @@ func makeFlow(_ nodes: [NodeKind], _ edges: [((Int, Int), (Int, Int))] = []) -> 
         flow.nodes[sourceNode.id] = sourceNode
         flow.nodes[destNode.id] = destNode
 
-        flow.edges.insert(
-            Edge(
+        try! flow.edges.insert(
+            Edge.fromPorts(
                 .init(
                     node: sourceNode.id,
                     port: .output(source.1)
@@ -60,7 +60,7 @@ func makeFlow(_ nodes: [NodeKind], _ edges: [((Int, Int), (Int, Int))] = []) -> 
                     node: destNode.id,
                     port: .input(dest.1)
                 )
-            )!
+            ).get()
         )
     }
     return (flow, ids)
@@ -68,13 +68,20 @@ func makeFlow(_ nodes: [NodeKind], _ edges: [((Int, Int), (Int, Int))] = []) -> 
 
 extension Edge {
     init(_ pairs: ((UUID, Int), (UUID, Int))) {
-        self.init(.init(node: pairs.0.0, port: .output(pairs.0.1)), .init(node: pairs.1.0, port: .input(pairs.1.1)))!
+        self =
+            try! Edge.fromPorts(
+                .init(node: pairs.0.0, port: .output(pairs.0.1)),
+                .init(node: pairs.1.0, port: .input(pairs.1.1))
+            ).get()
     }
 }
 
 extension Collection where Element == UUID, Index == Int {
     func edge(src: (Int, Int), dst: (Int, Int)) -> Edge {
-        .init(.init(node: self[src.0], port: .output(src.1)), .init(node: self[dst.0], port: .input(dst.1)))!
+        try! Edge.fromPorts(
+            .init(node: self[src.0], port: .output(src.1)),
+            .init(node: self[dst.0], port: .input(dst.1))
+        ).get()
     }
 }
 // MARK: - Node Positions
@@ -265,7 +272,7 @@ func testUpdateNode() {
 func testAddEdge() {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
-    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    let edge = try! Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
     flow.addEdge(edge)
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
@@ -273,10 +280,10 @@ func testAddEdge() {
 
 @MainActor
 @Test("`removeEdge` should correctly add an edge")
-func testRemoveEdge() {
+func testRemoveEdge() throws {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
-    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
     flow.addEdge(edge)
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
@@ -396,10 +403,10 @@ func testUpdateNodeUndoRedo() {
 
 @MainActor
 @Test("`addEdge` should correctly add an edge, and `undo` should remove it.")
-func testAddEdgeUndo() {
+func testAddEdgeUndo() throws {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
-    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
     um.withGroup { flow.addEdge(edge, undoManager: um) }
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
@@ -409,10 +416,10 @@ func testAddEdgeUndo() {
 
 @MainActor
 @Test("`removeEdge` should correctly add an edge")
-func testRemoveEdgeUndo() {
+func testRemoveEdgeUndo() throws {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
-    let edge = Edge(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
     um.withGroup { flow.addEdge(edge, undoManager: um) }
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
@@ -529,13 +536,13 @@ func deletNodeActionShouldUndoThenRedo() {
 
 @MainActor
 @Test("`deleteEdgeAction` should delete an edge and register a undo item.")
-func deleteEdgeActionShouldRegisterUndo() {
+func deleteEdgeActionShouldRegisterUndo() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
         flow.deleteEdgeAction(edge, undoManager: um)
@@ -546,7 +553,7 @@ func deleteEdgeActionShouldRegisterUndo() {
 
 @MainActor
 @Test("`deleteEdgeAction` should disconnect node ports")
-func deleteEdgeActionShouldDisconnectPorts() {
+func deleteEdgeActionShouldDisconnectPorts() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
@@ -554,7 +561,7 @@ func deleteEdgeActionShouldDisconnectPorts() {
     )
     let src = PortLocation(node: ids[0], port: .output(0))
     let dst = PortLocation(node: ids[1], port: .input(0))
-    let edge = Edge(src, dst)!
+    let edge = try Edge.fromPorts(src, dst).get()
     #expect(flow.edges.contains(edge))
     flow.deleteEdgeAction(edge, undoManager: nil)
     #expect(flow.edges.isEmpty)
@@ -564,7 +571,7 @@ func deleteEdgeActionShouldDisconnectPorts() {
 
 @MainActor
 @Test("`deleteEdgeAction` should not disconnect output port with remaining edge")
-func deleteEdgeActionShouldDisconnectPortsV2() {
+func deleteEdgeActionShouldDisconnectPortsV2() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float), .valueNode(.float)],
@@ -573,8 +580,8 @@ func deleteEdgeActionShouldDisconnectPortsV2() {
     let src = PortLocation(node: ids[0], port: .output(0))
     let dst1 = PortLocation(node: ids[1], port: .input(0))
     let dst2 = PortLocation(node: ids[2], port: .input(0))
-    let edge1 = Edge(src, dst1)!
-    let edge2 = Edge(src, dst2)!
+    let edge1 = try Edge.fromPorts(src, dst1).get()
+    let edge2 = try Edge.fromPorts(src, dst2).get()
     #expect(flow.edges.contains(edge1))
     #expect(flow.edges.contains(edge2))
     flow.deleteEdgeAction(edge1, undoManager: nil)
@@ -587,13 +594,13 @@ func deleteEdgeActionShouldDisconnectPortsV2() {
 
 @MainActor
 @Test("`deleteEdgeAction` should corretly undo")
-func deleteEdgeActionShouldUndo() {
+func deleteEdgeActionShouldUndo() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
         flow.deleteEdgeAction(edge, undoManager: um)
@@ -606,13 +613,13 @@ func deleteEdgeActionShouldUndo() {
 
 @MainActor
 @Test("`deleteEdgeAction` should corretly undo")
-func deleteEdgeActionShouldUndoThenRedo() {
+func deleteEdgeActionShouldUndoThenRedo() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         [((0, 0), (1, 0))]
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
         flow.deleteEdgeAction(edge, undoManager: um)
@@ -627,13 +634,13 @@ func deleteEdgeActionShouldUndoThenRedo() {
 
 @MainActor
 @Test("`newEdgeAction` should create a new edge, mark ports as connected, and register an undo item.")
-func newEdgeActionShouldCreateNewEdge() {
+func newEdgeActionShouldCreateNewEdge() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.isEmpty)
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
@@ -648,13 +655,13 @@ func newEdgeActionShouldCreateNewEdge() {
 
 @MainActor
 @Test("`newEdgeAction` should corretly undo.")
-func newEdgeActionShouldUndo() {
+func newEdgeActionShouldUndo() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.isEmpty)
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
@@ -673,13 +680,13 @@ func newEdgeActionShouldUndo() {
 
 @MainActor
 @Test("`newEdgeAction` should corretly undo then redo.")
-func newEdgeActionShouldUndoThenRedo() {
+func newEdgeActionShouldUndoThenRedo() throws {
     um.removeAllActions()
     let (flow, ids) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
         []
     )
-    let edge = Edge(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0)))!
+    let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.isEmpty)
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
@@ -704,7 +711,7 @@ func newEdgeActionShouldUndoThenRedo() {
 
 @MainActor
 @Test("`hasCycles` should return true if a cycle is present")
-func hasCyclesShouldDetectCycle() {
+func hasCyclesShouldDetectCycle() throws {
 
     let (flow, _) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
@@ -719,7 +726,7 @@ func hasCyclesShouldDetectCycle() {
 
 @MainActor
 @Test("`hasCycles` should return false if no cycle is present")
-func hasCyclesWithoutCycles() {
+func hasCyclesWithoutCycles() throws {
 
     let (flow, _) = makeFlow(
         [.valueNode(.float), .valueNode(.float)],
@@ -733,7 +740,7 @@ func hasCyclesWithoutCycles() {
 
 @MainActor
 @Test("`hasCycles` should detect a long cycle")
-func hasCyclesShouldDetectLongCycle() {
+func hasCyclesShouldDetectLongCycle() throws {
 
     let (flow, _) = makeFlow(
         [
@@ -757,7 +764,7 @@ func hasCyclesShouldDetectLongCycle() {
 
 @MainActor
 @Test("`hasCycles` should detect a long cycle when adding edge")
-func hasCyclesShouldDetectLongCycleAddingEdge() {
+func hasCyclesShouldDetectLongCycleAddingEdge() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -778,14 +785,17 @@ func hasCyclesShouldDetectLongCycleAddingEdge() {
     #expect(!flow.hasCycles())
 
     #expect(
-        flow.hasCycles(addingEdge: .init(.init(node: ids[4], port: .output(0)), .init(node: ids[0], port: .input(0)))!)
+        flow.hasCycles(
+            addingEdge: try Edge.fromPorts(.init(node: ids[4], port: .output(0)), .init(node: ids[0], port: .input(0)))
+                .get()
+        )
             == true
     )
 }
 
 @MainActor
 @Test("`hasCycles(addingEdge:)` should return false if the edge does not create cycles")
-func hasCyclesAddingEdgeWithoutCytle() {
+func hasCyclesAddingEdgeWithoutCytle() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -806,14 +816,17 @@ func hasCyclesAddingEdgeWithoutCytle() {
     #expect(!flow.hasCycles())
 
     #expect(
-        flow.hasCycles(addingEdge: .init(.init(node: ids[3], port: .output(0)), .init(node: ids[4], port: .input(0)))!)
+        flow.hasCycles(
+            addingEdge: try Edge.fromPorts(.init(node: ids[3], port: .output(0)), .init(node: ids[4], port: .input(0)))
+                .get()
+        )
             == false
     )
 }
 
 @MainActor
 @Test("`typeCheckEdge` should return `.success` if the port types of the edge are the same.")
-func testTypeCheckEdgeSameTypes() {
+func testTypeCheckEdgeSameTypes() throws {
     let (flow, _) = makeFlow(
         [
             .valueNode(.float),
@@ -834,7 +847,7 @@ func testTypeCheckEdgeSameTypes() {
 
 @MainActor
 @Test("`typeCheckEdge` should return `.cantFix` if the port types of the edge are not compatible.")
-func testTypeCheckEdgeDifferentTypesNoFix() {
+func testTypeCheckEdgeDifferentTypesNoFix() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -850,7 +863,7 @@ func testTypeCheckEdgeDifferentTypesNoFix() {
 
     switch flow.typeCheckEdge(.init(((ids[0], 0), (ids[1], 0)))) {
     case .failure(let fix):
-        #expect(fix == .cantFix)
+        #expect(fix == .cantFix(from: .float, to: .matrix2x2))
     case .success(()):
         #expect(Bool(false), ".success")
     }
@@ -858,7 +871,7 @@ func testTypeCheckEdgeDifferentTypesNoFix() {
 
 @MainActor
 @Test("`canCreateEdge: fail with invalid source port`")
-func canCreateEdgeFailWithInvaildSourcePort() {
+func canCreateEdgeFailWithInvaildSourcePort() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -881,7 +894,7 @@ func canCreateEdgeFailWithInvaildSourcePort() {
 
 @MainActor
 @Test("`canCreateEdge: fail with invalid destination port`")
-func canCreateEdgeFailWithInvaildDestPort() {
+func canCreateEdgeFailWithInvaildDestPort() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -904,7 +917,7 @@ func canCreateEdgeFailWithInvaildDestPort() {
 
 @MainActor
 @Test("`canCreateEdge: fail with destination port already connected`")
-func canCreateEdgeFailWithDestPortAlreadyConnected() {
+func canCreateEdgeFailWithDestPortAlreadyConnected() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -928,7 +941,7 @@ func canCreateEdgeFailWithDestPortAlreadyConnected() {
 
 @MainActor
 @Test("`canCreateEdge: fail with not fixable type error`")
-func canCreateEdgeFailWithTypeErrorCantFix() {
+func canCreateEdgeFailWithTypeErrorCantFix() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -955,7 +968,7 @@ func canCreateEdgeFailWithTypeErrorCantFix() {
 
 @MainActor
 @Test("`canCreateEdge: fail with cycle`")
-func canCreateEdgeFailWithCycle() {
+func canCreateEdgeFailWithCycle() throws {
     let (flow, ids) = makeFlow(
         [
             .valueNode(.float),
@@ -986,7 +999,7 @@ func canCreateEdgeFailWithCycle() {
 
 @MainActor
 @Test
-func getPortConnectedTest() {
+func getPortConnectedTest() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -1010,7 +1023,7 @@ func getPortConnectedTest() {
 
 @MainActor
 @Test
-func getPortTypeTest() {
+func getPortTypeTest() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -1027,7 +1040,7 @@ func getPortTypeTest() {
 
 @MainActor
 @Test
-func setPortConnectedTest() {
+func setPortConnectedTest() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -1055,7 +1068,7 @@ func setPortConnectedTest() {
 
 @MainActor
 @Test
-func setPortConnectedUndoTest() {
+func setPortConnectedUndoTest() throws {
 
     let (flow, ids) = makeFlow(
         [
@@ -1094,7 +1107,7 @@ func setPortConnectedUndoTest() {
 
 @MainActor
 @Test("select a single node")
-func selectASingleNodeTest() {
+func selectASingleNodeTest() throws {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
@@ -1108,7 +1121,7 @@ func selectASingleNodeTest() {
 
 @MainActor
 @Test("select a single node (union)")
-func selectASingleNodeUnionTest() {
+func selectASingleNodeUnionTest() throws {
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
     for id in ids {
@@ -1124,7 +1137,7 @@ func selectASingleNodeUnionTest() {
 
 @MainActor
 @Test("select multiple nodes")
-func selectMultipleNodesTest() {
+func selectMultipleNodesTest() throws {
 
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
@@ -1141,7 +1154,7 @@ func selectMultipleNodesTest() {
 
 @MainActor
 @Test("select multiple nodes (union)")
-func selectMultipleNodesUnionTest() {
+func selectMultipleNodesUnionTest() throws {
 
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
@@ -1160,7 +1173,7 @@ func selectMultipleNodesUnionTest() {
 
 @MainActor
 @Test("live select replace")
-func liveSelectTest() {
+func liveSelectTest() throws {
 
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
@@ -1183,7 +1196,7 @@ func liveSelectTest() {
 
 @MainActor
 @Test("live select union")
-func liveSelectUnionTest() {
+func liveSelectUnionTest() throws {
 
     let ids = (0..<10).map { _ in UUID() }
     let flow = Flow()
@@ -1208,7 +1221,7 @@ func liveSelectUnionTest() {
 
 @MainActor
 @Test("live select cancel")
-func liveSelectCancelTest() {
+func liveSelectCancelTest() throws {
 
     um.removeAllActions()
 
@@ -1235,7 +1248,7 @@ func liveSelectCancelTest() {
 
 @MainActor
 @Test("moveNode should change a node's position")
-func moveNodeShouldChangeNodePosition() {
+func moveNodeShouldChangeNodePosition() throws {
     let (flow, ids) = makeFlow([.valueNode(.float)])
     #expect(flow.nodePositions[ids[0]] == .zero)
     flow.moveNode(ids[0], to: .init(x: 200, y: 300))
@@ -1244,7 +1257,7 @@ func moveNodeShouldChangeNodePosition() {
 
 @MainActor
 @Test("moveNode should undo a change a node's position")
-func moveNodeShouldUndoChangeNodePosition() {
+func moveNodeShouldUndoChangeNodePosition() throws {
     let (flow, ids) = makeFlow([.valueNode(.float)])
     #expect(flow.nodePositions[ids[0]] == .zero)
     um.withGroup {
@@ -1259,7 +1272,7 @@ func moveNodeShouldUndoChangeNodePosition() {
 
 @MainActor
 @Test
-func testLiveMoveNodes() {
+func testLiveMoveNodes() throws {
     let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })
     let movedNodes = Set(ids.dropLast(5))
 
@@ -1287,7 +1300,7 @@ func testLiveMoveNodes() {
 
 @MainActor
 @Test
-func testLiveMoveNodesCancel() {
+func testLiveMoveNodesCancel() throws {
     let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })
     let movedNodes = Set(ids.dropLast(5))
 
@@ -1318,7 +1331,7 @@ func testLiveMoveNodesCancel() {
 
 @MainActor
 @Test
-func testLiveMoveNodesUndo() {
+func testLiveMoveNodesUndo() throws {
     um.removeAllActions()
 
     let (flow, ids) = makeFlow((0..<10).map { _ in .valueNode(.float) })

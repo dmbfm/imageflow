@@ -1,452 +1,209 @@
 import CanvasView
 import Helpers
-import Logging
 import SwiftUI
+import Design
 
-#if canImport(AppKit)
+#if os(macOS)
 import AppKit
 #endif
 
-#if canImport(UIKit)
-import UIKit
-#endif
+final class AnnotationView: PlatformCommonView, CanvasNodeView {
+    let id: UUID
 
-final class AnnotationView: PlatformView, CanvasNodeView {
+    var level: Int
 
-    // MARK: - Common
+    let emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
 
-    public var annotation: Annotation {
+    func emitDragGesture(_ drag: CanvasNodeDragGesture) {
+    }
+
+    func emitClick() {
+    }
+
+    var annotation: Annotation = .init(title: "Some Titlez", message: "some message", maxWidth: 40) {
         didSet {
             if self.annotation != oldValue {
-                self.update(oldValue)
+                self.update()
             }
         }
     }
 
-    public var id: UUID
-
-    var level: Int = 2
-
-    public var emitter: EventEmitter<CanvasNodeEvent<()>> = .init()
-
-    var style: AnnotationStyle {
-        self.annotation.type.style
+    func update() {
+        self.titleView.text = self.annotation.title
+        self.messageView.text = self.annotation.message
+        self.setNeedsLayout()
+        self.invalidateIntrinsicContentSize()
+        self.emitter.emit(.sizeChanged)
     }
 
-    init(_ id: UUID, _ annotation: Annotation) {
+    lazy var glassEffectView: NSGlassEffectView = {
+        let view = NSGlassEffectView()
+        view.style = .regular
+        view.cornerRadius = 12
+        return view
+    }()
+
+    lazy var titleView: NSTextField = {
+        let view = NSTextField(labelWithString: "Some Title")
+        view.font = .preferredFont(forTextStyle: .headline)
+        return view
+    }()
+
+    lazy var messageView: NSTextField = {
+        let view = NSTextField(
+            labelWithString:
+                "Here is a somewhat long message that we need to display to the user without any delay whatsoever."
+        )
+        view.font = .preferredFont(forTextStyle: .body)
+        view.textColor = .secondaryLabelColor
+        view.maximumNumberOfLines = 100
+        view.lineBreakStrategy = .standard
+        view.lineBreakMode = .byWordWrapping
+        return view
+    }()
+
+    init(id: UUID, frame: NSRect) {
         self.id = id
-        self.annotation = annotation
-        super.init(frame: .zero)
+        self.level = 10
+        super.init(frame: frame)
 
-        self.platformInit()
+        self.addSubview(self.glassEffectView)
+        self.addSubview(self.titleView)
+        self.addSubview(self.messageView)
+
+        self.clipsToBounds = false
+        self.update()
     }
 
-    static func empty(width: CGFloat) -> AnnotationView {
-        .init(.init(), .init(title: "", message: "", maxWidth: width, type: .regular))
+    static var empty: AnnotationView {
+        let view = AnnotationView(id: .init(), frame: .zero)
+        return view
     }
 
-    @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
     }
 
-    func update(_ oldValue: Annotation? = nil) {
-        self.platformUpdate(oldValue)
+    var maxWidth: CGFloat {
+        self.annotation.maxWidth
     }
 
-    func emitDragGesture(_ drag: CanvasNodeDragGesture) {
-        self.emitter.emit(.dragGesture(drag))
+    var titleCanOverrideMaxWidth: Bool = true
+
+    struct Style: Equatable {
+        var insets: PlatformEdgeInsets = .init(top: 10, left: 10, bottom: 10, right: 10)
+        var titleMessageSpacing: CGFloat = 4
     }
 
-    func emitClick() {
-        self.emitter.emit(.click)
+    var style: Style = .init() {
+        didSet {
+            self.setNeedsLayout()
+            self.emitter.emit(.sizeChanged)
+        }
     }
 
-    // MARK: - iOS
-
-    #if os(iOS)
-
-    let padding: UIEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)
-    let spacing: CGFloat = 4.0
-
-    lazy var stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.addArrangedSubview(self.titleLabel)
-        stack.addArrangedSubview(self.messageLabel)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.spacing = self.spacing
-        stack.alignment = .leading
-        stack.distribution = .fill
-        return stack
-    }()
-
-    lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.text = self.annotation.title
-        label.textColor = self.style.titleColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        return label
-    }()
-
-    lazy var messageLabel: UILabel = {
-        let label = UILabel()
-        label.text = self.annotation.message
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = self.style.messageColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 100
-        return label
-    }()
-
-    lazy var visualEffectView: UIVisualEffectView = {
-        let view = UIVisualEffectView()
-        let glassEffect = UIGlassEffect()
-        glassEffect.tintColor = self.style.backgroundColor
-        view.effect = glassEffect
-        view.cornerConfiguration = .corners(radius: .init(floatLiteral: self.style.cornerRadius))
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
-    lazy var backgroundView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = self.style.cornerRadius
-        view.layer.cornerCurve = .continuous
-        view.clipsToBounds = true
-        return view
-    }()
-
-    func platformInit() {
-        self.layer.shadowRadius = 8
-        self.layer.shadowOpacity = 0.25
-        self.layer.shadowOffset = .init(width: 0, height: 0)
-
-        self.addSubview(self.visualEffectView)
-        self.addSubview(self.backgroundView)
-        self.addSubview(self.stackView)
-
-        NSLayoutConstraint.activate([
-            self.visualEffectView.widthAnchor.constraint(equalTo: self.widthAnchor),
-            self.visualEffectView.heightAnchor.constraint(equalTo: self.heightAnchor),
-
-            self.backgroundView.widthAnchor.constraint(equalTo: self.widthAnchor),
-            self.backgroundView.heightAnchor.constraint(equalTo: self.heightAnchor),
-
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: self.padding.top),
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.padding.left),
-            self.stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -self.padding.bottom),
-            self.messageLabel.widthAnchor.constraint(
-                lessThanOrEqualToConstant: self.annotation.maxWidth - self.padding.left - self.padding.right
-            ),
-            //            self.stackView.widthAnchor.constraint(lessThanOrEqualToConstant: self.annotation.maxWidth - self.padding.left - self.padding.right),
-        ])
-
-        self.update()
+    var insets: PlatformEdgeInsets {
+        self.style.insets
     }
 
-    func platformUpdate(_ oldValue: Annotation? = nil) {
-        self.titleLabel.text = self.annotation.title
-        self.messageLabel.text = self.annotation.message
+    var titleMessageSpacing: CGFloat {
+        self.style.titleMessageSpacing
+    }
 
-        if self.annotation.type != oldValue?.type {
-            self.titleLabel.textColor = self.style.titleColor
+    override var intrinsicContentSize: NSSize {
+        let titleSize = self.titleView.intrinsicContentSize + .init(width: 2, height: 0)
 
-            self.messageLabel.textColor = self.style.messageColor
-
-            if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
-                switch self.style.backgroundStyle {
-                case .color:
-                    if self.visualEffectView.superview != nil {
-                        self.visualEffectView.removeFromSuperview()
-                    }
-                    if self.backgroundView.superview == nil {
-                        self.insertSubview(self.backgroundView, at: 0)
-                    }
-                case .material:
-                    if self.backgroundView.superview != nil {
-                        self.backgroundView.removeFromSuperview()
-                    }
-                    if self.visualEffectView.superview == nil {
-                        self.insertSubview(self.visualEffectView, at: 0)
-                    }
-                }
+        let effectiveMaxWidth =
+            if self.titleCanOverrideMaxWidth {
+                max(titleSize.width, self.maxWidth)
+            } else {
+                self.maxWidth
             }
 
-            self.backgroundView.backgroundColor = self.style.backgroundColor
-            self.backgroundView.layer.cornerRadius = self.style.cornerRadius
-            (self.visualEffectView.effect as? UIGlassEffect)?.tintColor = self.style.backgroundColor
-            self.visualEffectView.cornerConfiguration = .corners(
-                radius: .init(floatLiteral: self.style.cornerRadius)
-            )
-        }
+        let messageSize = self.messageView.sizeThatFits(.init(width: effectiveMaxWidth, height: .infinity))
 
-        self.invalidateIntrinsicContentSize()
-        self.emitter.emit(.sizeChanged)
+        let width = messageSize.width.clamped(to: 0...effectiveMaxWidth) + self.insets.left + self.insets.right
+        let width2 = titleSize.width + self.insets.left + self.insets.right
+        let height =
+            self.insets.top + titleSize.height + self.titleMessageSpacing + messageSize.height + self.insets.bottom
+
+        return .init(width: max(width, width2), height: height)
     }
 
-    //    func updateBackground() {
-    //        switch self.annotation.style.background {
-    //        case .material:
-    //            self.backgroundView.removeFromSuperview()
-    //            if self.visualEffectView.superview != self {
-    //                self.insertSubview(self.visualEffectView, at: 0)
-    //            }
-    ////            self.materialView.layer.cornerRadius = self.annotation.style.cornerRadius
-    ////            self.materialView.clipsToBounds = true
-    //        case .color(let color):
-    //            self.visualEffectView.removeFromSuperview()
-    //            if self.backgroundView.superview != self {
-    //                self.insertSubview(self.backgroundView, at: 0)
-    //            }
-    //            self.backgroundView.backgroundColor = color
-    //            self.backgroundView.clipsToBounds = true
-    //            self.backgroundView.layer.cornerRadius = self.annotation.style.cornerRadius
-    //            break
-    //        }
-    //    }
+    override func doLayout() {
+        self.glassEffectView.frame = self.bounds
 
-    override var intrinsicContentSize: CGSize {
-        let titleSize = self.titleLabel.intrinsicContentSize
-        let messageSize = self.messageLabel.sizeThatFits(.init(width: self.annotation.maxWidth, height: .infinity))
-        return .init(
-            width: max(messageSize.width.clamped(to: 0...self.annotation.maxWidth), titleSize.width) + self.padding.left
-                + self.padding.right,
-            height: titleSize.height + messageSize.height + self.spacing + self.padding.top + self.padding.bottom
-        )
+        self.titleView.frame.origin.x = self.insets.left
+        self.titleView.frame.origin.y = self.insets.top
+        self.titleView.frame.size.width = self.bounds.width - self.insets.left - self.insets.right
+        self.titleView.frame.size.height = self.titleView.intrinsicContentSize.height
+
+        self.messageView.frame.origin.x = self.insets.left
+        self.messageView.frame.origin.y = self.titleView.frame.maxY + self.titleMessageSpacing
+        self.messageView.frame.size.width = self.bounds.width - self.insets.left - self.insets.right
+        self.messageView.frame.size.height = self.bounds.height - self.messageView.frame.origin.y - self.insets.bottom
     }
-    #endif
-
-    // MARK: - macOS
-    #if os(macOS)
-
-    let padding: NSEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)
-    let spacing: CGFloat = 6.0
-
-    lazy var titleLabel: NSTextField = {
-        let label = NSTextField(labelWithString: self.annotation.title)
-        label.font = .systemFont(ofSize: 12, weight: .bold)
-        label.textColor = self.style.titleColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.lineBreakMode = .byTruncatingTail
-        label.maximumNumberOfLines = 1
-        return label
-    }()
-
-    lazy var messageLabel: NSTextField = {
-        let label = NSTextField(labelWithString: self.annotation.message)
-        label.font = .systemFont(ofSize: 11)
-        label.textColor = self.style.messageColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.lineBreakMode = .byWordWrapping
-        label.maximumNumberOfLines = 100
-        //        label.wantsLayer = true
-        //        label.layer?.borderWidth = 4
-        return label
-    }()
-
-    lazy var stackView: NSStackView = {
-        let stack = NSStackView(views: [self.titleLabel, self.messageLabel])
-        stack.orientation = .vertical
-        stack.alignment = .leading
-        stack.spacing = self.spacing
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.wantsLayer = true
-        //        stack.layer?.borderWidth = 2
-        //        stack.layer?.borderColor = .teal
-        return stack
-    }()
-
-    lazy var backgroundView: NSView = {
-        let view = NSView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.wantsLayer = true
-        view.layer?.cornerRadius = self.style.cornerRadius
-        view.layer?.cornerCurve = .continuous
-        return view
-    }()
-
-    lazy var visualEffectView: NSVisualEffectView = {
-        let view = NSVisualEffectView()
-        view.wantsLayer = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.material = .popover
-        view.blendingMode = .withinWindow
-        view.layer?.cornerRadius = self.style.cornerRadius
-        view.layer?.cornerCurve = .continuous
-        return view
-    }()
-
-    func platformInit() {
-        self.shadow = .init()
-        self.wantsLayer = true
-        self.layer?.shadowOpacity = 1.0
-        self.layer?.shadowRadius = 8
-
-        self.addSubview(self.visualEffectView)
-        self.addSubview(self.backgroundView)
-        self.addSubview(self.stackView)
-
-        //        self.stackView.constraintToFill(self, edgeInsets: self.padding)
-        self.backgroundView.constraintToFill(self)
-        self.visualEffectView.constraintToFill(self)
-
-        NSLayoutConstraint.activate([
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.padding.left),
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: self.padding.top),
-            self.stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -self.padding.bottom),
-
-            self.messageLabel.widthAnchor.constraint(
-                lessThanOrEqualToConstant: self.annotation.maxWidth - self.padding.left - self.padding.right
-            ),
-        ])
-
-        self.update()
-    }
-
-    func platformUpdate(_ oldValue: Annotation? = nil) {
-        self.titleLabel.stringValue = self.annotation.title
-        self.messageLabel.stringValue = self.annotation.message
-
-        if self.annotation.type != oldValue?.type {
-            self.backgroundView.layer?.backgroundColor = self.style.backgroundColor?.cgColor
-            self.backgroundView.layer?.cornerRadius = self.style.cornerRadius
-            self.visualEffectView.layer?.cornerRadius = self.style.cornerRadius
-
-            if self.style.backgroundStyle != oldValue?.type.style.backgroundStyle {
-                switch self.style.backgroundStyle {
-                case .color:
-                    if self.visualEffectView.superview != nil {
-                        self.visualEffectView.removeFromSuperview()
-                    }
-                    if self.backgroundView.superview == nil {
-                        self.addSubview(self.backgroundView, positioned: .below, relativeTo: nil)
-                    }
-                case .material:
-                    if self.backgroundView.superview != nil {
-                        self.backgroundView.removeFromSuperview()
-                    }
-
-                    if self.visualEffectView.superview == nil {
-                        self.addSubview(self.visualEffectView, positioned: .below, relativeTo: nil)
-                    }
-                }
-            }
-        }
-
-        self.invalidateIntrinsicContentSize()
-        self.emitter.emit(.sizeChanged)
-    }
-
-    var messageLabelSize: CGSize {
-        let drawingRect =
-            self.messageLabel.cell?.drawingRect(
-                forBounds: .init(
-                    origin: .zero,
-                    size: .init(width: self.annotation.maxWidth, height: .infinity)
-                )
-            ) ?? .zero
-        let size = self.messageLabel.cell!.cellSize(forBounds: drawingRect)
-        return size
-    }
-
-    var titleLabelSize: CGSize {
-        let drawingRect =
-            self.titleLabel.cell?.drawingRect(
-                forBounds: .init(origin: .zero, size: .init(width: 2000.0, height: .infinity))
-            ) ?? .zero
-        return self.titleLabel.cell!.cellSize(forBounds: drawingRect)
-    }
-
-    override var intrinsicContentSize: CGSize {
-        let messageSize = self.messageLabelSize
-        let titleSize = self.titleLabelSize
-        let width: CGFloat =
-            max(messageSize.width.clamped(to: 0...self.annotation.maxWidth), titleSize.width) + self.padding.left
-            + self.padding.right
-        let height: CGFloat =
-            titleSize.height + messageSize.height + self.spacing + self.padding.top + self.padding.bottom
-        return .init(width: width, height: height)
-    }
-
-    #endif
-
 }
 
+#if os(macOS)
+extension NSTextField {
+    var estimatedSize: CGSize {
+        NSAttributedString(
+            string: self.text,
+            attributes: [
+                NSAttributedString.Key.font: self.font as Any
+            ]
+        ).size()
+    }
+}
+extension NSEdgeInsets: @retroactive Equatable {
+    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
+        lhs.top == rhs.top && lhs.left == rhs.left && lhs.top == rhs.top && lhs.bottom == rhs.bottom
+    }
+}
+#endif
+
 extension AnnotationView {
-    struct Preview: PlatformViewRepresentable {
-        let annotation: Annotation
-        init(_ annotation: Annotation) {
-            self.annotation = annotation
-        }
-        func makeView(context: Context) -> some PlatformView {
-            AnnotationView(.init(), annotation)
+    struct PreviewRepresentable: PlatformViewRepresentable {
+
+        var isHidden: Bool = false
+
+        func makeView(context: Context) -> AnnotationView {
+            let view = AnnotationView(id: UUID(), frame: .init(x: 0, y: 0, width: 200, height: 200))
+            view.annotation = .init(
+                title: "Some Title",
+                message:
+                    "some long ass message that we really need the user to see so that he knows what te hell is going on you see it needs to be righ now.",
+                maxWidth: 200
+            )
+            return view
         }
 
-        func updateView(_ view: ViewType, context: Context) {
+        func updateView(_ view: AnnotationView, context: Context) {
+            if view.isHidden != self.isHidden {
+                view.animator().isHidden = self.isHidden
+            }
         }
 
-        func sizeThatFits(_ proposal: ProposedViewSize, view: ViewType, context: Context) -> CGSize? {
+        func sizeThatFits(_ proposal: ProposedViewSize, view: AnnotationView, context: Context) -> CGSize? {
             view.intrinsicContentSize
         }
     }
 }
 
-#Preview("short message") {
-    VStack(alignment: .leading) {
-        AnnotationView.Preview(.init(title: "Some title", message: "Some short not long message", maxWidth: 200))
-    }
-    //    .border(.red)
-    .padding()
-    .frame(minWidth: 500, minHeight: 500)
-}
-
-#Preview("long  message") {
-    VStack {
-        AnnotationView.Preview(
-            .init(
-                title: "Some title",
-                message:
-                    "Some short not long message actually very very long I was lying why I don't know I just felt like it I suppose no reason at all not a thought behind just a spur of the moment thing",
-                maxWidth: 300,
+#Preview {
+    @Previewable @State var isHidden: Bool = false
+    ZStack {
+        Rectangle()
+            .fill(
+                Color.teal.opacity(0.5).gradient
             )
-        )
-        //        .border(.red)
+        VStack {
+            AnnotationView.PreviewRepresentable(isHidden: isHidden)
+            Button("Toggle") {
+                isHidden.toggle()
+            }
+        }
+        .padding()
     }
-    .padding()
-    .frame(minWidth: 500, minHeight: 500)
-}
-
-#Preview("long error message") {
-    VStack {
-        AnnotationView.Preview(
-            .init(
-                title: "Some title",
-                message:
-                    "Some short not long message actually very very long I was lying why I don't know I just felt like it I suppose no reason at all not a thought behind just a spur of the moment thing",
-                maxWidth: 300,
-                type: .error
-            )
-        )
-    }
-    .padding()
-    .frame(minWidth: 500, minHeight: 500)
-}
-#Preview("long  title") {
-    VStack {
-        AnnotationView.Preview(
-            .init(
-                title: "Some very long title that explains too much for a unusnres trisentries ntriesnt riesnt risent",
-                message: "very short message",
-                maxWidth: 300,
-            )
-        )
-        //        .border(.red)
-    }
-    .padding()
-    .frame(minWidth: 500, minHeight: 500)
 }

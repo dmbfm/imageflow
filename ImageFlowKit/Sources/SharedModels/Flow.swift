@@ -129,11 +129,11 @@ extension Flow {
     }
 
     public func edges(ofPort port: PortLocation) -> [Edge] {
-        self.edges.filter({ edge in edge.from == port || edge.to == port })
+        self.edges.filter({ edge in edge.from == port.outputPortLocation || edge.to == port.inputPortLocation })
     }
 
     func numberOfEdges(ofPort port: PortLocation) -> Int {
-        self.edges.count(where: { edge in edge.from == port || edge.to == port })
+        self.edges.count(where: { edge in edge.from == port.outputPortLocation || edge.to == port.inputPortLocation })
     }
 
     func isValidPort(_ port: PortLocation) -> Bool {
@@ -365,7 +365,8 @@ extension Flow {
             }
         }
 
-        if let slot, let edge = Edge(typedPortLocation.port, .init(node: node.id, port: slot)) {
+        if let slot, case let .success(edge) = Edge.fromPorts(typedPortLocation.port, .init(node: node.id, port: slot))
+        {
             self.newEdgeAction(edge, undoManager: um)
         }
 
@@ -437,23 +438,21 @@ extension Flow {
 
     public func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
         precondition(self.edges.contains(edge))
-        precondition(self.isValidPort(edge.from))
-        precondition(self.isValidPort(edge.to))
 
         um?.beginUndoGrouping()
 
         self.removeEdge(edge, undoManager: um)
 
-        self.setNodePortConnected(edge.to, false, undoManager: um)
+        self.setNodePortConnected(edge.toPort, false, undoManager: um)
 
-        if self.numberOfEdges(ofPort: edge.from) == 0 {
-            self.setNodePortConnected(edge.from, false, undoManager: um)
+        if self.numberOfEdges(ofPort: edge.fromPort) == 0 {
+            self.setNodePortConnected(edge.fromPort, false, undoManager: um)
         }
 
         if let node = self.nodes[edge.to.node] {
-            if node[valueTypeAt: edge.to.slot] == .image {
-                if case .nodeOutput = node[valueAt: edge.to.slot].image {
-                    self.nodes[edge.to.node]![valueAt: edge.to.slot] = .image(nil)
+            if node[valueTypeAt: edge.toPort.slot] == .image {
+                if case .nodeOutput = node[valueAt: edge.toPort.slot].image {
+                    self.nodes[edge.to.node]![valueAt: edge.toPort.slot] = .image(nil)
                 }
             }
         }
@@ -469,32 +468,26 @@ extension Flow {
     }
 
     public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
-        precondition(self.isValidPort(edge.from))
-        precondition(self.isValidPort(edge.to))
-
         um?.beginUndoGrouping()
 
         self.addEdge(edge, undoManager: um)
-        self.setNodePortConnected(edge.from, true, undoManager: um)
-        self.setNodePortConnected(edge.to, true, undoManager: um)
+        self.setNodePortConnected(edge.fromPort, true, undoManager: um)
+        self.setNodePortConnected(edge.toPort, true, undoManager: um)
 
         um?.endUndoGrouping()
         um?.setActionName("Create Edge")
     }
 
     func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoManager um: UndoManager?) {
-        precondition(self.isValidPort(edge.from))
-        precondition(self.isValidPort(edge.to))
-
         um?.beginUndoGrouping()
         defer { um?.endUndoGrouping() }
 
         if let ((portToFix, kind)) =
             switch fix {
             case .canFixConvertingDestNodeTo(let kind):
-                (edge.to, kind)
+                (edge.toPort, kind)
             case .canFixConvertingSourceNodeTo(let kind):
-                (edge.from, kind)
+                (edge.fromPort, kind)
             }
         {
             let converted = self.nodes[portToFix.node]!.convert(toVariation: kind)
@@ -538,8 +531,8 @@ extension Flow {
         precondition(self.hasNode(edge.from.node))
         precondition(self.hasNode(edge.to.node))
 
-        let sourceType = self.getPortType(edge.from)
-        let destType = self.getPortType(edge.to)
+        let sourceType = self.getPortType(edge.fromPort)
+        let destType = self.getPortType(edge.toPort)
 
         if sourceType == destType {
             return .success(())
@@ -549,27 +542,31 @@ extension Flow {
             return .success(())
         }
 
-        if let kind = self.nodes[edge.from.node]!.variation(soThatSlot: edge.from.slot, hasType: destType) {
+        if let kind = self.nodes[edge.from.node]!.variation(soThatSlot: edge.fromPort.slot, hasType: destType) {
             return .failure(.fixable(.canFixConvertingSourceNodeTo(kind)))
         }
 
-        if let kind = self.nodes[edge.to.node]!.variation(soThatSlot: edge.to.slot, hasType: sourceType) {
+        if let kind = self.nodes[edge.to.node]!.variation(soThatSlot: edge.toPort.slot, hasType: sourceType) {
             return .failure(.fixable(.canFixConvertingDestNodeTo(kind)))
         }
 
-        return .failure(.cantFix)
+        return .failure(.cantFix(from: sourceType, to: destType))
     }
 
-    public func canCreateEdge(_ edge: Edge) -> Result<(), CanAddEdgeError> {
-        if !self.isValidPort(edge.from) {
-            return .failure(.invalidPort(edge.from))
+    public func canCreateEdge(from: PortLocation, to: PortLocation) -> Result<Edge, CanCreateEdgeError> {
+        fatalError("TODO")
+    }
+
+    public func canCreateEdge(_ edge: Edge) -> Result<(), CanCreateEdgeError> {
+        if !self.isValidPort(edge.fromPort) {
+            return .failure(.invalidPort(edge.fromPort))
         }
 
-        if !self.isValidPort(edge.to) {
-            return .failure(.invalidPort(edge.to))
+        if !self.isValidPort(edge.toPort) {
+            return .failure(.invalidPort(edge.toPort))
         }
 
-        if self.getPortConnected(edge.to) {
+        if self.getPortConnected(edge.toPort) {
             return .failure(.destPortAlreadyConnected)
         }
 
@@ -587,7 +584,8 @@ extension Flow {
         return .success(())
     }
 
-    public enum CanAddEdgeError: Error, Equatable {
+    public enum CanCreateEdgeError: Error, Equatable {
+        case edge(Edge.FromPortsError)
         case invalidPort(PortLocation)
         case destPortAlreadyConnected
         case graphCycle
@@ -595,7 +593,7 @@ extension Flow {
     }
 
     public enum TypeError: Error, Equatable {
-        case cantFix
+        case cantFix(from: ValueType, to: ValueType)
         case fixable(Fix)
 
         public enum Fix: Error, Equatable {
@@ -699,8 +697,8 @@ extension Flow {
 extension Backend.Edge {
     init(edge: Edge) {
         self.init(
-            from: .init(node: edge.from.node, slot: edge.from.slot.index),
-            end: .init(node: edge.to.node, slot: edge.to.slot.index)
+            from: .init(node: edge.from.node, slot: edge.fromPort.slot.index),
+            end: .init(node: edge.to.node, slot: edge.toPort.slot.index)
         )
     }
 }

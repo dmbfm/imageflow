@@ -34,7 +34,9 @@ public final class CanvasFeatureViewModel {
     /// user that a node can be created by dropping the edge at the current location.
     var plusIconState: CanvasView.PlusIconState = .init()
     /// The view showing annotation in the canvas such as errors, warnings and othes messages
-    var annotationView: AnnotationView = .empty(width: 280)
+    var annotationView: AnnotationView = .init(id: .init(), frame: .zero)
+    /// The position of the annoation, when visible
+    var annotationPosition: CGPoint? = nil
     /// The current interaction mode of the canvas
     var interactionMode: CanvasInteractionMode = .default
     /// Storage for the `NodeView` instances to be displayed
@@ -104,12 +106,27 @@ public final class CanvasFeatureViewModel {
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
+
+        self.annotationView.emitter.on({ [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .sizeChanged:
+                self.annotationView.setFrameSize(self.annotationView.intrinsicContentSize)
+            default: break
+            }
+        }).store(in: &self.cancellables)
     }
 
     // MARK: - Computed variables
 
     var nodePositions: [UUID: CGPoint] {
-        self.flow.nodePositionsWithLiveMove
+        if let annotationPosition = self.annotationPosition {
+            var dict = self.flow.nodePositionsWithLiveMove
+            dict[self.annotationView.id] = annotationPosition
+            return dict
+        } else {
+            return self.flow.nodePositionsWithLiveMove
+        }
     }
 
     var canvasPlatformViewRefBinding: Binding<CanvasPlatformView?> {
@@ -253,35 +270,57 @@ public final class CanvasFeatureViewModel {
     }
 
     func onNodePortDrag(_ port: PortLocation, _ gesture: PortView.DragData, undoManager um: UndoManager? = nil) {
-        let viewPos =
-            self.canvasPlatformView?.convert(gesture.locationInWindow, from: nil) ?? gesture.locationInWindow
-        let pointer = self.state.viewport.convert(viewPos, from: .screen, to: .canvas)
+        let pointerViewPos =
+            self.canvasPlatformView?
+            .convert(gesture.locationInWindow, from: nil) ?? gesture.locationInWindow
+        let pointerCanvasPos = self.state.viewport.convert(pointerViewPos, from: .screen, to: .canvas)
         let travelDistance =
             if let portCenter = self.portFrameCenter(port) {
-                self.viewport.convert(viewPos, from: .screen, to: .canvas).distance(to: portCenter)
+                self.viewport.convert(pointerViewPos, from: .screen, to: .canvas).distance(to: portCenter)
             } else {
                 0.0
             }
 
-        let portHit = self.portHitTest(locationInWindow: gesture.locationInWindow)
+        // Hit-test for other ports but discard hits from the same node
+        let portHit = self.portHitTest(locationInWindow: gesture.locationInWindow).flatMap({ hit in
+            if hit.location.node == port.node {
+                nil as (PortHit?)
+            } else {
+                hit
+            }
+        })
 
         switch gesture.phase {
         case .began:
             self.isDraggingConnectedInputPort =
                 port.direction == .input && self.flow.nodes[port.node]!.inputs[port.slot.index].connected
-            self.flow.portDragStart(port, pointer)
+            self.flow.portDragStart(port, pointerCanvasPos)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
+
         case .changed:
-            if let hit = portHit {
-                let viewPos = self.canvasPlatformView?.convert(hit.center, from: nil) ?? hit.center
-                let pointer = self.state.viewport.convert(viewPos, from: .screen, to: .canvas)
-                self.flow.portDragUpdate(pointer, hit.location)
+            let snappedPointerCanvasPos =
+                if let hit = portHit {
+                    self.canvasPlatformView?.convert(hit.center, from: nil) ?? pointerCanvasPos
+                } else {
+                    pointerCanvasPos
+                }
+
+            let result = self.flow.portDragUpdate(
+                snappedPointerCanvasPos,
+                portHit?.location
+            )
+
+            if let error = result?.error, let annotation = error.annotation {
+                self.showAnnotation(annotation, at: snappedPointerCanvasPos)
             } else {
-                self.flow.portDragUpdate(pointer, nil)
+                self.hideAnnotation()
             }
+
         case .cancelled:
             self.flow.portDragCancel()
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
+
         case .ended:
             let pos: CGPoint? =
                 if let canvasView = self.canvasPlatformView {
@@ -296,6 +335,7 @@ public final class CanvasFeatureViewModel {
 
             self.flow.portDragEnd(undoManager: self.undoManager, position: pos, travelDistance: travelDistance)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
         }
     }
 
@@ -353,12 +393,13 @@ public final class CanvasFeatureViewModel {
 
     func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
         self.annotationView.annotation = annotation
-        self.flow.moveNode(self.annotationView.id, to: point, undoManager: nil)
+        self.annotationPosition = point
         self.annotationView.isHidden = false
     }
 
     func hideAnnotation() {
         self.annotationView.isHidden = true
+        self.annotationPosition = nil
     }
 
     // MARK: - Edges
@@ -368,20 +409,21 @@ public final class CanvasFeatureViewModel {
             .init(
                 color: Colors.portConnected.platformColor,
                 edges: self.flow.edges.compactMap { edge in
-                    if let view = self.nodeViews[edge.from.node] {
+                    if let view = self.nodeViews[edge.fromPort.node] {
                         if view.superview == nil {
                             return nil
                         }
                         view.layoutIfNeeded()
                     }
-                    if let view = self.nodeViews[edge.to.node] {
+                    if let view = self.nodeViews[edge.toPort.node] {
                         if view.superview == nil {
                             return nil
                         }
                         view.layoutIfNeeded()
                     }
 
-                    guard let src = self.portFrameCenter(edge.from), let dst = self.portFrameCenter(edge.to) else {
+                    guard let src = self.portFrameCenter(edge.fromPort), let dst = self.portFrameCenter(edge.toPort)
+                    else {
                         return nil
                     }
                     return CanvasView.Edge(
@@ -628,6 +670,49 @@ extension PartialEdge {
             Colors.edgeWithSuccess.platformColor
         case .cantConnect:
             Colors.edgeWithError.platformColor
+        }
+    }
+}
+
+extension Flow.CanCreateEdgeError {
+    var annotation: Annotation? {
+        switch self {
+        case .graphCycle:
+            .init(
+                title: "Graph Cycle",
+                message: "Creating this edge would introduce a cycle in the node graph.",
+                maxWidth: 200,
+            )
+        case .destPortAlreadyConnected:
+            nil
+        case .invalidPort:
+            .init(
+                title: "Invalid port",
+                message: "The port you are trying to connect does not exist.",
+                maxWidth: 200,
+            )
+        case .typeError(.cantFix(from: let a, to: let b)):
+            .init(
+                title: "Type error",
+                message: "Con't connect a '\(a.displayName)' port to a '\(b.displayName)' port.",
+                maxWidth: 200,
+            )
+        case .typeError(_):
+            nil
+        case .edge(.sameNode):
+            nil
+        case .edge(.bothInput):
+            .init(
+                title: "Invalid Port",
+                message: "Can't connect an input port to another input port.",
+                maxWidth: 200,
+            )
+        case .edge(.bothOutput):
+            .init(
+                title: "Invalid Port",
+                message: "Can't connect an output port to another output port.",
+                maxWidth: 200,
+            )
         }
     }
 }

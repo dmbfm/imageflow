@@ -141,7 +141,7 @@ struct WelcomeWindowView: View {
         .padding(.leading, 12)
         .padding(.top, 12)
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
 

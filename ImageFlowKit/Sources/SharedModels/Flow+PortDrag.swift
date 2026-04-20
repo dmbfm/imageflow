@@ -5,6 +5,10 @@ import Logging
 // MARK: - PortDraggingState
 
 extension Flow {
+    public struct PortDragUpdateResult {
+        public var partialEdge: PartialEdge
+        public var error: CanCreateEdgeError?
+    }
     /// A state machine that models the accessory state used when the user drags
     /// a port from a node with the intent of creating a new edge connection.
     enum PortDraggingState: Sendable, Equatable {
@@ -38,8 +42,8 @@ extension Flow {
         mutating func dragging(
             _ pointer: CGPoint,
             hoveredPort: PortLocation?,
-            canCreateEdge: (Edge) -> Result<(), Flow.CanAddEdgeError>
-        ) throws(TransitionError) -> PartialEdge {
+            canCreateEdge: (Edge) -> Result<(), Flow.CanCreateEdgeError>
+        ) throws(TransitionError) -> PortDragUpdateResult {
             switch self {
             case .idle:
                 throw .invalid
@@ -56,27 +60,39 @@ extension Flow {
                 removedEdge: Edge? = nil,
                 edgeToCreate: Edge? = nil,
                 fix: Flow.TypeError.Fix? = nil,
-            ) -> PartialEdge {
+            ) -> PortDragUpdateResult {
                 guard let hoveredPort else {
                     self = .dragging(port: port, removedEdge: removedEdge, edgeToCreate: nil, fix: nil)
-                    return .init(port: port, pointer: pointer, state: .default)
+                    return .init(partialEdge: .init(port: port, pointer: pointer, state: .default))
                 }
 
-                guard let edge = Edge(port, hoveredPort) else {
-                    self = .dragging(port: port, removedEdge: removedEdge, edgeToCreate: nil, fix: nil)
-                    return .init(port: port, pointer: pointer, state: .cantConnect)
+                let edge: Edge
+                switch Edge.fromPorts(port, hoveredPort) {
+                case .failure(let err):
+                    return .init(
+                        partialEdge: .init(port: port, pointer: pointer, state: .cantConnect),
+                        error: .edge(err)
+                    )
+                case .success(let e): edge = e
                 }
 
-                switch canCreateEdge(edge) {
+                let canCreateEdge = canCreateEdge(edge)
+                switch canCreateEdge {
                 case .success:
                     self = .dragging(port: port, removedEdge: removedEdge, edgeToCreate: edge, fix: nil)
-                    return .init(port: port, pointer: pointer, state: .canConnect)
+                    return .init(partialEdge: .init(port: port, pointer: pointer, state: .canConnect))
                 case .failure(.typeError(.fixable(let fix))):
                     self = .dragging(port: port, removedEdge: removedEdge, edgeToCreate: edge, fix: fix)
-                    return .init(port: port, pointer: pointer, state: .canConnect)
-                default:
+                    return .init(
+                        partialEdge: .init(port: port, pointer: pointer, state: .canConnect),
+                        error: .typeError(.fixable(fix))
+                    )
+                case .failure(let err):
                     self = .dragging(port: port, removedEdge: removedEdge, edgeToCreate: nil, fix: nil)
-                    return .init(port: port, pointer: pointer, state: .cantConnect)
+                    return .init(
+                        partialEdge: .init(port: port, pointer: pointer, state: .cantConnect),
+                        error: err
+                    )
                 }
             }
         }
@@ -132,19 +148,25 @@ extension Flow {
         }
     }
 
-    public func portDragUpdate(_ pointer: CGPoint, _ hoveredPort: PortLocation?) {
+    @discardableResult
+    public func portDragUpdate(_ pointer: CGPoint, _ hoveredPort: PortLocation?) -> Flow.PortDragUpdateResult? {
         do {
-            self.partialEdge = try self.portDraggingState.dragging(
+            let result = try self.portDraggingState.dragging(
                 pointer,
                 hoveredPort: hoveredPort,
                 canCreateEdge: self.canCreateEdge(_:)
             )
+            self.partialEdge = result.partialEdge
+
+            return result
+
         } catch {
             log("Failed to update port drag: \(error)", level: .error)
-
             self.partialEdge = nil
             self.portDraggingState = .idle
         }
+
+        return nil
     }
 
     public func portDragEnd(undoManager um: UndoManager?, position: CGPoint?, travelDistance: CGFloat) {

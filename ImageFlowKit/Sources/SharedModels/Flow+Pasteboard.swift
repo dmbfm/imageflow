@@ -137,8 +137,8 @@ extension Flow {
             if let fromNode = ids[edge.from.node],
                 let toNode = ids[edge.to.node],
                 let edge = Edge(
-                    PortLocation(node: fromNode, port: edge.from.slot),
-                    PortLocation(node: toNode, port: edge.to.slot)
+                    from: .init(node: fromNode, index: edge.from.index),
+                    to: .init(node: toNode, index: edge.to.index)
                 )
             {
                 self.newEdgeAction(

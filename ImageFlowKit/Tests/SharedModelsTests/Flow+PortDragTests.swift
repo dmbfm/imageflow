@@ -24,7 +24,7 @@ func portDragAndCreateEdge() throws {
         flow.portDragEnd(undoManager: um, position: nil, travelDistance: 1000)
     }
     #expect(flow.edges.count == 1)
-    #expect(flow.edges.first == .init(src, dst))
+    #expect(flow.edges.first == (try Edge.fromPorts(src, dst).get()))
 
     #expect(um.canUndo)
     um.undo()
@@ -55,7 +55,7 @@ func portDragAndCancel() throws {
     "Dragging a connected input port and dropping it while not hovering a port should delete the original edge and create an undo item"
 )
 @MainActor
-func portDragConnectedInputShouldDelete() {
+func portDragConnectedInputShouldDelete() throws {
     let flow = Flow()
     let ids = [UUID(), UUID()]
     flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoManager: nil)
@@ -88,7 +88,7 @@ func portDragConnectedInputShouldDelete() {
 
     um.undo()
     #expect(flow.edges.count == 1)
-    #expect(flow.edges.first == .init(src, dst))
+    #expect(flow.edges.first == (try Edge.fromPorts(src, dst).get()))
     #expect(flow.getPortConnected(src) == true)
     #expect(flow.getPortConnected(dst) == true)
 }

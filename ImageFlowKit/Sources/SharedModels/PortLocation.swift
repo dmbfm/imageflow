@@ -17,6 +17,20 @@ public struct PortLocation: Hashable, Sendable, Codable {
     public var direction: PortDirection {
         self.slot.direction
     }
+
+    public var outputPortLocation: OutputPortLocation? {
+        switch self.slot {
+        case .input: nil
+        case .output(let index): .init(node: self.node, index: index)
+        }
+    }
+
+    public var inputPortLocation: InputPortLocation? {
+        switch self.slot {
+        case .input(let index): .init(node: self.node, index: index)
+        case .output: nil
+        }
+    }
 }
 
 public enum PortSlot: Hashable, Sendable, Codable {
