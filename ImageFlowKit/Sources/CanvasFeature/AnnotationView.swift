@@ -1,7 +1,7 @@
 import CanvasView
+import Design
 import Helpers
 import SwiftUI
-import Design
 
 #if os(macOS)
 import AppKit
