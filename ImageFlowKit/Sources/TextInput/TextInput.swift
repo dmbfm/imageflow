@@ -369,6 +369,7 @@ public final class TextInput: PlatformCommonView {
     @objc
     func panGestureHandler(_ gesture: NSPanGestureRecognizer, _ event: NSEvent) {
         guard let delegate = self.delegate else { return }
+        guard self.isEnabled else { return }
 
         let location = self.backgroundView.convert(gesture.location(in: nil), from: nil)
 
@@ -452,6 +453,7 @@ public final class TextInput: PlatformCommonView {
     @objc
     func dragGestureHandler(_ gesture: UIPanGestureRecognizer) {
         guard let delegate = self.delegate else { return }
+        guard self.isEnabled else { return }
 
         let location = self.backgroundView.convert(gesture.location(in: nil), from: nil)
 

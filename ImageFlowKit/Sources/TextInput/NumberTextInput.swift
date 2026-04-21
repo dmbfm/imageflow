@@ -230,6 +230,8 @@ extension NumberInputController: TextInputDelegate {
     }
 
     public func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData) {
+        guard self.isEnabled else { return }
+
         if dragData.phase == .began {
             self.valueAtDragStart = self.value
             self.delegate?.numberInputDragStarted(self)
