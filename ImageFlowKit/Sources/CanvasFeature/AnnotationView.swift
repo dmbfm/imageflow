@@ -7,6 +7,10 @@ import SwiftUI
 import AppKit
 #endif
 
+#if os(iOS)
+import UIKit
+#endif
+
 final class AnnotationView: PlatformCommonView, CanvasNodeView {
     let id: UUID
 
@@ -28,14 +32,33 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         }
     }
 
-    func update() {
-        self.titleView.text = self.annotation.title
-        self.messageView.text = self.annotation.message
-        self.setNeedsLayout()
-        self.invalidateIntrinsicContentSize()
-        self.emitter.emit(.sizeChanged)
+    var style: Style = .init() {
+        didSet {
+            self.setNeedsLayout()
+            self.emitter.emit(.sizeChanged)
+        }
     }
 
+    var insets: PlatformEdgeInsets {
+        self.style.insets
+    }
+
+    var titleMessageSpacing: CGFloat {
+        self.style.titleMessageSpacing
+    }
+    
+    var maxWidth: CGFloat {
+        self.annotation.maxWidth
+    }
+
+    var titleCanOverrideMaxWidth: Bool = true
+
+    struct Style: Equatable {
+        var insets: PlatformEdgeInsets = .init(top: 10, left: 10, bottom: 10, right: 10)
+        var titleMessageSpacing: CGFloat = 4
+    }
+
+    #if os(macOS)
     lazy var glassEffectView: NSGlassEffectView = {
         let view = NSGlassEffectView()
         view.style = .regular
@@ -61,8 +84,35 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         view.lineBreakMode = .byWordWrapping
         return view
     }()
+    #endif
 
-    init(id: UUID, frame: NSRect) {
+    #if os(iOS)
+    lazy var glassEffectView: UIVisualEffectView = {
+        let view = UIVisualEffectView(effect: UIGlassEffect(style: .regular))
+        view.cornerConfiguration = .corners(radius: 12)
+        return view
+    }()
+    
+    lazy var titleView: UILabel = {
+        let view = UILabel()
+        view.text = self.annotation.title
+        view.font = .preferredFont(forTextStyle: .headline)
+        return view
+    }()
+    
+    lazy var messageView: UILabel = {
+        let view = UILabel()
+        view.font = .preferredFont(forTextStyle: .body)
+        view.text = self.annotation.message
+        view.textColor = .secondaryLabel
+        view.numberOfLines = 1000
+        view.lineBreakStrategy = .standard
+        view.lineBreakMode = .byWordWrapping
+        return view
+    }()
+    #endif
+    
+    init(id: UUID, frame: CGRect) {
         self.id = id
         self.level = 10
         super.init(frame: frame)
@@ -84,33 +134,16 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         nil
     }
 
-    var maxWidth: CGFloat {
-        self.annotation.maxWidth
+    func update() {
+        self.titleView.text = self.annotation.title
+        self.messageView.text = self.annotation.message
+        self.setNeedsLayout()
+        self.invalidateIntrinsicContentSize()
+        self.emitter.emit(.sizeChanged)
     }
 
-    var titleCanOverrideMaxWidth: Bool = true
 
-    struct Style: Equatable {
-        var insets: PlatformEdgeInsets = .init(top: 10, left: 10, bottom: 10, right: 10)
-        var titleMessageSpacing: CGFloat = 4
-    }
-
-    var style: Style = .init() {
-        didSet {
-            self.setNeedsLayout()
-            self.emitter.emit(.sizeChanged)
-        }
-    }
-
-    var insets: PlatformEdgeInsets {
-        self.style.insets
-    }
-
-    var titleMessageSpacing: CGFloat {
-        self.style.titleMessageSpacing
-    }
-
-    override var intrinsicContentSize: NSSize {
+    override var intrinsicContentSize: CGSize {
         let titleSize = self.titleView.intrinsicContentSize + .init(width: 2, height: 0)
 
         let effectiveMaxWidth =
@@ -181,7 +214,7 @@ extension AnnotationView {
 
         func updateView(_ view: AnnotationView, context: Context) {
             if view.isHidden != self.isHidden {
-                view.animator().isHidden = self.isHidden
+                view.isHidden = self.isHidden
             }
         }
 

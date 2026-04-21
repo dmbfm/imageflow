@@ -111,7 +111,7 @@ public final class CanvasFeatureViewModel {
             guard let self else { return }
             switch event {
             case .sizeChanged:
-                self.annotationView.setFrameSize(self.annotationView.intrinsicContentSize)
+                self.annotationView.frame.size = self.annotationView.intrinsicContentSize
             default: break
             }
         }).store(in: &self.cancellables)

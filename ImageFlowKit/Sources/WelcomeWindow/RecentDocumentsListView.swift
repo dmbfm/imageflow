@@ -1,3 +1,4 @@
+#if os(macOS)
 import Logging
 import SwiftUI
 import UniformTypeIdentifiers
@@ -96,3 +97,4 @@ struct RecentDocumentsListView: View {
         ])
     }
 }
+#endif
