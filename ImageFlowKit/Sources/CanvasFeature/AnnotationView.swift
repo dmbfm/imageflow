@@ -46,7 +46,7 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
     var titleMessageSpacing: CGFloat {
         self.style.titleMessageSpacing
     }
-    
+
     var maxWidth: CGFloat {
         self.annotation.maxWidth
     }
@@ -92,14 +92,14 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         view.cornerConfiguration = .corners(radius: 12)
         return view
     }()
-    
+
     lazy var titleView: UILabel = {
         let view = UILabel()
         view.text = self.annotation.title
         view.font = .preferredFont(forTextStyle: .headline)
         return view
     }()
-    
+
     lazy var messageView: UILabel = {
         let view = UILabel()
         view.font = .preferredFont(forTextStyle: .body)
@@ -111,7 +111,7 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         return view
     }()
     #endif
-    
+
     init(id: UUID, frame: CGRect) {
         self.id = id
         self.level = 10
@@ -141,7 +141,6 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         self.invalidateIntrinsicContentSize()
         self.emitter.emit(.sizeChanged)
     }
-
 
     override var intrinsicContentSize: CGSize {
         let titleSize = self.titleView.intrinsicContentSize + .init(width: 2, height: 0)
