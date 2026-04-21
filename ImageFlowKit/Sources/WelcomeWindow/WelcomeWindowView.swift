@@ -56,9 +56,9 @@ struct WelcomeWindowView: View {
 
     var shadowColor: Color {
         if self.colorScheme == .dark {
-            .white.opacity(0.25)
+            .white.opacity(0.12)
         } else {
-            .black.opacity(0.25)
+            .black.opacity(0.42)
         }
     }
 
@@ -77,7 +77,7 @@ struct WelcomeWindowView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 128)
                 .frame(maxWidth: 460)
-                .shadow(color: self.shadowColor, radius: 4)
+                .shadow(color: self.shadowColor, radius: 20)
 
             Spacer().frame(height: 10)
 
@@ -122,6 +122,10 @@ struct WelcomeWindowView: View {
         .padding(.horizontal, 48)
     }
 
+    var closeButtonPadding: EdgeInsets {
+        EdgeInsets(top: 20, leading: 19, bottom: 0, trailing: 0)
+    }
+
     var closeButtonView: some View {
         Button {
             self.dismissWindow()
@@ -138,8 +142,7 @@ struct WelcomeWindowView: View {
         .accessibilityLabel("Close")
         .foregroundStyle(self.closeButtonHover ? .secondary : .tertiary)
         .buttonStyle(.plain)
-        .padding(.leading, 12)
-        .padding(.top, 12)
+        .padding(self.closeButtonPadding)
     }
 
     var body: some View {
@@ -157,8 +160,6 @@ struct WelcomeWindowView: View {
                 self.listBackgroundView
             }
         }
-        .ignoresSafeArea(.all, edges: [.top])
-        .frame(width: 740, height: 460 - 26)
     }
 }
 
