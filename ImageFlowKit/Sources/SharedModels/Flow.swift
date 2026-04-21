@@ -132,6 +132,10 @@ extension Flow {
         self.edges.filter({ edge in edge.from == port.outputPortLocation || edge.to == port.inputPortLocation })
     }
 
+    public func edge(incoming port: InputPortLocation) -> Edge? {
+        self.edges.first(where: { $0.to == port })
+    }
+
     func numberOfEdges(ofPort port: PortLocation) -> Int {
         self.edges.count(where: { edge in edge.from == port.outputPortLocation || edge.to == port.inputPortLocation })
     }
@@ -468,7 +472,18 @@ extension Flow {
     }
 
     public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
+        guard !self.edges.contains(edge) else {
+            log("[Flow][newEdgeAction]: edge already exists: \(edge)", level: .warning)
+            return
+        }
+
         um?.beginUndoGrouping()
+
+        // If the port is already connected, we need to remove the old edge first
+        // to replace it with a new one.
+        if let edge = self.edge(incoming: edge.to) {
+            self.removeEdge(edge, undoManager: um)
+        }
 
         self.addEdge(edge, undoManager: um)
         self.setNodePortConnected(edge.fromPort, true, undoManager: um)
@@ -564,10 +579,6 @@ extension Flow {
 
         if !self.isValidPort(edge.toPort) {
             return .failure(.invalidPort(edge.toPort))
-        }
-
-        if self.getPortConnected(edge.toPort) {
-            return .failure(.destPortAlreadyConnected)
         }
 
         switch self.typeCheckEdge(edge) {
