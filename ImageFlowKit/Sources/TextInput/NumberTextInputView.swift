@@ -47,6 +47,7 @@ public struct NumberTextInputView: PlatformViewRepresentable {
     @Environment(\.textInputSizingMode) var sizingMode
     @Environment(\.textInputAlignment) var alignment
     @Environment(\.numberTextInputFormatter) var formatter
+    @Environment(\.isEnabled) var isEnabled
     #if os(iOS)
     @Environment(\.numberTextInputKeyboardType) var keyboardType
     #endif
@@ -86,6 +87,10 @@ public struct NumberTextInputView: PlatformViewRepresentable {
 
             if controller.dragConfiguration != self.dragConfiguration {
                 controller.dragConfiguration = self.dragConfiguration
+            }
+
+            if controller.isEnabled != self.isEnabled {
+                controller.isEnabled = self.isEnabled
             }
 
             if let formatter = self.formatter, type(of: controller.formatter).self != type(of: formatter) {
