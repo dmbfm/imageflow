@@ -117,12 +117,6 @@ extension FlowDocument {
     }
 }
 
-extension UTType {
-    static var imageFlowDocument: UTType {
-        .init(exportedAs: "com.dmbfm.imageFlowDocument")
-    }
-}
-
 extension FlowDocument {
     public struct StorableData: Sendable, Codable {
         public var id: UUID

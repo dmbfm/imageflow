@@ -79,13 +79,9 @@ public class FlowPasteboardItem: NSObject, NSPasteboardWriting, NSPasteboardRead
 }
 #endif
 
-extension UTType {
-    public static let flowNode: Self = .init("com.dmbfm.imageflow-node")!
-}
-
 extension FlowPasteboardData: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(for: FlowPasteboardData.self, contentType: .flowNode)
+        CodableRepresentation(for: FlowPasteboardData.self, contentType: .imageFlowNode)
     }
 }
 

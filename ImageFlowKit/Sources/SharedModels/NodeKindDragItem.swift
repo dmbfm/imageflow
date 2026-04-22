@@ -14,10 +14,6 @@ import UniformTypeIdentifiers
 import AppKit
 #endif
 
-public extension UTType {
-    static let nodeKindDragItem = UTType(exportedAs: "com.dmbfm.imageflow.node-kind")
-}
-
 public final class NodeKindDragItem: NSObject, Codable {
     public let kind: NodeKind
     public let offset: CGPoint
@@ -41,7 +37,7 @@ extension NodeKindDragItem: Transferable {
 extension NodeKindDragItem: NSItemProviderWriting, NSItemProviderReading {
     public static var writableTypeIdentifiersForItemProvider: [String] {
         [
-            UTType.nodeKindDragItem.identifier
+            UTType.imageFlowNodeKindDragItem.identifier
         ]
     }
 
@@ -64,7 +60,7 @@ extension NodeKindDragItem: NSItemProviderWriting, NSItemProviderReading {
 
     public static var readableTypeIdentifiersForItemProvider: [String] {
         [
-            UTType.nodeKindDragItem.identifier
+            UTType.imageFlowNodeKindDragItem.identifier
         ]
     }
 

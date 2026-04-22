@@ -52,7 +52,7 @@ extension MainContentViewMacOS {
                 .focusEffectDisabled()
                 .onDeleteCommand(perform: self.vm.onDeleteCommand)
                 .onCopyCommand(perform: self.vm.onCopyCommand)
-                .onPasteCommand(of: [.flowNode], perform: self.vm.onPasteCommand(_:))
+                .onPasteCommand(of: [.imageFlowNode], perform: self.vm.onPasteCommand(_:))
                 .onCutCommand(perform: self.vm.onCutCommand)
                 .onKeyPress(.space, action: self.onKeyPressSpace)
 

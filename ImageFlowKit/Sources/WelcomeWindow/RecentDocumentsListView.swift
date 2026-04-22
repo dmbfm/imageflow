@@ -2,12 +2,7 @@
 import Logging
 import SwiftUI
 import UniformTypeIdentifiers
-
-extension UTType {
-    static var imageFlowDocument: UTType {
-        .init(exportedAs: "com.dmbfm.imageFlowDocument")
-    }
-}
+import SharedModels
 
 struct RecentDocumentsListView: View {
 

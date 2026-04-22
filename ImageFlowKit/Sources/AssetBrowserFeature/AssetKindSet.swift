@@ -43,7 +43,7 @@ public struct AssetKindSet: Sendable, OptionSet {
         }
 
         if self.contains(.lut) {
-            result.append(.cubeLut)
+            result.append(.imageFlowCubeLut)
         }
 
         return result
