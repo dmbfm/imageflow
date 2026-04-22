@@ -26,14 +26,14 @@ public final class PasteboardObserver {
 
     public init() {
         #if os(iOS)
-        self.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.flowNode.identifier])
+        self.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
         NotificationCenter.default.addObserver(
             forName: UIPasteboard.changedNotification,
             object: UIPasteboard.general,
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.flowNode.identifier])
+                self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
                 self?.emitter.emit(())
             }
         }
@@ -43,7 +43,7 @@ public final class PasteboardObserver {
             queue: .main,
             using: { [weak self] _ in
                 MainActor.assumeIsolated {
-                    self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.flowNode.identifier])
+                    self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
                     self?.emitter.emit(())
                 }
             }

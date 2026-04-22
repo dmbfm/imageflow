@@ -24,6 +24,15 @@ public struct LocalizedAlertError: LocalizedError {
     }
 }
 
+public struct SimpleMessageLocalizedError: LocalizedError, Sendable {
+
+    public var errorDescription: String?
+
+    public init(_ message: String) {
+        self.errorDescription = message
+    }
+}
+
 extension View {
     public func errorAlert(_ error: Binding<LocalizedAlertError?>) -> some View {
         self

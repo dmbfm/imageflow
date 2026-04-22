@@ -12,6 +12,19 @@ public protocol AssetStoreService:
     AssetsProvider & AssetObserver & AssetThumbProvider & GeneratedResourceProvider
         & AssetManagerProvider
 {
+    func addAsset(
+        fromURL url: URL,
+        kind: AssetKind,
+        undoManager um: UndoManager?
+    ) async throws -> UUID
+
+    func addAsset(
+        data: Data,
+        filename: String,
+        kind: AssetKind,
+        undoManager um: UndoManager?
+    ) async throws -> UUID
+
     init()
 }
 

@@ -107,11 +107,14 @@ public struct CanvasFeatureView: View {
         }
 
         let vm: CanvasFeatureViewModel
+
         var body: some View {
             Color.clear
-                .dropDestination(for: NodeKindDragItem.self, action: self.vm.dropDestinationHandler(_:_:))
+                .onDrop(
+                    of: self.vm.dropTypes,
+                    delegate: self.vm
+                )
         }
-
     }
 
     @ViewBuilder

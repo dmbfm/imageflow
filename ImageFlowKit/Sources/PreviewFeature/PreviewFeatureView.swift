@@ -188,6 +188,14 @@ private func makeTestPlaceholderImage(size: CGFloat = 512) -> CIImage {
 @Observable
 @MainActor
 private final class MockAssetStore: AssetStoreService {
+    func addAsset(data: Data, filename: String, kind: SharedModels.AssetKind, undoManager um: UndoManager?) async throws -> UUID {
+        .init()
+    }
+
+    func addAsset(fromURL url: URL, kind: SharedModels.AssetKind, undoManager um: UndoManager?) async throws -> UUID {
+        .init()
+    }
+
     func titleForAsset(id: AssetIdentifier) -> String? {
         nil
     }

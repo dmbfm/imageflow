@@ -145,10 +145,8 @@ actor AssetManager {
 
     func importAsset(fromURL url: URL, kind: AssetKind) async throws(AssetManagerError) -> UUID {
         try await self.importAsset(kind: kind) { assetsDir, id in
-            guard url.startAccessingSecurityScopedResource() else {
-                throw AssetManagerError.importAsset(.URLAccessError)
-            }
-            defer { url.stopAccessingSecurityScopedResource() }
+            let isSS = url.startAccessingSecurityScopedResource()
+            defer { if isSS { url.stopAccessingSecurityScopedResource() } }
 
             let assetFilename = self.name(forAssetAt: url, id: id)
             let assetURL = assetsDir.appending(path: assetFilename)
@@ -156,6 +154,17 @@ actor AssetManager {
             try FileManager.default.copyItem(at: url, to: assetURL)
 
             return .init(filename: assetFilename, originalFilename: url.lastPathComponent)
+        }
+    }
+
+    func importAsset(data: Data, filename: String, kind: AssetKind) async throws(AssetManagerError) -> UUID {
+        try await self.importAsset(kind: kind) { assetsDir, id in
+            let assetFilename = self.name(forAssetAt: .init(filePath: filename), id: id)
+            let assetURL = assetsDir.appending(path: assetFilename)
+
+            try data.write(to: assetURL)
+
+            return .init(filename: assetFilename, originalFilename: filename)
         }
     }
 

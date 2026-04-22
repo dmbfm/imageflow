@@ -35,41 +35,49 @@ public struct SidebarFeatureView: View {
         .init(kind: item.nodeKind)
     }
 
+    func nodeKindDragItemProvider(_ item: NodePaletteItem) -> NSItemProvider {
+        .init(object: NodeKindDragItem(kind: item.nodeKind))
+    }
+
     func itemDoubleTapHandler(_ item: NodePaletteItem) {
         self.onDoubleClickItem?(item)
     }
 
     public var body: some View {
         List {
-            ForEach(self.categories) { cat in
-                Section(cat.name.rawValue, isExpanded: self.isExpandedBinding(cat.name)) {
-                    VStack(spacing: 0) {
-                        ForEach(cat.items) { item in
-                            HStack {
-                                ItemView(item: item)
-                                    .padding(.leading, 6)
-                                Spacer()
-                            }
-                            .frame(height: 28)
-                            .contentShape(Rectangle())
-                            .background {
-                                Color.accentColor
-                                    .opacity(self.hoveredItem == item ? 0.25 : 0.0)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                            }
-                            .draggable(self.nodeKindDragItem(item))
-                            .onHover { hover in
-                                self.hoveredItem = hover ? item : nil
-                            }
-                            .onTapGesture(count: 2) { self.itemDoubleTapHandler(item) }
-                        }
-                    }
-                }
-            }
+            ForEach(self.categories) { self.categoryView($0) }
         }
         .searchable(text: self.$searchText, placement: .sidebar, prompt: "Search nodes...")
         .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) { self.expandedSections = [:] }
+    }
+
+    func categoryView(_ cat: NodePaletteCategory) -> some View {
+        Section(cat.name.rawValue, isExpanded: self.isExpandedBinding(cat.name)) {
+            VStack(spacing: 0) {
+                ForEach(cat.items) { self.itemView($0) }
+            }
+        }
+    }
+
+    func itemView(_ item: NodePaletteItem) -> some View {
+        HStack {
+            ItemView(item: item)
+                .padding(.leading, 6)
+            Spacer()
+        }
+        .frame(height: 28)
+        .contentShape(Rectangle())
+        .background {
+            Color.accentColor
+                .opacity(self.hoveredItem == item ? 0.25 : 0.0)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        }
+        .onDrag({ self.nodeKindDragItemProvider(item) })
+        .onHover { hover in
+            self.hoveredItem = hover ? item : nil
+        }
+        .onTapGesture(count: 2) { self.itemDoubleTapHandler(item) }
     }
 }
 

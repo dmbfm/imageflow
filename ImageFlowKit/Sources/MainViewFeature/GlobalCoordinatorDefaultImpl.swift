@@ -74,9 +74,14 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
     public let flow: Flow
 
     private var activeViewObserver: ActiveViewObserver
+    private var errorToShow: LocalizedAlertError?
 
     weak var previewState: PreviewFeatureState?
-    weak var mainContentViewModel: MainContentViewModel?
+    weak var mainContentViewModel: MainContentViewModel? {
+        didSet {
+            self.mainContentViewModelDidChange()
+        }
+    }
     weak var canvasViewModel: CanvasFeatureViewModel?
     weak var dockedPreview: DockedPreviewMenuActionCoordinator?
     #if os(macOS)
@@ -102,6 +107,13 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
+    }
+
+    private func mainContentViewModelDidChange() {
+        if let vm = self.mainContentViewModel, let err = self.errorToShow {
+            vm.error = err
+            self.errorToShow = nil
+        }
     }
 
     public func isAvailable(_ name: ComponentName) -> Bool {
@@ -138,6 +150,18 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.mainContentViewModel?.assetStore.assets[id]?.filename
         } else {
             nil
+        }
+    }
+
+    public func perform(internalAction action: InternalAction) {
+        switch action {
+        case .errorAlert(let err):
+            if let vm = self.mainContentViewModel {
+                vm.error = .init(inner: err)
+                self.errorToShow = nil
+            } else {
+                self.errorToShow = .init(inner: err)
+            }
         }
     }
 
@@ -329,7 +353,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         #if os(iOS)
         let pb = UIPasteboard.general
 
-        if let data = pb.data(forPasteboardType: UTType.flowNode.identifier),
+        if let data = pb.data(forPasteboardType: UTType.imageFlowNode.identifier),
             let flowPasteboardData = FlowPasteboardData(data: data)
         {
             let point: CGPoint? =
@@ -444,7 +468,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         #else
         let pb = UIPasteboard.general
         if let data = self.flow.pasteboardData(forNodes: nodes), let jsonData = data.jsonData {
-            pb.setData(jsonData, forPasteboardType: UTType.flowNode.identifier)
+            pb.setData(jsonData, forPasteboardType: UTType.imageFlowNode.identifier)
         }
         #endif
     }

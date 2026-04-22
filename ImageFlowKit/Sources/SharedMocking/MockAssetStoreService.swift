@@ -17,6 +17,23 @@ public class MockAssetProvider: AssetsProvider {
 @Observable
 @MainActor
 public final class MockAssetStore: AssetStoreService {
+    public func addAsset(
+        data: Data,
+        filename: String,
+        kind: SharedModels.AssetKind,
+        undoManager um: UndoManager?
+    ) async throws -> UUID {
+        .init()
+    }
+
+    public func addAsset(
+        fromURL url: URL,
+        kind: SharedModels.AssetKind,
+        undoManager um: UndoManager?
+    ) async throws -> UUID {
+        .init()
+    }
+
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
         nil
     }

@@ -27,6 +27,7 @@ public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     func statusBar(_ text: String?)
 
     func perform(userAction: UserAction)
+    func perform(internalAction: InternalAction)
 
     init(flow: Flow)
 }
@@ -68,6 +69,10 @@ public enum Point {
         case .window(let p): p
         }
     }
+}
+
+public enum InternalAction {
+    case errorAlert(any LocalizedError)
 }
 
 public enum UserAction {
@@ -127,6 +132,10 @@ public enum GlobalCoordinatorEvent {
 @Observable
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorImpl {
+    public func perform(internalAction: InternalAction) {
+        self.impl.perform(internalAction: internalAction)
+    }
+
     public func statusBar(_ text: String?) {
         self.impl.statusBar(text)
     }

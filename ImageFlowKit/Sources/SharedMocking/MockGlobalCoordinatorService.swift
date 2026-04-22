@@ -7,6 +7,10 @@ import Values
 @MainActor
 @Observable
 public class MockGlobalCoordinatorService: GlobalCoordinatorImpl {
+    public func perform(internalAction: SharedModels.InternalAction) {
+
+    }
+
     public func statusBar(_ text: String?) {
 
     }
