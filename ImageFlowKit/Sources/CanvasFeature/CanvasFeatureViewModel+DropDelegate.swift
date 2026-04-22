@@ -126,7 +126,7 @@ extension CanvasFeatureViewModel {
             self.undoManager?.beginUndoGrouping()
         }
 
-        var node = FlowNode(id: id, kind: .valueNode(.image))
+        var node = FlowNode(kind: .valueNode(.image))
         node.inputs[0].value = .image(.asset(id))
         self.flow.newNodeAction(node, at: self.dropCanvasPosition(location), undoManager: self.undoManager)
     }

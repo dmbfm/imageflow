@@ -26,14 +26,14 @@ public final class PasteboardObserver {
 
     public init() {
         #if os(iOS)
-        self.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
+        self.canPaste = UIPasteboard.general.imageFlowCanvasCanPaste
         NotificationCenter.default.addObserver(
             forName: UIPasteboard.changedNotification,
             object: UIPasteboard.general,
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
+                self?.canPaste = UIPasteboard.general.imageFlowCanvasCanPaste
                 self?.emitter.emit(())
             }
         }
@@ -43,7 +43,7 @@ public final class PasteboardObserver {
             queue: .main,
             using: { [weak self] _ in
                 MainActor.assumeIsolated {
-                    self?.canPaste = UIPasteboard.general.contains(pasteboardTypes: [UTType.imageFlowNode.identifier])
+                    self?.canPaste = UIPasteboard.general.imageFlowCanvasCanPaste
                     self?.emitter.emit(())
                 }
             }
@@ -51,12 +51,36 @@ public final class PasteboardObserver {
         #endif
 
         #if os(macOS)
-        self.canPaste = NSPasteboard.general.canReadObject(forClasses: [FlowPasteboardItem.self])
+        self.canPaste = NSPasteboard.general.imageFlowCanvasCanPaste
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.canPaste = NSPasteboard.general.canReadObject(forClasses: [FlowPasteboardItem.self])
+                self?.canPaste = NSPasteboard.general.imageFlowCanvasCanPaste
             }
         }
         #endif
     }
 }
+
+#if os(macOS)
+extension NSPasteboard {
+    public var imageFlowCanvasCanPaste: Bool {
+        self.canReadObject(forClasses: [FlowPasteboardItem.self])
+            || self.canReadItem(withDataConformingToTypes: [
+                "public.tiff", "public.png",
+            ])
+    }
+}
+#endif
+
+#if os(iOS)
+extension UIPasteboard {
+    public var imageFlowCanvasCanPaste: Bool {
+        self.contains(pasteboardTypes: [
+            UTType.imageFlowNode.identifier,
+            UTType.tiff.identifier,
+            UTType.png.identifier,
+            "public.avif",
+        ])
+    }
+}
+#endif

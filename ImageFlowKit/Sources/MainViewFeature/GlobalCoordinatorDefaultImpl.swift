@@ -199,6 +199,7 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.exportPreviewedImage()
         case .pasteNodes(let maybePosition):
             self.pasteFlowNodes(maybePosition)
+            self.pasteImages(maybePosition)
         case .selectAllNodes:
             self.flow.selectAll()
         case .showNodeSearch(let typedPortLocation, let canvasPosition):
@@ -339,12 +340,54 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         }
     }
 
+    func pasteImages(_ maybePoint: Point? = nil) {
+        #if os(iOS)
+        let pb = UIPasteboard.general
+        guard
+            let (data, ext): (Data, String) = pb.data(forPasteboardType: "public.tiff").map({ ($0, "tiff") })
+                ?? pb.data(forPasteboardType: "public.png").map({ ($0, "png") })
+                ?? pb.data(forPasteboardType: "public.avif").map({ ($0, "avif") })
+        else { return }
+        #endif
+        #if os(macOS)
+        let pb = NSPasteboard.general
+
+        guard
+            let (data, ext) = pb.data(forType: .tiff).map({ ($0, "tiff") })
+                ?? pb.data(forType: .png).map({ ($0, "png") })
+        else { return }
+        #endif
+
+        Task { @MainActor in
+            do {
+                guard let vm = self.mainContentViewModel else { return }
+                let id = try await vm.assetStore.addAsset(
+                    data: data,
+                    filename: "pastboard_image.\(ext)",
+                    kind: .image,
+                    undoManager: self.undoManager
+                )
+                self.undoManager?.setActionName("Paste Image")
+                self.undoManager?.endUndoGrouping()
+
+                var node = FlowNode(kind: .valueNode(.image))
+                node.inputs[0].value = .image(.asset(id))
+                self.undoManager?.beginUndoGrouping()
+                self.flow.newNodeAction(node, at: self.pastePosition(), undoManager: self.undoManager)
+                log("pasteImages: id: \(id)")
+            } catch {
+                log("pasteImages: \(error)", level: .error)
+            }
+        }
+
+    }
+
     func pasteFlowNodes(_ maybePoint: Point? = nil) {
         #if os(macOS)
         if let objects = NSPasteboard.general.readObjects(forClasses: [FlowPasteboardItem.self]) {
             for o in objects {
                 if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
-                    self.doPaste(data: data, at: nil)
+                    self.flow.paste(pasteboardData: data, at: self.pastePosition(), undoManager: self.undoManager)
                 }
             }
         }
@@ -356,50 +399,38 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
         if let data = pb.data(forPasteboardType: UTType.imageFlowNode.identifier),
             let flowPasteboardData = FlowPasteboardData(data: data)
         {
-            let point: CGPoint? =
-                if let point = maybePoint ?? (self.pointerData?.positionInCanvas).map({ Point.canvas($0) }),
-                    let vm = self.canvasViewModel,
-                    let view = vm.view
-                {
-                    point.canvas(view: view, viewport: vm.viewport).cgPoint
-                } else {
-                    nil
-                }
-
-            self.doPaste(data: flowPasteboardData, at: point)
+            self.flow.paste(
+                pasteboardData: flowPasteboardData,
+                at: self.pastePosition(maybePoint),
+                undoManager: self.undoManager
+            )
         }
         #endif
     }
 
-    func doPaste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
+    func pastePosition(_ maybePoint: Point? = nil) -> CGPoint {
         #if os(macOS)
         if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream,
             let view = self.canvasViewModel?.view,
             let viewport = self.canvasViewModel?.viewport
         {
             let mp = view.convert(mwp, from: nil)
-            var pos: CGPoint = .zero
             if view.safeAreaRect.contains(mp) {
-                pos = viewport.convert(mp, from: .screen, to: .canvas)
+                return viewport.convert(mp, from: .screen, to: .canvas)
             } else {
-                pos = viewport.convert(view.bounds.center, from: .screen, to: .canvas)
+                return viewport.convert(view.bounds.center, from: .screen, to: .canvas)
             }
-
-            self.flow.paste(pasteboardData: data, at: pos, undoManager: self.undoManager)
+        } else {
+            return .zero
         }
         #endif
 
         #if os(iOS)
-        if let pos = maybePos, let viewport = self.canvasViewModel?.viewport {
-            let pastePos = viewport.convert(pos, from: .screen, to: .canvas)
-            self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-        } else if let pastePos = self.pointerData?.positionInCanvas {
-            self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-        } else if let centerPos = self.canvasViewModel?.view?.bounds.center,
-            let viewport = self.canvasViewModel?.viewport
+        if let point = maybePoint, let view = self.canvasViewModel?.view, let viewport = self.canvasViewModel?.viewport
         {
-            let pastePos = viewport.convert(centerPos, from: .screen, to: .canvas)
-            self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            return point.canvas(view: view, viewport: viewport).cgPoint
+        } else {
+            return self.pointerData?.positionInCanvas ?? self.canvasViewModel?.view?.bounds.center ?? .zero
         }
         #endif
     }
