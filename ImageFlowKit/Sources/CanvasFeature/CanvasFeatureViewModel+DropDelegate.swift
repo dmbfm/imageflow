@@ -134,7 +134,7 @@ extension CanvasFeatureViewModel {
     fileprivate func handleNodeKindDrop(_ p: NSItemProvider, _ location: CGPoint) {
         p.loadObject(
             ofClass: NodeKindDragItem.self
-        ) { (object: (any NSItemProviderReading)?, err: (any Error)?) in
+        ) { (object: (any NSItemProviderReading)?, _: (any Error)?) in
             if let item = object as? NodeKindDragItem {
                 Task { @MainActor in
                     let id = UUID()
