@@ -102,7 +102,7 @@ public final class AssetBrowserViewModel {
 
     func confirmationDialogTitle(_ asset: Asset) -> String {
         #if os(macOS)
-        if let name = asset.filename {
+        if let name = asset.originalFilename {
             "Do you want to remove the asset '\(name)'?"
         } else {
             "Do you want to remove this asset?"
