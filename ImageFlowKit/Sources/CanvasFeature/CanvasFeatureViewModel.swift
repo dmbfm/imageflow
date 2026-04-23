@@ -299,8 +299,8 @@ public final class CanvasFeatureViewModel {
 
         case .changed:
             let snappedPointerCanvasPos =
-                if let hit = portHit {
-                    self.canvasPlatformView?.convert(hit.center, from: nil) ?? pointerCanvasPos
+                if let hit = portHit, let view = self.canvasPlatformView {
+                    self.viewport.convert(view.convert(hit.center, from: nil), from: .screen, to: .canvas)
                 } else {
                     pointerCanvasPos
                 }
