@@ -2,9 +2,15 @@ import Backend
 import Foundation
 import Helpers
 import Logging
+import OSLog
 import SharedModels
 
 import class SharedModels.Flow
+
+let signposter = OSSignposter(
+    subsystem: "com.dmbfm.imageflow",
+    category: .pointsOfInterest
+)
 
 @MainActor
 public final class BackendService {
@@ -35,8 +41,11 @@ public final class BackendService {
     var shouldRunAgain: Bool = false
 
     private func run() {
+        signposter.emitEvent("BackendService::run")
         Task {
+            let interval = signposter.beginInterval("BackendService::run::Task", id: signposter.makeSignpostID())
             await self._run()
+            signposter.endInterval("BackendService::run::Task", interval)
         }
     }
 

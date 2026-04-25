@@ -3,7 +3,10 @@ import CoreGraphics
 import Foundation
 import Helpers
 import Logging
+import OSLog
 import Values
+
+let signposter = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
 
 public enum FlowEvent {
     case nodesDidChange([UUID: FlowNode])
@@ -33,6 +36,7 @@ public final class Flow: ObservableObject {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode] {
         didSet {
+            signposter.emitEvent("Flow::nodes::didSet")
             self.delegate?.flow(nodesDidChange: self.nodes)
             self.emitter.emit(.nodesDidChange(self.nodes))
         }
