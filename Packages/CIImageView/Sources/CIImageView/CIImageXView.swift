@@ -36,9 +36,7 @@ public class CIImageXView: XCommonView {
     public private(set) var renderInfo: CIRenderInfo?
 
     private let device: MTLDevice
-    private let commandQueue: MTLCommandQueue
-    private let renderPassDescriptor: MTLRenderPassDescriptor
-    private let context: CIContext
+    private var threadedRenderer: ThreadedRenderer
 
     public var drawableSize: CGSize {
         self.metalLayer.drawableSize
@@ -50,12 +48,7 @@ public class CIImageXView: XCommonView {
 
     public override init(frame: CGRect) {
         self.device = MTLCreateSystemDefaultDevice()!
-        self.commandQueue = device.makeCommandQueue()!
-        self.renderPassDescriptor = .init()
-        self.context = CIContext(
-            mtlDevice: device,
-            options: [.cacheIntermediates: true, .highQualityDownsample: true, .allowLowPower: false]
-        )
+        self.threadedRenderer = .init(self.device)
 
         super.init(frame: frame)
 
@@ -64,16 +57,12 @@ public class CIImageXView: XCommonView {
         self.metalLayer.device = self.device
         self.metalLayer.framebufferOnly = false
         self.metalLayer.pixelFormat = .rgba8Unorm
-        self.metalLayer.presentsWithTransaction = true
+        self.metalLayer.presentsWithTransaction = false
         self.metalLayer.needsDisplayOnBoundsChange = true
         self.metalLayer.delegate = self
         self.metalLayer.magnificationFilter = .nearest
         self.metalLayer.minificationFilter = .trilinear
         self.metalLayer.isOpaque = false
-
-        self.renderPassDescriptor.colorAttachments[0].loadAction = .clear
-        self.renderPassDescriptor.colorAttachments[0].storeAction = .store
-        self.renderPassDescriptor.colorAttachments[0].clearColor = .init(red: 0, green: 0, blue: 0, alpha: 0)
     }
 
     @available(*, unavailable)
@@ -261,75 +250,30 @@ public class CIImageXView: XCommonView {
         self.imageScale.width > 1 || self.imageScale.height > 1
     }
 
-    func render() {
-        guard let image = self.image else { return }
-        guard self.drawableSize.width > 0, self.drawableSize.height > 0 else { return }
-
-        #if os(iOS)
-        let available = os_proc_available_memory()
-
-        if available < 50 * 1024 * 1024 {
-            print("[CIImageXView] low memory, skipping render!")
-            return
-        }
-        #endif
-
+    func doRender() {
         self.updatePlacement()
-
-        guard let commandBuffer = self.commandQueue.makeCommandBuffer(),
-            let drawable = self.metalLayer.nextDrawable()
-        else { return }
-
-        self.renderPassDescriptor.colorAttachments[0].texture = drawable.texture
-
-        if let enc = commandBuffer.makeRenderCommandEncoder(descriptor: self.renderPassDescriptor) {
-            enc.endEncoding()
-        }
-
-        let sampledImage =
-            if self.isZoomedIn {
-                image.samplingNearest()
-            } else {
-                image.samplingLinear()
-            }
-
-        let finalImage = sampledImage.transformed(by: .init(scaleX: self.imageScale.width, y: self.imageScale.height))
-
-        let dest = CIRenderDestination(
-            width: Int(self.metalLayer.drawableSize.width),
-            height: Int(self.metalLayer.drawableSize.height),
+        let renderData = RenderData(
+            image: self.image,
+            drawableSize: self.drawableSize,
             pixelFormat: self.metalLayer.pixelFormat,
-            commandBuffer: commandBuffer,
-            mtlTextureProvider: { drawable.texture }
+            isZoomedIn: self.isZoomedIn,
+            imageScale: self.imageScale,
+            offset: self.offset
         )
-
-        do {
-            let task = try self.context.startTask(
-                toRender: finalImage,
-                from: finalImage.extent,
-                to: dest,
-                at: self.offset
-            )
-
-            commandBuffer.commit()
-            commandBuffer.waitUntilScheduled()
-            drawable.present()
-
-            self.renderInfo = try task.waitUntilCompleted()
-        } catch {
-            print("failed to render image: \(error)")
-        }
+        self.threadedRenderer.render(renderData, self.metalLayer.nextDrawable())
     }
 }
 
 #if os(macOS)
 extension CIImageXView: @MainActor CALayerDelegate {
     public func draw(_ layer: CALayer, in ctx: CGContext) {
-        self.render()
+        sp.emitEvent("CIImageXView:draw")
+        self.doRender()
     }
 
     public func display(_ layer: CALayer) {
-        self.render()
+        sp.emitEvent("CIImageXView:display")
+        self.doRender()
     }
 }
 

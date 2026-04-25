@@ -2,10 +2,13 @@ import CoreGraphicsEx
 import CoreImage
 import SwiftUI
 import XViewKit
+import OSLog
 
 #if canImport(AppKit)
 import AppKit
 #endif
+
+let sp = OSSignposter(subsystem: "com.dmbfm.ciimageview", category: .pointsOfInterest)
 
 public struct CIImageView: XViewRepresentable {
     var image: CIImage?
