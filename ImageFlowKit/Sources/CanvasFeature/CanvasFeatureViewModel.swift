@@ -5,11 +5,14 @@ import Helpers
 import Logging
 import NodePaletteFeature
 import NodeView
+import OSLog
 import SharedModels
 import SwiftUI
 import Values
 
 import class SharedModels.Flow
+
+let sp = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
 
 #if os(macOS)
 import AppKit
@@ -159,6 +162,7 @@ public final class CanvasFeatureViewModel {
         case .clickBackground:
             self.onCanvasClickBackground()
         case .didMoveToSuperview:
+            sp.emitEvent("CanvasFeatureView:CanvasEvent:didMoveToSuperview")
             Task { @MainActor in
                 self.updateEdges()
             }
@@ -198,7 +202,12 @@ public final class CanvasFeatureViewModel {
 
     func onFlowEvent(_ event: FlowEvent) {
         switch event {
+        case .edgesDidChange(_), .nodePositionsDidChange(_), .partialEdgeDidChange(_):
+            self.updateEdges()
+        case .nodesDidChange(_):
+            self.updateNodeData()
         case .selectionDidChange(let selection, liveSelect: false):
+            self.updateSelection()
             for (id, node) in self.nodeViews {
                 if selection.contains(id) {
                     node.level = 1

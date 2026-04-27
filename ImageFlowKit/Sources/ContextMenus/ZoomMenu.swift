@@ -4,7 +4,25 @@ import SwiftUI
 
 public struct ZoomMenu: View {
     @ActiveViewObject(GlobalCoordinator.self) var coordinator
+
+    var nodeCount: Int {
+        self.coordinator?.flow.nodeCount ?? 0
+    }
+
+    var selectionCount: Int {
+        self.coordinator?.flow.selectionCount ?? 0
+    }
+
+    var hasNoNodes: Bool {
+        self.nodeCount == 0
+    }
+
+    var hasSelection: Bool {
+        self.selectionCount > 0
+    }
+
     public init() {}
+
     public var body: some View {
         Menu("Zoom") {
             Button("Zoom In", systemImage: .systemIconMagZoomIn) {
@@ -29,13 +47,13 @@ public struct ZoomMenu: View {
             Button("Zoom to Fit Content", systemImage: .systemIconMagZoomFit) {
                 self.coordinator?.perform(userAction: .viewport(.zoomToFitContent))
             }
-            .disabled(self.coordinator?.flow.nodes.isEmpty ?? true)
+            .disabled(self.hasNoNodes)
             .keyboardShortcut("0", modifiers: [.command, .shift])
 
             Button("Zoom to Fit Selection") {
                 self.coordinator?.perform(userAction: .viewport(.zoomToFitSelection))
             }
-            .disabled(self.coordinator?.flow.selection.isEmpty ?? true)
+            .disabled(!self.hasSelection)
             .keyboardShortcut("0", modifiers: [.command, .shift, .option])
         }
     }

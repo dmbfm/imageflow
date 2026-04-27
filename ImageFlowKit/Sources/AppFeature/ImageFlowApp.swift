@@ -73,11 +73,11 @@ public struct ImageFlowApp: App {
         }
         .defaultLaunchBehavior(RunConfiguration.showWelcomeWindow ? .suppressed : .automatic)
         .commands {
-            SidebarCommands()
-            InspectorCommands()
-            PreviewFeatureCommands()
-            ZoomCommands()
-            NodeEditCommands()
+            // SidebarCommands()
+            // InspectorCommands()
+            // PreviewFeatureCommands()
+            // ZoomCommands()
+            // NodeEditCommands()
         }
         #else
         .commands {

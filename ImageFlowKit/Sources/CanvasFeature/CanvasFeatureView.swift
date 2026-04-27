@@ -56,16 +56,11 @@ public struct CanvasFeatureView: View {
                 onEvent: self.vm.onCanvasEvent,
             )
             .ignoresSafeArea()
-            .onChange(of: self.vm.flow.edges, initial: true) { self.vm.updateEdges() }
-            .onChange(of: self.vm.nodePositions, initial: true) { self.vm.updateEdges() }
-            .onChange(of: self.vm.flow.nodes, initial: true) { self.vm.updateNodeData() }
-            .onChange(of: self.vm.flow.selection, initial: true) { self.vm.updateSelection() }
             .onChange(
                 of: self.undoManager,
                 initial: true,
                 { self.vm.undoManager = self.undoManager }
             )
-            .onChange(of: self.vm.flow.partialEdge) { self.vm.updateEdges() }
 
             #if os(macOS)
             VStack {

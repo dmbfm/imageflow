@@ -122,6 +122,8 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
     }
 
     public override func layout() {
+        let s = sp.beginAnimationInterval("CanvasNSView::layout")
+        defer { sp.endInterval("CanvasNSView::layout", s) }
         super.layout()
         self.updateContentView()
     }

@@ -40,14 +40,14 @@ struct MainContentViewMacOS: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarFeatureView(self.$focus, self.vm.onDoubleClick(nodePaletteItem:))
+            SidebarFeatureView(self.vm.onDoubleClick(nodePaletteItem:))
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
                 .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {
             DetailView(vm: self.vm, focus: self.$focus)
         }
         .toolbar {
-            self.toolbarContent
+            // self.toolbarContent
         }
         .sheet(
             isPresented: self.$vm.showAssetBrowser,

@@ -6,17 +6,23 @@ import GameController
 
 extension CanvasFeatureViewModel {
     public func statusBarShow(_ text: String) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            if self.hasKeyboard {
-                self.statusBarState.visible = true
+        if self.hasKeyboard {
+            if !self.statusBarState.visible {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    self.statusBarState.text = text
+                    self.statusBarState.visible = true
+                }
+            } else if self.statusBarState.text != text {
                 self.statusBarState.text = text
             }
         }
     }
 
     public func statusBarHide() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            self.statusBarState.visible = false
+        if self.statusBarState.visible {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                self.statusBarState.visible = false
+            }
         }
     }
 

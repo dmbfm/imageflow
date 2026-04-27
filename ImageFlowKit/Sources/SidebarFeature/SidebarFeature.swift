@@ -3,16 +3,20 @@ import SharedModels
 import SwiftUI
 
 public struct SidebarFeatureView: View {
+    // public static func == (lhs: SidebarFeatureView, rhs: SidebarFeatureView) -> Bool {
+    //     lhs.focusBinding.wrappedValue == rhs.focusBinding.wrappedValue
+    // }
 
-    let focusBinding: FocusState<Focus?>.Binding
+    // let focusBinding: FocusState<Focus?>.Binding
     let onDoubleClickItem: ((NodePaletteItem) -> ())?
 
     @State private var hoveredItem: NodePaletteItem? = nil
     @State private var searchText: String = ""
     @State private var expandedSections: [NodePaletteCategoryName: Bool] = [:]
 
-    public init(_ focusState: FocusState<Focus?>.Binding, _ onDoubleClickItem: ((NodePaletteItem) -> ())? = nil) {
-        self.focusBinding = focusState
+    // public init(_ focusState: FocusState<Focus?>.Binding, _ onDoubleClickItem: ((NodePaletteItem) -> ())? = nil) {
+    public init(_ onDoubleClickItem: ((NodePaletteItem) -> ())? = nil) {
+        // self.focusBinding = focusState
         self.onDoubleClickItem = onDoubleClickItem
     }
 
@@ -48,7 +52,7 @@ public struct SidebarFeatureView: View {
             ForEach(self.categories) { self.categoryView($0) }
         }
         .searchable(text: self.$searchText, placement: .sidebar, prompt: "Search nodes...")
-        .searchFocused(self.focusBinding, equals: .sidebarSearch)
+        // .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) { self.expandedSections = [:] }
     }
 
@@ -93,8 +97,8 @@ struct ItemView: View {
     }
 }
 
-#Preview {
-    @Previewable @FocusState var focus: Focus?
-    SidebarFeatureView($focus)
-        .listStyle(.sidebar)
-}
+// #Preview {
+//     @Previewable @FocusState var focus: Focus?
+//     SidebarFeatureView($focus)
+//         .listStyle(.sidebar)
+// }

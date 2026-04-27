@@ -1,5 +1,6 @@
 import Helpers
 import Logging
+import OSLog
 import SwiftUI
 
 #if canImport(AppKit)
@@ -8,13 +9,20 @@ import AppKit
 import UIKit
 #endif
 
+let sp = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
+
 /// The `CanvasView` is a view that displays an infinite canvas populated by
 /// nodes. It can also draw edges that are meant to connect nodes. This is
 /// a presentation view and stores miminal state insidet it, and has the bulk of
 /// its state provided via two-way `@Binding`s or one-way `let` bindings. It also
 /// communicates with its parent view via events (see `Event` and `onEvent`).
 @MainActor
-public struct CanvasView: PlatformViewRepresentable {
+public struct CanvasView: PlatformViewRepresentable, @MainActor Equatable {
+    public static func == (lhs: CanvasView, rhs: CanvasView) -> Bool {
+        lhs.viewport == rhs.viewport && lhs.nodePositions == rhs.nodePositions && lhs.edgeLayers == rhs.edgeLayers
+            && lhs.plusIconState == rhs.plusIconState
+            && lhs.interactionMode == rhs.interactionMode
+    }
 
     /// A binding to the `CanvasView.Viewport`. This view will freely modify the
     /// viewport according to user input.
@@ -101,6 +109,9 @@ public struct CanvasView: PlatformViewRepresentable {
 
     public func updateView(_ view: ViewType, context: Context) {
 
+        let state = sp.beginInterval("CanvasView::upadateView")
+        defer { sp.endInterval("CanvasView::upadateView", state) }
+
         context.coordinator.viewport = self._viewport
         context.coordinator.onEvent = self.onEvent
 
@@ -130,6 +141,10 @@ public struct CanvasView: PlatformViewRepresentable {
         if view.plusIconState != self.plusIconState {
             view.plusIconState = self.plusIconState
         }
+    }
+
+    public func sizeThatFits(_ proposal: ProposedViewSize, view: CanvasNSView, context: Context) -> CGSize? {
+        return proposal.replacingUnspecifiedDimensions()
     }
 
     public func makeCoordinator() -> Coordinator {

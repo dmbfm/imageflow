@@ -54,7 +54,7 @@ extension MainContentViewMacOS {
                 .onCopyCommand(perform: self.vm.onCopyCommand)
                 .onPasteCommand(of: [.imageFlowNode, .tiff, .png], perform: self.vm.onPasteCommand(_:))
                 .onCutCommand(perform: self.vm.onCutCommand)
-                .onKeyPress(.space, action: self.onKeyPressSpace)
+                // .onKeyPress(.space, action: self.onKeyPressSpace)
 
                 // NOTE: `Color.white.opacity(0.0001)` + backgroundExtensionEffect() creates a blur
                 // effect on the toolbar! This does not work if we use `Color.clear` instead.

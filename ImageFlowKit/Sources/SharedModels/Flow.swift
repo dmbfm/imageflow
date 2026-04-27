@@ -9,6 +9,7 @@ import Values
 let signposter = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
 
 public enum FlowEvent {
+    case partialEdgeDidChange(PartialEdge?)
     case nodesDidChange([UUID: FlowNode])
     case edgesDidChange(Set<Edge>)
     case nodePositionsDidChange([UUID: CGPoint])
@@ -39,6 +40,7 @@ public final class Flow: ObservableObject {
             signposter.emitEvent("Flow::nodes::didSet")
             self.delegate?.flow(nodesDidChange: self.nodes)
             self.emitter.emit(.nodesDidChange(self.nodes))
+            self.nodeCount = self.nodes.count
         }
     }
     /// The positions of the nodes.
@@ -52,6 +54,7 @@ public final class Flow: ObservableObject {
     public var selection: Set<UUID> {
         didSet {
             self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
+            self.selectionCount = self.selection.count
         }
     }
     /// All edges currently present in the graph.
@@ -62,7 +65,16 @@ public final class Flow: ObservableObject {
         }
     }
 
-    public var partialEdge: PartialEdge? = nil
+    public var nodeCount: Int
+    public var selectionCount: Int
+
+    public var partialEdge: PartialEdge? = nil {
+        didSet {
+            if self.partialEdge != oldValue {
+                self.emitter.emit(.partialEdgeDidChange(self.partialEdge))
+            }
+        }
+    }
 
     public weak var delegate: FlowDelegate? = nil
 
@@ -93,6 +105,8 @@ public final class Flow: ObservableObject {
         self.nodePositions = nodePositions
         self.selection = selection
         self.edges = edges
+        self.nodeCount = nodes.count
+        self.selectionCount = selection.count
     }
 
     /// Creates a new flow model.
@@ -110,6 +124,8 @@ public final class Flow: ObservableObject {
         self.nodePositions = nodes.mapValues({ $0.1 })
         self.selection = selection
         self.edges = edges
+        self.nodeCount = nodes.count
+        self.selectionCount = selection.count
     }
 
     convenience public init() {
