@@ -21,6 +21,7 @@ struct RecentDocumentsListView: View {
     }
 
     func openItem(_ item: RecentDocumentItem) {
+        print("openItem: \(item)")
         Task {
             do {
                 try await NSDocumentController.shared.openDocument(withContentsOf: item.url, display: true)
@@ -50,9 +51,11 @@ struct RecentDocumentsListView: View {
                 .contentShape(Rectangle())
                 .gesture(
                     TapGesture().onEnded({ _ in
+                        print("tap?")
                         self.selection = item.id
                     }).simultaneously(
                         with: TapGesture(count: 2).onEnded({ _ in
+                            print("tap 2 ?")
                             self.openItem(item)
                         })
                     )

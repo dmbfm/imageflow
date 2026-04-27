@@ -3,12 +3,16 @@
 import SwiftUI
 import AppKit
 
-struct WelcomeWindowView: View {
+public struct WelcomeWindowView: View {
 
     let recentDocuments: [RecentDocumentItem]
     @State var closeButtonHover: Bool = false
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismissWindow) var dismissWindow
+
+    public init(recentDocuments: [RecentDocumentItem]) {
+        self.recentDocuments = recentDocuments
+    }
 
     var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "ImageFlow"
@@ -145,7 +149,7 @@ struct WelcomeWindowView: View {
         .padding(self.closeButtonPadding)
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 0) {
 
             self.contentView

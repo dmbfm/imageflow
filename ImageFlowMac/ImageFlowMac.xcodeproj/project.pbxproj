@@ -7,33 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE32C8AC2F9FFC7E003EAF9B /* AppMacOS in Frameworks */ = {isa = PBXBuildFile; productRef = AE32C8AB2F9FFC7E003EAF9B /* AppMacOS */; };
 		AEBDC1A32F21790B001D5A5E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC1A22F21790B001D5A5E /* AppFeature */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		AE596D102E21C2AF005F49B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AE596CF92E21C2AE005F49B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AE596D002E21C2AE005F49B2;
-			remoteInfo = ImageFlowMac;
-		};
-		AE596D1A2E21C2AF005F49B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AE596CF92E21C2AE005F49B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AE596D002E21C2AE005F49B2;
-			remoteInfo = ImageFlowMac;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
+		AE4620D42F9FC7FC0065C20A /* Image Flow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Image Flow.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE596D012E21C2AE005F49B2 /* Image Flow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Image Flow.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE596D0F2E21C2AF005F49B2 /* ImageFlowMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE4620E22F9FC7FE0065C20A /* Exceptions for "ImageFlowMacOS" folder in "ImageFlowMacOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AE4620D32F9FC7FC0065C20A /* ImageFlowMacOS */;
+		};
+		AE4620E62F9FC84B0065C20A /* Exceptions for "ImageFlowMacOS" folder in "ImageFlowMac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+			);
+			target = AE596D002E21C2AE005F49B2 /* ImageFlowMac */;
+		};
 		AEB12FF22E355DD000FCE746 /* Exceptions for "ImageFlowMac" folder in "ImageFlowMac" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -44,6 +41,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE4620D52F9FC7FC0065C20A /* ImageFlowMacOS */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE4620E62F9FC84B0065C20A /* Exceptions for "ImageFlowMacOS" folder in "ImageFlowMac" target */,
+				AE4620E22F9FC7FE0065C20A /* Exceptions for "ImageFlowMacOS" folder in "ImageFlowMacOS" target */,
+			);
+			path = ImageFlowMacOS;
+			sourceTree = "<group>";
+		};
 		AE596D032E21C2AE005F49B2 /* ImageFlowMac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -52,38 +58,22 @@
 			path = ImageFlowMac;
 			sourceTree = "<group>";
 		};
-		AE596D122E21C2AF005F49B2 /* ImageFlowMacTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ImageFlowMacTests;
-			sourceTree = "<group>";
-		};
-		AE596D1C2E21C2AF005F49B2 /* ImageFlowMacUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ImageFlowMacUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AE4620D12F9FC7FC0065C20A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE32C8AC2F9FFC7E003EAF9B /* AppMacOS in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE596CFE2E21C2AE005F49B2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				AEBDC1A32F21790B001D5A5E /* AppFeature in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D0C2E21C2AF005F49B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D162E21C2AF005F49B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,8 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				AE596D032E21C2AE005F49B2 /* ImageFlowMac */,
-				AE596D122E21C2AF005F49B2 /* ImageFlowMacTests */,
-				AE596D1C2E21C2AF005F49B2 /* ImageFlowMacUITests */,
+				AE4620D52F9FC7FC0065C20A /* ImageFlowMacOS */,
 				AE5800B92E21C83B00C21EEC /* Frameworks */,
 				AE596D022E21C2AE005F49B2 /* Products */,
 			);
@@ -112,8 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				AE596D012E21C2AE005F49B2 /* Image Flow.app */,
-				AE596D0F2E21C2AF005F49B2 /* ImageFlowMacTests.xctest */,
-				AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */,
+				AE4620D42F9FC7FC0065C20A /* Image Flow.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,6 +109,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AE4620D32F9FC7FC0065C20A /* ImageFlowMacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE4620E32F9FC7FE0065C20A /* Build configuration list for PBXNativeTarget "ImageFlowMacOS" */;
+			buildPhases = (
+				AE4620D02F9FC7FC0065C20A /* Sources */,
+				AE4620D12F9FC7FC0065C20A /* Frameworks */,
+				AE4620D22F9FC7FC0065C20A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE4620D52F9FC7FC0065C20A /* ImageFlowMacOS */,
+			);
+			name = ImageFlowMacOS;
+			packageProductDependencies = (
+				AE32C8AB2F9FFC7E003EAF9B /* AppMacOS */,
+			);
+			productName = ImageFlowMacOS;
+			productReference = AE4620D42F9FC7FC0065C20A /* Image Flow.app */;
+			productType = "com.apple.product-type.application";
+		};
 		AE596D002E21C2AE005F49B2 /* ImageFlowMac */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AE596D232E21C2AF005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowMac" */;
@@ -144,52 +155,6 @@
 			productReference = AE596D012E21C2AE005F49B2 /* Image Flow.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AE596D0E2E21C2AF005F49B2 /* ImageFlowMacTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AE596D262E21C2AF005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowMacTests" */;
-			buildPhases = (
-				AE596D0B2E21C2AF005F49B2 /* Sources */,
-				AE596D0C2E21C2AF005F49B2 /* Frameworks */,
-				AE596D0D2E21C2AF005F49B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AE596D112E21C2AF005F49B2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AE596D122E21C2AF005F49B2 /* ImageFlowMacTests */,
-			);
-			name = ImageFlowMacTests;
-			packageProductDependencies = (
-			);
-			productName = ImageFlowMacTests;
-			productReference = AE596D0F2E21C2AF005F49B2 /* ImageFlowMacTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		AE596D182E21C2AF005F49B2 /* ImageFlowMacUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AE596D292E21C2AF005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowMacUITests" */;
-			buildPhases = (
-				AE596D152E21C2AF005F49B2 /* Sources */,
-				AE596D162E21C2AF005F49B2 /* Frameworks */,
-				AE596D172E21C2AF005F49B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AE596D1B2E21C2AF005F49B2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AE596D1C2E21C2AF005F49B2 /* ImageFlowMacUITests */,
-			);
-			name = ImageFlowMacUITests;
-			packageProductDependencies = (
-			);
-			productName = ImageFlowMacUITests;
-			productReference = AE596D192E21C2AF005F49B2 /* ImageFlowMacUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,19 +162,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					AE4620D32F9FC7FC0065C20A = {
+						CreatedOnToolsVersion = 26.5;
+					};
 					AE596D002E21C2AE005F49B2 = {
 						CreatedOnToolsVersion = 16.4;
-					};
-					AE596D0E2E21C2AF005F49B2 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AE596D002E21C2AE005F49B2;
-					};
-					AE596D182E21C2AF005F49B2 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AE596D002E21C2AE005F49B2;
 					};
 				};
 			};
@@ -228,28 +188,20 @@
 			projectRoot = "";
 			targets = (
 				AE596D002E21C2AE005F49B2 /* ImageFlowMac */,
-				AE596D0E2E21C2AF005F49B2 /* ImageFlowMacTests */,
-				AE596D182E21C2AF005F49B2 /* ImageFlowMacUITests */,
+				AE4620D32F9FC7FC0065C20A /* ImageFlowMacOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AE4620D22F9FC7FC0065C20A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE596CFF2E21C2AE005F49B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D0D2E21C2AF005F49B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D172E21C2AF005F49B2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -259,21 +211,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AE4620D02F9FC7FC0065C20A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE596CFD2E21C2AE005F49B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D0B2E21C2AF005F49B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D152E21C2AF005F49B2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -282,20 +227,95 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		AE596D112E21C2AF005F49B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AE596D002E21C2AE005F49B2 /* ImageFlowMac */;
-			targetProxy = AE596D102E21C2AF005F49B2 /* PBXContainerItemProxy */;
-		};
-		AE596D1B2E21C2AF005F49B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AE596D002E21C2AE005F49B2 /* ImageFlowMac */;
-			targetProxy = AE596D1A2E21C2AF005F49B2 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
+		AE4620E42F9FC7FE0065C20A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Image Flow 2";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowMacOS/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.imageflow.macos;
+				PRODUCT_NAME = "Image Flow";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AE4620E52F9FC7FE0065C20A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Image Flow 2";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageFlowMacOS/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.imageflow.macos;
+				PRODUCT_NAME = "Image Flow";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		AE596D212E21C2AF005F49B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -528,81 +548,18 @@
 			};
 			name = Release;
 		};
-		AE596D272E21C2AF005F49B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMacTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowMac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowMac";
-			};
-			name = Debug;
-		};
-		AE596D282E21C2AF005F49B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMacTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowMac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowMac";
-			};
-			name = Release;
-		};
-		AE596D2A2E21C2AF005F49B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMacUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = ImageFlowMac;
-			};
-			name = Debug;
-		};
-		AE596D2B2E21C2AF005F49B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowMacUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = ImageFlowMac;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AE4620E32F9FC7FE0065C20A /* Build configuration list for PBXNativeTarget "ImageFlowMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE4620E42F9FC7FE0065C20A /* Debug */,
+				AE4620E52F9FC7FE0065C20A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE596CFC2E21C2AE005F49B2 /* Build configuration list for PBXProject "ImageFlowMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -621,27 +578,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AE596D262E21C2AF005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowMacTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AE596D272E21C2AF005F49B2 /* Debug */,
-				AE596D282E21C2AF005F49B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AE596D292E21C2AF005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowMacUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AE596D2A2E21C2AF005F49B2 /* Debug */,
-				AE596D2B2E21C2AF005F49B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AE32C8AB2F9FFC7E003EAF9B /* AppMacOS */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppMacOS;
+		};
 		AEBDC1A22F21790B001D5A5E /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;

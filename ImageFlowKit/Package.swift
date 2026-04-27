@@ -13,6 +13,8 @@ let package = Package(
     name: "ImageFlowKit",
     platforms: [.macOS(.v26), .iOS(.v26)],
     products: [
+        .library(name: "AppMacOS"),
+        ///
         .library(name: "Backend"),
         .library(name: "Values"),
         .library(name: "Helpers"),
@@ -46,6 +48,14 @@ let package = Package(
         .package(path: "../Packages/XViewKit"),
     ],
     targets: [
+        .target(
+            name: "AppMacOS",
+            dependencies: [
+                "Helpers",
+                "SharedModels",
+                "SettingsFeature",
+            ]
+        ),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
@@ -310,7 +320,6 @@ for target in package.targets {
     ]
     for feat in features {
         settings.append(.enableExperimentalFeature(feat))
-        // settings.append(.defaultIsolation(MainActor.self))
     }
     target.swiftSettings = settings
 }
