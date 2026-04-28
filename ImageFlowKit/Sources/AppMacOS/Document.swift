@@ -22,12 +22,10 @@ public class FlowDocument: NSDocument {
     static var lastContentSize: CGSize? = nil
 
     public override func makeWindowControllers() {
-
-        let vc = MainViewController()
-        let window = NSWindow(contentViewController: vc)
+        let mainVC = MainViewController()
+        let window = NSWindow(contentViewController: mainVC)
 
         if let screen = window.screen {
-            Swift.print("HAS SCREEN!")
             let width = screen.frame.width * 0.8
             let height = screen.frame.height * 0.8
             window.setContentSize(.init(width: width, height: height))
@@ -36,15 +34,13 @@ public class FlowDocument: NSDocument {
         }
 
         let wc = NSWindowController(window: window)
-        wc.contentViewController = vc
+        wc.contentViewController = mainVC
         self.addWindowController(wc)
-        // UserDefaults
 
         window.delegate = self
         window.setFrameAutosaveName("com.dmbfm.imageflow.macos.main-window")
         window.makeKeyAndOrderFront(nil)
 
-        // Swift.print("#  \(NSDocumentController.shared.documents.count)")
         if NSDocumentController.shared.documents.count > 1 {
             Self.cascadingPoint = window.cascadeTopLeft(from: Self.cascadingPoint)
         } else {
@@ -62,6 +58,14 @@ public class FlowDocument: NSDocument {
         }
     }
 
+    public override func restoreState(with coder: NSCoder) {
+        logger.debug("restoreState")
+    }
+
+    public override func encodeRestorableState(with coder: NSCoder, backgroundQueue queue: OperationQueue) {
+        logger.debug("encodeRestorableState")
+    }
+
     public override func canAsynchronouslyWrite(
         to url: URL,
         ofType typeName: String,
@@ -72,7 +76,6 @@ public class FlowDocument: NSDocument {
 
     public override func fileWrapper(ofType typeName: String) throws -> FileWrapper {
         .init()
-        // fatalError("TODO")
     }
 
     public override nonisolated func read(from fileWrapper: FileWrapper, ofType typeName: String) throws {

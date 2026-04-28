@@ -1,4 +1,7 @@
 import AppKit
+import OSLog
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow.app-macos", category: "imageflow")
 
 public struct EntryPoint {
     @MainActor

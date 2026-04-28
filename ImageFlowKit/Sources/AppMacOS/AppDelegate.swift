@@ -8,15 +8,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var welcomeWindowController: WelcomeWindowController? = nil
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        print("ok!!!")
+        logger.info("applicationDidFinishLaunching")
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+        logger.info("applicationWillTerminate")
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        logger.info("applicationShouldTerminate")
+        return .terminateNow
     }
 
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        print("applicationShouldOpenUntitledFile")
         self.openWelcomeWindow()
         return false
     }
@@ -26,10 +30,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        print("applicationOpenUntitledFile")
         return true
     }
-
-    // MARK: - Welcome Window
-
 }

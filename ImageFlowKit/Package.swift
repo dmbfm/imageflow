@@ -51,6 +51,7 @@ let package = Package(
         .target(
             name: "AppMacOS",
             dependencies: [
+                "Logging",
                 "Helpers",
                 "SharedModels",
                 "SettingsFeature",
