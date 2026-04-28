@@ -55,6 +55,7 @@ let package = Package(
                 "Helpers",
                 "SharedModels",
                 "SettingsFeature",
+                "SidebarFeature",
             ]
         ),
         .target(name: "Values"),

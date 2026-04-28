@@ -18,9 +18,6 @@ public class FlowDocument: NSDocument {
         return true
     }
 
-    static var cascadingPoint: CGPoint = CGPoint(x: 200, y: 1400)
-    static var lastContentSize: CGSize? = nil
-
     public override func makeWindowControllers() {
         self.addWindowController(MainWindowController())
 
