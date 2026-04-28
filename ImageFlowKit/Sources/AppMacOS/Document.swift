@@ -22,36 +22,7 @@ public class FlowDocument: NSDocument {
     static var lastContentSize: CGSize? = nil
 
     public override func makeWindowControllers() {
-        let mainVC = MainViewController()
-        let window = NSWindow(contentViewController: mainVC)
-
-        if let screen = window.screen {
-            let width = screen.frame.width * 0.8
-            let height = screen.frame.height * 0.8
-            window.setContentSize(.init(width: width, height: height))
-        } else {
-            window.setContentSize(.init(width: 1000, height: 700))
-        }
-
-        let wc = NSWindowController(window: window)
-        wc.contentViewController = mainVC
-        self.addWindowController(wc)
-
-        window.delegate = self
-        window.setFrameAutosaveName("com.dmbfm.imageflow.macos.main-window")
-        window.makeKeyAndOrderFront(nil)
-
-        if NSDocumentController.shared.documents.count > 1 {
-            Self.cascadingPoint = window.cascadeTopLeft(from: Self.cascadingPoint)
-        } else {
-            Self.cascadingPoint = window.frame.origin
-        }
-
-        if let size = Self.lastContentSize {
-            window.setContentSize(size)
-        }
-
-        Self.lastContentSize = window.contentRect(forFrameRect: window.frame).size
+        self.addWindowController(MainWindowController())
 
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.closeWelcomeWindow()
@@ -79,23 +50,5 @@ public class FlowDocument: NSDocument {
     }
 
     public override nonisolated func read(from fileWrapper: FileWrapper, ofType typeName: String) throws {
-    }
-}
-
-extension FlowDocument: NSWindowDelegate {
-    public func windowWillClose(_ notification: Notification) {
-        if let window = notification.object as? NSWindow {
-            Self.lastContentSize = window.contentRect(forFrameRect: window.frame).size
-        }
-    }
-
-    public func windowDidEndLiveResize(_ notification: Notification) {
-
-    }
-
-    public func windowDidResize(_ notification: Notification) {
-        if let window = notification.object as? NSWindow {
-            Self.lastContentSize = window.contentRect(forFrameRect: window.frame).size
-        }
     }
 }
