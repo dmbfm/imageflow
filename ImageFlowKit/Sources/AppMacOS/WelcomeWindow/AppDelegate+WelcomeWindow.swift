@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import Helpers
 import SwiftUI
@@ -80,3 +81,4 @@ extension NSWindow {
         self.setFrameOrigin(.init(x: x, y: y))
     }
 }
+#endif

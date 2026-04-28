@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import OSLog
 
@@ -11,3 +12,4 @@ public struct EntryPoint {
         _ = NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
     }
 }
+#endif

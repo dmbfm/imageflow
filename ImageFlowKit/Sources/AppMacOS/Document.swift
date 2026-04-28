@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SharedModels
 import Synchronization
@@ -49,3 +50,4 @@ public class FlowDocument: NSDocument {
     public override nonisolated func read(from fileWrapper: FileWrapper, ofType typeName: String) throws {
     }
 }
+#endif

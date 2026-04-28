@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 
 class MainWindowController: NSWindowController {
@@ -104,3 +105,4 @@ extension MainWindowController: NSToolbarDelegate {
         [.toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace]
     }
 }
+#endif

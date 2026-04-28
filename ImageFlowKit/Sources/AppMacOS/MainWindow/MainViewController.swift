@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 
 final class MainViewController: NSSplitViewController {
@@ -9,9 +10,13 @@ final class MainViewController: NSSplitViewController {
     lazy var sidebarItem: NSSplitViewItem = {
         let item = NSSplitViewItem(sidebarWithViewController: self.sidebarVC)
         item.minimumThickness = 200
+
         let accessoryView = SidebarAccessoryView()
         item.addTopAlignedAccessoryViewController(accessoryView)
+        // NOTE: For some reason, we need to set the delegate *after* adding the
+        // view to the item, or else it will get unset.
         accessoryView.delegate = self.sidebarVC
+
         return item
     }()
 
@@ -27,8 +32,6 @@ final class MainViewController: NSSplitViewController {
     }()
 
     init() {
-        logger.debug("init()")
-
         super.init(nibName: nil, bundle: nil)
 
         self.sidebarVC = .init()
@@ -36,18 +39,15 @@ final class MainViewController: NSSplitViewController {
         self.inspectorVC = .init()
     }
 
-    override func viewDidLoad() {
-        logger.debug("viewDidLoad")
-
-        self.addSplitViewItem(self.sidebarItem)
-        self.addSplitViewItem(self.detailItem)
-        self.addSplitViewItem(self.inspectorItem)
-    }
-
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        self.addSplitViewItem(self.sidebarItem)
+        self.addSplitViewItem(self.detailItem)
+        self.addSplitViewItem(self.inspectorItem)
+    }
 }
 
 final class DetailViewController: NSViewController {
@@ -63,3 +63,4 @@ final class InspectorViewController: NSViewController {
         self.view = view
     }
 }
+#endif

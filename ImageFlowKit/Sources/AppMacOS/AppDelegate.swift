@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import Helpers
 import SwiftUI
@@ -33,3 +34,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 }
+#endif

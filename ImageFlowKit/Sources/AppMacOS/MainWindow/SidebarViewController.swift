@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SidebarFeature
 import SwiftUI
@@ -72,3 +73,4 @@ struct SidebarFeatureViewWrapped: View {
         SidebarFeatureView(self.coordinator.text)
     }
 }
+#endif
