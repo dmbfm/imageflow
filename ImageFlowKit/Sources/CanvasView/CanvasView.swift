@@ -10,6 +10,7 @@ import UIKit
 #endif
 
 let sp = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "CanvasView")
 
 /// The `CanvasView` is a view that displays an infinite canvas populated by
 /// nodes. It can also draw edges that are meant to connect nodes. This is

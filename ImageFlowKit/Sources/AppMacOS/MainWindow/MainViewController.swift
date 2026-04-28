@@ -1,8 +1,11 @@
 #if os(macOS)
 import AppKit
+import CanvasFeature
+import SharedModels
 
 final class MainViewController: NSSplitViewController {
 
+    var flow: Flow
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
     var inspectorVC: InspectorViewController!
@@ -11,7 +14,7 @@ final class MainViewController: NSSplitViewController {
         let item = NSSplitViewItem(sidebarWithViewController: self.sidebarVC)
         item.minimumThickness = 200
 
-        let accessoryView = SidebarAccessoryView()
+        let accessoryView = SidebarSearchField()
         item.addTopAlignedAccessoryViewController(accessoryView)
         // NOTE: For some reason, we need to set the delegate *after* adding the
         // view to the item, or else it will get unset.
@@ -31,11 +34,13 @@ final class MainViewController: NSSplitViewController {
         return item
     }()
 
-    init() {
+    init(_ flow: Flow) {
+        self.flow = flow
+
         super.init(nibName: nil, bundle: nil)
 
         self.sidebarVC = .init()
-        self.detailVC = .init()
+        self.detailVC = .init(self.flow)
         self.inspectorVC = .init()
     }
 
@@ -47,20 +52,6 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.sidebarItem)
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
-    }
-}
-
-final class DetailViewController: NSViewController {
-    override func loadView() {
-        let view = NSView()
-        self.view = view
-    }
-}
-
-final class InspectorViewController: NSViewController {
-    override func loadView() {
-        let view = NSView()
-        self.view = view
     }
 }
 #endif

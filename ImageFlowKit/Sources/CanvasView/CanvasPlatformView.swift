@@ -140,7 +140,7 @@ extension CanvasPlatformView {
             node.layoutIfNeeded()
             self.addNode(node, at: position)
         } else {
-            log("Missing view for node \(id)", level: .error)
+            logger.critical("Missing view for node \(id)")
         }
     }
 

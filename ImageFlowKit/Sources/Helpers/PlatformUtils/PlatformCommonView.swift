@@ -8,6 +8,7 @@ import AppKit
 
 open class PlatformCommonView: PlatformView {
     #if os(macOS)
+    @inline(__always)
     open override var isFlipped: Bool {
         true
     }

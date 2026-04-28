@@ -14,6 +14,7 @@ public enum FlowEvent {
     case edgesDidChange(Set<Edge>)
     case nodePositionsDidChange([UUID: CGPoint])
     case selectionDidChange(Set<UUID>, liveSelect: Bool)
+    case liveMoveNodesSnapshotDidChange
     case didEndPortDragWithoutCreatingEdge(
         typedPortLocation: TypedPortLocation,
         canvasPosition: CGPoint?,
@@ -80,7 +81,11 @@ public final class Flow: ObservableObject {
 
     public var emitter: EventEmitter<FlowEvent> = .init()
 
-    public var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil
+    public var liveMoveNodesSnapshot: [UUID: CGPoint]? = nil {
+        didSet {
+            self.emitter.emit(.liveMoveNodesSnapshotDidChange)
+        }
+    }
 
     @ObservationIgnored
     var portDraggingState: PortDraggingState = .idle

@@ -3,7 +3,36 @@ import AppKit
 import SidebarFeature
 import SwiftUI
 
-final class SidebarAccessoryView: NSSplitViewItemAccessoryViewController, NSSearchFieldDelegate {
+final class SidebarViewController: NSViewController {
+
+    @Observable
+    class Coordinator {
+        var text: String = ""
+    }
+
+    var coordinator: Coordinator = .init()
+
+    override func loadView() {
+        self.view = NSHostingView(rootView: SidebarFeatureViewWrapped(coordinator: self.coordinator))
+    }
+}
+
+extension SidebarViewController: SidebarSearchField.Delegate {
+    func sidebarSearchTextDidChange(_ text: String) {
+        logger.debug("sidebarSearchTextDidChange: \(text)")
+        self.coordinator.text = text
+    }
+}
+
+struct SidebarFeatureViewWrapped: View {
+    let coordinator: SidebarViewController.Coordinator
+
+    var body: some View {
+        SidebarFeatureView(self.coordinator.text)
+    }
+}
+
+final class SidebarSearchField: NSSplitViewItemAccessoryViewController, NSSearchFieldDelegate {
 
     lazy var searchField: NSSearchField = {
         let view = NSSearchField()
@@ -46,31 +75,4 @@ final class SidebarAccessoryView: NSSplitViewItemAccessoryViewController, NSSear
     }
 }
 
-final class SidebarViewController: NSViewController {
-
-    @Observable
-    class Coordinator {
-        var text: String = ""
-    }
-
-    var coordinator: Coordinator = .init()
-
-    override func loadView() {
-        self.view = NSHostingView(rootView: SidebarFeatureViewWrapped(coordinator: self.coordinator))
-    }
-}
-
-extension SidebarViewController: SidebarAccessoryView.Delegate {
-    func sidebarSearchTextDidChange(_ text: String) {
-        logger.debug("sidebarSearchTextDidChange: \(text)")
-        self.coordinator.text = text
-    }
-}
-
-struct SidebarFeatureViewWrapped: View {
-    let coordinator: SidebarViewController.Coordinator
-    var body: some View {
-        SidebarFeatureView(self.coordinator.text)
-    }
-}
 #endif

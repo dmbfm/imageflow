@@ -56,6 +56,8 @@ let package = Package(
                 "SharedModels",
                 "SettingsFeature",
                 "SidebarFeature",
+                "CanvasFeature",
+                "AssetManager",
             ]
         ),
         .target(name: "Values"),

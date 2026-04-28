@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import SharedModels
 
 class MainWindowController: NSWindowController {
 
@@ -16,8 +17,8 @@ class MainWindowController: NSWindowController {
         return toolbar
     }()
 
-    init() {
-        let mainVC = MainViewController()
+    init(_ flow: Flow) {
+        let mainVC = MainViewController(flow)
         let window = NSWindow(contentViewController: mainVC)
         window.styleMask.insert(.fullSizeContentView)
         window.toolbarStyle = .unified

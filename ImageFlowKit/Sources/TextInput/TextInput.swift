@@ -138,7 +138,6 @@ public final class TextInput: PlatformCommonView {
         view.drawsBackground = false
         view.maximumNumberOfLines = 1
         view.focusRingType = .none
-        view.contentType = .password
         view.allowsExpansionToolTips = false
         view.allowsEditingTextAttributes = false
         view.allowsWritingTools = false

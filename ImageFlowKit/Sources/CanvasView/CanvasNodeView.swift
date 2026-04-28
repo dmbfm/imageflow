@@ -26,6 +26,12 @@ public enum CanvasNodeEvent<E> {
     case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
 }
 
+// extension CanvasNodeEvent: CustomStringConvertible where E: CustomStringConvertible {
+//     public var description: String {
+//         // "\(self."
+//     }
+// }
+
 public struct CanvasNodeDragGesture: Sendable, Equatable {
     public var phase: GesturePhase
     public var dx: CGFloat
