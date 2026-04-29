@@ -27,8 +27,23 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     // MARK: - Computed Variables
 
+    /// The current interaction mode of the canvas
+    var interactionMode: CanvasInteractionMode {
+        get {
+            self.canvasView.interactionMode
+        }
+
+        set {
+            self.canvasView.interactionMode = newValue
+        }
+    }
+
     var viewport: CanvasView.Viewport {
         self.canvasView.viewport
+    }
+
+    var isShiftDown: Bool {
+        self.view.window?.currentEvent?.modifierFlags.contains(.shift) ?? false
     }
 
     // MARK: - Initialization
@@ -52,11 +67,49 @@ public final class CanvasFeatureNSViewController: NSViewController {
         self.canvasView = .init(
             viewport: .init(),
             nodePositions: self.flow.nodePositions,
-            viewForNode: { [weak self] in self?.viewForNode($0) }
+            viewForNode: { [weak self] in self?.viewForNode($0) },
         )
+        self.canvasView.onEvent = { [weak self] in self?.onCanvasEvent($0) }
         self.view = self.canvasView
+    }
 
+    public override func viewDidLoad() {
         self.upadteEdges()
+        self.updateSelection()
+    }
+
+    // MARK: - CanvasView
+
+    func onCanvasEvent(_ event: CanvasPlatformView.Event) {
+        switch event {
+        case .rectSelect(let state):
+            self.onCanvasRectSelect(state)
+        case .clickBackground:
+            self.onCanvasClickBackground()
+        case .didMoveToSuperview:
+            break
+        // sp.emitEvent("CanvasFeatureView:CanvasEvent:didMoveToSuperview")
+        // Task { @MainActor in
+        //     self.updateEdges()
+        // }
+        case .pointerMoved(_):
+            break
+        // if let pos {
+        //     self.coordinator.pointerData = .init(
+        //         positionInCanvasView: pos,
+        //         positionInCanvas: self.state.viewport.convert(pos, from: .screen, to: .canvas)
+        //     )
+        // } else {
+        //     self.coordinator.pointerData = nil
+        // }
+        case .viewportDidChange(_):
+            break
+        }
+    }
+
+    private func onCanvasClickBackground() {
+        self.flow.selectNone()
+        // self.focus.wrappedValue = .global
     }
 
     // MARK: - Flow
@@ -70,6 +123,18 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.upadteEdges()
         case .partialEdgeDidChange:
             self.upadteEdges()
+        case .selectionDidChange(_, liveSelect: true):
+            self.updateSelection()
+        case .selectionDidChange(_, liveSelect: false):
+            self.updateSelection()
+            for (id, node) in self.nodeViews {
+                if self.flow.selection.contains(id) {
+                    node.level = 1
+                } else {
+                    node.level = 0
+                }
+            }
+            self.canvasView.perform(canvasAction: .sortSubviews)
         default:
             break
         }
@@ -116,9 +181,21 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.onNodeDragGesture(id, gesture)
         case let .other(.dragPort(location, data)):
             self.onNodePortDrag(location, data)
+        case .click:
+            self.onNodeClick(id)
         default:
             logger.trace("Unhandled: \(id): \("\(event)")")
             break
+        }
+    }
+
+    func onNodeClick(_ id: UUID) {
+        if self.interactionMode == .interactiveSelection {
+            self.flow.toggleSelected(id)
+            // self.focus.wrappedValue = .global
+        } else {
+            self.flow.select([id], previousOverride: nil, mode: self.isShiftDown ? .union : .replace)
+            // self.focus.wrappedValue = .global
         }
     }
 
@@ -341,6 +418,30 @@ public final class CanvasFeatureNSViewController: NSViewController {
         // self.annotationView.isHidden = true
         // self.annotationPosition = nil
     }
+
+    // MARK: - Selection
+
+    func updateSelection() {
+        for (id, view) in self.nodeViews {
+            view.isSelected = self.flow.isSelected(id)
+        }
+    }
+
+    private func onCanvasRectSelect(_ state: CanvasPlatformView.Event.RectSelect) {
+        switch state {
+        case .started:
+            self.flow.liveSelectStart()
+        case let .modified(shiftDown: shiftDown, rect: rect):
+            var nodes = Set<UUID>()
+            for (id, view) in self.nodeViews where view.frame.intersects(rect) {
+                nodes.insert(id)
+            }
+            self.flow.liveSelectUpdate(nodes, mode: shiftDown ? .union : .replace)
+        case .ended:
+            self.flow.liveSelectEnd()
+        }
+    }
+
 }
 
 // MARK: - NodeViewDelegate

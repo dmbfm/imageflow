@@ -38,9 +38,7 @@ extension AppDelegate {
 
         window.centerScreen()
 
-        var recentDocuments: [RecentDocumentItem] = [
-            .init(name: "Some Document", path: "/Users/dfortes/some_document.imageflow")
-        ]
+        var recentDocuments: [RecentDocumentItem] = []
         for url in NSDocumentController.shared.recentDocumentURLs {
             if !FileManager.default.fileExists(atPath: url.path()) {
                 continue
