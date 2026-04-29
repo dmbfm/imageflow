@@ -11,6 +11,7 @@ import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
 import Values
+import OSLog
 
 #if canImport(AppKit)
 import AppKit
@@ -19,6 +20,8 @@ import AppKit
 #if canImport(UIKit)
 import UIKit
 #endif
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "asset-manager")
 
 struct AssetResources {
     var luts: ResourceCollection<CubeLut> = .init()

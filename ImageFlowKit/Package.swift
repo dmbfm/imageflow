@@ -59,6 +59,7 @@ let package = Package(
                 "SidebarFeature",
                 "CanvasFeature",
                 "AssetManager",
+                "AssetBrowserFeature",
                 "BackendService",
                 "NodeView",
             ]

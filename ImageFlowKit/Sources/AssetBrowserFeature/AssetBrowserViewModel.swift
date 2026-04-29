@@ -41,6 +41,17 @@ public final class AssetBrowserViewModel {
         self.type = type
     }
 
+    public init(
+        assetsProvider: any AssetStoreService,
+        assetBrowserType type: AssetBrowserType,
+    ) {
+        self.assetsProvider = assetsProvider
+        self.type = type
+        self.allowedAssetKinds = type.allowedAssetKinds
+        self.allowedImportTypes = type.allowedAssetKinds.types
+        self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
+    }
+
     var sortedAssets: [Asset] {
         self.assetsProvider.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
             .sorted(by: { $0.timestamp < $1.timestamp })

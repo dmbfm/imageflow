@@ -13,6 +13,7 @@ public final class AssetStore: AssetStoreService {
 
     public private(set) var assets: [UUID: Asset] = [:] {
         didSet {
+            logger.info("assets:didSet:\("\(self.assets)")")
             self.delegate?.assetsStore(assetsDidChange: self.assets)
             self.emitter.emit(.assetsChanged)
             self.filenameCache.refresh(assets: self.assets)

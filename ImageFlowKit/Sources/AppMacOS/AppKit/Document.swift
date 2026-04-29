@@ -29,29 +29,14 @@ public final class FlowDocument: NSDocument {
     }
 
     public override func makeWindowControllers() {
+        let documentInfo = DocumentInfo(id: self.id, url: self.fileURL)
+        self.assetStore.setDocumentInfo(documentInfo)
         self.addWindowController(MainWindowController(self.flow, self.assetStore))
 
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.closeWelcomeWindow()
         }
     }
-
-    // public override func restoreState(with coder: NSCoder) {
-    //     logger.debug("restoreState")
-    // }
-
-    // public override func restoreWindow(
-    //     withIdentifier identifier: NSUserInterfaceItemIdentifier,
-    //     state: NSCoder
-    // ) async throws -> NSWindow {
-    //     logger.info("restoreWindow: \(identifier.rawValue)")
-    //     return .init()
-    // }
-
-    // public override func encodeRestorableState(with coder: NSCoder, backgroundQueue queue: OperationQueue) {
-    //     logger.debug("encodeRestorableState")
-    //     coder.encode("Hello!!".data(using: .utf8)!)
-    // }
 
     public override func canAsynchronouslyWrite(
         to url: URL,
@@ -63,6 +48,62 @@ public final class FlowDocument: NSDocument {
 
     public override class func canConcurrentlyReadDocuments(ofType typeName: String) -> Bool {
         false
+    }
+
+    public override nonisolated func write(to url: URL, ofType typeName: String) throws {
+        logger.info("fileWrapper:\(typeName)")
+
+        let existing: FileWrapper? =
+            if self.fileURL == url {
+                try? FileWrapper(url: url)
+            } else {
+                nil
+            }
+        let fw = try self.fileWrapper(ofType: typeName, existingFile: existing)
+        try fw.write(to: url, options: [.atomic], originalContentsURL: url)
+    }
+
+    public nonisolated func fileWrapper(
+        ofType typeName: String,
+        existingFile: FileWrapper?
+    ) throws -> FileWrapper {
+        let snapshot = MainActor.unsafeAssumeIsolated { self.snapshot() }
+        var assetsFws = existingFile?.fileWrappers?["Assets"]?.fileWrappers ?? [String: FileWrapper]()
+        var urls = [URL]()
+        do {
+            for (_, asset) in snapshot.assets.assets {
+                switch asset.state {
+                case .loaded(let filename, _):
+                    let url: URL = .tempAssetURL(forDocument: snapshot.id, filename: filename)
+                    if FileManager.default.fileExists(atPath: url.path) {
+                        let fw = try FileWrapper(
+                            url: url
+                        )
+                        assetsFws[filename] = fw
+                        urls.append(url)
+                    }
+                default:
+                    break
+                }
+            }
+        } catch {
+            logger.critical("error: \(error)")
+            throw error
+        }
+
+        // Exclude any unlisted assets
+        assetsFws = assetsFws.filter { asset in
+            if !snapshot.assets.assets.contains(where: { e in e.value.filename == asset.key }) {
+                false
+            } else {
+                true
+            }
+        }
+
+        let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
+        let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
+
+        return .init(directoryWithFileWrappers: fws)
     }
 
     public override nonisolated func fileWrapper(ofType typeName: String) throws -> FileWrapper {

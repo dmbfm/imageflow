@@ -1,5 +1,7 @@
 #if os(macOS)
 import AppKit
+import AssetBrowserFeature
+import AssetManager
 import Backend
 import CanvasFeature
 import SharedModels
@@ -13,6 +15,7 @@ final class MainViewController: NSSplitViewController {
     // MARK: - Properties
 
     var flow: SharedModels::Flow
+    var assetStore: any AssetStoreService
     var backendRunner: BackendRunner
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
@@ -54,6 +57,7 @@ final class MainViewController: NSSplitViewController {
 
     init(_ flow: SharedModels::Flow, _ assetStore: AssetStoreService) {
         self.flow = flow
+        self.assetStore = assetStore
         self.backendRunner = .init(flow, assetStore.assetManager)
 
         super.init(nibName: nil, bundle: nil)
@@ -87,15 +91,22 @@ final class MainViewController: NSSplitViewController {
 
 extension MainViewController: ImageFlowCoordinatorProtocol {
     func perform(userAction: SharedModels.UserAction) {
-        logger.info(string: "userAction: \(userAction)")
+        logger.info("userAction: \("\(userAction)")")
 
         switch userAction {
         case let .newNodeWithKind(kind, point):
             self.newNode(kind: kind, at: point)
         case let .newNode(node, point, port):
             self.newNode(node: node, at: point, typedPort: port)
+        case let .openAssetPicker(node, portIndex, kind):
+            self.presentAsSheet(
+                AssetBrowserSheetController(
+                    assetStore: self.assetStore,
+                    type: .picker(.init(assetKind: kind, portLocation: .init(node: node, index: portIndex)))
+                )
+            )
         default:
-            logger.warning(string: "Unhandled userAction: \(userAction)")
+            logger.warning("Unhandled userAction: \("\(userAction)")")
             break
         }
     }
@@ -119,6 +130,9 @@ extension MainViewController: ImageFlowCoordinatorProtocol {
     func selectedNodeCount() -> Int {
         self.flow.selection.count
     }
+}
+
+extension MainViewController {
 }
 
 // MARK: - Nodes

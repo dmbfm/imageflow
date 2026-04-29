@@ -253,12 +253,12 @@ public final class CanvasFeatureNSViewController: NSViewController {
         _ newValue: Value,
     ) {
         guard let node = self.flow.nodes[id] else {
-            logger.error(string: ("Node not found: \(id)"))
+            logger.error(("Node not found: \(id)"))
             return
         }
 
         guard node.inputs.indices.contains(index) else {
-            logger.error(string: ("Node input index out of range: \(index)"))
+            logger.error(("Node input index out of range: \(index)"))
             return
         }
 
@@ -273,7 +273,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
         }
 
         guard oldValue != newValue else {
-            logger.info(string: ("New value is equal to old value; nothing to do"))
+            logger.info(("New value is equal to old value; nothing to do"))
             return
         }
 
@@ -506,7 +506,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
 extension CanvasFeatureNSViewController: NodeViewDelegate {
     public func nodeView(willShowContextMenuForNode node: UUID) {
-
+        logger.warning("TODO: nodeView(willShowContextMenuForNode")
     }
 
     public func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> PlatformMenu? {
@@ -527,15 +527,17 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
     }
 
     public func openAssetPicker(node: UUID, portIndex: Int, kind: SharedModels.AssetKind) {
-
+        // logger.warning("TODO: openAssetPicke")
+        ImageFlowCoordinator.perform(userAction: .openAssetPicker(node: node, portIndex: portIndex, kind: kind))
     }
 
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
-        nil
+        logger.warning("TODO: titleForAsset")
+        return nil
     }
 
     public func statusBarMessage(message: String?) {
-
+        logger.warning("TODO: statusBarMessage")
     }
 
     public var emitter: EventEmitter<NodeViewDelegateEvent> {
