@@ -1,7 +1,10 @@
 #if os(macOS)
+
 import AppKit
 import SidebarFeature
 import SwiftUI
+import Helpers
+import SharedModels
 
 final class SidebarViewController: NSViewController {
 
@@ -28,7 +31,9 @@ struct SidebarFeatureViewWrapped: View {
     let coordinator: SidebarViewController.Coordinator
 
     var body: some View {
-        SidebarFeatureView(self.coordinator.text)
+        SidebarFeatureView(self.coordinator.text) { item in
+            ImageFlowCoordinator.preform(userAction: .newNodeWithKind(kind: item.nodeKind, at: nil))
+        }
     }
 }
 

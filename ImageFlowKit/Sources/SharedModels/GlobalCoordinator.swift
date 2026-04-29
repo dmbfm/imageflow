@@ -5,6 +5,29 @@ import Helpers
 import SwiftUI
 import Values
 
+#if canImport(AppKit)
+import AppKit
+#endif
+
+public protocol ImageFlowCoordinatorProtocol {
+    func perform(userAction: UserAction)
+}
+
+public struct ImageFlowCoordinator {
+    @MainActor
+    @discardableResult
+    public static func preform(userAction: UserAction) -> Bool {
+        #if os(macOS)
+        if let coordinator = NSApp.keyWindow?.contentViewController as? ImageFlowCoordinatorProtocol {
+            coordinator.perform(userAction: userAction)
+            return true
+        } else {
+            return false
+        }
+        #endif
+    }
+}
+
 public protocol GlobalCoordinatorImpl: AnyObject, Observable {
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
     var flow: Flow { get }

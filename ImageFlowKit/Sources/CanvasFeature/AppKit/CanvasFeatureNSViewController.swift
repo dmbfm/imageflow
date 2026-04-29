@@ -13,11 +13,11 @@ public final class CanvasFeatureNSViewController: NSViewController {
     // MARK: - Properties
 
     /// The Flow model
-    var flow: Flow
+    public var flow: Flow
     /// Storage for the `NodeView` instances to be displayed
-    var nodeViews: NodeViewCollection = .init()
+    public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
-    var canvasView: CanvasPlatformView!
+    public var canvasView: CanvasPlatformView!
     /// Set to true whenever the user is dragging a partial edge starting from a
     /// connected input port of a node.
     var isDraggingConnectedInputPort: Bool = false
@@ -115,9 +115,11 @@ public final class CanvasFeatureNSViewController: NSViewController {
     // MARK: - Flow
 
     private func onFlowEvent(_ event: FlowEvent) {
-        logger.trace("\("\(event)")")
+        //        logger.trace("\("\(event)")")
 
         switch event {
+        case .nodesDidChange:
+            self.updateNodeData()
         case .nodePositionsDidChange, .liveMoveNodesSnapshotDidChange:
             self.updateNodePositions()
             self.upadteEdges()
@@ -141,6 +143,14 @@ public final class CanvasFeatureNSViewController: NSViewController {
     }
 
     // MARK: - Nodes
+
+    func updateNodeData() {
+        for (id, node) in self.flow.nodes {
+            if let view = self.nodeViews[id] {
+                view.node = node
+            }
+        }
+    }
 
     func updateNodePositions() {
         let newValue = self.flow.nodePositionsWithLiveMove
@@ -183,6 +193,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.onNodePortDrag(location, data)
         case .click:
             self.onNodeClick(id)
+        case let .other(.valueDidChange(index, value)):
+            self.flow.nodes[id]?.inputs[index].value = value
         default:
             logger.trace("Unhandled: \(id): \("\(event)")")
             break
@@ -228,6 +240,48 @@ public final class CanvasFeatureNSViewController: NSViewController {
         case .ended:
             self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
         }
+    }
+
+    func setNodeValue(
+        _ id: UUID,
+        _ index: Int,
+        _ oldValue: Value?,
+        _ newValue: Value,
+    ) {
+        guard let node = self.flow.nodes[id] else {
+            logger.error(string: ("Node not found: \(id)"))
+            return
+        }
+
+        guard node.inputs.indices.contains(index) else {
+            logger.error(string: ("Node input index out of range: \(index)"))
+            return
+        }
+
+        let oldValue = oldValue ?? node.inputs[index].value
+
+        if let view = self.nodeViews[id] {
+            let viewValue = view.value(inputIntex: index)!
+
+            if viewValue != newValue {
+                view.setValue(inputIntex: index, value: newValue)
+            }
+        }
+
+        guard oldValue != newValue else {
+            logger.info(string: ("New value is equal to old value; nothing to do"))
+            return
+        }
+
+        self.flow.nodes[id]?.inputs[index].value = newValue
+
+        self.undoManager?.registerUndo(
+            withTarget: self,
+            handler: { this in
+                this.setNodeValue(id, index, newValue, oldValue)
+            }
+        )
+        self.undoManager?.setActionName("\(newValue.type.displayName) Value Change")
     }
 
     // MARK: - Edges
@@ -461,11 +515,11 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
         oldValue: Values.Value,
         newValue: Values.Value
     ) {
-
+        self.setNodeValue(node, inputIndex, oldValue, newValue)
     }
 
     public func nodeViewSelectedNodesCount() -> Int {
-        0
+        self.flow.selection.count
     }
 
     public func openAssetPicker(node: UUID, portIndex: Int, kind: SharedModels.AssetKind) {

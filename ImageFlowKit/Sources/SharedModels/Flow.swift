@@ -32,7 +32,6 @@ public protocol FlowDelegate: AnyObject {
 
 /// Observable model backing the node-based flow editor, responsible for nodes,
 /// edges, selection state, and related graph validation utilities.
-@Observable
 @MainActor
 public final class Flow: ObservableObject {
     /// All nodes keyed by identifier.
@@ -87,7 +86,6 @@ public final class Flow: ObservableObject {
         }
     }
 
-    @ObservationIgnored
     var portDraggingState: PortDraggingState = .idle
 
     var liveSelectSnapshot: Set<UUID>? = nil

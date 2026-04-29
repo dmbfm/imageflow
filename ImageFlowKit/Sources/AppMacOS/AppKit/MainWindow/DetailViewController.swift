@@ -3,10 +3,15 @@
 import AppKit
 import SharedModels
 import CanvasFeature
+import CanvasView
 
 final class DetailViewController: NSViewController {
 
     var canvasVC: CanvasFeatureNSViewController
+
+    var canvasView: CanvasPlatformView {
+        self.canvasVC.canvasView
+    }
 
     init(_ flow: Flow) {
         self.canvasVC = .init(flow: flow)

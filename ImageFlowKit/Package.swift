@@ -53,11 +53,14 @@ let package = Package(
             dependencies: [
                 "Logging",
                 "Helpers",
+                "Backend",
                 "SharedModels",
                 "SettingsFeature",
                 "SidebarFeature",
                 "CanvasFeature",
                 "AssetManager",
+                "BackendService",
+                "NodeView",
             ]
         ),
         .target(name: "Values"),

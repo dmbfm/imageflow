@@ -21,7 +21,6 @@ public final class FlowDocument: NSDocument {
         self.flow = .init()
         self.canvas = .init()
         self.assetStore = .init()
-        self.flow.addNode(.init(kind: .valueNode(.float)), at: .init(x: 400, y: 400))
         super.init()
     }
 
@@ -30,7 +29,7 @@ public final class FlowDocument: NSDocument {
     }
 
     public override func makeWindowControllers() {
-        self.addWindowController(MainWindowController(self.flow))
+        self.addWindowController(MainWindowController(self.flow, self.assetStore))
 
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.closeWelcomeWindow()

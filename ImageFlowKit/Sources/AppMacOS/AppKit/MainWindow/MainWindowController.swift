@@ -17,8 +17,8 @@ class MainWindowController: NSWindowController {
         return toolbar
     }()
 
-    init(_ flow: Flow) {
-        let mainVC = MainViewController(flow)
+    init(_ flow: Flow, _ assetStore: any AssetStoreService) {
+        let mainVC = MainViewController(flow, assetStore)
         let window = NSWindow(contentViewController: mainVC)
         window.styleMask.insert(.fullSizeContentView)
         window.toolbarStyle = .unified

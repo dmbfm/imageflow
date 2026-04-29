@@ -1,6 +1,7 @@
 #if os(macOS)
 import AppKit
 import OSLog
+import Helpers
 
 let logger = Logger(subsystem: "com.dmbfm.imageflow.app-macos", category: "imageflow")
 
