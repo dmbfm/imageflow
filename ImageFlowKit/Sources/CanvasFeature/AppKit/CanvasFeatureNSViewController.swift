@@ -10,19 +10,28 @@ import Design
 
 public final class CanvasFeatureNSViewController: NSViewController {
 
+    // MARK: - Properties
+
     /// The Flow model
     var flow: Flow
     /// Storage for the `NodeView` instances to be displayed
     var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
     var canvasView: CanvasPlatformView!
+    /// Set to true whenever the user is dragging a partial edge starting from a
+    /// connected input port of a node.
+    var isDraggingConnectedInputPort: Bool = false
+
+    var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
+    var cancellables: Set<AnyEventEmitterCancellable> = []
+
+    // MARK: - Computed Variables
 
     var viewport: CanvasView.Viewport {
         self.canvasView.viewport
     }
 
-    private var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
-    private var cancellables: Set<AnyEventEmitterCancellable> = []
+    // MARK: - Initialization
 
     public init(flow: Flow) {
         self.flow = flow
@@ -36,6 +45,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - NSViewController
 
     public override func loadView() {
         self.canvasView = .init(
@@ -56,6 +67,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
         switch event {
         case .nodePositionsDidChange, .liveMoveNodesSnapshotDidChange:
             self.updateNodePositions()
+            self.upadteEdges()
+        case .partialEdgeDidChange:
             self.upadteEdges()
         default:
             break
@@ -98,11 +111,13 @@ public final class CanvasFeatureNSViewController: NSViewController {
     }
 
     func onNodeEvent(_ id: UUID, _ event: CanvasNodeEvent<NodeView.Event>) {
-        logger.trace("\(id): \("\(event)")")
         switch event {
         case .dragGesture(let gesture):
             self.onNodeDragGesture(id, gesture)
+        case let .other(.dragPort(location, data)):
+            self.onNodePortDrag(location, data)
         default:
+            logger.trace("Unhandled: \(id): \("\(event)")")
             break
         }
     }
@@ -185,11 +200,57 @@ public final class CanvasFeatureNSViewController: NSViewController {
             )
         }
 
-        // self.updatePlusIconPosition()
+        self.updatePlusIconPosition()
         self.canvasView.edgeLayers = edges
     }
 
+    func updatePlusIconPosition() {
+        self.canvasView.plusIconState.visible = true
+
+        guard let e = self.flow.partialEdge else {
+            self.canvasView.plusIconState.visible = false
+            return
+        }
+
+        if e.state != .default {
+            self.canvasView.plusIconState.visible = false
+        }
+
+        if let center = self.portFrameCenter(e.port),
+            e.pointer.distance(to: center) < GlobalConstants.minTravelDistanceToCreateNode
+        {
+            self.canvasView.plusIconState.visible = false
+        }
+
+        if self.isDraggingConnectedInputPort {
+            self.canvasView.plusIconState.visible = false
+        }
+
+        self.canvasView.plusIconState.position = self.viewport.convert(e.pointer, from: .canvas, to: .screen)
+        self.canvasView.plusIconState.direction =
+            switch e.port.slot {
+            case .input: .xminus
+            case .output: .xplus
+            }
+    }
+
     // MARK: - Ports
+
+    struct PortHit {
+        var location: PortLocation
+        var center: CGPoint
+    }
+
+    func portHitTest(locationInWindow point: CGPoint) -> PortHit? {
+        for (_, view) in self.nodeViews {
+            for (port, frame) in view.ports.map({ (loc, view) in
+                (loc, view.superview!.convert(view.frame, to: nil))
+            }) where frame.center.distance(to: point) < self.viewport.convert(32.0, from: .canvas, to: .screen) {
+                return .init(location: port, center: frame.center)
+            }
+        }
+        return nil
+    }
 
     func portFrame(_ location: PortLocation) -> CGRect? {
         guard let frame = self.nodeViews[location.node]?.portFrame(location.slot) else {
@@ -203,7 +264,86 @@ public final class CanvasFeatureNSViewController: NSViewController {
         guard let frame = self.portFrame(location) else { return nil }
         return self.viewport.convert(frame.center, from: .screen, to: coordinateSpace)
     }
+
+    func onNodePortDrag(_ port: PortLocation, _ gesture: PortView.DragData) {
+        let pointerViewPos = self.canvasView.convert(gesture.locationInWindow, from: nil)
+        let pointerCanvasPos = self.viewport.convert(pointerViewPos, from: .screen, to: .canvas)
+        let travelDistance =
+            if let portCenter = self.portFrameCenter(port) {
+                self.viewport.convert(pointerViewPos, from: .screen, to: .canvas).distance(to: portCenter)
+            } else {
+                0.0
+            }
+
+        // Hit-test for other ports but discard hits from the same node
+        let portHit = self.portHitTest(locationInWindow: gesture.locationInWindow).flatMap({ hit in
+            if hit.location.node == port.node {
+                nil as (PortHit?)
+            } else {
+                hit
+            }
+        })
+
+        switch gesture.phase {
+        case .began:
+            self.isDraggingConnectedInputPort =
+                port.direction == .input && self.flow.nodes[port.node]!.inputs[port.slot.index].connected
+            self.flow.portDragStart(port, pointerCanvasPos)
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, true)
+
+        case .changed:
+            let snappedPointerCanvasPos =
+                if let hit = portHit {
+                    self.viewport.convert(self.view.convert(hit.center, from: nil), from: .screen, to: .canvas)
+                } else {
+                    pointerCanvasPos
+                }
+
+            let result = self.flow.portDragUpdate(
+                snappedPointerCanvasPos,
+                portHit?.location
+            )
+
+            if let error = result?.error, let annotation = error.annotation {
+                self.showAnnotation(annotation, at: snappedPointerCanvasPos)
+            } else {
+                self.hideAnnotation()
+            }
+
+        case .cancelled:
+            self.flow.portDragCancel()
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
+
+        case .ended:
+            let pos: CGPoint =
+                self.viewport.convert(
+                    self.canvasView.convert(gesture.locationInWindow, from: nil),
+                    from: .screen,
+                    to: .canvas
+                )
+
+            self.flow.portDragEnd(undoManager: self.undoManager, position: pos, travelDistance: travelDistance)
+            self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
+            self.hideAnnotation()
+        }
+    }
+
+    // MARK: - Annotations
+
+    func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
+        // self.annotationView.annotation = annotation
+        // self.annotationPosition = point
+        // self.annotationView.isHidden = false
+    }
+
+    func hideAnnotation() {
+        // self.annotationView.isHidden = true
+        // self.annotationPosition = nil
+    }
 }
+
+// MARK: - NodeViewDelegate
 
 extension CanvasFeatureNSViewController: NodeViewDelegate {
     public func nodeView(willShowContextMenuForNode node: UUID) {

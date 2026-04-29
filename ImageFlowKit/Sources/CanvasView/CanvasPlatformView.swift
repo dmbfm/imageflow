@@ -71,7 +71,7 @@ extension CanvasPlatformView {
         }
     }
 
-    var plusIconState: CanvasView.PlusIconState {
+    public var plusIconState: CanvasView.PlusIconState {
         get {
             self.gridView.plusIconState
         }
