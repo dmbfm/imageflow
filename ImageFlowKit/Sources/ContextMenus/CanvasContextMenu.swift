@@ -79,8 +79,122 @@ public class CanvasContextMenuProvider {
     #endif
 
     #if os(macOS)
+
+    var zoomMenuController: ZoomMenuController?
+
     public func makeMenu(at location: CGPoint) -> NSMenu? {
-        NSHostingMenu(rootView: self._canvasContextMenu(at: location))
+        let menu = NSMenu(title: "Canvas")
+        let canPaste = PasteboardObserver.shared.canPaste
+        let nodeCount = ImageFlowCoordinator.nodeCount()
+
+        self.zoomMenuController = .init()
+
+        let addNodeItem = NSMenuItem(
+            title: "Add Node",
+            action: nil,
+            keyEquivalent: "",
+            systemSymbolName: "plus",
+            accessibilityDescription: "Add a new node"
+        )
+
+        addNodeItem.submenu = {
+            let menu = NSMenu()
+
+            var catItems: [NSMenuItem] = []
+
+            for cat in NodePaletteService.shared.categories() {
+                let item = NSMenuItem.init(title: cat.name.rawValue, action: nil, keyEquivalent: "")
+                item.submenu = {
+                    let menu = NSMenu()
+
+                    for item in cat.items {
+                        let menuItem = NodePaletteNSMenuItem(
+                            nodePaletteItem: item,
+                            location: location,
+                            title: item.displayName,
+                            action: #selector(Self.nodePaletteItemAction(_:)),
+                            keyEquivalent: "",
+                            systemSymbolName: item.icon,
+                            accessibilityDescription: "Create a '\(item.displayName)' node"
+                        )
+                        menuItem.target = self
+                        menu.addItem(menuItem)
+                    }
+
+                    return menu
+                }()
+                catItems.append(item)
+            }
+
+            menu.items =
+                [
+                    NodePaletteNSMenuItem(
+                        nodePaletteItem: .init(
+                            nodeKind: .valueNode(.float),
+                            categoryName: .input
+                        ),
+                        location: location,
+                        title: "Search",
+                        action: #selector(Self.showNodeSearch(_:)),
+                        target: self,
+                        keyEquivalent: "",
+                        systemSymbolName: "magnifyingglass",
+                        accessibilityDescription: "Show node palette search"
+                    )
+                ] + catItems
+            return menu
+        }()
+
+        let zoomItem = NSMenuItem(title: "Zoom", action: nil, keyEquivalent: "")
+        zoomItem.submenu = self.zoomMenuController?.makeMenu()
+
+        let pasteItem = NSMenuItem(
+            title: "Paste",
+            action: canPaste ? #selector(Self.paste) : nil,
+            target: self,
+            keyEquivalent: "v",
+            keyEquivalentModifierMask: .command,
+            systemSymbolName: .systemIconMenuPaste,
+            accessibilityDescription: "Paste"
+        )
+
+        let selectAllItem = NSMenuItem(
+            title: "Select  All",
+            action: #selector(Self.selectAll),
+            target: self,
+            keyEquivalent: "a",
+            keyEquivalentModifierMask: .command,
+            systemSymbolName: .systemIconMenuSelectAll,
+            accessibilityDescription: "Select All Nodes"
+        )
+
+        menu.items = [
+            .sectionHeader(title: "Canvas"),
+            addNodeItem,
+            zoomItem,
+            pasteItem,
+            selectAllItem
+        ]
+
+        return menu
+    }
+
+    @objc func selectAll() {
+        ImageFlowCoordinator.perform(userAction: .selectAllNodes)
+    }
+
+    @objc func paste() {
+        ImageFlowCoordinator.perform(userAction: .pasteNodes(nil))
+    }
+
+    @objc func showNodeSearch(_ item: NodePaletteNSMenuItem) {
+        ImageFlowCoordinator.perform(userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: item.location))
+    }
+
+    @objc func nodePaletteItemAction(_ item: NodePaletteNSMenuItem) {
+        ImageFlowCoordinator.perform(
+            userAction: .newNodeWithKind(kind: item.nodePaletteItem.nodeKind, at: .canvasView(item.location))
+        )
     }
 
     private func _canvasContextMenu(at location: CGPoint) -> some View {
@@ -128,3 +242,32 @@ public class CanvasContextMenuProvider {
     }
     #endif
 }
+
+#if os(macOS)
+class NodePaletteNSMenuItem: NSMenuItem {
+
+    let nodePaletteItem: NodePaletteItem
+    let location: CGPoint
+
+    init(
+        nodePaletteItem: NodePaletteItem,
+        location: CGPoint,
+        title string: String,
+        action selector: Selector?,
+        target: AnyObject? = nil,
+        keyEquivalent charCode: String,
+        systemSymbolName: String,
+        accessibilityDescription: String?
+    ) {
+        self.nodePaletteItem = nodePaletteItem
+        self.location = location
+        super.init(title: string, action: selector, keyEquivalent: charCode)
+        self.image = .init(systemSymbolName: systemSymbolName, accessibilityDescription: accessibilityDescription)
+        self.target = target
+    }
+
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+#endif

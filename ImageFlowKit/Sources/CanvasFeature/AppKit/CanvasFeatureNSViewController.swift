@@ -7,6 +7,7 @@ import Helpers
 import NodeView
 import Values
 import Design
+import ContextMenus
 
 public final class CanvasFeatureNSViewController: NSViewController {
 
@@ -18,6 +19,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
     public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
     public var canvasView: CanvasPlatformView!
+    /// Provider for canvas context menus
+    var canvasContextMenuProvider: CanvasContextMenuProvider?
     /// Set to true whenever the user is dragging a partial edge starting from a
     /// connected input port of a node.
     var isDraggingConnectedInputPort: Bool = false
@@ -70,6 +73,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
             viewForNode: { [weak self] in self?.viewForNode($0) },
         )
         self.canvasView.onEvent = { [weak self] in self?.onCanvasEvent($0) }
+        self.canvasView.delegate = self
         self.view = self.canvasView
     }
 
@@ -538,6 +542,33 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
         self.nodeViewDelegateEmitter
     }
 
+}
+
+// MARK: - CanvasViewDelegate
+
+extension CanvasFeatureNSViewController: CanvasViewDelegate {
+    public func canvasViewEditMenuShouldAppear() -> Bool {
+        self.flow.selection.isEmpty
+    }
+
+    public func canvasView(willShowContextMenuForNode id: UUID) {
+    }
+
+    public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> Helpers.PlatformMenu? {
+        nil
+    }
+
+    public func canvasView(contextMenuAt point: CGPoint) -> Helpers.PlatformMenu? {
+        if self.canvasContextMenuProvider == nil {
+            self.canvasContextMenuProvider = .init(coordinator: nil)
+        }
+
+        return self.canvasContextMenuProvider?.makeMenu(at: point)
+    }
+
+    public func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool {
+        false
+    }
 }
 
 #endif

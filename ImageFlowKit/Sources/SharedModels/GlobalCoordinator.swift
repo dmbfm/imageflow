@@ -11,20 +11,52 @@ import AppKit
 
 public protocol ImageFlowCoordinatorProtocol {
     func perform(userAction: UserAction)
+    func canZoomIn() -> Bool
+    func canZoomOut() -> Bool
+    func currentZoom() -> CGFloat
+    func nodeCount() -> Int
+    func selectedNodeCount() -> Int
 }
 
+@MainActor
 public struct ImageFlowCoordinator {
-    @MainActor
-    @discardableResult
-    public static func preform(userAction: UserAction) -> Bool {
+
+    static var coordinator: (any ImageFlowCoordinatorProtocol)? {
         #if os(macOS)
-        if let coordinator = NSApp.keyWindow?.contentViewController as? ImageFlowCoordinatorProtocol {
+        NSApp.keyWindow?.contentViewController as? ImageFlowCoordinatorProtocol
+        #endif
+    }
+
+    @discardableResult
+    public static func perform(userAction: UserAction) -> Bool {
+        #if os(macOS)
+        if let coordinator = Self.coordinator {
             coordinator.perform(userAction: userAction)
             return true
         } else {
             return false
         }
         #endif
+    }
+
+    public static func canZoomIn() -> Bool {
+        Self.coordinator?.canZoomIn() ?? false
+    }
+
+    public static func canZoomOut() -> Bool {
+        Self.coordinator?.canZoomOut() ?? false
+    }
+
+    public static func currentZoom() -> CGFloat {
+        Self.coordinator?.currentZoom() ?? 1.0
+    }
+
+    public static func nodeCount() -> Int {
+        Self.coordinator?.nodeCount() ?? 0
+    }
+
+    public static func selectedNodeCount() -> Int {
+        Self.coordinator?.selectedNodeCount() ?? 0
     }
 }
 

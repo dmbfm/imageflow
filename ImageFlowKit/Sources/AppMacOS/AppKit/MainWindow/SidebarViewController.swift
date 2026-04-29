@@ -32,7 +32,7 @@ struct SidebarFeatureViewWrapped: View {
 
     var body: some View {
         SidebarFeatureView(self.coordinator.text) { item in
-            ImageFlowCoordinator.preform(userAction: .newNodeWithKind(kind: item.nodeKind, at: nil))
+            ImageFlowCoordinator.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: nil))
         }
     }
 }

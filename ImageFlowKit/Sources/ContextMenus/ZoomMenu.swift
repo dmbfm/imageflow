@@ -59,6 +59,90 @@ public struct ZoomMenu: View {
     }
 }
 
+#if os(macOS)
+@MainActor
+class ZoomMenuController {
+    func makeMenu() -> NSMenu {
+        let menu = NSMenu(title: "Zoom")
+
+        let canZoomIn = ImageFlowCoordinator.canZoomIn()
+        let canZoomOut = ImageFlowCoordinator.canZoomOut()
+        let nodeCount = ImageFlowCoordinator.nodeCount()
+        let selectedNodeCount = ImageFlowCoordinator.selectedNodeCount()
+
+        menu.items = [
+            .init(
+                title: "Zoom In",
+                action: canZoomIn ? #selector(Self.zoomIn) : nil,
+                target: self,
+                keyEquivalent: "+",
+                keyEquivalentModifierMask: .command,
+                systemSymbolName: .systemIconMagZoomIn,
+                accessibilityDescription: "Zoom In",
+            ),
+            .init(
+                title: "Zoom Out",
+                action: canZoomOut ? #selector(Self.zoomOut) : nil,
+                target: self,
+                keyEquivalent: "-",
+                keyEquivalentModifierMask: .command,
+                systemSymbolName: .systemIconMagZoomOut,
+                accessibilityDescription: "Zoom Out",
+            ),
+            .init(
+                title: "Actual Size",
+                action: #selector(Self.zoomActualSize),
+                target: self,
+                keyEquivalent: "0",
+                keyEquivalentModifierMask: .command,
+                systemSymbolName: .systemIconMagActualSize,
+                accessibilityDescription: "Zoom to actual size",
+            ),
+            .init(
+                title: "Zoom to Fit Content",
+                action: nodeCount > 0 ? #selector(Self.zoomToFit) : nil,
+                target: self,
+                keyEquivalent: "0",
+                keyEquivalentModifierMask: [.command, .shift],
+                systemSymbolName: .systemIconMagZoomFit,
+                accessibilityDescription: "Zoom to fit content",
+            ),
+            .init(
+                title: "Zoom to Fit Selection",
+                action: selectedNodeCount > 0 ? #selector(Self.zoomToFitSel) : nil,
+                target: self,
+                keyEquivalent: "0",
+                keyEquivalentModifierMask: [.command, .shift, .option],
+                systemSymbolName: nil,
+                accessibilityDescription: "Zoom to fit selection",
+            ),
+        ]
+
+        return menu
+    }
+
+    @objc func zoomActualSize() {
+        ImageFlowCoordinator.perform(userAction: .viewport(.setZoom(1.0)))
+    }
+
+    @objc func zoomToFit() {
+        ImageFlowCoordinator.perform(userAction: .viewport(.zoomToFitContent))
+    }
+
+    @objc func zoomToFitSel() {
+        ImageFlowCoordinator.perform(userAction: .viewport(.zoomToFitSelection))
+    }
+
+    @objc func zoomIn() {
+        ImageFlowCoordinator.perform(userAction: .viewport(.zoomIn))
+    }
+
+    @objc func zoomOut() {
+        ImageFlowCoordinator.perform(userAction: .viewport(.zoomOut))
+    }
+}
+#endif
+
 #if os(iOS)
 import UIKit
 

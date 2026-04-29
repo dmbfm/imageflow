@@ -74,6 +74,13 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
     }
+
+    #if os(macOS)
+    let maxZoom: CGFloat = 4
+    #else
+    let maxZoom: CGFloat = 1
+    #endif
+    let minZoom: CGFloat = 0.1
 }
 
 // MARK: - ImageFlowCoordinatorProtocol
@@ -91,6 +98,26 @@ extension MainViewController: ImageFlowCoordinatorProtocol {
             logger.warning(string: "Unhandled userAction: \(userAction)")
             break
         }
+    }
+
+    public func currentZoom() -> CGFloat {
+        self.canvasView.viewport.scale
+    }
+
+    public func canZoomIn() -> Bool {
+        self.currentZoom() < self.maxZoom
+    }
+
+    public func canZoomOut() -> Bool {
+        self.currentZoom() > self.minZoom
+    }
+
+    func nodeCount() -> Int {
+        self.flow.nodes.count
+    }
+
+    func selectedNodeCount() -> Int {
+        self.flow.selection.count
     }
 }
 
