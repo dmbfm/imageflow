@@ -1,6 +1,3 @@
-//
-//  PreviewFeature.swift
-//  ImageFlowKit
-//
-//  Created by Daniel Fortes on 19/01/26.
-//
+import OSLog
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "preview-feature")
