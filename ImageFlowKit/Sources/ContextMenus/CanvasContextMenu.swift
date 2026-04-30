@@ -173,7 +173,7 @@ public class CanvasContextMenuProvider {
             addNodeItem,
             zoomItem,
             pasteItem,
-            selectAllItem
+            selectAllItem,
         ]
 
         return menu

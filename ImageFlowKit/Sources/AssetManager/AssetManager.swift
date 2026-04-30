@@ -4,6 +4,7 @@ import CubeLutKit
 import Foundation
 import Helpers
 import Logging
+import OSLog
 import Photos
 import PhotosUI
 import SharedModels
@@ -11,7 +12,6 @@ import SwiftUI
 import Synchronization
 import UniformTypeIdentifiers
 import Values
-import OSLog
 
 #if canImport(AppKit)
 import AppKit
