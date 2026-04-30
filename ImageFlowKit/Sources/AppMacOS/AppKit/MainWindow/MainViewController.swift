@@ -63,7 +63,7 @@ final class MainViewController: NSSplitViewController {
         super.init(nibName: nil, bundle: nil)
 
         self.sidebarVC = .init()
-        self.detailVC = .init(self.flow)
+        self.detailVC = .init(self.flow, self.assetStore)
         self.inspectorVC = .init()
     }
 
@@ -102,7 +102,8 @@ extension MainViewController: ImageFlowCoordinatorProtocol {
             self.presentAsSheet(
                 AssetBrowserSheetController(
                     assetStore: self.assetStore,
-                    type: .picker(.init(assetKind: kind, portLocation: .init(node: node, index: portIndex)))
+                    type: .picker(.init(assetKind: kind, portLocation: .init(node: node, index: portIndex))),
+                    delegate: self
                 )
             )
         default:

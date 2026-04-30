@@ -15,6 +15,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     /// The Flow model
     public var flow: Flow
+    /// The asset provider
+    public var assetStore: any AssetsProvider
     /// Storage for the `NodeView` instances to be displayed
     public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
@@ -51,8 +53,9 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     // MARK: - Initialization
 
-    public init(flow: Flow) {
+    public init(flow: Flow, assetStore: any AssetsProvider) {
         self.flow = flow
+        self.assetStore = assetStore
         super.init(nibName: nil, bundle: nil)
 
         self.flow.emitter.on({ [weak self] event in
@@ -532,8 +535,7 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
     }
 
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
-        logger.warning("TODO: titleForAsset")
-        return nil
+        self.assetStore.titleForAsset(id: id)
     }
 
     public func statusBarMessage(message: String?) {

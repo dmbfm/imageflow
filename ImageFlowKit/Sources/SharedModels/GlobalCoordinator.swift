@@ -3,6 +3,7 @@ import CoreImage
 import Foundation
 import Helpers
 import SwiftUI
+import UniformTypeIdentifiers
 import Values
 
 #if canImport(AppKit)
@@ -155,6 +156,7 @@ public enum UserAction {
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
     case viewport(ViewportAction)
     case disconnect(InputPortLocation)
+    case openFileImporter([UTType])
 
     public enum Target {
         case selection

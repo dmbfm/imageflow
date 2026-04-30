@@ -13,8 +13,8 @@ final class DetailViewController: NSViewController {
         self.canvasVC.canvasView
     }
 
-    init(_ flow: Flow) {
-        self.canvasVC = .init(flow: flow)
+    init(_ flow: Flow, _ assetStore: any AssetsProvider) {
+        self.canvasVC = .init(flow: flow, assetStore: assetStore)
 
         super.init(nibName: nil, bundle: nil)
     }

@@ -9,16 +9,19 @@ public final class AssetBrowserSheetController: NSHostingController<AssetBrowser
 
     let vm: AssetBrowserViewModel
     let assetStore: any AssetStoreService
+    weak var delegate: Delegate?
 
     public init(
         assetStore: any AssetStoreService,
         type: AssetBrowserType,
+        delegate: Delegate
     ) {
         self.assetStore = assetStore
         self.vm = .init(
             assetsProvider: assetStore,
             assetBrowserType: type,
         )
+        self.delegate = delegate
 
         super.init(rootView: .init(self.vm))
 
@@ -34,9 +37,26 @@ public final class AssetBrowserSheetController: NSHostingController<AssetBrowser
     }
 }
 
+extension AssetBrowserSheetController {
+    public protocol Delegate: AnyObject {
+        func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, urls: [URL])
+        func assetBrowserSheetPickAsset(kind: AssetKind, assetId: UUID, port: InputPortLocation)
+        func assetBrowserSheetCreateNode(kind: AssetKind, assetId: UUID)
+    }
+}
+
 extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
     public func onDismiss(_ result: AssetBrowserResult) {
         logger.warning("TODO: onDismiss:\("\(result)")")
+        switch result {
+        case .cancel:
+            break
+        case let .create(assetKind, id):
+            self.delegate?.assetBrowserSheetCreateNode(kind: assetKind, assetId: id)
+        case let .pick(assetKind, assetId, portLocation):
+            self.delegate?.assetBrowserSheetPickAsset(kind: assetKind, assetId: assetId, port: portLocation)
+            break
+        }
         self.dismiss(nil)
     }
 
@@ -54,22 +74,9 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
         logger.info("res: \("\(res)")")
         let urls = panel.urls
 
-        _ = Task<(), Never> {
-            let result = await self.doImport(urls)
-            let errorMessages: [String] = result.compactMap {
-                switch $0 {
-                case .failure(let err): err.localizedDescription
-                case .success: nil
-                }
-            }
-
-            if !errorMessages.isEmpty {
-                let alert = NSAlert()
-                alert.messageText = "Failed to import some files!"
-                alert.runModal()
-            }
+        if !urls.isEmpty {
+            self.delegate?.assetBrowserSheetImportAssets(self, urls: urls)
         }
-
     }
 
     public func openPhotoPicker() {
@@ -78,56 +85,6 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
 
     public func deleteAsset(_ asset: SharedModels.Asset) {
         logger.warning("TODO: deleteAsset: \("\(asset)")")
-    }
-}
-
-extension AssetBrowserSheetController {
-    func doImport(_ urls: [URL]) async -> [Result<UUID, any Error>] {
-
-        func importItem(_ url: URL) async -> Result<UUID, any Error> {
-            logger.info("\(url): start")
-            let isSSR = url.startAccessingSecurityScopedResource()
-            defer {
-                if isSSR {
-                    url.stopAccessingSecurityScopedResource()
-                }
-            }
-
-            do {
-                let resourceValues = try url.resourceValues(forKeys: [.contentTypeKey])
-                let utType = resourceValues.contentType
-
-                guard let kind = utType?.assetKind else {
-                    throw ImportItemError.missingUTType
-                }
-
-                let id = try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
-                self.undoManager!.setActionName("Import Image")
-                logger.info("\(url): done!")
-                return .success(id)
-            } catch {
-                return .failure(error)
-            }
-        }
-
-        enum ImportItemError: Error {
-            case missingUTType
-        }
-
-        return await withTaskGroup(of: Result<UUID, any Error>.self, returning: [Result<UUID, any Error>].self) {
-            group in
-            for url in urls {
-                group.addTask {
-                    await importItem(url)
-                }
-            }
-
-            var result: [Result<UUID, any Error>] = []
-            for await item in group {
-                result.append(item)
-            }
-            return result
-        }
     }
 }
 
