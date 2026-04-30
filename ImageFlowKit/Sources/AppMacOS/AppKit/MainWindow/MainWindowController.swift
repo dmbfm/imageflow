@@ -9,9 +9,6 @@ class MainWindowController: NSWindowController {
 
     lazy var toolbar: NSToolbar = {
         let toolbar = NSToolbar(identifier: "com.dmbfm.imageflow.macos.toolbar")
-        toolbar.insertItem(withItemIdentifier: .flexibleSpace, at: 0)
-        toolbar.insertItem(withItemIdentifier: .toggleSidebar, at: 1)
-        toolbar.insertItem(withItemIdentifier: .sidebarTrackingSeparator, at: 2)
         toolbar.delegate = self
         toolbar.displayMode = .iconOnly
         return toolbar
@@ -90,20 +87,26 @@ extension MainWindowController: NSToolbarDelegate {
         willBeInsertedIntoToolbar flag: Bool
     ) -> NSToolbarItem? {
         switch itemIdentifier {
-        case .toggleSidebar:
-            let item = NSToolbarItem(itemIdentifier: .toggleSidebar)
-            return item
         default:
             return .init(itemIdentifier: itemIdentifier)
         }
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace]
+        [
+            .toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace, .inspectorTrackingSeparator, .toggleInspector,
+            .space, .cloudSharing,
+        ]
     }
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace]
+        [
+            .toggleSidebar,
+            .sidebarTrackingSeparator,
+            .inspectorTrackingSeparator,
+            .flexibleSpace,
+            .toggleInspector,
+        ]
     }
 }
 #endif

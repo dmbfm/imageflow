@@ -50,6 +50,8 @@ final class MainViewController: NSSplitViewController {
 
     lazy var inspectorItem: NSSplitViewItem = {
         let item = NSSplitViewItem(inspectorWithViewController: self.inspectorVC)
+        item.minimumThickness = 200
+        item.maximumThickness = 400
         return item
     }()
 
