@@ -4,12 +4,14 @@ import AppKit
 import Helpers
 import SwiftUI
 
+// MARK: - Model
+
 struct CardStage {
+
     struct Model: Equatable {
         var alignment: Alignment
         var size: CGSize
         var insets: Insets
-        // var state: State
 
         init(
             alignment: Alignment = .bottomRight,
@@ -28,6 +30,15 @@ struct CardStage {
         case topRight
         case bottomLeft
         case bottomRight
+
+        func point(minX: CGFloat, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) -> CGPoint {
+            switch self {
+            case .topLeft: .init(x: minX, y: minY)
+            case .topRight: .init(x: maxX, y: minY)
+            case .bottomLeft: .init(x: minX, y: maxY)
+            case .bottomRight: .init(x: maxX, y: maxY)
+            }
+        }
     }
 
     struct Insets: Equatable {
@@ -73,21 +84,192 @@ extension CardStage {
             self.stageView.upadateModel(self.model)
         }
 
-        func mainViewDidChangeAlignment(_ alignment: CardStage.Alignment) {
+        func setAlignment(_ alignment: Alignment) {
+            self.stageView.setAlignment(alignment, animating: true)
             self.model.alignment = alignment
         }
 
-        func mainViewDidChangeSize(_ newValue: CGSize) {
-            self.model.size = newValue
+        func mainViewModelDidChange(_ model: CardStage.Model) {
+            if self.model != model {
+                self.model = model
+            }
         }
     }
 }
 
+// MARK: - Geometry
+
+extension CardStage {
+
+    struct Geometry {
+        let origin: CGPoint
+        let anchor: CGPoint
+        let size: CGSize
+        let corners: Corners
+        let resizeDragRects: DragRects
+        let closestAlignment: Alignment
+
+        struct Corners {
+            var topLeft: CGPoint
+            var topRight: CGPoint
+            var bottomLeft: CGPoint
+            var bottomRight: CGPoint
+        }
+
+        struct DragRects {
+            var horizontal: CGRect
+            var vertical: CGRect
+
+            init(horizontal: CGRect, vertical: CGRect) {
+                self.horizontal = horizontal
+                self.vertical = vertical
+            }
+
+            init(alignment: Alignment, origin: CGPoint, size: CGSize, thickness: CGFloat) {
+                self.horizontal =
+                    switch alignment {
+                    case .topLeft, .topRight:
+                        .init(
+                            x: origin.x,
+                            y: origin.y + size.height - thickness,
+                            width: size.width,
+                            height: thickness
+                        )
+                    case .bottomLeft, .bottomRight:
+                        .init(x: origin.x, y: origin.y, width: thickness, height: size.height)
+                    }
+
+                self.vertical =
+                    switch alignment {
+                    case .topLeft, .bottomLeft:
+                        .init(
+                            x: origin.x + size.width - thickness,
+                            y: origin.y,
+                            width: thickness,
+                            height: size.height
+                        )
+                    case .topRight, .bottomRight:
+                        .init(x: origin.x, y: origin.y, width: thickness, height: size.height)
+                    }
+            }
+
+            func contains(_ point: CGPoint) -> Bool {
+                self.horizontal.contains(point) || self.vertical.contains(point)
+            }
+
+            func allContains(_ point: CGPoint) -> Bool {
+                self.horizontal.contains(point) && self.vertical.contains(point)
+            }
+        }
+
+        init(
+            model: Model,
+            state: MainView.State,
+            bounds: CGRect,
+            dragRectSize: CGFloat = 10,
+        ) {
+            let insets = model.insets
+            let alignment = model.alignment
+            let stageRect = bounds
+            let offset = state.offset
+
+            var size = model.size
+            var anchor: CGPoint = .zero
+            var origin: CGPoint = .zero
+            var corners: Corners = .init(topLeft: .zero, topRight: .zero, bottomLeft: .zero, bottomRight: .zero)
+            var minX: CGFloat = 0
+            var minY: CGFloat = 0
+            var maxX: CGFloat = 0
+            var maxY: CGFloat = 0
+
+            for _ in 0..<2 {
+
+                minX = insets.left
+                maxX = stageRect.width - insets.right - size.width
+                minY = insets.top
+                maxY = stageRect.height - insets.bottom - size.height
+
+                anchor =
+                    switch alignment {
+                    case .topLeft:
+                        .init(x: minX, y: minY)
+                    case .topRight:
+                        .init(x: maxX, y: minY)
+                    case .bottomLeft:
+                        .init(x: minX, y: maxY)
+                    case .bottomRight:
+                        .init(x: maxX, y: maxY)
+                    }
+
+                origin = anchor + offset.cgPoint
+
+                corners = Corners(
+                    topLeft: origin,
+                    topRight: origin + .init(x: size.width, y: 0),
+                    bottomLeft: origin + .init(x: 0, y: size.height),
+                    bottomRight: origin + size.cgPoint
+                )
+
+                guard let location = state.resizingLocation, let limits = state.resizingLimits else { break }
+
+                func conv(_ point: CGPoint) -> CGPoint {
+                    switch alignment {
+                    case .topLeft:
+                        return point - origin
+                    case .bottomLeft:
+                        let p = point - corners.bottomLeft
+                        return .init(x: p.x, y: -p.y)
+                    case .topRight:
+                        let p = point - corners.topRight
+                        return .init(x: -p.x, y: p.y)
+                    case .bottomRight:
+                        let p = point - corners.bottomRight
+                        return -p
+                    }
+                }
+
+                let p = conv(location)
+
+                let s =
+                    if p.x < 0 && p.y < 0 {
+                        limits.lowerBound
+                    } else {
+                        max(min(max(p.x, p.y), limits.upperBound), limits.lowerBound)
+                    }
+
+                size = .init(width: s, height: s)
+            }
+
+            let resizeDragRects = DragRects(alignment: alignment, origin: origin, size: size, thickness: dragRectSize)
+
+            let closestAlignment: Alignment = Alignment.allCases.reduce(
+                (alignment, CGFloat.greatestFiniteMagnitude),
+                { acc, item in
+                    let point = item.point(minX: minX, maxX: maxX, minY: minY, maxY: maxY)
+                    let d = origin.distance(to: point)
+                    return if d < acc.1 {
+                        (item, d)
+                    } else {
+                        acc
+                    }
+                }
+            ).0
+
+            self.origin = origin
+            self.anchor = anchor
+            self.size = size
+            self.resizeDragRects = resizeDragRects
+            self.corners = corners
+            self.closestAlignment = closestAlignment
+        }
+    }
+}
+
+// MARK: - Main View
 extension CardStage {
 
     protocol MainViewDelegate: AnyObject {
-        func mainViewDidChangeAlignment(_ alignment: Alignment)
-        func mainViewDidChangeSize(_ newValue: CGSize)
+        func mainViewModelDidChange(_ model: Model)
     }
 
     final class MainView: PlatformCommonView {
@@ -95,7 +277,14 @@ extension CardStage {
         var cardView: CardView
         weak var delegate: MainViewDelegate?
 
-        private var model: Model = .init()
+        private var model: Model = .init() {
+            didSet {
+                if self.model != oldValue {
+                    self.delegate?.mainViewModelDidChange(self.model)
+                    self.setNeedsLayout()
+                }
+            }
+        }
 
         var state: State = .idle {
             didSet {
@@ -105,13 +294,33 @@ extension CardStage {
             }
         }
 
+        var geometry: Geometry
+
         enum State: Equatable {
             case idle
-            case resizing(
-                anchor: CGPoint,
-                current: CGSize,
-            )
+            case resizing(location: CGPoint, limits: ClosedRange<CGFloat>)
             case dragging(offset: CGSize)
+
+            var offset: CGSize {
+                switch self {
+                case .dragging(let offset): offset
+                default: .zero
+                }
+            }
+
+            var resizingLocation: CGPoint? {
+                switch self {
+                case .resizing(let location, _): location
+                default: nil
+                }
+            }
+
+            var resizingLimits: ClosedRange<CGFloat>? {
+                switch self {
+                case .resizing(_, let range): range
+                default: nil
+                }
+            }
         }
 
         struct AnimationState: Equatable {
@@ -119,6 +328,7 @@ extension CardStage {
 
         init() {
             self.cardView = .init()
+            self.geometry = .init(model: self.model, state: self.state, bounds: .zero)
 
             super.init(frame: .zero)
 
@@ -126,10 +336,20 @@ extension CardStage {
 
             let panGesture = NSPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
             self.cardView.addGestureRecognizer(panGesture)
+
+            self.geometry = .init(model: self.model, state: self.state, bounds: self.bounds)
         }
 
         required init?(coder: NSCoder) {
             nil
+        }
+
+        func updateGeometry() {
+            self.geometry = .init(
+                model: self.model,
+                state: self.state,
+                bounds: self.bounds
+            )
         }
 
         @objc func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
@@ -139,11 +359,11 @@ extension CardStage {
             case .possible:
                 break
             case .began:
-                let rects = self.resizeRects
+                let rects = self.geometry.resizeDragRects
                 let location = self.convert(gesture.location(in: nil), from: nil)
 
-                if rects.contains(where: { $0.contains(location) }) {
-                    self.state = .resizing(anchor: self.resizeAnchorPoint, current: self.model.size)
+                if rects.contains(location) {
+                    self.state = .resizing(location: location, limits: 50...500)
                 } else {
                     self.state = .dragging(offset: .zero)
                 }
@@ -152,28 +372,13 @@ extension CardStage {
                 switch self.state {
                 case .dragging:
                     self.state = .dragging(offset: .init(width: t.x, height: -t.y))
-                case let .resizing(anchor, _):
-
+                    self.updateGeometry()
+                    self.setNeedsLayout()
+                case .resizing(_, let limits):
                     let location = self.convert(gesture.location(in: nil), from: nil)
-                    let delta = location - anchor
-
-                    switch self.model.alignment {
-                    case .bottomRight:
-                        if delta.x > 0 && delta.y > 0 { return }
-                    case .bottomLeft:
-                        if delta.x < 0 && delta.y > 0 { return }
-                    case .topLeft:
-                        if delta.x < 0 && delta.y < 0 { return }
-                    case .topRight:
-                        if delta.x > 0 && delta.y < 0 { return }
-                    }
-
-                    let newSize = min(max(max(abs(delta.x), abs(delta.y)), 50), 500)
-                    self.state = .resizing(
-                        anchor: anchor,
-                        current: .init(width: newSize, height: newSize)
-                    )
-                    self.needsLayout = true
+                    self.state = .resizing(location: location, limits: limits)
+                    self.updateGeometry()
+                    self.setNeedsLayout()
                 case .idle:
                     break
                 }
@@ -182,19 +387,16 @@ extension CardStage {
 
                 switch self.state {
                 case .dragging:
-                    let newAlignment = self.closestAnchorAlignment
-                    print("newAlignment: \(newAlignment)")
+                    let newAlignment = self.geometry.closestAlignment
                     if newAlignment != self.model.alignment {
-                        self.model.alignment = self.closestAnchorAlignment
-                        self.delegate?.mainViewDidChangeAlignment(self.model.alignment)
+                        self.model.alignment = newAlignment
                     }
-                    self.cardView.animator().frame.origin = self.anchorPoint
+                    self.cardView.animator().frame.origin = self.geometry.anchor
                     self.state = .idle
 
-                case .resizing(_, let current):
-                    self.model.size = current
-                    self.delegate?.mainViewDidChangeSize(self.model.size)
-                    break
+                case .resizing:
+                    self.model.size = self.geometry.size
+                    self.state = .idle
 
                 case .idle:
                     break
@@ -208,122 +410,33 @@ extension CardStage {
         func upadateModel(_ model: Model) {
             if model != self.model {
                 self.model = model
+                self.updateGeometry()
                 self.needsLayout = true
             }
         }
 
-        var offset: CGPoint {
-            switch self.state {
-            case .dragging(let offset): offset.cgPoint
-            default: .zero
-            }
-        }
-
-        var closestAnchorAlignment: Alignment {
-            let pos = self.anchorPoint + self.offset
-            var dist: CGFloat = .greatestFiniteMagnitude
-            var closest: Alignment = self.model.alignment
-
-            for (anchor, point) in self.anchorPoints {
-                let d = point.distance(to: pos)
-                if d < dist {
-                    closest = anchor
-                    dist = d
-                }
-            }
-
-            return closest
-        }
-
-        var anchorPoints: [Alignment: CGPoint] {
-            let size = self.effectiveCardSize
-            let insets = model.insets
-
-            let minX = insets.left
-            let minY = insets.top
-            let maxX = self.bounds.width - insets.right - size.width
-            let maxY = self.bounds.height - insets.top - size.height
-
-            let result: [Alignment: CGPoint] = [
-                .topLeft: .init(x: minX, y: minY),
-                .topRight: .init(x: maxX, y: minY),
-                .bottomLeft: .init(x: minX, y: maxY),
-                .bottomRight: .init(x: maxX, y: maxY),
-            ]
-            return result
-        }
-
-        var resizeRects: [CGRect] {
-            let s = 10.0
-
-            let rects: [CGRect] = [
-                // top
-                CGRect(x: 0, y: 0, width: self.model.size.width, height: s),
-                // bottom
-                CGRect(x: 0, y: self.model.size.height - s, width: self.model.size.width, height: s),
-                // left
-                CGRect(x: 0, y: 0, width: s, height: self.model.size.height),
-                // right
-                CGRect(x: self.model.size.width - s, y: 0, width: s, height: self.model.size.height),
-            ].map({
-                self.cardView.convert($0, to: self)
-                // self.convert($0, from: self.cardView)
-            })
-
-            switch self.model.alignment {
-            case .bottomLeft:
-                return [rects[0], rects[3]]
-            case .topLeft:
-                return [rects[1], rects[3]]
-            case .topRight:
-                return [rects[1], rects[2]]
-            case .bottomRight:
-                return [rects[0], rects[2]]
-            }
-        }
-
-        var anchorPoint: CGPoint {
-            self.anchorPoints[self.model.alignment]!
-        }
-
-        var resizeAnchorPoint: CGPoint {
-            let p = self.anchorPoints[self.model.alignment]!
-            let s = self.effectiveCardSize
-            switch self.model.alignment {
-            case .topLeft:
-                return p + .init(x: 0, y: 0)
-            case .topRight:
-                return p + .init(x: s.width, y: 0)
-            case .bottomLeft:
-                return p + .init(x: 0, y: s.height)
-            case .bottomRight:
-                return p + .init(x: s.width, y: s.height)
-            }
-        }
-
-        var effectiveCardSize: CGSize {
-            switch self.state {
-            case let .resizing(_, current): current
-            default: self.model.size
+        func setAlignment(_ alignment: Alignment, animating: Bool = true) {
+            if animating {
+                self.model.alignment = alignment
+                self.updateGeometry()
+                self.cardView.animator().frame.origin = self.geometry.anchor
+            } else {
+                self.model.alignment = alignment
+                self.updateGeometry()
+                self.setNeedsLayout()
             }
         }
 
         override func layout() {
             super.layout()
-
-            let offset: CGSize =
-                switch self.state {
-                case let .dragging(offset): offset
-                default:
-                    .zero
-                }
-
-            self.cardView.frame.size = self.effectiveCardSize
-            self.cardView.frame.origin = self.anchorPoint + offset.cgPoint
-
+            self.updateGeometry()
+            self.cardView.frame.size = self.geometry.size
+            self.cardView.frame.origin = self.geometry.origin
         }
     }
 }
+
+// MARK: - Card View
 
 extension CardStage {
     final class CardView: PlatformCommonView {
@@ -351,14 +464,23 @@ extension CardStage {
     }
 }
 
+// MARK: - Previews
+
 extension CardStage {
     struct PreviewRepresentable: NSViewControllerRepresentable {
+
         let model: Model
+
         func makeNSViewController(context: Context) -> CardStage.Controller {
             .init(self.model)
         }
 
         func updateNSViewController(_ vc: CardStage.Controller, context: Context) {
+
+            if vc.model.alignment != self.model.alignment {
+                vc.setAlignment(self.model.alignment)
+            }
+
             if vc.model != self.model {
                 vc.model = self.model
             }
