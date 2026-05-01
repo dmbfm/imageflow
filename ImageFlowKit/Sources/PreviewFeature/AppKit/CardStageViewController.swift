@@ -127,10 +127,18 @@ extension CardStage {
         struct DragRects {
             var horizontal: CGRect
             var vertical: CGRect
+            var corner: CGRect
 
-            init(horizontal: CGRect, vertical: CGRect) {
+            enum Handle {
+                case horizontal
+                case vertical
+                case corner
+            }
+
+            init(horizontal: CGRect, vertical: CGRect, corner: CGRect) {
                 self.horizontal = horizontal
                 self.vertical = vertical
+                self.corner = corner
             }
 
             init(alignment: Alignment, origin: CGPoint, size: CGSize, thickness: CGFloat) {
@@ -159,6 +167,43 @@ extension CardStage {
                     case .topRight, .bottomRight:
                         .init(x: origin.x, y: origin.y, width: thickness, height: size.height)
                     }
+                self.corner =
+                    switch alignment {
+                    case .bottomRight: .init(x: origin.x, y: origin.y, width: 2 * thickness, height: 2 * thickness)
+                    case .bottomLeft:
+                        .init(
+                            x: origin.x + size.width - 2 * thickness,
+                            y: origin.y,
+                            width: 2 * thickness,
+                            height: 2 * thickness
+                        )
+                    case .topLeft:
+                        .init(
+                            x: origin.x + size.width - 2 * thickness,
+                            y: origin.y + size.height - 2 * thickness,
+                            width: 2 * thickness,
+                            height: 2 * thickness
+                        )
+                    case .topRight:
+                        .init(
+                            x: origin.x,
+                            y: origin.y + size.height - 2 * thickness,
+                            width: 2 * thickness,
+                            height: 2 * thickness
+                        )
+                    }
+            }
+
+            func hitTest(_ point: CGPoint) -> Handle? {
+                if self.horizontal.contains(point) {
+                    return .horizontal
+                } else if self.vertical.contains(point) {
+                    return .vertical
+                } else if self.corner.contains(point) {
+                    return .corner
+                }
+
+                return nil
             }
 
             func contains(_ point: CGPoint) -> Bool {
@@ -256,13 +301,15 @@ extension CardStage {
 
                 let limits = resizingData.limits
 
-                let s = max(
-                    min(
-                        max(resizingData.initialSize.width + p.width, resizingData.initialSize.height + p.height),
-                        limits.upperBound
-                    ),
-                    limits.lowerBound
-                )
+                let s1 = max(limits.lowerBound, min(limits.upperBound, resizingData.initialSize.width + p.width))
+                let s2 = max(limits.lowerBound, min(limits.upperBound, resizingData.initialSize.height + p.height))
+                let s =
+                    switch resizingData.handle {
+                    case .horizontal: s2
+                    case .vertical: s1
+                    case .corner: max(s1, s2)
+                    }
+
                 size = .init(width: s, height: s)
             }
 
@@ -332,6 +379,7 @@ extension CardStage {
                 var initialSize: CGSize
                 var translation: CGSize
                 var limits: ClosedRange<CGFloat>
+                var handle: Geometry.DragRects.Handle
             }
 
             var offset: CGSize {
@@ -370,12 +418,28 @@ extension CardStage {
             nil
         }
 
+        override func resetCursorRects() {
+            self.discardCursorRects()
+            self.addCursorRect(self.geometry.resizeDragRects.horizontal, cursor: .windowResizeNorthSouthCursor)
+            self.addCursorRect(self.geometry.resizeDragRects.vertical, cursor: .windowResizeEastWestCursor)
+            self.addCursorRect(
+                self.geometry.resizeDragRects.corner,
+                cursor: {
+                    switch self.model.alignment {
+                    case .topLeft, .bottomRight: .windowResizeNorthWestSouthEastCursor
+                    default: .windowResizeNorthEastSouthWestCursor
+                    }
+                }()
+            )
+        }
+
         func updateGeometry() {
             self.geometry = .init(
                 model: self.model,
                 state: self.state,
                 bounds: self.bounds
             )
+            self.window?.invalidateCursorRects(for: self)
         }
 
         @objc func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
@@ -391,12 +455,13 @@ extension CardStage {
                 let rects = self.geometry.resizeDragRects
                 let location = self.convert(gesture.location(in: nil), from: nil)
 
-                if rects.contains(location) {
+                if let handle = rects.hitTest(location) {
                     self.state = .resizing(
                         .init(
                             initialSize: self.geometry.size,
                             translation: t,
-                            limits: 50...500
+                            limits: 50...500,
+                            handle: handle
                         )
                     )
                 } else {
@@ -496,6 +561,17 @@ extension CardStage {
             nil
         }
     }
+}
+
+extension NSCursor {
+    @MainActor static let windowResizeNorthWestSouthEastCursor =
+        NSCursor.value(forKey: "_windowResizeNorthWestSouthEastCursor") as? NSCursor ?? NSCursor.columnResize
+    @MainActor static let windowResizeNorthEastSouthWestCursor =
+        NSCursor.value(forKey: "_windowResizeNorthEastSouthWestCursor") as? NSCursor ?? NSCursor.columnResize
+    @MainActor static let windowResizeEastWestCursor =
+        NSCursor.value(forKey: "_windowResizeEastWestCursor") as? NSCursor ?? .columnResize
+    @MainActor static let windowResizeNorthSouthCursor =
+        NSCursor.value(forKey: "_windowResizeNorthSouthCursor") as? NSCursor ?? .rowResize
 }
 
 // MARK: - Previews
