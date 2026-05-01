@@ -76,6 +76,10 @@ extension CardStage {
         func mainViewDidChangeAlignment(_ alignment: CardStage.Alignment) {
             self.model.alignment = alignment
         }
+
+        func mainViewDidChangeSize(_ newValue: CGSize) {
+            self.model.size = newValue
+        }
     }
 }
 
@@ -83,6 +87,7 @@ extension CardStage {
 
     protocol MainViewDelegate: AnyObject {
         func mainViewDidChangeAlignment(_ alignment: Alignment)
+        func mainViewDidChangeSize(_ newValue: CGSize)
     }
 
     final class MainView: PlatformCommonView {
@@ -102,8 +107,11 @@ extension CardStage {
 
         enum State: Equatable {
             case idle
+            case resizing(
+                anchor: CGPoint,
+                current: CGSize,
+            )
             case dragging(offset: CGSize)
-            case animating(AnimationState)
         }
 
         struct AnimationState: Equatable {
@@ -125,27 +133,73 @@ extension CardStage {
         }
 
         @objc func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
-            // print("\(gesture.translation(in: nil))")
-            // logger.debug("gesture: \("\(gesture.translation(in: nil))")")
-
             let t = gesture.translation(in: nil)
 
             switch gesture.state {
             case .possible:
                 break
             case .began:
-                self.state = .dragging(offset: .zero)
-            case .changed:
-                self.state = .dragging(offset: .init(width: t.x, height: -t.y))
-            case .ended, .cancelled, .failed:
-                let newAlignment = self.closestAnchorAlignment
-                print("newAlignment: \(newAlignment)")
-                if newAlignment != self.model.alignment {
-                    self.model.alignment = self.closestAnchorAlignment
-                    self.delegate?.mainViewDidChangeAlignment(self.model.alignment)
+                let rects = self.resizeRects
+                let location = self.convert(gesture.location(in: nil), from: nil)
+
+                if rects.contains(where: { $0.contains(location) }) {
+                    self.state = .resizing(anchor: self.resizeAnchorPoint, current: self.model.size)
+                } else {
+                    self.state = .dragging(offset: .zero)
                 }
-                self.cardView.animator().frame.origin = self.anchorPoint
-                self.state = .idle
+
+            case .changed:
+                switch self.state {
+                case .dragging:
+                    self.state = .dragging(offset: .init(width: t.x, height: -t.y))
+                case let .resizing(anchor, _):
+
+                    let location = self.convert(gesture.location(in: nil), from: nil)
+                    let delta = location - anchor
+
+                    switch self.model.alignment {
+                    case .bottomRight:
+                        if delta.x > 0 && delta.y > 0 { return }
+                    case .bottomLeft:
+                        if delta.x < 0 && delta.y > 0 { return }
+                    case .topLeft:
+                        if delta.x < 0 && delta.y < 0 { return }
+                    case .topRight:
+                        if delta.x > 0 && delta.y < 0 { return }
+                    }
+
+                    let newSize = min(max(max(abs(delta.x), abs(delta.y)), 50), 500)
+                    self.state = .resizing(
+                        anchor: anchor,
+                        current: .init(width: newSize, height: newSize)
+                    )
+                    self.needsLayout = true
+                case .idle:
+                    break
+                }
+
+            case .ended, .cancelled, .failed:
+
+                switch self.state {
+                case .dragging:
+                    let newAlignment = self.closestAnchorAlignment
+                    print("newAlignment: \(newAlignment)")
+                    if newAlignment != self.model.alignment {
+                        self.model.alignment = self.closestAnchorAlignment
+                        self.delegate?.mainViewDidChangeAlignment(self.model.alignment)
+                    }
+                    self.cardView.animator().frame.origin = self.anchorPoint
+                    self.state = .idle
+
+                case .resizing(_, let current):
+                    self.model.size = current
+                    self.delegate?.mainViewDidChangeSize(self.model.size)
+                    break
+
+                case .idle:
+                    break
+                }
+
             @unknown default:
                 break
             }
@@ -182,7 +236,7 @@ extension CardStage {
         }
 
         var anchorPoints: [Alignment: CGPoint] {
-            let size = model.size
+            let size = self.effectiveCardSize
             let insets = model.insets
 
             let minX = insets.left
@@ -199,14 +253,63 @@ extension CardStage {
             return result
         }
 
+        var resizeRects: [CGRect] {
+            let s = 10.0
+
+            let rects: [CGRect] = [
+                // top
+                CGRect(x: 0, y: 0, width: self.model.size.width, height: s),
+                // bottom
+                CGRect(x: 0, y: self.model.size.height - s, width: self.model.size.width, height: s),
+                // left
+                CGRect(x: 0, y: 0, width: s, height: self.model.size.height),
+                // right
+                CGRect(x: self.model.size.width - s, y: 0, width: s, height: self.model.size.height),
+            ].map({
+                self.cardView.convert($0, to: self)
+                // self.convert($0, from: self.cardView)
+            })
+
+            switch self.model.alignment {
+            case .bottomLeft:
+                return [rects[0], rects[3]]
+            case .topLeft:
+                return [rects[1], rects[3]]
+            case .topRight:
+                return [rects[1], rects[2]]
+            case .bottomRight:
+                return [rects[0], rects[2]]
+            }
+        }
+
         var anchorPoint: CGPoint {
             self.anchorPoints[self.model.alignment]!
         }
 
+        var resizeAnchorPoint: CGPoint {
+            let p = self.anchorPoints[self.model.alignment]!
+            let s = self.effectiveCardSize
+            switch self.model.alignment {
+            case .topLeft:
+                return p + .init(x: 0, y: 0)
+            case .topRight:
+                return p + .init(x: s.width, y: 0)
+            case .bottomLeft:
+                return p + .init(x: 0, y: s.height)
+            case .bottomRight:
+                return p + .init(x: s.width, y: s.height)
+            }
+        }
+
+        var effectiveCardSize: CGSize {
+            switch self.state {
+            case let .resizing(_, current): current
+            default: self.model.size
+            }
+        }
+
         override func layout() {
             super.layout()
-
-            let size = model.size
 
             let offset: CGSize =
                 switch self.state {
@@ -215,7 +318,7 @@ extension CardStage {
                     .zero
                 }
 
-            self.cardView.frame.size = size
+            self.cardView.frame.size = self.effectiveCardSize
             self.cardView.frame.origin = self.anchorPoint + offset.cgPoint
 
         }
