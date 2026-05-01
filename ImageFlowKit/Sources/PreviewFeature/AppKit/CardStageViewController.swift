@@ -49,6 +49,8 @@ struct CardStage {
     }
 }
 
+// MARK: - Controller
+
 extension CardStage {
     final class Controller: NSViewController, MainViewDelegate {
 
@@ -56,12 +58,18 @@ extension CardStage {
             didSet {
                 if self.model != oldValue {
                     self.stageView.upadateModel(self.model)
+                    self.delegate?.cardStateControllerDelegateModelDidChange(self.model)
                 }
             }
         }
 
         var stageView: MainView!
         var cardView: CardView!
+        weak var delegate: Delegate?
+
+        protocol Delegate: AnyObject {
+            func cardStateControllerDelegateModelDidChange(_ model: Model)
+        }
 
         init(_ model: Model) {
             self.model = model
@@ -136,7 +144,7 @@ extension CardStage {
                             height: thickness
                         )
                     case .bottomLeft, .bottomRight:
-                        .init(x: origin.x, y: origin.y, width: thickness, height: size.height)
+                        .init(x: origin.x, y: origin.y, width: size.width, height: thickness)
                     }
 
                 self.vertical =
@@ -210,33 +218,51 @@ extension CardStage {
                     bottomRight: origin + size.cgPoint
                 )
 
-                guard let location = state.resizingLocation, let limits = state.resizingLimits else { break }
+                guard let resizingData = state.resizing else { break }
 
-                func conv(_ point: CGPoint) -> CGPoint {
+                // func conv(_ point: CGPoint) -> CGPoint {
+                //     switch alignment {
+                //     case .topLeft:
+                //         return point - origin
+                //     case .bottomLeft:
+                //         let p = point - corners.bottomLeft
+                //         return .init(x: p.x, y: -p.y)
+                //     case .topRight:
+                //         let p = point - corners.topRight
+                //         return .init(x: -p.x, y: p.y)
+                //     case .bottomRight:
+                //         let p = point - corners.bottomRight
+                //         return -p
+                //     }
+                // }
+
+                func conv(_ size: CGSize) -> CGSize {
                     switch alignment {
                     case .topLeft:
-                        return point - origin
+                        return size
                     case .bottomLeft:
-                        let p = point - corners.bottomLeft
-                        return .init(x: p.x, y: -p.y)
+                        let p = size
+                        return .init(width: p.width, height: -p.height)
                     case .topRight:
-                        let p = point - corners.topRight
-                        return .init(x: -p.x, y: p.y)
+                        let p = size
+                        return .init(width: -p.width, height: p.height)
                     case .bottomRight:
-                        let p = point - corners.bottomRight
+                        let p = size
                         return -p
                     }
                 }
 
-                let p = conv(location)
+                let p = conv(resizingData.translation)
 
-                let s =
-                    if p.x < 0 && p.y < 0 {
-                        limits.lowerBound
-                    } else {
-                        max(min(max(p.x, p.y), limits.upperBound), limits.lowerBound)
-                    }
+                let limits = resizingData.limits
 
+                let s = max(
+                    min(
+                        max(resizingData.initialSize.width + p.width, resizingData.initialSize.height + p.height),
+                        limits.upperBound
+                    ),
+                    limits.lowerBound
+                )
                 size = .init(width: s, height: s)
             }
 
@@ -266,6 +292,7 @@ extension CardStage {
 }
 
 // MARK: - Main View
+
 extension CardStage {
 
     protocol MainViewDelegate: AnyObject {
@@ -298,8 +325,14 @@ extension CardStage {
 
         enum State: Equatable {
             case idle
-            case resizing(location: CGPoint, limits: ClosedRange<CGFloat>)
+            case resizing(Resizing)
             case dragging(offset: CGSize)
+
+            struct Resizing: Equatable, With {
+                var initialSize: CGSize
+                var translation: CGSize
+                var limits: ClosedRange<CGFloat>
+            }
 
             var offset: CGSize {
                 switch self {
@@ -308,16 +341,9 @@ extension CardStage {
                 }
             }
 
-            var resizingLocation: CGPoint? {
+            var resizing: Resizing? {
                 switch self {
-                case .resizing(let location, _): location
-                default: nil
-                }
-            }
-
-            var resizingLimits: ClosedRange<CGFloat>? {
-                switch self {
-                case .resizing(_, let range): range
+                case .resizing(let value): value
                 default: nil
                 }
             }
@@ -353,7 +379,10 @@ extension CardStage {
         }
 
         @objc func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
-            let t = gesture.translation(in: nil)
+            let t = {
+                let t = gesture.translation(in: nil)
+                return CGSize(width: t.x, height: -t.y)
+            }()
 
             switch gesture.state {
             case .possible:
@@ -363,7 +392,13 @@ extension CardStage {
                 let location = self.convert(gesture.location(in: nil), from: nil)
 
                 if rects.contains(location) {
-                    self.state = .resizing(location: location, limits: 50...500)
+                    self.state = .resizing(
+                        .init(
+                            initialSize: self.geometry.size,
+                            translation: t,
+                            limits: 50...500
+                        )
+                    )
                 } else {
                     self.state = .dragging(offset: .zero)
                 }
@@ -371,12 +406,11 @@ extension CardStage {
             case .changed:
                 switch self.state {
                 case .dragging:
-                    self.state = .dragging(offset: .init(width: t.x, height: -t.y))
+                    self.state = .dragging(offset: t)
                     self.updateGeometry()
                     self.setNeedsLayout()
-                case .resizing(_, let limits):
-                    let location = self.convert(gesture.location(in: nil), from: nil)
-                    self.state = .resizing(location: location, limits: limits)
+                case .resizing(let value):
+                    self.state = .resizing(value.with(\.translation, t))
                     self.updateGeometry()
                     self.setNeedsLayout()
                 case .idle:
@@ -469,10 +503,12 @@ extension CardStage {
 extension CardStage {
     struct PreviewRepresentable: NSViewControllerRepresentable {
 
-        let model: Model
+        @Binding var model: Model
 
         func makeNSViewController(context: Context) -> CardStage.Controller {
-            .init(self.model)
+            let view = CardStage.Controller(self.model)
+            view.delegate = context.coordinator
+            return view
         }
 
         func updateNSViewController(_ vc: CardStage.Controller, context: Context) {
@@ -484,6 +520,21 @@ extension CardStage {
             if vc.model != self.model {
                 vc.model = self.model
             }
+
+            context.coordinator.model = self.$model
+        }
+
+        func makeCoordinator() -> Coordinator {
+            .init()
+        }
+
+        class Coordinator: CardStage.Controller.Delegate {
+            var model: Binding<Model>?
+            func cardStateControllerDelegateModelDidChange(_ model: CardStage.Model) {
+                if let binding = self.model, binding.wrappedValue != model {
+                    binding.wrappedValue = model
+                }
+            }
         }
     }
 }
@@ -492,8 +543,8 @@ extension CardStage {
     @Previewable @State var model: CardStage.Model = .init()
 
     VStack {
-        CardStage.PreviewRepresentable(model: model)
-            .frame(width: 800, height: 600)
+        CardStage.PreviewRepresentable(model: $model)
+            .frame(minWidth: 800, minHeight: 600)
             .padding()
             .border(.gray)
 
