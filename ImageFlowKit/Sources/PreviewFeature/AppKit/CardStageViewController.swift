@@ -63,6 +63,11 @@ extension CardStage {
             }
         }
 
+        var contentView: PlatformView {
+            get { self.cardView.contentView }
+            set { self.cardView.contentView = newValue }
+        }
+
         var stageView: MainView!
         var cardView: CardView!
         weak var delegate: Delegate?
@@ -348,6 +353,11 @@ extension CardStage {
 
     final class MainView: PlatformCommonView {
 
+        var contentView: PlatformView {
+            get { self.cardView.contentView }
+            set { self.cardView.contentView = newValue }
+        }
+
         var cardView: CardView
         weak var delegate: MainViewDelegate?
 
@@ -539,10 +549,32 @@ extension CardStage {
 
 extension CardStage {
     final class CardView: PlatformCommonView {
+
+        var contentView: PlatformView {
+            didSet {
+                self.setupContentView()
+            }
+        }
+
+        func setupContentView() {
+            for s in self.subviews {
+                s.removeFromSuperview()
+            }
+            self.contentView.autoresizingMask = [.width, .height]
+            self.contentView.clipsToBounds = true
+            self.contentView.wantsLayer = true
+            self.contentView.layer?.cornerRadius = 10
+            self.contentView.layer?.cornerCurve = .continuous
+            self.contentView.layer?.masksToBounds = true
+            self.addSubview(self.contentView)
+        }
+
         override init(frame frameRect: NSRect) {
+            self.contentView = DefaultContentView(frame: .zero)
             super.init(frame: frameRect)
+
             self.wantsLayer = true
-            self.layer?.backgroundColor = NSColor.systemMint.cgColor
+            self.layer?.backgroundColor = .clear  //NSColor.systemMint.cgColor
             self.layer?.cornerRadius = 10
             self.layer?.cornerCurve = .continuous
 
@@ -554,7 +586,20 @@ extension CardStage {
             self.layer?.shadowOffset = .zero
             self.layer?.masksToBounds = false
 
-            self.clipsToBounds = false
+            self.autoresizesSubviews = true
+            self.setupContentView()
+        }
+
+        required init?(coder: NSCoder) {
+            nil
+        }
+    }
+
+    final class DefaultContentView: PlatformCommonView {
+        override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            self.wantsLayer = true
+            self.layer?.backgroundColor = .red
         }
 
         required init?(coder: NSCoder) {
@@ -584,6 +629,13 @@ extension CardStage {
         func makeNSViewController(context: Context) -> CardStage.Controller {
             let view = CardStage.Controller(self.model)
             view.delegate = context.coordinator
+            view.contentView = NSHostingView(
+                rootView: ZStack {
+                    Color.purple
+                    Text("Card View!!")
+                        .foregroundStyle(.white)
+                }
+            )
             return view
         }
 
@@ -632,6 +684,7 @@ extension CardStage {
                     Text("\(item.rawValue)").tag(item)
                 }
             }
+            Text("size: \(model.size, default: "")")
         }
         .padding()
     }
