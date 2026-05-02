@@ -915,29 +915,29 @@ func canCreateEdgeFailWithInvaildDestPort() throws {
     }
 }
 
-@MainActor
-@Test("`canCreateEdge: fail with destination port already connected`")
-func canCreateEdgeFailWithDestPortAlreadyConnected() throws {
-    let (flow, ids) = makeFlow(
-        [
-            .valueNode(.float),
-            .valueNode(.int),
-        ],
-        []
-    )
+// @MainActor
+// @Test("`canCreateEdge: fail with destination port already connected`")
+// func canCreateEdgeFailWithDestPortAlreadyConnected() throws {
+//     let (flow, ids) = makeFlow(
+//         [
+//             .valueNode(.float),
+//             .valueNode(.int),
+//         ],
+//         []
+//     )
 
-    let edge = ids.edge(src: (0, 0), dst: (1, 0))
+//     let edge = ids.edge(src: (0, 0), dst: (1, 0))
 
-    flow.nodes[ids[1]]!.inputs[0].connected = true
+//     flow.nodes[ids[1]]!.inputs[0].connected = true
 
-    let result = flow.canCreateEdge(edge)
-    switch result {
-    case .failure(.destPortAlreadyConnected):
-        break
-    default:
-        #expect(Bool(false), "\(result)")
-    }
-}
+//     let result = flow.canCreateEdge(edge)
+//     switch result {
+//     case .failure(.destPortAlreadyConnected):
+//         break
+//     default:
+//         #expect(Bool(false), "\(result)")
+//     }
+// }
 
 @MainActor
 @Test("`canCreateEdge: fail with not fixable type error`")

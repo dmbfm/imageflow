@@ -228,6 +228,8 @@ public final class GlobalCoordinatorDefaultImpl: GlobalCoordinatorImpl {
             self.flow.convertNodeAction(id, kind: kind, undoManager: self.undoManager)
         case .disconnect(port: let port):
             self.flow.deleteEdge(connectedToInput: port, undoManager: self.undoManager)
+        case .openFileImporter(_):
+            break
         }
     }
 

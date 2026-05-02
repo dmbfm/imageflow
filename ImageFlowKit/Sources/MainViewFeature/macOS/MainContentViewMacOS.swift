@@ -40,7 +40,7 @@ struct MainContentViewMacOS: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarFeatureView(self.vm.onDoubleClick(nodePaletteItem:))
+            SidebarFeatureView { _ in }
                 .navigationSplitViewColumnWidth(min: 150, ideal: 220, max: 400)
                 .scrollEdgeEffectStyle(.hard, for: .top)
         } detail: {

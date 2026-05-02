@@ -1,0 +1,219 @@
+import Foundation
+import Helpers
+
+struct Square: Equatable {
+    var origin: CGPoint
+    var size: CGFloat
+
+    /// Offsets the square by the given amount.
+    /// - Parameter offset:
+    /// - Returns: The offsetted square.
+    func offsetted(by offset: CGSize) -> Self {
+        Square(origin: self.origin + offset.cgPoint, size: self.size)
+    }
+
+    /// Returns a new square with the same size but positioned so it is aligned
+    /// to the given `CardStageAnchor`.
+    /// - Parameters:
+    ///   - stage:
+    ///   - anchor:
+    ///
+    /// - Returns: The new aligned square.
+    func aligned(stage: CGRect, anchor: CardStageAnchor) -> Self {
+        switch anchor {
+        case .topLeft:
+            Square(origin: stage.origin, size: self.size)
+        case .topRight:
+            Square(origin: stage.origin + .init(x: stage.width - self.size, y: 0), size: self.size)
+        case .bottomLeft:
+            Square(origin: stage.origin + .init(x: 0, y: stage.height - self.size), size: self.size)
+        case .bottomRight:
+            Square(
+                origin: stage.origin + .init(x: stage.width - self.size, y: stage.height - self.size),
+                size: self.size
+            )
+        }
+    }
+
+    /// Calculates the new square obtained when the user resizes a Card by
+    /// dragging one of its `CardResizingHandle`s by the given translation amount.
+    ///
+    /// The square's origin is also modified as to maintain its alignment with the given `anchor`.
+    ///
+    /// - Parameters:
+    ///   - t:
+    ///   - handle:
+    ///   - anchor:
+    ///   - stage:
+    ///   - range:
+    ///
+    /// - Returns: The resized square.
+    func dragResized(
+        byTranslation t: CGSize,
+        usingHandle handle: CardResizingHandle,
+        anchor: CardStageAnchor,
+        stage: CGRect,
+        sizeRange range: ClosedRange<CGFloat>,
+    ) -> Self {
+
+        let localTranslation = anchor.convertToLocal(t)
+
+        let newSize: CGFloat =
+            switch handle {
+            case .horizontal:
+                (self.size + localTranslation.width).clamped(to: range)
+            case .vertical:
+                (self.size + localTranslation.height).clamped(to: range)
+            case .diagonal:
+                (self.size + max(localTranslation.width, localTranslation.width)).clamped(to: range)
+            }
+
+        return Square(
+            origin: self.origin,
+            size: newSize
+        )
+        .aligned(stage: stage, anchor: anchor)
+    }
+
+    /// Returns the corner point of the square for the given `Corner`.
+    /// - Parameter corner:
+    /// - Returns: The corner point.
+    func point(forCorner corner: Corner) -> CGPoint {
+        switch corner {
+        case .topLeft:
+            self.origin
+        case .topRight:
+            self.origin + .init(x: self.size, y: 0)
+        case .bottomLeft:
+            self.origin + .init(x: 0, y: self.size)
+        case .bottomRight:
+            self.origin + .init(x: self.size, y: self.size)
+        }
+    }
+
+    /// The corner points of the square
+    var corners: [Corner: CGPoint] {
+        .init(uniqueKeysWithValues: Corner.allCases.map({ ($0, self.point(forCorner: $0)) }))
+    }
+
+    /// Returns the set of resizing handle rects for the given alinment `anchor`.
+    /// - Parameters:
+    ///   - anchor:
+    ///   - thickness:
+    ///
+    /// - Returns: The set of resizing handle rects.
+    func resizeRects(anchor: CardStageAnchor, thickness: CGFloat) -> CardResizingRects {
+        let o = self.origin
+        let s = self.size
+        let t = thickness
+
+        let horizontal = CGRect(origin: .zero, size: .init(width: s, height: t))
+        let vertical = CGRect(origin: .zero, size: .init(width: t, height: s))
+        let diag = CGRect(origin: .zero, size: .init(width: 2 * t, height: 2 * t))
+
+        func offset(handle: CardResizingHandle) -> CGPoint {
+            switch anchor {
+            case .topLeft:
+                switch handle {
+                case .horizontal:
+                    CGPoint(x: 0, y: s - t)
+                case .vertical:
+                    CGPoint(x: s - t, y: 0)
+                case .diagonal:
+                    CGPoint(x: s - 2 * t, y: s - 2 * t)
+                }
+            case .topRight:
+                switch handle {
+                case .horizontal:
+                    CGPoint(x: 0, y: s - t)
+                case .vertical:
+                    CGPoint(x: 0, y: 0)
+                case .diagonal:
+                    CGPoint(x: 0, y: s - 2 * t)
+                }
+            case .bottomLeft:
+                switch handle {
+                case .horizontal:
+                    CGPoint(x: 0, y: 0)
+                case .vertical:
+                    CGPoint(x: s - t, y: 0)
+                case .diagonal:
+                    CGPoint(x: s - 2 * t, y: 0)
+                }
+            case .bottomRight:
+                .zero
+            }
+        }
+
+        return .init(
+            horizontal: horizontal.with(\.origin, o + offset(handle: .horizontal)),
+            vertical: vertical.with(\.origin, o + offset(handle: .vertical)),
+            diagonal: diag.with(\.origin, o + offset(handle: .diagonal))
+        )
+    }
+}
+
+enum Corner: CaseIterable {
+    case topLeft
+    case topRight
+    case bottomLeft
+    case bottomRight
+}
+
+extension CardStageAnchor {
+    /// Converts the give `size` to a local coordinate system that is
+    /// axis-alined with the anchor.
+    ///
+    /// For instance, a bottom-right anchor will flip the x and y coordinates,
+    /// while a topLeft anchor will not flip any coordinates.
+    /// - Parameter size:
+    /// - Returns:
+    func convertToLocal(_ size: CGSize) -> CGSize {
+        switch self {
+        case .topLeft:
+            size
+        case .topRight:
+            .init(width: -size.width, height: size.height)
+        case .bottomLeft:
+            .init(width: size.width, height: -size.height)
+        case .bottomRight:
+            .init(width: -size.width, height: -size.height)
+        }
+    }
+}
+
+extension CardStageState.Floating {
+    /// Returns the card square for the current floating card stage state.
+    /// - Parameters:
+    ///   - bounds: The bounds of the card stage view.
+    ///   - insets: The insets.
+    ///   - sizeRange: The range of sizes the card can have.
+    ///
+    /// - Returns: The card square.
+    func cardSquare(
+        forStageBounds bounds: CGRect,
+        insets: CardStageInsets,
+        sizeRange: ClosedRange<CGFloat>,
+    ) -> Square {
+        let stage = insets.inset(rect: bounds)
+        let idleSqure = Square(origin: .zero, size: self.size)
+            .aligned(stage: stage, anchor: self.anchor)
+
+        switch self.state {
+        case .idle:
+            return idleSqure
+        case let .dragging(offset):
+            return idleSqure.offsetted(by: offset)
+        case let .resizing(resizing):
+            return idleSqure.dragResized(
+                byTranslation: resizing.translation,
+                usingHandle: resizing.handle,
+                anchor: self.anchor,
+                stage: stage,
+                sizeRange: sizeRange
+            )
+        }
+    }
+}
+
+extension CGRect: With {}

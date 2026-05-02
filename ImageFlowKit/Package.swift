@@ -40,6 +40,7 @@ let package = Package(
         .library(name: "ContextMenus"),
         .library(name: "InspectorFeature"),
         .library(name: "TextInput"),
+        .library(name: "CardStage"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -75,6 +76,12 @@ let package = Package(
                 "XViewKit",
                 "Values",
                 "Design",
+            ]
+        ),
+        .target(
+            name: "CardStage",
+            dependencies: [
+                "Helpers"
             ]
         ),
         .target(
@@ -315,6 +322,13 @@ let package = Package(
                 "AssetManager",
             ],
             resources: [.copy("Fixtures")]
+        ),
+        .testTarget(
+            name: "CardStageTests",
+            dependencies: [
+                "CardStage",
+                "Helpers",
+            ]
         ),
     ]
 )
