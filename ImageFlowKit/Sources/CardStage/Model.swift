@@ -1,36 +1,56 @@
 import Foundation
+import Helpers
 
-// public struct CardStageModel: Sendable, Equatable {
-//     public var anchor: CardStageAnchor
-//     public var visible: Bool
-// }
-
-enum CardStageState {
+public enum CardStageState: Sendable, Equatable {
     case floating(Floating)
     case docked(Docked)
 
-    struct Floating {
-        var anchor: CardStageAnchor
-        var hidden: Bool
-        var state: State
-        var size: CGFloat
+    public struct Floating: Sendable, Equatable, With {
+        public var anchor: CardStageAnchor
+        public var hidden: Bool
+        public var state: State
+        public var size: CGFloat
 
-        enum State {
+        public enum State: Sendable, Equatable {
             case idle
             case resizing(Resizing)
             case dragging(offset: CGSize)
         }
 
-        struct Resizing {
-            var initialSize: CGFloat
-            var translation: CGSize
-            var handle: CardResizingHandle
+        public struct Resizing: With, Sendable, Equatable {
+            public var initialSize: CGFloat
+            public var translation: CGSize
+            public var handle: CardResizingHandle
         }
     }
 
-    struct Docked {
+    public struct Docked: Sendable, Equatable {
         var location: CardDockLocation
         var height: CGFloat
+    }
+
+    public static let `default`: Self = .floating(.init(anchor: .bottomRight, hidden: false, state: .idle, size: 250))
+
+    public var anchor: CardStageAnchor? {
+        if case let .floating(floating) = self {
+            floating.anchor
+        } else {
+            nil
+        }
+    }
+}
+
+public struct CardStageConfiguration: Sendable, Equatable {
+    public var insets: CardStageInsets
+    public var cardSizeRange: ClosedRange<CGFloat>
+    public var cardRadius: CGFloat
+
+    static let `default`: Self = .init(insets: .init(10), cardSizeRange: 50...500, cardRadius: 10)
+
+    init(insets: CardStageInsets, cardSizeRange: ClosedRange<CGFloat>, cardRadius: CGFloat) {
+        self.insets = insets
+        self.cardSizeRange = cardSizeRange
+        self.cardRadius = cardRadius
     }
 }
 
@@ -39,7 +59,7 @@ enum CardDockLocation {
     case bottom
 }
 
-enum CardResizingHandle {
+public enum CardResizingHandle: Sendable, Equatable {
     case horizontal
     case vertical
     case diagonal
@@ -57,15 +77,17 @@ struct CardResizingRects: Equatable {
         case .diagonal: self.diagonal
         }
     }
-}
 
-public struct CardStageConfiguration: Sendable, Equatable {
-    public var insets: CardStageInsets
-    public var cardRadius: CGFloat
-
-    public init(insets: CardStageInsets, cardRadius: CGFloat) {
-        self.insets = insets
-        self.cardRadius = cardRadius
+    func handleContaining(point: CGPoint) -> CardResizingHandle? {
+        if self.diagonal.contains(point) {
+            .diagonal
+        } else if self.horizontal.contains(point) {
+            .horizontal
+        } else if self.vertical.contains(point) {
+            .vertical
+        } else {
+            nil
+        }
     }
 }
 
@@ -74,6 +96,13 @@ public struct CardStageInsets: Sendable, Equatable {
     public var right: CGFloat
     public var top: CGFloat
     public var bottom: CGFloat
+
+    public init(_ value: CGFloat) {
+        self.left = value
+        self.right = value
+        self.top = value
+        self.bottom = value
+    }
 
     public init(left: CGFloat, right: CGFloat, top: CGFloat, bottom: CGFloat) {
         self.left = left
@@ -87,12 +116,12 @@ public struct CardStageInsets: Sendable, Equatable {
             x: rect.minX + self.left,
             y: rect.minY + self.top,
             width: rect.width - (self.left + self.right),
-            height: rect.height - (self.top - self.bottom)
+            height: rect.height - (self.top + self.bottom)
         )
     }
 }
 
-public enum CardStageAnchor: Sendable, Equatable {
+public enum CardStageAnchor: Sendable, Equatable, CaseIterable {
     case topLeft
     case topRight
     case bottomLeft

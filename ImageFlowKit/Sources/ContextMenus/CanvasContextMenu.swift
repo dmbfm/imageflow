@@ -85,7 +85,6 @@ public class CanvasContextMenuProvider {
     public func makeMenu(at location: CGPoint) -> NSMenu? {
         let menu = NSMenu(title: "Canvas")
         let canPaste = PasteboardObserver.shared.canPaste
-        let nodeCount = ImageFlowCoordinator.nodeCount()
 
         self.zoomMenuController = .init()
 

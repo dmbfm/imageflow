@@ -81,7 +81,8 @@ let package = Package(
         .target(
             name: "CardStage",
             dependencies: [
-                "Helpers"
+                "Helpers",
+                "XViewKit",
             ]
         ),
         .target(

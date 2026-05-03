@@ -20,10 +20,6 @@ open class XCommonView: XView {
     public var contentScale: CGFloat {
         self.window?.backingScaleFactor ?? 2.0
     }
-
-    public func setNeedsLayout() {
-        self.needsLayout = true
-    }
     #endif
 
     #if os(iOS)
@@ -35,4 +31,5 @@ open class XCommonView: XView {
 
     open func doLayout() {
     }
+
 }

@@ -1,9 +1,117 @@
 import Foundation
 import Helpers
 
+enum Geometry: Equatable {
+    case floating(Floating)
+    case docked
+
+    var square: Square? {
+        switch self {
+        case .floating(let floating): floating.square
+        case .docked: nil
+        }
+    }
+
+    static let zero: Self = .floating(.init(square: .init(origin: .zero, size: 0)))
+
+    static func fromState(
+        _ state: CardStageState,
+        stageBounds bounds: CGRect,
+        configuration config: CardStageConfiguration
+    ) -> Self {
+        switch state {
+        case .docked(_): .docked
+        case .floating(let state):
+            .floating(
+                .init(
+                    square: state.cardSquare(
+                        forStageBounds: bounds,
+                        insets: config.insets,
+                        sizeRange: config.cardSizeRange,
+                    )
+                )
+            )
+        }
+    }
+
+    // func movingToClosestAnchor(
+    //     stageBounds bounds: CGRect,
+    //     insets: CardStageInsets,
+    // ) -> (Self, CardStageAnchor)? {
+    //     if case let .floating(floating) = self {
+    //         let stage = Stage(bounds: bounds, insets: insets)
+    //         let anchor = stage.closestAnchor(toSquare: floating.square)
+    //         return (.floating(.init(square: floating.square))., anchor)
+    //     } else {
+    //         return nil
+    //     }
+    // }
+
+    struct Floating: Equatable {
+        var square: Square
+    }
+}
+
+struct Stage {
+    var bounds: CGRect
+    var insets: CardStageInsets
+
+    func squareCenterPoint(
+        forAnchor anchor: CardStageAnchor,
+        squreSize: CGFloat,
+    ) -> CGPoint {
+        let area = self.insets.inset(rect: self.bounds)
+        let s = squreSize * 0.5
+
+        switch anchor {
+        case .topLeft:
+            return .init(
+                x: area.minX + s,
+                y: area.minY + s
+            )
+        case .topRight:
+            return .init(
+                x: area.maxX - s,
+                y: area.minY + s,
+            )
+        case .bottomLeft:
+            return .init(
+                x: area.minX + s,
+                y: area.maxY - s,
+            )
+        case .bottomRight:
+            return .init(
+                x: area.maxX - s,
+                y: area.maxY - s,
+            )
+        }
+    }
+
+    func closestAnchor(toSquare square: Square) -> CardStageAnchor {
+        let center = square.center
+        let (anchor, _) = CardStageAnchor.allCases.reduce(
+            (CardStageAnchor.topLeft, CGFloat.greatestFiniteMagnitude),
+            { acc, anchor in
+                let p = self.squareCenterPoint(forAnchor: anchor, squreSize: square.size)
+                let d = center.distance(to: p)
+                if d < acc.1 {
+                    return (anchor, d)
+                } else {
+                    return acc
+                }
+            }
+        )
+        return anchor
+    }
+}
+
 struct Square: Equatable {
     var origin: CGPoint
     var size: CGFloat
+
+    var center: CGPoint {
+        .init(x: self.origin.x + self.size * 0.5, y: self.origin.y + self.size * 0.5)
+    }
 
     /// Offsets the square by the given amount.
     /// - Parameter offset:
@@ -61,9 +169,9 @@ struct Square: Equatable {
         let newSize: CGFloat =
             switch handle {
             case .horizontal:
-                (self.size + localTranslation.width).clamped(to: range)
-            case .vertical:
                 (self.size + localTranslation.height).clamped(to: range)
+            case .vertical:
+                (self.size + localTranslation.width).clamped(to: range)
             case .diagonal:
                 (self.size + max(localTranslation.width, localTranslation.width)).clamped(to: range)
             }
