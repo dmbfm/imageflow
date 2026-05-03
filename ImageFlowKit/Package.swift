@@ -14,6 +14,7 @@ let package = Package(
     platforms: [.macOS(.v26), .iOS(.v26)],
     products: [
         .library(name: "AppMacOS"),
+        .library(name: "AnimKit"),
         ///
         .library(name: "Backend"),
         .library(name: "Values"),
@@ -65,6 +66,12 @@ let package = Package(
                 "NodeView",
             ]
         ),
+        .target(
+            name: "AnimKit",
+            dependencies: [
+                "Helpers"
+            ]
+        ),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
@@ -83,6 +90,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "XViewKit",
+                "AnimKit",
             ]
         ),
         .target(

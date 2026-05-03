@@ -12,7 +12,7 @@ import CardStage
 struct CardStagePreviewApp: App {
     var body: some Scene {
         WindowGroup {
-            CardStageView.Preview()
+            CardStageView.Preview(.docked)
         }
     }
 }

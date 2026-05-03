@@ -3,12 +3,27 @@ import Helpers
 
 enum Geometry: Equatable {
     case floating(Floating)
-    case docked
+    case docked(Docked)
+
+    struct Floating: Equatable {
+        var square: Square
+    }
+
+    struct Docked: Equatable {
+        var frame: CGRect
+    }
 
     var square: Square? {
         switch self {
         case .floating(let floating): floating.square
         case .docked: nil
+        }
+    }
+
+    var dockedFrame: CGRect? {
+        switch self {
+        case .docked(let docked): docked.frame
+        case .floating: nil
         }
     }
 
@@ -20,9 +35,19 @@ enum Geometry: Equatable {
         configuration config: CardStageConfiguration
     ) -> Self {
         switch state {
-        case .docked(_): .docked
+        case .docked(let docked, _):
+            let rect =
+                switch docked.location {
+                case .bottom:
+                    CGRect(x: bounds.minX, y: bounds.maxY - docked.height, width: bounds.width, height: docked.height)
+                case .top:
+                    CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height)
+                }
+
+            return .docked(.init(frame: rect))
+
         case .floating(let state):
-            .floating(
+            return .floating(
                 .init(
                     square: state.cardSquare(
                         forStageBounds: bounds,
@@ -34,22 +59,6 @@ enum Geometry: Equatable {
         }
     }
 
-    // func movingToClosestAnchor(
-    //     stageBounds bounds: CGRect,
-    //     insets: CardStageInsets,
-    // ) -> (Self, CardStageAnchor)? {
-    //     if case let .floating(floating) = self {
-    //         let stage = Stage(bounds: bounds, insets: insets)
-    //         let anchor = stage.closestAnchor(toSquare: floating.square)
-    //         return (.floating(.init(square: floating.square))., anchor)
-    //     } else {
-    //         return nil
-    //     }
-    // }
-
-    struct Floating: Equatable {
-        var square: Square
-    }
 }
 
 struct Stage {
@@ -108,6 +117,10 @@ struct Stage {
 struct Square: Equatable {
     var origin: CGPoint
     var size: CGFloat
+
+    var rect: CGRect {
+        .init(origin: self.origin, size: .init(width: self.size, height: self.size))
+    }
 
     var center: CGPoint {
         .init(x: self.origin.x + self.size * 0.5, y: self.origin.y + self.size * 0.5)

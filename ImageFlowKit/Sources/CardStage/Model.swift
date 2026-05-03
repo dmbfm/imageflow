@@ -3,7 +3,7 @@ import Helpers
 
 public enum CardStageState: Sendable, Equatable {
     case floating(Floating)
-    case docked(Docked)
+    case docked(Docked, Floating)
 
     public struct Floating: Sendable, Equatable, With {
         public var anchor: CardStageAnchor
@@ -24,18 +24,70 @@ public enum CardStageState: Sendable, Equatable {
         }
     }
 
-    public struct Docked: Sendable, Equatable {
+    public struct Docked: Sendable, Equatable, With {
         var location: CardDockLocation
         var height: CGFloat
     }
 
     public static let `default`: Self = .floating(.init(anchor: .bottomRight, hidden: false, state: .idle, size: 250))
 
-    public var anchor: CardStageAnchor? {
-        if case let .floating(floating) = self {
-            floating.anchor
-        } else {
-            nil
+    public static let dockedDefault: Self = .docked(
+        .init(location: .bottom, height: 250),
+        .init(anchor: .bottomRight, hidden: false, state: .idle, size: 250)
+    )
+
+    public var isFloating: Bool {
+        switch self {
+        case .floating: true
+        case .docked: false
+        }
+    }
+
+    public var floating: Floating {
+        get {
+            switch self {
+            case .floating(let floating): floating
+            case .docked(_, let floating): floating
+            }
+        }
+        set {
+            switch self {
+            case .floating: self = .floating(newValue)
+            case .docked(let docked, _): self = .docked(docked, newValue)
+            }
+        }
+    }
+
+    public var anchor: CardStageAnchor {
+        get { self.floating.anchor }
+        set { self.floating.anchor = newValue }
+    }
+
+    public var hidden: Bool {
+        get { self.floating.hidden }
+        set { self.floating.hidden = newValue }
+    }
+
+    public var dockLocation: CardDockLocation? {
+        switch self {
+            case .docked(let docked, _): docked.location
+            case .floating: nil
+        }
+    }
+
+    public func docked(_ location: CardDockLocation) -> Self {
+        switch self {
+        case .floating(let floating):
+            .docked(.init(location: location, height: 250), floating)
+        case let .docked(docked, floating):
+            .docked(docked.with(\.location, location), floating)
+        }
+    }
+
+    public func undocked() -> Self {
+        switch self {
+        case .floating(_): self
+        case .docked(_, let floating): .floating(floating)
         }
     }
 }
@@ -54,7 +106,7 @@ public struct CardStageConfiguration: Sendable, Equatable {
     }
 }
 
-enum CardDockLocation {
+public enum CardDockLocation: Sendable, Equatable {
     case top
     case bottom
 }
@@ -121,7 +173,8 @@ public struct CardStageInsets: Sendable, Equatable {
     }
 }
 
-public enum CardStageAnchor: Sendable, Equatable, CaseIterable {
+public enum CardStageAnchor: String, Sendable, Equatable, Identifiable, CaseIterable {
+    public var id: Self { self }
     case topLeft
     case topRight
     case bottomLeft
