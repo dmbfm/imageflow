@@ -69,19 +69,27 @@ enum Geometry: Equatable {
                             height: docked.height
                         )
                     case .resizing(let resizing):
-                        CGRect(
-                            x: bounds.minX,
-                            y: bounds.maxY - docked.height + resizing.translation,
-                            width: bounds.width,
-                            height: docked.height - resizing.translation
-                        )
+                        {
+                            let height = (docked.height - resizing.translation).clamped(to: config.dockedHeightRange)
+                            return CGRect(
+                                x: bounds.minX,
+                                y: bounds.maxY - height,
+                                width: bounds.width,
+                                height: height,
+                            )
+                        }()
                     }
                 case .top:
                     switch docked.state {
                     case .idle:
                         CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height)
                     case .resizing(let resizing):
-                        CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height + resizing.translation)
+                        CGRect(
+                            x: bounds.minX,
+                            y: bounds.minY,
+                            width: bounds.width,
+                            height: (docked.height + resizing.translation).clamped(to: config.dockedHeightRange)
+                        )
                     }
                 }
 

@@ -107,14 +107,26 @@ public enum CardStageState: Sendable, Equatable {
 public struct CardStageConfiguration: Sendable, Equatable {
     public var insets: CardStageInsets
     public var cardSizeRange: ClosedRange<CGFloat>
+    public var dockedHeightRange: ClosedRange<CGFloat>
     public var cardRadius: CGFloat
 
-    static let `default`: Self = .init(insets: .init(10), cardSizeRange: 50...500, cardRadius: 10)
+    static let `default`: Self = .init(
+        insets: .init(10),
+        cardSizeRange: 50...500,
+        cardRadius: 10,
+        dockedHeightRange: 100...400
+    )
 
-    init(insets: CardStageInsets, cardSizeRange: ClosedRange<CGFloat>, cardRadius: CGFloat) {
+    init(
+        insets: CardStageInsets,
+        cardSizeRange: ClosedRange<CGFloat>,
+        cardRadius: CGFloat,
+        dockedHeightRange: ClosedRange<CGFloat>
+    ) {
         self.insets = insets
         self.cardSizeRange = cardSizeRange
         self.cardRadius = cardRadius
+        self.dockedHeightRange = dockedHeightRange
     }
 }
 

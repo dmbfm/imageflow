@@ -148,8 +148,10 @@ public final class CardStageView: XCommonView {
 
     func setupLayer() {
         switch self.state {
-        case .floating: self.cardView.radius = 10
-        case .docked: self.cardView.radius = 0
+        case .floating:
+            self.cardView.radius = 10
+        case .docked:
+            self.cardView.radius = 0
         }
     }
 
@@ -207,9 +209,9 @@ public final class CardStageView: XCommonView {
                         {
                             switch docked.location {
                             case .bottom:
-                                docked.height - resizing.translation
+                                (docked.height - resizing.translation).clamped(to: self.configuration.dockedHeightRange)
                             case .top:
-                                docked.height + resizing.translation
+                                (docked.height + resizing.translation).clamped(to: self.configuration.dockedHeightRange)
                             }
                         }()
                     ),
@@ -378,11 +380,10 @@ public final class CardStageView: XCommonView {
     var movedToWindow: Bool = false
     public override func viewDidMoveToWindow() {
         self.movedToWindow = true
+        self.updateGeometry()
     }
 
     func stateDidChange(_ oldValue: CardStageState) {
-
-        guard self.movedToWindow else { return }
 
         self.updateGeometry()
 
@@ -471,6 +472,10 @@ public final class CardStageView: XCommonView {
                 }
             }
         }
+
+        if !self.state.isFloating && self.cardView.radius != 0 {
+            self.cardView.radius = 0
+        }
     }
 
     func configurationDidChange() {
@@ -478,6 +483,8 @@ public final class CardStageView: XCommonView {
     }
 
     func updateGeometry(_ requestLayout: Bool = true) {
+        guard self.movedToWindow else { return }
+
         let newGeometry = Geometry.fromState(self.state, stageBounds: self.bounds, configuration: self.configuration)
 
         if self.geometry != newGeometry {
