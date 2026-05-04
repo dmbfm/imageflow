@@ -658,9 +658,12 @@ extension CardStageView {
                 rootView:
                     ZStack {
                         Color.orange
-                        Text("Card View")
-                            .font(.headline)
-                            .foregroundStyle(.white)
+                        VStack {
+                            Text("Card View")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                            Button("Hello") {}
+                        }
                     }
             )
             return view
