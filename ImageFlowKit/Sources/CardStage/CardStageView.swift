@@ -31,6 +31,8 @@ class DockAnimation: AnimKit::Animation {
         self.from = from
         self.to = to
         self.apply = apply
+
+        logger.info("from: \("\(from)"), to: \("\(to)")")
     }
 
     func start(prev: (any AnimKit.Animation)?) {
@@ -149,12 +151,70 @@ public final class CardStageView: XCommonView {
     }
 
     @objc func panGestureHandler(_ gesture: XPanGestureRecognizer) {
-        logger.debug("pan: \("\(gesture.translation(in: nil))")")
         switch self.state {
-        case .docked(_, _):
-            break
+        case let .docked(docked, floating):
+            self.handleDockedDrag(docked, floating, gesture)
         case .floating(let floating):
             self.handleFloatingDrag(floating, gesture)
+        }
+    }
+
+    func handleDockedDrag(
+        _ docked: CardStageState.Docked,
+        _ floating: CardStageState.Floating,
+        _ gesture: XPanGestureRecognizer
+    ) {
+        let t = {
+            let t = gesture.translation(in: nil)
+            return CGSize(width: t.x, height: -t.y)
+        }()
+
+        switch gesture.state {
+        case .began:
+            let location = self.convert(gesture.location(in: nil), from: nil)
+            if self.geometry.docked?.resizingRect(forLocation: docked.location, thickness: 10).contains(location)
+                == true
+            {
+                self.state = .docked(
+                    docked.with(\.state, .resizing(.init(initialSize: docked.height, translation: 0))),
+                    floating
+                )
+            }
+        case .changed:
+            switch docked.state {
+            case .resizing(let resizing):
+                self.state = .docked(
+                    docked.with(\.state, .resizing(resizing.with(\.translation, t.height))),
+                    floating
+                )
+            case .idle:
+                break
+            }
+        case .ended:
+            switch docked.state {
+            case .resizing(let resizing):
+                self.state = .docked(
+                    docked.with(\.state, .idle).with(
+                        \.height,
+                        {
+                            switch docked.location {
+                            case .bottom:
+                                docked.height - resizing.translation
+                            case .top:
+                                docked.height + resizing.translation
+                            }
+                        }()
+                    ),
+                    floating
+                )
+            case .idle:
+                break
+            }
+
+            break
+
+        default:
+            break
         }
     }
 
@@ -194,6 +254,23 @@ public final class CardStageView: XCommonView {
             case .idle:
                 break
             case .dragging:
+
+                let location = self.convert(gesture.location(in: nil), from: nil)
+
+                if location.y >= self.bounds.maxY - 12 {
+                    self.state = .docked(
+                        .init(location: .bottom, height: floating.dockedHeight ?? 250, state: .idle),
+                        floating.with(\.state, .idle)
+                    )
+                    break
+                } else if location.y <= 12 {
+                    self.state = .docked(
+                        .init(location: .top, height: floating.dockedHeight ?? 250, state: .idle),
+                        floating.with(\.state, .idle)
+                    )
+                    break
+                }
+
                 self.state = .floating(floating.with(\.state, .dragging(offset: t)))
             case .resizing(let resizing):
                 self.state = .floating(floating.with(\.state, .resizing(resizing.with(\.translation, t))))
@@ -306,7 +383,10 @@ public final class CardStageView: XCommonView {
                 _ = self.animController.start(
                     id: self.dockAnimID,
                     animation: DockAnimation(
-                        from: .init(frame: self.cardView.frame, cornerRadius: self.cardView.radius),
+                        from: .init(
+                            frame: self.cardView.frame,
+                            cornerRadius: self.cardView.radius
+                        ),
                         to: .init(frame: frame, cornerRadius: 0),
                         apply: { [weak self] data in
                             guard let self else { return }
@@ -405,6 +485,11 @@ public final class CardStageView: XCommonView {
                     }
                 }()
             )
+        } else if let geometry = self.geometry.docked, let loc = self.state.dockLocation {
+            self.addCursorRect(
+                geometry.resizingRect(forLocation: loc, thickness: 10),
+                cursor: .windowResizeNorthSouthCursor
+            )
         }
     }
 
@@ -412,8 +497,6 @@ public final class CardStageView: XCommonView {
         super.layout()
 
         guard !self.animController.isAnimating else { return }
-
-        // guard self.animData == nil else { return }
 
         self.updateGeometry(false)
 

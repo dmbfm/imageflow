@@ -5,12 +5,32 @@ enum Geometry: Equatable {
     case floating(Floating)
     case docked(Docked)
 
+    var floating: Floating? {
+        if case let .floating(value) = self { value } else { nil }
+    }
+
+    var docked: Docked? {
+        if case let .docked(value) = self { value } else { nil }
+    }
+
     struct Floating: Equatable {
         var square: Square
     }
 
     struct Docked: Equatable {
         var frame: CGRect
+
+        func resizingRect(forLocation location: CardDockLocation, thickness: CGFloat) -> CGRect {
+            switch location {
+            case .bottom:
+                .init(origin: self.frame.origin, size: .init(width: self.frame.width, height: thickness))
+            case .top:
+                .init(
+                    origin: self.frame.origin + .init(x: 0, y: self.frame.height - thickness),
+                    size: .init(width: self.frame.width, height: thickness)
+                )
+            }
+        }
     }
 
     var square: Square? {
@@ -36,12 +56,33 @@ enum Geometry: Equatable {
     ) -> Self {
         switch state {
         case .docked(let docked, _):
+
             let rect =
                 switch docked.location {
                 case .bottom:
-                    CGRect(x: bounds.minX, y: bounds.maxY - docked.height, width: bounds.width, height: docked.height)
+                    switch docked.state {
+                    case .idle:
+                        CGRect(
+                            x: bounds.minX,
+                            y: bounds.maxY - docked.height,
+                            width: bounds.width,
+                            height: docked.height
+                        )
+                    case .resizing(let resizing):
+                        CGRect(
+                            x: bounds.minX,
+                            y: bounds.maxY - docked.height + resizing.translation,
+                            width: bounds.width,
+                            height: docked.height - resizing.translation
+                        )
+                    }
                 case .top:
-                    CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height)
+                    switch docked.state {
+                    case .idle:
+                        CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height)
+                    case .resizing(let resizing):
+                        CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height + resizing.translation)
+                    }
                 }
 
             return .docked(.init(frame: rect))

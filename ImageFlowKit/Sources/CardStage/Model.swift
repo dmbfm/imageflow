@@ -7,6 +7,7 @@ public enum CardStageState: Sendable, Equatable {
 
     public struct Floating: Sendable, Equatable, With {
         public var anchor: CardStageAnchor
+        public var dockedHeight: CGFloat? = nil
         public var hidden: Bool
         public var state: State
         public var size: CGFloat
@@ -25,14 +26,25 @@ public enum CardStageState: Sendable, Equatable {
     }
 
     public struct Docked: Sendable, Equatable, With {
-        var location: CardDockLocation
-        var height: CGFloat
+        public var location: CardDockLocation
+        public var height: CGFloat
+        public var state: State
+
+        public enum State: Sendable, Equatable {
+            case idle
+            case resizing(Resizing)
+        }
+
+        public struct Resizing: With, Sendable, Equatable {
+            public var initialSize: CGFloat
+            public var translation: CGFloat
+        }
     }
 
     public static let `default`: Self = .floating(.init(anchor: .bottomRight, hidden: false, state: .idle, size: 250))
 
     public static let dockedDefault: Self = .docked(
-        .init(location: .bottom, height: 250),
+        .init(location: .bottom, height: 250, state: .idle),
         .init(anchor: .bottomRight, hidden: false, state: .idle, size: 250)
     )
 
@@ -70,15 +82,15 @@ public enum CardStageState: Sendable, Equatable {
 
     public var dockLocation: CardDockLocation? {
         switch self {
-            case .docked(let docked, _): docked.location
-            case .floating: nil
+        case .docked(let docked, _): docked.location
+        case .floating: nil
         }
     }
 
     public func docked(_ location: CardDockLocation) -> Self {
         switch self {
         case .floating(let floating):
-            .docked(.init(location: location, height: 250), floating)
+            .docked(.init(location: location, height: floating.dockedHeight ?? 250, state: .idle), floating)
         case let .docked(docked, floating):
             .docked(docked.with(\.location, location), floating)
         }
@@ -87,7 +99,7 @@ public enum CardStageState: Sendable, Equatable {
     public func undocked() -> Self {
         switch self {
         case .floating(_): self
-        case .docked(_, let floating): .floating(floating)
+        case .docked(let docked, let floating): .floating(floating.with(\.dockedHeight, docked.height))
         }
     }
 }
