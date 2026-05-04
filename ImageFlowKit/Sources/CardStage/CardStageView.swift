@@ -26,11 +26,18 @@ class DockAnimation: AnimKit::Animation {
     var from: AnimData
     var to: AnimData
     var apply: (AnimData) -> ()
+    var didFinnish: (() -> ())?
 
-    init(from: DockAnimation.AnimData, to: DockAnimation.AnimData, apply: @escaping (AnimData) -> ()) {
+    init(
+        from: DockAnimation.AnimData,
+        to: DockAnimation.AnimData,
+        apply: @escaping (AnimData) -> (),
+        didFinnish: (() -> ())? = nil
+    ) {
         self.from = from
         self.to = to
         self.apply = apply
+        self.didFinnish = didFinnish
 
         logger.info("from: \("\(from)"), to: \("\(to)")")
     }
@@ -70,6 +77,7 @@ class DockAnimation: AnimKit::Animation {
         self.ellapsed += deltaTime
         if self.ellapsed >= self.duration {
             self.apply(self.to)
+            self.didFinnish?()
             return .done
         } else {
             return .continue
@@ -380,6 +388,35 @@ public final class CardStageView: XCommonView {
 
         if !self.state.isFloating && oldValue.isFloating {
             if let frame = self.geometry.dockedFrame {
+                if self.state.hidden {
+                    self.cardView.layer?.opacity = 1
+                    self.cardView.frame = frame
+                    self.cardView.radius = 0
+                } else {
+                    _ = self.animController.start(
+                        id: self.dockAnimID,
+                        animation: DockAnimation(
+                            from: .init(
+                                frame: self.cardView.frame,
+                                cornerRadius: self.cardView.radius
+                            ),
+                            to: .init(frame: frame, cornerRadius: 0),
+                            apply: { [weak self] data in
+                                guard let self else { return }
+                                self.cardView.frame = data.frame
+                                self.cardView.radius = data.cornerRadius
+                            }
+                        )
+                    )
+                }
+            }
+        } else if self.state.isFloating && !oldValue.isFloating {
+            if self.state.hidden {
+                self.cardView.layer?.opacity = 0
+                self.cardView.radius = 10
+                // self.cardView.frame = self.geometry.square?.rect ?? .zero
+                self.needsLayout = true
+            } else {
                 _ = self.animController.start(
                     id: self.dockAnimID,
                     animation: DockAnimation(
@@ -387,34 +424,18 @@ public final class CardStageView: XCommonView {
                             frame: self.cardView.frame,
                             cornerRadius: self.cardView.radius
                         ),
-                        to: .init(frame: frame, cornerRadius: 0),
+                        to: .init(
+                            frame: self.geometry.square?.rect ?? .zero,
+                            cornerRadius: 10
+                        ),
                         apply: { [weak self] data in
                             guard let self else { return }
                             self.cardView.frame = data.frame
                             self.cardView.radius = data.cornerRadius
-                        }
+                        },
                     )
                 )
             }
-        } else if self.state.isFloating && !oldValue.isFloating {
-            _ = self.animController.start(
-                id: self.dockAnimID,
-                animation: DockAnimation(
-                    from: .init(
-                        frame: self.cardView.frame,
-                        cornerRadius: self.cardView.radius
-                    ),
-                    to: .init(
-                        frame: self.geometry.square?.rect ?? .zero,
-                        cornerRadius: 10
-                    ),
-                    apply: { [weak self] data in
-                        guard let self else { return }
-                        self.cardView.frame = data.frame
-                        self.cardView.radius = data.cornerRadius
-                    }
-                )
-            )
         } else if !self.state.isFloating && !oldValue.isFloating && self.state.dockLocation != oldValue.dockLocation {
             if let frame = self.geometry.dockedFrame {
                 _ = self.animController.start(
@@ -496,7 +517,12 @@ public final class CardStageView: XCommonView {
     public override func layout() {
         super.layout()
 
-        guard !self.animController.isAnimating else { return }
+        guard !self.animController.isAnimating else {
+            logger.debug("layout: animating; skipping")
+            return
+        }
+
+        logger.debug("layout: continue: \("\(self.state)"), \("\(self.geometry)")")
 
         self.updateGeometry(false)
 
@@ -515,8 +541,6 @@ public final class CardStageView: XCommonView {
     }
 
     func layout(floating: CardStageState.Floating) {
-        if floating.hidden { return }
-
         switch self.geometry {
         case .docked:
             logger.error("Invalid geometry!")
@@ -524,6 +548,7 @@ public final class CardStageView: XCommonView {
         case .floating(let geo):
             self.cardView.frame.origin = geo.square.origin
             self.cardView.frame.size = .init(width: geo.square.size, height: geo.square.size)
+            logger.info("layout: card frame: \("\(self.cardView.frame)")")
         }
     }
 
