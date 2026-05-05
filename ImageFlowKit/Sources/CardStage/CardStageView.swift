@@ -177,8 +177,6 @@ public final class CardStageView: XCommonView {
                 break
             }
 
-            break
-
         default:
             break
         }
@@ -240,7 +238,6 @@ public final class CardStageView: XCommonView {
                 self.state = .floating(floating.with(\.state, .dragging(offset: t)))
             case .resizing(let resizing):
                 self.state = .floating(floating.with(\.state, .resizing(resizing.with(\.translation, t))))
-                break
             }
 
         case .ended:
@@ -557,7 +554,6 @@ public final class CardStageView: XCommonView {
         switch self.geometry {
         case .docked:
             logger.error("Invalid geometry!")
-            break
         case .floating(let geo):
             self.cardView.frame.origin = geo.square.origin
             self.cardView.frame.size = .init(width: geo.square.size, height: geo.square.size)

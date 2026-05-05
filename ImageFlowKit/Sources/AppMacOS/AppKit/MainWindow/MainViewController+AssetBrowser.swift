@@ -90,8 +90,10 @@ extension MainViewController {
             case missingUTType
         }
 
-        return await withTaskGroup(of: Result<UUID, any Error>.self, returning: [Result<UUID, any Error>].self) {
-            group in
+        return await withTaskGroup(
+            of: Result<UUID, any Error>.self,
+            returning: [Result<UUID, any Error>].self
+        ) { group in
             for url in urls {
                 group.addTask {
                     await importItem(url)

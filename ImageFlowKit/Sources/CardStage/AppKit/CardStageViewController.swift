@@ -1,12 +1,12 @@
-//#if canImport(AppKit)
+// #if canImport(AppKit)
 //
-//import AppKit
-//import Helpers
-//import SwiftUI
+// import AppKit
+// import Helpers
+// import SwiftUI
 //
 //// MARK: - Model
 //
-//struct CardStage {
+// struct CardStage {
 //
 //    struct Model: Equatable {
 //        var alignment: Alignment
@@ -47,11 +47,11 @@
 //        var top: CGFloat
 //        var bottom: CGFloat
 //    }
-//}
+// }
 //
 //// MARK: - Controller
 //
-//extension CardStage {
+// extension CardStage {
 //    final class Controller: NSViewController, MainViewDelegate {
 //
 //        var model: Model {
@@ -108,11 +108,11 @@
 //            }
 //        }
 //    }
-//}
+// }
 //
 //// MARK: - Geometry
 //
-//extension CardStage {
+// extension CardStage {
 //
 //    struct Geometry {
 //        let origin: CGPoint
@@ -341,11 +341,11 @@
 //            self.closestAlignment = closestAlignment
 //        }
 //    }
-//}
+// }
 //
 //// MARK: - Main View
 //
-//extension CardStage {
+// extension CardStage {
 //
 //    protocol MainViewDelegate: AnyObject {
 //        func mainViewModelDidChange(_ model: Model)
@@ -543,11 +543,11 @@
 //            self.cardView.frame.origin = self.geometry.origin
 //        }
 //    }
-//}
+// }
 //
 //// MARK: - Card View
 //
-//extension CardStage {
+// extension CardStage {
 //    final class CardView: PlatformCommonView {
 //
 //        var contentView: PlatformView {
@@ -606,9 +606,9 @@
 //            nil
 //        }
 //    }
-//}
+// }
 //
-//extension NSCursor {
+// extension NSCursor {
 //    @MainActor static let windowResizeNorthWestSouthEastCursor =
 //        NSCursor.value(forKey: "_windowResizeNorthWestSouthEastCursor") as? NSCursor ?? NSCursor.columnResize
 //    @MainActor static let windowResizeNorthEastSouthWestCursor =
@@ -617,11 +617,11 @@
 //        NSCursor.value(forKey: "_windowResizeEastWestCursor") as? NSCursor ?? .columnResize
 //    @MainActor static let windowResizeNorthSouthCursor =
 //        NSCursor.value(forKey: "_windowResizeNorthSouthCursor") as? NSCursor ?? .rowResize
-//}
+// }
 //
 //// MARK: - Previews
 //
-//extension CardStage {
+// extension CardStage {
 //    struct PreviewRepresentable: NSViewControllerRepresentable {
 //
 //        @Binding var model: Model
@@ -665,9 +665,9 @@
 //            }
 //        }
 //    }
-//}
+// }
 //
-//#Preview {
+// #Preview {
 //    @Previewable @State var model: CardStage.Model = .init()
 //
 //    VStack {
@@ -688,6 +688,6 @@
 //        }
 //        .padding()
 //    }
-//}
+// }
 //
-//#endif
+// #endif

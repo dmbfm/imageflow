@@ -115,7 +115,6 @@ extension MainViewController: ImageFlowCoordinatorProtocol {
             )
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
-            break
         }
     }
 

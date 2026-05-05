@@ -55,7 +55,6 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
             self.delegate?.assetBrowserSheetCreateNode(kind: assetKind, assetId: id)
         case let .pick(assetKind, assetId, portLocation):
             self.delegate?.assetBrowserSheetPickAsset(kind: assetKind, assetId: assetId, port: portLocation)
-            break
         }
         self.dismiss(nil)
     }

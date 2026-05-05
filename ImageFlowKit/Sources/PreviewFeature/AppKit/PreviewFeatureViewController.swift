@@ -82,7 +82,6 @@ extension PreviewFeature {
             switch event {
             case .modifiedGeneratedAsset(let loc):
                 logger.warning("TODO")
-                break
             case .assetsChanged:
                 break
             }
@@ -92,7 +91,6 @@ extension PreviewFeature {
             switch event {
             case .selectionDidChange(_, _):
                 self.upadateAvailablePreviewLocations()
-                break
             default:
                 break
             }
@@ -102,12 +100,10 @@ extension PreviewFeature {
             self.availablePreviewLocations.removeAll(keepingCapacity: true)
             for id in self.flow.selection {
                 if let node = self.flow.nodes[id] {
-                    for output in node.outputs {
-                        if output.type == .image {
-                            self.availablePreviewLocations.insert(
-                                .init(name: output.label, location: .init(node: id, index: output.index))
-                            )
-                        }
+                    for output in node.outputs where output.type == .image {
+                        self.availablePreviewLocations.insert(
+                            .init(name: output.label, location: .init(node: id, index: output.index))
+                        )
                     }
                 }
             }

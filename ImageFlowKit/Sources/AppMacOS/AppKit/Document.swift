@@ -24,7 +24,7 @@ public final class FlowDocument: NSDocument {
         super.init()
     }
 
-    public override nonisolated class var autosavesInPlace: Bool {
+    public override nonisolated static var autosavesInPlace: Bool {
         return true
     }
 
@@ -46,7 +46,7 @@ public final class FlowDocument: NSDocument {
         true
     }
 
-    public override class func canConcurrentlyReadDocuments(ofType typeName: String) -> Bool {
+    public override static func canConcurrentlyReadDocuments(ofType typeName: String) -> Bool {
         false
     }
 

@@ -204,7 +204,6 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.flow.nodes[id]?.inputs[index].value = value
         default:
             logger.trace("Unhandled: \(id): \("\(event)")")
-            break
         }
     }
 
