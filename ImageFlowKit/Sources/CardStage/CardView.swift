@@ -70,6 +70,7 @@ final class CardView: XCommonView {
         //        self.wantsLayer = true
         self.contentView.wantsLayer = true
         self.contentView.autoresizingMask = [.width, .height]
+        self.contentView.frame = self.bounds
         // self.contentView.clipsToBounds = true
         //        self.contentView.shadow = .init()
         //        self.contentView.clipsToBounds = true

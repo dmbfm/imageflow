@@ -6,7 +6,8 @@ import Synchronization
 import XViewKit
 import os
 
-actor Renderer {
+@MainActor
+class Renderer {
     private let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let renderPassDescriptor: MTLRenderPassDescriptor
@@ -28,7 +29,7 @@ actor Renderer {
         self.renderPassDescriptor.colorAttachments[0].clearColor = .init(red: 0, green: 0, blue: 0, alpha: 0)
     }
 
-    func render(_ rd: RenderData, _ drawable: (@Sendable () -> (any CAMetalDrawable)?)) async {
+    func render(_ rd: RenderData, _ drawable: (() -> (any CAMetalDrawable)?)) {
         guard let image = rd.image else { return }
         guard rd.drawableSize.width > 0, rd.drawableSize.height > 0 else { return }
 

@@ -5,6 +5,7 @@ import SharedModels
 import CardStage
 import CoreImage
 import Helpers
+import CIImageView
 
 extension PreviewFeature {
 
@@ -27,6 +28,27 @@ extension PreviewFeature {
         private var cancellabes: Set<AnyEventEmitterCancellable> = []
 
         private var availablePreviewLocations: Set<PreviewLocation> = []
+
+        lazy var cardImageView: CIImageXView = {
+            let view = CIImageXView()
+            view.placement = .fit
+            view.image = self.state.image
+            view.autoresizingMask = [.width, .height]
+            view.wantsLayer = true
+            return view
+        }()
+
+        lazy var cardView: PlatformView = {
+            let v = PlatformView()
+            v.wantsLayer = true
+            v.layer?.backgroundColor = .init(gray: 0.5, alpha: 1.0)
+
+            v.autoresizesSubviews = true
+            self.cardImageView.frame = v.bounds
+            v.addSubview(self.cardImageView)
+
+            return v
+        }()
 
         public init(flow: Flow, assetStore: any AssetStoreService) {
             self.flow = flow
@@ -51,6 +73,19 @@ extension PreviewFeature {
                 self?.onFlowEvent(event)
             }).store(in: &self.cancellabes)
 
+            self.assetStore.emitter.on({ [weak self] event in
+                self?.onAssetStoreEvent(event)
+            }).store(in: &self.cancellabes)
+        }
+
+        func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+            switch event {
+            case .modifiedGeneratedAsset(let loc):
+                logger.warning("TODO")
+                break
+            case .assetsChanged:
+                break
+            }
         }
 
         func onFlowEvent(_ event: FlowEvent) {
@@ -84,6 +119,9 @@ extension PreviewFeature {
             switch self.state {
             case .nothing:
                 self.cardStageView.cardVisibility = .hidden
+            case let .loaded(locked: _, location: _, image: image):
+                self.cardStageView.contentView = self.cardView
+                self.cardStageView.cardVisibility = .visible
             default:
                 self.cardStageView.cardVisibility = .visible
             }
@@ -92,21 +130,30 @@ extension PreviewFeature {
         var task: Task<(), Never>?
 
         func input(_ input: Input) {
-            logger.debug("input: \("\(input)"), state: \("\(self.state)")")
             let (newState, effect) = self.state.input(input)
+
+            logger.debug("input: \("\(input)"), state: \("\(self.state)")")
             logger.debug("newState: \("\(newState)"), effect: \("\(effect, default: "nil")")")
+
             self.state = newState
 
             guard let effect else { return }
 
             switch effect {
             case .loadImage(let loc):
+
+                if self.task != nil {
+                    self.task?.cancel()
+                }
+
                 self.task = Task { [weak self] in
                     do {
                         guard let self else { return }
                         let res = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
+                        self.task = nil
                         self.input(.imageLoaded(loc, res.res))
                     } catch {
+                        logger.error("\(error)")
                     }
                 }
             }

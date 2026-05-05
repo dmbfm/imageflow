@@ -27,7 +27,11 @@ final class ThreadedRenderer {
         self.renderPassDescriptor = .init()
         self.context = CIContext(
             mtlDevice: device,
-            options: [.cacheIntermediates: true, .highQualityDownsample: true, .allowLowPower: false]
+            options: [
+                .cacheIntermediates: false,
+                .highQualityDownsample: true,
+                .allowLowPower: false,
+            ]
         )
         self.renderPassDescriptor.colorAttachments[0].loadAction = .clear
         self.renderPassDescriptor.colorAttachments[0].storeAction = .store

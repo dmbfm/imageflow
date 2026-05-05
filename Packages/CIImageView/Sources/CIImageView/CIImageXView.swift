@@ -36,7 +36,7 @@ public class CIImageXView: XCommonView {
     public private(set) var renderInfo: CIRenderInfo?
 
     private let device: MTLDevice
-    private var threadedRenderer: ThreadedRenderer
+    private var renderer: Renderer
 
     public var drawableSize: CGSize {
         self.metalLayer.drawableSize
@@ -48,7 +48,8 @@ public class CIImageXView: XCommonView {
 
     public override init(frame: CGRect) {
         self.device = MTLCreateSystemDefaultDevice()!
-        self.threadedRenderer = .init(self.device)
+        self.renderer = .init(self.device)
+        // self.threadedRenderer = .init(self.device)
 
         super.init(frame: frame)
 
@@ -57,7 +58,7 @@ public class CIImageXView: XCommonView {
         self.metalLayer.device = self.device
         self.metalLayer.framebufferOnly = false
         self.metalLayer.pixelFormat = .rgba8Unorm
-        self.metalLayer.presentsWithTransaction = false
+        self.metalLayer.presentsWithTransaction = true
         self.metalLayer.needsDisplayOnBoundsChange = true
         self.metalLayer.delegate = self
         self.metalLayer.magnificationFilter = .nearest
@@ -77,7 +78,7 @@ public class CIImageXView: XCommonView {
 
     private func platformInit() {
         self.wantsLayer = true
-        self.layerContentsRedrawPolicy = .duringViewResize
+        self.layerContentsRedrawPolicy = .onSetNeedsDisplay
         self.layerContentsPlacement = .bottomLeft
     }
 
@@ -260,7 +261,15 @@ public class CIImageXView: XCommonView {
             imageScale: self.imageScale,
             offset: self.offset
         )
-        self.threadedRenderer.render(renderData, self.metalLayer.nextDrawable())
+        print("\(self.drawableSize)")
+        if self.drawableSize.width <= 0 || self.drawableSize.height <= 0 { return }
+        self.renderer.render(
+            renderData,
+            { [weak self] in
+                self?.metalLayer.nextDrawable()
+            }
+        )
+        // self.threadedRenderer.render(renderData, self.metalLayer.nextDrawable())
     }
 }
 
