@@ -7,91 +7,41 @@ import XViewKit
 import AppKit
 #endif
 
-/// A description
-@MainActor
-class DockAnimation: AnimKit::Animation {
-
-    let label: String? = "Dock Animation"
-
-    var duration: Double = 0.2
-    let timingFunc = TimingFunction.easing(.cubic, .easeInOut)
-    var started: Bool = false
-    var ellapsed: TimeInterval = 0
-
-    struct AnimData {
-        var frame: CGRect
-        var cornerRadius: CGFloat
-    }
-
-    var from: AnimData
-    var to: AnimData
-    var apply: (AnimData) -> ()
-    var didFinnish: (() -> ())?
-
-    init(
-        from: DockAnimation.AnimData,
-        to: DockAnimation.AnimData,
-        apply: @escaping (AnimData) -> (),
-        didFinnish: (() -> ())? = nil
-    ) {
-        self.from = from
-        self.to = to
-        self.apply = apply
-        self.didFinnish = didFinnish
-
-        logger.info("from: \("\(from)"), to: \("\(to)")")
-    }
-
-    func start(prev: (any AnimKit.Animation)?) {
-        if let prev = prev as? DockAnimation {
-            //     logger.info("Some funny business is afoot!")
-            // self.duration = prev.duration - prev.ellapsed
-            //     self.ellapsed = prev.duration - prev.ellapsed
-            self.duration = prev.ellapsed
-        }
-        // if !self.started {
-        //     self.started = true
-        // } else {
-        //     logger.info("Some funny business is afoot!")
-        // }
-    }
-
-    func tick(deltaTime: TimeInterval) -> AnimKit.AnimationTickResult {
-
-        let currentFrame = self.timingFunc(
-            a: self.from.frame,
-            b: self.to.frame,
-            t: self.ellapsed,
-            duration: self.duration
-        )
-
-        let currentRadius = self.timingFunc(
-            a: self.from.cornerRadius,
-            b: self.to.cornerRadius,
-            t: self.ellapsed,
-            duration: self.duration
-        )
-
-        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius))
-
-        self.ellapsed += deltaTime
-        if self.ellapsed >= self.duration {
-            self.apply(self.to)
-            self.didFinnish?()
-            return .done
-        } else {
-            return .continue
-        }
-    }
-}
-
 public final class CardStageView: XCommonView {
 
-    public var state: CardStageState = .default {
-        didSet {
-            if self.state != oldValue {
-                self.delegate?.cardStateStateDidChange(self.state)
-                self.stateDidChange(oldValue)
+    // MARK: - Public Properties
+
+    public var anchor: CardStageAnchor {
+        get {
+            self.state.anchor
+        }
+
+        set {
+            if self.state.anchor != newValue {
+                self.state = self.state.settingAnchor(to: newValue)
+            }
+        }
+    }
+
+    public var cardVisibility: CardVisibility {
+        get {
+            self.state.cardVisibility
+        }
+        set {
+            if self.state.cardVisibility != newValue {
+                self.state = self.state.settingCardVisibility(to: newValue)
+            }
+        }
+    }
+
+    public var dockLocation: CardDockLocation? {
+        get {
+            self.state.dockLocation
+        }
+
+        set {
+            if self.state.dockLocation != newValue {
+                self.state = self.state.settingDockedLocation(to: newValue)
             }
         }
     }
@@ -111,10 +61,21 @@ public final class CardStageView: XCommonView {
 
     public weak var delegate: CardStageViewDelegate?
 
-    private var geometry: Geometry = .zero
+    // MARK: - Private Properties
 
+    private var state: CardStageState = .default {
+        didSet {
+            if self.state != oldValue {
+                self.stateDidChange(oldValue)
+            }
+        }
+    }
+
+    private var geometry: Geometry = .zero
     private var animController: AnimationController!
     private var dockAnimID: UUID = .init()
+
+    // MARK: - Lazy Properties
 
     lazy var cardView: CardView = {
         let view = CardView()
@@ -123,6 +84,8 @@ public final class CardStageView: XCommonView {
         #endif
         return view
     }()
+
+    // MARK: - Initialization
 
     init(_ state: CardStageState = .default) {
         self.state = state
@@ -139,21 +102,13 @@ public final class CardStageView: XCommonView {
         self.addSubview(self.cardView)
 
         self.setupGestures()
-        self.setupLayer()
     }
 
     public required init?(coder: NSCoder) {
         nil
     }
 
-    func setupLayer() {
-        switch self.state {
-        case .floating:
-            self.cardView.radius = 10
-        case .docked:
-            self.cardView.radius = 0
-        }
-    }
+    // MARK: - User Interaction
 
     func setupGestures() {
         let panGesture = XPanGestureRecognizer(target: self, action: #selector(Self.panGestureHandler(_:)))
@@ -323,6 +278,8 @@ public final class CardStageView: XCommonView {
         }
     }
 
+    // MARK: - Animations
+
     func animCardHide(_ duration: CGFloat, _ opacityDurationFraction: CGFloat) {
         self.cardView.layer?.setAffineTransform(.init(scaleX: 0, y: 0))
         self.cardView.layer?.opacity = 0
@@ -377,13 +334,17 @@ public final class CardStageView: XCommonView {
         self.cardView.layer?.add(fadeAnim, forKey: "CardFade")
     }
 
-    var movedToWindow: Bool = false
-    public override func viewDidMoveToWindow() {
-        self.movedToWindow = true
-        self.updateGeometry()
-    }
+    // MARK: - Updates
 
     func stateDidChange(_ oldValue: CardStageState) {
+
+        if self.state.anchor != oldValue.anchor {
+            self.delegate?.cardStageAnchorDidChange(self)
+        }
+
+        if self.state.dockLocation != oldValue.dockLocation {
+            self.delegate?.cardStageDockLocationDidChange(self)
+        }
 
         self.updateGeometry()
 
@@ -483,7 +444,7 @@ public final class CardStageView: XCommonView {
     }
 
     func updateGeometry(_ requestLayout: Bool = true) {
-        guard self.movedToWindow else { return }
+        guard self.window != nil else { return }
 
         let newGeometry = Geometry.fromState(self.state, stageBounds: self.bounds, configuration: self.configuration)
 
@@ -495,6 +456,12 @@ public final class CardStageView: XCommonView {
                 // self.setNeedsLayout()
             }
         }
+    }
+
+    // MARK: - NSView Lifecycle
+
+    public override func viewDidMoveToWindow() {
+        self.updateGeometry()
     }
 
     public override func resetCursorRects() {
@@ -520,6 +487,8 @@ public final class CardStageView: XCommonView {
             )
         }
     }
+
+    // MARK: - Layout
 
     public override func layout() {
         super.layout()
@@ -564,9 +533,14 @@ public final class CardStageView: XCommonView {
     }
 }
 
+// MARK: - CardStageViewDelegate
+
 public protocol CardStageViewDelegate: AnyObject {
-    func cardStateStateDidChange(_ state: CardStageState)
+    func cardStageAnchorDidChange(_ sender: CardStageView)
+    func cardStageDockLocationDidChange(_ sender: CardStageView)
 }
+
+// MARK: - Helpers
 
 #if os(macOS)
 extension NSCursor {
@@ -581,10 +555,16 @@ extension NSCursor {
 }
 #endif
 
+// MARK: - Previews
+
 extension CardStageView {
     public struct Preview: View {
 
-        @State var state: CardStageState = .default
+        // @State var state: CardStageState = .default
+
+        @State var anchor: CardStageAnchor = .bottomLeft
+        @State var dockLocation: CardDockLocation? = nil
+        @State var cardVisibility: CardVisibility = .visible
 
         public enum PreviewType {
             case `default`
@@ -599,44 +579,61 @@ extension CardStageView {
         }
 
         public init(_ type: PreviewType = .default) {
-            self._state = .init(wrappedValue: type.state)
         }
 
         public var body: some View {
             ZStack {
                 VStack {
-                    PreviewRepresentable(state: self.$state)
-                        .border(.red)
-                        .frame(minWidth: 800, minHeight: 600)
-                        .padding()
+                    PreviewRepresentable(
+                        anchor: self.$anchor,
+                        dockLocation: self.$dockLocation,
+                        cardVisibility: self.$cardVisibility
+                    )
+                    .border(.red)
+                    .frame(minWidth: 800, minHeight: 600)
+                    .padding()
 
                     Divider()
                     HStack(spacing: 16) {
-                        Picker("Anchor", selection: self.$state.anchor) {
+                        Picker("Anchor", selection: self.$anchor) {
                             ForEach(CardStageAnchor.allCases) { anchor in
                                 Text(anchor.rawValue)
                                     .tag(anchor)
                             }
                         }
 
-                        Toggle("Hidden", isOn: self.$state.hidden)
+                        Toggle(
+                            "Hidden",
+                            isOn: .init(
+                                get: {
+                                    self.cardVisibility == .hidden
+                                },
+                                set: { newValue in
+                                    if newValue {
+                                        self.cardVisibility = .hidden
+                                    } else {
+                                        self.cardVisibility = .visible
+                                    }
+                                }
+                            )
+                        )
 
                         Spacer()
 
                         Button("Dock Bottom") {
-                            self.state = self.state.docked(.bottom)
+                            self.dockLocation = .bottom
                         }
-                        .disabled(self.state.dockLocation == .bottom)
+                        .disabled(self.dockLocation == .bottom)
 
                         Button("Dock Top") {
-                            self.state = self.state.docked(.top)
+                            self.dockLocation = .top
                         }
-                        .disabled(self.state.dockLocation == .top)
+                        .disabled(self.dockLocation == .top)
 
                         Button("Float") {
-                            self.state = self.state.undocked()
+                            self.dockLocation = nil
                         }
-                        .disabled(self.state.isFloating)
+                        .disabled(self.dockLocation == nil)
 
                         Spacer()
                     }
@@ -648,11 +645,15 @@ extension CardStageView {
 
     private struct PreviewRepresentable: XViewRepresentable {
 
-        @Binding var state: CardStageState
+        @Binding var anchor: CardStageAnchor
+        @Binding var dockLocation: CardDockLocation?
+        @Binding var cardVisibility: CardVisibility
 
         func makeView(context: Context) -> CardStageView {
             let view = CardStageView()
-            view.state = self.state
+            view.anchor = self.anchor
+            view.dockLocation = self.dockLocation
+            view.cardVisibility = self.cardVisibility
             view.delegate = context.coordinator
             view.contentView = NSHostingView(
                 rootView:
@@ -671,10 +672,20 @@ extension CardStageView {
 
         func updateView(_ view: CardStageView, context: Context) {
 
-            context.coordinator.state = self.$state
+            context.coordinator.anchor = self.$anchor
+            context.coordinator.dockLocation = self.$dockLocation
+            context.coordinator.cardVisibility = self.$cardVisibility
 
-            if view.state != self.state {
-                view.state = self.state
+            if view.anchor != self.anchor {
+                view.anchor = self.anchor
+            }
+
+            if view.dockLocation != self.dockLocation {
+                view.dockLocation = self.dockLocation
+            }
+
+            if view.cardVisibility != self.cardVisibility {
+                view.cardVisibility = self.cardVisibility
             }
         }
 
@@ -682,15 +693,28 @@ extension CardStageView {
             .init()
         }
 
+        @MainActor
         class Coordinator: CardStageViewDelegate {
-            var state: Binding<CardStageState>?
-            func cardStateStateDidChange(_ state: CardStageState) {
-                if let stateBinding = self.state {
-                    Task { @MainActor in
-                        stateBinding.wrappedValue = state
-                    }
+            var anchor: Binding<CardStageAnchor>?
+            var dockLocation: Binding<CardDockLocation?>?
+            var cardVisibility: Binding<CardVisibility>?
+
+            func cardStageAnchorDidChange(_ sender: CardStageView) {
+                guard let anchor = self.anchor else { return }
+
+                if anchor.wrappedValue != sender.anchor {
+                    anchor.wrappedValue = sender.anchor
                 }
             }
+
+            func cardStageDockLocationDidChange(_ sender: CardStageView) {
+                guard let dockLocation = self.dockLocation else { return }
+
+                if dockLocation.wrappedValue != sender.dockLocation {
+                    dockLocation.wrappedValue = sender.dockLocation
+                }
+            }
+
         }
     }
 }
