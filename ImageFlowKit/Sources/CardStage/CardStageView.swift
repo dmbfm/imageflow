@@ -74,6 +74,7 @@ public final class CardStageView: XCommonView {
     private var geometry: Geometry = .zero
     private var animController: AnimationController!
     private var dockAnimID: UUID = .init()
+    private var isAnimatingViaTransaction: Bool = false
 
     // MARK: - Lazy Properties
 
@@ -280,6 +281,30 @@ public final class CardStageView: XCommonView {
 
     // MARK: - Animations
 
+    func animCardOpacity(
+        from: Float,
+        to: Float,
+        _ duration: CGFloat,
+    ) {
+        self.cardView.layer?.opacity = to
+
+        self.isAnimatingViaTransaction = true
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            self.isAnimatingViaTransaction = false
+            self.needsLayout = true
+        }
+
+        let fadeAnim = CABasicAnimation(keyPath: "opacity")
+        fadeAnim.timingFunction = .init(name: .easeInEaseOut)
+        fadeAnim.duration = duration
+        fadeAnim.fromValue = from
+        fadeAnim.toValue = to
+
+        self.cardView.layer?.add(fadeAnim, forKey: "CardFadeOut")
+        CATransaction.commit()
+    }
+
     func animCardHide(_ duration: CGFloat, _ opacityDurationFraction: CGFloat) {
         self.cardView.layer?.setAffineTransform(.init(scaleX: 0, y: 0))
         self.cardView.layer?.opacity = 0
@@ -351,9 +376,9 @@ public final class CardStageView: XCommonView {
         if !self.state.isFloating && oldValue.isFloating {
             if let frame = self.geometry.dockedFrame {
                 if self.state.hidden {
-                    self.cardView.layer?.opacity = 1
                     self.cardView.frame = frame
                     self.cardView.radius = 0
+                    self.animCardOpacity(from: 0.0, to: 1.0, 0.25)
                 } else {
                     _ = self.animController.start(
                         id: self.dockAnimID,
@@ -374,10 +399,7 @@ public final class CardStageView: XCommonView {
             }
         } else if self.state.isFloating && !oldValue.isFloating {
             if self.state.hidden {
-                self.cardView.layer?.opacity = 0
-                self.cardView.radius = 10
-                // self.cardView.frame = self.geometry.square?.rect ?? .zero
-                self.needsLayout = true
+                self.animCardOpacity(from: 1.0, to: 0.0, 0.25)
             } else {
                 _ = self.animController.start(
                     id: self.dockAnimID,
@@ -493,7 +515,7 @@ public final class CardStageView: XCommonView {
     public override func layout() {
         super.layout()
 
-        guard !self.animController.isAnimating else {
+        guard !self.animController.isAnimating && !self.isAnimatingViaTransaction else {
             logger.debug("layout: animating; skipping")
             return
         }
