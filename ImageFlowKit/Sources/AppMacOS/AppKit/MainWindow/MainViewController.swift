@@ -87,6 +87,11 @@ final class MainViewController: NSSplitViewController {
     let maxZoom: CGFloat = 1
     #endif
     let minZoom: CGFloat = 0.1
+
+    override func splitViewWillResizeSubviews(_ notification: Notification) {
+        let s = self.detailVC.view.safeAreaInsets
+        self.detailVC.updateSafeAreaInsets(s)
+    }
 }
 
 // MARK: - ImageFlowCoordinatorProtocol

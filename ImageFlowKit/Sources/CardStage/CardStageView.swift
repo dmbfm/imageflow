@@ -88,8 +88,8 @@ public final class CardStageView: XCommonView {
 
     // MARK: - Initialization
 
-    init(_ state: CardStageState = .default) {
-        self.state = state
+    public init() {
+        self.state = .default
 
         super.init(frame: .zero)
 
@@ -309,6 +309,8 @@ public final class CardStageView: XCommonView {
         self.cardView.layer?.setAffineTransform(.init(scaleX: 0, y: 0))
         self.cardView.layer?.opacity = 0
 
+        if self.window == nil { return }
+
         let anim = CABasicAnimation(keyPath: "transform.scale")
         anim.timingFunction = .init(name: .easeInEaseOut)
         anim.duration = duration
@@ -468,7 +470,11 @@ public final class CardStageView: XCommonView {
     func updateGeometry(_ requestLayout: Bool = true) {
         guard self.window != nil else { return }
 
-        let newGeometry = Geometry.fromState(self.state, stageBounds: self.bounds, configuration: self.configuration)
+        let newGeometry = Geometry.fromState(
+            self.state,
+            stageBounds: self.safeAreaRect,
+            configuration: self.configuration
+        )
 
         if self.geometry != newGeometry {
             self.geometry = newGeometry
@@ -510,6 +516,15 @@ public final class CardStageView: XCommonView {
         }
     }
 
+    public override func hitTest(_ point: NSPoint) -> NSView? {
+        let point = self.convert(point, from: self.superview)
+        if !(self.state.hidden && self.state.isFloating) {
+            return self.cardView.hitTest(point)
+        } else {
+            return nil
+        }
+    }
+
     // MARK: - Layout
 
     public override func layout() {
@@ -546,7 +561,6 @@ public final class CardStageView: XCommonView {
         case .floating(let geo):
             self.cardView.frame.origin = geo.square.origin
             self.cardView.frame.size = .init(width: geo.square.size, height: geo.square.size)
-            logger.info("layout: card frame: \("\(self.cardView.frame)")")
         }
     }
 

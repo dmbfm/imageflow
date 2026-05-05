@@ -125,6 +125,7 @@ let package = Package(
                 "ImageExporter",
                 "SharedMocking",
                 "SettingsFeature",
+                "CardStage",
             ]
         ),
         .target(
