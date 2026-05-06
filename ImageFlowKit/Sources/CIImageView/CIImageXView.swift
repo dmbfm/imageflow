@@ -1,8 +1,8 @@
-import CoreGraphicsEx
 import CoreImage
+import Helpers
 import MetalKit
 import OSLog
-import XViewKit
+import XKit
 import os
 
 #if canImport(AppKit)
@@ -13,7 +13,7 @@ import AppKit
 import UIKit
 #endif
 
-public class CIImageXView: XCommonView {
+public class CIImageXView: XViewEx {
 
     public var image: CIImage? {
         didSet {
@@ -282,16 +282,6 @@ extension CIImageXView: @MainActor CALayerDelegate {
     public func display(_ layer: CALayer) {
         sp.emitEvent("CIImageXView:display")
         self.doRender()
-    }
-}
-
-extension CIImageXView {
-    public func setNeedsDisplay() {
-        self.needsDisplay = true
-    }
-
-    public override var isFlipped: Bool {
-        true
     }
 }
 #endif

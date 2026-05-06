@@ -16,9 +16,9 @@ class ZoomMenuController {
         let menu = NSMenu(title: "Zoom")
 
         let canZoomIn = self.coordinator.canZoomIn()
-        let canZoomOut = self.coordinator.canZoomOut() 
+        let canZoomOut = self.coordinator.canZoomOut()
         let nodeCount = self.coordinator.nodeCount()
-        let selectedNodeCount = coordinator.selectedNodeCount() 
+        let selectedNodeCount = coordinator.selectedNodeCount()
 
         menu.items = [
             .init(

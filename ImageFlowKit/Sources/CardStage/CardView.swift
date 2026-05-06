@@ -1,11 +1,11 @@
 import SwiftUI
-import XViewKit
+import XKit
 
 #if os(macOS)
 import AppKit
 #endif
 
-final class CardView: XCommonView {
+final class CardView: XViewEx {
 
     var contentView: XView! {
         willSet {

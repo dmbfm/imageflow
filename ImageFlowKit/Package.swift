@@ -16,7 +16,7 @@ let package = Package(
         .library(name: "AppMacOS"),
         .library(name: "AnimKit"),
         .library(name: "XKit"),
-        ///
+        .library(name: "CIImageView"),
         .library(name: "Backend"),
         .library(name: "Values"),
         .library(name: "Helpers"),
@@ -44,9 +44,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
-        .package(path: "../Packages/CIImageView"),
         .package(path: "../CubeLutKit"),
-        .package(path: "../Packages/XViewKit"),
     ],
     targets: [
         .target(
@@ -90,7 +88,6 @@ let package = Package(
             name: "CardStage",
             dependencies: [
                 "Helpers",
-                "XViewKit",
                 "AnimKit",
             ]
         ),
@@ -129,6 +126,7 @@ let package = Package(
                 "CardStage",
             ]
         ),
+        .target(name: "CIImageView", dependencies: ["XKit", "Helpers"]),
         .target(
             name: "NodePaletteFeature",
             dependencies: [

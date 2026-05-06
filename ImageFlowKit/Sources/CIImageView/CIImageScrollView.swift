@@ -1,5 +1,5 @@
 import SwiftUI
-import XViewKit
+import XKit
 
 public protocol CIImageScrollViewCache: AnyObject {
     func get(id: String) -> CIImageScrollView.CacheEntry?

@@ -1,13 +1,13 @@
 import AnimKit
 import Helpers
 import SwiftUI
-import XViewKit
+import XKit
 
 #if os(macOS)
 import AppKit
 #endif
 
-public final class CardStageView: XCommonView {
+public final class CardStageView: XViewEx {
 
     // MARK: - Public Properties
 

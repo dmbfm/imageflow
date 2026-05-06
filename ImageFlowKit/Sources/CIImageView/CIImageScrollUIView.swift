@@ -7,10 +7,10 @@
 
 #if canImport(UIKit)
 
-import CoreGraphicsEx
+import Helpers
 import CoreImage
 import Foundation
-import XViewKit
+import XKit
 import UIKit
 
 public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
@@ -40,10 +40,10 @@ public class CIImageScrollUIView: UIView, CIImageScrollXViewProtocol {
 
             if isDifferentSize {
                 self.scrollView.setZoomScale(1.0, animated: false)
-                
+
                 self.imageView.frame.size = self.imageView.imageLogicalSize
                 self.scrollView.contentSize = self.imageView.imageLogicalSize
-                
+
                 self.zoomToFit(false)
             }
 

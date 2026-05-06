@@ -1,9 +1,9 @@
 #if canImport(AppKit)
 
-import CoreGraphicsEx
+import Helpers
 import CoreImage
 import Foundation
-import XViewKit
+import XKit
 import AppKit
 
 // MARK: - CIImageScrollNSView
@@ -39,7 +39,7 @@ import AppKit
 //                                             ████████████████████████
 //                                             ████████████████████████
 
-public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
+public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
 
     // MARK: - Public Properties
 
@@ -180,7 +180,9 @@ public class CIImageScrollNSView: XCommonView, CIImageScrollXViewProtocol {
         self.dispatch(.zoomToFit(animate: false))
     }
 
-    public override func doLayout() {
+    public override func layout() {
+        super.layout()
+
         self.scrollView.frame = self.bounds
         self.imageView.frame = self.bounds
 
