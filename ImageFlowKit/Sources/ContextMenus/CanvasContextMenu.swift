@@ -13,14 +13,14 @@ import AppKit
 @MainActor
 public class CanvasContextMenuProvider {
 
-    weak var coordinator: GlobalCoordinator?
+    var coordinator: GlobalCoordinator
 
-    public init(coordinator: GlobalCoordinator?) {
+    public init(_ coordinator: GlobalCoordinator) {
         self.coordinator = coordinator
     }
 
     func pickItem(_ item: NodePaletteItem, _ pos: CGPoint) {
-        self.coordinator?.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: .canvasView(pos)))
+        // self.coordinator?.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: .canvasView(pos)))
     }
 
     #if os(iOS)
@@ -86,7 +86,7 @@ public class CanvasContextMenuProvider {
         let menu = NSMenu(title: "Canvas")
         let canPaste = PasteboardObserver.shared.canPaste
 
-        self.zoomMenuController = .init()
+        self.zoomMenuController = .init(coordinator)
 
         let addNodeItem = NSMenuItem(
             title: "Add Node",
@@ -179,65 +179,21 @@ public class CanvasContextMenuProvider {
     }
 
     @objc func selectAll() {
-        ImageFlowCoordinator.perform(userAction: .selectAllNodes)
+        self.coordinator.perform(userAction: .selectAllNodes)
     }
 
     @objc func paste() {
-        ImageFlowCoordinator.perform(userAction: .pasteNodes(nil))
+        self.coordinator.perform(userAction: .pasteNodes(nil))
     }
 
     @objc func showNodeSearch(_ item: NodePaletteNSMenuItem) {
-        ImageFlowCoordinator.perform(userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: item.location))
+        self.coordinator.perform(userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: item.location))
     }
 
     @objc func nodePaletteItemAction(_ item: NodePaletteNSMenuItem) {
-        ImageFlowCoordinator.perform(
+        self.coordinator.perform(
             userAction: .newNodeWithKind(kind: item.nodePaletteItem.nodeKind, at: .canvasView(item.location))
         )
-    }
-
-    private func _canvasContextMenu(at location: CGPoint) -> some View {
-        Group {
-            Section("Canvas") {
-                Menu("Add Node", systemImage: "plus") {
-                    Button {
-                        self.coordinator?.perform(
-                            userAction: .showNodeSearch(typedPortLocation: nil, canvasPosition: location)
-                        )
-                    } label: {
-                        Label("Search", systemImage: "magnifyingglass")
-                    }
-                    ForEach(NodePaletteService.shared.categories()) { cat in
-                        Menu(cat.name.rawValue) {
-                            ForEach(cat.items) { item in
-                                Button {
-                                    self.pickItem(item, location)
-                                } label: {
-                                    Label(item.displayName, systemImage: item.icon)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                ZoomMenu()
-
-                Button {
-                    self.coordinator?.perform(userAction: .pasteNodes(nil))
-                } label: {
-                    Label("Paste", systemImage: "document.on.clipboard")
-                }
-                .keyboardShortcut("v")
-                .disabled(!PasteboardObserver.shared.canPaste)
-
-                Button {
-                    self.coordinator?.perform(userAction: .selectAllNodes)
-                } label: {
-                    Label("Select All", systemImage: .systemIconMenuSelectAll)
-                }
-                .keyboardShortcut("a")
-            }
-        }
     }
     #endif
 }

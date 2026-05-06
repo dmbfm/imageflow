@@ -195,7 +195,8 @@ public final class CardStageView: XCommonView {
             let location = self.convert(gesture.location(in: nil), from: nil)
 
             if let handle = self.geometry.square?.resizeRects(anchor: floating.anchor, thickness: 10).handleContaining(
-                point: location
+                point: location,
+                margin: -2
             ) {
                 self.state = .floating(
                     floating.with(

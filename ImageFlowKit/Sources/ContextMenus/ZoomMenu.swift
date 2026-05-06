@@ -2,73 +2,23 @@ import Helpers
 import SharedModels
 import SwiftUI
 
-public struct ZoomMenu: View {
-    @ActiveViewObject(GlobalCoordinator.self) var coordinator
-
-    var nodeCount: Int {
-        self.coordinator?.flow.nodeCount ?? 0
-    }
-
-    var selectionCount: Int {
-        self.coordinator?.flow.selectionCount ?? 0
-    }
-
-    var hasNoNodes: Bool {
-        self.nodeCount == 0
-    }
-
-    var hasSelection: Bool {
-        self.selectionCount > 0
-    }
-
-    public init() {}
-
-    public var body: some View {
-        Menu("Zoom") {
-            Button("Zoom In", systemImage: .systemIconMagZoomIn) {
-                self.coordinator?.perform(userAction: .viewport(.zoomIn))
-            }
-            .disabled(self.coordinator?.canZoomIn == false)
-            .keyboardShortcut("+", modifiers: .command)
-
-            Button("Zoom Out", systemImage: .systemIconMagZoomOut) {
-                self.coordinator?.perform(userAction: .viewport(.zoomOut))
-            }
-            .disabled(self.coordinator?.canZoomOut == false)
-            .keyboardShortcut("-", modifiers: .command)
-
-            Button("Actual Size", systemImage: .systemIconMagActualSize) {
-                self.coordinator?.perform(userAction: .viewport(.setZoom(1)))
-            }
-            .keyboardShortcut("0", modifiers: .command)
-
-            Divider()
-
-            Button("Zoom to Fit Content", systemImage: .systemIconMagZoomFit) {
-                self.coordinator?.perform(userAction: .viewport(.zoomToFitContent))
-            }
-            .disabled(self.hasNoNodes)
-            .keyboardShortcut("0", modifiers: [.command, .shift])
-
-            Button("Zoom to Fit Selection") {
-                self.coordinator?.perform(userAction: .viewport(.zoomToFitSelection))
-            }
-            .disabled(!self.hasSelection)
-            .keyboardShortcut("0", modifiers: [.command, .shift, .option])
-        }
-    }
-}
-
 #if os(macOS)
 @MainActor
 class ZoomMenuController {
+
+    var coordinator: GlobalCoordinator
+
+    init(_ coordinator: GlobalCoordinator) {
+        self.coordinator = coordinator
+    }
+
     func makeMenu() -> NSMenu {
         let menu = NSMenu(title: "Zoom")
 
-        let canZoomIn = ImageFlowCoordinator.canZoomIn()
-        let canZoomOut = ImageFlowCoordinator.canZoomOut()
-        let nodeCount = ImageFlowCoordinator.nodeCount()
-        let selectedNodeCount = ImageFlowCoordinator.selectedNodeCount()
+        let canZoomIn = self.coordinator.canZoomIn()
+        let canZoomOut = self.coordinator.canZoomOut() 
+        let nodeCount = self.coordinator.nodeCount()
+        let selectedNodeCount = coordinator.selectedNodeCount() 
 
         menu.items = [
             .init(
@@ -122,23 +72,23 @@ class ZoomMenuController {
     }
 
     @objc func zoomActualSize() {
-        ImageFlowCoordinator.perform(userAction: .viewport(.setZoom(1.0)))
+        self.coordinator.perform(userAction: .viewport(.setZoom(1.0)))
     }
 
     @objc func zoomToFit() {
-        ImageFlowCoordinator.perform(userAction: .viewport(.zoomToFitContent))
+        self.coordinator.perform(userAction: .viewport(.zoomToFitContent))
     }
 
     @objc func zoomToFitSel() {
-        ImageFlowCoordinator.perform(userAction: .viewport(.zoomToFitSelection))
+        self.coordinator.perform(userAction: .viewport(.zoomToFitSelection))
     }
 
     @objc func zoomIn() {
-        ImageFlowCoordinator.perform(userAction: .viewport(.zoomIn))
+        self.coordinator.perform(userAction: .viewport(.zoomIn))
     }
 
     @objc func zoomOut() {
-        ImageFlowCoordinator.perform(userAction: .viewport(.zoomOut))
+        self.coordinator.perform(userAction: .viewport(.zoomOut))
     }
 }
 #endif

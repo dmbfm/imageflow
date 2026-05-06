@@ -21,6 +21,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
     public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
     public var canvasView: CanvasPlatformView!
+    /// The coordinator
+    public var coordinator: GlobalCoordinator
     /// Provider for canvas context menus
     var canvasContextMenuProvider: CanvasContextMenuProvider?
     /// Set to true whenever the user is dragging a partial edge starting from a
@@ -53,8 +55,13 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     // MARK: - Initialization
 
-    public init(flow: Flow, assetStore: any AssetsProvider) {
+    public init(
+        flow: Flow,
+        coordinator: GlobalCoordinator,
+        assetStore: any AssetsProvider,
+    ) {
         self.flow = flow
+        self.coordinator = coordinator
         self.assetStore = assetStore
         super.init(nibName: nil, bundle: nil)
 
@@ -530,7 +537,7 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
 
     public func openAssetPicker(node: UUID, portIndex: Int, kind: SharedModels.AssetKind) {
         // logger.warning("TODO: openAssetPicke")
-        ImageFlowCoordinator.perform(userAction: .openAssetPicker(node: node, portIndex: portIndex, kind: kind))
+        self.coordinator.perform(userAction: .openAssetPicker(node: node, portIndex: portIndex, kind: kind))
     }
 
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
@@ -563,7 +570,7 @@ extension CanvasFeatureNSViewController: CanvasViewDelegate {
 
     public func canvasView(contextMenuAt point: CGPoint) -> Helpers.PlatformMenu? {
         if self.canvasContextMenuProvider == nil {
-            self.canvasContextMenuProvider = .init(coordinator: nil)
+            self.canvasContextMenuProvider = .init(self.coordinator)
         }
 
         return self.canvasContextMenuProvider?.makeMenu(at: point)

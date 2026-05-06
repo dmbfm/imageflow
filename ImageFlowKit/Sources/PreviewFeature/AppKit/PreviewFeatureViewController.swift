@@ -81,7 +81,7 @@ extension PreviewFeature {
         func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
             switch event {
             case .modifiedGeneratedAsset(let loc):
-                logger.warning("TODO")
+                self.input(.updatedImage(loc))
             case .assetsChanged:
                 break
             }
@@ -116,6 +116,7 @@ extension PreviewFeature {
             case .nothing:
                 self.cardStageView.cardVisibility = .hidden
             case let .loaded(locked: _, location: _, image: image):
+                self.cardImageView.image = image
                 self.cardStageView.contentView = self.cardView
                 self.cardStageView.cardVisibility = .visible
             default:
@@ -167,6 +168,7 @@ extension PreviewFeature {
     }
 
     enum Input {
+        case updatedImage(OutputPortLocation)
         case previewLocations(Set<PreviewLocation>)
         case imageLoaded(OutputPortLocation, CIImage)
     }
@@ -267,6 +269,11 @@ extension PreviewFeature {
 
             case let .imageLoaded(loc, image):
                 return (.loaded(locked: self.locked, location: loc, image: image), nil)
+
+            case .updatedImage(let location):
+                guard let current = self.location, current == location else { return (self, nil) }
+
+                return (.loading(locked: self.locked, location: location, image: self.image), .loadImage(location))
             }
         }
     }

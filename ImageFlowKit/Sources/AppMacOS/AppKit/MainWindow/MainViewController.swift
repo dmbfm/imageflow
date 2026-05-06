@@ -64,8 +64,8 @@ final class MainViewController: NSSplitViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        self.sidebarVC = .init()
-        self.detailVC = .init(self.flow, self.assetStore)
+        self.sidebarVC = .init(globalCoordinator: .init(self))
+        self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()
     }
 
@@ -96,7 +96,7 @@ final class MainViewController: NSSplitViewController {
 
 // MARK: - ImageFlowCoordinatorProtocol
 
-extension MainViewController: ImageFlowCoordinatorProtocol {
+extension MainViewController: GlobalCoordinatorProtocol {
     func perform(userAction: SharedModels.UserAction) {
         logger.info("userAction: \("\(userAction)")")
 

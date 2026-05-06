@@ -163,12 +163,12 @@ struct CardResizingRects: Equatable {
         }
     }
 
-    func handleContaining(point: CGPoint) -> CardResizingHandle? {
-        if self.diagonal.contains(point) {
+    func handleContaining(point: CGPoint, margin: CGFloat) -> CardResizingHandle? {
+        if self.diagonal.insetBy(dx: margin, dy: margin).contains(point) {
             .diagonal
-        } else if self.horizontal.contains(point) {
+        } else if self.horizontal.insetBy(dx: margin, dy: margin).contains(point) {
             .horizontal
-        } else if self.vertical.contains(point) {
+        } else if self.vertical.insetBy(dx: margin, dy: margin).contains(point) {
             .vertical
         } else {
             nil

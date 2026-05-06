@@ -148,7 +148,7 @@ public class WindowPreviewViewModel: Observable {
         self.location = location
         self.assetStore = assetStore
         self.flow = flow
-        self.coordinator = .init(coordinator)
+        self.coordinator = coordinator
         self.cache = cache
         self.name = flow.nodes[location.node]?.name
         self.activeObjectKey = "\(location.node)-\(location.index)"
@@ -224,7 +224,7 @@ struct WindowPreviewContentView: View {
             }
         }
         .activeViewObject(self.vm, useScenePhase: false)
-        .activeViewObject(self.vm.coordinator, key: self.vm.activeObjectKey, useScenePhase: false)
+        // .activeViewObject(self.vm.coordinator, key: self.vm.activeObjectKey, useScenePhase: false)
         .toolbar { self.toolbarContent }
         .imageExporter(
             isPresented: $vm.showImageExporter,

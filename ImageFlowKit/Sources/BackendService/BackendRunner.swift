@@ -3,6 +3,7 @@ import Helpers
 import OSLog
 import SharedModels
 
+let signposter = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
 let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "backend-runner")
 
 @MainActor

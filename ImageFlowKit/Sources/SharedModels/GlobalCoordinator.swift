@@ -1,16 +1,9 @@
 import Backend
 import CoreImage
 import Foundation
-import Helpers
-import SwiftUI
 import UniformTypeIdentifiers
-import Values
 
-#if canImport(AppKit)
-import AppKit
-#endif
-
-public protocol ImageFlowCoordinatorProtocol {
+public protocol GlobalCoordinatorProtocol: AnyObject {
     func perform(userAction: UserAction)
     func canZoomIn() -> Bool
     func canZoomOut() -> Bool
@@ -20,115 +13,39 @@ public protocol ImageFlowCoordinatorProtocol {
 }
 
 @MainActor
-public struct ImageFlowCoordinator {
+public class GlobalCoordinator: GlobalCoordinatorProtocol {
 
-    static var coordinator: (any ImageFlowCoordinatorProtocol)? {
-        #if os(macOS)
-        NSApp.keyWindow?.contentViewController as? ImageFlowCoordinatorProtocol
-        #endif
+    private weak var impl: (any GlobalCoordinatorProtocol)?
+    private var dummy = MockGlobalCoordinator()
+
+    public init(_ impl: some GlobalCoordinatorProtocol) {
+        self.impl = impl
     }
 
-    @discardableResult
-    public static func perform(userAction: UserAction) -> Bool {
-        #if os(macOS)
-        if let coordinator = Self.coordinator {
-            coordinator.perform(userAction: userAction)
-            return true
-        } else {
-            return false
-        }
-        #endif
+    public func perform(userAction: UserAction) {
+        self.impl?.perform(userAction: userAction)
     }
 
-    public static func canZoomIn() -> Bool {
-        Self.coordinator?.canZoomIn() ?? false
+    public func canZoomIn() -> Bool {
+        self.impl?.canZoomIn() ?? self.dummy.canZoomIn()
     }
 
-    public static func canZoomOut() -> Bool {
-        Self.coordinator?.canZoomOut() ?? false
+    public func canZoomOut() -> Bool {
+        self.impl?.canZoomOut() ?? self.dummy.canZoomOut()
     }
 
-    public static func currentZoom() -> CGFloat {
-        Self.coordinator?.currentZoom() ?? 1.0
+    public func currentZoom() -> CGFloat {
+        self.impl?.currentZoom() ?? self.dummy.currentZoom()
     }
 
-    public static func nodeCount() -> Int {
-        Self.coordinator?.nodeCount() ?? 0
+    public func nodeCount() -> Int {
+        self.impl?.nodeCount() ?? self.dummy.nodeCount()
     }
 
-    public static func selectedNodeCount() -> Int {
-        Self.coordinator?.selectedNodeCount() ?? 0
+    public func selectedNodeCount() -> Int {
+        self.impl?.selectedNodeCount() ?? self.dummy.selectedNodeCount()
     }
-}
 
-public protocol GlobalCoordinatorImpl: AnyObject, Observable {
-    var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
-    var flow: Flow { get }
-    var nodeSelectionCount: Int { get }
-    var canPaste: Bool { get }
-    var canZoomIn: Bool { get }
-    var canZoomOut: Bool { get }
-
-    var undoManager: UndoManager? { get set }
-    var pointerData: PointerData? { get set }
-    var available: ComponentAvailability { get }
-
-    var previewIsDocked: Bool { get }
-    var previewHasImage: Bool { get }
-    var previewPositionBinding: Binding<PreviewPosition?> { get }
-    var previewPinnedBinding: Binding<Bool> { get }
-
-    func titleForAsset(id: AssetIdentifier?) -> String?
-
-    func statusBar(_ text: String?)
-
-    func perform(userAction: UserAction)
-    func perform(internalAction: InternalAction)
-
-    init(flow: Flow)
-}
-
-public struct ComponentAvailability: Equatable {
-    public var preview: Bool = false
-    public var windowPreview: Bool = false
-
-    public init(preview: Bool = false, windowPreview: Bool = false) {
-        self.preview = preview
-        self.windowPreview = windowPreview
-    }
-}
-
-public enum ComponentName {
-    case previewFeature
-    case windowPreviewFeature
-}
-
-public struct PointerData {
-    public var positionInCanvasView: CGPoint
-    public var positionInCanvas: CGPoint
-
-    public init(positionInCanvasView: CGPoint, positionInCanvas: CGPoint) {
-        self.positionInCanvasView = positionInCanvasView
-        self.positionInCanvas = positionInCanvas
-    }
-}
-
-public enum Point {
-    case canvas(CGPoint)
-    case canvasView(CGPoint)
-    case window(CGPoint)
-
-    public var cgPoint: CGPoint {
-        switch self {
-        case .canvas(let p): p
-        case .canvasView(let p): p
-        case .window(let p): p
-        }
-    }
-}
-
-public enum InternalAction {
-    case errorAlert(any LocalizedError)
 }
 
 public enum UserAction {
@@ -180,102 +97,42 @@ public enum UserAction {
     }
 }
 
-public enum GlobalCoordinatorEvent {
-    case backendDidRun
-    case assetBrowserDidClose
-    case dummy
+public enum Point {
+    case canvas(CGPoint)
+    case canvasView(CGPoint)
+    case window(CGPoint)
+
+    public var cgPoint: CGPoint {
+        switch self {
+        case .canvas(let p): p
+        case .canvasView(let p): p
+        case .window(let p): p
+        }
+    }
 }
 
-@Observable
-@MainActor
-public class GlobalCoordinator: GlobalCoordinatorImpl {
-    public func perform(internalAction: InternalAction) {
-        self.impl.perform(internalAction: internalAction)
-    }
-
-    public func statusBar(_ text: String?) {
-        self.impl.statusBar(text)
-    }
-
-    public var canZoomIn: Bool { self.impl.canZoomIn }
-
-    public var canZoomOut: Bool { self.impl.canZoomOut }
-
-    public var flow: Flow {
-        self.impl.flow
-    }
-
-    public var available: ComponentAvailability {
-        self.impl.available
-    }
-
-    public var emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> {
-        self.impl.emitter
-    }
-
-    public var nodeSelectionCount: Int {
-        self.impl.nodeSelectionCount
-    }
-
-    public var canPaste: Bool {
-        self.impl.canPaste
-    }
-
-    public var pointerData: PointerData? {
-        get {
-            self.impl.pointerData
-        }
-
-        set {
-            self.impl.pointerData = newValue
-        }
-    }
-
-    public required init(flow: Flow) {
-        fatalError("Unavailable")
-    }
-
-    var impl: any GlobalCoordinatorImpl
-
-    public var undoManager: UndoManager? {
-        get {
-            self.impl.undoManager
-        }
-
-        set {
-            self.impl.undoManager = newValue
-        }
-    }
-
-    public init(_ impl: any GlobalCoordinatorImpl) {
-        self.impl = impl
-    }
-
+public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
     public func perform(userAction: UserAction) {
-        self.impl.perform(userAction: userAction)
+
     }
 
-    public func titleForAsset(id: Values.AssetIdentifier?) -> String? {
-        self.impl.titleForAsset(id: id)
+    public func canZoomIn() -> Bool {
+        true
     }
 
-    public var previewIsDocked: Bool {
-        self.impl.previewIsDocked
+    public func canZoomOut() -> Bool {
+        true
     }
 
-    public var previewPositionBinding: Binding<PreviewPosition?> {
-        self.impl.previewPositionBinding
+    public func currentZoom() -> CGFloat {
+        1.0
     }
 
-    public var previewPinnedBinding: Binding<Bool> {
-        self.impl.previewPinnedBinding
+    public func nodeCount() -> Int {
+        0
     }
 
-    public var previewHasImage: Bool {
-        self.impl.previewHasImage
-    }
-
-    public var implementation: any GlobalCoordinatorImpl {
-        self.impl
+    public func selectedNodeCount() -> Int {
+        0
     }
 }
