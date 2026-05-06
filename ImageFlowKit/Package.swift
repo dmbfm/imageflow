@@ -41,10 +41,10 @@ let package = Package(
         .library(name: "InspectorFeature"),
         .library(name: "TextInput"),
         .library(name: "CardStage"),
+        .library(name: "CubeLutKit"),
     ],
     dependencies: [
-        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
-        .package(path: "../CubeLutKit"),
+        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
     ],
     targets: [
         .target(
@@ -74,6 +74,7 @@ let package = Package(
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
+        .target(name: "CubeLutKit"),
         .target(
             name: "Controls",
             dependencies: [
@@ -289,6 +290,10 @@ let package = Package(
             dependencies: [
                 "Helpers"
             ]
+        ),
+        .testTarget(
+            name: "CubeLutKitTests",
+            dependencies: ["CubeLutKit"]
         ),
         .testTarget(
             name: "AssetManagerTests",

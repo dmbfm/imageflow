@@ -1,12 +1,11 @@
 //
 //  ContentView.swift
-//  CardStagePreview
+//  ImageFlowPreviews
 //
-//  Created by Daniel Fortes on 02/05/26.
+//  Created by Daniel Fortes on 06/05/26.
 //
 
 import SwiftUI
-import CardStage
 
 struct ContentView: View {
     var body: some View {
