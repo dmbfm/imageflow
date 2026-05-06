@@ -61,7 +61,7 @@ func testSquareDragResized() {
         stage: stage,
         sizeRange: range
     )
-    e = Square(origin: .init(x: 98, y: 98), size: 2.0)
+    e = Square(origin: .init(x: 99, y: 99), size: 1.0)
     #expect(r == e)
 
     s = Square(origin: .zero, size: 1.0).aligned(stage: stage, anchor: .bottomRight)
