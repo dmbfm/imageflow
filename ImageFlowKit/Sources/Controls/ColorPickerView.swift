@@ -1,7 +1,7 @@
 import Logging
 import SwiftUI
 import Values
-import XViewKit
+import XKit
 
 public struct ColorPickerView: XViewRepresentable {
 

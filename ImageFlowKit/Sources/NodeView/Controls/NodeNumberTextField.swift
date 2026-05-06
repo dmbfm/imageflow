@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -30,7 +31,7 @@ extension FormatStyle where Self == NodeNumberTextFieldFormat {
     }
 }
 
-final class NodeNumberTextField: PlatformCommonView {
+final class NodeNumberTextField: XViewEx {
     public var value: Double {
         didSet {
             if self.value != oldValue {
@@ -65,7 +66,7 @@ final class NodeNumberTextField: PlatformCommonView {
         var drag: Bool
     }
 
-    public var tint: PlatformColor = .systemBlue
+    public var tint: XColor = .systemBlue
 
     var snap: Snap? = nil
     var forceSnap: Bool = false
@@ -158,7 +159,9 @@ final class NodeNumberTextField: PlatformCommonView {
         return result
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.textField.frame.origin = .zero
         self.textField.frame.size = self.textField.intrinsicContentSize
     }

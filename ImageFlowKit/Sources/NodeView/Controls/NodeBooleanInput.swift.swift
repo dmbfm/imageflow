@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -13,7 +14,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeBooleanInput: PlatformCommonView, NodeControl {
+final class NodeBooleanInput: XViewEx, NodeControl {
     var value: Value {
         didSet {
             log("node bool input update: \(self.value)")
@@ -25,7 +26,7 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
 
     var onEvent: ((NodeControlEvent) -> ())?
 
-    var tint: PlatformColor = .systemBlue {
+    var tint: XColor = .systemBlue {
         didSet {
             #if os(iOS)
             self.toggle.onTintColor = self.tint
@@ -102,14 +103,15 @@ final class NodeBooleanInput: PlatformCommonView, NodeControl {
         self.toggle.intrinsicContentSize
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
         self.toggle.frame.origin = .zero
         self.toggle.frame.size = self.toggle.intrinsicContentSize
     }
 }
 
 extension NodeBooleanInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         @Binding var value: Value
         func makeView(context: Context) -> NodeBooleanInput {
             let view = NodeBooleanInput(self.value)

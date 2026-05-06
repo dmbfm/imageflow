@@ -1,7 +1,7 @@
-import CoreGraphics
+import Foundation
 
 extension CGRect {
-    public func insetted(by insets: PlatformEdgeInsets) -> CGRect {
+    public func insetted(by insets: XEdgeInsets) -> CGRect {
         .init(
             x: self.minX + insets.left,
             y: self.minY + insets.top,

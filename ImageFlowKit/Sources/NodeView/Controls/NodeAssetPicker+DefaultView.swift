@@ -2,9 +2,10 @@
 
 import Helpers
 import AppKit
+import XKit
 
 extension NodeAssetPicker {
-    final class DefaultView: PlatformCommonView, NodeAssetPickerInnerView {
+    final class DefaultView: XViewEx, NodeAssetPickerInnerView {
 
         var onButtonClick: (() -> ())?
 
@@ -81,7 +82,8 @@ extension NodeAssetPicker {
             return buttonSize.minMax(xButtonSize, width: .sum, height: .max)
         }
 
-        override func doLayout() {
+        override func layout() {
+            super.layout()
             self.buttonView.frame.origin = .zero
             self.buttonView.frame.size = .init(
                 width: self.bounds.width - self.removeButtonView.intrinsicContentSize.width - self.padding,

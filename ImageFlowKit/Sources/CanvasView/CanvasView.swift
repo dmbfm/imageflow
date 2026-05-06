@@ -2,6 +2,7 @@ import Helpers
 import Logging
 import OSLog
 import SwiftUI
+import XKit
 
 #if canImport(AppKit)
 import AppKit
@@ -18,7 +19,7 @@ let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "CanvasView")
 /// its state provided via two-way `@Binding`s or one-way `let` bindings. It also
 /// communicates with its parent view via events (see `Event` and `onEvent`).
 @MainActor
-public struct CanvasView: PlatformViewRepresentable, @MainActor Equatable {
+public struct CanvasView: XViewRepresentable, @MainActor Equatable {
     public static func == (lhs: CanvasView, rhs: CanvasView) -> Bool {
         lhs.viewport == rhs.viewport && lhs.nodePositions == rhs.nodePositions && lhs.edgeLayers == rhs.edgeLayers
             && lhs.plusIconState == rhs.plusIconState

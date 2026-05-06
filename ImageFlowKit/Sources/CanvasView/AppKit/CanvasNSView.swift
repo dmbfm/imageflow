@@ -4,6 +4,7 @@ import Helpers
 import CoreGraphics
 import Logging
 import SwiftUI
+import XKit
 
 public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
     // MARK: - Public Properties
@@ -65,7 +66,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
                 break
             }
         }
-        view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
+        view.autoresizingMask = [.width, .height]
         view.delegate = self
         return view
     }()
@@ -78,7 +79,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
     lazy var contentView: CanvasContentView = {
         let view = CanvasContentView()
-        view.setAutoresizingMask([.flexibleWidth, .flexibleHeight])
+        view.autoresizingMask = [.width, .height]
         return view
     }()
 
@@ -303,7 +304,7 @@ extension CanvasNSView: NSGestureRecognizerDelegate {
 }
 
 extension CanvasNSView: CanvasGridView.Delegate {
-    func gridViewCanvasContextMenu(at point: CGPoint) -> Helpers.PlatformMenu? {
+    func gridViewCanvasContextMenu(at point: CGPoint) -> XMenu? {
         self.delegate?.canvasView(contextMenuAt: point)
     }
 }

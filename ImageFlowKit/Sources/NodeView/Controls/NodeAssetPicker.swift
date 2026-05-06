@@ -4,6 +4,7 @@ import Logging
 import SharedModels
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -48,7 +49,7 @@ struct LutAssetPicker: AssetPickerType {
     }
 }
 
-protocol NodeAssetPickerInnerView: PlatformView {
+protocol NodeAssetPickerInnerView: XView {
     var vm: NodeAssetPickerInnerViewModel { get set }
     var onButtonClick: (() -> ())? { get set }
     var onRemoveButtonClick: (() -> ())? { get set }
@@ -65,7 +66,7 @@ protocol NodeAssetPickerDelegate: AnyObject {
     var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
-final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl {
+final class NodeAssetPicker<T: AssetPickerType>: XViewEx, NodeControl {
     var context: NodeControlContext = .init()
 
     var onEvent: ((NodeControlEvent) -> ())?
@@ -76,7 +77,7 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         }
     }
 
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
 
     var cancellables: Set<AnyEventEmitterCancellable> = []
 
@@ -190,7 +191,8 @@ final class NodeAssetPicker<T: AssetPickerType>: PlatformCommonView, NodeControl
         return self.isEditable ? (self.innerView.intrinsicContentSize.clampWidth(to: 0...160)) : .zero
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
         self.innerView.frame = .init(origin: .zero, size: self.intrinsicContentSize)
         Layout.align(views: [self.innerView], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }

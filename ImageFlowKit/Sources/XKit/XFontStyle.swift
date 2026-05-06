@@ -1,6 +1,6 @@
 import Foundation
 
-public enum FontStyle: Sendable, Hashable {
+public enum XFontStyle: Sendable, Hashable {
     case systemFont(size: CGFloat, weight: Weight?)
     case systemMonoFont(size: CGFloat, weight: Weight?)
 
@@ -20,7 +20,7 @@ public enum FontStyle: Sendable, Hashable {
 #if canImport(AppKit)
 import AppKit
 
-extension FontStyle.Weight {
+extension XFontStyle.Weight {
     public var platform: NSFont.Weight {
         switch self {
         case .ultraLight: .ultraLight
@@ -36,7 +36,7 @@ extension FontStyle.Weight {
     }
 }
 
-extension FontStyle {
+extension XFontStyle {
     public var font: NSFont {
         switch self {
         case let .systemFont(size: size, weight: weight):
@@ -51,7 +51,7 @@ extension FontStyle {
 #if canImport(UIKit)
 import UIKit
 
-extension FontStyle.Weight {
+extension XFontStyle.Weight {
     public var platform: UIFont.Weight {
         switch self {
         case .ultraLight: .ultraLight
@@ -67,7 +67,7 @@ extension FontStyle.Weight {
     }
 }
 
-extension FontStyle {
+extension XFontStyle {
     public var font: UIFont {
         switch self {
         case let .systemFont(size: size, weight: weight):

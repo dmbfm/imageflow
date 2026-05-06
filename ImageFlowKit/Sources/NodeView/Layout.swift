@@ -7,6 +7,7 @@
 
 import Foundation
 import Helpers
+import XKit
 
 struct Layout {
 
@@ -28,7 +29,7 @@ struct Layout {
 
     @MainActor
     // swiftlint:disable function_body_length
-    static func align(views: [PlatformView], alignment: Alignment, guide: Guide) {
+    static func align(views: [XView], alignment: Alignment, guide: Guide) {
         switch alignment {
         case .left:
             let pos: CGFloat =

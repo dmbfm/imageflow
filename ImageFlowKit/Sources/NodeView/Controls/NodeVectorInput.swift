@@ -5,6 +5,7 @@ import SharedModels
 import SwiftUI
 import TextInput
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -56,7 +57,7 @@ extension NodeVectorInput {
     }
 }
 
-final class NodeVectorInput: PlatformCommonView, NodeControl {
+final class NodeVectorInput: XViewEx, NodeControl {
     var context: NodeControlContext = .init()
     public var onEvent: ((NodeControlEvent) -> ())?
 
@@ -68,7 +69,7 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    public var tint: XColor = .systemBlue
 
     lazy var formatter: NumberFormatter = {
         let f = NumberFormatter()
@@ -159,7 +160,9 @@ final class NodeVectorInput: PlatformCommonView, NodeControl {
         return size + .init(width: self.spacing * CGFloat(self.dim - 1), height: 0)
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         _ = self.textFields.reduce(
             0.0,
             { acc, controller in
@@ -217,7 +220,7 @@ extension Value {
 }
 
 extension NodeVectorInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         let value: Value
         func makeView(context: Context) -> NodeVectorInput {
             let view = NodeVectorInput(self.value)

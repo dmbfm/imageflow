@@ -275,8 +275,8 @@
 //     }
 
 //     enum Event {
-//         case didChange(PlatformColor)
-//         case didCommit(old: PlatformColor, new: PlatformColor)
+//         case didChange(XColor)
+//         case didCommit(old: XColor, new: XColor)
 //     }
 
 //     var onEvent: ((Event) -> ())?
@@ -465,8 +465,8 @@
 // // MARK: - Previews
 
 // extension NodeColorPicker {
-//     fileprivate struct Preview: PlatformViewRepresentable {
-//         func makeView(context: Context) -> some PlatformView {
+//     fileprivate struct Preview: XViewRepresentable {
+//         func makeView(context: Context) -> some XView {
 //             let picker = NodeColorPicker()
 //             picker.color = .systemTeal
 //             picker.showsAlpha = true

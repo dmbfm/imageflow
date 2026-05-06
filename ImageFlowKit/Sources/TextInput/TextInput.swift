@@ -1,6 +1,7 @@
 import Design
 import Helpers
 import SwiftUI
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -12,7 +13,7 @@ import Combine
 #endif
 
 @MainActor
-public final class TextInput: PlatformCommonView {
+public final class TextInput: XViewEx {
 
     // MARK: - Public Properties
 
@@ -242,7 +243,9 @@ public final class TextInput: PlatformCommonView {
         }
     }
 
-    public override func doLayout() {
+    public override func layout() {
+        super.layout()
+
         let textSize = self.textBasedSize
         let insets = self.style.insets
         let bounds = self.bounds
@@ -379,7 +382,7 @@ public final class TextInput: PlatformCommonView {
         delegate.textInputDidDrag(
             self,
             dragData: .init(
-                phase: .init(gestureRecognizerState: gesture.state),
+                phase: gesture.state,
                 modifiers: .init(flags: event.modifierFlags),
                 region: self.backgroundView.bounds,
                 translation: gesture.translation(in: nil),
@@ -747,7 +750,7 @@ public protocol TextInputDelegate: AnyObject {
 
 extension TextInput {
     public struct DragData: Sendable, Equatable {
-        public var phase: GesturePhase
+        public var phase: XGestureRecognizer.State
         public var modifiers: KeyModifiers
         public var region: CGRect
         public var translation: CGPoint
@@ -773,10 +776,10 @@ extension TextInputDelegate {
 
 public struct TextInputStyle: Sendable, Equatable, With {
     public var background: TextInputBackgroundStyle
-    public var textColor: PlatformColor?
-    public var textColorDisabled: PlatformColor?
+    public var textColor: XColor?
+    public var textColorDisabled: XColor?
     public var insets: Insets
-    public var font: PlatformFont?
+    public var font: XFont?
 
     public struct Insets: Sendable, Equatable, With {
         public var left: CGFloat
@@ -816,9 +819,9 @@ public struct TextInputStyle: Sendable, Equatable, With {
 
     public init(
         background: TextInputBackgroundStyle,
-        font: PlatformFont? = nil,
-        textColor: PlatformColor? = .primaryLabel,
-        textColorDisabled: PlatformColor? = .secondaryLabel,
+        font: XFont? = nil,
+        textColor: XColor? = .system.label,
+        textColorDisabled: XColor? = .system.secondaryLabel,
         insets: Insets
     ) {
         self.background = background
@@ -877,7 +880,7 @@ extension TextInput {
         }
     }
 
-    private struct Representable: PlatformViewRepresentable {
+    private struct Representable: XViewRepresentable {
 
         let behaviours: Behaviors
         let sizingMode: SizingMode

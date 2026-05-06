@@ -1,6 +1,7 @@
 import Foundation
 import Helpers
 import SharedModels
+import XKit
 
 public struct Annotation: Equatable {
     public var title: String
@@ -33,9 +34,9 @@ public enum AnnotationType {
 
 struct AnnotationStyle: Equatable, With {
     public var backgroundStyle: BackgroundStyle
-    public var backgroundColor: PlatformColor? = nil
-    public var titleColor: PlatformColor
-    public var messageColor: PlatformColor
+    public var backgroundColor: XColor? = nil
+    public var titleColor: XColor
+    public var messageColor: XColor
     public var cornerRadius: CGFloat = 10.0
 
     public enum BackgroundStyle: Equatable {

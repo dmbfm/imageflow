@@ -1,6 +1,7 @@
 import Design
 import Helpers
 import SwiftUI
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -159,6 +160,10 @@ public class NumberInputController {
                 )
             )
 
+        case .failed, .possible, .recognized:
+            break
+        @unknown default:
+            break
         }
     }
 
@@ -515,7 +520,7 @@ extension NumberInputController {
         }
     }
 
-    struct Representable: PlatformViewRepresentable {
+    struct Representable: XViewRepresentable {
 
         func makeView(context: Context) -> TextInput {
             context.coordinator.controller = .init()

@@ -5,10 +5,11 @@ import Logging
 import SharedModels
 import SwiftUI
 import Values
+import XKit
 
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
-    func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> PlatformMenu?
+    func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> XMenu?
     func nodeView(registerUndoForNode node: UUID, inputIndex: Int, oldValue: Value, newValue: Value)
     func nodeViewSelectedNodesCount() -> Int
 }
@@ -17,7 +18,7 @@ public enum NodeViewDelegateEvent {
     case assetsChanged
 }
 
-public final class NodeView: PlatformCommonView, CanvasNodeView {
+public final class NodeView: XViewEx, CanvasNodeView {
 
     // MARK: - Exposed properties
 
@@ -246,7 +247,8 @@ public final class NodeView: PlatformCommonView, CanvasNodeView {
         return .init(width: width, height: height)
     }
 
-    public override func doLayout() {
+    public override func layout() {
+        super.layout()
         let portSize = max(self.style.inputRow.port.size, self.style.outputRow.port.size)
         let titleSize = self.titleView.intrinsicContentSize
         let inputBlockSize: CGSize = self.inputBlockView.intrinsicContentSize
@@ -470,7 +472,7 @@ extension NodeView: NodeTitleView.Delegate {
 // MARK: - Previews
 
 extension NodeView {
-    public struct Preview: PlatformViewRepresentable {
+    public struct Preview: XViewRepresentable {
         let node: FlowNode
 
         @State var cancellable: Set<AnyEventEmitterCancellable> = []
@@ -478,7 +480,7 @@ extension NodeView {
         public init(node: FlowNode) {
             self.node = node
         }
-        public func makeView(context: Context) -> some PlatformView {
+        public func makeView(context: Context) -> some XView {
             let view = NodeView(node)
             view.clipsToBounds = false
             view.emitter.on { event in

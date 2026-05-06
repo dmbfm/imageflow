@@ -1,6 +1,7 @@
 import Foundation
 import Helpers
 import SwiftUI
+import XKit
 
 #if os(iOS)
 import UIKit
@@ -14,7 +15,7 @@ import AppKit
 
 // MARK: - AngleDialView
 
-final class AngleDialView: PlatformCommonView {
+final class AngleDialView: XViewEx {
 
     // MARK: - Exposed Properties
 
@@ -194,7 +195,7 @@ extension AngleDialView {
 // MARK: - Previews
 
 extension AngleDialView {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         var angle: Double
         var range: ClosedRange<Double>? = nil
         func makeView(context: Context) -> AngleDialView {

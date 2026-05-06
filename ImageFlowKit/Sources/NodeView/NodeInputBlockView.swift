@@ -3,6 +3,7 @@ import Logging
 import SharedModels
 import SwiftUI
 import Values
+import XKit
 
 public protocol NodeInputBlockViewDelegate: AnyObject {
     func openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
@@ -11,7 +12,7 @@ public protocol NodeInputBlockViewDelegate: AnyObject {
     var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
-final class NodeInputBlockView: PlatformCommonView {
+final class NodeInputBlockView: XViewEx {
 
     // MARK: - Exposed Properties
 
@@ -177,8 +178,8 @@ final class NodeInputBlockView: PlatformCommonView {
         return .init(width: width, height: height)
     }
 
-    override func doLayout() {
-        super.doLayout()
+    override func layout() {
+        super.layout()
 
         for (idx, row) in self.rows.enumerated() {
             row.frame = .init(
@@ -236,7 +237,7 @@ extension NodeInputBlockView {
 }
 
 extension NodeInputBlockView {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeInputBlockView {
             let view = NodeInputBlockView(
                 node: .init(),

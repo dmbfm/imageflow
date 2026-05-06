@@ -3,10 +3,9 @@ import Design
 import Helpers
 import Logging
 import SwiftUI
+import XKit
 
-import struct Helpers.ShadowStyle
-
-final class BackgroundView: PlatformView {
+final class BackgroundView: XView {
 
     var style: BackgroundViewStyle {
         didSet {
@@ -82,7 +81,7 @@ final class BackgroundView: PlatformView {
     @objc
     func onPanGesture(_ gesture: NSPanGestureRecognizer) {
         let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(phase: .init(gestureRecognizerState: gesture.state), dx: t.x, dy: -t.y)))
+        self.onEvent?(.drag(.init(phase: gesture.state, dx: t.x, dy: -t.y)))
         gesture.setTranslation(.zero, in: nil)
     }
 
@@ -173,7 +172,9 @@ final class BackgroundView: PlatformView {
     #endif
 
     func draw() {
-        self.layer().cornerRadius = self.style.cornerRadius
+        self.withLayer { layer in
+            layer.cornerRadius = self.style.cornerRadius
+        }
         self.gradientLayer.cornerRadius = self.style.cornerRadius
         self.updateGradientColor(self.style.color.cgColor)
     }
@@ -204,22 +205,22 @@ extension BackgroundView: NSGestureRecognizerDelegate {
 
 public struct BackgroundViewStyle: Sendable, Hashable, With {
     public var cornerRadius: CGFloat
-    public var color: PlatformColor
-    public var shadow: ShadowStyle
+    public var color: XColor
+    public var shadow: XViewEx.Shadow
     public var gradientHeight: CGFloat
     public var borderAnimationDuration: CGFloat
     public var selectedBorderWidth: CGFloat
-    public var selectedBorderColor: PlatformColor
+    public var selectedBorderColor: XColor
 
     public static var `default`: Self {
         .init(
             cornerRadius: 10,
             color: .systemBlue,
             shadow: .init(
-                radius: 4,
                 color: .init(white: 0, alpha: 0.4),
-                opacity: 1,
-                offset: .init(width: 0, height: 2)
+                opacity: 1.0,
+                offset: .init(width: 0, height: 2),
+                radius: 4.0,
             ),
             gradientHeight: 50,
             borderAnimationDuration: 0.08,
@@ -269,8 +270,8 @@ extension CAGradientLayer {
 }
 
 extension BackgroundView {
-    fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
+    fileprivate struct Preview: XViewRepresentable {
+        func makeView(context: Context) -> some XView {
             let view = BackgroundView()
             view.clipsToBounds = false
             view.onEvent = { log("event: \($0)") }

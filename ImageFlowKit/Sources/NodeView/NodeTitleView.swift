@@ -2,8 +2,9 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import XKit
 
-public final class NodeTitleView: PlatformCommonView {
+public final class NodeTitleView: XViewEx {
 
     public var vm: ViewModel {
         didSet {
@@ -164,8 +165,8 @@ public final class NodeTitleView: PlatformCommonView {
         return size
     }
 
-    public override func doLayout() {
-        super.doLayout()
+    public override func layout() {
+        super.layout()
 
         self.iconView.frame = .init(x: 0, y: 0, width: self.style.iconSize, height: self.style.iconSize)
         let textGuide: CGFloat = self.iconView.frame.maxX + self.style.iconTitleSpacing
@@ -196,7 +197,7 @@ public final class NodeTitleView: PlatformCommonView {
     #endif
 
     #if os(macOS)
-    public override func hitTest(_ point: CGPoint) -> PlatformView? {
+    public override func hitTest(_ point: CGPoint) -> XView? {
         nil
     }
     #endif
@@ -245,17 +246,17 @@ extension NodeTitleView {
         public var iconSize: CGFloat = 24
         public var iconPointSize: CGFloat = 18
         public var minTitleWidth: CGFloat = 80
-        public var titleFont: FontStyle = .systemFont(size: 14, weight: .medium)
-        public var subtitleFont: FontStyle = .systemFont(size: 12, weight: .regular)
+        public var titleFont: XFontStyle = .systemFont(size: 14, weight: .medium)
+        public var subtitleFont: XFontStyle = .systemFont(size: 12, weight: .regular)
 
         #if os(macOS)
-        public var titleColor: PlatformColor = .labelColor
-        public var subtitleColor: PlatformColor = .secondaryLabelColor
+        public var titleColor: XColor = .labelColor
+        public var subtitleColor: XColor = .secondaryLabelColor
         #endif
 
         #if os(iOS)
-        public var titleColor: PlatformColor = .label
-        public var subtitleColor: PlatformColor = .secondaryLabel
+        public var titleColor: XColor = .label
+        public var subtitleColor: XColor = .secondaryLabel
         #endif
 
         public static var `default`: Self {
@@ -272,7 +273,7 @@ extension NodeTitleView {
 // MARK: - Previews
 
 extension NodeTitleView {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeTitleView {
             let view = NodeTitleView(.init())
             return view

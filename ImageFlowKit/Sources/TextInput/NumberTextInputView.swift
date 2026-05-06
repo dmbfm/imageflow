@@ -1,7 +1,8 @@
 import Helpers
 import SwiftUI
+import XKit
 
-public struct NumberTextInputView: PlatformViewRepresentable {
+public struct NumberTextInputView: XViewRepresentable {
 
     var value: Double
     var bindedValue: Binding<Double>?

@@ -9,6 +9,7 @@ import Combine
 import Helpers
 import Logging
 import SwiftUI
+import XKit
 
 // MARK: - AppKit
 
@@ -405,11 +406,11 @@ extension ColorPickerPlatformView {
         case didChange(Change)
 
         public struct Change {
-            public var newValue: PlatformColor
-            public var oldValue: PlatformColor?
+            public var newValue: XColor
+            public var oldValue: XColor?
             public var commit: Bool
 
-            public init(newValue: PlatformColor, oldValue: PlatformColor? = nil, commit: Bool = false) {
+            public init(newValue: XColor, oldValue: XColor? = nil, commit: Bool = false) {
                 self.newValue = newValue
                 self.oldValue = oldValue
                 self.commit = commit
@@ -450,8 +451,8 @@ extension ColorPickerPlatformView {
 // MARK: - Previews
 
 extension ColorPickerPlatformView {
-    fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
+    fileprivate struct Preview: XViewRepresentable {
+        func makeView(context: Context) -> some XView {
             let picker = ColorPickerPlatformView()
             picker.color = .systemTeal
             picker.showsAlpha = true

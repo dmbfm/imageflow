@@ -5,6 +5,7 @@ import SharedModels
 import SwiftUI
 import TextInput
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -15,7 +16,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeAngleInput: PlatformCommonView, NodeControl {
+final class NodeAngleInput: XViewEx, NodeControl {
 
     public var onEvent: ((NodeControlEvent) -> ())?
 
@@ -27,7 +28,7 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    public var tint: XColor = .systemBlue
 
     var context: NodeControlContext = .init()
 
@@ -266,7 +267,9 @@ final class NodeAngleInput: PlatformCommonView, NodeControl {
         )
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         let numberInputSize = self.numberInput.view.intrinsicContentSize
 
         self.dialView.frame.origin = .init(x: 0, y: 0)
@@ -333,7 +336,7 @@ extension NodeAngleInput {
 }
 
 extension NodeAngleInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         @Binding var value: Value
         func makeView(context: Context) -> NodeAngleInput {
             let view = NodeAngleInput(self.value, isEditable: true)

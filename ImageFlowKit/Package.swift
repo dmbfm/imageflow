@@ -15,6 +15,7 @@ let package = Package(
     products: [
         .library(name: "AppMacOS"),
         .library(name: "AnimKit"),
+        .library(name: "XKit"),
         ///
         .library(name: "Backend"),
         .library(name: "Values"),
@@ -67,9 +68,11 @@ let package = Package(
         .target(
             name: "AnimKit",
             dependencies: [
-                "Helpers"
+                "Helpers",
+                "XKit",
             ]
         ),
+        .target(name: "XKit"),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
@@ -78,9 +81,9 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "Logging",
-                "XViewKit",
                 "Values",
                 "Design",
+                "XKit",
             ]
         ),
         .target(
@@ -132,6 +135,7 @@ let package = Package(
                 "Helpers",
                 "SharedModels",
                 "Values",
+                "XKit",
             ]
         ),
         .target(
@@ -170,6 +174,7 @@ let package = Package(
                 "Helpers",
                 "Logging",
                 "Design",
+                "XKit",
             ],
         ),
         .target(
@@ -198,6 +203,7 @@ let package = Package(
                 "PreviewFeature",
                 "NodePaletteFeature",
                 "ContextMenus",
+                "XKit",
             ],
         ),
         .target(
@@ -269,6 +275,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "Design",
+                "XKit",
             ],
         ),
         .testTarget(

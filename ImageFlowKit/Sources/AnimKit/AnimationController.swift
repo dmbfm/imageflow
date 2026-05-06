@@ -1,15 +1,16 @@
 import Foundation
 import Helpers
 import Quartz
+import XKit
 
 @MainActor
 public final class AnimationController {
 
-    weak var view: PlatformView?
+    weak var view: XView?
     var link: CADisplayLink?
     var animations: [UUID: any Animation] = [:]
 
-    public init(_ view: PlatformView) {
+    public init(_ view: XView) {
         self.view = view
 
         #if os(macOS)

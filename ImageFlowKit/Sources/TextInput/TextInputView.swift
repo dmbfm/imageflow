@@ -1,7 +1,8 @@
 import Helpers
 import SwiftUI
+import XKit
 
-public struct TextInputView: PlatformViewRepresentable {
+public struct TextInputView: XViewRepresentable {
 
     // @Binding var text: String
     var textBinding: Binding<String>?

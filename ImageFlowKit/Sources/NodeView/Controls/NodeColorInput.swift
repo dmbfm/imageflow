@@ -4,6 +4,7 @@ import Helpers
 import Logging
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -14,7 +15,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeColorInput: PlatformCommonView, NodeControl {
+final class NodeColorInput: XViewEx, NodeControl {
 
     var onEvent: ((NodeControlEvent) -> ())?
 
@@ -26,11 +27,11 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         }
     }
 
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
 
     var context: NodeControlContext = .init()
 
-    var platformColor: PlatformColor {
+    var platformColor: XColor {
         switch self.value {
         case .color4(let color):
             return color.platformColor
@@ -89,7 +90,7 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         }
     }
 
-    private func value(forPlatformColor color: PlatformColor) -> Value? {
+    private func value(forPlatformColor color: XColor) -> Value? {
         switch self.value.type {
         case .color4:
             if let color = Color4(platformColor: color) {
@@ -106,7 +107,8 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
         self.colorPicker.intrinsicContentSize
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
         self.colorPicker.frame = .init(origin: .zero, size: self.colorPicker.intrinsicContentSize)
 
         Layout.align(views: [self.colorPicker], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
@@ -114,7 +116,7 @@ final class NodeColorInput: PlatformCommonView, NodeControl {
 }
 
 extension Color4 {
-    var platformColor: PlatformColor {
+    var platformColor: XColor {
         #if os(macOS)
         self.nsColor
         #else
@@ -122,7 +124,7 @@ extension Color4 {
         #endif
     }
 
-    init?(platformColor: PlatformColor) {
+    init?(platformColor: XColor) {
         #if os(macOS)
         self.init(nsColor: platformColor)
         #else
@@ -132,7 +134,7 @@ extension Color4 {
 }
 
 extension NodeColorInput {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
 
         let value: Value
 

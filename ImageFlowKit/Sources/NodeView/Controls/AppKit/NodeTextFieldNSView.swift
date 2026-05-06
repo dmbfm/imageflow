@@ -4,6 +4,7 @@ import AppKit
 import SwiftUI
 import Logging
 import Helpers
+import XKit
 
 final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
 
@@ -212,9 +213,9 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
     func updateIdleLabel(checkIfIdle: Bool = false) {
         if self.label.text == "", let placeholder = self.placeholder, !checkIfIdle || self.state == .idle {
             self.label.text = placeholder
-            self.label.textColor = .tertiaryLabel
+            self.label.textColor = .system.tertiaryLabel
         } else {
-            self.label.textColor = .label
+            self.label.textColor = .system.label
         }
     }
 
@@ -241,15 +242,15 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         let size =
             str.size().minMax(.init(width: 0, height: height), width: .ours, height: .max) + .init(width: 4, height: 0)
         return size.minMax(.init(width: 10, height: 0), width: .max, height: .ours)
-            + style.textInsets.platformEdgeInsets.size
+            + style.textInsets.size
     }
 
     override func layout() {
         let size = self.intrinsicContentSize
         let rect = CGRect(origin: .zero, size: size)
-        self.backgroundView.frame = rect.insetted(by: self.style.backgroundInsets.platformEdgeInsets)
-        self.label.frame = rect.insetted(by: self.style.textInsets.platformEdgeInsets)
-        self.textField.frame = rect.insetted(by: self.style.textInsets.platformEdgeInsets)
+        self.backgroundView.frame = rect.insetted(by: self.style.backgroundInsets)
+        self.label.frame = rect.insetted(by: self.style.textInsets)
+        self.textField.frame = rect.insetted(by: self.style.textInsets)
     }
 
     func resize() {
@@ -267,7 +268,7 @@ final class NodeTextFieldNSView: NSView, NodeTextFieldProtocol {
         self.onEvent?(
             .drag(
                 .init(
-                    phase: .init(gestureRecognizerState: gesture.state),
+                    phase: gesture.state,
                     dx: t.x,
                     dy: t.y,
                     shiftDown: gesture.modifierFlags.contains(.shift),

@@ -6,6 +6,7 @@ import CardStage
 import CoreImage
 import Helpers
 import CIImageView
+import XKit
 
 extension PreviewFeature {
 
@@ -38,8 +39,8 @@ extension PreviewFeature {
             return view
         }()
 
-        lazy var cardView: PlatformView = {
-            let v = PlatformView()
+        lazy var cardView: XView = {
+            let v = XView()
             v.wantsLayer = true
             v.layer?.backgroundColor = .init(gray: 0.5, alpha: 1.0)
 

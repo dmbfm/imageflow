@@ -63,7 +63,7 @@
 //            }
 //        }
 //
-//        var contentView: PlatformView {
+//        var contentView: XView {
 //            get { self.cardView.contentView }
 //            set { self.cardView.contentView = newValue }
 //        }
@@ -351,9 +351,9 @@
 //        func mainViewModelDidChange(_ model: Model)
 //    }
 //
-//    final class MainView: PlatformCommonView {
+//    final class MainView: XViewEx {
 //
-//        var contentView: PlatformView {
+//        var contentView: XView {
 //            get { self.cardView.contentView }
 //            set { self.cardView.contentView = newValue }
 //        }
@@ -548,9 +548,9 @@
 //// MARK: - Card View
 //
 // extension CardStage {
-//    final class CardView: PlatformCommonView {
+//    final class CardView: XViewEx {
 //
-//        var contentView: PlatformView {
+//        var contentView: XView {
 //            didSet {
 //                self.setupContentView()
 //            }
@@ -595,7 +595,7 @@
 //        }
 //    }
 //
-//    final class DefaultContentView: PlatformCommonView {
+//    final class DefaultContentView: XViewEx {
 //        override init(frame frameRect: NSRect) {
 //            super.init(frame: frameRect)
 //            self.wantsLayer = true

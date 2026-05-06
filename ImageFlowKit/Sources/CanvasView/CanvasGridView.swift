@@ -2,6 +2,7 @@ import Design
 import Helpers
 import Logging
 import SwiftUI
+import XKit
 
 #if canImport(AppKit)
 import AppKit
@@ -11,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-final class CanvasGridView: PlatformView {
+final class CanvasGridView: XViewEx {
 
     var viewport: CanvasView.Viewport?
 
@@ -30,7 +31,7 @@ final class CanvasGridView: PlatformView {
     weak var delegate: Delegate?
 
     protocol Delegate: AnyObject {
-        func gridViewCanvasContextMenu(at point: CGPoint) -> PlatformMenu?
+        func gridViewCanvasContextMenu(at point: CGPoint) -> XMenu?
     }
 
     init() {
@@ -190,7 +191,9 @@ final class CanvasGridView: PlatformView {
             layer.strokeColor = Colors.portConnected.cgColor
             layer.lineWidth = 4.0
             layer.delegate = self.layerDelegate
-            self.layer().addSublayer(layer)
+            self.withLayer {
+                $0.addSublayer(layer)
+            }
             self.edgeShapeLayers.append(layer)
         }
     }

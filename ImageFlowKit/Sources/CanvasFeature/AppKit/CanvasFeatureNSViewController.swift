@@ -8,6 +8,7 @@ import NodeView
 import Values
 import Design
 import ContextMenus
+import XKit
 
 public final class CanvasFeatureNSViewController: NSViewController {
 
@@ -252,6 +253,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
             }
         case .ended:
             self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
+        default:
+            logger.warning("onNodeDragGesture: \("\(gesture.phase)")")
         }
     }
 
@@ -470,6 +473,9 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.flow.portDragEnd(undoManager: self.undoManager, position: pos, travelDistance: travelDistance)
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
             self.hideAnnotation()
+
+        default:
+            logger.warning("onNodePortDrag: \("\(gesture.phase)")")
         }
     }
 
@@ -518,7 +524,7 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
         logger.warning("TODO: nodeView(willShowContextMenuForNode")
     }
 
-    public func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> PlatformMenu? {
+    public func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> XMenu? {
         nil
     }
 
@@ -564,11 +570,11 @@ extension CanvasFeatureNSViewController: CanvasViewDelegate {
     public func canvasView(willShowContextMenuForNode id: UUID) {
     }
 
-    public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> Helpers.PlatformMenu? {
+    public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> XMenu? {
         nil
     }
 
-    public func canvasView(contextMenuAt point: CGPoint) -> Helpers.PlatformMenu? {
+    public func canvasView(contextMenuAt point: CGPoint) -> XMenu? {
         if self.canvasContextMenuProvider == nil {
             self.canvasContextMenuProvider = .init(self.coordinator)
         }
@@ -582,7 +588,7 @@ extension CanvasFeatureNSViewController: CanvasViewDelegate {
 }
 
 extension PartialEdge {
-    var color: PlatformColor {
+    var color: XColor {
         switch self.state {
         case .default:
             Colors.portConnected.platformColor

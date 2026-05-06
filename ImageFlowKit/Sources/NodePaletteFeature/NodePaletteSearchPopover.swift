@@ -5,6 +5,7 @@ import AppKit
 import SharedModels
 import Helpers
 import Values
+import XKit
 
 @MainActor
 private var isFirst: Bool = true

@@ -8,6 +8,7 @@
 import Design
 import Helpers
 import SwiftUI
+import XKit
 
 #if canImport(AppKit)
 import AppKit
@@ -17,7 +18,7 @@ import AppKit
 import UIKit
 #endif
 
-public final class PortView: PlatformView {
+public final class PortView: XViewEx {
 
     // MARK: - State
 
@@ -36,10 +37,10 @@ public final class PortView: PlatformView {
     }
 
     public struct DragData {
-        public var phase: GesturePhase
+        public var phase: XGestureRecognizer.State
         public var locationInWindow: CGPoint
 
-        public init(phase: GesturePhase, locationInWindow: CGPoint) {
+        public init(phase: XGestureRecognizer.State, locationInWindow: CGPoint) {
             self.phase = phase
             self.locationInWindow = locationInWindow
         }
@@ -52,8 +53,8 @@ public final class PortView: PlatformView {
 
     public struct Style: Sendable, Hashable, With {
         public var size: CGFloat
-        public var connectedColor: PlatformColor
-        public var emptyColor: PlatformColor
+        public var connectedColor: XColor
+        public var emptyColor: XColor
         public var strokeWidth: CGFloat
 
         public static var `default`: Style {
@@ -144,7 +145,7 @@ public final class PortView: PlatformView {
     func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
         self.onEvent?(
             .drag(
-                .init(phase: .init(gestureRecognizerState: gesture.state), locationInWindow: gesture.location(in: nil))
+                .init(phase: gesture.state, locationInWindow: gesture.location(in: nil))
             )
         )
     }
@@ -181,7 +182,7 @@ public final class PortView: PlatformView {
 
 extension PortView {
 
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         var connected: Bool = false
         var style: PortView.Style? = nil
         func makeView(context: Context) -> PortView {

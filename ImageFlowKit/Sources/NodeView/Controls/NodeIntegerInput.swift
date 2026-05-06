@@ -5,6 +5,7 @@ import SharedModels
 import SwiftUI
 import TextInput
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -27,7 +28,7 @@ extension FormatStyle where Self == NodeIntegerInputFormat {
     }
 }
 
-final class NodeIntegerInput: PlatformCommonView, NodeControl {
+final class NodeIntegerInput: XViewEx, NodeControl {
     var context: NodeControlContext = .init()
     var onEvent: ((NodeControlEvent) -> ())?
 
@@ -39,7 +40,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         }
     }
 
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
 
     var range: ClosedRange<Int>? = nil {
         didSet {
@@ -213,7 +214,8 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
             + .init(width: self.style.textFieldStepperPadding, height: 0)
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
         self.textField.view.frame.origin = .zero
         self.textField.view.frame.size = self.textField.view.intrinsicContentSize
         self.stepper.frame.origin = .init(x: self.textField.view.frame.maxX + self.style.textFieldStepperPadding, y: 0)
@@ -270,7 +272,7 @@ final class NodeIntegerInput: PlatformCommonView, NodeControl {
         }
     }
 
-    func updateStatusBarMessage(_ phase: GesturePhase) {
+    func updateStatusBarMessage(_ phase: XGestureRecognizer.State) {
         switch phase {
         case .began:
             self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
@@ -364,7 +366,7 @@ extension NodeIntegerInput {
 }
 
 extension NodeIntegerInput {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
 
         @Binding var value: Value
 

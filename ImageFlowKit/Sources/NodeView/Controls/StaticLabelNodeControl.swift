@@ -1,6 +1,7 @@
 import Design
 import Helpers
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -10,12 +11,12 @@ import AppKit
 import UIKit
 #endif
 
-public final class StaticLabelNodeControl: PlatformCommonView, NodeControl {
+public final class StaticLabelNodeControl: XViewEx, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var text: String
 
-    public var tint: PlatformColor = .blue
+    public var tint: XColor = .blue
 
     public var value: Value
 
@@ -70,7 +71,8 @@ public final class StaticLabelNodeControl: PlatformCommonView, NodeControl {
         self.labelView.intrinsicContentSize + .init(width: 4, height: 2)
     }
 
-    public override func doLayout() {
+    public override func layout() {
+        super.layout()
         self.labelView.frame.origin = .zero
         self.labelView.frame.size = self.intrinsicContentSize
     }

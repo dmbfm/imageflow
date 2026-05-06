@@ -4,6 +4,7 @@ import Helpers
 import Logging
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -14,7 +15,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeOptionPickerInput: PlatformCommonView, NodeControl {
+final class NodeOptionPickerInput: XViewEx, NodeControl {
     var value: Value {
         didSet {
             if self.value != oldValue {
@@ -26,13 +27,13 @@ final class NodeOptionPickerInput: PlatformCommonView, NodeControl {
     var onEvent: ((NodeControlEvent) -> ())?
 
     #if os(iOS)
-    var tint: PlatformColor = .tintColor {
+    var tint: XColor = .tintColor {
         didSet {
             self.pickerView.tintColor = self.tint
         }
     }
     #else
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
     #endif
 
     var isEditable: Bool { didSet { self.pickerView.isEnabled = self.isEditable } }
@@ -150,7 +151,9 @@ final class NodeOptionPickerInput: PlatformCommonView, NodeControl {
         self.pickerView.intrinsicContentSize
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.pickerView.frame.origin = .zero
         self.pickerView.frame.size = self.pickerView.intrinsicContentSize
     }
@@ -163,7 +166,7 @@ extension ValueSemantics.IntegerSemantics.PickerOption {
 }
 
 extension NodeOptionPickerInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         @Binding var value: Value
         func makeView(context: Context) -> NodeOptionPickerInput {
             let view = NodeOptionPickerInput(

@@ -9,6 +9,7 @@ import BackendService
 import CanvasView
 import NodeView
 import Helpers
+import XKit
 
 final class MainViewController: NSSplitViewController {
 
@@ -200,7 +201,7 @@ extension MainViewController {
 extension Point {
     @MainActor
     func canvas(
-        view: PlatformView,
+        view: XView,
         viewport: CanvasView.Viewport
     ) -> Point {
         switch self {

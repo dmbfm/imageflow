@@ -1,5 +1,6 @@
 import Helpers
 import Logging
+import XKit
 
 #if canImport(AppKit)
 import AppKit
@@ -9,12 +10,8 @@ import AppKit
 import UIKit
 #endif
 
-class CanvasContentView: PlatformView {
+class CanvasContentView: XViewEx {
     #if os(macOS)
-    override var isFlipped: Bool {
-        true
-    }
-
     override var isOpaque: Bool {
         true
     }

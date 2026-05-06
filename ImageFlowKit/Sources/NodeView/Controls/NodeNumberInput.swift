@@ -5,6 +5,7 @@ import SharedModels
 import SwiftUI
 import TextInput
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -15,7 +16,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeNumberInput: PlatformCommonView, NodeControl {
+final class NodeNumberInput: XViewEx, NodeControl {
     public var onEvent: ((NodeControlEvent) -> ())?
 
     public var value: Value {
@@ -26,7 +27,7 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         }
     }
 
-    public var tint: PlatformColor = .systemBlue
+    public var tint: XColor = .systemBlue
 
     var context: NodeControlContext = .init()
 
@@ -92,7 +93,9 @@ final class NodeNumberInput: PlatformCommonView, NodeControl {
         return result
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.textField.view.frame.origin = .zero
         self.textField.view.frame.size = self.textField.view.intrinsicContentSize
     }
@@ -142,7 +145,7 @@ extension NodeNumberInput: NumberTextInputDelegate {
 }
 
 extension NodeNumberInput {
-    public struct Preview: PlatformViewRepresentable {
+    public struct Preview: XViewRepresentable {
 
         @Binding var value: Value
         var isEditable: Bool = true

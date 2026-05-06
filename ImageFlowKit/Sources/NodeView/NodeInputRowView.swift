@@ -4,9 +4,10 @@ import Logging
 import SharedModels
 import SwiftUI
 import Values
+import XKit
 
-final class EmptyControlView: PlatformCommonView, NodeControl {
-    var tint: Helpers.PlatformColor = .blue
+final class EmptyControlView: XViewEx, NodeControl {
+    var tint: XColor = .blue
 
     var value: Values.Value
 
@@ -26,7 +27,7 @@ final class EmptyControlView: PlatformCommonView, NodeControl {
     override var intrinsicContentSize: CGSize { .zero }
 }
 
-public final class NodeInputRowView: PlatformView {
+public final class NodeInputRowView: XView {
 
     // MARK: - Exposed Properties
 
@@ -290,8 +291,8 @@ extension NodeInputRowView {
         public var rowHeight: CGFloat
         public var labelControlSpacing: CGFloat
         public var labelSafetyMargin: CGFloat
-        public var labelFont: FontStyle
-        public var labelColor: PlatformColor
+        public var labelFont: XFontStyle
+        public var labelColor: XColor
 
         public static var `default`: Self {
             .init(
@@ -301,7 +302,7 @@ extension NodeInputRowView {
                 labelControlSpacing: 18.0,
                 labelSafetyMargin: 2.0,
                 labelFont: .systemFont(size: 14, weight: .regular),
-                labelColor: .secondaryLabel
+                labelColor: .system.secondaryLabel
             )
         }
     }
@@ -349,7 +350,7 @@ extension NodeInputRowView {
 }
 
 extension NodeInputRowView {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
         var input: FlowNode.Input = .init(
             label: "Something",
             index: 0,

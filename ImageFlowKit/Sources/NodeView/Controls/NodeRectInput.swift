@@ -3,6 +3,7 @@ import Helpers
 import Logging
 import SwiftUI
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -13,7 +14,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeRectInput: PlatformCommonView, NodeControl {
+final class NodeRectInput: XViewEx, NodeControl {
     var onEvent: ((NodeControlEvent) -> ())?
 
     var value: Value {
@@ -24,7 +25,7 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         }
     }
 
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
 
     var isEditable: Bool {
         get {
@@ -122,7 +123,9 @@ final class NodeRectInput: PlatformCommonView, NodeControl {
         self.nodeVectorInput.intrinsicContentSize
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.nodeVectorInput.frame.origin = .zero
         self.nodeVectorInput.frame.size = self.nodeVectorInput.intrinsicContentSize
 
@@ -144,7 +147,7 @@ private struct UndoAdapter: NodeControlUndoManager {
 }
 
 extension NodeRectInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeRectInput {
             let view = NodeRectInput(.rect(.init()))
             view.onEvent = { event in

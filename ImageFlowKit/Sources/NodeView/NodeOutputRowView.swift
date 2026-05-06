@@ -8,8 +8,9 @@
 import Helpers
 import SharedModels
 import SwiftUI
+import XKit
 
-public final class NodeOutputRowView: PlatformCommonView {
+public final class NodeOutputRowView: XViewEx {
     var output: FlowNode.Output {
         didSet {
             if self.output != oldValue {
@@ -107,7 +108,8 @@ public final class NodeOutputRowView: PlatformCommonView {
         return .init(width: width, height: height)
     }
 
-    public override func doLayout() {
+    public override func layout() {
+        super.layout()
         let portSize = self.portView.intrinsicContentSize.width
         self.portView.frame = .init(
             x: self.bounds.width - portSize,
@@ -139,8 +141,8 @@ extension NodeOutputRowView {
 extension NodeOutputRowView {
     public struct Style: Sendable, Hashable, With {
 
-        public var labelFont: FontStyle
-        public var labelColor: PlatformColor
+        public var labelFont: XFontStyle
+        public var labelColor: XColor
         public var rowHeight: CGFloat
         public var portLabelSpacing: CGFloat
         public var port: PortView.Style
@@ -148,7 +150,7 @@ extension NodeOutputRowView {
         public static var `default`: Self {
             .init(
                 labelFont: .systemFont(size: 14, weight: .regular),
-                labelColor: .secondaryLabel,
+                labelColor: .system.secondaryLabel,
                 rowHeight: 32.0,
                 portLabelSpacing: 8.0,
                 port: .default,
@@ -158,8 +160,8 @@ extension NodeOutputRowView {
 }
 
 extension NodeOutputRowView {
-    fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
+    fileprivate struct Preview: XViewRepresentable {
+        func makeView(context: Context) -> some XView {
             NodeOutputRowView(.init(label: "Something", index: 0, type: .float, connected: false))
         }
 

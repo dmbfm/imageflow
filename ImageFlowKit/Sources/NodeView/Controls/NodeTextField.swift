@@ -9,9 +9,10 @@ import Design
 import Helpers
 import Logging
 import SwiftUI
+import XKit
 
-import struct Helpers.EdgeInsets
-import struct Helpers.ShadowStyle
+// import struct Helpers.EdgeInsets
+// import struct Helpers.ShadowStyle
 
 #if os(macOS)
 typealias NodeTextField = NodeTextFieldNSView
@@ -21,7 +22,7 @@ typealias NodeTextField = NodeTextFieldNSView
 typealias NodeTextField = NodeTextFieldUIView
 #endif
 
-protocol NodeTextFieldProtocol: PlatformView {
+protocol NodeTextFieldProtocol: XView {
     var text: String { get set }
     var progress: CGFloat? { get set }
     var onEvent: ((NodeTextFieldEvent) -> ())? { get set }
@@ -36,7 +37,7 @@ enum NodeTextFieldEvent {
     case keyboardWillShow(windowVerticalOverlap: CGFloat, duration: CGFloat)
 
     struct Drag {
-        var phase: GesturePhase
+        var phase: XGestureRecognizer.State
         var dx: CGFloat
         var dy: CGFloat
         var shiftDown: Bool
@@ -45,19 +46,19 @@ enum NodeTextFieldEvent {
     }
 }
 
-struct NodeTextFieldStyle: Sendable, Hashable, With {
+struct NodeTextFieldStyle: Sendable, Equatable, With {
     var fontSize: CGFloat
     var fontDesign: FontDesign
-    var textColor: PlatformColor
+    var textColor: XColor
     var innerCornerRadius: CGFloat
     var outerCornerRadius: CGFloat
-    var textInsets: EdgeInsets
-    var backgroundInsets: EdgeInsets
-    var backgroundColor: PlatformColor
-    var backgroundColorNonEditable: PlatformColor
-    var borderColor: PlatformColor
+    var textInsets: XEdgeInsets
+    var backgroundInsets: XEdgeInsets
+    var backgroundColor: XColor
+    var backgroundColorNonEditable: XColor
+    var borderColor: XColor
     var borderWidth: CGFloat
-    var shadowStyle: ShadowStyle
+    var shadowStyle: XViewEx.Shadow
     var progressFillHeight: CGFloat
     var progressFillColor: DynamicColor
 
@@ -67,9 +68,9 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
     }
 
     #if os(macOS)
-    static let defaultTextColor: PlatformColor = .textColor
+    static let defaultTextColor: XColor = .textColor
     #else
-    static let defaultTextColor: PlatformColor = .label
+    static let defaultTextColor: XColor = .label
     #endif
 
     static var `default`: Self {
@@ -79,13 +80,15 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
             textColor: defaultTextColor,
             innerCornerRadius: 8,
             outerCornerRadius: 10,
-            textInsets: .init(top: 6, bottom: 8, left: 6, right: 8),
-            backgroundInsets: .init(top: 2, bottom: 2, left: 2, right: 2),
+            textInsets: .init(top: 6, left: 6, bottom: 8, right: 8),
+            backgroundInsets: .init(top: 2, left: 2, bottom: 2, right: 2),
             backgroundColor: Colors.numberInputBackground.platformColor,
             backgroundColorNonEditable: Colors.numberInputBackground.platformColor.withAlphaComponent(0.25),
             borderColor: Colors.numberInputBorder.platformColor,
             borderWidth: 2,
-            shadowStyle: .init(radius: 4, color: .black, opacity: 0.6, offset: .init(width: 0, height: 2)),
+            shadowStyle: .init(color: .black, opacity: 0.6, offset: .init(width: 0, height: 2), radius: 4),
+            // shadowStyle: .init(radius: 4.0, color: .black, opacity: 0.6, offset: CGSize(width: 0, height: 2)),
+            // shadowStyle: .init(radius: 4.0, color: .black, opacity: 0.6, offset: CGSize(width: 0, height: 2)),
             progressFillHeight: 2,
             progressFillColor: .init(light: .init(white: 0.5, alpha: 0.5), dark: .init(white: 0.5, alpha: 0.5))
         )
@@ -93,7 +96,7 @@ struct NodeTextFieldStyle: Sendable, Hashable, With {
 }
 
 extension NodeTextField {
-    fileprivate struct Preview: PlatformViewRepresentable {
+    fileprivate struct Preview: XViewRepresentable {
 
         @Binding var text: String
         let placeholder: String?

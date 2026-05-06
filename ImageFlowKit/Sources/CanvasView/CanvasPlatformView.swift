@@ -2,8 +2,7 @@ import CoreGraphics
 import Helpers
 import Logging
 import SwiftUI
-
-import struct Helpers.EdgeInsets
+import XKit
 
 #if canImport(AppKit)
 import AppKit
@@ -51,8 +50,8 @@ public enum CanvasAction {
 public protocol CanvasViewDelegate: AnyObject {
     func canvasViewEditMenuShouldAppear() -> Bool
     func canvasView(willShowContextMenuForNode id: UUID)
-    func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> PlatformMenu?
-    func canvasView(contextMenuAt point: CGPoint) -> PlatformMenu?
+    func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> XMenu?
+    func canvasView(contextMenuAt point: CGPoint) -> XMenu?
     func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool
 }
 

@@ -4,6 +4,7 @@ import Logging
 import SwiftUI
 import TextInput
 import Values
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -14,7 +15,7 @@ import AppKit
 import UIKit
 #endif
 
-final class NodeStringInput: PlatformCommonView, NodeControl {
+final class NodeStringInput: XViewEx, NodeControl {
     var onEvent: ((NodeControlEvent) -> ())?
 
     var value: Value {
@@ -25,7 +26,7 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         }
     }
 
-    var tint: PlatformColor = .systemBlue
+    var tint: XColor = .systemBlue
 
     var isEditable: Bool {
         get {
@@ -76,7 +77,9 @@ final class NodeStringInput: PlatformCommonView, NodeControl {
         self.textField.intrinsicContentSize
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.textField.frame.origin = .zero
         self.textField.frame.size = self.textField.intrinsicContentSize
 
@@ -108,7 +111,7 @@ extension NodeStringInput: TextInputDelegate {
 }
 
 extension NodeStringInput {
-    struct Preview: PlatformViewRepresentable {
+    struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeStringInput {
             let view = NodeStringInput(.string("Hello, world!"))
             view.onEvent = { log("event: \($0)") }

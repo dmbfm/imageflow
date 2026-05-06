@@ -2,6 +2,7 @@ import CanvasView
 import Design
 import Helpers
 import SwiftUI
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -11,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-final class AnnotationView: PlatformCommonView, CanvasNodeView {
+final class AnnotationView: XViewEx, CanvasNodeView {
     let id: UUID
 
     var level: Int
@@ -39,7 +40,7 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         }
     }
 
-    var insets: PlatformEdgeInsets {
+    var insets: XEdgeInsets {
         self.style.insets
     }
 
@@ -54,7 +55,7 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
     var titleCanOverrideMaxWidth: Bool = true
 
     struct Style: Equatable {
-        var insets: PlatformEdgeInsets = .init(top: 10, left: 10, bottom: 10, right: 10)
+        var insets: XEdgeInsets = .init(top: 10, left: 10, bottom: 10, right: 10)
         var titleMessageSpacing: CGFloat = 4
     }
 
@@ -162,7 +163,9 @@ final class AnnotationView: PlatformCommonView, CanvasNodeView {
         return .init(width: max(width, width2), height: height)
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
+
         self.glassEffectView.frame = self.bounds
 
         self.titleView.frame.origin.x = self.insets.left
@@ -188,15 +191,10 @@ extension NSTextField {
         ).size()
     }
 }
-extension NSEdgeInsets: @retroactive Equatable {
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        lhs.top == rhs.top && lhs.left == rhs.left && lhs.top == rhs.top && lhs.bottom == rhs.bottom
-    }
-}
 #endif
 
 extension AnnotationView {
-    struct PreviewRepresentable: PlatformViewRepresentable {
+    struct PreviewRepresentable: XViewRepresentable {
 
         var isHidden: Bool = false
 

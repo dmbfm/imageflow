@@ -2,8 +2,9 @@ import Helpers
 import Logging
 import SharedModels
 import SwiftUI
+import XKit
 
-final class NodeOutputBlockView: PlatformCommonView {
+final class NodeOutputBlockView: XViewEx {
     var outputs: [FlowNode.Output] {
         didSet {
             if self.outputs != oldValue {
@@ -69,7 +70,8 @@ final class NodeOutputBlockView: PlatformCommonView {
         return .init(width: width, height: height)
     }
 
-    override func doLayout() {
+    override func layout() {
+        super.layout()
         for (idx, row) in self.rows.enumerated() {
             row.frame = .init(
                 x: 0,
@@ -114,8 +116,8 @@ extension NodeOutputBlockView {
 }
 
 extension NodeOutputBlockView {
-    fileprivate struct Preview: PlatformViewRepresentable {
-        func makeView(context: Context) -> some PlatformView {
+    fileprivate struct Preview: XViewRepresentable {
+        func makeView(context: Context) -> some XView {
             let view = NodeOutputBlockView([
                 .init(label: "First Output", index: 0, type: .float, connected: false),
                 .init(label: "Second Output", index: 1, type: .float, connected: true),

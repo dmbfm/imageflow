@@ -1,6 +1,7 @@
 import Design
 import Helpers
 import SwiftUI
+import XKit
 
 #if os(macOS)
 import AppKit
@@ -10,7 +11,7 @@ import AppKit
 import UIKit
 #endif
 
-final class BackgroundView: PlatformCommonView {
+final class BackgroundView: XViewEx {
 
     public var style: TextInputBackgroundStyle {
         didSet {
@@ -77,16 +78,16 @@ final class BackgroundView: PlatformCommonView {
 }
 
 public struct TextInputBackgroundStyle: Sendable, Equatable, With {
-    public var backgroundColor: PlatformColor?
-    public var borderColor: PlatformColor?
-    public var progressColor: PlatformColor?
+    public var backgroundColor: XColor?
+    public var borderColor: XColor?
+    public var progressColor: XColor?
     public var borderWidth: CGFloat
     public var radius: CGFloat
 
     internal init(
-        backgroundColor: PlatformColor?,
-        progressColor: PlatformColor?,
-        borderColor: PlatformColor?,
+        backgroundColor: XColor?,
+        progressColor: XColor?,
+        borderColor: XColor?,
         borderWidth: CGFloat,
         radius: CGFloat
     ) {
@@ -98,15 +99,15 @@ public struct TextInputBackgroundStyle: Sendable, Equatable, With {
     }
 
     static let `default`: Self = .init(
-        backgroundColor: .secondaryFill,
-        progressColor: .secondaryFill,
-        borderColor: .primaryFill,
+        backgroundColor: .system.secondaryFill,
+        progressColor: .system.secondaryFill,
+        borderColor: .system.fill,
         borderWidth: 1,
         radius: 6
     )
 }
 
-private struct Preview: PlatformViewRepresentable {
+private struct Preview: XViewRepresentable {
 
     var style: TextInputBackgroundStyle = .default
 
