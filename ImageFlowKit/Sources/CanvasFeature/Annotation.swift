@@ -1,5 +1,6 @@
 import Foundation
 import Helpers
+import SharedModels
 
 public struct Annotation: Equatable {
     public var title: String
@@ -78,5 +79,48 @@ struct AnnotationStyle: Equatable, With {
             cornerRadius: 18.0
         )
         #endif
+    }
+}
+
+extension Flow.CanCreateEdgeError {
+    var annotation: Annotation? {
+        switch self {
+        case .graphCycle:
+            .init(
+                title: "Graph Cycle",
+                message: "Creating this edge would introduce a cycle in the node graph.",
+                maxWidth: 200,
+            )
+        case .destPortAlreadyConnected:
+            nil
+        case .invalidPort:
+            .init(
+                title: "Invalid port",
+                message: "The port you are trying to connect does not exist.",
+                maxWidth: 200,
+            )
+        case .typeError(.cantFix(from: let a, to: let b)):
+            .init(
+                title: "Type error",
+                message: "Con't connect a '\(a.displayName)' port to a '\(b.displayName)' port.",
+                maxWidth: 200,
+            )
+        case .typeError(_):
+            nil
+        case .edge(.sameNode):
+            nil
+        case .edge(.bothInput):
+            .init(
+                title: "Invalid Port",
+                message: "Can't connect an input port to another input port.",
+                maxWidth: 200,
+            )
+        case .edge(.bothOutput):
+            .init(
+                title: "Invalid Port",
+                message: "Can't connect an output port to another output port.",
+                maxWidth: 200,
+            )
+        }
     }
 }

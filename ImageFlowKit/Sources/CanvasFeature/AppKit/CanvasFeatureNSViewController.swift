@@ -574,4 +574,17 @@ extension CanvasFeatureNSViewController: CanvasViewDelegate {
     }
 }
 
+extension PartialEdge {
+    var color: PlatformColor {
+        switch self.state {
+        case .default:
+            Colors.portConnected.platformColor
+        case .canConnect:
+            Colors.edgeWithSuccess.platformColor
+        case .cantConnect:
+            Colors.edgeWithError.platformColor
+        }
+    }
+}
+
 #endif

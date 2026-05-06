@@ -36,7 +36,6 @@ let package = Package(
         .library(name: "FlowDocument"),
         .library(name: "BackendService"),
         .library(name: "MainViewFeature"),
-        .library(name: "AppFeature"),
         .library(name: "SettingsFeature"),
         .library(name: "ContextMenus"),
         .library(name: "InspectorFeature"),
@@ -262,21 +261,6 @@ let package = Package(
                 "BackendService",
                 "ContextMenus",
                 "InspectorFeature",
-            ]
-        ),
-        .target(
-            name: "AppFeature",
-            dependencies: [
-                "Controls",
-                "Helpers",
-                "Design",
-                "SharedModels",
-                "MainViewFeature",
-                "AssetManager",
-                "FlowDocument",
-                "WelcomeWindow",
-                "PreviewFeature",
-                "SettingsFeature",
             ]
         ),
         .target(

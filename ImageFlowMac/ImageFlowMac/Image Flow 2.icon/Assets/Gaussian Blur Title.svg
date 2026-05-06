@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>Gaussian Blur Title</title>
-    <g id="Gaussian-Blur-Title" stroke="none" fill="none" fill-rule="evenodd">
-        <path d="M768,316 L660,316 C646.745,316 636,305.255 636,292 C636,278.745 646.745,268 660,268 L768,268 C781.255,268 792,278.745 792,292 C792,305.255 781.255,316 768,316" id="title" fill="color(display-p3 1.000 1.000 1.000)"></path>
-    </g>
-</svg>

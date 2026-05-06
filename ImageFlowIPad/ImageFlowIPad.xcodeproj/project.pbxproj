@@ -6,81 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		AEBDC1A52F217E94001D5A5E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = AEBDC1A42F217E94001D5A5E /* AppFeature */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		AE596D432E21C2D3005F49B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AE596D2D2E21C2D2005F49B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AE596D342E21C2D2005F49B2;
-			remoteInfo = ImageFlowIPad;
-		};
-		AE596D4D2E21C2D3005F49B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AE596D2D2E21C2D2005F49B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AE596D342E21C2D2005F49B2;
-			remoteInfo = ImageFlowIPad;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFlowIPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowIPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFlowIPadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEF4862E2FAB6EFE009FE83F /* ImageFlowIPadOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFlowIPadOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AE92B3EA2E4C056200B41CCF /* Exceptions for "ImageFlowIPad" folder in "ImageFlowIPad" target */ = {
+		AEF486402FAB6EFF009FE83F /* Exceptions for "ImageFlowIPadOS" folder in "ImageFlowIPadOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
+			target = AEF4862D2FAB6EFE009FE83F /* ImageFlowIPadOS */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AE596D372E21C2D2005F49B2 /* ImageFlowIPad */ = {
+		AEF4862F2FAB6EFE009FE83F /* ImageFlowIPadOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AE92B3EA2E4C056200B41CCF /* Exceptions for "ImageFlowIPad" folder in "ImageFlowIPad" target */,
+				AEF486402FAB6EFF009FE83F /* Exceptions for "ImageFlowIPadOS" folder in "ImageFlowIPadOS" target */,
 			);
-			path = ImageFlowIPad;
-			sourceTree = "<group>";
-		};
-		AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ImageFlowIPadTests;
-			sourceTree = "<group>";
-		};
-		AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ImageFlowIPadUITests;
+			path = ImageFlowIPadOS;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		AE596D322E21C2D2005F49B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AEBDC1A52F217E94001D5A5E /* AppFeature in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D3F2E21C2D3005F49B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D492E21C2D3005F49B2 /* Frameworks */ = {
+		AEF4862B2FAB6EFE009FE83F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -100,9 +52,7 @@
 		AE596D2C2E21C2D2005F49B2 = {
 			isa = PBXGroup;
 			children = (
-				AE596D372E21C2D2005F49B2 /* ImageFlowIPad */,
-				AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */,
-				AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
+				AEF4862F2FAB6EFE009FE83F /* ImageFlowIPadOS */,
 				AE5800B62E21C70400C21EEC /* Frameworks */,
 				AE596D362E21C2D2005F49B2 /* Products */,
 			);
@@ -111,9 +61,7 @@
 		AE596D362E21C2D2005F49B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */,
-				AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */,
-				AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */,
+				AEF4862E2FAB6EFE009FE83F /* ImageFlowIPadOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,74 +69,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AE596D342E21C2D2005F49B2 /* ImageFlowIPad */ = {
+		AEF4862D2FAB6EFE009FE83F /* ImageFlowIPadOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AE596D562E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPad" */;
+			buildConfigurationList = AEF486412FAB6EFF009FE83F /* Build configuration list for PBXNativeTarget "ImageFlowIPadOS" */;
 			buildPhases = (
-				AE596D312E21C2D2005F49B2 /* Sources */,
-				AE596D322E21C2D2005F49B2 /* Frameworks */,
-				AE596D332E21C2D2005F49B2 /* Resources */,
+				AEF4862A2FAB6EFE009FE83F /* Sources */,
+				AEF4862B2FAB6EFE009FE83F /* Frameworks */,
+				AEF4862C2FAB6EFE009FE83F /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				AE596D372E21C2D2005F49B2 /* ImageFlowIPad */,
+				AEF4862F2FAB6EFE009FE83F /* ImageFlowIPadOS */,
 			);
-			name = ImageFlowIPad;
+			name = ImageFlowIPadOS;
 			packageProductDependencies = (
-				AEBDC1A42F217E94001D5A5E /* AppFeature */,
 			);
-			productName = ImageFlowIPad;
-			productReference = AE596D352E21C2D2005F49B2 /* ImageFlowIPad.app */;
+			productName = ImageFlowIPadOS;
+			productReference = AEF4862E2FAB6EFE009FE83F /* ImageFlowIPadOS.app */;
 			productType = "com.apple.product-type.application";
-		};
-		AE596D412E21C2D3005F49B2 /* ImageFlowIPadTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AE596D592E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadTests" */;
-			buildPhases = (
-				AE596D3E2E21C2D3005F49B2 /* Sources */,
-				AE596D3F2E21C2D3005F49B2 /* Frameworks */,
-				AE596D402E21C2D3005F49B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AE596D442E21C2D3005F49B2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AE596D452E21C2D3005F49B2 /* ImageFlowIPadTests */,
-			);
-			name = ImageFlowIPadTests;
-			packageProductDependencies = (
-			);
-			productName = ImageFlowIPadTests;
-			productReference = AE596D422E21C2D3005F49B2 /* ImageFlowIPadTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		AE596D4B2E21C2D3005F49B2 /* ImageFlowIPadUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AE596D5C2E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadUITests" */;
-			buildPhases = (
-				AE596D482E21C2D3005F49B2 /* Sources */,
-				AE596D492E21C2D3005F49B2 /* Frameworks */,
-				AE596D4A2E21C2D3005F49B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AE596D4E2E21C2D3005F49B2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AE596D4F2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
-			);
-			name = ImageFlowIPadUITests;
-			packageProductDependencies = (
-			);
-			productName = ImageFlowIPadUITests;
-			productReference = AE596D4C2E21C2D3005F49B2 /* ImageFlowIPadUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -197,19 +98,11 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					AE596D342E21C2D2005F49B2 = {
-						CreatedOnToolsVersion = 16.4;
-					};
-					AE596D412E21C2D3005F49B2 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AE596D342E21C2D2005F49B2;
-					};
-					AE596D4B2E21C2D3005F49B2 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AE596D342E21C2D2005F49B2;
+					AEF4862D2FAB6EFE009FE83F = {
+						CreatedOnToolsVersion = 26.5;
 					};
 				};
 			};
@@ -227,29 +120,13 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AE596D342E21C2D2005F49B2 /* ImageFlowIPad */,
-				AE596D412E21C2D3005F49B2 /* ImageFlowIPadTests */,
-				AE596D4B2E21C2D3005F49B2 /* ImageFlowIPadUITests */,
+				AEF4862D2FAB6EFE009FE83F /* ImageFlowIPadOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		AE596D332E21C2D2005F49B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D402E21C2D3005F49B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D4A2E21C2D3005F49B2 /* Resources */ = {
+		AEF4862C2FAB6EFE009FE83F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -259,21 +136,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		AE596D312E21C2D2005F49B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D3E2E21C2D3005F49B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AE596D482E21C2D3005F49B2 /* Sources */ = {
+		AEF4862A2FAB6EFE009FE83F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -281,19 +144,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		AE596D442E21C2D3005F49B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
-			targetProxy = AE596D432E21C2D3005F49B2 /* PBXContainerItemProxy */;
-		};
-		AE596D4E2E21C2D3005F49B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AE596D342E21C2D2005F49B2 /* ImageFlowIPad */;
-			targetProxy = AE596D4D2E21C2D3005F49B2 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AE596D542E21C2D3005F49B2 /* Debug */ = {
@@ -419,149 +269,69 @@
 			};
 			name = Release;
 		};
-		AE596D572E21C2D3005F49B2 /* Debug */ = {
+		AEF4863E2FAB6EFF009FE83F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Image Flow 2";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ImageFlowIPad/Info.plist;
-				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your Photo Library!";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = ImageFlowIPadOS/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.Imageflow.ipados;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
-				VERSIONING_SYSTEM = "apple-generic";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		AE596D582E21C2D3005F49B2 /* Release */ = {
+		AEF4863F2FAB6EFF009FE83F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Image Flow 2";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ImageFlowIPad/Info.plist;
-				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your Photo Library!";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = ImageFlowIPadOS/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.Imageflow.ipados;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
-				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Release;
-		};
-		AE596D5A2E21C2D3005F49B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowIPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowIPad";
-			};
-			name = Debug;
-		};
-		AE596D5B2E21C2D3005F49B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageFlowIPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageFlowIPad";
-			};
-			name = Release;
-		};
-		AE596D5D2E21C2D3005F49B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = ImageFlowIPad;
-			};
-			name = Debug;
-		};
-		AE596D5E2E21C2D3005F49B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F325FKC3ZQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.ImageFlowIPadUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = ImageFlowIPad;
 			};
 			name = Release;
 		};
@@ -577,41 +347,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AE596D562E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPad" */ = {
+		AEF486412FAB6EFF009FE83F /* Build configuration list for PBXNativeTarget "ImageFlowIPadOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AE596D572E21C2D3005F49B2 /* Debug */,
-				AE596D582E21C2D3005F49B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AE596D592E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AE596D5A2E21C2D3005F49B2 /* Debug */,
-				AE596D5B2E21C2D3005F49B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AE596D5C2E21C2D3005F49B2 /* Build configuration list for PBXNativeTarget "ImageFlowIPadUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AE596D5D2E21C2D3005F49B2 /* Debug */,
-				AE596D5E2E21C2D3005F49B2 /* Release */,
+				AEF4863E2FAB6EFF009FE83F /* Debug */,
+				AEF4863F2FAB6EFF009FE83F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		AEBDC1A42F217E94001D5A5E /* AppFeature */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppFeature;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AE596D2D2E21C2D2005F49B2 /* Project object */;
 }
