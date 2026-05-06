@@ -20,7 +20,6 @@ extension PreviewFeature {
         var state: State = .nothing {
             didSet {
                 if self.state != oldValue {
-                    logger.info("\("\(oldValue)") -> \("\(self.state)")")
                     self.update()
                 }
             }
@@ -129,9 +128,6 @@ extension PreviewFeature {
 
         func input(_ input: Input) {
             let (newState, effect) = self.state.input(input)
-
-            logger.debug("input: \("\(input)"), state: \("\(self.state)")")
-            logger.debug("newState: \("\(newState)"), effect: \("\(effect, default: "nil")")")
 
             self.state = newState
 

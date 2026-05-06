@@ -261,7 +261,6 @@ public class CIImageXView: XCommonView {
             imageScale: self.imageScale,
             offset: self.offset
         )
-        print("\(self.drawableSize)")
         if self.drawableSize.width <= 0 || self.drawableSize.height <= 0 { return }
         self.renderer.render(
             renderData,
