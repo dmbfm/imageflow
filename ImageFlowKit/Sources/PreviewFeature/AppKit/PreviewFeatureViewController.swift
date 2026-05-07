@@ -31,7 +31,6 @@ extension PreviewFeature {
 
         lazy var cardView: CardContentView = {
             let v = CardContentView()
-            v.backgroundColor = .init(white: 0.5, alpha: 1.1)
             return v
         }()
 
@@ -49,6 +48,7 @@ extension PreviewFeature {
         public override func loadView() {
             let view = CardStageView()
             self.cardStageView = view
+            // self.cardStageView.contentView = self.cardView
             self.update()
             self.view = view
         }

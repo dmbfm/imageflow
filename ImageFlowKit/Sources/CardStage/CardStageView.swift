@@ -533,8 +533,6 @@ public final class CardStageView: XViewEx {
             return
         }
 
-        logger.debug("layout: continue: \("\(self.state)"), \("\(self.geometry)")")
-
         self.updateGeometry(false)
 
         switch self.state {

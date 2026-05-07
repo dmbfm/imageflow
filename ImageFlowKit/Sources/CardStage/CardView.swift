@@ -5,83 +5,184 @@ import XKit
 import AppKit
 #endif
 
+private final class ContentConainer: XViewEx {
+
+    var content: XView {
+        willSet {
+            self.content.removeFromSuperview()
+        }
+        didSet {
+            self.addSubview(self.content)
+            self.setNeedsLayout()
+        }
+    }
+
+    init(_ content: XView) {
+        self.content = content
+
+        super.init(frame: .zero)
+
+        self.clipsToBounds = true
+        self.withLayer { layer in
+            layer.masksToBounds = true
+        }
+
+        self.addSubview(content)
+    }
+
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layout() {
+        super.layout()
+
+        self.content.frame = self.bounds
+    }
+}
+
 final class CardView: XViewEx {
 
     var contentView: XView! {
-        willSet {
-            if !self.lock {
-                self.contentView.removeFromSuperview()
-            }
-        }
         didSet {
-            if !self.lock {
-                self.setupContentView()
-            }
+            self.contentContainer.content = self.contentView
+            self.setNeedsLayout()
+            self.update()
         }
     }
 
     var radius: CGFloat = 10 {
         didSet {
-            self.contentView.withLayer({ $0.cornerRadius = radius })
+            self.update()
         }
     }
 
-    var lock: Bool = false
-
-    lazy var defaultContentView: XView = {
-        let view = DefaultContentView()
-        view.autoresizingMask = [.width, .height]
-        view.frame = self.bounds
+    private lazy var contentContainer: ContentConainer = {
+        let view = ContentConainer(self.contentView)
+        view.clipsToBounds = true
         return view
     }()
 
-    override init(frame frameRect: NSRect) {
+    lazy var defaultContentView: XView = {
+        let view = DefaultContentView()
+        return view
+    }()
+
+    init() {
         super.init(frame: .zero)
 
-        self.autoresizesSubviews = true
-        self.wantsLayer = true
-        self.layerContentsRedrawPolicy = .onSetNeedsDisplay
-        //        self.clipsToBounds = true
+        self.contentView = self.defaultContentView
+        self.addSubview(self.contentContainer)
 
         #if os(macOS)
-        self.shadow = .init()
+        self.wantsLayer = true
+        self.canDrawSubviewsIntoLayer = true
         #endif
-        self.withLayer { layer in
-            layer.cornerRadius = self.radius
-            layer.cornerCurve = .continuous
-            layer.masksToBounds = true
-            // layer.shadowColor = .init(gray: 0.5, alpha: 0.5)
-            layer.shadowOpacity = 0.5
-            layer.shadowRadius = 8
-            //            self.shadow  = .init()
-        }
 
-        self.contentView = defaultContentView
-
-        self.setupContentView()
+        self.update()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setupContentView() {
+    func update() {
 
-        //        self.wantsLayer = true
-        self.contentView.wantsLayer = true
-        self.contentView.autoresizingMask = [.width, .height]
-        self.contentView.frame = self.bounds
-        // self.contentView.clipsToBounds = true
-        //        self.contentView.shadow = .init()
-        //        self.contentView.clipsToBounds = true
-        //        self.contentView.canDrawSubviewsIntoLayer = true
-        self.contentView.withLayer { layer in
-            layer.masksToBounds = true
+        #if os(macOS)
+        if self.shadow == nil {
+            self.shadow = .init()
+        }
+        #endif
+
+        self.withLayer { layer in
+            // layer.backgroundColor = .clear
             layer.cornerRadius = self.radius
             layer.cornerCurve = .continuous
+            layer.shadowColor = .init(gray: 0, alpha: 0.4)
+            layer.shadowRadius = 4
+            layer.shadowOpacity = 1.0
+            layer.shadowOffset = .zero
         }
-        self.addSubview(self.contentView)
+
+        self.contentContainer.withLayer { layer in
+            layer.cornerRadius = self.radius
+            layer.cornerCurve = .continuous
+            layer.masksToBounds = true
+        }
     }
+
+    override func layout() {
+        super.layout()
+
+        self.contentContainer.frame = self.bounds
+    }
+
+    // var contentView: XView! {
+    //     willSet {
+    //         if !self.lock {
+    //             self.contentView.removeFromSuperview()
+    //         }
+    //     }
+    //     didSet {
+    //         if !self.lock {
+    //             self.setupContentView()
+    //         }
+    //     }
+    // }
+
+    // var radius: CGFloat = 10 {
+    //     didSet {
+    //         self.contentView.withLayer({ $0.cornerRadius = radius })
+    //     }
+    // }
+
+    // var lock: Bool = false
+
+    // lazy var defaultContentView: XView = {
+    //     let view = DefaultContentView()
+    //     view.autoresizingMask = [.width, .height]
+    //     view.frame = self.bounds
+    //     return view
+    // }()
+
+    // override init(frame frameRect: NSRect) {
+
+    //     super.init(frame: frameRect)
+
+    //     self.contentView = defaultContentView
+    //     self.setupContentView()
+
+    //     //        self.contentView = defaultContentView
+    //     //        self.setupContentView()
+    // }
+
+    // override func layout() {
+    //     super.layout()
+    //     self.contentView.frame = self.bounds
+    // }
+
+    // required init?(coder: NSCoder) {
+    //     fatalError("init(coder:) has not been implemented")
+    // }
+
+    // func setupContentView() {
+
+    //     self.addSubview(self.contentView)
+
+    //     // //        self.wantsLayer = true
+    //     // self.contentView.wantsLayer = true
+    //     // self.contentView.autoresizingMask = [.width, .height]
+    //     // self.contentView.frame = self.bounds
+    //     // // self.contentView.clipsToBounds = true
+    //     // //        self.contentView.shadow = .init()
+    //     // //        self.contentView.clipsToBounds = true
+    //     // //        self.contentView.canDrawSubviewsIntoLayer = true
+    //     // self.contentView.withLayer { layer in
+    //     //     layer.masksToBounds = true
+    //     //     layer.cornerRadius = self.radius
+    //     //     layer.cornerCurve = .continuous
+    //     // }
+    // }
 }
 
 extension CGRect {
@@ -96,6 +197,7 @@ extension CardView {
         var body: some View {
             VStack {
                 PreviewRepresentable(content: nil as EmptyView?)
+                    .padding()
                     .frame(width: 250, height: 250)
                     .padding()
 
