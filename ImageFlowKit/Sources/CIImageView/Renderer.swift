@@ -106,3 +106,16 @@ struct RenderData: Sendable {
     var imageScale: CGSize
     var offset: CGPoint
 }
+
+extension RenderData: CustomStringConvertible {
+    // swift-format-ignore
+    var description: String {
+        "RenderData:\n" +
+        "  image extent: \(image?.extent ?? .zero)\n" +
+        "  drawableSize: \(drawableSize)\n" +
+        "  pixelFormat: \(pixelFormat)\n" +
+        "  isZoomedIn: \(isZoomedIn)\n" +
+        "  imageScale: \(imageScale)\n" +
+        "  offset: \(offset)\n"
+    }
+}

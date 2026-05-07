@@ -29,24 +29,9 @@ extension PreviewFeature {
 
         private var availablePreviewLocations: Set<PreviewLocation> = []
 
-        lazy var cardImageView: CIImageXView = {
-            let view = CIImageXView()
-            view.placement = .fit
-            view.image = self.state.image
-            view.autoresizingMask = [.width, .height]
-            view.wantsLayer = true
-            return view
-        }()
-
-        lazy var cardView: XView = {
-            let v = XView()
-            v.wantsLayer = true
-            v.layer?.backgroundColor = .init(gray: 0.5, alpha: 1.0)
-
-            v.autoresizesSubviews = true
-            self.cardImageView.frame = v.bounds
-            v.addSubview(self.cardImageView)
-
+        lazy var cardView: CardContentView = {
+            let v = CardContentView()
+            v.backgroundColor = .init(white: 0.5, alpha: 1.1)
             return v
         }()
 
@@ -116,7 +101,7 @@ extension PreviewFeature {
             case .nothing:
                 self.cardStageView.cardVisibility = .hidden
             case let .loaded(locked: _, location: _, image: image):
-                self.cardImageView.image = image
+                self.cardView.image = image
                 self.cardStageView.contentView = self.cardView
                 self.cardStageView.cardVisibility = .visible
             default:

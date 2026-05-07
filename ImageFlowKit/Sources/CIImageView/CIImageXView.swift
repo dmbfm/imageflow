@@ -261,14 +261,16 @@ public class CIImageXView: XViewEx {
             imageScale: self.imageScale,
             offset: self.offset
         )
-        if self.drawableSize.width <= 0 || self.drawableSize.height <= 0 { return }
+        if self.drawableSize.width <= 0 || self.drawableSize.height <= 0 {
+            logger.warning("Empty drawable size; skipping render.")
+            return
+        }
         self.renderer.render(
             renderData,
             { [weak self] in
                 self?.metalLayer.nextDrawable()
             }
         )
-        // self.threadedRenderer.render(renderData, self.metalLayer.nextDrawable())
     }
 }
 

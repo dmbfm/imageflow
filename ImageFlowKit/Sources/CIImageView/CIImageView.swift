@@ -9,6 +9,7 @@ import AppKit
 #endif
 
 let sp = OSSignposter(subsystem: "com.dmbfm.ciimageview", category: .pointsOfInterest)
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "ci-image-view")
 
 public struct CIImageView: XViewRepresentable {
     var image: CIImage?

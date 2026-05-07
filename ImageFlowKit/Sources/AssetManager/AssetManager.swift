@@ -420,11 +420,15 @@ actor AssetManager {
                     try await loadFromFile(self.assetURL(filename: filename))
                 }.value
             }
+            loader.setResource(asset.id, .loading(task!))
         }
 
         do {
-            return try await task!.value
+            let result = try await task!.value
+            loader.setResource(asset.id, .loaded(result))
+            return result
         } catch {
+            loader.setResource(asset.id, .failed(.other(error)))
             throw .from(error)
         }
     }

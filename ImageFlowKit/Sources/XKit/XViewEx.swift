@@ -63,7 +63,7 @@ open class XViewEx: XView {
 
     // MARK: - Common
 
-    var border: Border? {
+    public var border: Border? {
         didSet {
             self.updateLayerBorder()
         }
@@ -75,7 +75,7 @@ open class XViewEx: XView {
         }
     }
 
-    func shadow(_ shadow: Shadow?) {
+    public func shadow(_ shadow: Shadow?) {
     }
 
     func upadateLayerShadow() {
