@@ -83,6 +83,9 @@ public final class CardStageView: XViewEx {
         #if os(macOS)
         view.layerContentsRedrawPolicy = .onSetNeedsDisplay
         #endif
+
+        view.shadowStyle = self.configuration.cardShadow
+
         return view
     }()
 
@@ -463,6 +466,9 @@ public final class CardStageView: XViewEx {
 
     func configurationDidChange() {
         self.updateGeometry()
+        if self.cardView.shadowStyle != self.configuration.cardShadow {
+            self.cardView.shadowStyle = self.configuration.cardShadow
+        }
     }
 
     func updateGeometry(_ requestLayout: Bool = true) {

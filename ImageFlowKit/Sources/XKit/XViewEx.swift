@@ -20,6 +20,28 @@ open class XViewEx: XView {
 
     open override var isFlipped: Bool { true }
     #endif
+
+    public func updateShadow(_ shadow: Shadow?) {
+        if let shadow {
+            #if os(macOS)
+            if self.shadow == nil {
+                self.shadow = .init()
+            }
+            #endif
+
+            self.withLayer({ layer in
+                layer.shadowColor = shadow.color.cgColor
+                layer.shadowOffset = shadow.offset
+                layer.shadowRadius = shadow.radius
+                layer.shadowOpacity = Float(shadow.opacity)
+            })
+        } else {
+            self.shadow = nil
+            self.withLayer { layer in
+                layer.shadowColor = nil
+            }
+        }
+    }
 }
 
 extension XViewEx {

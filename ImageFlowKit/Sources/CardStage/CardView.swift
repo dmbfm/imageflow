@@ -57,6 +57,12 @@ final class CardView: XViewEx {
         }
     }
 
+    var shadowStyle: XViewEx.Shadow? = nil {
+        didSet {
+            self.updateShadow(self.shadowStyle)
+        }
+    }
+
     private lazy var contentContainer: ContentConainer = {
         let view = ContentConainer(self.contentView)
         view.clipsToBounds = true

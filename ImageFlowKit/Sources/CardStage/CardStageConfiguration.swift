@@ -1,29 +1,34 @@
 import Foundation
 import Helpers
+import XKit
 
 public struct CardStageConfiguration: Sendable, Equatable, With {
     public var insets: CardStageInsets
     public var cardSizeRange: ClosedRange<CGFloat>
     public var dockedHeightRange: ClosedRange<CGFloat>
     public var cardRadius: CGFloat
+    public var cardShadow: XViewEx.Shadow?
 
     static let `default`: Self = .init(
         insets: .init(10),
         cardSizeRange: 50...500,
         cardRadius: 10,
-        dockedHeightRange: 100...400
+        dockedHeightRange: 100...400,
+        cardShadow: .init(color: .init(white: 0, alpha: 0.4), opacity: 1, offset: .zero, radius: 8)
     )
 
     init(
         insets: CardStageInsets,
         cardSizeRange: ClosedRange<CGFloat>,
         cardRadius: CGFloat,
-        dockedHeightRange: ClosedRange<CGFloat>
+        dockedHeightRange: ClosedRange<CGFloat>,
+        cardShadow: XViewEx.Shadow?
     ) {
         self.insets = insets
         self.cardSizeRange = cardSizeRange
         self.cardRadius = cardRadius
         self.dockedHeightRange = dockedHeightRange
+        self.cardShadow = cardShadow
     }
 }
 
