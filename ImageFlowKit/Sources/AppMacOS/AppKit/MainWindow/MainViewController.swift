@@ -80,6 +80,10 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.sidebarItem)
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
+
+        Task {
+            self.backendRunner.run()
+        }
     }
 
     #if os(macOS)

@@ -211,7 +211,7 @@ extension AssetStore: Storable {
     }
 
     public func restore(_ snapshot: StorableData) {
-        self.assets = [:]
+        self.assets = snapshot.assets
         self.filenameCache = snapshot.filenameCache ?? .init()
         Task {
             await self._assetManager.restore(assets: snapshot.assets)

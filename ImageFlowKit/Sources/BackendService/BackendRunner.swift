@@ -37,7 +37,7 @@ public final class BackendRunner {
     var needsToRunAgain: Bool = false
     var locked: Bool = false
 
-    func run() {
+    public func run() {
         if self.task != nil {
             self.needsToRunAgain = true
             return
