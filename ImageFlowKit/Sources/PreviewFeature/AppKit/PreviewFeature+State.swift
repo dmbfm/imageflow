@@ -14,110 +14,244 @@ extension PreviewFeature {
         case updatedImage(OutputPortLocation)
         case previewLocations(Set<PreviewLocation>)
         case imageLoaded(OutputPortLocation, CIImage)
+        case toggleLock
     }
 
     enum Effect {
         case loadImage(OutputPortLocation)
     }
 
-    enum State: Equatable, With {
-        case nothing
-        case loading(locked: Bool, location: OutputPortLocation, image: CIImage?)
-        case loaded(locked: Bool, location: OutputPortLocation, image: CIImage)
-        case error(locked: Bool, location: OutputPortLocation, message: String)
+    struct StateTransition {
+        var newState: State
+        var effect: Effect?
 
-        var image: CIImage? {
-            switch self {
-            case .loaded(_, _, let image): image
-            case .loading(_, _, let image): image
-            default: nil
-            }
+        var pair: (State, Effect?) {
+            (self.newState, self.effect)
         }
+    }
+
+    struct State: Equatable, With {
+
+        var availableLocations: Set<PreviewLocation> = []
+        var contentState: PreviewContentState = .nothing
 
         var location: OutputPortLocation? {
-            get {
-                switch self {
-                case .loading(_, let location, _),
-                    .loaded(_, let location, _),
-                    .error(_, let location, _):
-                    location
-                default:
-                    nil
-                }
-            }
-            set {
-                guard let newValue else { return }
-                switch self {
-                case .nothing: break
-                case .error(let a, _, let c): self = .error(locked: a, location: newValue, message: c)
-                case .loaded(let a, _, let c): self = .loaded(locked: a, location: newValue, image: c)
-                case .loading(let a, _, let c): self = .loading(locked: a, location: newValue, image: c)
-                }
-            }
+            get { self.contentState.location }
+            set { self.contentState.location = newValue }
         }
 
         var locked: Bool {
-            get {
+            get { self.contentState.locked }
+            set { self.contentState.locked = newValue }
+        }
+
+        var image: CIImage? {
+            self.contentState.image
+        }
+
+        var content: PreviewContentState.Content? {
+            get { self.contentState.content }
+            set { self.contentState.content = newValue }
+        }
+
+        enum PreviewContentState: Equatable, With, CustomStringConvertible {
+            case nothing
+            case something(locked: Bool, location: OutputPortLocation, content: Content)
+
+            var description: String {
                 switch self {
-                case .nothing: false
-                case .error(let locked, _, _), .loading(let locked, _, _), .loaded(let locked, _, _): locked
+                case .nothing: "nothing"
+                case .something(let locked, let loc, let content):
+                    "something(locked: \(locked), loc: \(loc), content: \(content))"
                 }
             }
 
-            set {
+            enum Content: Equatable, With, CustomStringConvertible {
+                case loading(CIImage?)
+                case loaded(CIImage)
+                case error(String)
+
+                var description: String {
+                    switch self {
+                    case .error(let message): "error: (\(message))"
+                    case .loaded: "loaded"
+                    case .loading: "loading"
+                    }
+                }
+            }
+
+            var locked: Bool {
+                get {
+                    switch self {
+                    case .nothing: false
+                    case .something(let locked, _, _): locked
+                    }
+                }
+                set {
+                    switch self {
+                    case .nothing:
+                        break
+                    case .something(_, location: let location, content: let content):
+                        self = .something(locked: newValue, location: location, content: content)
+                    }
+                }
+            }
+
+            var location: OutputPortLocation? {
+                get {
+                    switch self {
+                    case .nothing: nil
+                    case .something(_, let loc, _): loc
+                    }
+                }
+                set {
+                    if let newValue {
+                        switch self {
+                        case .nothing: break
+                        case .something(locked: let locked, _, let content):
+                            self = .something(locked: locked, location: newValue, content: content)
+                        }
+                    } else {
+                        self = .nothing
+                    }
+                }
+            }
+
+            var content: Content? {
+                get {
+                    switch self {
+                    case .nothing: nil
+                    case .something(_, _, let content): content
+                    }
+                }
+                set {
+                    if let newValue {
+                        switch self {
+                        case .nothing: break
+                        case .something(let locked, let location, _):
+                            self = .something(locked: locked, location: location, content: newValue)
+                        }
+                    } else {
+                        self = .nothing
+                    }
+                }
+            }
+
+            var image: CIImage? {
                 switch self {
-                case .nothing: break
-                case .error(_, let b, let c): self = .error(locked: newValue, location: b, message: c)
-                case .loading(_, let b, let c): self = .loading(locked: locked, location: b, image: c)
-                case .loaded(_, let b, let c): self = .loaded(locked: locked, location: b, image: c)
+                case .something(_, _, content: .loading(let image)): image
+                case .something(_, _, content: .loaded(let image)): image
+                default: nil
+                }
+            }
+
+        }
+
+        func input(_ input: Input) -> StateTransition {
+            switch input {
+            case .imageLoaded(let loc, let image):
+                self.imageLoaded(loc, image)
+            case .previewLocations(let locs):
+                self.previewLocations(locs)
+            case .toggleLock:
+                self.toggleLock()
+            case .updatedImage(let loc):
+                self.updatedImage(loc)
+            }
+        }
+
+        func toggleLock() -> StateTransition {
+            if self.locked {
+                self.unlock()
+            } else {
+                self.lock()
+            }
+        }
+
+        func unlock() -> StateTransition {
+            switch self.contentState {
+            case .nothing:
+                return .init(newState: self)
+
+            case .something(locked: false, _, _):
+                return .init(newState: self)
+
+            case .something(locked: true, location: let loc, _):
+                if self.availableLocations.isEmpty {
+                    return .init(newState: self.with(\.contentState, .nothing))
+                } else if self.availableLocations.contains(where: { $0.location == loc }) {
+                    return .init(
+                        newState: self.with(\.locked, false)
+                    )
+                } else {
+                    return self.with(\.locked, false).selectFirstAvailable()
                 }
             }
         }
 
-        func input(_ input: Input) -> (State, Effect?) {
-            logger.debug("input: \("\(input)")")
-            switch input {
+        func lock() -> StateTransition {
+            return .init(newState: self.with(\.locked, true))
+        }
 
-            case .previewLocations([]):
-                if !self.locked {
-                    return (.nothing, nil)
+        func selectFirstAvailable() -> StateTransition {
+            if let first = self.availableLocations.first {
+                return .init(
+                    newState: self.with(
+                        \.contentState,
+                        .something(locked: self.locked, location: first.location, content: .loading(self.image))
+                    ),
+                    effect: .loadImage(first.location)
+                )
+            } else {
+                return .init(newState: self.with(\.contentState, .nothing))
+            }
+        }
+
+        func previewLocations(_ locations: Set<PreviewLocation>) -> StateTransition {
+            let newState = self.with(\.availableLocations, locations)
+
+            switch self.contentState {
+            case .nothing:
+                return newState.selectFirstAvailable()
+
+            case .something(locked: true, _, _):
+                return .init(newState: newState)
+
+            case .something(locked: false, let location, _):
+                if locations.contains(where: { $0.location == location }) {
+                    return .init(newState: newState)
                 } else {
-                    return (self, nil)
+                    return newState.selectFirstAvailable()
                 }
+            }
+        }
 
-            case .previewLocations(let locs):
-                switch self {
-
-                case .nothing, .error:
-                    let loc = locs.first!.location
-                    return (
-                        .loading(locked: false, location: loc, image: nil), .loadImage(loc)
+        func imageLoaded(_ location: OutputPortLocation, _ image: CIImage) -> StateTransition {
+            switch self.contentState {
+            case .something(let locked, let location, .loading(_)):
+                return .init(
+                    newState: self.with(
+                        \.contentState,
+                        .something(locked: locked, location: location, content: .loaded(image))
                     )
+                )
+            default:
+                return .init(newState: self)
+            }
+        }
 
-                case let .loading(locked, location, image):
-                    if locs.contains(where: { $0.location == location }) || locked {
-                        return (self, nil)
-                    } else {
-                        let loc = locs.first!.location
-                        return (.loading(locked: locked, location: loc, image: image), .loadImage(loc))
-                    }
-
-                case let .loaded(locked, location, image):
-                    if locs.contains(where: { $0.location == location }) || locked {
-                        return (self, nil)
-                    } else {
-                        let loc = locs.first!.location
-                        return (.loading(locked: locked, location: loc, image: image), .loadImage(loc))
-                    }
-                }
-
-            case let .imageLoaded(loc, image):
-                return (.loaded(locked: self.locked, location: loc, image: image), nil)
-
-            case .updatedImage(let location):
-                guard let current = self.location, current == location else { return (self, nil) }
-
-                return (.loading(locked: self.locked, location: location, image: self.image), .loadImage(location))
+        func updatedImage(_ location: OutputPortLocation) -> StateTransition {
+            switch self.contentState {
+            case .something(locked: let locked, location, _):
+                return .init(
+                    newState: self.with(
+                        \.contentState,
+                        .something(locked: locked, location: location, content: .loading(self.image))
+                    ),
+                    effect: .loadImage(location)
+                )
+            default:
+                return .init(newState: self)
             }
         }
     }
@@ -125,18 +259,11 @@ extension PreviewFeature {
 
 extension PreviewFeature.State: CustomStringConvertible {
     var description: String {
-        "PreviewFeature.State:\n"
-            + {
-                switch self {
-                case .nothing:
-                    "  nothing"
-                case let .error(locked, location, message):
-                    "  error(\(locked), \(location), \(message))"
-                case let .loading(locked, location, image):
-                    " loading(\(locked), \(location), \(image, default: "nil")) "
-                case let .loaded(locked, location, image):
-                    " loaded(\(locked), \(location), \(image, default: "nil")) "
-                }
-            }()
+        "======================================== \n"
+        + "PreviewFeature.State:\n"
+        + "  availableLocations: \(self.availableLocations)\n"
+        + "  ----------\n"
+        + "   contentState: \(self.contentState)\n"
+        + "======================================== \n"
     }
 }

@@ -16,13 +16,11 @@ extension PreviewFeature {
         let coordinator: GlobalCoordinator
         let assetStore: any AssetStoreService
 
-        var cardStageView: CardStageView!
-
-        var state: State = .nothing {
+        var state: State = .init() {
             didSet {
                 if self.state != oldValue {
-                    logger.debug("\(self.state)")
-                    self.update()
+                    logger.debug("\("\(self.state)")")
+                    self.updateView(oldValue)
                 }
             }
         }
@@ -31,7 +29,9 @@ extension PreviewFeature {
 
         private var availablePreviewLocations: Set<PreviewLocation> = []
 
-        lazy var cardView: CardContentView = {
+        var cardStageView: CardStageView = .init()
+
+        lazy var cardContentView: CardContentView = {
             let v = CardContentView()
             return v
         }()
@@ -49,11 +49,7 @@ extension PreviewFeature {
         }
 
         public override func loadView() {
-            let view = CardStageView()
-            self.cardStageView = view
-            // self.cardStageView.contentView = self.cardView
-            self.update()
-            self.view = view
+            self.view = self.cardStageView
         }
 
         public override func viewDidLoad() {
@@ -68,6 +64,27 @@ extension PreviewFeature {
             self.coordinator.emitter.on({ [weak self] event in
                 self?.onCoordinatorEvent(event)
             }).store(in: &self.cancellabes)
+
+            self.cardContentView.toolbarButtonHandler = { [weak self] name in
+                self?.onToolbarButtonClick(name)
+            }
+
+            self.updateView(nil)
+        }
+
+        func onToolbarButtonClick(_ name: ToolbarItemName) {
+            switch name {
+            case .lock:
+                self.input(.toggleLock)
+            case .export:
+                break
+            case .dockDown:
+                break
+            case .dockUp:
+                break
+            case .openWindow:
+                break
+            }
         }
 
         func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
@@ -115,29 +132,17 @@ extension PreviewFeature {
             self.input(.previewLocations(self.availablePreviewLocations))
         }
 
-        func update() {
-            switch self.state {
-            case .nothing:
-                self.cardStageView.cardVisibility = .hidden
-            case let .loaded(locked: _, location: _, image: image):
-                self.cardView.image = image
-                self.cardStageView.contentView = self.cardView
-                self.cardStageView.cardVisibility = .visible
-            default:
-                self.cardStageView.cardVisibility = .visible
-            }
-        }
-
         var task: Task<(), Never>?
 
         func input(_ input: Input) {
-            let (newState, effect) = self.state.input(input)
+            let (newState, effect) = self.state.input(input).pair
 
             self.state = newState
 
             guard let effect else { return }
 
             switch effect {
+
             case .loadImage(let loc):
 
                 if self.task != nil {
@@ -154,6 +159,22 @@ extension PreviewFeature {
                         logger.error("\(error)")
                     }
                 }
+            }
+        }
+
+        func updateView(_ oldValue: State?) {
+            if self.state.locked != oldValue?.locked {
+                self.cardContentView.cardControlsViewModel.locked = self.state.locked
+            }
+
+            if let image = self.state.image {
+                self.cardContentView.image = image
+                if self.cardStageView.contentView != self.cardContentView {
+                    self.cardStageView.contentView = self.cardContentView
+                }
+                self.cardStageView.cardVisibility = .visible
+            } else {
+                self.cardStageView.cardVisibility = .hidden
             }
         }
     }
