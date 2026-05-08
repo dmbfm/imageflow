@@ -17,10 +17,11 @@ final class MainViewController: NSSplitViewController {
 
     var flow: SharedModels::Flow
     var assetStore: any AssetStoreService
-    var backendRunner: BackendRunner
+    var backendRunner: BackendRunner!
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
     var inspectorVC: InspectorViewController!
+    var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
 
     // MARK: - Computed Properties
 
@@ -61,10 +62,10 @@ final class MainViewController: NSSplitViewController {
     init(_ flow: SharedModels::Flow, _ assetStore: AssetStoreService) {
         self.flow = flow
         self.assetStore = assetStore
-        self.backendRunner = .init(flow, assetStore.assetManager)
 
         super.init(nibName: nil, bundle: nil)
 
+        self.backendRunner = .init(flow, .init(self), assetStore.assetManager)
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()

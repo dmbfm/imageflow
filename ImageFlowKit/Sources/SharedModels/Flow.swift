@@ -37,7 +37,6 @@ public final class Flow: ObservableObject {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode] {
         didSet {
-            signposter.emitEvent("Flow::nodes::didSet")
             self.delegate?.flow(nodesDidChange: self.nodes)
             self.emitter.emit(.nodesDidChange(self.nodes))
             self.nodeCount = self.nodes.count

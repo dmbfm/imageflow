@@ -10,12 +10,15 @@ let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "backend-runner"
 public final class BackendRunner {
 
     public var flow: SharedModels::Flow
+    var coordinator: GlobalCoordinator
     var cancellables: Set<AnyEventEmitterCancellable> = []
     var assetProvider: any BackendAssetProvider
 
-    public init(_ flow: SharedModels::Flow, _ assetProvider: any BackendAssetProvider) {
+    public init(_ flow: SharedModels::Flow, _ coordinator: GlobalCoordinator, _ assetProvider: any BackendAssetProvider)
+    {
         self.flow = flow
         self.assetProvider = assetProvider
+        self.coordinator = coordinator
 
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
@@ -53,6 +56,7 @@ public final class BackendRunner {
             let result = await self.doRun(nodes, edges, self.assetProvider)
             self.upadate(result.nodes)
             self.task = nil
+            self.coordinator.emitter.emit(.backendDidRun)
 
             if self.needsToRunAgain {
                 self.needsToRunAgain = false

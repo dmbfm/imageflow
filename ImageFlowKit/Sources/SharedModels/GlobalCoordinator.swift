@@ -1,6 +1,7 @@
 import Backend
 import CoreImage
 import Foundation
+import Helpers
 import UniformTypeIdentifiers
 
 public protocol GlobalCoordinatorProtocol: AnyObject {
@@ -10,10 +11,19 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func currentZoom() -> CGFloat
     func nodeCount() -> Int
     func selectedNodeCount() -> Int
+    var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
+}
+
+public enum GlobalCoordinatorEvent {
+    case backendDidRun
 }
 
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
+
+    public var emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> {
+        self.impl?.emitter ?? self.dummy.emitter
+    }
 
     private weak var impl: (any GlobalCoordinatorProtocol)?
     private var dummy = MockGlobalCoordinator()
@@ -112,6 +122,8 @@ public enum Point {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public let emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> = .init()
+
     public func perform(userAction: UserAction) {
 
     }

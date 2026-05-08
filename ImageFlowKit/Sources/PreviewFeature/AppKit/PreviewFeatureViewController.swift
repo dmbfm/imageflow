@@ -13,6 +13,7 @@ extension PreviewFeature {
     public final class Controller: NSViewController {
 
         let flow: Flow
+        let coordinator: GlobalCoordinator
         let assetStore: any AssetStoreService
 
         var cardStageView: CardStageView!
@@ -35,8 +36,9 @@ extension PreviewFeature {
             return v
         }()
 
-        public init(flow: Flow, assetStore: any AssetStoreService) {
+        public init(flow: Flow, coordinator: GlobalCoordinator, assetStore: any AssetStoreService) {
             self.flow = flow
+            self.coordinator = coordinator
             self.assetStore = assetStore
 
             super.init(nibName: nil, bundle: nil)
@@ -62,6 +64,18 @@ extension PreviewFeature {
             self.assetStore.emitter.on({ [weak self] event in
                 self?.onAssetStoreEvent(event)
             }).store(in: &self.cancellabes)
+
+            self.coordinator.emitter.on({ [weak self] event in
+                self?.onCoordinatorEvent(event)
+            }).store(in: &self.cancellabes)
+        }
+
+        func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
+            switch event {
+            case .backendDidRun:
+                Task { await self.upadateAvailablePreviewLocations() }
+                break
+            }
         }
 
         func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {

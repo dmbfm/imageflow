@@ -75,6 +75,7 @@ extension PreviewFeature {
         }
 
         func input(_ input: Input) -> (State, Effect?) {
+            logger.debug("input: \("\(input)")")
             switch input {
 
             case .previewLocations([]):

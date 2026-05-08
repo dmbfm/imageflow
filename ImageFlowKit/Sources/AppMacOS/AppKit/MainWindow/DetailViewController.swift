@@ -17,7 +17,7 @@ final class DetailViewController: NSViewController {
 
     init(_ flow: Flow, _ coordinator: GlobalCoordinator, _ assetStore: any AssetStoreService) {
         self.canvasVC = .init(flow: flow, coordinator: coordinator, assetStore: assetStore)
-        self.previewVC = .init(flow: flow, assetStore: assetStore)
+        self.previewVC = .init(flow: flow, coordinator: coordinator, assetStore: assetStore)
 
         super.init(nibName: nil, bundle: nil)
 
