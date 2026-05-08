@@ -76,20 +76,24 @@ extension PreviewFeature {
         func onFlowEvent(_ event: FlowEvent) {
             switch event {
             case .selectionDidChange(_, _):
-                self.upadateAvailablePreviewLocations()
+                Task {
+                    await self.upadateAvailablePreviewLocations()
+                }
             default:
                 break
             }
         }
 
-        func upadateAvailablePreviewLocations() {
+        func upadateAvailablePreviewLocations() async {
             self.availablePreviewLocations.removeAll(keepingCapacity: true)
             for id in self.flow.selection {
                 if let node = self.flow.nodes[id] {
                     for output in node.outputs where output.type == .image {
-                        self.availablePreviewLocations.insert(
-                            .init(name: output.label, location: .init(node: id, index: output.index))
-                        )
+                        if await self.assetStore.hasGeneratedResource(ciImageAt: .init(node: id, index: output.index)) {
+                            self.availablePreviewLocations.insert(
+                                .init(name: output.label, location: .init(node: id, index: output.index))
+                            )
+                        }
                     }
                 }
             }
