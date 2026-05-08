@@ -25,10 +25,9 @@ public struct Asset: Sendable, Identifiable, Equatable, Codable, With {
     }
 
     public var originalFilename: String? {
-        if case let .loaded(_, originalFilename) = self.state {
-            originalFilename
-        } else {
-            nil
+        switch self.state {
+        case .loaded(_, let originalFilename): originalFilename
+        case .loading(let originalFilename): originalFilename
         }
     }
 
@@ -42,7 +41,7 @@ public struct Asset: Sendable, Identifiable, Equatable, Codable, With {
 }
 
 public enum AssetState: Sendable, Equatable, Codable {
-    case loading
+    case loading(originalFilename: String?)
     case loaded(filename: String, originalFilename: String)
 }
 

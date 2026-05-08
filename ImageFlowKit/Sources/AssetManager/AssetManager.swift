@@ -115,7 +115,9 @@ actor AssetManager {
     }
 
     func importImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
-        try await self.importAsset(kind: .image) { assetsDir, id in
+
+        @concurrent
+        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
             guard let identifier = item.itemIdentifier else {
                 throw AssetManagerError.importAsset(.photosMissingIdentifier)
             }
@@ -144,10 +146,16 @@ actor AssetManager {
 
             return .init(filename: assetFilename, originalFilename: filename)
         }
+
+        return try await self.importAsset(kind: .image) { assetsDir, id in
+            try await doImport(assetsDir: assetsDir, id: id)
+        }
     }
 
     func importAsset(fromURL url: URL, kind: AssetKind) async throws(AssetManagerError) -> UUID {
-        try await self.importAsset(kind: kind) { assetsDir, id in
+
+        @concurrent
+        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
             let isSS = url.startAccessingSecurityScopedResource()
             defer { if isSS { url.stopAccessingSecurityScopedResource() } }
 
@@ -158,16 +166,26 @@ actor AssetManager {
 
             return .init(filename: assetFilename, originalFilename: url.lastPathComponent)
         }
+
+        return try await self.importAsset(kind: kind, originalFilename: url.lastPathComponent) { assetsDir, id in
+            try await doImport(assetsDir: assetsDir, id: id)
+        }
     }
 
     func importAsset(data: Data, filename: String, kind: AssetKind) async throws(AssetManagerError) -> UUID {
-        try await self.importAsset(kind: kind) { assetsDir, id in
+
+        @concurrent
+        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
             let assetFilename = self.name(forAssetAt: .init(filePath: filename), id: id)
             let assetURL = assetsDir.appending(path: assetFilename)
 
             try data.write(to: assetURL)
 
             return .init(filename: assetFilename, originalFilename: filename)
+        }
+
+        return try await self.importAsset(kind: kind, originalFilename: filename) { assetsDir, id in
+            try await doImport(assetsDir: assetsDir, id: id)
         }
     }
 
@@ -297,13 +315,16 @@ actor AssetManager {
     private func importAsset(
         id: UUID = UUID(),
         kind: AssetKind,
+        originalFilename: String? = nil,
         importFunc: (_ assetsDir: URL, _ id: UUID) async throws -> ImportFuncResult
     ) async throws(AssetManagerError) -> UUID {
         guard let documentID = self.documentInfo?.id else {
             throw .importAsset(.missingDocumentInfo)
         }
 
-        self.register(asset: .init(id: id, kind: kind, timestamp: .now, state: .loading))
+        self.register(
+            asset: .init(id: id, kind: kind, timestamp: .now, state: .loading(originalFilename: originalFilename))
+        )
 
         do {
             let assetsDir: URL = .tempAssetsDirectory(forDocument: documentID)
