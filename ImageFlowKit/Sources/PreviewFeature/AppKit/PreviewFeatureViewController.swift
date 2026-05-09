@@ -77,17 +77,28 @@ extension PreviewFeature {
             case .lock:
                 self.input(.toggleLock)
             case .export:
-                if let image = self.state.image {
-                    let name = self.state.location.flatMap({ self.flow.nodes[$0.node]?.name })
-                    self.coordinator.perform(userAction: .exportImage(image: image, filename: name))
-                }
-                break
+                self.exportImage()
+            case .copy:
+                self.copyImage()
             case .dockDown:
                 break
             case .dockUp:
                 break
             case .window:
                 break
+            }
+        }
+
+        func exportImage() {
+            if let image = self.state.image {
+                let name = self.state.location.flatMap({ self.flow.nodes[$0.node]?.name })
+                self.coordinator.perform(userAction: .exportImage(image: image, filename: name))
+            }
+        }
+
+        func copyImage() {
+            if let image = self.state.image {
+                PasteboarImageWriter().copy(image)
             }
         }
 
