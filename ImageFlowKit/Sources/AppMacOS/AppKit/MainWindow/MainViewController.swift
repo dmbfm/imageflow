@@ -10,6 +10,7 @@ import CanvasView
 import NodeView
 import Helpers
 import XKit
+import SwiftUI
 
 final class MainViewController: NSSplitViewController {
 
@@ -22,6 +23,7 @@ final class MainViewController: NSSplitViewController {
     var detailVC: DetailViewController!
     var inspectorVC: InspectorViewController!
     var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
+    var modalContainerVM: ModalContainerViewModel = .init()
 
     // MARK: - Computed Properties
 
@@ -82,6 +84,8 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
 
+        self.view.addSubview(NSHostingView(rootView: ModalContainerView(vm: self.modalContainerVM)))
+
         Task {
             self.backendRunner.run()
         }
@@ -119,6 +123,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
                     delegate: self
                 )
             )
+        case let .exportImage(image, filename):
+            self.modalContainerVM.showImageExporter(image, filename)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }
@@ -201,6 +207,53 @@ extension MainViewController {
         }
         self.flow.select([node.id])
     }
+}
+
+// MARK: - Modal Container View
+
+extension MainViewController {
+
+    @Observable
+    class ModalContainerViewModel {
+
+        var imageExporterState: ImageExporterState = .init()
+        var error: LocalizedAlertError?
+
+        struct ImageExporterState {
+            var image: CIImage?
+            var isPresented: Bool {
+                get {
+                    self.image != nil
+                }
+                set {
+                    if !newValue {
+                        self.image = nil
+                    }
+                }
+            }
+            var defaultFilename: String?
+        }
+
+        func showImageExporter(_ image: CIImage, _ defaultFilename: String?) {
+            self.imageExporterState = .init(image: image, defaultFilename: defaultFilename)
+        }
+    }
+
+    struct ModalContainerView: View {
+
+        @Bindable var vm: ModalContainerViewModel
+
+        var body: some View {
+            EmptyView()
+                .imageExporter(
+                    isPresented: self.$vm.imageExporterState.isPresented,
+                    image: self.vm.imageExporterState.image,
+                    defaultFilename: self.vm.imageExporterState.defaultFilename,
+                    errorMessage: self.$vm.error
+                )
+        }
+    }
+
 }
 
 extension Point {

@@ -1,8 +1,10 @@
+import ImageExporter
 import SwiftUI
 
 enum ToolbarItemName: Hashable {
     case lock
     case export
+    case copy
     case dockDown
     case dockUp
     case openWindow
@@ -13,69 +15,32 @@ struct CardControlsView: View {
     @Observable
     class ViewModel {
         var isVisible: Bool
-        var locked: Bool = false 
+        var locked: Bool = false
 
-        internal init(isVisible: Bool, locked: Bool = false) {
+        init(isVisible: Bool, locked: Bool = false) {
             self.isVisible = isVisible
             self.locked = locked
         }
     }
 
-    let vm: ViewModel
+    @Bindable var vm: ViewModel
 
-    var toolbarHandler: ((ToolbarItemName) -> ())?
+    var toolbarHandler: ((CardToolbarItemName) -> ())?
 
-    #if os(macOS)
-    private var middleItems: PreviewToolbarElement<ToolbarItemName> {
-        .trio(
-            id: "middle",
-            .init(id: .dockDown, icon: "inset.filled.bottomhalf.rectangle"),
-            .init(id: .dockUp, icon: "inset.filled.tophalf.rectangle"),
-            .init(id: .openWindow, icon: "macwindow.on.rectangle"),
-        )
-    }
-    #endif
-
-    #if os(iOS)
-    private var middleItems: PreviewToolbarElement<Name> {
-        .pair(
-            id: "middle",
-            .init(id: .dockDown, icon: "inset.filled.bottomhalf.rectangle"),
-            .init(id: .dockUp, icon: "inset.filled.tophalf.rectangle"),
-        )
-    }
-    #endif
-
-    var elements: [PreviewToolbarElement<ToolbarItemName>] {
-        [
-            .item(
-                .init(id: .lock, icon: self.vm.locked ? "lock.fill" : "lock"),
-            ),
-            .spacer,
-            self.middleItems,
-            .spacer,
-            .item(
-                .init(id: .export, icon: "square.and.arrow.down"),
-            ),
-        ]
-    }
-
-    func handler(_ name: ToolbarItemName) {
+    func handler(_ name: CardToolbarItemName) {
         self.toolbarHandler?(name)
     }
 
     var body: some View {
         ZStack {
             Color.clear
-
-            PreviewToolbarView(
-                elements: self.elements,
-                visible: self.vm.isVisible,
+            CardToolbarView(
                 handler: self.handler(_:),
+                visible: self.$vm.isVisible,
+                locked: self.vm.locked
             )
             .animation(.easeInOut(duration: 0.25), value: self.vm.isVisible)
         }
         .ignoresSafeArea()
-
     }
 }

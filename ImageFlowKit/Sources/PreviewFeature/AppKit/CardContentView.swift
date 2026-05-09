@@ -17,7 +17,9 @@ class CardContentView: XViewEx {
 
     var cardControlsViewModel: CardControlsView.ViewModel = .init(isVisible: false)
 
-    var toolbarButtonHandler: ((ToolbarItemName) -> ())?
+    var toolbarButtonHandler: ((CardToolbarItemName) -> ())?
+
+    let toolbarHideSize: CGFloat = 120
 
     lazy var overlay: XView = {
         let view = NSHostingView(
@@ -32,7 +34,7 @@ class CardContentView: XViewEx {
         return view
     }()
 
-    func toolbarHandlerWrapper(_ name: ToolbarItemName) {
+    func toolbarHandlerWrapper(_ name: CardToolbarItemName) {
         self.toolbarButtonHandler?(name)
     }
 
@@ -76,7 +78,7 @@ class CardContentView: XViewEx {
 
     override func mouseEntered(with event: NSEvent) {
         if !self.cardControlsViewModel.isVisible {
-            if self.bounds.width >= 200 {
+            if self.bounds.width >= self.toolbarHideSize {
                 self.cardControlsViewModel.isVisible = true
             }
         }
@@ -96,7 +98,7 @@ class CardContentView: XViewEx {
     override func layout() {
         super.layout()
 
-        if self.bounds.width < 200 {
+        if self.bounds.width < self.toolbarHideSize {
             if self.cardControlsViewModel.isVisible {
                 Task {
                     self.cardControlsViewModel.isVisible = false

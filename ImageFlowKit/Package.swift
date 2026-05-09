@@ -61,6 +61,7 @@ let package = Package(
                 "AssetBrowserFeature",
                 "BackendService",
                 "NodeView",
+                "ImageExporter",
             ]
         ),
         .target(

@@ -72,17 +72,21 @@ extension PreviewFeature {
             self.updateView(nil)
         }
 
-        func onToolbarButtonClick(_ name: ToolbarItemName) {
+        func onToolbarButtonClick(_ name: CardToolbarItemName) {
             switch name {
             case .lock:
                 self.input(.toggleLock)
             case .export:
+                if let image = self.state.image {
+                    let name = self.state.location.flatMap({ self.flow.nodes[$0.node]?.name })
+                    self.coordinator.perform(userAction: .exportImage(image: image, filename: name))
+                }
                 break
             case .dockDown:
                 break
             case .dockUp:
                 break
-            case .openWindow:
+            case .window:
                 break
             }
         }

@@ -9,4 +9,10 @@ public extension String {
     static let systemIconMagZoomOut = "minus.magnifyingglass"
     static let systemIconMagActualSize = "1.magnifyingglass"
     static let systemIconMagZoomFit = "arrow.up.left.and.down.right.magnifyingglass"
+    static let systemIconDockDown = "inset.filled.bottomhalf.rectangle"
+    static let systemIconDockUp = "inset.filled.tophalf.rectangle"
+    static let systemIconWindowPreview = "macwindow.on.rectangle"
+    static let systemIconSave = "square.and.arrow.down"
+    static let systemIconLock = "lock.fill"
+    static let systemIconLockOpen = "lock.open"
 }
