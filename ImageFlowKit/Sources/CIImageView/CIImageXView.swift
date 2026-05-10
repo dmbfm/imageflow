@@ -82,6 +82,7 @@ public class CIImageXView: XViewEx {
         self.layerContentsPlacement = .bottomLeft
     }
 
+    // swiftlint:disable force_cast
     public var metalLayer: CAMetalLayer {
         self.layer! as! CAMetalLayer
     }
@@ -115,6 +116,7 @@ public class CIImageXView: XViewEx {
         CAMetalLayer.self
     }
 
+    // swiftlint:disable force_cast
     var metalLayer: CAMetalLayer {
         self.layer as! CAMetalLayer
     }
@@ -202,7 +204,6 @@ public class CIImageXView: XViewEx {
                 x: (self.drawableSize.width - imageSize.width) * 0.5,
                 y: (self.drawableSize.height - imageSize.height) * 0.5
             )
-            break
         case .stretch:
             let imageSize = self.image?.extent.size ?? .zero
             let ds = self.drawableSize

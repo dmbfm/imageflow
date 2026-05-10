@@ -43,7 +43,7 @@ final class ThreadedRenderer {
     }
 
     @objc func run() {
-        while (true) {
+        while true {
             self.sema.wait()
             if let rd = self.renderData.withLock({ $0 }) {
                 self.doRender(rd)

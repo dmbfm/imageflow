@@ -138,7 +138,7 @@ public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
             forName: NSView.boundsDidChangeNotification,
             object: view.contentView,
             queue: .main,
-            using: { [weak self] notification in
+            using: { [weak self] _ in
                 MainActor.assumeIsolated { self?.clipViewBoundsDidChange() }
             }
         )
@@ -227,7 +227,7 @@ public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
     /// in/out, i.e., always that the scroll view's viewport changes.
     private func clipViewBoundsDidChange() {
         // Keep the image placement in the `CIImageView` in sync with the current scrolling/magnification.
-        self.imageView.placement.updateManual { scale, offset in
+        self.imageView.placement.updateManual { _, _ in
             let newScale = CGSize(width: self.scrollView.magnification, height: self.scrollView.magnification)
             let newOffset =
                 self.imageView.convertToPixel(-self.scrollView.contentView.bounds.origin)
@@ -374,7 +374,7 @@ extension CIImageScrollXView: NSGestureRecognizerDelegate {
         _ gestureRecognizer: NSGestureRecognizer,
         shouldAttemptToRecognizeWith event: NSEvent
     ) -> Bool {
-        if let _ = gestureRecognizer as? NSPanGestureRecognizer {
+        if gestureRecognizer is NSPanGestureRecognizer {
             if case let .enabled(button: _, modifiers) = self.configuration.mousePan {
                 if !event.modifierFlags.contains(modifiers.nsEventModifierFlags) {
                     return false
@@ -458,7 +458,7 @@ private class ClipView: NSClipView {
     }
 }
 
-// MARK:- Helpers
+// MARK: - Helpers
 
 extension NSEvent {
     fileprivate func isMouseScrollEvent(touchCount: Int) -> Bool {

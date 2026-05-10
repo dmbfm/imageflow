@@ -14,7 +14,7 @@ public class PreviewFeatureController: XViewController {
 
     let toolbarHideSize: CGFloat = 120
 
-    // MARK - Internal Properties
+    // MARK: - Internal Properties
 
     /// A reference to the `Flow` model
     let flow: Flow
@@ -186,8 +186,9 @@ public class PreviewFeatureController: XViewController {
     func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
         switch event {
         case .backendDidRun:
-            Task { await self.upadateAvailablePreviewLocations() }
-            break
+            Task {
+                await self.upadateAvailablePreviewLocations()
+            }
         }
     }
 

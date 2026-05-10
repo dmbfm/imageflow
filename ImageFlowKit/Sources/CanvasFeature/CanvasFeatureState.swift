@@ -4,7 +4,7 @@ import Logging
 import SharedModels
 import SwiftUI
 
-//@Observable
+// @Observable
 @MainActor
 public final class CanvasFeatureState {
 
