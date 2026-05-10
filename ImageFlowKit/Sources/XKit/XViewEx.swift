@@ -1,4 +1,5 @@
 import Foundation
+import Helpers
 import SwiftUI
 
 #if canImport(AppKit)
@@ -36,6 +37,7 @@ open class XViewEx: XView {
                 layer.shadowOpacity = Float(shadow.opacity)
             })
         } else {
+            print("Setting shadow to nil...")
             self.shadow = nil
             self.withLayer { layer in
                 layer.shadowColor = nil
@@ -55,7 +57,7 @@ extension XViewEx {
         }
     }
 
-    public struct Shadow: Sendable, Equatable, Hashable {
+    public struct Shadow: Sendable, Equatable, Hashable, With {
         public var color: XColor
         public var opacity: CGFloat
         public var offset: CGSize

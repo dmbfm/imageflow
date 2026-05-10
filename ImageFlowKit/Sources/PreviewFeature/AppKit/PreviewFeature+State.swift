@@ -1,3 +1,4 @@
+import CardStage
 import CoreImage
 import Foundation
 import Helpers
@@ -34,6 +35,8 @@ extension PreviewFeature {
 
         var availableLocations: Set<PreviewLocation> = []
         var contentState: PreviewContentState = .nothing
+        var anchor: CardStageAnchor = .bottomRight
+        var dockLocation: CardDockLocation? = nil
 
         var location: OutputPortLocation? {
             get { self.contentState.location }
@@ -260,10 +263,10 @@ extension PreviewFeature {
 extension PreviewFeature.State: CustomStringConvertible {
     var description: String {
         "======================================== \n"
-        + "PreviewFeature.State:\n"
-        + "  availableLocations: \(self.availableLocations)\n"
-        + "  ----------\n"
-        + "   contentState: \(self.contentState)\n"
-        + "======================================== \n"
+            + "PreviewFeature.State:\n"
+            + "  availableLocations: \(self.availableLocations)\n"
+            + "  ----------\n"
+            + "   contentState: \(self.contentState)\n"
+            + "======================================== \n"
     }
 }

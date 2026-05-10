@@ -366,18 +366,22 @@ public final class CardStageView: XViewEx {
 
     func stateDidChange(_ oldValue: CardStageState) {
 
+        // Anchor changed
         if self.state.anchor != oldValue.anchor {
             self.delegate?.cardStageAnchorDidChange(self)
         }
 
+        // Dock location Changed
         if self.state.dockLocation != oldValue.dockLocation {
             self.delegate?.cardStageDockLocationDidChange(self)
         }
 
         self.updateGeometry()
 
+        //  Floating -> Docked
         if !self.state.isFloating && oldValue.isFloating {
             if let frame = self.geometry.dockedFrame {
+                // self.cardView.shadowStyle = nil
                 if self.state.hidden {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
@@ -388,19 +392,23 @@ public final class CardStageView: XViewEx {
                         animation: DockAnimation(
                             from: .init(
                                 frame: self.cardView.frame,
-                                cornerRadius: self.cardView.radius
+                                cornerRadius: self.cardView.radius,
+                                shadowRadius: self.cardView.shadowStyle?.radius ?? 0.0,
                             ),
-                            to: .init(frame: frame, cornerRadius: 0),
+                            to: .init(frame: frame, cornerRadius: 0, shadowRadius: 0),
                             apply: { [weak self] data in
                                 guard let self else { return }
                                 self.cardView.frame = data.frame
                                 self.cardView.radius = data.cornerRadius
+                                self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, data.shadowRadius)
                             }
                         )
                     )
                 }
             }
+            // Docked -> Floating
         } else if self.state.isFloating && !oldValue.isFloating {
+            // self.cardView.shadowStyle = self.configuration.cardShadow
             if self.state.hidden {
                 self.animCardOpacity(from: 1.0, to: 0.0, 0.25)
             } else {
@@ -409,16 +417,19 @@ public final class CardStageView: XViewEx {
                     animation: DockAnimation(
                         from: .init(
                             frame: self.cardView.frame,
-                            cornerRadius: self.cardView.radius
+                            cornerRadius: self.cardView.radius,
+                            shadowRadius: self.cardView.shadowStyle?.radius ?? 0.0,
                         ),
                         to: .init(
                             frame: self.geometry.square?.rect ?? .zero,
-                            cornerRadius: 10
+                            cornerRadius: 10,
+                            shadowRadius: self.configuration.cardShadow?.radius ?? 1.0,
                         ),
                         apply: { [weak self] data in
                             guard let self else { return }
                             self.cardView.frame = data.frame
                             self.cardView.radius = data.cornerRadius
+                            self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, data.shadowRadius)
                         },
                     )
                 )
@@ -428,8 +439,8 @@ public final class CardStageView: XViewEx {
                 _ = self.animController.start(
                     id: self.dockAnimID,
                     animation: DockAnimation(
-                        from: .init(frame: self.cardView.frame, cornerRadius: self.cardView.radius),
-                        to: .init(frame: frame, cornerRadius: 0),
+                        from: .init(frame: self.cardView.frame, cornerRadius: self.cardView.radius, shadowRadius: 0),
+                        to: .init(frame: frame, cornerRadius: 0, shadowRadius: 0),
                         apply: { [weak self] data in
                             guard let self else { return }
                             self.cardView.frame = data.frame

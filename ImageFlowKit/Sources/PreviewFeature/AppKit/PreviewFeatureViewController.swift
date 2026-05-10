@@ -12,10 +12,15 @@ extension PreviewFeature {
 
     public final class Controller: NSViewController {
 
-        let flow: Flow
-        let coordinator: GlobalCoordinator
-        let assetStore: any AssetStoreService
+        // MARK - Internal Properties
 
+        /// A reference to the `Flow` model
+        let flow: Flow
+        /// A reference to the `GlobalCoordinator`
+        let coordinator: GlobalCoordinator
+        /// A reference to the `AssetStoreServices`
+        let assetStore: any AssetStoreService
+        /// The Preview's state machine
         var state: State = .init() {
             didSet {
                 if self.state != oldValue {
@@ -25,16 +30,29 @@ extension PreviewFeature {
             }
         }
 
-        private var cancellabes: Set<AnyEventEmitterCancellable> = []
+        // MARK: - Private Properties
 
         private var availablePreviewLocations: Set<PreviewLocation> = []
+        private var cancellabes: Set<AnyEventEmitterCancellable> = []
+        private var imageTask: Task<(), Never>?
 
-        var cardStageView: CardStageView = .init()
+        // MARK: - Subviews
+
+        lazy var cardStageView: CardStageView = {
+            .init()
+        }()
+
+        lazy var dockedContentView: DockedContentView = {
+            let view = DockedContentView()
+            return view
+        }()
 
         lazy var cardContentView: CardContentView = {
             let v = CardContentView()
             return v
         }()
+
+        // MARK: - Init
 
         public init(flow: Flow, coordinator: GlobalCoordinator, assetStore: any AssetStoreService) {
             self.flow = flow
@@ -47,6 +65,8 @@ extension PreviewFeature {
         public required init?(coder: NSCoder) {
             nil
         }
+
+        // MARK: - View Lifecycle
 
         public override func loadView() {
             self.view = self.cardStageView
@@ -69,8 +89,12 @@ extension PreviewFeature {
                 self?.onToolbarButtonClick(name)
             }
 
+            self.cardStageView.delegate = self
+
             self.updateView(nil)
         }
+
+        // MARK: - Toolbar
 
         func onToolbarButtonClick(_ name: CardToolbarItemName) {
             switch name {
@@ -102,6 +126,8 @@ extension PreviewFeature {
             }
         }
 
+        // MARK: - Event Handlers
+
         func onCoordinatorEvent(_ event: GlobalCoordinatorEvent) {
             switch event {
             case .backendDidRun:
@@ -130,6 +156,72 @@ extension PreviewFeature {
             }
         }
 
+        // MARK: - State Machine
+
+        func input(_ input: Input) {
+            let (newState, effect) = self.state.input(input).pair
+
+            self.state = newState
+
+            guard let effect else { return }
+
+            switch effect {
+
+            case .loadImage(let loc):
+
+                if self.imageTask != nil {
+                    self.imageTask?.cancel()
+                }
+
+                self.imageTask = Task { [weak self] in
+                    do {
+                        guard let self else { return }
+                        let res = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
+                        self.imageTask = nil
+                        self.input(.imageLoaded(loc, res.res))
+                    } catch {
+                        logger.error("\(error)")
+                    }
+                }
+            }
+        }
+
+        // MARK: - Update
+
+        func updateView(_ oldValue: State?) {
+            // Unlocked -> locked
+            if self.state.locked != oldValue?.locked {
+                self.cardContentView.cardControlsViewModel.locked = self.state.locked
+            }
+
+            if self.state.dockLocation == nil {
+                if let image = self.state.image {
+                    self.cardContentView.image = image
+                    if self.cardStageView.contentView != self.cardContentView {
+                        self.cardStageView.contentView = self.cardContentView
+                    }
+                    self.cardStageView.cardVisibility = .visible
+                } else {
+                    self.cardStageView.cardVisibility = .hidden
+                }
+            } else {
+                self.dockedContentView.image = self.state.image
+            }
+
+            if self.state.anchor != self.cardStageView.anchor {
+                self.cardStageView.anchor = self.state.anchor
+            }
+
+            if self.state.dockLocation != self.cardStageView.dockLocation {
+                self.cardStageView.dockLocation = self.state.dockLocation
+            }
+
+            if self.state.dockLocation != nil && oldValue?.dockLocation == nil {
+                self.cardStageView.contentView = self.dockedContentView
+                self.dockedContentView.image = self.state.image
+            }
+        }
+
         func upadateAvailablePreviewLocations() async {
             self.availablePreviewLocations.removeAll(keepingCapacity: true)
             for id in self.flow.selection {
@@ -146,52 +238,18 @@ extension PreviewFeature {
 
             self.input(.previewLocations(self.availablePreviewLocations))
         }
+    }
+}
 
-        var task: Task<(), Never>?
+// MARK: - CardStageViewDelegate
 
-        func input(_ input: Input) {
-            let (newState, effect) = self.state.input(input).pair
+extension PreviewFeature.Controller: CardStageViewDelegate {
+    public func cardStageAnchorDidChange(_ sender: CardStage.CardStageView) {
+        self.state.anchor = sender.anchor
+    }
 
-            self.state = newState
-
-            guard let effect else { return }
-
-            switch effect {
-
-            case .loadImage(let loc):
-
-                if self.task != nil {
-                    self.task?.cancel()
-                }
-
-                self.task = Task { [weak self] in
-                    do {
-                        guard let self else { return }
-                        let res = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
-                        self.task = nil
-                        self.input(.imageLoaded(loc, res.res))
-                    } catch {
-                        logger.error("\(error)")
-                    }
-                }
-            }
-        }
-
-        func updateView(_ oldValue: State?) {
-            if self.state.locked != oldValue?.locked {
-                self.cardContentView.cardControlsViewModel.locked = self.state.locked
-            }
-
-            if let image = self.state.image {
-                self.cardContentView.image = image
-                if self.cardStageView.contentView != self.cardContentView {
-                    self.cardStageView.contentView = self.cardContentView
-                }
-                self.cardStageView.cardVisibility = .visible
-            } else {
-                self.cardStageView.cardVisibility = .hidden
-            }
-        }
+    public func cardStageDockLocationDidChange(_ sender: CardStage.CardStageView) {
+        self.state.dockLocation = sender.dockLocation
     }
 }
 

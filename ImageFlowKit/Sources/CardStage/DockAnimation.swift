@@ -18,6 +18,7 @@ class DockAnimation: AnimKit::Animation {
     struct AnimData {
         var frame: CGRect
         var cornerRadius: CGFloat
+        var shadowRadius: CGFloat
     }
 
     var from: AnimData
@@ -61,7 +62,14 @@ class DockAnimation: AnimKit::Animation {
             duration: self.duration
         )
 
-        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius))
+        let shadowRadius = self.timingFunc(
+            a: self.from.shadowRadius,
+            b: self.to.shadowRadius,
+            t: self.ellapsed,
+            duration: self.duration
+        )
+
+        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
 
         self.ellapsed += deltaTime
         if self.ellapsed >= self.duration {

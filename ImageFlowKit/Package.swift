@@ -71,7 +71,7 @@ let package = Package(
                 "XKit",
             ]
         ),
-        .target(name: "XKit"),
+        .target(name: "XKit", dependencies: ["Helpers"]),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "Logging"),
