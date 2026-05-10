@@ -9,8 +9,6 @@ enum CardToolbarItemName {
     case export
 }
 
-
-
 struct CardToolbarView: View {
 
     var handler: ((CardToolbarItemName) -> ())?
