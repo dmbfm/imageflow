@@ -112,6 +112,13 @@ public final class CardStageView: XViewEx {
         nil
     }
 
+    // MARK: - Deinit
+
+    @MainActor
+    deinit {
+        self.animController.stopDisplayLink()
+    }
+
     // MARK: - User Interaction
 
     func setupGestures() {

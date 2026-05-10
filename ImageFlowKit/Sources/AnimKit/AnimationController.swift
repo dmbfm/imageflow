@@ -25,6 +25,11 @@ public final class AnimationController {
         !self.animations.isEmpty
     }
 
+    public func stopDisplayLink() {
+        self.link?.invalidate()
+        self.link = nil
+    }
+
     public func start(id: UUID?, animation: some Animation) -> UUID {
         let id = id ?? UUID()
         animation.start(prev: self.animations[id])

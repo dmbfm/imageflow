@@ -41,7 +41,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
     public internal(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
 
-    public var delegate: (any CanvasViewDelegate)?
+    public weak var delegate: (any CanvasViewDelegate)?
     public var interactionMode: CanvasInteractionMode = .default
 
     // MARK: - Private Properties
