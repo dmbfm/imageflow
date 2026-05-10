@@ -62,3 +62,20 @@ extension XViewRepresentable {
 }
 
 #endif
+
+public struct XSimpleViewRepresentable: XViewRepresentable {
+
+    let view: XView
+
+    public init(_ view: XView) {
+        self.view = view
+    }
+
+    public func makeView(context: Context) -> some NSView {
+        return self.view
+    }
+
+    public func updateView(_ view: ViewType, context: Context) {
+
+    }
+}

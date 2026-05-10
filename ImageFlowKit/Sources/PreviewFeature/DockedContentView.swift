@@ -24,10 +24,15 @@ class DockedContentView: XViewEx {
 
     var style: Style = .init()
 
+    let toolbarViewModel: DockedToolbarView.ViewModel
+
     lazy var toolbarView: XView = {
-        let view = XViewEx()
-        view.withLayer({ $0.backgroundColor = .teal })
-        // view.frame =
+
+        let rootView = DockedToolbarView(
+            vm: self.toolbarViewModel,
+        )
+
+        let view = NSHostingView(rootView: rootView)
         return view
     }()
 
@@ -41,8 +46,10 @@ class DockedContentView: XViewEx {
         return view
     }()
 
-    override init(frame: NSRect) {
-        super.init(frame: frame)
+    init(_ toolbarViewModel: DockedToolbarView.ViewModel) {
+        self.toolbarViewModel = toolbarViewModel
+
+        super.init(frame: .zero)
 
         self.addSubview(self.toolbarView)
         self.addSubview(self.imageScrollView)
@@ -88,6 +95,6 @@ class DockedContentView: XViewEx {
 
 extension DockedContentView {
     struct Style {
-        var toolbarHeight: CGFloat = 26.0
+        var toolbarHeight: CGFloat = 28.0
     }
 }

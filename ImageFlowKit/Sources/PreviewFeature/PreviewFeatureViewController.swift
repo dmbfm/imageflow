@@ -36,6 +36,51 @@ extension PreviewFeature {
         private var cancellabes: Set<AnyEventEmitterCancellable> = []
         private var imageTask: Task<(), Never>?
 
+        private lazy var dockedToolbarVM: DockedToolbarView.ViewModel = {
+            .init(
+                image: self.state.image,
+                currentLocation: self.state.location,
+                dockLocation: self.state.dockLocation ?? .bottom,
+                locked: self.state.locked,
+                available: self.state.availableLocations,
+                zoom: 1.0,
+                dispatch: { [weak self] action in self?.dockedToolbarHandler(action) }
+            )
+        }()
+
+        func dockedToolbarHandler(_ action: DockedToolbarView.Action) {
+            switch action {
+            case .copy:
+                self.copyImage()
+            case .dockOpposite:
+                if let dockLocation = self.state.dockLocation {
+                    if dockLocation == .bottom {
+                        self.state.dockLocation = .top
+                    } else {
+                        self.state.dockLocation = .bottom
+                    }
+                }
+            case .export:
+                self.exportImage()
+            case .openWindow:
+                break
+            case .pick(_):
+                break
+            case .toggleLock:
+                self.input(.toggleLock)
+            case .undock:
+                self.state.dockLocation = nil
+            case .zoomActualSize:
+                break
+            case .zoomIn:
+                break
+            case .zoomOut:
+                break
+            case .zoomToFit:
+                break
+            }
+        }
+
         // MARK: - Subviews
 
         lazy var cardStageView: CardStageView = {
@@ -43,7 +88,7 @@ extension PreviewFeature {
         }()
 
         lazy var dockedContentView: DockedContentView = {
-            let view = DockedContentView()
+            let view = DockedContentView(self.dockedToolbarVM)
             if let dockLocation = self.state.dockLocation {
                 view.dockLocation = dockLocation
             }
@@ -89,7 +134,7 @@ extension PreviewFeature {
             }).store(in: &self.cancellabes)
 
             self.cardContentView.toolbarButtonHandler = { [weak self] name in
-                self?.onToolbarButtonClick(name)
+                self?.cardToolbarHandler(name)
             }
 
             self.cardStageView.delegate = self
@@ -99,7 +144,7 @@ extension PreviewFeature {
 
         // MARK: - Toolbar
 
-        func onToolbarButtonClick(_ name: CardToolbarItemName) {
+        func cardToolbarHandler(_ name: CardToolbarItemName) {
             switch name {
             case .lock:
                 self.input(.toggleLock)
@@ -108,9 +153,9 @@ extension PreviewFeature {
             case .copy:
                 self.copyImage()
             case .dockDown:
-                break
+                self.state.dockLocation = .bottom
             case .dockUp:
-                break
+                self.state.dockLocation = .top
             case .window:
                 break
             }
@@ -226,6 +271,30 @@ extension PreviewFeature {
 
             if let dockLocation = self.state.dockLocation, self.dockedContentView.dockLocation != dockLocation {
                 self.dockedContentView.dockLocation = dockLocation
+            }
+
+            self.updateDockedToolbarVM()
+        }
+
+        func updateDockedToolbarVM() {
+            if self.state.dockLocation == nil { return }
+
+            let vm = self.dockedToolbarVM
+
+            if vm.image != self.state.image {
+                vm.image = self.state.image
+            }
+
+            if vm.currentLocation != self.state.location {
+                vm.currentLocation = self.state.location
+            }
+
+            if let loc = self.state.dockLocation, vm.dockLocation != loc {
+                vm.dockLocation = loc
+            }
+
+            if vm.available != self.state.availableLocations {
+                vm.available = self.state.availableLocations
             }
         }
 
