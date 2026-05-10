@@ -3,25 +3,46 @@ import Helpers
 import XKit
 
 public struct CardStageConfiguration: Sendable, Equatable, With {
+    /// The edge insets defining the area the flaoting card can occupy.
     public var insets: CardStageInsets
-    public var cardSizeRange: ClosedRange<CGFloat>
-    public var dockedHeightRange: ClosedRange<CGFloat>
+    /// The size-range that the square sides of the floating card can have.
+    public var cardSizeRange: SizeRange
+    /// The height-range that the docked panel can have.
+    public var dockedHeightRange: SizeRange
+    /// The corner radius of the floating card.
     public var cardRadius: CGFloat
+    /// The shadow of the floating card.
     public var cardShadow: XViewEx.Shadow?
+    /// The thickness of the resizing areas of the floating card.
+    public var cardResizeHandleThickness: CGFloat = 10
+    /// The thickness of the resizing area of the docked panel.
+    public var dockedResizeHandleThickness: CGFloat = 10
+    /// The distance from the bottom / top edges that will snap a floating card the user is dragging, docking it.
+    public var edgeMarginToDockWhileDraggingCard: CGFloat = 12
 
     static let `default`: Self = .init(
         insets: .init(10),
-        cardSizeRange: 50...500,
+        cardSizeRange: .init(range: 50...500, ideal: 250),
         cardRadius: 10,
-        dockedHeightRange: 100...400,
+        dockedHeightRange: .init(range: 100...600, ideal: 320),
         cardShadow: .init(color: .init(white: 0, alpha: 0.4), opacity: 1, offset: .zero, radius: 8)
     )
 
+    public struct SizeRange: Sendable, Equatable {
+        public var range: ClosedRange<CGFloat>
+        public var ideal: CGFloat
+
+        public init(range: ClosedRange<CGFloat>, ideal: CGFloat) {
+            self.range = range
+            self.ideal = ideal
+        }
+    }
+
     init(
         insets: CardStageInsets,
-        cardSizeRange: ClosedRange<CGFloat>,
+        cardSizeRange: SizeRange,
         cardRadius: CGFloat,
-        dockedHeightRange: ClosedRange<CGFloat>,
+        dockedHeightRange: SizeRange,
         cardShadow: XViewEx.Shadow?
     ) {
         self.insets = insets

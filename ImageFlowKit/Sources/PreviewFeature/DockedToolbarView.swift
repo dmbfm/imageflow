@@ -17,7 +17,7 @@ struct DockedToolbarView: View {
         var currentLocation: OutputPortLocation?
         var dockLocation: CardDockLocation = .bottom
         var locked: Bool = false
-        var available: Set<PreviewFeature.PreviewLocation> = []
+        var available: Set<PreviewLocation> = []
         var zoom: CGFloat = 1.0
         var dispatch: ((Action) -> ())? = nil
 
@@ -26,7 +26,7 @@ struct DockedToolbarView: View {
             currentLocation: OutputPortLocation? = nil,
             dockLocation: CardDockLocation = .bottom,
             locked: Bool = false,
-            available: Set<PreviewFeature.PreviewLocation> = [],
+            available: Set<PreviewLocation> = [],
             zoom: CGFloat = 1.0,
             dispatch: ((DockedToolbarView.Action) -> ())? = nil
         ) {

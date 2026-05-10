@@ -10,33 +10,28 @@ import AppKit
 
 class CardContentView: XViewEx {
 
+    // MARK: - Properties
+
     var image: CIImage? {
         get { self.imageView.image }
         set { self.imageView.image = newValue }
     }
 
-    var cardControlsViewModel: CardControlsView.ViewModel = .init(isVisible: false)
+    let controlsViewModel: CardControlsView.ViewModel
 
-    var toolbarButtonHandler: ((CardToolbarItemName) -> ())?
+    weak var delegate: Delegate?
 
-    let toolbarHideSize: CGFloat = 120
+    // MARK: - Subviews
 
-    lazy var overlay: XView = {
+    lazy var controlsOverlayView: XView = {
         let view = NSHostingView(
             rootView: CardControlsView(
-                vm: self.cardControlsViewModel,
-                toolbarHandler: { [weak self] name in
-                    self?.toolbarHandlerWrapper(name)
-                }
+                vm: self.controlsViewModel,
             )
         )
         view.safeAreaRegions = []
         return view
     }()
-
-    func toolbarHandlerWrapper(_ name: CardToolbarItemName) {
-        self.toolbarButtonHandler?(name)
-    }
 
     lazy var imageView: CIImageXView = {
         let view = CIImageXView()
@@ -44,16 +39,31 @@ class CardContentView: XViewEx {
         return view
     }()
 
-    init() {
+    // MARK: - Init
+
+    init(_ controlsViewModel: CardControlsView.ViewModel) {
+
+        self.controlsViewModel = controlsViewModel
+
         super.init(frame: .zero)
 
         self.addSubview(self.imageView)
-        self.addSubview(self.overlay)
+        self.addSubview(self.controlsOverlayView)
 
         #if os(iOS)
         self.backgroundColor = Colors.canvasBackground.platformColor
         #endif
     }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // func toolbarHandlerWrapper(_ name: CardToolbarItemName) {
+    //     self.toolbarButtonHandler?(name)
+    // }
+
+    // MARK: - macOS
 
     #if os(macOS)
     override func draw(_ dirtyRect: NSRect) {
@@ -77,36 +87,35 @@ class CardContentView: XViewEx {
     }
 
     override func mouseEntered(with event: NSEvent) {
-        if !self.cardControlsViewModel.isVisible {
-            if self.bounds.width >= self.toolbarHideSize {
-                self.cardControlsViewModel.isVisible = true
-            }
-        }
+        self.delegate?.cardContentViewMouseEntered(self)
     }
 
     override func mouseExited(with event: NSEvent) {
-        if self.cardControlsViewModel.isVisible {
-            self.cardControlsViewModel.isVisible = false
-        }
+        self.delegate?.cardContentViewMouseExited(self)
     }
     #endif
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Layout
 
     override func layout() {
         super.layout()
 
-        if self.bounds.width < self.toolbarHideSize {
-            if self.cardControlsViewModel.isVisible {
-                Task {
-                    self.cardControlsViewModel.isVisible = false
-                }
-            }
-        }
+        // if self.bounds.width < self.toolbarHideSize {
+        //     if self.cardControlsViewModel.isVisible {
+        //         Task {
+        //             self.cardControlsViewModel.isVisible = false
+        //         }
+        //     }
+        // }
 
         self.imageView.frame = self.bounds
-        self.overlay.frame = self.bounds
+        self.controlsOverlayView.frame = self.bounds
+    }
+}
+
+extension CardContentView {
+    protocol Delegate: AnyObject {
+        func cardContentViewMouseEntered(_ view: CardContentView)
+        func cardContentViewMouseExited(_ view: CardContentView)
     }
 }

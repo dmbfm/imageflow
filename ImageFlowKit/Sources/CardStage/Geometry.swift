@@ -70,7 +70,9 @@ enum Geometry: Equatable {
                         )
                     case .resizing(let resizing):
                         {
-                            let height = (docked.height - resizing.translation).clamped(to: config.dockedHeightRange)
+                            let height = (docked.height - resizing.translation).clamped(
+                                to: config.dockedHeightRange.range
+                            )
                             return CGRect(
                                 x: bounds.minX,
                                 y: bounds.maxY - height,
@@ -88,7 +90,7 @@ enum Geometry: Equatable {
                             x: bounds.minX,
                             y: bounds.minY,
                             width: bounds.width,
-                            height: (docked.height + resizing.translation).clamped(to: config.dockedHeightRange)
+                            height: (docked.height + resizing.translation).clamped(to: config.dockedHeightRange.range)
                         )
                     }
                 }
@@ -101,7 +103,7 @@ enum Geometry: Equatable {
                     square: state.cardSquare(
                         forStageBounds: bounds,
                         insets: config.insets,
-                        sizeRange: config.cardSizeRange,
+                        sizeRange: config.cardSizeRange.range,
                     )
                 )
             )

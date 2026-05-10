@@ -61,8 +61,6 @@ final class CardView: XViewEx {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
-        logger.info("draw: \(self.radius), \("\(self.shadowStyle)")")
-
         self.updateShadow(self.shadowStyle)
 
         self.withLayer({ layer in

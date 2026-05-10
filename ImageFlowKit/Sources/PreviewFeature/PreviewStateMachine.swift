@@ -4,12 +4,7 @@ import Foundation
 import Helpers
 import SharedModels
 
-extension PreviewFeature {
-
-    struct PreviewLocation: Hashable {
-        var name: String
-        var location: OutputPortLocation
-    }
+struct PreviewStateMachine {
 
     enum Input {
         case updatedImage(OutputPortLocation)
@@ -260,7 +255,7 @@ extension PreviewFeature {
     }
 }
 
-extension PreviewFeature.State: CustomStringConvertible {
+extension PreviewStateMachine.State: CustomStringConvertible {
     var description: String {
         "======================================== \n"
             + "PreviewFeature.State:\n"

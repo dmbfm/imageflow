@@ -9,7 +9,7 @@ import PreviewFeature
 final class DetailViewController: NSViewController {
 
     var canvasVC: CanvasFeatureNSViewController
-    var previewVC: PreviewFeature.Controller
+    var previewVC: PreviewFeatureController
 
     var canvasView: CanvasPlatformView {
         self.canvasVC.canvasView

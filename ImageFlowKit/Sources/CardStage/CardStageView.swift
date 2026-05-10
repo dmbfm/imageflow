@@ -63,7 +63,7 @@ public final class CardStageView: XViewEx {
 
     // MARK: - Private Properties
 
-    private var state: CardStageState = .default {
+    private lazy var state: CardStageState = .default(forConfiguration: self.configuration) {
         didSet {
             if self.state != oldValue {
                 self.stateDidChange(oldValue)
@@ -92,8 +92,6 @@ public final class CardStageView: XViewEx {
     // MARK: - Initialization
 
     public init() {
-        self.state = .default
-
         super.init(frame: .zero)
 
         self.animController = .init(self)
@@ -148,14 +146,17 @@ public final class CardStageView: XViewEx {
         switch gesture.state {
         case .began:
             let location = self.convert(gesture.location(in: nil), from: nil)
-            if self.geometry.docked?.resizingRect(forLocation: docked.location, thickness: 10).contains(location)
-                == true
+            if self.geometry
+                .docked?
+                .resizingRect(forLocation: docked.location, thickness: self.configuration.dockedResizeHandleThickness)
+                .contains(location) == true
             {
                 self.state = .docked(
                     docked.with(\.state, .resizing(.init(initialSize: docked.height, translation: 0))),
                     floating
                 )
             }
+
         case .changed:
             switch docked.state {
             case .resizing(let resizing):
@@ -166,23 +167,24 @@ public final class CardStageView: XViewEx {
             case .idle:
                 break
             }
+
         case .ended:
             switch docked.state {
             case .resizing(let resizing):
-                self.state = .docked(
-                    docked.with(\.state, .idle).with(
-                        \.height,
-                        {
-                            switch docked.location {
-                            case .bottom:
-                                (docked.height - resizing.translation).clamped(to: self.configuration.dockedHeightRange)
-                            case .top:
-                                (docked.height + resizing.translation).clamped(to: self.configuration.dockedHeightRange)
-                            }
-                        }()
-                    ),
-                    floating
-                )
+                let newHeight =
+                    switch docked.location {
+                    case .bottom:
+                        (docked.height - resizing.translation).clamped(
+                            to: self.configuration.dockedHeightRange.range
+                        )
+                    case .top:
+                        (docked.height + resizing.translation).clamped(
+                            to: self.configuration.dockedHeightRange.range
+                        )
+                    }
+
+                self.state = .docked(docked.with(\.state, .idle).with(\.height, newHeight), floating)
+
             case .idle:
                 break
             }
@@ -204,10 +206,11 @@ public final class CardStageView: XViewEx {
 
             let location = self.convert(gesture.location(in: nil), from: nil)
 
-            if let handle = self.geometry.square?.resizeRects(anchor: floating.anchor, thickness: 10).handleContaining(
-                point: location,
-                margin: -2
-            ) {
+            if let handle = self.geometry
+                .square?
+                .resizeRects(anchor: floating.anchor, thickness: self.configuration.cardResizeHandleThickness)
+                .handleContaining(point: location, margin: -2)
+            {
                 self.state = .floating(
                     floating.with(
                         \.state,
@@ -228,25 +231,33 @@ public final class CardStageView: XViewEx {
             switch floating.state {
             case .idle:
                 break
+
             case .dragging:
 
                 let location = self.convert(gesture.location(in: nil), from: nil)
 
-                if location.y >= self.bounds.maxY - 12 {
+                let maybeDockLocation: CardDockLocation? =
+                    if location.y >= self.bounds.maxY - self.configuration.edgeMarginToDockWhileDraggingCard {
+                        .bottom
+                    } else if location.y <= self.configuration.edgeMarginToDockWhileDraggingCard {
+                        .top
+                    } else {
+                        nil
+                    }
+
+                if let maybeDockLocation {
                     self.state = .docked(
-                        .init(location: .bottom, height: floating.dockedHeight ?? 250, state: .idle),
+                        .init(
+                            location: maybeDockLocation,
+                            height: floating.dockedHeight ?? self.configuration.dockedHeightRange.ideal,
+                            state: .idle
+                        ),
                         floating.with(\.state, .idle)
                     )
-                    break
-                } else if location.y <= 12 {
-                    self.state = .docked(
-                        .init(location: .top, height: floating.dockedHeight ?? 250, state: .idle),
-                        floating.with(\.state, .idle)
-                    )
-                    break
+                } else {
+                    self.state = .floating(floating.with(\.state, .dragging(offset: t)))
                 }
 
-                self.state = .floating(floating.with(\.state, .dragging(offset: t)))
             case .resizing(let resizing):
                 self.state = .floating(floating.with(\.state, .resizing(resizing.with(\.translation, t))))
             }
@@ -293,12 +304,14 @@ public final class CardStageView: XViewEx {
         from: Float,
         to: Float,
         _ duration: CGFloat,
+        onCompletion: (() -> ())? = nil
     ) {
         self.cardView.layer?.opacity = to
 
         self.isAnimatingViaTransaction = true
         CATransaction.begin()
         CATransaction.setCompletionBlock {
+            onCompletion?()
             self.isAnimatingViaTransaction = false
             self.needsLayout = true
         }
@@ -415,9 +428,11 @@ public final class CardStageView: XViewEx {
             }
             // Docked -> Floating
         } else if self.state.isFloating && !oldValue.isFloating {
-            // self.cardView.shadowStyle = self.configuration.cardShadow
             if self.state.hidden {
-                self.animCardOpacity(from: 1.0, to: 0.0, 0.25)
+                self.animCardOpacity(from: 1.0, to: 0.0, 0.25) {
+                    self.cardView.radius = self.configuration.cardRadius
+                    self.cardView.shadowStyle = self.configuration.cardShadow
+                }
             } else {
                 _ = self.animController.start(
                     id: self.dockAnimID,
@@ -508,10 +523,6 @@ public final class CardStageView: XViewEx {
     }
 
     // MARK: - NSView Lifecycle
-
-    public override func viewDidMoveToWindow() {
-        self.updateGeometry()
-    }
 
     public override func resetCursorRects() {
         self.discardCursorRects()

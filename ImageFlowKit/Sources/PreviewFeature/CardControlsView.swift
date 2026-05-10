@@ -16,19 +16,19 @@ struct CardControlsView: View {
     class ViewModel {
         var isVisible: Bool
         var locked: Bool = false
+        var toolbarHandler: ((CardToolbarItemName) -> ())?
 
-        init(isVisible: Bool, locked: Bool = false) {
+        init(isVisible: Bool, locked: Bool = false, toolbarHandler: ((CardToolbarItemName) -> ())? = nil) {
             self.isVisible = isVisible
             self.locked = locked
+            self.toolbarHandler = toolbarHandler
         }
     }
 
     @Bindable var vm: ViewModel
 
-    var toolbarHandler: ((CardToolbarItemName) -> ())?
-
     func handler(_ name: CardToolbarItemName) {
-        self.toolbarHandler?(name)
+        self.vm.toolbarHandler?(name)
     }
 
     var body: some View {

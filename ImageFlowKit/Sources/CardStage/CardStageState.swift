@@ -41,6 +41,18 @@ enum CardStageState: Equatable {
         }
     }
 
+    static func `default`(forConfiguration cfg: CardStageConfiguration) -> Self {
+        .floating(
+            .init(
+                anchor: .bottomRight,
+                dockedHeight: cfg.dockedHeightRange.ideal,
+                hidden: false,
+                state: .idle,
+                size: cfg.cardSizeRange.ideal
+            )
+        )
+    }
+
     static let `default`: Self = .floating(.init(anchor: .bottomRight, hidden: false, state: .idle, size: 250))
 
     static let dockedDefault: Self = .docked(
