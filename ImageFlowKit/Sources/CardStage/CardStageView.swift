@@ -495,8 +495,7 @@ public final class CardStageView: XViewEx {
             self.geometry = newGeometry
             self.window?.invalidateCursorRects(for: self)
             if requestLayout {
-                self.needsLayout = true
-                // self.setNeedsLayout()
+                self.setNeedsLayout()
             }
         }
     }

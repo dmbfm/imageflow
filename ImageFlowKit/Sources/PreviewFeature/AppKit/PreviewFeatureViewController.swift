@@ -44,6 +44,9 @@ extension PreviewFeature {
 
         lazy var dockedContentView: DockedContentView = {
             let view = DockedContentView()
+            if let dockLocation = self.state.dockLocation {
+                view.dockLocation = dockLocation
+            }
             return view
         }()
 
@@ -219,6 +222,10 @@ extension PreviewFeature {
             if self.state.dockLocation != nil && oldValue?.dockLocation == nil {
                 self.cardStageView.contentView = self.dockedContentView
                 self.dockedContentView.image = self.state.image
+            }
+
+            if let dockLocation = self.state.dockLocation, self.dockedContentView.dockLocation != dockLocation {
+                self.dockedContentView.dockLocation = dockLocation
             }
         }
 

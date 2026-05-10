@@ -76,7 +76,13 @@ class DockedContentView: XViewEx {
             .with(\.size.height, self.bounds.height - self.style.toolbarHeight)
     }
 
-    func layoutTop() {}
+    func layoutTop() {
+        self.imageScrollView.frame = self.bounds.with(\.size.height, self.bounds.height - self.style.toolbarHeight)
+        self.toolbarView.frame = self.bounds.with(\.origin.y, self.imageScrollView.frame.maxY).with(
+            \.size.height,
+            self.style.toolbarHeight
+        )
+    }
 
 }
 
