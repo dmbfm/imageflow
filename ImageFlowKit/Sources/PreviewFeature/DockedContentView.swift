@@ -46,13 +46,8 @@ class DockedContentView: XViewEx {
     lazy var imageScrollView: CIImageScrollXView = {
         let view = CIImageScrollXView(
             frame: .zero,
-            id: "",
             configuration: .init(),
-            cache: nil
         )
-        view.onEvent = { [weak self] event in
-            self?.onImageScrollViewEvent(event)
-        }
         return view
     }()
 
@@ -101,14 +96,6 @@ class DockedContentView: XViewEx {
             if !self.contentUnavailableView.isHidden {
                 self.contentUnavailableView.animator().isHidden = true
             }
-        }
-    }
-
-    func onImageScrollViewEvent(_ event: CIImageScrollXView.Event) {
-        switch event {
-        case .zoomDidChange(let zoom):
-            logger.trace("zoom: \(zoom)")
-            self.delegate?.dockedContentViewZoomDidChange(self, zoom)
         }
     }
 

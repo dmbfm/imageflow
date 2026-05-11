@@ -103,6 +103,13 @@ enum CardStageState: Equatable {
         }
     }
 
+    var dockedHeight: CGFloat? {
+        switch self {
+        case .docked(let docked, _): docked.height
+        case .floating(let floating): floating.dockedHeight
+        }
+    }
+
     func hidden(_ hidden: Bool) -> Self {
         switch self {
         case .floating(let floating): .floating(floating.with(\.hidden, hidden))

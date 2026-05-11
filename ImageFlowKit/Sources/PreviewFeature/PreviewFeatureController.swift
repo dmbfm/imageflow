@@ -13,17 +13,21 @@ public class PreviewFeatureController: XViewController {
     // MARK: - Constants
 
     let toolbarHideSize: CGFloat = 120
+    let dockedToolbarHeight: CGFloat = 28
 
     // MARK: - Internal Properties
 
     /// A reference to the `Flow` model
-    let flow: Flow
+    public let flow: Flow
     /// A reference to the `GlobalCoordinator`
-    let coordinator: GlobalCoordinator
+    public let coordinator: GlobalCoordinator
     /// A reference to the `AssetStoreServices`
-    let assetStore: any AssetStoreService
+    public let assetStore: any AssetStoreService
+
+    // MARK: - Private Properties
+
     /// The Preview's state machine
-    var state: PreviewStateMachine.State = .init() {
+    private var state: PreviewStateMachine.State = .init() {
         didSet {
             if self.state != oldValue {
                 self.updateView(oldValue)
@@ -31,8 +35,7 @@ public class PreviewFeatureController: XViewController {
         }
     }
 
-    // MARK: - Private Properties
-
+    private var imageScrollViewportCache: SimpleCache<ViewportCacheKey, CGRect> = .init()
     private var cancellabes: Set<AnyEventEmitterCancellable> = []
     private var imageTask: Task<(), Never>?
 
@@ -67,6 +70,7 @@ public class PreviewFeatureController: XViewController {
         if let dockLocation = self.state.dockLocation {
             view.dockLocation = dockLocation
         }
+        view.imageScrollView.delegate = self
         return view
     }()
 
@@ -256,7 +260,7 @@ public class PreviewFeatureController: XViewController {
     func updateView(_ oldValue: PreviewStateMachine.State?) {
         logger.trace("updateView: \("\(self.state)")")
 
-        self.updateDockedView()
+        self.updateDockedView(oldValue)
         self.updateCardView()
         self.updateDockedToolbarVM()
         self.updateCardControlsVM()
@@ -285,14 +289,55 @@ public class PreviewFeatureController: XViewController {
         updateProp(source: self.state, \.dockLocation, dest: self.cardStageView, \.dockLocation)
     }
 
-    func updateDockedView() {
+    func updateDockedView(_ oldValue: PreviewStateMachine.State?) {
+
+        enum RestoreCacheFallback {
+            case zoomToFit
+            case zoomToFitSize(CGSize)
+        }
+
+        var restoreCache: RestoreCacheFallback? = nil
+
         if self.state.isDocked {
             if self.cardStageView.contentView != self.dockedContentView {
                 self.cardStageView.contentView = self.dockedContentView
             }
+
+            if oldValue?.isDocked != true {
+                restoreCache = .zoomToFitSize(
+                    .init(
+                        width: self.cardStageView.bounds.width,
+                        height: self.cardStageView.dockedHeight - self.dockedToolbarHeight
+                    )
+                )
+            }
         }
 
-        updateProp(source: self.state, \.image, dest: self.dockedContentView, \.image)
+        if self.state.image != self.dockedContentView.image {
+            self.imageScrollViewportCache.whileLocked {
+                self.dockedContentView.image = self.state.image
+
+                restoreCache = .zoomToFit
+            }
+        }
+
+        if let restoreCache {
+            if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
+                self.dockedContentView.imageScrollView.viewport = cached
+            } else {
+                Task {
+                    switch restoreCache {
+                    case .zoomToFit:
+                        self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
+                    case .zoomToFitSize(let size):
+                        self.dockedContentView.imageScrollView.dispatch(
+                            .zoomToFitSize(size, animate: false)
+                        )
+                    }
+                }
+            }
+        }
+
         updateProp(source: self.state, \.dockLocation, dest: self.dockedContentView, \.dockLocation)
     }
 
@@ -377,27 +422,15 @@ extension PreviewFeatureController: DockedContentView.Delegate {
     }
 }
 
-@inline(__always)
-private func updateProp<A, B: AnyObject, V: Equatable>(
-    source a: A,
-    _ k1: KeyPath<A, V>,
-    dest b: B,
-    _ k2: ReferenceWritableKeyPath<B, V>
-) {
-    if b[keyPath: k2] != a[keyPath: k1] {
-        b[keyPath: k2] = a[keyPath: k1]
+extension PreviewFeatureController: CIImageScrollXViewDelegate {
+    public func ciImageScrollViewViewportDidChange(_ view: CIImageScrollXView, _ viewport: CGRect) {
+        if let key = self.state.viewportCacheKey {
+            self.imageScrollViewportCache.set(key, viewport)
+        }
     }
-}
 
-@inline(__always)
-private func updateProp<A, B: AnyObject, V: Equatable>(
-    source a: A,
-    _ k1: KeyPath<A, V?>,
-    dest b: B,
-    _ k2: ReferenceWritableKeyPath<B, V>
-) {
-    if let v = a[keyPath: k1], b[keyPath: k2] != v {
-        b[keyPath: k2] = v
+    public func ciImageScrollViewZoomDidChange(_ view: CIImageScrollXView, _ zoom: CGFloat) {
+        self.dockedToolbarVM.zoom = zoom
     }
 }
 #endif

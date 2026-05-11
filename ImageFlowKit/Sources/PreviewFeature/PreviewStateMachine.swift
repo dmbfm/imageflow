@@ -56,6 +56,14 @@ struct PreviewStateMachine {
             set { self.contentState.content = newValue }
         }
 
+        var viewportCacheKey: ViewportCacheKey? {
+            if let location = self.location, let image = self.image {
+                return .init(location: location, size: image.extent.size)
+            } else {
+                return nil
+            }
+        }
+
         enum PreviewContentState: Equatable, With, CustomStringConvertible {
             case nothing
             case something(locked: Bool, location: OutputPortLocation, content: Content)

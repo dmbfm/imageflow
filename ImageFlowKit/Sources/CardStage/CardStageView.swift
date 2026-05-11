@@ -59,6 +59,10 @@ public final class CardStageView: XViewEx {
         set { self.cardView.contentView = newValue }
     }
 
+    public var dockedHeight: CGFloat {
+        self.state.dockedHeight ?? self.configuration.dockedHeightRange.ideal
+    }
+
     public weak var delegate: CardStageViewDelegate?
 
     // MARK: - Private Properties
@@ -780,6 +784,9 @@ extension CardStageView {
                 }
             }
 
+            func cardStageDidFinnishDocking(_ sender: CardStageView) {
+
+            }
         }
     }
 }
