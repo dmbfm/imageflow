@@ -10,7 +10,7 @@ import Design
 import ImageExporter
 import SettingsFeature
 
-//class WindowPreviewController: NSWindowController, NSWindowDelegate {
+// class WindowPreviewController: NSWindowController, NSWindowDelegate {
 //
 //    let viewModel: WindowPreviewViewModel
 //    let rootView: WindowPreviewContentView!
@@ -84,11 +84,11 @@ import SettingsFeature
 //    required init?(coder: NSCoder) {
 //        nil
 //    }
-//}
+// }
 //
-//@Observable
-//@MainActor
-//public class WindowPreviewViewModel: Observable {
+// @Observable
+// @MainActor
+// public class WindowPreviewViewModel: Observable {
 //
 //    let location: OutputPortLocation
 //    let activeObjectKey: String
@@ -197,9 +197,9 @@ import SettingsFeature
 //            self.pasteboardWriter.copy(image)
 //        }
 //    }
-//}
+// }
 //
-//struct WindowPreviewContentView: View {
+// struct WindowPreviewContentView: View {
 //
 //    let vm: WindowPreviewViewModel
 //
@@ -289,12 +289,12 @@ import SettingsFeature
 //            }
 //        }
 //    }
-//}
+// }
 //
-//private let zoomFormatter: NumberFormatter = {
+// private let zoomFormatter: NumberFormatter = {
 //    let f = NumberFormatter()
 //    f.numberStyle = .percent
 //    return f
-//}()
+// }()
 
 #endif
