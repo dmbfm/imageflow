@@ -110,6 +110,9 @@ public class PreviewFeatureController: XViewController {
         }).store(in: &self.cancellabes)
 
         self.cardStageView.delegate = self
+        self.dockedContentView.delegate = self
+
+        self.dockedToolbarVM.zoom = self.dockedContentView.zoom
 
         self.updateView(nil)
     }
@@ -147,13 +150,13 @@ public class PreviewFeatureController: XViewController {
         case .undock:
             self.state.dockLocation = nil
         case .zoomActualSize:
-            break
+            self.dockedContentView.imageScrollView.dispatch(.actualSize(animate: true))
         case .zoomIn:
-            break
+            self.dockedContentView.imageScrollView.dispatch(.zoomIn(animate: true))
         case .zoomOut:
-            break
+            self.dockedContentView.imageScrollView.dispatch(.zoomOut(animate: true))
         case .zoomToFit:
-            break
+            self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: true))
         }
     }
 
@@ -365,6 +368,12 @@ extension PreviewFeatureController: CardContentView.Delegate {
         if vm.isVisible {
             vm.isVisible = false
         }
+    }
+}
+
+extension PreviewFeatureController: DockedContentView.Delegate {
+    func dockedContentViewZoomDidChange(_ view: DockedContentView, _ zoom: CGFloat) {
+        self.dockedToolbarVM.zoom = zoom
     }
 }
 

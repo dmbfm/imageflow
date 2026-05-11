@@ -19,6 +19,10 @@ class DockedContentView: XViewEx {
         }
     }
 
+    var zoom: CGFloat {
+        self.imageScrollView.zoom
+    }
+
     var dockLocation: CardDockLocation = .bottom {
         didSet {
             self.setNeedsLayout()
@@ -29,12 +33,12 @@ class DockedContentView: XViewEx {
 
     let toolbarViewModel: DockedToolbarView.ViewModel
 
-    lazy var toolbarView: XView = {
+    weak var delegate: Delegate?
 
+    lazy var toolbarView: XView = {
         let rootView = DockedToolbarView(
             vm: self.toolbarViewModel,
         )
-
         let view = NSHostingView(rootView: rootView)
         return view
     }()
@@ -46,6 +50,9 @@ class DockedContentView: XViewEx {
             configuration: .init(),
             cache: nil
         )
+        view.onEvent = { [weak self] event in
+            self?.onImageScrollViewEvent(event)
+        }
         return view
     }()
 
@@ -97,6 +104,14 @@ class DockedContentView: XViewEx {
         }
     }
 
+    func onImageScrollViewEvent(_ event: CIImageScrollXView.Event) {
+        switch event {
+        case .zoomDidChange(let zoom):
+            logger.trace("zoom: \(zoom)")
+            self.delegate?.dockedContentViewZoomDidChange(self, zoom)
+        }
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         self.imageScrollView.withLayer({ layer in
             layer.backgroundColor = Colors.canvasBackground.cgColor
@@ -139,5 +154,11 @@ class DockedContentView: XViewEx {
 extension DockedContentView {
     struct Style {
         var toolbarHeight: CGFloat = 28.0
+    }
+}
+
+extension DockedContentView {
+    protocol Delegate: AnyObject {
+        func dockedContentViewZoomDidChange(_ view: DockedContentView, _ zoom: CGFloat)
     }
 }
