@@ -26,7 +26,6 @@ public class PreviewFeatureController: XViewController {
     var state: PreviewStateMachine.State = .init() {
         didSet {
             if self.state != oldValue {
-                logger.debug("\("\(self.state)")")
                 self.updateView(oldValue)
             }
         }
@@ -34,7 +33,6 @@ public class PreviewFeatureController: XViewController {
 
     // MARK: - Private Properties
 
-    private var availablePreviewLocations: Set<PreviewLocation> = []
     private var cancellabes: Set<AnyEventEmitterCancellable> = []
     private var imageTask: Task<(), Never>?
 
@@ -114,6 +112,14 @@ public class PreviewFeatureController: XViewController {
         self.cardStageView.delegate = self
 
         self.updateView(nil)
+    }
+
+    public override func viewDidLayout() {
+        if self.cardContentView.bounds.width < self.toolbarHideSize {
+            if self.cardControlsVM.isVisible {
+                self.cardControlsVM.isVisible = false
+            }
+        }
     }
 
     // MARK: - Toolbars / Controls
@@ -245,50 +251,52 @@ public class PreviewFeatureController: XViewController {
     // MARK: - Update
 
     func updateView(_ oldValue: PreviewStateMachine.State?) {
-        // Unlocked -> locked
+        logger.trace("updateView: \("\(self.state)")")
 
-        if self.state.dockLocation == nil {
+        self.updateDockedView()
+        self.updateCardView()
+        self.updateDockedToolbarVM()
+        self.updateCardControlsVM()
+    }
+
+    func updateCardView() {
+        if !self.state.isDocked {
             if let image = self.state.image {
-                self.cardContentView.image = image
+                if self.cardContentView.image != image {
+                    self.cardContentView.image = image
+                }
+
                 if self.cardStageView.contentView != self.cardContentView {
                     self.cardStageView.contentView = self.cardContentView
                 }
-                self.cardStageView.cardVisibility = .visible
-            } else {
+
+                if self.cardStageView.cardVisibility == .hidden {
+                    self.cardStageView.cardVisibility = .visible
+                }
+            } else if self.cardStageView.cardVisibility != .hidden {
                 self.cardStageView.cardVisibility = .hidden
             }
-        } else {
-            self.dockedContentView.image = self.state.image
         }
 
-        if self.state.anchor != self.cardStageView.anchor {
-            self.cardStageView.anchor = self.state.anchor
+        updateProp(source: self.state, \.anchor, dest: self.cardStageView, \.anchor)
+        updateProp(source: self.state, \.dockLocation, dest: self.cardStageView, \.dockLocation)
+    }
+
+    func updateDockedView() {
+        if self.state.isDocked {
+            if self.cardStageView.contentView != self.dockedContentView {
+                self.cardStageView.contentView = self.dockedContentView
+            }
         }
 
-        if self.state.dockLocation != self.cardStageView.dockLocation {
-            self.cardStageView.dockLocation = self.state.dockLocation
-        }
-
-        if self.state.dockLocation != nil && oldValue?.dockLocation == nil {
-            self.cardStageView.contentView = self.dockedContentView
-            self.dockedContentView.image = self.state.image
-        }
-
-        if let dockLocation = self.state.dockLocation, self.dockedContentView.dockLocation != dockLocation {
-            self.dockedContentView.dockLocation = dockLocation
-        }
-
-        self.updateDockedToolbarVM()
-
-        self.updateCardControlsVM()
+        updateProp(source: self.state, \.image, dest: self.dockedContentView, \.image)
+        updateProp(source: self.state, \.dockLocation, dest: self.dockedContentView, \.dockLocation)
     }
 
     func updateCardControlsVM() {
         let vm = self.cardControlsVM
 
-        if vm.locked != self.state.locked {
-            vm.locked = self.state.locked
-        }
+        updateProp(source: self.state, \.locked, dest: vm, \.locked)
     }
 
     func updateDockedToolbarVM() {
@@ -296,49 +304,33 @@ public class PreviewFeatureController: XViewController {
 
         let vm = self.dockedToolbarVM
 
-        if vm.image != self.state.image {
-            vm.image = self.state.image
-        }
-
-        if vm.currentLocation != self.state.location {
-            vm.currentLocation = self.state.location
-        }
-
-        if let loc = self.state.dockLocation, vm.dockLocation != loc {
-            vm.dockLocation = loc
-        }
-
-        if vm.available != self.state.availableLocations {
-            vm.available = self.state.availableLocations
-        }
+        updateProp(source: self.state, \.image, dest: vm, \.image)
+        updateProp(source: self.state, \.location, dest: vm, \.currentLocation)
+        updateProp(source: self.state, \.availableLocations, dest: vm, \.available)
+        updateProp(source: self.state, \.dockLocation, dest: vm, \.dockLocation)
     }
 
     func upadateAvailablePreviewLocations() async {
-        self.availablePreviewLocations.removeAll(keepingCapacity: true)
+        var available: Set<PreviewLocation> = []
+
         for id in self.flow.selection {
             if let node = self.flow.nodes[id] {
+                logger.debug("node: \(id)")
                 for output in node.outputs where output.type == .image {
+                    logger.debug("node: \(id), output: \(output.index)")
                     if await self.assetStore.hasGeneratedResource(ciImageAt: .init(node: id, index: output.index)) {
-                        self.availablePreviewLocations.insert(
-                            .init(name: output.label, location: .init(node: id, index: output.index))
+                        available.insert(
+                            .init(
+                                name: "\(node.name) (\(output.label))",
+                                location: .init(node: id, index: output.index)
+                            )
                         )
                     }
                 }
             }
         }
 
-        self.input(.previewLocations(self.availablePreviewLocations))
-    }
-
-    public override func viewDidLayout() {
-        if self.cardContentView.bounds.width < self.toolbarHideSize {
-            if self.cardControlsVM.isVisible {
-                self.cardControlsVM.isVisible = false
-                // Task {
-                // self..isVisible = false
-                // }
-            }
-        }
+        self.input(.previewLocations(available))
     }
 }
 
@@ -373,6 +365,30 @@ extension PreviewFeatureController: CardContentView.Delegate {
         if vm.isVisible {
             vm.isVisible = false
         }
+    }
+}
+
+@inline(__always)
+private func updateProp<A, B: AnyObject, V: Equatable>(
+    source a: A,
+    _ k1: KeyPath<A, V>,
+    dest b: B,
+    _ k2: ReferenceWritableKeyPath<B, V>
+) {
+    if b[keyPath: k2] != a[keyPath: k1] {
+        b[keyPath: k2] = a[keyPath: k1]
+    }
+}
+
+@inline(__always)
+private func updateProp<A, B: AnyObject, V: Equatable>(
+    source a: A,
+    _ k1: KeyPath<A, V?>,
+    dest b: B,
+    _ k2: ReferenceWritableKeyPath<B, V>
+) {
+    if let v = a[keyPath: k1], b[keyPath: k2] != v {
+        b[keyPath: k2] = v
     }
 }
 #endif

@@ -61,16 +61,10 @@ struct DockedToolbarView: View {
     }
 
     var vm: ViewModel
-    let toolbarHeight: CGFloat = 28.0
     let bgColor: Color = Colors.canvasBackground.color
-
     @Environment(\.colorScheme) var cs
 
-    static var toolbarPlacement: DockedPreviewToolbarPlacement = .vstack
-
-    init(
-        vm: ViewModel
-    ) {
+    init(vm: ViewModel) {
         self.vm = vm
     }
 
@@ -84,6 +78,16 @@ struct DockedToolbarView: View {
         } else {
             ""
         }
+    }
+    
+    var currentLocation: Binding<OutputPortLocation?> {
+        .init(get: {
+            self.vm.currentLocation
+        }, set: {
+            if let loc = $0 {
+                self.vm.dispatch?(.pick(loc))
+            }
+        })
     }
 
     var body: some View {
@@ -103,19 +107,10 @@ struct DockedToolbarView: View {
                 .frame(height: 1)
                 .background(.separator)
         }
-        // .frame(height: self.toolbarHeight)
         .background {
             self.bgColor
         }
         .frame(height: 28)
-        .onChange(of: self.vm.currentLocation, initial: true) {
-            self.currentLocation = self.vm.currentLocation
-        }
-        .onChange(of: self.currentLocation) {
-            if let loc = self.currentLocation, loc != self.vm.currentLocation {
-                self.vm.dispatch?(.pick(loc))
-            }
-        }
     }
 
     var zoomLabel: some View {
@@ -130,8 +125,6 @@ struct DockedToolbarView: View {
         .clipShape(RoundedRectangle(cornerRadius: 4))
 
     }
-
-    @State var currentLocation: OutputPortLocation? = nil
 
     @ViewBuilder
     var toolbarContentView: some View {
@@ -165,7 +158,8 @@ struct DockedToolbarView: View {
             if self.vm.available.count >= 2 {
                 Image(systemName: "photo.stack.fill")
                     .padding(.trailing, -6)
-                Picker("", selection: self.$currentLocation) {
+                
+                Picker("", selection: self.currentLocation) {
                     ForEach(Array(self.vm.available), id: \.self) { item in
                         Text("\(item.name)")
                             .tag(item.location)

@@ -32,6 +32,10 @@ struct PreviewStateMachine {
         var contentState: PreviewContentState = .nothing
         var anchor: CardStageAnchor = .bottomRight
         var dockLocation: CardDockLocation? = nil
+        
+        var isDocked: Bool {
+            self.dockLocation != nil
+        }
 
         var location: OutputPortLocation? {
             get { self.contentState.location }
@@ -226,7 +230,7 @@ struct PreviewStateMachine {
 
         func imageLoaded(_ location: OutputPortLocation, _ image: CIImage) -> StateTransition {
             switch self.contentState {
-            case .something(let locked, let location, .loading(_)):
+            case .something(let locked, let loc, .loading(_)) where loc == location:
                 return .init(
                     newState: self.with(
                         \.contentState,
@@ -240,7 +244,7 @@ struct PreviewStateMachine {
 
         func updatedImage(_ location: OutputPortLocation) -> StateTransition {
             switch self.contentState {
-            case .something(locked: let locked, location, _):
+            case .something(locked: let locked, let loc, _) where loc == location:
                 return .init(
                     newState: self.with(
                         \.contentState,

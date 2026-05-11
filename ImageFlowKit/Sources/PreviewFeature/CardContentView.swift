@@ -11,15 +11,15 @@ import AppKit
 class CardContentView: XViewEx {
 
     // MARK: - Properties
-
+    
+    let controlsViewModel: CardControlsView.ViewModel
+    
+    weak var delegate: Delegate?
+    
     var image: CIImage? {
         get { self.imageView.image }
         set { self.imageView.image = newValue }
     }
-
-    let controlsViewModel: CardControlsView.ViewModel
-
-    weak var delegate: Delegate?
 
     // MARK: - Subviews
 
@@ -42,7 +42,6 @@ class CardContentView: XViewEx {
     // MARK: - Init
 
     init(_ controlsViewModel: CardControlsView.ViewModel) {
-
         self.controlsViewModel = controlsViewModel
 
         super.init(frame: .zero)
@@ -58,10 +57,6 @@ class CardContentView: XViewEx {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // func toolbarHandlerWrapper(_ name: CardToolbarItemName) {
-    //     self.toolbarButtonHandler?(name)
-    // }
 
     // MARK: - macOS
 
@@ -99,14 +94,6 @@ class CardContentView: XViewEx {
 
     override func layout() {
         super.layout()
-
-        // if self.bounds.width < self.toolbarHideSize {
-        //     if self.cardControlsViewModel.isVisible {
-        //         Task {
-        //             self.cardControlsViewModel.isVisible = false
-        //         }
-        //     }
-        // }
 
         self.imageView.frame = self.bounds
         self.controlsOverlayView.frame = self.bounds

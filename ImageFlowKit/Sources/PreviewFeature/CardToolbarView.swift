@@ -50,10 +50,6 @@ struct CardToolbarView: View {
     }
 
     var body: some View {
-        //        ZStack(alignment: .top) {
-
-        //            Color.clear
-
         GlassEffectContainer(spacing: 8) {
             if self.visible {
                 ZStack(alignment: .top) {
@@ -91,7 +87,6 @@ struct CardToolbarView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: self.visible)
     }
-    //    }
 }
 
 #Preview {
