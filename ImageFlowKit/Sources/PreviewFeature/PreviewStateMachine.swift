@@ -32,7 +32,7 @@ struct PreviewStateMachine {
         var contentState: PreviewContentState = .nothing
         var anchor: CardStageAnchor = .bottomRight
         var dockLocation: CardDockLocation? = nil
-        
+
         var isDocked: Bool {
             self.dockLocation != nil
         }

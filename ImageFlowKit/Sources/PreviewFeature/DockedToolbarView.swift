@@ -79,15 +79,18 @@ struct DockedToolbarView: View {
             ""
         }
     }
-    
+
     var currentLocation: Binding<OutputPortLocation?> {
-        .init(get: {
-            self.vm.currentLocation
-        }, set: {
-            if let loc = $0 {
-                self.vm.dispatch?(.pick(loc))
+        .init(
+            get: {
+                self.vm.currentLocation
+            },
+            set: {
+                if let loc = $0 {
+                    self.vm.dispatch?(.pick(loc))
+                }
             }
-        })
+        )
     }
 
     var body: some View {
@@ -158,7 +161,7 @@ struct DockedToolbarView: View {
             if self.vm.available.count >= 2 {
                 Image(systemName: "photo.stack.fill")
                     .padding(.trailing, -6)
-                
+
                 Picker("", selection: self.currentLocation) {
                     ForEach(Array(self.vm.available), id: \.self) { item in
                         Text("\(item.name)")

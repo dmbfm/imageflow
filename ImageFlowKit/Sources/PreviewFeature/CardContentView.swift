@@ -11,11 +11,11 @@ import AppKit
 class CardContentView: XViewEx {
 
     // MARK: - Properties
-    
+
     let controlsViewModel: CardControlsView.ViewModel
-    
+
     weak var delegate: Delegate?
-    
+
     var image: CIImage? {
         get { self.imageView.image }
         set { self.imageView.image = newValue }
