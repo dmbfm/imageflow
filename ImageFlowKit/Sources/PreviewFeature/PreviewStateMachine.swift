@@ -38,6 +38,10 @@ struct PreviewStateMachine {
             self.dockLocation != nil
         }
 
+        var isFloating: Bool {
+            self.dockLocation == nil
+        }
+
         var location: OutputPortLocation? {
             get { self.contentState.location }
             set { self.contentState.location = newValue }

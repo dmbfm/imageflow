@@ -156,8 +156,8 @@ public class PreviewFeatureController: XViewController {
             self.exportImage()
         case .openWindow:
             break
-        case .pick(_):
-            break
+        case .pick(let location):
+            self.input(.pick(location))
         case .toggleLock:
             self.input(.toggleLock)
         case .undock:
@@ -274,7 +274,7 @@ public class PreviewFeatureController: XViewController {
         self.updateDockedView(oldValue)
         self.updateCardView()
         self.updateDockedToolbarVM()
-        self.updateCardControlsVM()
+        self.updateCardControlsVM(oldValue)
     }
 
     func updateCardView() {
@@ -349,12 +349,16 @@ public class PreviewFeatureController: XViewController {
         updateProp(source: self.state, \.dockLocation, dest: self.dockedContentView, \.dockLocation)
     }
 
-    func updateCardControlsVM() {
+    func updateCardControlsVM(_ oldValue: PreviewStateMachine.State?) {
         let vm = self.cardControlsVM
 
         updateProp(source: self.state, \.locked, dest: vm, \.locked)
         updateProp(source: self.state, \.availableLocations, dest: vm, \.available)
         updateProp(source: self.state, \.location, dest: vm, \.currentLocation)
+
+        if self.state.isFloating && oldValue?.isDocked == true {
+            vm.isVisible = false
+        }
     }
 
     func updateDockedToolbarVM() {
@@ -408,16 +412,18 @@ extension PreviewFeatureController: CardStageViewDelegate {
 
 extension PreviewFeatureController: CardContentView.Delegate {
     func cardContentViewMouseEntered(_ view: CardContentView) {
+        logger.debug("cardContentViewMouseEntered")
         let vm = self.cardControlsVM
 
         if !vm.isVisible {
-            if view.bounds.width >= self.toolbarHideSize {
+            if view.bounds.width >= self.toolbarHideSize && !self.cardStageView.isAnimating {
                 vm.isVisible = true
             }
         }
     }
 
     func cardContentViewMouseExited(_ view: CardContentView) {
+        logger.debug("cardContentViewMouseExited")
         let vm = self.cardControlsVM
 
         if vm.isVisible {

@@ -63,6 +63,10 @@ public final class CardStageView: XViewEx {
         self.state.dockedHeight ?? self.configuration.dockedHeightRange.ideal
     }
 
+    public var isAnimating: Bool {
+        self.animController.isAnimating || self.isAnimatingViaTransaction
+    }
+
     public weak var delegate: CardStageViewDelegate?
 
     // MARK: - Private Properties
