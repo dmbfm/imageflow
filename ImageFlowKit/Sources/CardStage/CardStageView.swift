@@ -405,13 +405,14 @@ public final class CardStageView: XViewEx {
                 if self.state.hidden {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
+                    self.cardView.shadowStyle = nil
                     self.animCardOpacity(from: 0.0, to: 1.0, 0.25) {
                         self.delegate?.cardStageDidFinnishDocking(self)
                     }
                 } else {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
-                    self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, 0)
+                    self.cardView.shadowStyle = nil
                     self.delegate?.cardStageDidFinnishDocking(self)
                 }
             }
@@ -427,16 +428,14 @@ public final class CardStageView: XViewEx {
             } else {
                 self.cardView.frame = self.geometry.square?.rect ?? .zero
                 self.cardView.radius = self.configuration.cardRadius
-                self.cardView.shadowStyle = self.cardView.shadowStyle?.with(
-                    \.radius,
-                    self.configuration.cardShadow?.radius ?? 0
-                )
+                self.cardView.shadowStyle = self.configuration.cardShadow
                 self.delegate?.cardStageDidFinnishUndocking(self)
             }
         } else if !self.state.isFloating && !oldValue.isFloating && self.state.dockLocation != oldValue.dockLocation {
             if let frame = self.geometry.dockedFrame {
                 self.cardView.frame = frame
                 self.cardView.radius = 0
+                self.cardView.shadowStyle = nil
             }
         }
 
@@ -466,9 +465,6 @@ public final class CardStageView: XViewEx {
 
     func configurationDidChange() {
         self.updateGeometry()
-        if self.cardView.shadowStyle != self.configuration.cardShadow {
-            self.cardView.shadowStyle = self.configuration.cardShadow
-        }
     }
 
     func updateGeometry(_ requestLayout: Bool = true) {
