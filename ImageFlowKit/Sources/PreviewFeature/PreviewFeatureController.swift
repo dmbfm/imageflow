@@ -57,7 +57,16 @@ public class PreviewFeatureController: XViewController {
         .init(
             isVisible: false,
             locked: self.state.locked,
-            toolbarHandler: { [weak self] item in self?.cardToolbarHandler(item) }
+            toolbarHandler: { [weak self] item in self?.cardToolbarHandler(item) },
+            available: self.state.availableLocations,
+            currentLocation: self.state.location,
+            didSetCurrentLocation: { [weak self] loc in
+                guard let self else { return }
+
+                if let loc, self.state.location != loc {
+                    self.input(.pick(loc))
+                }
+            }
         )
     }()
 
@@ -228,6 +237,8 @@ public class PreviewFeatureController: XViewController {
     // MARK: - State Machine
 
     func input(_ input: PreviewStateMachine.Input) {
+        logger.debug("input: \("\(input)")")
+
         let (newState, effect) = self.state.input(input).pair
 
         self.state = newState
@@ -342,6 +353,8 @@ public class PreviewFeatureController: XViewController {
         let vm = self.cardControlsVM
 
         updateProp(source: self.state, \.locked, dest: vm, \.locked)
+        updateProp(source: self.state, \.availableLocations, dest: vm, \.available)
+        updateProp(source: self.state, \.location, dest: vm, \.currentLocation)
     }
 
     func updateDockedToolbarVM() {

@@ -86,7 +86,12 @@ class CardContentView: XViewEx {
     }
 
     override func mouseExited(with event: NSEvent) {
-        self.delegate?.cardContentViewMouseExited(self)
+        let loc = self.convert(event.locationInWindow, from: nil)
+
+        // Check to avoid false positives due to the controls overlay.
+        if !self.bounds.contains(loc) {
+            self.delegate?.cardContentViewMouseExited(self)
+        }
     }
     #endif
 

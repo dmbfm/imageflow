@@ -11,6 +11,7 @@ struct PreviewStateMachine {
         case previewLocations(Set<PreviewLocation>)
         case imageLoaded(OutputPortLocation, CIImage)
         case toggleLock
+        case pick(OutputPortLocation)
     }
 
     enum Effect {
@@ -167,6 +168,19 @@ struct PreviewStateMachine {
                 self.toggleLock()
             case .updatedImage(let loc):
                 self.updatedImage(loc)
+            case .pick(let loc):
+                self.pick(loc)
+            }
+        }
+
+        func pick(_ location: OutputPortLocation) -> StateTransition {
+            if let _ = self.availableLocations.first(where: { $0.location == location }) {
+                return .init(
+                    newState: self.with(\.location, location).with(\.content, .loading(self.image)),
+                    effect: .loadImage(location)
+                )
+            } else {
+                return .init(newState: self)
             }
         }
 

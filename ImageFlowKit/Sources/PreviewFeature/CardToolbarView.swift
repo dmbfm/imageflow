@@ -12,7 +12,7 @@ enum CardToolbarItemName {
 struct CardToolbarView: View {
 
     var handler: ((CardToolbarItemName) -> ())?
-    @Binding var visible: Bool
+    var visible: Bool
     var locked: Bool = false
 
     @Namespace var ns
@@ -94,7 +94,7 @@ struct CardToolbarView: View {
     VStack {
         ZStack {
             Color.teal
-            CardToolbarView(visible: $visible)
+            CardToolbarView(visible: visible)
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .frame(width: 250, height: 300)
