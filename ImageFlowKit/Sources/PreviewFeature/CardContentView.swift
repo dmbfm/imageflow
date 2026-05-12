@@ -67,6 +67,14 @@ class CardContentView: XViewEx {
         }
     }
 
+    override func rightMouseDown(with event: NSEvent) {
+        // NOTE: We need this or the event will be send to the canvas
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        // NOTE: We need this or the event will be send to the canvas
+    }
+
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         for t in self.trackingAreas {

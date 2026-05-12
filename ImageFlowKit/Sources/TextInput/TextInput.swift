@@ -328,33 +328,9 @@ public final class TextInput: XViewEx {
 
     private var hasPushedCursor: Bool = false
 
-    // public override func mouseEntered(with event: NSEvent) {
-    //     if self.behaviours.contains(.dragWhenNotEditable) && !self.isEditable && self.isEnabled {
-    //         if !self.hasPushedCursor {
-    //             NSCursor.columnResize.push()
-    //             self.hasPushedCursor = true
-    //         }
-    //     }
-    // }
-
-    // public override func mouseExited(with event: NSEvent) {
-    //     print("--> mouseExited: \(self.hasPushedCursor)")
-    //     if self.hasPushedCursor {
-    //         NSCursor.pop()
-    //         self.hasPushedCursor = false
-    //     }
-    // }
-
-    public override func mouseMoved(with event: NSEvent) {
-        if self.behaviours.contains(.dragWhenNotEditable) && !self.isEditable && self.isEnabled
-            && self.window?.firstResponder != self.textField
-        {
-            NSCursor.columnResize.set()
-            // if !self.hasPushedCursor {
-            //     NSCursor.columnResize.push()
-            //     self.hasPushedCursor = true
-            // }
-        }
+    public override func resetCursorRects() {
+        self.discardCursorRects()
+        self.addCursorRect(self.bounds, cursor: .columnResize)
     }
 
     @objc

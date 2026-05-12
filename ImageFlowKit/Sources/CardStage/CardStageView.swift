@@ -496,6 +496,7 @@ public final class CardStageView: XViewEx {
 
         if self.state.isFloating, let square = self.geometry.square {
             let rects = square.resizeRects(anchor: self.state.anchor, thickness: 10)
+            self.addCursorRect(square.rect, cursor: .arrow)
             self.addCursorRect(rects.horizontal, cursor: .windowResizeNorthSouthCursor)
             self.addCursorRect(rects.vertical, cursor: .windowResizeEastWestCursor)
             self.addCursorRect(
