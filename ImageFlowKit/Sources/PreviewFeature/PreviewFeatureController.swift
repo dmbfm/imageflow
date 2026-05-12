@@ -346,36 +346,18 @@ public class PreviewFeatureController: XViewController {
         }
 
         if let restoreCache {
-            // logger.debug(
-            //     "restore: dockingPhase: \("\(self.dockingPhase)"), key: \("\(self.state.viewportCacheKey)"), \("\(self.imageScrollViewportCache.get(self.state.viewportCacheKey!))")"
-            // )
-
-            // if oldValue?.isFloating == true && self.state.isDocked {
-            //     self.viewportToRestoreAfterDocking =
-            //         if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
-            //             .viewport(cached)
-            //         } else {
-            //             switch restoreCache {
-            //             case .zoomToFit: .zoomToFit(nil)
-            //             case .zoomToFitSize(let size): .zoomToFit(size)
-            //             }
-            //         }
-            //     logger.debug("self.viewportToRestoreAfterDocking: \("\(self.viewportToRestoreAfterDocking)")")
-            // } else {
-                if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
-                    self.dockedContentView.imageScrollView.viewport = cached
-                } else {
-                    // Task {
-                        switch restoreCache {
-                        case .zoomToFit:
-                            self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
-                        case .zoomToFitSize(let size):
-                            self.dockedContentView.imageScrollView.dispatch(
-                                .zoomToFitSize(size, animate: false)
-                            )
-                        }
-                    // }
-                // }
+            if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
+                self.dockedContentView.imageScrollView.viewport = cached
+            } else {
+                // Task {
+                switch restoreCache {
+                case .zoomToFit:
+                    self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
+                case .zoomToFitSize(let size):
+                    self.dockedContentView.imageScrollView.dispatch(
+                        .zoomToFitSize(size, animate: false)
+                    )
+                }
             }
         }
 
