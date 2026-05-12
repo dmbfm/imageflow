@@ -12,7 +12,9 @@ public class PreviewFeatureController: XViewController {
 
     // MARK: - Constants
 
+    /// If the floating preview is smaller than this value, hide the card's toolbar.
     let toolbarHideSize: CGFloat = 120
+    /// The height of the docked preview's toolbar.
     let dockedToolbarHeight: CGFloat = 28
 
     // MARK: - Internal Properties
@@ -61,9 +63,7 @@ public class PreviewFeatureController: XViewController {
 
     // MARK: - Subviews
 
-    lazy var cardStageView: CardStageView = {
-        .init()
-    }()
+    let cardStageView: CardStageView = .init()
 
     lazy var dockedContentView: DockedContentView = {
         let view = DockedContentView(self.dockedToolbarVM)
@@ -298,25 +298,22 @@ public class PreviewFeatureController: XViewController {
 
         var restoreCache: RestoreCacheFallback? = nil
 
-        if self.state.isDocked {
-            if self.cardStageView.contentView != self.dockedContentView {
-                self.cardStageView.contentView = self.dockedContentView
-            }
+        if self.state.isDocked && self.cardStageView.contentView != self.dockedContentView {
+            self.cardStageView.contentView = self.dockedContentView
+        }
 
-            if oldValue?.isDocked != true {
-                restoreCache = .zoomToFitSize(
-                    .init(
-                        width: self.cardStageView.bounds.width,
-                        height: self.cardStageView.dockedHeight - self.dockedToolbarHeight
-                    )
+        if self.state.isDocked && oldValue?.isDocked != true {
+            restoreCache = .zoomToFitSize(
+                .init(
+                    width: self.cardStageView.bounds.width,
+                    height: self.cardStageView.dockedHeight - self.dockedToolbarHeight
                 )
-            }
+            )
         }
 
         if self.state.image != self.dockedContentView.image {
             self.imageScrollViewportCache.whileLocked {
                 self.dockedContentView.image = self.state.image
-
                 restoreCache = .zoomToFit
             }
         }
@@ -416,11 +413,15 @@ extension PreviewFeatureController: CardContentView.Delegate {
     }
 }
 
+// MARK: - DockedContentView.Delegate
+
 extension PreviewFeatureController: DockedContentView.Delegate {
     func dockedContentViewZoomDidChange(_ view: DockedContentView, _ zoom: CGFloat) {
         self.dockedToolbarVM.zoom = zoom
     }
 }
+
+// MARK: - CIImageScrollXViewDelegate
 
 extension PreviewFeatureController: CIImageScrollXViewDelegate {
     public func ciImageScrollViewViewportDidChange(_ view: CIImageScrollXView, _ viewport: CGRect) {
