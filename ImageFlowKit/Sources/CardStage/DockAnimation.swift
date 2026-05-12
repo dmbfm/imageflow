@@ -10,7 +10,7 @@ class DockAnimation: AnimKit::Animation {
 
     let label: String? = "Dock Animation"
 
-    var duration: Double = 0.2
+    var duration: Double = 0.01
     let timingFunc = TimingFunction.easing(.cubic, .easeInOut)
     var started: Bool = false
     var ellapsed: TimeInterval = 0
@@ -36,8 +36,6 @@ class DockAnimation: AnimKit::Animation {
         self.to = to
         self.apply = apply
         self.didFinnish = didFinnish
-
-        logger.info("from: \("\(from)"), to: \("\(to)")")
     }
 
     func start(prev: (any AnimKit.Animation)?) {
@@ -69,7 +67,7 @@ class DockAnimation: AnimKit::Animation {
             duration: self.duration
         )
 
-        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
+//        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
 
         self.ellapsed += deltaTime
         if self.ellapsed >= self.duration {

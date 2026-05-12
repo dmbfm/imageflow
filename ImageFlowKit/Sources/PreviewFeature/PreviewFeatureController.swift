@@ -40,6 +40,7 @@ public class PreviewFeatureController: XViewController {
     private var imageScrollViewportCache: SimpleCache<ViewportCacheKey, CGRect> = .init()
     private var cancellabes: Set<AnyEventEmitterCancellable> = []
     private var imageTask: Task<(), Never>?
+    private var viewport: CGRect = .zero
 
     private lazy var dockedToolbarVM: DockedToolbarView.ViewModel = {
         .init(
@@ -237,8 +238,6 @@ public class PreviewFeatureController: XViewController {
     // MARK: - State Machine
 
     func input(_ input: PreviewStateMachine.Input) {
-        logger.debug("input: \("\(input)")")
-
         let (newState, effect) = self.state.input(input).pair
 
         self.state = newState
@@ -269,12 +268,29 @@ public class PreviewFeatureController: XViewController {
     // MARK: - Update
 
     func updateView(_ oldValue: PreviewStateMachine.State?) {
-        logger.trace("updateView: \("\(self.state)")")
+
+        self.updateViewportCache(oldValue)
 
         self.updateDockedView(oldValue)
         self.updateCardView()
         self.updateDockedToolbarVM()
         self.updateCardControlsVM(oldValue)
+    }
+
+    func updateViewportCache(_ oldValue: PreviewStateMachine.State?) {
+        guard let oldValue else { return }
+
+        if self.state.isDocked && oldValue.isDocked {
+            if let location = oldValue.location, location != self.state.location {
+                let key = ViewportCacheKey(location: location, size: .zero)
+                self.imageScrollViewportCache.set(key, self.viewport)
+            }
+        } else if oldValue.isDocked && self.state.isFloating {
+            if let location = oldValue.location {
+                let key = ViewportCacheKey(location: location, size: .zero)
+                self.imageScrollViewportCache.set(key, self.viewport)
+            }
+        }
     }
 
     func updateCardView() {
@@ -310,7 +326,7 @@ public class PreviewFeatureController: XViewController {
         var restoreCache: RestoreCacheFallback? = nil
 
         if self.state.isDocked && self.cardStageView.contentView != self.dockedContentView {
-            self.cardStageView.contentView = self.dockedContentView
+            // self.cardStageView.contentView = self.dockedContentView
         }
 
         if self.state.isDocked && oldValue?.isDocked != true {
@@ -330,19 +346,36 @@ public class PreviewFeatureController: XViewController {
         }
 
         if let restoreCache {
-            if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
-                self.dockedContentView.imageScrollView.viewport = cached
-            } else {
-                Task {
-                    switch restoreCache {
-                    case .zoomToFit:
-                        self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
-                    case .zoomToFitSize(let size):
-                        self.dockedContentView.imageScrollView.dispatch(
-                            .zoomToFitSize(size, animate: false)
-                        )
-                    }
-                }
+            // logger.debug(
+            //     "restore: dockingPhase: \("\(self.dockingPhase)"), key: \("\(self.state.viewportCacheKey)"), \("\(self.imageScrollViewportCache.get(self.state.viewportCacheKey!))")"
+            // )
+
+            // if oldValue?.isFloating == true && self.state.isDocked {
+            //     self.viewportToRestoreAfterDocking =
+            //         if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
+            //             .viewport(cached)
+            //         } else {
+            //             switch restoreCache {
+            //             case .zoomToFit: .zoomToFit(nil)
+            //             case .zoomToFitSize(let size): .zoomToFit(size)
+            //             }
+            //         }
+            //     logger.debug("self.viewportToRestoreAfterDocking: \("\(self.viewportToRestoreAfterDocking)")")
+            // } else {
+                if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
+                    self.dockedContentView.imageScrollView.viewport = cached
+                } else {
+                    // Task {
+                        switch restoreCache {
+                        case .zoomToFit:
+                            self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
+                        case .zoomToFitSize(let size):
+                            self.dockedContentView.imageScrollView.dispatch(
+                                .zoomToFitSize(size, animate: false)
+                            )
+                        }
+                    // }
+                // }
             }
         }
 
@@ -377,9 +410,7 @@ public class PreviewFeatureController: XViewController {
 
         for id in self.flow.selection {
             if let node = self.flow.nodes[id] {
-                logger.debug("node: \(id)")
                 for output in node.outputs where output.type == .image {
-                    logger.debug("node: \(id), output: \(output.index)")
                     if await self.assetStore.hasGeneratedResource(ciImageAt: .init(node: id, index: output.index)) {
                         available.insert(
                             .init(
@@ -394,11 +425,69 @@ public class PreviewFeatureController: XViewController {
 
         self.input(.previewLocations(available))
     }
+
+    enum DockingPhase {
+        case idle
+        case docking
+        case undocking
+    }
+
+    var dockingPhase: DockingPhase = .idle
+    var viewportToRestoreAfterDocking: ViewportRestore?
+
+    enum ViewportRestore {
+        case viewport(CGRect)
+        case zoomToFit(CGSize?)
+    }
 }
 
 // MARK: - CardStageViewDelegate
 
 extension PreviewFeatureController: CardStageViewDelegate {
+    public func cardStageDidStartResizingCard(_ sender: CardStage.CardStageView, locationInWindow: CGPoint) {
+        // self.cardControlsVM.isVisible = false
+    }
+
+    public func cardStageDidFinnishResizingCard(_ sender: CardStage.CardStageView, locationInWindow: CGPoint) {
+        let loc = self.cardContentView.convert(locationInWindow, from: nil)
+        self.cardControlsVM.isVisible = self.cardContentView.bounds.contains(loc)
+    }
+
+    public func cardStageDidStartDocking(_ sender: CardStage.CardStageView) {
+        logger.debug("cardStageDidStartDocking")
+        self.dockingPhase = .docking
+    }
+
+    public func cardStageDidFinnishDocking(_ sender: CardStage.CardStageView) {
+        logger.debug("cardStageDidFinnishDocking")
+        self.dockingPhase = .idle
+        self.cardStageView.contentView = self.dockedContentView
+
+        // if let restore = self.viewportToRestoreAfterDocking {
+        //     // self.dockedContentView.imageScrollView.viewport = viewport
+        //     switch restore {
+        //     case .viewport(let rect):
+        //         self.dockedContentView.imageScrollView.viewport = rect
+        //     case .zoomToFit(.none):
+        //         self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
+        //     case .zoomToFit(.some(let size)):
+        //         self.dockedContentView.imageScrollView.dispatch(.zoomToFitSize(size, animate: false))
+        //     }
+        //     self.viewportToRestoreAfterDocking = nil
+        // }
+    }
+
+    public func cardStageDidStartUndocking(_ sender: CardStage.CardStageView) {
+        logger.debug("cardStageDidStartUndocking")
+        self.dockingPhase = .undocking
+        self.cardStageView.contentView = self.cardContentView
+    }
+
+    public func cardStageDidFinnishUndocking(_ sender: CardStage.CardStageView) {
+        logger.debug("cardStageDidFinnishUndocking")
+        self.dockingPhase = .idle
+    }
+
     public func cardStageAnchorDidChange(_ sender: CardStage.CardStageView) {
         self.state.anchor = sender.anchor
     }
@@ -412,18 +501,16 @@ extension PreviewFeatureController: CardStageViewDelegate {
 
 extension PreviewFeatureController: CardContentView.Delegate {
     func cardContentViewMouseEntered(_ view: CardContentView) {
-        logger.debug("cardContentViewMouseEntered")
         let vm = self.cardControlsVM
 
         if !vm.isVisible {
-            if view.bounds.width >= self.toolbarHideSize && !self.cardStageView.isAnimating {
+            if view.bounds.width >= self.toolbarHideSize {
                 vm.isVisible = true
             }
         }
     }
 
     func cardContentViewMouseExited(_ view: CardContentView) {
-        logger.debug("cardContentViewMouseExited")
         let vm = self.cardControlsVM
 
         if vm.isVisible {
@@ -444,9 +531,10 @@ extension PreviewFeatureController: DockedContentView.Delegate {
 
 extension PreviewFeatureController: CIImageScrollXViewDelegate {
     public func ciImageScrollViewViewportDidChange(_ view: CIImageScrollXView, _ viewport: CGRect) {
-        if let key = self.state.viewportCacheKey {
-            self.imageScrollViewportCache.set(key, viewport)
-        }
+        self.viewport = viewport
+        // if let key = self.state.viewportCacheKey {
+        //     self.imageScrollViewportCache.set(key, viewport)
+        // }
     }
 
     public func ciImageScrollViewZoomDidChange(_ view: CIImageScrollXView, _ zoom: CGFloat) {

@@ -12,6 +12,7 @@ public class SimpleCache<ID: Hashable, V: Sendable> {
 
     public func set(_ id: ID, _ value: V) {
         if !self.locked {
+            print("set: \(id) -> \(value)")
             self.items[id] = value
         }
     }

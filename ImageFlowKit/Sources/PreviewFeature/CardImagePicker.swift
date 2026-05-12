@@ -50,7 +50,6 @@ struct CardImagePicker: View {
                         #endif
                     }
                 }
-                .frame(width: 200)
                 .padding(.bottom, 12)
             }
         }

@@ -63,10 +63,6 @@ public final class CardStageView: XViewEx {
         self.state.dockedHeight ?? self.configuration.dockedHeightRange.ideal
     }
 
-    public var isAnimating: Bool {
-        self.animController.isAnimating || self.isAnimatingViaTransaction
-    }
-
     public weak var delegate: CardStageViewDelegate?
 
     // MARK: - Private Properties
@@ -80,7 +76,6 @@ public final class CardStageView: XViewEx {
     }
 
     private var geometry: Geometry = .zero
-    private var animController: AnimationController!
     private var dockAnimID: UUID = .init()
     private var isAnimatingViaTransaction: Bool = false
 
@@ -102,8 +97,6 @@ public final class CardStageView: XViewEx {
     public init() {
         super.init(frame: .zero)
 
-        self.animController = .init(self)
-
         #if os(macOS)
         self.wantsLayer = true
         self.layerContentsRedrawPolicy = .onSetNeedsDisplay
@@ -116,13 +109,6 @@ public final class CardStageView: XViewEx {
 
     public required init?(coder: NSCoder) {
         nil
-    }
-
-    // MARK: - Deinit
-
-    @MainActor
-    deinit {
-        self.animController.stopDisplayLink()
     }
 
     // MARK: - User Interaction
@@ -231,6 +217,7 @@ public final class CardStageView: XViewEx {
                         )
                     )
                 )
+                self.delegate?.cardStageDidStartResizingCard(self, locationInWindow: gesture.location(in: nil))
             } else {
                 self.state = .floating(floating.with(\.state, .dragging(offset: .zero)))
             }
@@ -299,6 +286,8 @@ public final class CardStageView: XViewEx {
                 } else {
                     self.state = .floating(floating.with(\.state, .idle))
                 }
+
+                self.delegate?.cardStageDidFinnishResizingCard(self, locationInWindow: gesture.location(in: nil))
 
             }
         default:
@@ -409,75 +398,45 @@ public final class CardStageView: XViewEx {
         //  Floating -> Docked
         if !self.state.isFloating && oldValue.isFloating {
             if let frame = self.geometry.dockedFrame {
+
+                self.delegate?.cardStageDidStartDocking(self)
+
                 // self.cardView.shadowStyle = nil
                 if self.state.hidden {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
-                    self.animCardOpacity(from: 0.0, to: 1.0, 0.25)
+                    self.animCardOpacity(from: 0.0, to: 1.0, 0.25) {
+                        self.delegate?.cardStageDidFinnishDocking(self)
+                    }
                 } else {
-                    _ = self.animController.start(
-                        id: self.dockAnimID,
-                        animation: DockAnimation(
-                            from: .init(
-                                frame: self.cardView.frame,
-                                cornerRadius: self.cardView.radius,
-                                shadowRadius: self.cardView.shadowStyle?.radius ?? 0.0,
-                            ),
-                            to: .init(frame: frame, cornerRadius: 0, shadowRadius: 0),
-                            apply: { [weak self] data in
-                                guard let self else { return }
-                                self.cardView.frame = data.frame
-                                self.cardView.radius = data.cornerRadius
-                                self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, data.shadowRadius)
-                            }
-                        )
-                    )
+                    self.cardView.frame = frame
+                    self.cardView.radius = 0
+                    self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, 0)
+                    self.delegate?.cardStageDidFinnishDocking(self)
                 }
             }
             // Docked -> Floating
         } else if self.state.isFloating && !oldValue.isFloating {
+            self.delegate?.cardStageDidStartUndocking(self)
             if self.state.hidden {
                 self.animCardOpacity(from: 1.0, to: 0.0, 0.25) {
                     self.cardView.radius = self.configuration.cardRadius
                     self.cardView.shadowStyle = self.configuration.cardShadow
+                    self.delegate?.cardStageDidFinnishUndocking(self)
                 }
             } else {
-                _ = self.animController.start(
-                    id: self.dockAnimID,
-                    animation: DockAnimation(
-                        from: .init(
-                            frame: self.cardView.frame,
-                            cornerRadius: self.cardView.radius,
-                            shadowRadius: self.cardView.shadowStyle?.radius ?? 0.0,
-                        ),
-                        to: .init(
-                            frame: self.geometry.square?.rect ?? .zero,
-                            cornerRadius: 10,
-                            shadowRadius: self.configuration.cardShadow?.radius ?? 1.0,
-                        ),
-                        apply: { [weak self] data in
-                            guard let self else { return }
-                            self.cardView.frame = data.frame
-                            self.cardView.radius = data.cornerRadius
-                            self.cardView.shadowStyle = self.cardView.shadowStyle?.with(\.radius, data.shadowRadius)
-                        },
-                    )
+                self.cardView.frame = self.geometry.square?.rect ?? .zero
+                self.cardView.radius = self.configuration.cardRadius
+                self.cardView.shadowStyle = self.cardView.shadowStyle?.with(
+                    \.radius,
+                    self.configuration.cardShadow?.radius ?? 0
                 )
+                self.delegate?.cardStageDidFinnishUndocking(self)
             }
         } else if !self.state.isFloating && !oldValue.isFloating && self.state.dockLocation != oldValue.dockLocation {
             if let frame = self.geometry.dockedFrame {
-                _ = self.animController.start(
-                    id: self.dockAnimID,
-                    animation: DockAnimation(
-                        from: .init(frame: self.cardView.frame, cornerRadius: self.cardView.radius, shadowRadius: 0),
-                        to: .init(frame: frame, cornerRadius: 0, shadowRadius: 0),
-                        apply: { [weak self] data in
-                            guard let self else { return }
-                            self.cardView.frame = data.frame
-                            self.cardView.radius = data.cornerRadius
-                        }
-                    )
-                )
+                self.cardView.frame = frame
+                self.cardView.radius = 0
             }
         }
 
@@ -570,8 +529,7 @@ public final class CardStageView: XViewEx {
     public override func layout() {
         super.layout()
 
-        guard !self.animController.isAnimating && !self.isAnimatingViaTransaction else {
-            logger.debug("layout: animating; skipping")
+        guard !self.isAnimatingViaTransaction else {
             return
         }
 
@@ -611,6 +569,15 @@ public final class CardStageView: XViewEx {
 public protocol CardStageViewDelegate: AnyObject {
     func cardStageAnchorDidChange(_ sender: CardStageView)
     func cardStageDockLocationDidChange(_ sender: CardStageView)
+
+    func cardStageDidStartDocking(_ sender: CardStageView)
+    func cardStageDidFinnishDocking(_ sender: CardStageView)
+
+    func cardStageDidStartUndocking(_ sender: CardStageView)
+    func cardStageDidFinnishUndocking(_ sender: CardStageView)
+
+    func cardStageDidStartResizingCard(_ sender: CardStageView, locationInWindow: CGPoint)
+    func cardStageDidFinnishResizingCard(_ sender: CardStageView, locationInWindow: CGPoint)
 }
 
 // MARK: - Helpers
@@ -768,6 +735,26 @@ extension CardStageView {
 
         @MainActor
         class Coordinator: CardStageViewDelegate {
+            func cardStageDidStartResizingCard(_ sender: CardStageView, locationInWindow: CGPoint) {
+
+            }
+
+            func cardStageDidFinnishResizingCard(_ sender: CardStageView, locationInWindow: CGPoint) {
+
+            }
+
+            func cardStageDidStartDocking(_ sender: CardStageView) {
+
+            }
+
+            func cardStageDidStartUndocking(_ sender: CardStageView) {
+
+            }
+
+            func cardStageDidFinnishUndocking(_ sender: CardStageView) {
+
+            }
+
             var anchor: Binding<CardStageAnchor>?
             var dockLocation: Binding<CardDockLocation?>?
             var cardVisibility: Binding<CardVisibility>?
