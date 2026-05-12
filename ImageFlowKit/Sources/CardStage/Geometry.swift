@@ -62,12 +62,15 @@ enum Geometry: Equatable {
                 case .bottom:
                     switch docked.state {
                     case .idle:
-                        CGRect(
-                            x: bounds.minX,
-                            y: bounds.maxY - docked.height,
-                            width: bounds.width,
-                            height: docked.height
-                        )
+                        {
+                            let height = docked.height.clamped(to: config.dockedHeightRange.range)
+                            return CGRect(
+                                x: bounds.minX,
+                                y: bounds.maxY - height,
+                                width: bounds.width,
+                                height: height,
+                            )
+                        }()
                     case .resizing(let resizing):
                         {
                             let height = (docked.height - resizing.translation).clamped(
@@ -84,7 +87,12 @@ enum Geometry: Equatable {
                 case .top:
                     switch docked.state {
                     case .idle:
-                        CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: docked.height)
+                        CGRect(
+                            x: bounds.minX,
+                            y: bounds.minY,
+                            width: bounds.width,
+                            height: docked.height.clamped(to: config.dockedHeightRange.range)
+                        )
                     case .resizing(let resizing):
                         CGRect(
                             x: bounds.minX,
@@ -368,7 +376,7 @@ extension CardStageState.Floating {
         sizeRange: ClosedRange<CGFloat>,
     ) -> Square {
         let stage = insets.inset(rect: bounds)
-        let idleSqure = Square(origin: .zero, size: self.size)
+        let idleSqure = Square(origin: .zero, size: self.size.clamped(to: sizeRange))
             .aligned(stage: stage, anchor: self.anchor)
 
         switch self.state {

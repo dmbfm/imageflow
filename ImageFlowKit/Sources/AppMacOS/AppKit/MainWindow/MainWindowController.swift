@@ -20,6 +20,7 @@ class MainWindowController: NSWindowController {
         window.styleMask.insert(.fullSizeContentView)
         window.toolbarStyle = .unified
         window.titlebarAppearsTransparent = true
+        window.minSize = .init(width: 500, height: 400)
 
         if let screen = window.screen {
             let width = screen.frame.width * 0.8

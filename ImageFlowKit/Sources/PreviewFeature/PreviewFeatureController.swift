@@ -17,6 +17,14 @@ public class PreviewFeatureController: XViewController {
     /// The height of the docked preview's toolbar.
     let dockedToolbarHeight: CGFloat = 28
 
+    /// The maximum size of the floating preview square, in units of fraction of the main view's height.
+    /// TODO: Add to settings.
+    let floatingPreviewMaxSize: CGFloat? = 0.8
+
+    /// The maximum height of the docked preview panel, in units of fraction of the main view's height.
+    /// TODO: Add to settings.
+    let dockedPreviewMaxHeight: CGFloat? = 0.8
+
     // MARK: - Internal Properties
 
     /// A reference to the `Flow` model
@@ -129,6 +137,27 @@ public class PreviewFeatureController: XViewController {
         self.dockedToolbarVM.zoom = self.dockedContentView.zoom
 
         self.updateView(nil)
+    }
+
+    public override func viewWillLayout() {
+        let viewSize = self.view.bounds.size
+
+        if let ratio = self.floatingPreviewMaxSize {
+            self.cardStageView.configuration = self.cardStageView
+                .configuration.with(
+                    \.cardSizeRange,
+                    self.cardStageView.configuration.cardSizeRange.withUpperBound(ratio * viewSize.height)
+                )
+        }
+
+        if let ratio = self.dockedPreviewMaxHeight {
+            self.cardStageView.configuration = self.cardStageView
+                .configuration.with(
+                    \.dockedHeightRange,
+                    self.cardStageView.configuration.dockedHeightRange.withUpperBound(ratio * viewSize.height)
+                )
+        }
+
     }
 
     public override func viewDidLayout() {
@@ -407,20 +436,6 @@ public class PreviewFeatureController: XViewController {
 
         self.input(.previewLocations(available))
     }
-
-    enum DockingPhase {
-        case idle
-        case docking
-        case undocking
-    }
-
-    var dockingPhase: DockingPhase = .idle
-    var viewportToRestoreAfterDocking: ViewportRestore?
-
-    enum ViewportRestore {
-        case viewport(CGRect)
-        case zoomToFit(CGSize?)
-    }
 }
 
 // MARK: - CardStageViewDelegate
@@ -437,37 +452,20 @@ extension PreviewFeatureController: CardStageViewDelegate {
 
     public func cardStageDidStartDocking(_ sender: CardStage.CardStageView) {
         logger.debug("cardStageDidStartDocking")
-        self.dockingPhase = .docking
     }
 
     public func cardStageDidFinnishDocking(_ sender: CardStage.CardStageView) {
         logger.debug("cardStageDidFinnishDocking")
-        self.dockingPhase = .idle
         self.cardStageView.contentView = self.dockedContentView
-
-        // if let restore = self.viewportToRestoreAfterDocking {
-        //     // self.dockedContentView.imageScrollView.viewport = viewport
-        //     switch restore {
-        //     case .viewport(let rect):
-        //         self.dockedContentView.imageScrollView.viewport = rect
-        //     case .zoomToFit(.none):
-        //         self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
-        //     case .zoomToFit(.some(let size)):
-        //         self.dockedContentView.imageScrollView.dispatch(.zoomToFitSize(size, animate: false))
-        //     }
-        //     self.viewportToRestoreAfterDocking = nil
-        // }
     }
 
     public func cardStageDidStartUndocking(_ sender: CardStage.CardStageView) {
         logger.debug("cardStageDidStartUndocking")
-        self.dockingPhase = .undocking
         self.cardStageView.contentView = self.cardContentView
     }
 
     public func cardStageDidFinnishUndocking(_ sender: CardStage.CardStageView) {
         logger.debug("cardStageDidFinnishUndocking")
-        self.dockingPhase = .idle
     }
 
     public func cardStageAnchorDidChange(_ sender: CardStage.CardStageView) {

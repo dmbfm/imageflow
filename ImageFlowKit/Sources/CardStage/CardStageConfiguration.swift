@@ -36,6 +36,24 @@ public struct CardStageConfiguration: Sendable, Equatable, With {
             self.range = range
             self.ideal = ideal
         }
+
+        public func withUpperBound(_ value: CGFloat) -> Self {
+            let lower = self.range.lowerBound
+            let ideal = self.ideal
+            let upper = self.range.upperBound
+
+            if (upper - lower) == 0 {
+                return self
+            }
+
+            let frac = (ideal - lower) / (upper - lower)
+
+            let newLower = min(value, lower)
+            let newUpper = max(value, lower)
+            let newIdeal = frac * (newUpper - newLower)
+
+            return .init(range: newLower...newUpper, ideal: newIdeal)
+        }
     }
 
     init(

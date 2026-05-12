@@ -67,7 +67,7 @@ class DockAnimation: AnimKit::Animation {
             duration: self.duration
         )
 
-//        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
+        //        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
 
         self.ellapsed += deltaTime
         if self.ellapsed >= self.duration {
