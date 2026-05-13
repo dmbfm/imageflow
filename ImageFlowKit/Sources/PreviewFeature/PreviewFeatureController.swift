@@ -482,14 +482,24 @@ extension PreviewFeatureController: CardStageViewDelegate {
 extension PreviewFeatureController {
     @objc func cardContextMenuHandler(_ item: PreviewContextMenuItem) {
         switch item.itemType {
-        case .anchor(let anchor): self.state = self.state.with(\.anchor, anchor)
-        case .dock(let loc): self.state = self.state.with(\.dockLocation, loc)
-        case .copy: self.copyImage()
-        case .export: self.exportImage()
+        case .anchor(let anchor):
+            if self.state.isDocked {
+                self.state =
+                    self.state.with(\.anchor, anchor).with(\.dockLocation, nil)
+            } else {
+                self.state =
+                    self.state.with(\.anchor, anchor)
+            }
+        case .dock(let loc):
+            self.state = self.state.with(\.dockLocation, loc)
+        case .copy:
+            self.copyImage()
+        case .export:
+            self.exportImage()
         }
     }
 
-    func makePreviewContextMenu() -> NSMenu? {
+    public func makePreviewContextMenu(withHeader: Bool = true) -> NSMenu? {
         let menu = NSMenu()
 
         func checked(_ type: PreviewContextMenuItem.ItemType) -> Bool {
@@ -503,29 +513,34 @@ extension PreviewFeatureController {
             }
         }
 
+        menu.autoenablesItems = false
+
         menu.items = [
-            .sectionHeader(title: "Preview"),
             PreviewContextMenuItem(
                 .anchor(.topLeft),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: "inset.filled.topleft.rectangle",
                 checked: checked(.anchor(.topLeft))
             ),
             PreviewContextMenuItem(
                 .anchor(.topRight),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: "inset.filled.topright.rectangle",
                 checked: checked(.anchor(.topRight))
             ),
             PreviewContextMenuItem(
                 .anchor(.bottomLeft),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: "inset.filled.bottomleft.rectangle",
                 checked: checked(.anchor(.bottomLeft))
             ),
             PreviewContextMenuItem(
                 .anchor(.bottomRight),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: "inset.filled.bottomright.rectangle",
                 checked: checked(.anchor(.bottomRight))
             ),
@@ -533,12 +548,14 @@ extension PreviewFeatureController {
             PreviewContextMenuItem(
                 .dock(.top),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: .systemIconDockUp,
                 checked: checked(.dock(.top))
             ),
             PreviewContextMenuItem(
                 .dock(.bottom),
                 action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
                 image: .systemIconDockDown,
                 checked: checked(.dock(.bottom))
             ),
@@ -546,15 +563,24 @@ extension PreviewFeatureController {
             PreviewContextMenuItem(
                 .copy,
                 action: #selector(Self.cardContextMenuHandler(_:)),
-                image: .systemIconMenuCopy
+                target: self,
+                image: .systemIconMenuCopy,
+                enabled: self.state.image != nil,
             ),
             PreviewContextMenuItem(
                 .export,
                 action: #selector(Self.cardContextMenuHandler(_:)),
-                image: .systemIconSave
+                target: self,
+                image: .systemIconSave,
+                enabled: self.state.image != nil,
             ),
 
         ]
+
+        if withHeader {
+            menu.items = [.sectionHeader(title: "Preview")] + menu.items
+
+        }
 
         return menu
     }

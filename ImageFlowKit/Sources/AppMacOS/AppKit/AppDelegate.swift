@@ -1,15 +1,21 @@
 #if os(macOS)
 import AppKit
 import Helpers
+import SharedModels
 import SwiftUI
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var welcomeWindowController: WelcomeWindowController? = nil
+    var previewMenuDelegate: ViewMenuDelegate = .init()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         logger.info("applicationDidFinishLaunching")
+
+        if let menu = NSApp.mainMenu?.item(withTitle: "View")?.submenu {
+            menu.delegate = self.previewMenuDelegate
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

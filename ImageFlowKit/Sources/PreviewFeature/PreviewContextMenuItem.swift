@@ -28,10 +28,19 @@ class PreviewContextMenuItem: NSMenuItem {
         }
     }
 
-    init(_ type: ItemType, action selector: Selector?, image: String? = nil, checked: Bool = false) {
+    init(
+        _ type: ItemType,
+        action selector: Selector?,
+        target: AnyObject?,
+        image: String? = nil,
+        checked: Bool = false,
+        enabled: Bool = true
+    ) {
         self.itemType = type
         super.init(title: type.title, action: selector, keyEquivalent: "")
+        self.target = target
         self.state = checked ? .on : .off
+        self.isEnabled = enabled
         if let name = image {
             self.image = .init(systemSymbolName: name, accessibilityDescription: nil)
         }

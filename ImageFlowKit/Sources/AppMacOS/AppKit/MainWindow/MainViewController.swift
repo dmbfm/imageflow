@@ -102,6 +102,16 @@ final class MainViewController: NSSplitViewController {
         let s = self.detailVC.view.safeAreaInsets
         self.detailVC.updateSafeAreaInsets(s)
     }
+
+    func viewMenuWillOpen(_ menu: XKit.XMenu?) {
+        if let item = menu?.item(withTitle: "Previews"),
+            let menu = self.detailVC?.previewVC.makePreviewContextMenu(withHeader: false)
+        {
+            item.submenu = menu
+        } else if let item = menu?.item(withTitle: "Previews") {
+            item.isEnabled = false
+        }
+    }
 }
 
 // MARK: - ImageFlowCoordinatorProtocol
