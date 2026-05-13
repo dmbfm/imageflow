@@ -312,24 +312,7 @@ public final class TextInput: XViewEx {
         }
     }
 
-    public override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        for t in self.trackingAreas {
-            self.removeTrackingArea(t)
-        }
-        let trackingArea = NSTrackingArea(
-            rect: self.bounds,
-            options: [.cursorUpdate, .activeInKeyWindow, .mouseEnteredAndExited, .mouseMoved],
-            owner: self,
-            userInfo: nil
-        )
-        self.addTrackingArea(trackingArea)
-    }
-
-    private var hasPushedCursor: Bool = false
-
     public override func resetCursorRects() {
-        self.discardCursorRects()
         self.addCursorRect(self.bounds, cursor: .columnResize)
     }
 
