@@ -168,6 +168,7 @@ struct DockedToolbarView: View {
                             .tag(item.location)
                     }
                 }
+                .controlSize(.small)
             }
 
             btn("document.on.document") {

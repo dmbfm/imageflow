@@ -29,7 +29,7 @@ struct CardImagePicker: View {
                             }
                         }
                         .padding(.vertical, 8)
-                        .padding(.trailing, 4)
+                        .padding(.trailing, 6)
                         .padding(.leading, 6)
                         .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 8))
                         .glassEffectUnion(id: "picker", namespace: self.ns)
@@ -50,6 +50,9 @@ struct CardImagePicker: View {
                         #endif
                     }
                 }
+                .controlSize(.small)
+                .padding(.horizontal, 10)
+                .frame(minWidth: 40)
                 .padding(.bottom, 12)
             }
         }
