@@ -406,8 +406,8 @@ public final class CardStageView: XViewEx {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
                     self.cardView.shadowStyle = nil
+                    self.delegate?.cardStageDidFinnishDocking(self)
                     self.animCardOpacity(from: 0.0, to: 1.0, 0.25) {
-                        self.delegate?.cardStageDidFinnishDocking(self)
                     }
                 } else {
                     self.cardView.frame = frame
@@ -418,9 +418,9 @@ public final class CardStageView: XViewEx {
             }
             // Docked -> Floating
         } else if self.state.isFloating && !oldValue.isFloating {
-            self.delegate?.cardStageDidStartUndocking(self)
             if self.state.hidden {
                 self.animCardOpacity(from: 1.0, to: 0.0, 0.25) {
+                    self.delegate?.cardStageDidStartUndocking(self)
                     self.cardView.radius = self.configuration.cardRadius
                     self.cardView.shadowStyle = self.configuration.cardShadow
                     self.delegate?.cardStageDidFinnishUndocking(self)
@@ -559,22 +559,6 @@ public final class CardStageView: XViewEx {
     func layout(docked: CardStageState.Docked, geometry: Geometry.Docked) {
         self.cardView.frame = geometry.frame
     }
-}
-
-// MARK: - CardStageViewDelegate
-
-public protocol CardStageViewDelegate: AnyObject {
-    func cardStageAnchorDidChange(_ sender: CardStageView)
-    func cardStageDockLocationDidChange(_ sender: CardStageView)
-
-    func cardStageDidStartDocking(_ sender: CardStageView)
-    func cardStageDidFinnishDocking(_ sender: CardStageView)
-
-    func cardStageDidStartUndocking(_ sender: CardStageView)
-    func cardStageDidFinnishUndocking(_ sender: CardStageView)
-
-    func cardStageDidStartResizingCard(_ sender: CardStageView, locationInWindow: CGPoint)
-    func cardStageDidFinnishResizingCard(_ sender: CardStageView, locationInWindow: CGPoint)
 }
 
 // MARK: - Helpers
