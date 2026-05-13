@@ -68,7 +68,9 @@ class CardContentView: XViewEx {
     }
 
     override func rightMouseDown(with event: NSEvent) {
-        // NOTE: We need this or the event will be send to the canvas
+        if let menu = self.delegate?.cardContentViewContextMenu(self) {
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+        }
     }
 
     override func scrollWheel(with event: NSEvent) {
@@ -117,5 +119,6 @@ extension CardContentView {
     protocol Delegate: AnyObject {
         func cardContentViewMouseEntered(_ view: CardContentView)
         func cardContentViewMouseExited(_ view: CardContentView)
+        func cardContentViewContextMenu(_ view: CardContentView) -> NSMenu?
     }
 }

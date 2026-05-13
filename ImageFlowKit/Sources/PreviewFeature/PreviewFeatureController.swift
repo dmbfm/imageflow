@@ -477,9 +477,117 @@ extension PreviewFeatureController: CardStageViewDelegate {
     }
 }
 
+// MARK: - +Context Menu
+
+extension PreviewFeatureController {
+    class CardContextMenuItem: NSMenuItem {
+
+        var itemType: ItemType
+
+        enum ItemType {
+            case anchor(CardStageAnchor)
+            case dock(CardDockLocation)
+            case copy
+            case export
+
+            var title: String {
+                switch self {
+                case .anchor(.bottomLeft): "Bottom Left"
+                case .anchor(.bottomRight): "Bottom Right"
+                case .anchor(.topLeft): "Top Left"
+                case .anchor(.topRight): "Top Right"
+                case .dock(.bottom): "Dock to Bottom"
+                case .dock(.top): "Dock to Top"
+                case .copy: "Copy to Clipboard"
+                case .export: "Export Image"
+                }
+            }
+        }
+
+        init(_ type: ItemType, action selector: Selector?, image: String? = nil, checked: Bool = false) {
+            self.itemType = type
+            super.init(title: type.title, action: selector, keyEquivalent: "")
+            self.state = checked ? .on : .off
+            if let name = image {
+                self.image = .init(systemSymbolName: name, accessibilityDescription: nil)
+            }
+        }
+
+        required init(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+
+    @objc func cardContextMenuHandler(_ item: CardContextMenuItem) {
+        switch item.itemType {
+        case .anchor(let anchor): self.state = self.state.with(\.anchor, anchor)
+        case .dock(let loc): self.state = self.state.with(\.dockLocation, loc)
+        case .copy: self.copyImage()
+        case .export: self.exportImage()
+        }
+    }
+}
+
 // MARK: - CardContentView.Delegate
 
 extension PreviewFeatureController: CardContentView.Delegate {
+    func cardContentViewContextMenu(_ view: CardContentView) -> NSMenu? {
+        let menu = NSMenu()
+
+        menu.items = [
+            .sectionHeader(title: "Floating Preview"),
+            CardContextMenuItem(
+                .anchor(.topLeft),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: "inset.filled.topleft.rectangle",
+                checked: self.state.anchor == .topLeft
+            ),
+            CardContextMenuItem(
+                .anchor(.topRight),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: "inset.filled.topright.rectangle",
+                checked: self.state.anchor == .topRight
+            ),
+            CardContextMenuItem(
+                .anchor(.bottomLeft),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: "inset.filled.bottomleft.rectangle",
+                checked: self.state.anchor == .bottomLeft
+            ),
+            CardContextMenuItem(
+                .anchor(.bottomRight),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: "inset.filled.bottomright.rectangle",
+                checked: self.state.anchor == .bottomRight
+            ),
+            .separator(),
+            CardContextMenuItem(
+                .dock(.top),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: .systemIconDockUp
+            ),
+            CardContextMenuItem(
+                .dock(.bottom),
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: .systemIconDockDown
+            ),
+            .separator(),
+            CardContextMenuItem(
+                .copy,
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: .systemIconMenuCopy
+            ),
+            CardContextMenuItem(
+                .export,
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                image: .systemIconSave
+            ),
+
+        ]
+
+        return menu
+    }
+
     func cardContentViewMouseEntered(_ view: CardContentView) {
         let vm = self.cardControlsVM
 
