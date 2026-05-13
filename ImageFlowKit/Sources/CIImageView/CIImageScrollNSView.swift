@@ -71,7 +71,7 @@ public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
     // MARK: - Private Properties
 
     /// The configuration prameters for this view.
-    var configuration: Configuration
+    public internal(set) var configuration: Configuration
 
     /// The previous zoom value. Used to check if we need to send a `zoomChanged` event or not when
     /// the clip view bounds is modified.
@@ -298,6 +298,8 @@ public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
         let zoom = pow(2.0, nextAlpha)
         if self.configuration.zoomRange.contains(zoom) {
             self.setZoom(value: zoom, centeredAt: nil, animate: animate)
+        } else {
+            self.setZoom(value: self.configuration.zoomRange.lowerBound, centeredAt: nil, animate: animate)
         }
     }
 
@@ -307,6 +309,8 @@ public class CIImageScrollNSView: XViewEx, CIImageScrollXViewProtocol {
         let zoom = pow(2.0, nextAlpha)
         if self.configuration.zoomRange.contains(zoom) {
             self.setZoom(value: zoom, centeredAt: nil, animate: animate)
+        } else {
+            self.setZoom(value: self.configuration.zoomRange.upperBound, centeredAt: nil, animate: animate)
         }
     }
 

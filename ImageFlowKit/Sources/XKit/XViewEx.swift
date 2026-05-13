@@ -37,8 +37,6 @@ open class XViewEx: XView {
                 layer.shadowOpacity = Float(shadow.opacity)
             })
         } else {
-            print("Setting shadow to nil...")
-            self.shadow = nil
             self.withLayer { layer in
                 layer.shadowColor = nil
             }

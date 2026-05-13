@@ -25,6 +25,12 @@ public class PreviewFeatureController: XViewController {
     /// TODO: Add to settings.
     let dockedPreviewMaxHeight: CGFloat? = 0.8
 
+    // MARK: - Public Properties
+
+    public var canExportImage: Bool {
+        self.state.image != nil
+    }
+
     // MARK: - Internal Properties
 
     /// A reference to the `Flow` model
@@ -112,6 +118,16 @@ public class PreviewFeatureController: XViewController {
         nil
     }
 
+    // MARK: - Deinit
+
+    @MainActor
+    deinit {
+        for (_, window) in self.previewWindows {
+            window.controller?.close()
+        }
+        self.previewWindows = [:]
+    }
+
     // MARK: - View Lifecycle
 
     public override func loadView() {
@@ -185,7 +201,7 @@ public class PreviewFeatureController: XViewController {
         case .export:
             self.exportImage()
         case .openWindow:
-            break
+            self.openWindow()
         case .pick(let location):
             self.input(.pick(location))
         case .toggleLock:
@@ -203,6 +219,56 @@ public class PreviewFeatureController: XViewController {
         }
     }
 
+    enum PreviewWindowState {
+        case open(WindowPreviewWindowController)
+        case closed(WindowPreviewCache)
+
+        var controller: WindowPreviewWindowController? {
+            switch self {
+            case .open(let controller): controller
+            default: nil
+            }
+        }
+
+        var cache: WindowPreviewCache? {
+            switch self {
+            case .closed(let cache): cache
+            case .open: nil
+            }
+        }
+    }
+
+    var previewWindows: [OutputPortLocation: PreviewWindowState] = [:]
+
+    func openWindow() {
+        if let location = self.state.location {
+
+            if let controller = self.previewWindows[location]?.controller {
+                controller.window?.makeKeyAndOrderFront(nil)
+            } else {
+                let cache = self.previewWindows[location]?.cache ?? .init()
+
+                let controller = WindowPreviewWindowController(
+                    frame: .init(x: 0, y: 0, width: 800, height: 600),
+                    center: true,
+                    cache: cache,
+                    assetStore: self.assetStore,
+                    flow: self.flow,
+                    coordinator: self.coordinator,
+                    location: location
+                )
+
+                controller.windowWillCloseCallback = { [weak self] cache in
+                    self?.previewWindows[location] = .closed(cache)
+                }
+
+                self.previewWindows[location] = .open(controller)
+
+                controller.showWindow(nil)
+            }
+        }
+    }
+
     func cardToolbarHandler(_ name: CardToolbarItemName) {
         switch name {
         case .lock:
@@ -216,18 +282,18 @@ public class PreviewFeatureController: XViewController {
         case .dockUp:
             self.state.dockLocation = .top
         case .window:
-            break
+            self.openWindow()
         }
     }
 
-    func exportImage() {
+    public func exportImage() {
         if let image = self.state.image {
             let name = self.state.location.flatMap({ self.flow.nodes[$0.node]?.name })
             self.coordinator.perform(userAction: .exportImage(image: image, filename: name))
         }
     }
 
-    func copyImage() {
+    public func copyImage() {
         if let image = self.state.image {
             PasteboarImageWriter().copy(image)
         }

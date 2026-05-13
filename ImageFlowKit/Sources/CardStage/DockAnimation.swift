@@ -46,26 +46,26 @@ class DockAnimation: AnimKit::Animation {
 
     func tick(deltaTime: TimeInterval) -> AnimKit.AnimationTickResult {
 
-        let currentFrame = self.timingFunc(
-            a: self.from.frame,
-            b: self.to.frame,
-            t: self.ellapsed,
-            duration: self.duration
-        )
+        // let currentFrame = self.timingFunc(
+        //     a: self.from.frame,
+        //     b: self.to.frame,
+        //     t: self.ellapsed,
+        //     duration: self.duration
+        // )
 
-        let currentRadius = self.timingFunc(
-            a: self.from.cornerRadius,
-            b: self.to.cornerRadius,
-            t: self.ellapsed,
-            duration: self.duration
-        )
+        // let currentRadius = self.timingFunc(
+        //     a: self.from.cornerRadius,
+        //     b: self.to.cornerRadius,
+        //     t: self.ellapsed,
+        //     duration: self.duration
+        // )
 
-        let shadowRadius = self.timingFunc(
-            a: self.from.shadowRadius,
-            b: self.to.shadowRadius,
-            t: self.ellapsed,
-            duration: self.duration
-        )
+        // let shadowRadius = self.timingFunc(
+        //     a: self.from.shadowRadius,
+        //     b: self.to.shadowRadius,
+        //     t: self.ellapsed,
+        //     duration: self.duration
+        // )
 
         //        self.apply(.init(frame: currentFrame, cornerRadius: currentRadius, shadowRadius: shadowRadius))
 

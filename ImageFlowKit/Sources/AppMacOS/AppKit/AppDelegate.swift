@@ -8,13 +8,13 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var welcomeWindowController: WelcomeWindowController? = nil
-    var previewMenuDelegate: ViewMenuDelegate = .init()
+    var viewMenuDelegate: ViewMenuDelegate = .init()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         logger.info("applicationDidFinishLaunching")
 
-        if let menu = NSApp.mainMenu?.item(withTitle: "View")?.submenu {
-            menu.delegate = self.previewMenuDelegate
+        if let menu = NSApp.mainMenu(submenuWithTitle: "View") {
+            menu.delegate = self.viewMenuDelegate
         }
     }
 
@@ -40,4 +40,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 }
+
+extension NSApplication {
+    func mainMenu(submenuWithTitle title: String) -> NSMenu? {
+        self.mainMenu?.item(withTitle: title)?.submenu
+    }
+}
+
 #endif

@@ -2,6 +2,7 @@
 import AppKit
 import AssetBrowserFeature
 import AssetManager
+import PreviewFeature
 import Backend
 import CanvasFeature
 import SharedModels
@@ -29,6 +30,10 @@ final class MainViewController: NSSplitViewController {
 
     var canvasView: CanvasPlatformView {
         self.detailVC.canvasView
+    }
+
+    var previewVC: PreviewFeatureController {
+        self.detailVC.previewVC
     }
 
     // MARK: - Lazy Properties
@@ -102,16 +107,6 @@ final class MainViewController: NSSplitViewController {
         let s = self.detailVC.view.safeAreaInsets
         self.detailVC.updateSafeAreaInsets(s)
     }
-
-    func viewMenuWillOpen(_ menu: XKit.XMenu?) {
-        if let item = menu?.item(withTitle: "Previews"),
-            let menu = self.detailVC?.previewVC.makePreviewContextMenu(withHeader: false)
-        {
-            item.submenu = menu
-        } else if let item = menu?.item(withTitle: "Previews") {
-            item.isEnabled = false
-        }
-    }
 }
 
 // MARK: - ImageFlowCoordinatorProtocol
@@ -159,9 +154,6 @@ extension MainViewController: GlobalCoordinatorProtocol {
     func selectedNodeCount() -> Int {
         self.flow.selection.count
     }
-}
-
-extension MainViewController {
 }
 
 // MARK: - Nodes
@@ -219,52 +211,7 @@ extension MainViewController {
     }
 }
 
-// MARK: - Modal Container View
-
-extension MainViewController {
-
-    @Observable
-    class ModalContainerViewModel {
-
-        var imageExporterState: ImageExporterState = .init()
-        var error: LocalizedAlertError?
-
-        struct ImageExporterState {
-            var image: CIImage?
-            var isPresented: Bool {
-                get {
-                    self.image != nil
-                }
-                set {
-                    if !newValue {
-                        self.image = nil
-                    }
-                }
-            }
-            var defaultFilename: String?
-        }
-
-        func showImageExporter(_ image: CIImage, _ defaultFilename: String?) {
-            self.imageExporterState = .init(image: image, defaultFilename: defaultFilename)
-        }
-    }
-
-    struct ModalContainerView: View {
-
-        @Bindable var vm: ModalContainerViewModel
-
-        var body: some View {
-            EmptyView()
-                .imageExporter(
-                    isPresented: self.$vm.imageExporterState.isPresented,
-                    image: self.vm.imageExporterState.image,
-                    defaultFilename: self.vm.imageExporterState.defaultFilename,
-                    errorMessage: self.$vm.error
-                )
-        }
-    }
-
-}
+// MARK: - Helpers
 
 extension Point {
     @MainActor
