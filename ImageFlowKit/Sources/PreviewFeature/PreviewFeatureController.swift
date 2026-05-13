@@ -414,6 +414,7 @@ public class PreviewFeatureController: XViewController {
         updateProp(source: self.state, \.location, dest: vm, \.currentLocation)
         updateProp(source: self.state, \.availableLocations, dest: vm, \.available)
         updateProp(source: self.state, \.dockLocation, dest: vm, \.dockLocation)
+        updateProp(source: self.state, \.locked, dest: vm, \.locked)
     }
 
     func upadateAvailablePreviewLocations() async {
