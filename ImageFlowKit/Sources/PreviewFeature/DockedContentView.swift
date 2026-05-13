@@ -99,6 +99,15 @@ class DockedContentView: XViewEx {
         }
     }
 
+    override func rightMouseDown(with event: NSEvent) {
+        let loc = self.toolbarView.convert(event.locationInWindow, from: nil)
+        if !self.toolbarView.bounds.contains(loc) {
+            if let menu = self.delegate?.dockedContentViewContextMenu(self) {
+                NSMenu.popUpContextMenu(menu, with: event, for: self)
+            }
+        }
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         self.imageScrollView.withLayer({ layer in
             layer.backgroundColor = Colors.canvasBackground.cgColor
@@ -147,5 +156,6 @@ extension DockedContentView {
 extension DockedContentView {
     protocol Delegate: AnyObject {
         func dockedContentViewZoomDidChange(_ view: DockedContentView, _ zoom: CGFloat)
+        func dockedContentViewContextMenu(_ view: DockedContentView) -> NSMenu?
     }
 }

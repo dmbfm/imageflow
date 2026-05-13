@@ -480,45 +480,7 @@ extension PreviewFeatureController: CardStageViewDelegate {
 // MARK: - +Context Menu
 
 extension PreviewFeatureController {
-    class CardContextMenuItem: NSMenuItem {
-
-        var itemType: ItemType
-
-        enum ItemType {
-            case anchor(CardStageAnchor)
-            case dock(CardDockLocation)
-            case copy
-            case export
-
-            var title: String {
-                switch self {
-                case .anchor(.bottomLeft): "Bottom Left"
-                case .anchor(.bottomRight): "Bottom Right"
-                case .anchor(.topLeft): "Top Left"
-                case .anchor(.topRight): "Top Right"
-                case .dock(.bottom): "Dock to Bottom"
-                case .dock(.top): "Dock to Top"
-                case .copy: "Copy to Clipboard"
-                case .export: "Export Image"
-                }
-            }
-        }
-
-        init(_ type: ItemType, action selector: Selector?, image: String? = nil, checked: Bool = false) {
-            self.itemType = type
-            super.init(title: type.title, action: selector, keyEquivalent: "")
-            self.state = checked ? .on : .off
-            if let name = image {
-                self.image = .init(systemSymbolName: name, accessibilityDescription: nil)
-            }
-        }
-
-        required init(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
-
-    @objc func cardContextMenuHandler(_ item: CardContextMenuItem) {
+    @objc func cardContextMenuHandler(_ item: PreviewContextMenuItem) {
         switch item.itemType {
         case .anchor(let anchor): self.state = self.state.with(\.anchor, anchor)
         case .dock(let loc): self.state = self.state.with(\.dockLocation, loc)
@@ -526,58 +488,67 @@ extension PreviewFeatureController {
         case .export: self.exportImage()
         }
     }
-}
 
-// MARK: - CardContentView.Delegate
-
-extension PreviewFeatureController: CardContentView.Delegate {
-    func cardContentViewContextMenu(_ view: CardContentView) -> NSMenu? {
+    func makePreviewContextMenu() -> NSMenu? {
         let menu = NSMenu()
 
+        func checked(_ type: PreviewContextMenuItem.ItemType) -> Bool {
+            switch type {
+            case .anchor(let anchor):
+                self.state.isFloating ? self.state.anchor == anchor : false
+            case .dock(let location):
+                self.state.isDocked ? self.state.dockLocation == location : false
+            default:
+                false
+            }
+        }
+
         menu.items = [
-            .sectionHeader(title: "Floating Preview"),
-            CardContextMenuItem(
+            .sectionHeader(title: "Preview"),
+            PreviewContextMenuItem(
                 .anchor(.topLeft),
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: "inset.filled.topleft.rectangle",
-                checked: self.state.anchor == .topLeft
+                checked: checked(.anchor(.topLeft))
             ),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .anchor(.topRight),
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: "inset.filled.topright.rectangle",
-                checked: self.state.anchor == .topRight
+                checked: checked(.anchor(.topRight))
             ),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .anchor(.bottomLeft),
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: "inset.filled.bottomleft.rectangle",
-                checked: self.state.anchor == .bottomLeft
+                checked: checked(.anchor(.bottomLeft))
             ),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .anchor(.bottomRight),
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: "inset.filled.bottomright.rectangle",
-                checked: self.state.anchor == .bottomRight
+                checked: checked(.anchor(.bottomRight))
             ),
             .separator(),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .dock(.top),
                 action: #selector(Self.cardContextMenuHandler(_:)),
-                image: .systemIconDockUp
+                image: .systemIconDockUp,
+                checked: checked(.dock(.top))
             ),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .dock(.bottom),
                 action: #selector(Self.cardContextMenuHandler(_:)),
-                image: .systemIconDockDown
+                image: .systemIconDockDown,
+                checked: checked(.dock(.bottom))
             ),
             .separator(),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .copy,
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: .systemIconMenuCopy
             ),
-            CardContextMenuItem(
+            PreviewContextMenuItem(
                 .export,
                 action: #selector(Self.cardContextMenuHandler(_:)),
                 image: .systemIconSave
@@ -586,6 +557,15 @@ extension PreviewFeatureController: CardContentView.Delegate {
         ]
 
         return menu
+    }
+
+}
+
+// MARK: - CardContentView.Delegate
+
+extension PreviewFeatureController: CardContentView.Delegate {
+    func cardContentViewContextMenu(_ view: CardContentView) -> NSMenu? {
+        self.makePreviewContextMenu()
     }
 
     func cardContentViewMouseEntered(_ view: CardContentView) {
@@ -610,6 +590,10 @@ extension PreviewFeatureController: CardContentView.Delegate {
 // MARK: - DockedContentView.Delegate
 
 extension PreviewFeatureController: DockedContentView.Delegate {
+    func dockedContentViewContextMenu(_ view: DockedContentView) -> NSMenu? {
+        self.makePreviewContextMenu()
+    }
+
     func dockedContentViewZoomDidChange(_ view: DockedContentView, _ zoom: CGFloat) {
         self.dockedToolbarVM.zoom = zoom
     }
