@@ -10,6 +10,7 @@ import Design
 import ContextMenus
 import XKit
 import Combine
+import SwiftUI
 
 public final class CanvasFeatureNSViewController: NSViewController {
 
