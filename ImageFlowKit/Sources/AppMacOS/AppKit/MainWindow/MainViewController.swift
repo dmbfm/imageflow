@@ -12,6 +12,7 @@ import NodeView
 import Helpers
 import XKit
 import SwiftUI
+import Combine
 
 final class MainViewController: NSSplitViewController {
 
@@ -25,6 +26,7 @@ final class MainViewController: NSSplitViewController {
     var inspectorVC: InspectorViewController!
     var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
     var modalContainerVM: ModalContainerViewModel = .init()
+    var cancellables: Set<AnyEventEmitterCancellable> = []
 
     // MARK: - Computed Properties
 
@@ -34,6 +36,10 @@ final class MainViewController: NSSplitViewController {
 
     var previewVC: PreviewFeatureController {
         self.detailVC.previewVC
+    }
+
+    var canvasViewportPublisher: PassthroughSubject<CanvasView.Viewport, Never> {
+        self.detailVC.canvasVC.viewportPublisher
     }
 
     // MARK: - Lazy Properties
@@ -130,6 +136,12 @@ extension MainViewController: GlobalCoordinatorProtocol {
             )
         case let .exportImage(image, filename):
             self.modalContainerVM.showImageExporter(image, filename)
+        case .viewport(.zoomIn):
+            self.canvasView.zoomIn()
+        case .viewport(.zoomOut):
+            self.canvasView.zoomOut()
+        case .viewport(.setZoom(let zoom)):
+            self.canvasView.setZoom(zoom)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }

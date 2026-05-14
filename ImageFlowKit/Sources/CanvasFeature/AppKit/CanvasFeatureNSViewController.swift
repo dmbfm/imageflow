@@ -9,6 +9,7 @@ import Values
 import Design
 import ContextMenus
 import XKit
+import Combine
 
 public final class CanvasFeatureNSViewController: NSViewController {
 
@@ -24,6 +25,8 @@ public final class CanvasFeatureNSViewController: NSViewController {
     public var canvasView: CanvasPlatformView!
     /// The coordinator
     public var coordinator: GlobalCoordinator
+    /// Publisher for viewport changes.
+    public var viewportPublisher: PassthroughSubject<CanvasView.Viewport, Never> = .init()
     /// Provider for canvas context menus
     var canvasContextMenuProvider: CanvasContextMenuProvider?
     /// Set to true whenever the user is dragging a partial edge starting from a
@@ -97,41 +100,26 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     func onCanvasEvent(_ event: CanvasPlatformView.Event) {
         switch event {
+        case .viewportDidChange(let viewport):
+            self.viewportPublisher.send(viewport)
         case .rectSelect(let state):
             self.onCanvasRectSelect(state)
         case .clickBackground:
             self.onCanvasClickBackground()
         case .didMoveToSuperview:
             break
-        // sp.emitEvent("CanvasFeatureView:CanvasEvent:didMoveToSuperview")
-        // Task { @MainActor in
-        //     self.updateEdges()
-        // }
         case .pointerMoved(_):
-            break
-        // if let pos {
-        //     self.coordinator.pointerData = .init(
-        //         positionInCanvasView: pos,
-        //         positionInCanvas: self.state.viewport.convert(pos, from: .screen, to: .canvas)
-        //     )
-        // } else {
-        //     self.coordinator.pointerData = nil
-        // }
-        case .viewportDidChange(_):
             break
         }
     }
 
     private func onCanvasClickBackground() {
         self.flow.selectNone()
-        // self.focus.wrappedValue = .global
     }
 
     // MARK: - Flow
 
     private func onFlowEvent(_ event: FlowEvent) {
-        //        logger.trace("\("\(event)")")
-
         switch event {
         case .nodesDidChange:
             self.updateNodeData()

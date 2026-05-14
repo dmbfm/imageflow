@@ -230,7 +230,7 @@ extension CanvasPlatformView {
         let scale = anim.startScale.lerp(to: anim.endScale, t: s)
         self.viewport.zoom(scale, atScreenPoint: anim.point)
 
-        t += link.duration * 4
+        t += link.duration * 6
 
         if t > 1.0 {
             self.viewport.zoom(anim.endScale, atScreenPoint: anim.point)
