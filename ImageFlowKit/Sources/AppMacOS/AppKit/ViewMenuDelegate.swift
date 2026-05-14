@@ -6,12 +6,14 @@ import SwiftUI
 
 class ViewMenuDelegate: NSObject, NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
-        if let mvc = (NSApp.keyWindow?.contentViewController as? MainViewController),
-            let item = menu.item(withTitle: "Previews"),
-            let menu = mvc.detailVC?.previewVC.makePreviewContextMenu(withHeader: false)
+        guard let item = menu.item(withTitle: "Previews") else { return }
+
+        if let mvc = NSApp.mainViewController,
+            let previewsMenu = mvc.detailVC?.previewVC.makePreviewContextMenu(withHeader: false)
         {
-            item.submenu = menu
-        } else if let item = menu.item(withTitle: "Previews") {
+            item.submenu = previewsMenu
+            item.isEnabled = true
+        } else {
             item.isEnabled = false
         }
     }

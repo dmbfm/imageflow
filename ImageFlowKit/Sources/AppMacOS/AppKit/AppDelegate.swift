@@ -45,6 +45,10 @@ extension NSApplication {
     func mainMenu(submenuWithTitle title: String) -> NSMenu? {
         self.mainMenu?.item(withTitle: title)?.submenu
     }
+
+    var mainViewController: MainViewController? {
+        self.keyWindow?.contentViewController as? MainViewController
+    }
 }
 
 #endif
