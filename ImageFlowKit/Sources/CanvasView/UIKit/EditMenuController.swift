@@ -1,7 +1,6 @@
 #if os(iOS)
 
 import UIKit
-import Logging
 
 @MainActor
 class EditMenuController: NSObject, UIEditMenuInteractionDelegate {

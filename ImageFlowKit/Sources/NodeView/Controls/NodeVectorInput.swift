@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import SharedModels
 import SwiftUI
 import TextInput
@@ -224,7 +223,7 @@ extension NodeVectorInput {
         let value: Value
         func makeView(context: Context) -> NodeVectorInput {
             let view = NodeVectorInput(self.value)
-            view.onEvent = { event in log("event: \(event)") }
+            view.onEvent = { _ in }
             return view
         }
 

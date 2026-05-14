@@ -1,6 +1,5 @@
 import Backend
 import CanvasView
-import Logging
 import SharedModels
 import SwiftUI
 

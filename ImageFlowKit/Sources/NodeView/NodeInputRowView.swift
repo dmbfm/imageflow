@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import SharedModels
 import SwiftUI
 import Values
@@ -363,7 +362,7 @@ extension NodeInputRowView {
                 self.input,
                 delegate: nil
             )
-            view.onEvent = { log("event: \($0)") }
+            view.onEvent = { _ in }
             return view
         }
 

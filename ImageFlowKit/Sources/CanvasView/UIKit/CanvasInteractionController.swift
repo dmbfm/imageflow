@@ -1,7 +1,7 @@
 #if os(iOS)
 
 import Helpers
-import Logging
+
 import UIKit
 
 /// Manages all the gesture recognizers for `CanvasUIView`, thus handling most of the user interaction in the canvas.

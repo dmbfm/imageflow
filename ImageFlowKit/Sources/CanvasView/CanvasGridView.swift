@@ -1,6 +1,5 @@
 import Design
 import Helpers
-import Logging
 import SwiftUI
 import XKit
 
@@ -200,7 +199,7 @@ final class CanvasGridView: XViewEx {
 
     private func drawEdges(_ ctx: CGContext) {
         guard let viewport = self.viewport else {
-            log("Viewport is missing!", level: .warning)
+            logger.warning("Viewport is missing!")
             return
         }
 

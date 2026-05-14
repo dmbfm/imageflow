@@ -233,7 +233,6 @@ extension WindowPreviewViewController: CIImageScrollXViewDelegate {
     }
 
     func ciImageScrollViewZoomDidChange(_ view: CIImageScrollXView, _ zoom: CGFloat) {
-        logger.info("zoom did change: \(zoom)")
         self.toolbarVM?.zoom = zoom
         self.toolbarVM?.canZoomIn = zoom < self.imageScrollView.configuration.zoomRange.upperBound
         self.toolbarVM?.canZoomOut = zoom > self.imageScrollView.configuration.zoomRange.lowerBound

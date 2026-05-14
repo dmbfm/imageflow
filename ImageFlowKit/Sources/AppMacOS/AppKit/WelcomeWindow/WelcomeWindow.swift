@@ -4,7 +4,6 @@ import SwiftUI
 import AppKit
 import SharedModels
 import SettingsFeature
-import Logging
 
 public struct WelcomeWindow: Scene {
 

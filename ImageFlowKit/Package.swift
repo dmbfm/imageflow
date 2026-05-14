@@ -20,7 +20,6 @@ let package = Package(
         .library(name: "Backend"),
         .library(name: "Values"),
         .library(name: "Helpers"),
-        .library(name: "Logging"),
         .library(name: "Controls"),
         .library(name: "Design"),
         .library(name: "SharedModels"),
@@ -50,7 +49,6 @@ let package = Package(
         .target(
             name: "AppMacOS",
             dependencies: [
-                "Logging",
                 "Helpers",
                 "Backend",
                 "SharedModels",
@@ -74,13 +72,11 @@ let package = Package(
         .target(name: "XKit", dependencies: ["Helpers"]),
         .target(name: "Values"),
         .target(name: "Helpers"),
-        .target(name: "Logging"),
         .target(name: "CubeLutKit"),
         .target(
             name: "Controls",
             dependencies: [
                 "Helpers",
-                "Logging",
                 "Values",
                 "Design",
                 "XKit",
@@ -100,7 +96,6 @@ let package = Package(
                 "SwiftGraph",
                 "CubeLutKit",
                 "Helpers",
-                "Logging",
             ]
         ),
         .target(
@@ -120,7 +115,6 @@ let package = Package(
                 "SharedModels",
                 "Helpers",
                 "Values",
-                "Logging",
                 "CIImageView",
                 "ImageExporter",
                 "SharedMocking",
@@ -155,14 +149,12 @@ let package = Package(
                 "Backend",
                 "Helpers",
                 "Values",
-                "Logging",
                 "SharedModels",
             ]
         ),
         .target(
             name: "AssetBrowserFeature",
             dependencies: [
-                "Logging",
                 "Values",
                 "Helpers",
                 "SharedModels",
@@ -172,7 +164,6 @@ let package = Package(
             name: "CanvasView",
             dependencies: [
                 "Helpers",
-                "Logging",
                 "Design",
                 "XKit",
             ],
@@ -181,7 +172,6 @@ let package = Package(
             name: "NodeView",
             dependencies: [
                 "Helpers",
-                "Logging",
                 "Controls",
                 "CanvasView",
                 "Design",
@@ -195,7 +185,6 @@ let package = Package(
             name: "CanvasFeature",
             dependencies: [
                 "Helpers",
-                "Logging",
                 "Design",
                 "CanvasView",
                 "SharedModels",
@@ -223,7 +212,6 @@ let package = Package(
         .target(
             name: "FlowDocument",
             dependencies: [
-                "Logging",
                 "Helpers",
                 "CanvasFeature",
                 "AssetManager",
@@ -240,7 +228,6 @@ let package = Package(
             name: "BackendService",
             dependencies: [
                 "Backend",
-                "Logging",
                 "Helpers",
                 "SharedModels",
             ]
@@ -266,7 +253,6 @@ let package = Package(
                 "SharedMocking",
                 "Backend",
                 "Values",
-                "Logging",
                 "TextInput",
             ]
         ),

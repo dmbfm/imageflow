@@ -1,6 +1,5 @@
 import CoreGraphics
 import Helpers
-import Logging
 import SharedModels
 import SwiftUI
 import Values
@@ -22,7 +21,7 @@ struct AssetBrowserGridItemView: View {
             do {
                 self.image = try await self.thumbProvider.getThumb(forAsset: self.asset.id)
             } catch {
-                log("failed: \(error)", level: .error)
+                logger.error("failed: \(error)")
                 self.failed = true
             }
         }

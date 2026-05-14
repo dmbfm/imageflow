@@ -1,7 +1,7 @@
 #if os(iOS)
 
 import UIKit
-import Logging
+
 import Helpers
 
 class CanvasGestureView: UIView {

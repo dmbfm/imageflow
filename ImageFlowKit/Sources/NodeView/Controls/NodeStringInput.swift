@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import SwiftUI
 import TextInput
 import Values
@@ -114,7 +113,7 @@ extension NodeStringInput {
     struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeStringInput {
             let view = NodeStringInput(.string("Hello, world!"))
-            view.onEvent = { log("event: \($0)") }
+            view.onEvent = { _ in }
             return view
         }
 

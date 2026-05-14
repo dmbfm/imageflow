@@ -1,7 +1,6 @@
 #if os(macOS)
 
 import AppKit
-import Logging
 
 @MainActor
 class ColorPanelManager {

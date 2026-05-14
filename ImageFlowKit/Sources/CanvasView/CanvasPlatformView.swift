@@ -1,6 +1,5 @@
 import CoreGraphics
 import Helpers
-import Logging
 import SwiftUI
 import XKit
 
@@ -145,7 +144,7 @@ extension CanvasPlatformView {
 
     func removeNode(_ id: UUID) {
         guard let node = self.nodeViews[id] else {
-            log("Node not found: \(id)", level: .warning)
+            logger.warning("Node not found: \(id)")
             return
         }
         self.nodeViews.removeValue(forKey: id)

@@ -1,7 +1,6 @@
 import CanvasView
 import Design
 import Helpers
-import Logging
 import SharedModels
 import SwiftUI
 import Values
@@ -483,8 +482,7 @@ extension NodeView {
         public func makeView(context: Context) -> some XView {
             let view = NodeView(node)
             view.clipsToBounds = false
-            view.emitter.on { event in
-                log("event: \(event)")
+            view.emitter.on { _ in
             }.store(in: &self.cancellable)
             return view
         }

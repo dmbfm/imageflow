@@ -1,6 +1,5 @@
 import Foundation
 import Helpers
-import Logging
 
 // MARK: - PortDraggingState
 
@@ -142,7 +141,7 @@ extension Flow {
         do {
             try self.portDraggingState.startDragging(port: port, removedEdge: removedEdge)
         } catch {
-            log("Failed to start port dragging: \(error)", level: .error)
+            logger.error("Failed to start port dragging: \(error)")
 
             self.portDraggingState = .idle
         }
@@ -161,7 +160,7 @@ extension Flow {
             return result
 
         } catch {
-            log("Failed to update port drag: \(error)", level: .error)
+            logger.error("Failed to update port drag: \(error)")
             self.partialEdge = nil
             self.portDraggingState = .idle
         }
@@ -210,7 +209,7 @@ extension Flow {
             }
 
         } catch {
-            log("Failed to end port drag: \(error)", level: .error)
+            logger.error("Failed to end port drag: \(error)")
 
             self.portDraggingState = .idle
             self.partialEdge = nil
@@ -228,7 +227,7 @@ extension Flow {
             self.partialEdge = nil
 
         } catch {
-            log("Failed to end port drag: \(error)", level: .error)
+            logger.error("Failed to end port drag: \(error)")
         }
     }
 }

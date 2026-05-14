@@ -3,7 +3,6 @@ import CoreImage
 import CubeLutKit
 import Foundation
 import Helpers
-import Logging
 import OSLog
 import Photos
 import PhotosUI
@@ -569,7 +568,7 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
             [kCGImageSourceShouldCache: false] as CFDictionary
         )
     else {
-        log("error: thumbCGImageSourceCreateWithURLError", level: .error)
+        logger.error("error: thumbCGImageSourceCreateWithURLError")
         throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
     }
 
@@ -578,7 +577,7 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
     }
 
     guard let thumb = await thumbTask.value else {
-        log("error: thumbCGImageSourceCreateThumbnailError", level: .error)
+        logger.error("error: thumbCGImageSourceCreateThumbnailError")
         throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
     }
 

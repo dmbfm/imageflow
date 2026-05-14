@@ -10,7 +10,24 @@ import XKit
 
 public class PreviewFeatureController: XViewController {
 
-    // MARK: - Constants
+    // MARK: - Public Properties
+
+    public var canExportImage: Bool {
+        self.state.image != nil
+    }
+
+    // MARK: - Internal Properties
+
+    /// A reference to the `Flow` model
+    let flow: Flow
+    /// A reference to the `GlobalCoordinator`
+    let coordinator: GlobalCoordinator
+    /// A reference to the `AssetStoreServices`
+    let assetStore: any AssetStoreService
+    /// The stored states of detached preview windows.
+    var previewWindows: [OutputPortLocation: WindowPreviewState] = [:]
+
+    // MARK: - Internal Constants
 
     /// If the floating preview is smaller than this value, hide the card's toolbar.
     let toolbarHideSize: CGFloat = 120
@@ -25,21 +42,6 @@ public class PreviewFeatureController: XViewController {
     /// TODO: Add to settings.
     let dockedPreviewMaxHeight: CGFloat? = 0.8
 
-    // MARK: - Public Properties
-
-    public var canExportImage: Bool {
-        self.state.image != nil
-    }
-
-    // MARK: - Internal Properties
-
-    /// A reference to the `Flow` model
-    public let flow: Flow
-    /// A reference to the `GlobalCoordinator`
-    public let coordinator: GlobalCoordinator
-    /// A reference to the `AssetStoreServices`
-    public let assetStore: any AssetStoreService
-
     // MARK: - Private Properties
 
     /// The Preview's state machine
@@ -51,10 +53,10 @@ public class PreviewFeatureController: XViewController {
         }
     }
 
+    private var loadImageTask: Task<(), Never>?
+    private var currentDockedScrollViewport: CGRect = .zero
     private var imageScrollViewportCache: SimpleCache<ViewportCacheKey, CGRect> = .init()
     private var cancellabes: Set<AnyEventEmitterCancellable> = []
-    private var imageTask: Task<(), Never>?
-    private var viewport: CGRect = .zero
 
     private lazy var dockedToolbarVM: DockedToolbarView.ViewModel = {
         .init(
@@ -173,7 +175,6 @@ public class PreviewFeatureController: XViewController {
                     self.cardStageView.configuration.dockedHeightRange.withUpperBound(ratio * viewSize.height)
                 )
         }
-
     }
 
     public override func viewDidLayout() {
@@ -218,27 +219,6 @@ public class PreviewFeatureController: XViewController {
             self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: true))
         }
     }
-
-    enum PreviewWindowState {
-        case open(WindowPreviewWindowController)
-        case closed(WindowPreviewCache)
-
-        var controller: WindowPreviewWindowController? {
-            switch self {
-            case .open(let controller): controller
-            default: nil
-            }
-        }
-
-        var cache: WindowPreviewCache? {
-            switch self {
-            case .closed(let cache): cache
-            case .open: nil
-            }
-        }
-    }
-
-    var previewWindows: [OutputPortLocation: PreviewWindowState] = [:]
 
     func openWindow() {
         if let location = self.state.location {
@@ -343,15 +323,15 @@ public class PreviewFeatureController: XViewController {
 
         case .loadImage(let loc):
 
-            if self.imageTask != nil {
-                self.imageTask?.cancel()
+            if self.loadImageTask != nil {
+                self.loadImageTask?.cancel()
             }
 
-            self.imageTask = Task { [weak self] in
+            self.loadImageTask = Task { [weak self] in
                 do {
                     guard let self else { return }
                     let res = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
-                    self.imageTask = nil
+                    self.loadImageTask = nil
                     self.input(.imageLoaded(loc, res.res))
                 } catch {
                     logger.error("\(error)")
@@ -378,12 +358,12 @@ public class PreviewFeatureController: XViewController {
         if self.state.isDocked && oldValue.isDocked {
             if let location = oldValue.location, location != self.state.location {
                 let key = ViewportCacheKey(location: location, size: .zero)
-                self.imageScrollViewportCache.set(key, self.viewport)
+                self.imageScrollViewportCache.set(key, self.currentDockedScrollViewport)
             }
         } else if oldValue.isDocked && self.state.isFloating {
             if let location = oldValue.location {
                 let key = ViewportCacheKey(location: location, size: .zero)
-                self.imageScrollViewportCache.set(key, self.viewport)
+                self.imageScrollViewportCache.set(key, self.currentDockedScrollViewport)
             }
         }
     }
@@ -509,7 +489,6 @@ public class PreviewFeatureController: XViewController {
 
 extension PreviewFeatureController: CardStageViewDelegate {
     public func cardStageDidStartResizingCard(_ sender: CardStage.CardStageView, locationInWindow: CGPoint) {
-        // self.cardControlsVM.isVisible = false
     }
 
     public func cardStageDidFinnishResizingCard(_ sender: CardStage.CardStageView, locationInWindow: CGPoint) {
@@ -518,21 +497,17 @@ extension PreviewFeatureController: CardStageViewDelegate {
     }
 
     public func cardStageDidStartDocking(_ sender: CardStage.CardStageView) {
-        logger.debug("cardStageDidStartDocking")
     }
 
     public func cardStageDidFinnishDocking(_ sender: CardStage.CardStageView) {
-        logger.debug("cardStageDidFinnishDocking")
         self.cardStageView.contentView = self.dockedContentView
     }
 
     public func cardStageDidStartUndocking(_ sender: CardStage.CardStageView) {
-        logger.debug("cardStageDidStartUndocking")
         self.cardStageView.contentView = self.cardContentView
     }
 
     public func cardStageDidFinnishUndocking(_ sender: CardStage.CardStageView) {
-        logger.debug("cardStageDidFinnishUndocking")
     }
 
     public func cardStageAnchorDidChange(_ sender: CardStage.CardStageView) {
@@ -696,7 +671,7 @@ extension PreviewFeatureController: DockedContentView.Delegate {
 
 extension PreviewFeatureController: CIImageScrollXViewDelegate {
     public func ciImageScrollViewViewportDidChange(_ view: CIImageScrollXView, _ viewport: CGRect) {
-        self.viewport = viewport
+        self.currentDockedScrollViewport = viewport
         // if let key = self.state.viewportCacheKey {
         //     self.imageScrollViewportCache.set(key, viewport)
         // }

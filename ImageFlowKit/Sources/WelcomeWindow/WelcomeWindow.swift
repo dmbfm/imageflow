@@ -4,7 +4,9 @@ import SwiftUI
 import AppKit
 import SharedModels
 import SettingsFeature
-import Logging
+import OSLog
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "welcome-window")
 
 public struct WelcomeWindow: Scene {
 

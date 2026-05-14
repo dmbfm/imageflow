@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import SwiftUI
 import Values
 import XKit
@@ -17,7 +16,6 @@ import UIKit
 final class NodeBooleanInput: XViewEx, NodeControl {
     var value: Value {
         didSet {
-            log("node bool input update: \(self.value)")
             if self.value != oldValue {
                 self.update()
             }

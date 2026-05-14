@@ -2,11 +2,11 @@ import Backend
 import CoreGraphics
 import Foundation
 import Helpers
-import Logging
 import OSLog
 import Values
 
 let signposter = OSSignposter(subsystem: "com.dmbfm.imageflow", category: .pointsOfInterest)
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "shared-models")
 
 public enum FlowEvent {
     case partialEdgeDidChange(PartialEdge?)
@@ -195,7 +195,7 @@ extension Flow {
         switch (node, pos) {
         case let (.some(node), .some(pos)): return (node, pos)
         case (.some(_), .none), (.none, .some(_)):
-            log("Broken invariant: node = \(node, default: "nil"), pos = \(pos, default: "nil")", level: .error)
+            logger.error("Broken invariant: node = \("\(node, default: "nil"))"), pos = \("\(pos, default: "nil"))")")
             return nil
         default: return nil
         }
@@ -495,7 +495,7 @@ extension Flow {
 
     public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
         guard !self.edges.contains(edge) else {
-            log("[Flow][newEdgeAction]: edge already exists: \(edge)", level: .warning)
+            logger.warning("[Flow][newEdgeAction]: edge already exists: \("\(edge)")")
             return
         }
 
@@ -674,12 +674,12 @@ extension Flow {
         undoManager: UndoManager?,
     ) {
         guard let node = self.nodes[id] else {
-            log("Node not found: \(id)", level: .error)
+            logger.error("Node not found: \(id)")
             return
         }
 
         guard node.inputs.indices.contains(index) else {
-            log("Node input index out of range: \(index)", level: .error)
+            logger.error("Node input index out of range: \(index)")
             return
         }
 

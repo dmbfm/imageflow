@@ -1,7 +1,6 @@
 import CanvasView
 import Design
 import Helpers
-import Logging
 import SwiftUI
 import XKit
 
@@ -274,7 +273,7 @@ extension BackgroundView {
         func makeView(context: Context) -> some XView {
             let view = BackgroundView()
             view.clipsToBounds = false
-            view.onEvent = { log("event: \($0)") }
+            view.onEvent = { _ in }
             return view
         }
 

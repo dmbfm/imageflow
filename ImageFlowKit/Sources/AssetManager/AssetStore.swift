@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import Photos
 import PhotosUI
 import SharedModels
@@ -109,7 +108,6 @@ public final class AssetStore: AssetStoreService {
         undoManager um: UndoManager? = nil
     ) async throws(AssetManagerError) -> UUID {
         let id = try await self._assetManager.importAsset(fromURL: url, kind: kind)
-        log("addAsset: um == nil \(um == nil)")
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in
@@ -126,7 +124,6 @@ public final class AssetStore: AssetStoreService {
         undoManager um: UndoManager?
     ) async throws -> UUID {
         let id = try await self._assetManager.importAsset(data: data, filename: filename, kind: kind)
-        log("addAsset: um == nil \(um == nil)")
         um?.registerUndo(
             withTarget: self,
             handler: { [weak um] this in

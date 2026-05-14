@@ -1,5 +1,4 @@
 import Helpers
-import Logging
 import SharedModels
 import SwiftUI
 import XKit
@@ -122,7 +121,7 @@ extension NodeOutputBlockView {
                 .init(label: "First Output", index: 0, type: .float, connected: false),
                 .init(label: "Second Output", index: 1, type: .float, connected: true),
             ])
-            view.onEvent = { log("event: \($0)") }
+            view.onEvent = { _ in }
             return view
         }
 

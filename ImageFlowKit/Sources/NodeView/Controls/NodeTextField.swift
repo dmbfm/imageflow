@@ -7,7 +7,6 @@
 
 import Design
 import Helpers
-import Logging
 import SwiftUI
 import XKit
 
@@ -110,7 +109,6 @@ extension NodeTextField {
             view.placeholder = self.placeholder
             view.progress = 0.8
             view.onEvent = { event in
-                log("event: \(event)")
                 switch event {
                 case .textDidChange(let text):
                     self.text = text

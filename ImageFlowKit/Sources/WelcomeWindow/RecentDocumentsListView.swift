@@ -1,5 +1,4 @@
 #if os(macOS)
-import Logging
 import SwiftUI
 import UniformTypeIdentifiers
 import SharedModels
@@ -26,7 +25,7 @@ struct RecentDocumentsListView: View {
             do {
                 try await NSDocumentController.shared.openDocument(withContentsOf: item.url, display: true)
             } catch {
-                log("error: \(error)", level: .error)
+                logger.error("error: \(error)")
                 self.failed = true
             }
         }

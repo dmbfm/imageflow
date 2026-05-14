@@ -2,7 +2,7 @@
 
 import Helpers
 import CoreGraphics
-import Logging
+
 import SwiftUI
 import XKit
 
@@ -237,7 +237,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
         }
 
         guard let initial = self.leftPanInitialPos else {
-            log("initial location not set", level: .error)
+            logger.error("initial location not set")
             return
         }
 

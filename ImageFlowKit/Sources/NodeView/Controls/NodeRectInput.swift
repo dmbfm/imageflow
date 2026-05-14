@@ -1,6 +1,5 @@
 import Backend
 import Helpers
-import Logging
 import SwiftUI
 import Values
 import XKit
@@ -150,8 +149,7 @@ extension NodeRectInput {
     struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeRectInput {
             let view = NodeRectInput(.rect(.init()))
-            view.onEvent = { event in
-                log("event: \(event)")
+            view.onEvent = { _ in
             }
             return view
         }

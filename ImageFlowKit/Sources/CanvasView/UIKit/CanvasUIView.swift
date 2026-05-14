@@ -2,7 +2,7 @@
 
 import Helpers
 import CoreGraphics
-import Logging
+
 import SwiftUI
 
 public final class CanvasUIView: UIView, CanvasPlatformViewProtocol {

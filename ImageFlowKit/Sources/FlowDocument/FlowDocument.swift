@@ -7,7 +7,6 @@
 
 import AssetManager
 import CanvasFeature
-import Logging
 import SharedModels
 import SwiftUI
 import Synchronization
@@ -83,7 +82,7 @@ public final class FlowDocument: ReferenceFileDocument, @unchecked Sendable {
                 }
             }
         } catch {
-            log("error: \(error)", level: .error)
+            // log("error: \(error)", level: .error)
             throw error
         }
 

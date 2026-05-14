@@ -7,7 +7,6 @@
 
 import Combine
 import Helpers
-import Logging
 import SwiftUI
 import XKit
 
@@ -208,7 +207,6 @@ public final class ColorPickerPlatformView: NSView {
     }
 
     func emit(_ event: Event) {
-        log("emit:\(event)")
         self.onEvent?(event)
     }
 }
