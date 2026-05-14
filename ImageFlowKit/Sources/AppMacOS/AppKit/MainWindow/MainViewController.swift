@@ -134,6 +134,14 @@ extension MainViewController: GlobalCoordinatorProtocol {
                     delegate: self
                 )
             )
+        case .openAssetBrowser:
+            self.presentAsSheet(
+                AssetBrowserSheetController(
+                    assetStore: self.assetStore,
+                    type: .browser(.init(assetKinds: .all)),
+                    delegate: self,
+                )
+            )
         case let .exportImage(image, filename):
             self.modalContainerVM.showImageExporter(image, filename)
         case .viewport(.zoomIn):

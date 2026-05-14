@@ -47,7 +47,6 @@ extension AssetBrowserSheetController {
 
 extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
     public func onDismiss(_ result: AssetBrowserResult) {
-        logger.warning("TODO: onDismiss:\("\(result)")")
         switch result {
         case .cancel:
             break
@@ -60,8 +59,6 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
     }
 
     public func openFileImporter(_ fileTypes: [UTType]) {
-        logger.warning("TODO: openFileImporter:\("\(fileTypes)")")
-
         let panel = NSOpenPanel.init()
         panel.canChooseFiles = true
         panel.canChooseDirectories = false

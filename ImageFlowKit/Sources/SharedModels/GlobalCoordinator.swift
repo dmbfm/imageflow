@@ -81,6 +81,7 @@ public enum UserAction {
     case newNode(FlowNode, at: Point?, connectingToExistingPort: TypedPortLocation?)
     case convertNode(UUID, NodeKind)
     case openAssetPicker(node: UUID, portIndex: Int, kind: AssetKind)
+    case openAssetBrowser
     case viewport(ViewportAction)
     case disconnect(InputPortLocation)
     case openFileImporter([UTType])

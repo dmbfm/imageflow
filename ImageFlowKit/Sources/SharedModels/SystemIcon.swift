@@ -15,4 +15,5 @@ public extension String {
     static let systemIconSave = "square.and.arrow.down"
     static let systemIconLock = "lock.fill"
     static let systemIconLockOpen = "lock.open"
+    static let systemIconAssetBrowser = "photo.stack.fill"
 }

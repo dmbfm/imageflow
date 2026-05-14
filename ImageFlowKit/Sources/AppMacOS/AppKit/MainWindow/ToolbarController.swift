@@ -10,6 +10,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
     var toolbar: NSToolbar
     var canvasZoomControlVM: CanvasZoomToolbarControlView.VM
     var mainVC: MainViewController
+    var combineCancellables: Set<AnyCancellable> = []
 
     init(mainVC: MainViewController) {
         self.mainVC = mainVC
@@ -40,7 +41,9 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             }).store(in: &self.combineCancellables)
     }
 
-    var combineCancellables: Set<AnyCancellable> = []
+    @objc func showAssetBrowser() {
+        self.mainVC.perform(userAction: .openAssetBrowser)
+    }
 
     func toolbar(
         _ toolbar: NSToolbar,
@@ -51,7 +54,18 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
         case .mainWindowZoom:
             let item = NSToolbarItem(itemIdentifier: .mainWindowZoom)
             item.title = "Canvas Zoom"
+            item.label = "Canvas Zoom"
             item.view = NSHostingView(rootView: CanvasZoomToolbarControlView(vm: self.canvasZoomControlVM))
+            return item
+        case .showAssetBrowser:
+            let item = NSToolbarItem(itemIdentifier: .showAssetBrowser)
+            item.image = .init(
+                systemSymbolName: .systemIconAssetBrowser,
+                accessibilityDescription: "Show Asset Browser"
+            )
+            item.label = "Show Asset Browser"
+            item.action = #selector(Self.showAssetBrowser)
+            item.target = self
             return item
         default:
             return .init(itemIdentifier: itemIdentifier)
@@ -61,7 +75,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [
             .toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace, .inspectorTrackingSeparator, .toggleInspector,
-            .space, .cloudSharing, .mainWindowZoom,
+            .space, .cloudSharing, .mainWindowZoom, .showAssetBrowser,
         ]
     }
 
@@ -72,6 +86,8 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             .mainWindowZoom,
             .inspectorTrackingSeparator,
             .flexibleSpace,
+            .showAssetBrowser,
+            .space,
             .toggleInspector,
         ]
     }
@@ -79,6 +95,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
 
 extension NSToolbarItem.Identifier {
     public static let mainWindowZoom: Self = .init(rawValue: "main-window-zoom")
+    public static let showAssetBrowser: Self = .init("show-asset-browser")
 }
 
 #endif
