@@ -226,7 +226,6 @@ extension Flow {
         for i in node.outputs.indices { node.outputs[i].connected = false }
 
         self.addNode(node, at: pos + self.duplicateOrPasteOffset, undoManager: um)
-        um?.setActionName("Duplicate Node")
 
         return node
     }
@@ -264,7 +263,6 @@ extension Flow {
                     this.removeNode(node.id, undoManager: um)
                 }
             )
-            um?.setActionName("Create Node")
             return true
         }
 
@@ -397,24 +395,28 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
-        um?.setActionName("Create Node")
 
         return slot
     }
 
-    private func withSelectedNodes(_ um: UndoManager?, perform: (UUID, UndoManager?) -> ()) {
+    private func withNodes(_ nodes: Set<UUID>, undoManager um: UndoManager?, perform action: (UUID, UndoManager?) -> ())
+    {
+        if nodes.isEmpty { return }
+
         um?.beginUndoGrouping()
-        for id in self.selection {
-            perform(id, um)
+        for id in nodes {
+            action(id, um)
         }
         um?.endUndoGrouping()
     }
 
     public func deleteSelectedNodesAction(undoManager um: UndoManager?) {
-        let actionName = "Delete Node" + (self.selection.count > 1 ? "s" : "")
-        self.withSelectedNodes(um) { id, um in
+        self.deleteNodesAction(self.selection, undoManager: um)
+    }
+
+    public func deleteNodesAction(_ nodes: Set<UUID>, undoManager um: UndoManager?) {
+        self.withNodes(nodes, undoManager: um) { id, um in
             self.deleteNodeAction(id, undoManager: um)
-            um?.setActionName(actionName)
         }
     }
 
@@ -431,10 +433,9 @@ extension Flow {
             at: newCenter,
             undoManager: um
         )
-        um?.setActionName("Duplicate Node" + (self.selection.count > 1 ? "s" : ""))
     }
 
-    public func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?) {
+    public func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?, undoTitle: String? = nil) {
         precondition(self.hasNode(id), "Can't delete a non-existing node.")
 
         um?.beginUndoGrouping()
@@ -446,7 +447,6 @@ extension Flow {
         self.removeNode(id, undoManager: um)
 
         um?.endUndoGrouping()
-        um?.setActionName("Delete Node")
     }
 
     public func convertNodeAction(_ id: UUID, kind: NodeKind, undoManager um: UndoManager?) {
@@ -458,7 +458,6 @@ extension Flow {
                     this.convertNodeAction(node.id, kind: node.kind, undoManager: um)
                 }
             )
-            um?.setActionName("Convert Node")
         }
     }
 
@@ -484,7 +483,6 @@ extension Flow {
         }
 
         um?.endUndoGrouping()
-        um?.setActionName("Delete Edge")
     }
 
     public func deleteEdge(connectedToInput port: InputPortLocation, undoManager um: UndoManager?) {
@@ -512,7 +510,6 @@ extension Flow {
         self.setNodePortConnected(edge.toPort, true, undoManager: um)
 
         um?.endUndoGrouping()
-        um?.setActionName("Create Edge")
     }
 
     func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoManager um: UndoManager?) {
@@ -672,7 +669,6 @@ extension Flow {
         oldValue: Value? = nil,
         newValue: Value,
         undoManager: UndoManager?,
-        dontSetActionName: Bool = false,
     ) {
         guard let node = self.nodes[id] else {
             logger.error("Node not found: \(id)")
@@ -699,13 +695,9 @@ extension Flow {
                     oldValue: newValue,
                     newValue: oldValue,
                     undoManager: um,
-                    dontSetActionName: dontSetActionName
                 )
             }
         )
-        if !dontSetActionName {
-            undoManager?.setActionName("\(newValue.type.displayName) Value Change")
-        }
     }
 }
 

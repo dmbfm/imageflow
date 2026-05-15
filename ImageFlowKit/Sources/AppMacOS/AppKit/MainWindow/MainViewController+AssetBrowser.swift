@@ -70,7 +70,7 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
                         index: input.index,
                         newValue: input.value.type.defaultValue,
                         undoManager: self.undoManager,
-                        dontSetActionName: true
+                        //                        dontSetActionName: true
                     )
                 }
             }

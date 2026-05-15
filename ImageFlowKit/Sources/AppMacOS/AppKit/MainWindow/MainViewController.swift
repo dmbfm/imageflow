@@ -150,9 +150,150 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.canvasView.zoomOut()
         case .viewport(.setZoom(let zoom)):
             self.canvasView.setZoom(zoom)
+        case .rename(let id):
+            self.showRenameSheet(forNode: id)
+        case .exportPreviewedImage:
+            self.previewVC.exportImage()
+        case .copy(let target):
+            self.copyNodes(target)
+        case .cut(let target):
+            self.cutNodes(target)
+        case .delete(let target):
+            self.deleteNodes(target)
+        case .duplicate(let target):
+            self.duplicateNodes(target)
+        case .pasteNodes(let point):
+            self.pasteNodes(point)
+        case .selectAllNodes:
+            self.flow.selectAll()
+        case .selectNone:
+            self.flow.selectNone()
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }
+    }
+
+    func nodes(forTarget target: UserAction.Target) -> Set<UUID> {
+        switch target {
+        case .nodes(let nodes): nodes
+        case .selection: self.flow.selection
+        }
+    }
+
+    func pasteNodes(_ point: Point?) {
+        func doPaste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
+            #if os(macOS)
+            if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream {
+                let viewport = self.canvasView.viewport
+                let view = self.canvasView
+                let mp = view.convert(mwp, from: nil)
+                var pos: CGPoint = .zero
+                if view.safeAreaRect.contains(mp) {
+                    pos = viewport.convert(mp, from: .screen, to: .canvas)
+                } else {
+                    pos = viewport.convert(view.bounds.center, from: .screen, to: .canvas)
+                }
+
+                self.flow.paste(pasteboardData: data, at: pos, undoManager: self.undoManager)
+            }
+            #endif
+
+            #if os(iOS)
+            if let pos = maybePos, let viewport = self.canvasViewModel?.viewport {
+                let pastePos = viewport.convert(pos, from: .screen, to: .canvas)
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            } else if let pastePos = self.pointerData?.positionInCanvas {
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            } else if let centerPos = self.canvasViewModel?.view?.bounds.center,
+                let viewport = self.canvasViewModel?.viewport
+            {
+                let pastePos = viewport.convert(centerPos, from: .screen, to: .canvas)
+                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
+            }
+            #endif
+        }
+        #if os(macOS)
+        if let objects = NSPasteboard.general.readObjects(forClasses: [FlowPasteboardItem.self]) {
+            for o in objects {
+                if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
+                    doPaste(data: data, at: nil)
+                }
+            }
+        }
+        #endif
+
+        #if os(iOS)
+        let pb = UIPasteboard.general
+
+        if let data = pb.data(forPasteboardType: UTType.flowNode.identifier),
+            let flowPasteboardData = FlowPasteboardData(data: data)
+        {
+            let point: CGPoint? =
+                if let point = maybePoint ?? (self.pointerData?.positionInCanvas).map({ Point.canvas($0) }),
+                    let vm = self.canvasViewModel,
+                    let view = vm.view
+                {
+                    point.canvas(view: view, viewport: vm.viewport).cgPoint
+                } else {
+                    nil
+                }
+
+            self.doPaste(data: flowPasteboardData, at: point)
+        }
+        #endif
+    }
+
+    func copyNodes(_ target: UserAction.Target) {
+        let nodes = self.nodes(forTarget: target)
+
+        if nodes.isEmpty { return }
+
+        #if os(macOS)
+        if let item = FlowPasteboardItem(nodes: nodes, self.flow) {
+            NSPasteboard.general.clearContents()
+            if !NSPasteboard.general.writeObjects([item]) {
+                logger.error("Failed to write items to pasteboard!")
+            }
+        }
+        #else
+        let pb = UIPasteboard.general
+        if let data = self.flow.pasteboardData(forNodes: nodes), let jsonData = data.jsonData {
+            pb.setData(jsonData, forPasteboardType: UTType.flowNode.identifier)
+        }
+        #endif
+    }
+
+    func duplicateNodes(_ target: UserAction.Target) {
+        logger.warning("TODO: implement duplicateNodes")
+        // let nodes = self.nodes(forTarget: target)
+        // if nodes.isEmpty { return }
+    }
+
+    func cutNodes(_ target: UserAction.Target) {
+        let nodes = self.nodes(forTarget: target)
+
+        if nodes.isEmpty { return }
+
+        self.copyNodes(.nodes(nodes))
+        self.flow.deleteNodesAction(nodes, undoManager: self.undoManager)
+        self.undoManager?.setActionName("Cut \(nodes.nodeName)")
+    }
+
+    func deleteNodes(_ target: UserAction.Target) {
+        let nodes = self.nodes(forTarget: target)
+
+        if nodes.isEmpty { return }
+
+        self.flow.deleteNodesAction(nodes, undoManager: self.undoManager)
+        self.undoManager?.setActionName("Delete \(nodes.nodeName)")
+    }
+
+    func showRenameSheet(forNode id: UUID) {
+        guard let node = self.flow.nodes[id] else {
+            logger.warning("showRenameSheet: node not found: \(id)")
+            return
+        }
+        self.presentAsSheet(RenameNodeSheetViewController(id, node.name, self))
     }
 
     public func currentZoom() -> CGFloat {
@@ -227,6 +368,7 @@ extension MainViewController {
                 undoManager: self.undoManager
             )
         }
+        self.undoManager?.setActionName("New Node")
         self.flow.select([node.id])
     }
 }
@@ -246,4 +388,15 @@ extension Point {
         }
     }
 }
+
+// MARK: - MainViewController + RenameNodeSheetViewController.Delegate
+
+extension MainViewController: RenameNodeSheetViewController.Delegate {
+    func renameNodeSheetDidConfirm(_ node: UUID, _ newName: String) {
+        self.flow.setNodeName(id: node, newValue: newName, undoManager: self.undoManager)
+    }
+
+    func renameNodeSheetDidCancel() {}
+}
+
 #endif

@@ -88,7 +88,7 @@ public enum UserAction {
 
     public enum Target {
         case selection
-        case node(UUID)
+        case nodes(Set<UUID>)
     }
 
     public enum PreviewAction {

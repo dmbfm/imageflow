@@ -159,14 +159,23 @@
                                 </connections>
                             </menuItem>
                             <menuItem title="Delete" id="pa3-QI-u2k">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="delete:" target="-1" id="0Mk-Ml-PaM"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="GjZ-Vd-fp9"/>
                             <menuItem title="Select All" keyEquivalent="a" id="Ruw-6m-B2m">
                                 <connections>
                                     <action selector="selectAll:" target="-1" id="VNm-Mi-diN"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Deselect All" keyEquivalent="A" id="jdx-xs-F9E">
+                                <connections>
+                                    <action selector="deselectAll:" target="-1" id="BcO-hg-mP9"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="uyl-h8-XO2"/>

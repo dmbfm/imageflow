@@ -105,10 +105,10 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
     func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
         switch event {
-            case .assetsChanged:
-                self.nodeViewDelegateEmitter.emit(.assetsChanged)
-            default:
-                break
+        case .assetsChanged:
+            self.nodeViewDelegateEmitter.emit(.assetsChanged)
+        default:
+            break
         }
     }
 
@@ -518,18 +518,94 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.flow.liveSelectEnd()
         }
     }
-
 }
 
 // MARK: - NodeViewDelegate
 
 extension CanvasFeatureNSViewController: NodeViewDelegate {
     public func nodeView(willShowContextMenuForNode node: UUID) {
-        logger.warning("TODO: nodeView(willShowContextMenuForNode")
+        self.becomeFirstResponder()
     }
 
     public func nodeView(contextMenuForNode node: UUID, at point: CGPoint?) -> XMenu? {
-        nil
+
+        let menu = NSMenu()
+
+        let nodeName = self.flow.selection.count > 1 && self.flow.selection.contains(node) ? "Nodes" : "Node"
+
+        menu.addItem(.sectionHeader(title: "Node"))
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Rename Node",
+                systemSymbolName: "character.cursor.ibeam",
+                accessibilityDescription: "Rename Node",
+                action: #selector(ImageFlowResponding.rename(_:)),
+                keyEquivalent: ""
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Cut \(nodeName)",
+                systemSymbolName: .systemIconMenuCut,
+                accessibilityDescription: "Cut \(nodeName)",
+                action: #selector(NSText.cut(_:)),
+                keyEquivalent: "x"
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Copy \(nodeName)",
+                systemSymbolName: .systemIconMenuCopy,
+                accessibilityDescription: "Copy \(nodeName)",
+                action: #selector(NSText.copy(_:)),
+                keyEquivalent: "c"
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Paste",
+                systemSymbolName: .systemIconMenuPaste,
+                accessibilityDescription: "Paste",
+                action: #selector(NSText.paste(_:)),
+                keyEquivalent: "v"
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Duplicate \(nodeName)",
+                systemSymbolName: .systemIconMenuDuplicate,
+                accessibilityDescription: "Duplicate \(nodeName)",
+                action: #selector(ImageFlowResponding.duplicate(_:)),
+                keyEquivalent: "d"
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Delete \(nodeName)",
+                systemSymbolName: .systemIconMenuDelete,
+                accessibilityDescription: "Delete \(nodeName)",
+                action: #selector(NSText.delete(_:)),
+                keyEquivalent: "\u{08}",
+                keyEquivatletModifierMask: []
+            )
+        )
+        menu.addItem(
+            NSMenuItemForNode(
+                node: node,
+                title: "Select All",
+                systemSymbolName: .systemIconMenuSelectAll,
+                accessibilityDescription: "Select All",
+                action: #selector(NSResponder.selectAll(_:)),
+                keyEquivalent: "a"
+            )
+        )
+        return menu
     }
 
     public func nodeView(
@@ -546,7 +622,6 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
     }
 
     public func openAssetPicker(node: UUID, portIndex: Int, kind: SharedModels.AssetKind) {
-        // logger.warning("TODO: openAssetPicke")
         self.coordinator.perform(userAction: .openAssetPicker(node: node, portIndex: portIndex, kind: kind))
     }
 
