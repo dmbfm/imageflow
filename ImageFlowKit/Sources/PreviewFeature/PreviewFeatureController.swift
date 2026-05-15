@@ -398,34 +398,37 @@ public class PreviewFeatureController: XViewController {
             case zoomToFitSize(CGSize)
         }
 
-        var restoreCache: RestoreCacheFallback? = nil
-
-        if self.state.isDocked && self.cardStageView.contentView != self.dockedContentView {
-            // self.cardStageView.contentView = self.dockedContentView
-        }
-
-        if self.state.isDocked && oldValue?.isDocked != true {
-            restoreCache = .zoomToFitSize(
-                .init(
-                    width: self.cardStageView.bounds.width,
-                    height: self.cardStageView.dockedHeight - self.dockedToolbarHeight
-                )
-            )
-        }
-
         if self.state.image != self.dockedContentView.image {
             self.imageScrollViewportCache.whileLocked {
                 self.dockedContentView.image = self.state.image
-                restoreCache = .zoomToFit
             }
         }
 
-        if let restoreCache {
+        let restoreCacheFallback: RestoreCacheFallback? =
+            if self.state.isDocked && oldValue?.isDocked != true {
+                .zoomToFitSize(
+                    .init(
+                        width: self.cardStageView.bounds.width,
+                        height: self.cardStageView.dockedHeight - self.dockedToolbarHeight
+                    )
+                )
+            } else if self.state.isDocked {
+                switch (self.state.contentState, oldValue?.contentState) {
+                case (.something(_, let loadedLoc, .loaded), .something(_, _, .loading(let maybePrevLoc, _)))
+                where loadedLoc != maybePrevLoc:
+                    .zoomToFit
+                default:
+                    nil
+                }
+            } else {
+                nil
+            }
+
+        if let restoreCacheFallback {
             if let key = self.state.viewportCacheKey, let cached = self.imageScrollViewportCache.get(key) {
                 self.dockedContentView.imageScrollView.viewport = cached
             } else {
-                // Task {
-                switch restoreCache {
+                switch restoreCacheFallback {
                 case .zoomToFit:
                     self.dockedContentView.imageScrollView.dispatch(.zoomToFit(animate: false))
                 case .zoomToFitSize(let size):

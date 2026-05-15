@@ -82,7 +82,7 @@ struct PreviewStateMachine {
             }
 
             enum Content: Equatable, With, CustomStringConvertible {
-                case loading(CIImage?)
+                case loading(OutputPortLocation?, CIImage?)
                 case loaded(CIImage)
                 case error(String)
 
@@ -154,7 +154,7 @@ struct PreviewStateMachine {
 
             var image: CIImage? {
                 switch self {
-                case .something(_, _, content: .loading(let image)): image
+                case .something(_, _, content: .loading(_, let image)): image
                 case .something(_, _, content: .loaded(let image)): image
                 default: nil
                 }
@@ -180,7 +180,7 @@ struct PreviewStateMachine {
         func pick(_ location: OutputPortLocation) -> StateTransition {
             if let _ = self.availableLocations.first(where: { $0.location == location }) {
                 return .init(
-                    newState: self.with(\.location, location).with(\.content, .loading(self.image)),
+                    newState: self.with(\.location, location).with(\.content, .loading(self.location, self.image)),
                     effect: .loadImage(location)
                 )
             } else {
@@ -226,7 +226,11 @@ struct PreviewStateMachine {
                 return .init(
                     newState: self.with(
                         \.contentState,
-                        .something(locked: self.locked, location: first.location, content: .loading(self.image))
+                        .something(
+                            locked: self.locked,
+                            location: first.location,
+                            content: .loading(self.location, self.image)
+                        )
                     ),
                     effect: .loadImage(first.location)
                 )
@@ -256,7 +260,7 @@ struct PreviewStateMachine {
 
         func imageLoaded(_ location: OutputPortLocation, _ image: CIImage) -> StateTransition {
             switch self.contentState {
-            case .something(let locked, let loc, .loading(_)) where loc == location:
+            case .something(let locked, let loc, .loading(_, _)) where loc == location:
                 return .init(
                     newState: self.with(
                         \.contentState,
@@ -274,7 +278,7 @@ struct PreviewStateMachine {
                 return .init(
                     newState: self.with(
                         \.contentState,
-                        .something(locked: locked, location: location, content: .loading(self.image))
+                        .something(locked: locked, location: location, content: .loading(self.location, self.image))
                     ),
                     effect: .loadImage(location)
                 )
