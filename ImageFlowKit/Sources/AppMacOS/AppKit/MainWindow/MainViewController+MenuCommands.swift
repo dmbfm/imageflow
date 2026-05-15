@@ -7,6 +7,10 @@ extension MainViewController {
     @objc func exportImageCommand(_ sender: Any?) {
         self.previewVC.exportImage()
     }
+
+    @objc func showAssetBrowserCommand(_ sender: Any?) {
+        self.perform(userAction: .openAssetBrowser)
+    }
 }
 
 extension MainViewController {

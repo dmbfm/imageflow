@@ -624,6 +624,11 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" id="KH6-SZ-A7P"/>
                             </menuItem>
+                            <menuItem title="Show Asset Browser" image="photo.stack.fill" catalog="system" keyEquivalent="B" id="oUd-Xj-XSo">
+                                <connections>
+                                    <action selector="showAssetBrowserCommand:" target="-1" id="v0t-lK-YuO"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="lf3-0e-524"/>
                             <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
@@ -681,4 +686,7 @@
             <point key="canvasLocation" x="139" y="154"/>
         </menu>
     </objects>
+    <resources>
+        <image name="photo.stack.fill" catalog="system" width="17" height="18"/>
+    </resources>
 </document>
