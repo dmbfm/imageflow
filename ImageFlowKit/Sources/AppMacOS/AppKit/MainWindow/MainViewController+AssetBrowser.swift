@@ -56,6 +56,30 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
             }
         }
     }
+
+    func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: SharedModels.Asset) {
+        self.undoManager?.beginUndoGrouping()
+
+        for (_, node) in self.flow.nodes {
+            for input in node.inputs {
+                let id: UUID? = input.value.assetIdentifier?.id
+
+                if id == asset.id {
+                    self.flow.setNodeValue(
+                        id: node.id,
+                        index: input.index,
+                        newValue: input.value.type.defaultValue,
+                        undoManager: self.undoManager,
+                        dontSetActionName: true
+                    )
+                }
+            }
+        }
+
+        self.assetStore.removeAsset(asset.id, undoManager: self.undoManager)
+        self.undoManager?.setActionName("Remove Asset")
+        self.undoManager?.endUndoGrouping()
+    }
 }
 
 extension MainViewController {

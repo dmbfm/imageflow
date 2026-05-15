@@ -14,14 +14,30 @@ public final class BackendRunner {
     var cancellables: Set<AnyEventEmitterCancellable> = []
     var assetProvider: any BackendAssetProvider
 
-    public init(_ flow: SharedModels::Flow, _ coordinator: GlobalCoordinator, _ assetProvider: any BackendAssetProvider)
-    {
+    public init(
+        _ flow: SharedModels::Flow,
+        _ coordinator: GlobalCoordinator,
+        _ assetProvider: any BackendAssetProvider,
+        _ assetStore: any AssetStoreService,
+    ) {
         self.flow = flow
         self.assetProvider = assetProvider
         self.coordinator = coordinator
 
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
+        }).store(in: &self.cancellables)
+
+        assetStore.emitter.on({ [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .assetsChanged:
+                if !self.locked {
+                    self.run()
+                }
+            default:
+                break
+            }
         }).store(in: &self.cancellables)
     }
 

@@ -25,6 +25,8 @@ public protocol AssetStoreService:
         undoManager um: UndoManager?
     ) async throws -> UUID
 
+    func removeAsset(_ id: UUID, undoManager um: UndoManager?)
+
     init()
 }
 

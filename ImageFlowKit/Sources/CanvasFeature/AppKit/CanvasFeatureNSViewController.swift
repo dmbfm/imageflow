@@ -19,7 +19,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
     /// The Flow model
     public var flow: Flow
     /// The asset provider
-    public var assetStore: any AssetsProvider
+    public var assetStore: any AssetStoreService
     /// Storage for the `NodeView` instances to be displayed
     public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
@@ -63,7 +63,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
     public init(
         flow: Flow,
         coordinator: GlobalCoordinator,
-        assetStore: any AssetsProvider,
+        assetStore: any AssetStoreService,
     ) {
         self.flow = flow
         self.coordinator = coordinator
@@ -72,6 +72,10 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
+        }).store(in: &self.cancellables)
+
+        self.assetStore.emitter.on({ [weak self] event in
+            self?.onAssetStoreEvent(event)
         }).store(in: &self.cancellables)
     }
 
@@ -95,6 +99,17 @@ public final class CanvasFeatureNSViewController: NSViewController {
     public override func viewDidLoad() {
         self.upadteEdges()
         self.updateSelection()
+    }
+
+    // MARK: - Asset Store
+
+    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+        switch event {
+            case .assetsChanged:
+                self.nodeViewDelegateEmitter.emit(.assetsChanged)
+            default:
+                break
+        }
     }
 
     // MARK: - CanvasView

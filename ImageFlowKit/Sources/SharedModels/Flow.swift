@@ -672,6 +672,7 @@ extension Flow {
         oldValue: Value? = nil,
         newValue: Value,
         undoManager: UndoManager?,
+        dontSetActionName: Bool = false,
     ) {
         guard let node = self.nodes[id] else {
             logger.error("Node not found: \(id)")
@@ -697,11 +698,14 @@ extension Flow {
                     index: index,
                     oldValue: newValue,
                     newValue: oldValue,
-                    undoManager: um
+                    undoManager: um,
+                    dontSetActionName: dontSetActionName
                 )
             }
         )
-        undoManager?.setActionName("\(newValue.type.displayName) Value Change")
+        if !dontSetActionName {
+            undoManager?.setActionName("\(newValue.type.displayName) Value Change")
+        }
     }
 }
 

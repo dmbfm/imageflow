@@ -42,6 +42,7 @@ extension AssetBrowserSheetController {
         func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, urls: [URL])
         func assetBrowserSheetPickAsset(kind: AssetKind, assetId: UUID, port: InputPortLocation)
         func assetBrowserSheetCreateNode(kind: AssetKind, assetId: UUID)
+        func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: Asset)
     }
 }
 
@@ -80,7 +81,7 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
     }
 
     public func deleteAsset(_ asset: SharedModels.Asset) {
-        logger.warning("TODO: deleteAsset: \("\(asset)")")
+        self.delegate?.assetBrowserDeleteAsset(self, asset: asset)
     }
 }
 

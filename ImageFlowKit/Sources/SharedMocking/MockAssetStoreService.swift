@@ -17,6 +17,10 @@ public class MockAssetProvider: AssetsProvider {
 @Observable
 @MainActor
 public final class MockAssetStore: AssetStoreService {
+    public func removeAsset(_ id: UUID, undoManager um: UndoManager?) {
+
+    }
+
     public func addAsset(
         data: Data,
         filename: String,

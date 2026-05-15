@@ -78,7 +78,7 @@ final class MainViewController: NSSplitViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        self.backendRunner = .init(flow, .init(self), assetStore.assetManager)
+        self.backendRunner = .init(flow, .init(self), assetStore.assetManager, assetStore)
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()

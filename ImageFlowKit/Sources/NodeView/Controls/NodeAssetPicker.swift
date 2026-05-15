@@ -113,7 +113,11 @@ final class NodeAssetPicker<T: AssetPickerType>: XViewEx, NodeControl {
     }
 
     var vm: NodeAssetPickerInnerViewModel {
-        .init(label: self.label, showRemoveButton: self.showRemoveButton)
+        let vm = NodeAssetPickerInnerViewModel(label: self.label, showRemoveButton: self.showRemoveButton)
+        logger.debug(
+            "NodeAssetPickerInnerViewModel vm: \("\(vm)"), value: \(self.value), resolved: \("\(T.resolve(self.value), default: "nil")")"
+        )
+        return vm
     }
 
     lazy var innerView: any NodeAssetPickerInnerView = {
@@ -179,6 +183,7 @@ final class NodeAssetPicker<T: AssetPickerType>: XViewEx, NodeControl {
     }
 
     private func update() {
+        logger.debug("NodeAssetPicker.upadate: value: \(self.value)")
         self.innerView.isHidden = !self.isEditable
         self.innerView.vm = self.vm
         self.setNeedsLayout()

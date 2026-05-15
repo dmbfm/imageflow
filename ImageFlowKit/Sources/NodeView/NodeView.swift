@@ -1,10 +1,13 @@
 import CanvasView
 import Design
 import Helpers
+import OSLog
 import SharedModels
 import SwiftUI
 import Values
 import XKit
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "node-view")
 
 public protocol NodeViewDelegate: NodeInputBlockViewDelegate {
     func nodeView(willShowContextMenuForNode node: UUID)
