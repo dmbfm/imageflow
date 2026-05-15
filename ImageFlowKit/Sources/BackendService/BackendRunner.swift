@@ -9,52 +9,76 @@ let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "backend-runner"
 @MainActor
 public final class BackendRunner {
 
-    public var flow: SharedModels::Flow
+    public var runMode: RunMode
+    var flow: SharedModels::Flow
     var coordinator: GlobalCoordinator
     var cancellables: Set<AnyEventEmitterCancellable> = []
     var assetProvider: any BackendAssetProvider
+
+    private var task: Task<(), Never>?
+    private var needsToRunAgain: Bool = false
+    private var locked: Bool = false
+
+    public enum RunMode {
+        case runLoopCoalescing
+        case instant
+    }
 
     public init(
         _ flow: SharedModels::Flow,
         _ coordinator: GlobalCoordinator,
         _ assetProvider: any BackendAssetProvider,
         _ assetStore: any AssetStoreService,
+        runMode: RunMode = .runLoopCoalescing
     ) {
         self.flow = flow
         self.assetProvider = assetProvider
         self.coordinator = coordinator
+        self.runMode = runMode
 
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
 
         assetStore.emitter.on({ [weak self] event in
-            guard let self else { return }
-            switch event {
-            case .assetsChanged:
-                if !self.locked {
-                    self.run()
-                }
-            default:
-                break
-            }
+            self?.onAssetStoreEvent(event)
         }).store(in: &self.cancellables)
     }
 
-    func onFlowEvent(_ event: SharedModels::FlowEvent) {
+    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
         switch event {
-        case .nodesDidChange:
+        case .assetsChanged:
             if !self.locked {
-                self.run()
+                self.runWithCurrentMode()
             }
         default:
             break
         }
     }
 
-    var task: Task<(), Never>?
-    var needsToRunAgain: Bool = false
-    var locked: Bool = false
+    func onFlowEvent(_ event: SharedModels::FlowEvent) {
+        switch event {
+        case .nodesDidChange:
+            if !self.locked {
+                self.runWithCurrentMode()
+            }
+        default:
+            break
+        }
+    }
+
+    func runWithCurrentMode() {
+        switch self.runMode {
+        case .instant:
+            self.run()
+        case .runLoopCoalescing:
+            RunLoop.current.perform(inModes: [.eventTracking, .common]) {
+                MainActor.assumeIsolated {
+                    self.run()
+                }
+            }
+        }
+    }
 
     public func run() {
         if self.task != nil {
@@ -101,11 +125,17 @@ public final class BackendRunner {
     func upadate(_ nodes: [Backend::Node]) {
         self.locked = true
         for node in nodes {
+
+            guard let flowNode = self.flow.nodes[node.id] else {
+                logger.warning("Node \(node.id) is on backend but not on frontend!")
+                continue
+            }
+
             for (idx, value) in node.inputs.enumerated() {
-                let input = self.flow.nodes[node.id]!.inputs[idx]
+                let input = flowNode.inputs[idx]
 
                 if input.connected && input.value != value {
-                    self.flow.nodes[node.id]!.inputs[idx].value = value
+                    self.flow.nodes[node.id]?.inputs[idx].value = value
                 }
             }
         }
