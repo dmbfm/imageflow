@@ -37,8 +37,13 @@ open class XViewEx: XView {
                 layer.shadowOpacity = Float(shadow.opacity)
             })
         } else {
+            #if os(macOS)
+            self.shadow = nil
+            #endif
             self.withLayer { layer in
                 layer.shadowColor = nil
+                layer.shadowRadius = 0
+                layer.shadowOpacity = 0
             }
         }
     }

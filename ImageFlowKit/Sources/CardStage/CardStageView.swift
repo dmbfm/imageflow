@@ -398,10 +398,7 @@ public final class CardStageView: XViewEx {
         //  Floating -> Docked
         if !self.state.isFloating && oldValue.isFloating {
             if let frame = self.geometry.dockedFrame {
-
                 self.delegate?.cardStageDidStartDocking(self)
-
-                // self.cardView.shadowStyle = nil
                 if self.state.hidden {
                     self.cardView.frame = frame
                     self.cardView.radius = 0
