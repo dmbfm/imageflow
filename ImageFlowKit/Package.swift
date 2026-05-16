@@ -60,6 +60,7 @@ let package = Package(
                 "BackendService",
                 "NodeView",
                 "ImageExporter",
+                "NodePaletteFeature",
             ]
         ),
         .target(
@@ -130,6 +131,7 @@ let package = Package(
                 "SharedModels",
                 "Values",
                 "XKit",
+                "Design",
             ]
         ),
         .target(

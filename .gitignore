@@ -103,3 +103,5 @@ xcodebuild.log
 
 ImageFlowCodeGen/dump
 ./ImageFlowCodeGen/dump
+
+.DS_store

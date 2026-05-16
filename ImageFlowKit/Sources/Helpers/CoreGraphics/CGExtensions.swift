@@ -20,7 +20,40 @@ extension CGPoint {
 
 extension CGRect {
     public var center: CGPoint {
-        CGPoint(x: self.midX, y: self.midY)
+        get {
+            CGPoint(x: self.midX, y: self.midY)
+        }
+        set {
+            let x = newValue.x - self.size.width * 0.5
+            let y = newValue.y - self.size.height * 0.5
+            self.origin = .init(x: x, y: y)
+        }
+    }
+
+    public mutating func setCenterX(_ value: CGFloat) {
+        self.center = .init(x: value, y: self.midY)
+    }
+
+    public mutating func setCenterY(_ value: CGFloat) {
+        self.center = .init(x: self.midX, y: value)
+    }
+
+    public func settingCenter(_ center: CGPoint) -> Self {
+        var result = self
+        result.center = center
+        return result
+    }
+
+    public func settingCenterX(_ value: CGFloat) -> Self {
+        var result = self
+        result.setCenterX(value)
+        return result
+    }
+
+    public func settingCenterY(_ value: CGFloat) -> Self {
+        var result = self
+        result.setCenterY(value)
+        return result
     }
 }
 

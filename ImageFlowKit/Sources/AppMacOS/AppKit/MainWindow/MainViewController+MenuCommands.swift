@@ -38,7 +38,6 @@ extension MainViewController {
         self.perform(userAction: .duplicate(.nodes(self.targetNodes(sender))))
     }
 
-    @objc
     override func selectAll(_ sender: Any?) {
         self.perform(userAction: .selectAllNodes)
     }
@@ -73,6 +72,8 @@ extension Set where Element == UUID {
 
 extension MainViewController {
     override func validateUserInterfaceItem(_ item: any NSValidatedUserInterfaceItem) -> Bool {
+        logger.debug("validateUserInterfaceItem: \("\(item)")")
+
         let actionsThatNeedSelection: [Selector?] = [
             #selector(Self.cut(_:)),
             #selector(Self.copy(_:)),
@@ -82,7 +83,8 @@ extension MainViewController {
 
         if item is NSMenuItemForNode {
             return true
-        } else if item.action == #selector(NSResponder.selectAll(_:)) {
+        } else if item.action == #selector(Self.selectAll(_:)) {
+            logger.debug("is select all!!")
             return true
         } else if item.action == #selector(Self.exportImageCommand(_:)) {
             return self.detailVC?.previewVC.canExportImage == true

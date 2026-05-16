@@ -42,7 +42,3 @@ public struct SettingsFeatureView: View {
         .padding()
     }
 }
-
-#Preview {
-    SettingsFeatureView()
-}

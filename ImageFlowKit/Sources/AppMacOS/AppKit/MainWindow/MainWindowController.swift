@@ -13,7 +13,8 @@ final class MainWindowController: NSWindowController {
     init(_ flow: Flow, _ assetStore: any AssetStoreService) {
         let mainVC = MainViewController(flow, assetStore)
         self.toolbarController = .init(mainVC: mainVC)
-        let window = NSWindow(contentViewController: mainVC)
+        let window = MainWindow(contentViewController: mainVC)
+        window.mainWindowDelegate = mainVC
         window.styleMask.insert(.fullSizeContentView)
         window.toolbarStyle = .unified
         window.titlebarAppearsTransparent = true
