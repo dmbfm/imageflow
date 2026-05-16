@@ -309,6 +309,22 @@ extension CanvasNSView: CanvasGridView.Delegate {
     }
 }
 
+extension CanvasNSView {
+    public override func draggingUpdated(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        let location = self.convert(sender.draggingLocation, from: nil)
+        if self.safeAreaRect.contains(location) {
+            return .copy
+        } else {
+            return []
+        }
+    }
+
+    public override func performDragOperation(_ sender: any NSDraggingInfo) -> Bool {
+        let loc = self.convert(sender.draggingLocation, from: nil)
+        return self.delegate?.canvasViewPerformDragOperation(at: loc) ?? false
+    }
+}
+
 private final class RectSelectionView: NSView {
     var selectionRect: NSRect = .zero {
         didSet {

@@ -9,7 +9,7 @@ import SwiftUI
 
 final class DetailViewController: NSViewController {
 
-    var canvasVC: CanvasFeatureNSViewController
+    var canvasVC: CanvasFeatureViewController
     var previewVC: PreviewFeatureController
 
     var canvasView: CanvasPlatformView {

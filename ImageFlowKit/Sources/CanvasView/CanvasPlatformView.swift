@@ -52,6 +52,7 @@ public protocol CanvasViewDelegate: AnyObject {
     func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> XMenu?
     func canvasView(contextMenuAt point: CGPoint) -> XMenu?
     func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool
+    func canvasViewPerformDragOperation(at point: CGPoint) -> Bool
 }
 
 extension CanvasPlatformView {

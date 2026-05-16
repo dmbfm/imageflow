@@ -11,8 +11,9 @@ import ContextMenus
 import XKit
 import Combine
 import SwiftUI
+import UniformTypeIdentifiers
 
-public final class CanvasFeatureNSViewController: NSViewController {
+public final class CanvasFeatureViewController: NSViewController {
 
     // MARK: - Properties
 
@@ -94,6 +95,10 @@ public final class CanvasFeatureNSViewController: NSViewController {
         self.canvasView.onEvent = { [weak self] in self?.onCanvasEvent($0) }
         self.canvasView.delegate = self
         self.view = self.canvasView
+
+        self.canvasView.registerForDraggedTypes([
+            .init(UTType.imageFlowNodeKindDragItem.identifier)
+        ])
     }
 
     public override func viewDidLoad() {
@@ -526,7 +531,7 @@ public final class CanvasFeatureNSViewController: NSViewController {
 
 // MARK: - NodeViewDelegate
 
-extension CanvasFeatureNSViewController: NodeViewDelegate {
+extension CanvasFeatureViewController: NodeViewDelegate {
     public func nodeView(willShowContextMenuForNode node: UUID) {
         self.becomeFirstResponder()
     }
@@ -641,33 +646,6 @@ extension CanvasFeatureNSViewController: NodeViewDelegate {
         self.nodeViewDelegateEmitter
     }
 
-}
-
-// MARK: - CanvasViewDelegate
-
-extension CanvasFeatureNSViewController: CanvasViewDelegate {
-    public func canvasViewEditMenuShouldAppear() -> Bool {
-        self.flow.selection.isEmpty
-    }
-
-    public func canvasView(willShowContextMenuForNode id: UUID) {
-    }
-
-    public func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> XMenu? {
-        nil
-    }
-
-    public func canvasView(contextMenuAt point: CGPoint) -> XMenu? {
-        if self.canvasContextMenuProvider == nil {
-            self.canvasContextMenuProvider = .init(self.coordinator)
-        }
-
-        return self.canvasContextMenuProvider?.makeMenu(at: point)
-    }
-
-    public func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool {
-        false
-    }
 }
 
 extension PartialEdge {
