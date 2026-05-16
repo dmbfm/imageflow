@@ -214,6 +214,10 @@ public final class CanvasFeatureNSViewController: NSViewController {
             self.onNodeClick(id)
         case let .other(.valueDidChange(index, value)):
             self.flow.nodes[id]?.inputs[index].value = value
+        case .sizeChanged:
+            Task {
+                self.upadteEdges()
+            }
         default:
             logger.trace("Unhandled: \(id): \("\(event)")")
         }

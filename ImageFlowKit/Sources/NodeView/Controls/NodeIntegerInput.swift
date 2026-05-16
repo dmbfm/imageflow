@@ -236,11 +236,8 @@ final class NodeIntegerInput: XViewEx, NodeControl {
     }
 
     func update() {
-        // self.textField.text = self.value.int.formatted(.nodeInterger)
         self.textField.value = Double(self.value.int)
         self.stepper.value = Double(self.value.int)
-        self.invalidateIntrinsicContentSize()
-        self.emit(.sizeDidChange)
     }
 
     @State var valueAtDragStart: Int = 0
