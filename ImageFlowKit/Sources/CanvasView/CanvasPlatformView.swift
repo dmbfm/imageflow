@@ -52,6 +52,7 @@ public protocol CanvasViewDelegate: AnyObject {
     func canvasView(contextMenuForNode id: UUID, at point: CGPoint?) -> XMenu?
     func canvasView(contextMenuAt point: CGPoint) -> XMenu?
     func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool
+    func canvasView(didRemoveViewForNode id: UUID)
     func canvasViewPerformDragOperation(at point: CGPoint) -> Bool
 }
 
@@ -148,8 +149,9 @@ extension CanvasPlatformView {
             logger.warning("Node not found: \(id)")
             return
         }
-        self.nodeViews.removeValue(forKey: id)
         node.removeFromSuperview()
+        self.nodeViews.removeValue(forKey: id)
+        self.delegate?.canvasView(didRemoveViewForNode: id)
     }
 
     func moveNode(_ id: UUID, to position: CGPoint) {

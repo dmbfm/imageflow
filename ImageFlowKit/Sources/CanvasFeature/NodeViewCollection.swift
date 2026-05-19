@@ -14,6 +14,10 @@ extension NodeViewCollection {
             self.items[id] = newValue
         }
     }
+
+    public func remove(_ id: UUID) {
+        self.items.removeValue(forKey: id)
+    }
 }
 
 extension NodeViewCollection: Collection {
