@@ -41,6 +41,15 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
 
     // MARK: - Internal Types
 
+    class StackView: NSStackView {
+        override func performKeyEquivalent(with event: NSEvent) -> Bool {
+            if let vc = self.window?.contentViewController {
+                return vc.performKeyEquivalent(with: event)
+            } else {
+                return super.performKeyEquivalent(with: event)
+            }
+        }
+    }
     class TopView: NSView {}
     class BottomView: NSView {}
     class NodeListScrollView: NSScrollView {}
@@ -61,7 +70,7 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
     // MARK: - Lazy Properties
 
     lazy var stackView: NSStackView = {
-        let view = NSStackView()
+        let view = StackView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.orientation = .vertical
         view.addArrangedSubview(self.topView)
@@ -133,6 +142,23 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
 
     // MARK: - NSViewController
 
+    public override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        let prev =
+            (event.modifierFlags.contains(.control) && event.keyCode == KeyCode.p)
+        let next =
+            (event.modifierFlags.contains(.control) && event.keyCode == KeyCode.n)
+
+        if prev {
+            self.nodeListTableView.selectPrev()
+            return true
+        } else if next {
+            self.nodeListTableView.selectNext()
+            return true
+        }
+
+        return super.performKeyEquivalent(with: event)
+    }
+
     public override func loadView() {
         self.preferredContentSize = popoverSize
         self.view = self.stackView
@@ -152,25 +178,6 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
                     }
                     self.nodeListTableView.updateSelection(mouseWindowLocation: location)
                 }
-            }
-        )
-
-        NSEvent.addLocalMonitorForEvents(
-            matching: .keyDown,
-            handler: { [weak self] event in
-                guard let self else { return event }
-
-                if event.modifierFlags.contains(.control) {
-                    if event.keyCode == KeyCode.p {
-                        self.nodeListTableView.selectPrev()
-                        return nil
-                    } else if event.keyCode == KeyCode.n {
-                        self.nodeListTableView.selectNext()
-                        return nil
-                    }
-                }
-
-                return event
             }
         )
     }
