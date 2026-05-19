@@ -16,8 +16,6 @@ final class MainWindow: NSWindow {
         self.mainWindowDelegate?.mainWindowShouldAcceptEscapeKeyDown() ?? false
     }
 
-    @objc override func selectAll(_ sender: Any?) {}
-
     override func keyDown(with event: NSEvent) {
         if event.keyCode == KeyCode.space {
             self.mainWindowDelegate?.mainWindowEvent(

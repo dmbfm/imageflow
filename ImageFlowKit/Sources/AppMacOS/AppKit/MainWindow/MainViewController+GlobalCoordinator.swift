@@ -69,6 +69,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
     func showNodeSearch(_ canvasPosition: CGPoint?) {
         let position = canvasPosition ?? self.canvasView.bounds.center
         let rect = CGRect(x: position.x - 1, y: position.y - 1, width: 2, height: 2)
+
         self.present(
             NodePaletteSearchPopoverController { [weak self] item in
                 logger.warning("TODO: create node: \("\(item)")")

@@ -235,7 +235,7 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
     }
 
     // MARK: - Methods
-    
+
     func submit() -> Bool {
         let row = self.nodeListTableView.selectedRow
 

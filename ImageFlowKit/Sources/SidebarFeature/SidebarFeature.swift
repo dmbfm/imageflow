@@ -46,9 +46,8 @@ public struct SidebarFeatureView: View {
         List {
             ForEach(self.categories) { self.categoryView($0) }
         }
-        // .searchable(text: self.$searchText, placement: .sidebar, prompt: "Search nodes...")
-        // .searchFocused(self.focusBinding, equals: .sidebarSearch)
         .onChange(of: self.searchText) { self.expandedSections = [:] }
+        .focusable(false)
     }
 
     func categoryView(_ cat: NodePaletteCategory) -> some View {

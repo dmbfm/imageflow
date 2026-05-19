@@ -38,6 +38,7 @@ extension MainViewController {
         self.perform(userAction: .duplicate(.nodes(self.targetNodes(sender))))
     }
 
+    @objc
     override func selectAll(_ sender: Any?) {
         self.perform(userAction: .selectAllNodes)
     }
@@ -84,8 +85,7 @@ extension MainViewController {
         if item is NSMenuItemForNode {
             return true
         } else if item.action == #selector(Self.selectAll(_:)) {
-            logger.debug("is select all!!")
-            return true
+            return !self.flow.nodes.isEmpty
         } else if item.action == #selector(Self.exportImageCommand(_:)) {
             return self.detailVC?.previewVC.canExportImage == true
         } else if item.action == #selector(Self.paste(_:)) {

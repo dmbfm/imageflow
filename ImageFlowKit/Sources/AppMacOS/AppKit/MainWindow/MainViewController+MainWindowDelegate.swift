@@ -1,3 +1,7 @@
+#if os(macOS)
+
+import AppKit
+
 extension MainViewController: MainWindowDelegate {
     func mainWindowEvent(_ event: MainWindow.Event) {
         switch event {
@@ -23,3 +27,5 @@ extension MainViewController: MainWindowDelegate {
         !self.flow.selection.isEmpty
     }
 }
+
+#endif

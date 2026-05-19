@@ -56,8 +56,12 @@ struct SidebarFeatureViewWrapped: View {
 
 final class SidebarSearchField: NSSplitViewItemAccessoryViewController, NSSearchFieldDelegate {
 
+    class SearchField: NSSearchField {
+        override var acceptsFirstResponder: Bool { false }
+    }
+
     lazy var searchField: NSSearchField = {
-        let view = NSSearchField()
+        let view = SearchField()
         view.delegate = self
         return view
     }()

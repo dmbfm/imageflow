@@ -36,6 +36,7 @@ final class MainWindowController: NSWindowController {
         window.toolbar = self.toolbarController.toolbar
         window.setFrameAutosaveName("com.dmbfm.imageflow.macos.main-window")
         window.makeKeyAndOrderFront(nil)
+        // window.makeFirstResponder(nil)
 
         if NSDocumentController.shared.documents.count > 1 {
             Self.cascadingPoint = window.cascadeTopLeft(from: Self.cascadingPoint)
