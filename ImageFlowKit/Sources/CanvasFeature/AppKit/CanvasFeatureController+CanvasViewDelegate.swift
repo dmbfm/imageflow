@@ -49,4 +49,8 @@ extension CanvasFeatureViewController: CanvasViewDelegate {
     public func canvasView(didRemoveViewForNode id: UUID) {
         self.nodeViews.remove(id)
     }
+
+    public func canvasView(viewForNode id: UUID) -> (any CanvasNodeView)? {
+        self.viewForNode(id)
+    }
 }

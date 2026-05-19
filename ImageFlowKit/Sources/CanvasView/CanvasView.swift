@@ -41,9 +41,6 @@ public struct CanvasView: XViewRepresentable, @MainActor Equatable {
     /// This is used to set a reference to the underlying `NSView` or `UIView` to be used upwards in the view chain.
     @Binding var canvasPlatformViewRef: CanvasPlatformView?
 
-    /// A closure that provides node views for a give node UUID.
-    let viewForNode: (UUID) -> (any CanvasNodeView)?
-
     /// A closure to listen to canvas view events (see `Event`).
     let onEvent: ((CanvasView.Event) -> ())?
 
@@ -70,7 +67,6 @@ public struct CanvasView: XViewRepresentable, @MainActor Equatable {
         edges: [EdgeLayer],
         plusIconState: PlusIconState = .init(),
         canvasPlatformViewRef: Binding<CanvasPlatformView?>,
-        viewForNode: @escaping (UUID) -> (any CanvasNodeView)? = { _ in nil },
         delegate: (any CanvasViewDelegate)? = nil,
         interactionMode: CanvasInteractionMode = .default,
         onEvent: ((CanvasView.Event) -> ())? = nil
@@ -79,7 +75,6 @@ public struct CanvasView: XViewRepresentable, @MainActor Equatable {
         self.nodePositions = nodePositions
         self.edgeLayers = edges
         self.plusIconState = plusIconState
-        self.viewForNode = viewForNode
         self._canvasPlatformViewRef = canvasPlatformViewRef
         self.onEvent = onEvent
         self.delegate = delegate
@@ -90,7 +85,6 @@ public struct CanvasView: XViewRepresentable, @MainActor Equatable {
         let view = CanvasPlatformView(
             viewport: self.viewport,
             nodePositions: self.nodePositions,
-            viewForNode: self.viewForNode
         )
 
         view.edgeLayers = self.edgeLayers
@@ -117,7 +111,6 @@ public struct CanvasView: XViewRepresentable, @MainActor Equatable {
         context.coordinator.onEvent = self.onEvent
 
         view.onEvent = context.coordinator.onEventHandler
-        view.viewForNode = self.viewForNode
 
         if view.viewport != self.viewport {
             view.viewport = self.viewport

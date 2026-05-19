@@ -90,7 +90,6 @@ public final class CanvasFeatureViewController: NSViewController {
         self.canvasView = .init(
             viewport: .init(),
             nodePositions: self.flow.nodePositions,
-            viewForNode: { [weak self] in self?.viewForNode($0) },
         )
         self.canvasView.onEvent = { [weak self] in self?.onCanvasEvent($0) }
         self.canvasView.delegate = self

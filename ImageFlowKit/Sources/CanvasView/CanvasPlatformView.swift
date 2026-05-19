@@ -19,7 +19,6 @@ protocol CanvasPlatformViewProtocol {
     var edgeLayers: [CanvasView.EdgeLayer] { get set }
     var plusIconState: CanvasView.PlusIconState { get set }
     var configuration: CanvasView.Configuration { get }
-    var viewForNode: (UUID) -> (any CanvasNodeView)? { get set }
     var onEvent: ((CanvasPlatformView.Event) -> ())? { get set }
     var delegate: (any CanvasViewDelegate)? { get set }
     var interactionMode: CanvasInteractionMode { get set }
@@ -27,7 +26,6 @@ protocol CanvasPlatformViewProtocol {
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
         configuration: CanvasView.Configuration,
-        viewForNode: @escaping (UUID) -> (any CanvasNodeView)?
     )
     func perform(canvasAction: CanvasAction)
 }
@@ -54,6 +52,7 @@ public protocol CanvasViewDelegate: AnyObject {
     func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool
     func canvasView(didRemoveViewForNode id: UUID)
     func canvasViewPerformDragOperation(at point: CGPoint) -> Bool
+    func canvasView(viewForNode id: UUID) -> (any CanvasNodeView)?
 }
 
 extension CanvasPlatformView {
@@ -135,7 +134,7 @@ extension CanvasPlatformView {
     }
 
     func addNode(_ id: UUID, at position: CGPoint) {
-        if let node = self.viewForNode(id) {
+        if let node = self.delegate?.canvasView(viewForNode: id) {
             node.setNeedsLayout()
             node.layoutIfNeeded()
             self.addNode(node, at: position)

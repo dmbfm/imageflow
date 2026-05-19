@@ -37,8 +37,6 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
     public var onEvent: ((Event) -> ())?
 
-    public var viewForNode: (UUID) -> (any CanvasNodeView)?
-
     public internal(set) var nodeViews: [UUID: any CanvasNodeView] = [:]
 
     public weak var delegate: (any CanvasViewDelegate)?
@@ -89,11 +87,9 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
         viewport: CanvasView.Viewport,
         nodePositions: [UUID: CGPoint],
         configuration: CanvasView.Configuration = .default,
-        viewForNode: @escaping (UUID) -> (any CanvasNodeView)?,
     ) {
         self.viewport = viewport
         self.nodePositions = nodePositions
-        self.viewForNode = viewForNode
 
         super.init(frame: .zero)
 
@@ -102,6 +98,10 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
         self.setupGridView()
         self.setupContentView()
+    }
+
+    public override func viewDidMoveToWindow() {
+        guard self.window != nil else { return }
 
         self.nodePositionsDidChange([:])
         self.gridViewDraw()
