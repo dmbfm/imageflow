@@ -55,11 +55,6 @@ final class MainWindowController: NSWindowController {
     required init?(coder: NSCoder) {
         nil
     }
-
-    override func close() {
-        print("close!!")
-        super.close()
-    }
 }
 
 extension MainWindowController: NSWindowDelegate {

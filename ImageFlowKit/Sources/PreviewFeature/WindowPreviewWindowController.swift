@@ -5,6 +5,7 @@ import AppKit
 import SharedModels
 import Helpers
 
+// swiftlint:disable force_cast
 class WindowPreviewWindowController: NSWindowController, NSWindowDelegate {
 
     var windowWillCloseCallback: ((WindowPreviewCache) -> ())?

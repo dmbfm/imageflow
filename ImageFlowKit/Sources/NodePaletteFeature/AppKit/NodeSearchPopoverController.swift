@@ -143,7 +143,7 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
             forName: NSView.boundsDidChangeNotification,
             object: self.nodeListScrollView.contentView,
             queue: .main,
-            using: { [weak self] notification in
+            using: { [weak self] _ in
                 MainActor.assumeIsolated {
                     guard let self,
                         let location = self.view.window?.mouseLocationOutsideOfEventStream

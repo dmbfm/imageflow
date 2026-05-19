@@ -113,7 +113,8 @@ private enum EasingMode {
     case easeOut
     case easeInOut
 
-    func mode(_ c: EasingCurve) -> (CGFloat) -> CGFloat {  // swiftlint:disable:this cyclomatic_complexity function_body_length
+    // swiftlint:disable:this cyclomatic_complexity function_body_length
+    func mode(_ c: EasingCurve) -> (CGFloat) -> CGFloat {
         switch c {
         case .quadratic:
             switch self {

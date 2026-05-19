@@ -178,7 +178,7 @@ struct PreviewStateMachine {
         }
 
         func pick(_ location: OutputPortLocation) -> StateTransition {
-            if let _ = self.availableLocations.first(where: { $0.location == location }) {
+            if self.availableLocations.first(where: { $0.location == location }) != nil {
                 return .init(
                     newState: self.with(\.location, location).with(\.content, .loading(self.location, self.image)),
                     effect: .loadImage(location)

@@ -8,10 +8,10 @@ import CIImageView
 
 struct ToolbarHostingView: View {
 
-    @Bindable var vm: VM
+    @Bindable var vm: ViewModel
 
     @Observable
-    class VM {
+    class ViewModel {
         var zoom: CGFloat
         var isPinned: Bool
         var handle: (ItemName) -> ()

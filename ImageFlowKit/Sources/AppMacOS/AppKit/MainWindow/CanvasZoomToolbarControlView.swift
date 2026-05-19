@@ -3,7 +3,7 @@ import SwiftUI
 struct CanvasZoomToolbarControlView: View {
 
     @Observable
-    class VM {
+    class ViewModel {
         var zoom: CGFloat = 1.0
 
         var inc: (() -> ())?
@@ -11,7 +11,7 @@ struct CanvasZoomToolbarControlView: View {
         var setZoom: ((Double) -> ())?
     }
 
-    let vm: VM
+    let vm: ViewModel
 
     let zoomValues: [Double] = [
         0.1,

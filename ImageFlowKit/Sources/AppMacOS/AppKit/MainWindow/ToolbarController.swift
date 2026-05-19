@@ -8,7 +8,7 @@ import Combine
 final class ToolbarController: NSObject, NSToolbarDelegate {
 
     var toolbar: NSToolbar
-    var canvasZoomControlVM: CanvasZoomToolbarControlView.VM
+    var canvasZoomControlVM: CanvasZoomToolbarControlView.ViewModel
     var mainVC: MainViewController
     var combineCancellables: Set<AnyCancellable> = []
 

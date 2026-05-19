@@ -12,7 +12,7 @@ class WindowPreviewViewController: NSViewController {
     let flow: Flow
     let assetStore: any AssetStoreService
     let coordinator: GlobalCoordinator
-    var toolbarVM: ToolbarHostingView.VM? = nil
+    var toolbarVM: ToolbarHostingView.ViewModel? = nil
     var imageScrollView: CIImageScrollXView!
     var cache: WindowPreviewCache
     var restoreConfig: RestoreConfiguration? = nil
