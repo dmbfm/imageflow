@@ -82,10 +82,29 @@ final class MainViewController: NSSplitViewController {
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()
+
+        self.flow.emitter.on({ [weak self] event in
+            self?.onFlowEvent(event)
+        }).store(in: &self.cancellables)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Events
+
+    func onFlowEvent(_ event: FlowEvent) {
+        switch event {
+        case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition, travelDistance):
+            if travelDistance >= GlobalConstants.minTravelDistanceToCreateNode {
+                self.perform(
+                    userAction: .showNodeSearch(typedPortLocation: typedPortLocation, canvasPosition: canvasPosition)
+                )
+            }
+        default:
+            break
+        }
     }
 
     // MARK: - NSViewController
@@ -114,8 +133,6 @@ final class MainViewController: NSSplitViewController {
         self.detailVC.updateSafeAreaInsets(s)
     }
 }
-
-// MARK: - ImageFlowCoordinatorProtocol
 
 // MARK: - Nodes
 

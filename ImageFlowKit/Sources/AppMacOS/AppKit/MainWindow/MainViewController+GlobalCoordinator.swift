@@ -58,23 +58,27 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.flow.selectAll()
         case .selectNone:
             self.flow.selectNone()
-        case .showNodeSearch(_, let canvasPosition):
-            // TODO: Handle case with typedPortLocation
-            self.showNodeSearch(canvasPosition)
+        case .showNodeSearch(let typedPort, let canvasPosition):
+            self.showNodeSearch(typedPort, canvasPosition)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }
     }
 
-    func showNodeSearch(_ canvasPosition: CGPoint?) {
+    func showNodeSearch(_ typedPortLocation: TypedPortLocation?, _ canvasPosition: CGPoint?) {
         let position = canvasPosition ?? self.canvasView.bounds.center
         let rect = CGRect(x: position.x - 1, y: position.y - 1, width: 2, height: 2)
 
         self.present(
             NodePaletteSearchPopoverController { [weak self] item in
-                logger.warning("TODO: create node: \("\(item)")")
                 Task {
-                    self?.perform(userAction: .newNodeWithKind(kind: item.nodeKind, at: .canvasView(position)))
+                    self?.perform(
+                        userAction: .newNode(
+                            .init(kind: item.nodeKind),
+                            at: .canvasView(position),
+                            connectingToExistingPort: typedPortLocation
+                        )
+                    )
                 }
             },
             asPopoverRelativeTo: rect,
