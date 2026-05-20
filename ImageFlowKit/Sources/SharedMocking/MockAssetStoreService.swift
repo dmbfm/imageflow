@@ -4,21 +4,31 @@ import Helpers
 import SharedModels
 import Values
 
-public class MockAssetProvider: AssetsProvider {
-    public func titleForAsset(id: AssetIdentifier) -> String? {
-        nil
-    }
-
-    public let assets: [UUID: SharedModels.Asset] = [:]
-
-    public init() {}
-}
-
 @Observable
 @MainActor
 public final class MockAssetStore: AssetStoreService {
-    public func removeAsset(_ id: UUID, undoManager um: UndoManager?) {
 
+    public var documentID: UUID? { nil }
+
+    public func registerAsset(asset: Asset) {}
+    public func importAsset(imageItemProvider provider: NSItemProvider) async throws(AssetStoreServiceError) -> UUID {
+        throw .message("Not Implemented")
+    }
+    public func importAsset(
+        id: UUID?,
+        kind: AssetKind,
+        originalFilename: String?,
+        importFunc: nonisolated(nonsending) (URL, UUID) async throws -> AssetStoreImportFuncResult
+    ) async throws(AssetStoreServiceError) -> UUID {
+        throw .message("Not Implemented")
+    }
+
+    public func addAsset(
+        fromURL url: URL,
+        kind: SharedModels.AssetKind,
+        undoManager um: UndoManager?
+    ) async throws(SharedModels.AssetStoreServiceError) -> UUID {
+        throw .message("Not Implemented")
     }
 
     public func addAsset(
@@ -26,16 +36,30 @@ public final class MockAssetStore: AssetStoreService {
         filename: String,
         kind: SharedModels.AssetKind,
         undoManager um: UndoManager?
-    ) async throws -> UUID {
-        .init()
+    ) async throws(SharedModels.AssetStoreServiceError) -> UUID {
+        throw .message("Not Implemented")
     }
 
-    public func addAsset(
-        fromURL url: URL,
-        kind: SharedModels.AssetKind,
-        undoManager um: UndoManager?
-    ) async throws -> UUID {
-        .init()
+    public func getThumb(forAsset id: UUID) async throws(SharedModels.AssetStoreServiceError) -> CGImage? {
+        throw .message("Not Implemented")
+    }
+
+    public func getGeneratedResource(
+        ciImageAt port: SharedModels.OutputPortLocation
+    ) async throws(SharedModels.AssetStoreServiceError) -> SharedModels.GeneratedResource<CIImage> {
+        throw .message("Not Implemented")
+    }
+
+    public func setDocumentInfo(_ info: SharedModels.DocumentInfo) {
+
+    }
+
+    public func remove(generatedAssetsForNode node: UUID) {
+
+    }
+
+    public func removeAsset(_ id: UUID, undoManager um: UndoManager?) {
+
     }
 
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
@@ -52,10 +76,6 @@ public final class MockAssetStore: AssetStoreService {
 
     public var delegate: SharedModels.AssetStoreServiceDelegate?
 
-    public func getThumb(forAsset id: UUID) async throws -> CGImage? {
-        nil
-    }
-
     public var emitter: EventEmitter<AssetStoreServiceEvent> = .init()
 
     public func hasGeneratedResource(ciImageAt port: OutputPortLocation) async -> Bool {
@@ -63,12 +83,4 @@ public final class MockAssetStore: AssetStoreService {
     }
 
     var image: CIImage? = nil
-
-    public func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage> {
-        throw Errors.generatedAssetNotFound
-    }
-
-    enum Errors: Error {
-        case generatedAssetNotFound
-    }
 }

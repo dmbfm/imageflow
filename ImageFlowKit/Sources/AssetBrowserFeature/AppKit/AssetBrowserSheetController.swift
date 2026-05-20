@@ -4,6 +4,7 @@ import AppKit
 import SwiftUI
 import SharedModels
 import UniformTypeIdentifiers
+import PhotosUI
 
 public final class AssetBrowserSheetController: NSHostingController<AssetBrowserView> {
 
@@ -68,7 +69,6 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
         panel.allowsOtherFileTypes = false
 
         let res = panel.runModal()
-        logger.info("res: \("\(res)")")
         let urls = panel.urls
 
         if !urls.isEmpty {
@@ -77,11 +77,38 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
     }
 
     public func openPhotoPicker() {
-        logger.warning("TODO: openPhotoPicker")
+        var cfg = PHPickerConfiguration(photoLibrary: .shared())
+        cfg.selectionLimit = 50
+        cfg.filter = .images
+        cfg.selection = .ordered
+
+        let pvc = PHPickerViewController(configuration: cfg)
+        pvc.view.frame = self.view.frame
+        pvc.preferredContentSize = self.view.frame.size
+        pvc.delegate = self
+        self.presentAsSheet(pvc)
     }
 
     public func deleteAsset(_ asset: SharedModels.Asset) {
         self.delegate?.assetBrowserDeleteAsset(self, asset: asset)
+    }
+}
+
+extension AssetBrowserSheetController: PHPickerViewControllerDelegate {
+    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(nil)
+
+        for item in results.map({ $0.itemProvider }) {
+            Task { @MainActor in
+                do {
+                    _ = try await self.assetStore.importAsset(imageItemProvider: item)
+                } catch {
+                    let alert = NSAlert()
+                    alert.messageText = "Failed to import image: \(error.localizedDescription)"
+                    alert.runModal()
+                }
+            }
+        }
     }
 }
 

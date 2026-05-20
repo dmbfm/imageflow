@@ -44,10 +44,17 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
+    var documentInfo: DocumentInfo? = nil
+
     public func setDocumentInfo(_ info: DocumentInfo) {
+        self.documentInfo = info
         Task {
             await self._assetManager.setDocumentInfo(info)
         }
+    }
+
+    public var documentID: UUID? {
+        self.documentInfo?.id
     }
 
     public func titleForAsset(id: AssetIdentifier) -> String? {
@@ -58,47 +65,80 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
-    @discardableResult
-    public nonisolated func addAssets(
-        fromPhotosPickerItems items: [PhotosPickerItem],
-        undoManager um: UndoManager? = nil
-    ) async throws(AssetManagerError) -> [UUID] {
-        do {
-            return try await withThrowingTaskGroup(of: UUID.self, returning: [UUID].self) { group in
-                for item in items {
-                    group.addTask {
-                        try await self.addAsset(
-                            fromPhotosPickerItem: item,
-                            undoManager: um
-                        )
-                    }
-                }
-
-                return try await group.reduce(
-                    into: [UUID](),
-                    { acc, id in
-                        acc.append(id)
-                    }
-                )
-            }
-        } catch {
-            throw .from(error)
+    public func registerAsset(asset: Asset) {
+        Task {
+            await self._assetManager.register(asset: asset)
         }
     }
 
     @discardableResult
-    public func addAsset(
-        fromPhotosPickerItem item: PhotosPickerItem,
-        undoManager um: UndoManager? = nil
-    ) async throws(AssetManagerError) -> UUID {
-        let id = try await self._assetManager.importImageAsset(fromPhotosPickerItem: item)
-        um?.registerUndo(
-            withTarget: self,
-            handler: { [weak um] this in
-                this.removeAsset(id, undoManager: um)
+    public func importAsset(
+        imageItemProvider provider: NSItemProvider,
+    ) async throws(AssetStoreServiceError) -> UUID {
+
+        let id = UUID()
+
+        let asset = Asset(id: id, kind: .image, timestamp: .now, state: .loading(originalFilename: nil))
+        await self._assetManager.register(asset: asset)
+        let assetsURL = try await self._assetManager.ensureAssetsDir()
+
+        do {
+            try await withCheckedThrowingContinuation {
+                @MainActor (continuation: CheckedContinuation<Void, any Error>) in
+                _ = provider.loadFileRepresentation(
+                    for: .image,
+                    completionHandler: { url, _, error in
+                        if let url {
+                            do {
+                                let originalFilename: String = url.lastPathComponent
+                                Task { @MainActor in
+                                    await self._assetManager.register(
+                                        asset: asset.with(\.state, .loading(originalFilename: originalFilename))
+                                    )
+                                }
+                                let filename = assetFilename(forOriginalURL: url, id: asset.id)
+                                let dest = assetsURL.appending(path: filename)
+                                try FileManager.default.copyItem(at: url, to: dest)
+                                Task { @MainActor in
+                                    await self._assetManager.register(
+                                        asset: asset.with(
+                                            \.state,
+                                            .loaded(filename: filename, originalFilename: originalFilename)
+                                        )
+                                    )
+                                }
+                            } catch {
+                                continuation.resume(throwing: error)
+                            }
+                        } else if let error {
+                            continuation.resume(throwing: error)
+                        } else {
+                            continuation.resume(throwing: AssetStoreServiceError.message("Unknown error"))
+                        }
+                    }
+                )
             }
-        )
+        } catch {
+            await self._assetManager.remove(asset: id)
+            throw .from(error)
+        }
+
         return id
+    }
+
+    @discardableResult
+    public func importAsset(
+        id: UUID? = UUID(),
+        kind: AssetKind,
+        originalFilename: String? = nil,
+        importFunc: @Sendable (_ assetsDir: URL, _ id: UUID) async throws -> AssetStoreImportFuncResult
+    ) async throws(AssetStoreServiceError) -> UUID {
+        try await self._assetManager.importAsset(
+            id: id ?? .init(),
+            kind: kind,
+            originalFilename: originalFilename,
+            importFunc: importFunc
+        )
     }
 
     @discardableResult
@@ -106,7 +146,7 @@ public final class AssetStore: AssetStoreService {
         fromURL url: URL,
         kind: AssetKind,
         undoManager um: UndoManager? = nil
-    ) async throws(AssetManagerError) -> UUID {
+    ) async throws(AssetStoreServiceError) -> UUID {
         let id = try await self._assetManager.importAsset(fromURL: url, kind: kind)
         um?.registerUndo(
             withTarget: self,
@@ -122,7 +162,7 @@ public final class AssetStore: AssetStoreService {
         filename: String,
         kind: AssetKind,
         undoManager um: UndoManager?
-    ) async throws -> UUID {
+    ) async throws(AssetStoreServiceError) -> UUID {
         let id = try await self._assetManager.importAsset(data: data, filename: filename, kind: kind)
         um?.registerUndo(
             withTarget: self,
@@ -166,7 +206,7 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
-    public func getThumb(forAsset id: UUID) async throws -> CGImage? {
+    public func getThumb(forAsset id: UUID) async throws(AssetStoreServiceError) -> CGImage? {
         // NOTE: Returning the thumb that is cached in the manager has a
         // performance penalty (I think it needs to copy the CGImage data
         // or some mutex/locking issue). So we keep an additional cache
@@ -180,7 +220,9 @@ public final class AssetStore: AssetStoreService {
         }
     }
 
-    public func getGeneratedResource(ciImageAt port: OutputPortLocation) async throws -> GeneratedResource<CIImage> {
+    public func getGeneratedResource(
+        ciImageAt port: OutputPortLocation
+    ) async throws(AssetStoreServiceError) -> GeneratedResource<CIImage> {
         try await self._assetManager.getGeneratedResource(ciImageAt: port)
     }
 

@@ -1,9 +1,10 @@
 import Foundation
+import SharedModels
 import Values
 
 struct ResourceCollection<R> {
 
-    typealias Res<T> = Resource<T, AssetManagerError>
+    typealias Res<T> = Resource<T, AssetStoreServiceError>
 
     var resources: [UUID: Res<R>] = [:]
 

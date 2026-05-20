@@ -26,7 +26,7 @@ struct AssetResources {
     var luts: ResourceCollection<CubeLut> = .init()
     var thumbs: ResourceCollection<CGImage> = .init()
     var ciImages: ResourceCollection<CIImage> = .init()
-    var assetKindThumbs: [AssetKind: Resource<CGImage, AssetManagerError>] = [:]
+    var assetKindThumbs: [AssetKind: Resource<CGImage, AssetStoreServiceError>] = [:]
 
     mutating func clear() {
         self = .init()
@@ -66,7 +66,7 @@ actor AssetManager {
 
     // MARK: - Private Types
 
-    private typealias Res<T> = Resource<T, AssetManagerError>
+    private typealias Res<T> = Resource<T, AssetStoreServiceError>
 
     // MARK: - Exposed Methods
 
@@ -113,26 +113,26 @@ actor AssetManager {
         self.generatedResources.removeCIImages(forNode: node)
     }
 
-    func importImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetManagerError) -> UUID {
+    func importImageAsset(fromPhotosPickerItem item: PhotosPickerItem) async throws(AssetStoreServiceError) -> UUID {
 
         @concurrent
-        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
+        func doImport(assetsDir: URL, id: UUID) async throws -> AssetStoreImportFuncResult {
             guard let identifier = item.itemIdentifier else {
-                throw AssetManagerError.importAsset(.photosMissingIdentifier)
+                throw AssetStoreServiceError.importAsset(.photosMissingIdentifier)
             }
 
             guard let data = try await item.loadTransferable(type: Data.self) else {
-                throw AssetManagerError.importAsset(.photosDataIsNil)
+                throw AssetStoreServiceError.importAsset(.photosDataIsNil)
             }
 
             let fetchAssetResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
 
             guard let asset = fetchAssetResult.firstObject else {
-                throw AssetManagerError.importAsset(.photosMissingIdentifier)
+                throw AssetStoreServiceError.importAsset(.photosMissingIdentifier)
             }
 
             guard let resource = PHAssetResource.assetResources(for: asset).first else {
-                throw AssetManagerError.importAsset(.photosMissingPHAssetResource)
+                throw AssetStoreServiceError.importAsset(.photosMissingPHAssetResource)
             }
 
             let filename = resource.originalFilename
@@ -151,10 +151,10 @@ actor AssetManager {
         }
     }
 
-    func importAsset(fromURL url: URL, kind: AssetKind) async throws(AssetManagerError) -> UUID {
+    func importAsset(fromURL url: URL, kind: AssetKind) async throws(AssetStoreServiceError) -> UUID {
 
         @concurrent
-        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
+        func doImport(assetsDir: URL, id: UUID) async throws -> AssetStoreImportFuncResult {
             let isSS = url.startAccessingSecurityScopedResource()
             defer { if isSS { url.stopAccessingSecurityScopedResource() } }
 
@@ -171,10 +171,10 @@ actor AssetManager {
         }
     }
 
-    func importAsset(data: Data, filename: String, kind: AssetKind) async throws(AssetManagerError) -> UUID {
+    func importAsset(data: Data, filename: String, kind: AssetKind) async throws(AssetStoreServiceError) -> UUID {
 
         @concurrent
-        func doImport(assetsDir: URL, id: UUID) async throws -> ImportFuncResult {
+        func doImport(assetsDir: URL, id: UUID) async throws -> AssetStoreImportFuncResult {
             let assetFilename = self.name(forAssetAt: .init(filePath: filename), id: id)
             let assetURL = assetsDir.appending(path: assetFilename)
 
@@ -188,7 +188,7 @@ actor AssetManager {
         }
     }
 
-    func addGeneratedResource<T>(id: OutputPortLocation, resource: T) throws(AssetManagerError) {
+    func addGeneratedResource<T>(id: OutputPortLocation, resource: T) throws(AssetStoreServiceError) {
         if let res = resource as? CIImage? {
             if let res {
                 self.generatedResources.ciImages[id] = .init(id: id, timestamp: .now, res: res)
@@ -203,7 +203,7 @@ actor AssetManager {
 
     func getGeneratedResource(
         ciImageAt port: OutputPortLocation
-    ) async throws(AssetManagerError) -> GeneratedResource<CIImage> {
+    ) async throws(AssetStoreServiceError) -> GeneratedResource<CIImage> {
         if let res = self.generatedResources.ciImages[port] {
             return res
         } else {
@@ -219,17 +219,17 @@ actor AssetManager {
 
     func getGeneratedResource(
         thumbAt port: OutputPortLocation
-    ) async throws(AssetManagerError) -> GeneratedResource<CGImage> {
+    ) async throws(AssetStoreServiceError) -> GeneratedResource<CGImage> {
         fatalError("TODO")
     }
 
     func getGeneratedResource(
         lutAt port: OutputPortLocation
-    ) async throws(AssetManagerError) -> GeneratedResource<CubeLut> {
+    ) async throws(AssetStoreServiceError) -> GeneratedResource<CubeLut> {
         fatalError("Not supported")
     }
 
-    func getAssetResource(thumbFor id: UUID) async throws(AssetManagerError) -> CGImage {
+    func getAssetResource(thumbFor id: UUID) async throws(AssetStoreServiceError) -> CGImage {
         guard let asset = self.assets[id] else {
             throw .getAssetResource(.assetNotFound)
         }
@@ -256,7 +256,7 @@ actor AssetManager {
         }
     }
 
-    func getAssetResource(ciImageFor id: UUID) async throws(AssetManagerError) -> CIImage {
+    func getAssetResource(ciImageFor id: UUID) async throws(AssetStoreServiceError) -> CIImage {
         try await self.getAssetResource(
             forAssetID: id,
             loader: .init(
@@ -269,7 +269,7 @@ actor AssetManager {
                             // .expandToHDR: true,
                     ]
                     guard let ciImage = CIImage(contentsOf: url, options: options) else {
-                        throw AssetManagerError.getAssetResource(.ciImageInitError)
+                        throw AssetStoreServiceError.getAssetResource(.ciImageInitError)
                     }
                     return ciImage
                 }
@@ -277,7 +277,7 @@ actor AssetManager {
         )
     }
 
-    func getAssetResource(lutFor id: UUID) async throws(AssetManagerError) -> CubeLut {
+    func getAssetResource(lutFor id: UUID) async throws(AssetStoreServiceError) -> CubeLut {
         fatalError("TODO")
     }
 
@@ -306,17 +306,27 @@ actor AssetManager {
         }
     }
 
-    struct ImportFuncResult {
-        var filename: String
-        var originalFilename: String
+    func ensureAssetsDir() throws(AssetStoreServiceError) -> URL {
+        guard let documentID = self.documentInfo?.id else {
+            throw .importAsset(.missingDocumentInfo)
+        }
+
+        let url: URL = .tempAssetsDirectory(forDocument: documentID)
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        } catch {
+            throw .from(error)
+        }
+
+        return url
     }
 
-    private func importAsset(
+    func importAsset(
         id: UUID = UUID(),
         kind: AssetKind,
         originalFilename: String? = nil,
-        importFunc: (_ assetsDir: URL, _ id: UUID) async throws -> ImportFuncResult
-    ) async throws(AssetManagerError) -> UUID {
+        importFunc: (_ assetsDir: URL, _ id: UUID) async throws -> AssetStoreImportFuncResult
+    ) async throws(AssetStoreServiceError) -> UUID {
         guard let documentID = self.documentInfo?.id else {
             throw .importAsset(.missingDocumentInfo)
         }
@@ -377,7 +387,7 @@ actor AssetManager {
         }
     }
 
-    private func assetURL(filename: String) throws(AssetManagerError) -> URL {
+    private func assetURL(filename: String) throws(AssetStoreServiceError) -> URL {
         let fm = FileManager.default
 
         let maybeDocumentImageURL = self.documentAssetURL(filename: filename)
@@ -405,7 +415,7 @@ actor AssetManager {
     private func getAssetResource<T>(
         forAssetID id: UUID,
         loader: AssetResourceLoader<T>
-    ) async throws(AssetManagerError) -> T where T: Sendable {
+    ) async throws(AssetStoreServiceError) -> T where T: Sendable {
         guard let asset = self.assets[id] else {
             throw .getAssetResource(.assetNotFound)
         }
@@ -416,7 +426,7 @@ actor AssetManager {
     private func getAssetResource<T>(
         forAsset asset: Asset,
         loader: AssetResourceLoader<T>
-    ) async throws(AssetManagerError) -> T where T: Sendable {
+    ) async throws(AssetStoreServiceError) -> T where T: Sendable {
         guard let res = loader.getResource(asset.id) else {
             throw .getAssetResource(.resourceNotFound)
         }
@@ -450,47 +460,6 @@ actor AssetManager {
         } catch {
             loader.setResource(asset.id, .failed(.other(error)))
             throw .from(error)
-        }
-    }
-}
-
-public enum AssetManagerError: LocalizedError, Sendable {
-    case other(any Error)
-    case addGeneratedResource(AddGeneratedResource)
-    case getGeneratedResource(GetGeneratedResource)
-    case getAssetResource(GetAssetResource)
-    case importAsset(ImportAsset)
-
-    public enum AddGeneratedResource: Error {
-        case invalidResourceType
-    }
-
-    public enum ImportAsset: Error {
-        case missingDocumentInfo
-        case photosMissingIdentifier
-        case photosDataIsNil
-        case photosMissingPHAssetResource
-        case URLAccessError
-    }
-
-    public enum GetGeneratedResource: Error {
-        case resourceNotFound
-    }
-
-    public enum GetAssetResource: Error {
-        case resourceNotFound
-        case assetNotLoaded
-        case assetNotFound
-        case thumbCGImageSourceCreateWithURLError
-        case thumbCGImageSourceCreateThumbnailError
-        case ciImageInitError
-    }
-
-    static func from(_ error: any Error) -> AssetManagerError {
-        if let err = error as? AssetManagerError {
-            err
-        } else {
-            .other(error)
         }
     }
 }
@@ -569,7 +538,7 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
         )
     else {
         logger.error("error: thumbCGImageSourceCreateWithURLError")
-        throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
+        throw AssetStoreServiceError.getAssetResource(.thumbCGImageSourceCreateWithURLError)
     }
 
     let thumbTask = Task.detached {
@@ -578,8 +547,20 @@ func generateThumb(fromURL url: URL) async throws -> CGImage {
 
     guard let thumb = await thumbTask.value else {
         logger.error("error: thumbCGImageSourceCreateThumbnailError")
-        throw AssetManagerError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
+        throw AssetStoreServiceError.getAssetResource(.thumbCGImageSourceCreateThumbnailError)
     }
 
     return thumb
+}
+
+func assetFilename(forOriginalURL url: URL, id: UUID) -> String {
+    let ext = url.pathExtension
+    let storedName =
+        if ext.isEmpty {
+            "\(id.uuidString)"
+        } else {
+            "\(id.uuidString).\(ext)"
+        }
+
+    return storedName
 }
