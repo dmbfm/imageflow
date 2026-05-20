@@ -1,3 +1,5 @@
+import AssetSystem
+import Combine
 import Foundation
 import SharedModels
 import UniformTypeIdentifiers
@@ -6,7 +8,7 @@ import UniformTypeIdentifiers
 @MainActor
 public final class AssetBrowserViewModel {
 
-    let assetsProvider: any AssetStoreService
+    let assetStore: AssetStore
     var allowedAssetKinds: AssetKindSet
     var allowedImportTypes: [UTType]
     var photoPickerDisabled: Bool
@@ -19,6 +21,8 @@ public final class AssetBrowserViewModel {
     var type: AssetBrowserType = .browser(.init(assetKinds: .all))
     public weak var delegate: Delegate?
 
+    var cancellables: Set<AnyCancellable> = []
+
     public protocol Delegate: AnyObject {
         func onDismiss(_: AssetBrowserResult)
         func openFileImporter(_: [UTType])
@@ -27,34 +31,55 @@ public final class AssetBrowserViewModel {
     }
 
     public init(
-        assetsProvider: any AssetStoreService,
+        assetsProvider: AssetStore,
         allowedAssetKinds: AssetKindSet,
         allowedImportTypes: [UTType],
         photoPickerDisabled: Bool,
         type: AssetBrowserType = .browser(.init(assetKinds: .all)),
     ) {
-        self.assetsProvider = assetsProvider
+        self.assetStore = assetsProvider
         self.allowedAssetKinds = allowedAssetKinds
         self.allowedImportTypes = allowedImportTypes
         self.photoPickerDisabled = photoPickerDisabled
         self.type = type
+
+        self.observeAssets()
+        self.updateSortedAssets()
     }
 
     public init(
-        assetsProvider: any AssetStoreService,
+        assetsProvider: AssetStore,
         assetBrowserType type: AssetBrowserType,
     ) {
-        self.assetsProvider = assetsProvider
+        self.assetStore = assetsProvider
         self.type = type
         self.allowedAssetKinds = type.allowedAssetKinds
         self.allowedImportTypes = type.allowedAssetKinds.types
         self.photoPickerDisabled = !type.allowedAssetKinds.contains(.image)
+
+        self.observeAssets()
+        self.updateSortedAssets()
     }
 
-    var sortedAssets: [Asset] {
-        self.assetsProvider.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
-            .sorted(by: { $0.timestamp < $1.timestamp })
+    func observeAssets() {
+        self.assetStore.publisher.sink { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .asssetsDidChange:
+                self.updateSortedAssets()
+            default:
+                break
+            }
+        }.store(in: &self.cancellables)
     }
+
+    func updateSortedAssets() {
+        self.sortedAssets = self.assetStore.assetBrowserAssets(forKinds: self.allowedAssetKinds.kinds)
+            .sorted(by: { $0.timestamp < $1.timestamp })
+
+    }
+
+    var sortedAssets: [Asset] = []
 
     var filteredAssets: [Asset] {
         if self.searchText.isEmpty {
@@ -214,7 +239,7 @@ public enum AssetBrowserResult {
     )
 }
 
-extension AssetStoreService {
+extension AssetStore {
     public func assetBrowserAssets(forKinds kinds: Set<AssetKind>) -> [Asset] {
         self.assets.values.filter { kinds.contains($0.kind) }
     }

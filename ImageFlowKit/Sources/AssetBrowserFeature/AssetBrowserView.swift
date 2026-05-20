@@ -1,3 +1,4 @@
+import AssetSystem
 import Helpers
 import SharedModels
 import SwiftUI
@@ -204,7 +205,7 @@ public struct AssetBrowserView: View {
                     ForEach(self.vm.filteredAssets) { asset in
                         AssetBrowserGridItemView(
                             asset: asset,
-                            thumbProvider: self.vm.assetsProvider,
+                            assetStore: self.vm.assetStore,
                             selected: self.vm.selected?.id == asset.id,
                         )
                         .focusable()

@@ -4,8 +4,8 @@ import SharedModels
 import Synchronization
 import Helpers
 import CanvasFeature
-import AssetManager
 import UniformTypeIdentifiers
+import AssetSystem
 
 @MainActor
 @objc(FlowDocument)
@@ -67,28 +67,25 @@ public final class FlowDocument: NSDocument {
         ofType typeName: String,
         existingFile: FileWrapper?
     ) throws -> FileWrapper {
-        let snapshot = MainActor.unsafeAssumeIsolated { self.snapshot() }
+        let (snapshot, pathManager) = MainActor.unsafeAssumeIsolated { (self.snapshot(), self.assetStore.pathManager) }
         var assetsFws = existingFile?.fileWrappers?["Assets"]?.fileWrappers ?? [String: FileWrapper]()
         var urls = [URL]()
-        do {
-            for (_, asset) in snapshot.assets.assets {
-                switch asset.state {
-                case .loaded(let filename, _):
-                    let url: URL = .tempAssetURL(forDocument: snapshot.id, filename: filename)
-                    if FileManager.default.fileExists(atPath: url.path) {
-                        let fw = try FileWrapper(
-                            url: url
-                        )
-                        assetsFws[filename] = fw
-                        urls.append(url)
-                    }
-                default:
-                    break
+        // do {
+        for (_, asset) in snapshot.assets.assets {
+            switch asset.state {
+            case .loaded(let filename, _):
+                if let url: URL = try? pathManager.url(temporaryAssetFileURL: asset),
+                    FileManager.default.fileExists(atPath: url.path)
+                {
+                    let fw = try FileWrapper(
+                        url: url
+                    )
+                    assetsFws[filename] = fw
+                    urls.append(url)
                 }
+            default:
+                break
             }
-        } catch {
-            logger.critical("error: \(error)")
-            throw error
         }
 
         // Exclude any unlisted assets

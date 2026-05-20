@@ -1,3 +1,4 @@
+import AssetSystem
 import CoreGraphics
 import Helpers
 import SharedModels
@@ -6,7 +7,7 @@ import Values
 
 struct AssetBrowserGridItemView: View {
     let asset: Asset
-    let thumbProvider: any AssetStoreService
+    let assetStore: AssetStore
     let selected: Bool
 
     @State var failed: Bool = false
@@ -19,7 +20,7 @@ struct AssetBrowserGridItemView: View {
         Task.immediate {
             self.failed = false
             do {
-                self.image = try await self.thumbProvider.getThumb(forAsset: self.asset.id)
+                self.image = try await self.assetStore.resourceManager.fetch(cgImageThumb: .asset(self.asset.id))
             } catch {
                 logger.error("failed: \(error)")
                 self.failed = true

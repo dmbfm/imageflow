@@ -5,15 +5,16 @@ import SwiftUI
 import SharedModels
 import UniformTypeIdentifiers
 import PhotosUI
+import AssetSystem
 
 public final class AssetBrowserSheetController: NSHostingController<AssetBrowserView> {
 
     let vm: AssetBrowserViewModel
-    let assetStore: any AssetStoreService
+    let assetStore: AssetStore
     weak var delegate: Delegate?
 
     public init(
-        assetStore: any AssetStoreService,
+        assetStore: AssetStore,
         type: AssetBrowserType,
         delegate: Delegate
     ) {
@@ -68,7 +69,7 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
         panel.allowedContentTypes = self.vm.allowedImportTypes
         panel.allowsOtherFileTypes = false
 
-        let res = panel.runModal()
+        _ = panel.runModal()
         let urls = panel.urls
 
         if !urls.isEmpty {
@@ -101,7 +102,7 @@ extension AssetBrowserSheetController: PHPickerViewControllerDelegate {
         for item in results.map({ $0.itemProvider }) {
             Task { @MainActor in
                 do {
-                    _ = try await self.assetStore.importAsset(imageItemProvider: item)
+                    _ = try await self.assetStore.importAsset(imageFromItemProvider: item)
                 } catch {
                     let alert = NSAlert()
                     alert.messageText = "Failed to import image: \(error.localizedDescription)"

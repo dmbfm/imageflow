@@ -5,18 +5,21 @@ import AppKit
 import SharedModels
 import Helpers
 import CIImageView
+import AssetSystem
+import Combine
 
 class WindowPreviewViewController: NSViewController {
 
     let location: OutputPortLocation
     let flow: Flow
-    let assetStore: any AssetStoreService
+    let assetStore: AssetStore
     let coordinator: GlobalCoordinator
     var toolbarVM: ToolbarHostingView.ViewModel? = nil
     var imageScrollView: CIImageScrollXView!
     var cache: WindowPreviewCache
     var restoreConfig: RestoreConfiguration? = nil
     var cancellables: Set<AnyEventEmitterCancellable> = []
+    var combineCancellables: Set<AnyCancellable> = []
 
     var image: CIImage? {
         get {
@@ -44,7 +47,7 @@ class WindowPreviewViewController: NSViewController {
         location: OutputPortLocation,
         cache: WindowPreviewCache,
         flow: Flow,
-        assetStore: any AssetStoreService,
+        assetStore: AssetStore,
         coordinator: GlobalCoordinator
     ) {
 
@@ -118,9 +121,9 @@ class WindowPreviewViewController: NSViewController {
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
 
-        self.assetStore.emitter.on({ [weak self] event in
+        self.assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
-        }).store(in: &self.cancellables)
+        }.store(in: &self.combineCancellables)
 
         self.exportName = self.flow.nodes[self.location.node]?.name ?? "image"
     }
@@ -134,9 +137,9 @@ class WindowPreviewViewController: NSViewController {
         }
     }
 
-    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+    func onAssetStoreEvent(_ event: AssetSystemEvent) {
         switch event {
-        case .modifiedGeneratedAsset(let location) where location == self.location:
+        case .resource(.didAddImage(let id)) where id == .nodeOutput(self.location.node, self.location.index):
             self.loadImage()
         default:
             break
@@ -207,8 +210,9 @@ class WindowPreviewViewController: NSViewController {
 
     func loadImageAsync() async {
         do {
-            self.image = try await self.assetStore.getGeneratedResource(ciImageAt: self.location)
-                .res
+            self.image = try await self.assetStore.resourceManager.fetch(
+                ciImageWithid: .nodeOutput(self.location.node, self.location.index)
+            )
 
             if let config = self.restoreConfig {
                 switch config {

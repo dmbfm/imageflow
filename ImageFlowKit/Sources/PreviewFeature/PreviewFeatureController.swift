@@ -2,11 +2,13 @@
 
 import AppKit
 import SharedModels
+import Combine
 import CardStage
 import CoreImage
 import Helpers
 import CIImageView
 import XKit
+import AssetSystem
 
 public class PreviewFeatureController: XViewController {
 
@@ -23,7 +25,7 @@ public class PreviewFeatureController: XViewController {
     /// A reference to the `GlobalCoordinator`
     let coordinator: GlobalCoordinator
     /// A reference to the `AssetStoreServices`
-    let assetStore: any AssetStoreService
+    let assetStore: AssetStore
     /// The stored states of detached preview windows.
     var previewWindows: [OutputPortLocation: WindowPreviewState] = [:]
 
@@ -57,6 +59,7 @@ public class PreviewFeatureController: XViewController {
     private var currentDockedScrollViewport: CGRect = .zero
     private var imageScrollViewportCache: SimpleCache<ViewportCacheKey, CGRect> = .init()
     private var cancellabes: Set<AnyEventEmitterCancellable> = []
+    private var combCancellabes: Set<AnyCancellable> = []
 
     private lazy var dockedToolbarVM: DockedToolbarView.ViewModel = {
         .init(
@@ -108,7 +111,7 @@ public class PreviewFeatureController: XViewController {
 
     // MARK: - Init
 
-    public init(flow: Flow, coordinator: GlobalCoordinator, assetStore: any AssetStoreService) {
+    public init(flow: Flow, coordinator: GlobalCoordinator, assetStore: AssetStore) {
         self.flow = flow
         self.coordinator = coordinator
         self.assetStore = assetStore
@@ -141,9 +144,9 @@ public class PreviewFeatureController: XViewController {
             self?.onFlowEvent(event)
         }).store(in: &self.cancellabes)
 
-        self.assetStore.emitter.on({ [weak self] event in
+        self.assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
-        }).store(in: &self.cancellabes)
+        }.store(in: &self.combCancellabes)
 
         self.coordinator.emitter.on({ [weak self] event in
             self?.onCoordinatorEvent(event)
@@ -290,11 +293,11 @@ public class PreviewFeatureController: XViewController {
         }
     }
 
-    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+    func onAssetStoreEvent(_ event: AssetSystemEvent) {
         switch event {
-        case .modifiedGeneratedAsset(let loc):
-            self.input(.updatedImage(loc))
-        case .assetsChanged:
+        case .resource(.didAddImage(.nodeOutput(let node, let port))):
+            self.input(.updatedImage(.init(node: node, index: port)))
+        default:
             break
         }
     }
@@ -330,9 +333,11 @@ public class PreviewFeatureController: XViewController {
             self.loadImageTask = Task { [weak self] in
                 do {
                     guard let self else { return }
-                    let res = try await self.assetStore.getGeneratedResource(ciImageAt: loc)
+                    let image = try await self.assetStore.resourceManager.fetch(
+                        ciImageWithid: .nodeOutput(loc.node, loc.index)
+                    )
                     self.loadImageTask = nil
-                    self.input(.imageLoaded(loc, res.res))
+                    self.input(.imageLoaded(loc, image))
                 } catch {
                     logger.error("\(error)")
                 }
@@ -472,7 +477,7 @@ public class PreviewFeatureController: XViewController {
         for id in self.flow.selection {
             if let node = self.flow.nodes[id] {
                 for output in node.outputs where output.type == .image {
-                    if await self.assetStore.hasGeneratedResource(ciImageAt: .init(node: id, index: output.index)) {
+                    if await self.assetStore.resourceManager.hasResource(cIImageWithId: .nodeOutput(id, output.index)) {
                         available.insert(
                             .init(
                                 name: "\(node.name) (\(output.label))",

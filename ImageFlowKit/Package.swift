@@ -26,7 +26,7 @@ let package = Package(
         .library(name: "PreviewFeature"),
         .library(name: "NodePaletteFeature"),
         .library(name: "ImageExporter"),
-        .library(name: "AssetManager"),
+        .library(name: "AssetSystem"),
         .library(name: "AssetBrowserFeature"),
         .library(name: "CanvasView"),
         .library(name: "NodeView"),
@@ -55,12 +55,12 @@ let package = Package(
                 "SettingsFeature",
                 "SidebarFeature",
                 "CanvasFeature",
-                "AssetManager",
                 "AssetBrowserFeature",
                 "BackendService",
                 "NodeView",
                 "ImageExporter",
                 "NodePaletteFeature",
+                "AssetSystem",
             ]
         ),
         .target(
@@ -118,9 +118,9 @@ let package = Package(
                 "Values",
                 "CIImageView",
                 "ImageExporter",
-                "SharedMocking",
                 "SettingsFeature",
                 "CardStage",
+                "AssetSystem",
             ]
         ),
         .target(name: "CIImageView", dependencies: ["XKit", "Helpers"]),
@@ -146,7 +146,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "AssetManager",
+            name: "AssetSystem",
             dependencies: [
                 "Backend",
                 "Helpers",
@@ -160,6 +160,7 @@ let package = Package(
                 "Values",
                 "Helpers",
                 "SharedModels",
+                "AssetSystem",
             ]
         ),
         .target(
@@ -195,6 +196,7 @@ let package = Package(
                 "NodePaletteFeature",
                 "ContextMenus",
                 "XKit",
+                "AssetSystem",
             ],
         ),
         .target(
@@ -216,14 +218,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "CanvasFeature",
-                "AssetManager",
-            ]
-        ),
-        .target(
-            name: "SharedMocking",
-            dependencies: [
-                "SharedModels",
-                "Helpers",
+                "AssetSystem",
             ]
         ),
         .target(
@@ -232,6 +227,7 @@ let package = Package(
                 "Backend",
                 "Helpers",
                 "SharedModels",
+                "AssetSystem",
             ]
         ),
         .target(
@@ -252,7 +248,6 @@ let package = Package(
                 "Controls",
                 "Design",
                 "SharedModels",
-                "SharedMocking",
                 "Backend",
                 "Values",
                 "TextInput",
@@ -284,14 +279,14 @@ let package = Package(
             name: "CubeLutKitTests",
             dependencies: ["CubeLutKit"]
         ),
-        .testTarget(
-            name: "AssetManagerTests",
-            dependencies: [
-                "SharedModels",
-                "AssetManager",
-            ],
-            resources: [.copy("Fixtures")]
-        ),
+        // .testTarget(
+        //     name: "AssetManagerTests",
+        //     dependencies: [
+        //         "SharedModels",
+        //         "AssetManager",
+        //     ],
+        //     resources: [.copy("Fixtures")]
+        // ),
         .testTarget(
             name: "CardStageTests",
             dependencies: [

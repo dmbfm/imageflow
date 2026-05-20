@@ -12,6 +12,7 @@ import XKit
 import Combine
 import SwiftUI
 import UniformTypeIdentifiers
+import AssetSystem
 
 public final class CanvasFeatureViewController: NSViewController {
 
@@ -20,7 +21,7 @@ public final class CanvasFeatureViewController: NSViewController {
     /// The Flow model
     public var flow: Flow
     /// The asset provider
-    public var assetStore: any AssetStoreService
+    public var assetStore: AssetStore
     /// Storage for the `NodeView` instances to be displayed
     public var nodeViews: NodeViewCollection = .init()
     /// The underlying canvas view
@@ -37,6 +38,7 @@ public final class CanvasFeatureViewController: NSViewController {
 
     var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
     var cancellables: Set<AnyEventEmitterCancellable> = []
+    var cancellables2: Set<AnyCancellable> = []
 
     // MARK: - Computed Variables
 
@@ -64,7 +66,7 @@ public final class CanvasFeatureViewController: NSViewController {
     public init(
         flow: Flow,
         coordinator: GlobalCoordinator,
-        assetStore: any AssetStoreService,
+        assetStore: AssetStore,
     ) {
         self.flow = flow
         self.coordinator = coordinator
@@ -75,9 +77,9 @@ public final class CanvasFeatureViewController: NSViewController {
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
 
-        self.assetStore.emitter.on({ [weak self] event in
+        self.assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
-        }).store(in: &self.cancellables)
+        }.store(in: &self.cancellables2)
     }
 
     required init?(coder: NSCoder) {
@@ -107,9 +109,9 @@ public final class CanvasFeatureViewController: NSViewController {
 
     // MARK: - Asset Store
 
-    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+    func onAssetStoreEvent(_ event: AssetSystemEvent) {
         switch event {
-        case .assetsChanged:
+        case .asssetsDidChange:
             self.nodeViewDelegateEmitter.emit(.assetsChanged)
         default:
             break
@@ -634,7 +636,13 @@ extension CanvasFeatureViewController: NodeViewDelegate {
     }
 
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
-        self.assetStore.titleForAsset(id: id)
+        switch id {
+        case .asset(let id):
+            self.assetStore.assets[id]?.filename
+        case .nodeOutput:
+            nil
+        // "node: \(noed), port: \(port)"
+        }
     }
 
     public func statusBarMessage(message: String?) {

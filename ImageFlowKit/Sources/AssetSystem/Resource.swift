@@ -1,4 +1,6 @@
-enum Resource<R, E> {
+import Foundation
+
+enum Resource<R, E: Error> {
     case notLoaded
     case loading(Task<R, any Error>)
     case loaded(R)
@@ -13,6 +15,8 @@ enum Resource<R, E> {
         }
     }
 }
+
+typealias Res<T> = Resource<T, AssetSystemError>
 
 enum ResourceState: Sendable, Equatable, Codable {
     case notLoaded

@@ -1,4 +1,6 @@
+import AssetSystem
 import Backend
+import Combine
 import Helpers
 import OSLog
 import SharedModels
@@ -14,6 +16,7 @@ public final class BackendRunner {
     var coordinator: GlobalCoordinator
     var cancellables: Set<AnyEventEmitterCancellable> = []
     var assetProvider: any BackendAssetProvider
+    var combineCancellables: Set<AnyCancellable> = []
 
     private var task: Task<(), Never>?
     private var needsToRunAgain: Bool = false
@@ -27,12 +30,11 @@ public final class BackendRunner {
     public init(
         _ flow: SharedModels::Flow,
         _ coordinator: GlobalCoordinator,
-        _ assetProvider: any BackendAssetProvider,
-        _ assetStore: any AssetStoreService,
+        _ assetStore: AssetStore,
         runMode: RunMode = .runLoopCoalescing
     ) {
         self.flow = flow
-        self.assetProvider = assetProvider
+        self.assetProvider = assetStore.resourceManager
         self.coordinator = coordinator
         self.runMode = runMode
 
@@ -40,14 +42,14 @@ public final class BackendRunner {
             self?.onFlowEvent(event)
         }).store(in: &self.cancellables)
 
-        assetStore.emitter.on({ [weak self] event in
+        assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
-        }).store(in: &self.cancellables)
+        }.store(in: &self.combineCancellables)
     }
 
-    func onAssetStoreEvent(_ event: AssetStoreServiceEvent) {
+    func onAssetStoreEvent(_ event: AssetSystemEvent) {
         switch event {
-        case .assetsChanged:
+        case .asssetsDidChange:
             if !self.locked {
                 self.runWithCurrentMode()
             }

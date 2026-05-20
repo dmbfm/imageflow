@@ -2,17 +2,15 @@ import Foundation
 import SharedModels
 import Values
 
-struct ResourceCollection<R> {
+struct ResourceCollection<K, R> where K: Sendable & Hashable {
 
-    typealias Res<T> = Resource<T, AssetStoreServiceError>
-
-    var resources: [UUID: Res<R>] = [:]
+    var resources: [K: Res<R>] = [:]
 
     mutating func clear() {
         self.resources.removeAll()
     }
 
-    subscript(_ id: UUID) -> Res<R>? {
+    subscript(_ id: K) -> Res<R>? {
         get {
             self.resources[id]
         }
@@ -22,8 +20,12 @@ struct ResourceCollection<R> {
         }
     }
 
-    subscript(_ id: UUID, default defaultValue: Res<R>) -> Res<R> {
+    subscript(_ id: K, default defaultValue: Res<R>) -> Res<R> {
         self.resources[id] ?? defaultValue
+    }
+
+    mutating func remove(_ id: K) {
+        self.resources.removeValue(forKey: id)
     }
 }
 

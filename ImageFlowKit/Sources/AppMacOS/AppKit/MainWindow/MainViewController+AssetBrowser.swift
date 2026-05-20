@@ -6,6 +6,7 @@ import AssetBrowserFeature
 import SharedModels
 import UniformTypeIdentifiers
 import Values
+import AssetSystem
 
 extension MainViewController: AssetBrowserSheetController.Delegate {
     func assetBrowserSheetPickAsset(kind: SharedModels.AssetKind, assetId: UUID, port: SharedModels.InputPortLocation) {
@@ -101,7 +102,7 @@ extension MainViewController {
                     throw ImportItemError.missingUTType
                 }
 
-                let id = try await self.assetStore.addAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
+                let id = try await self.assetStore.importAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
                 self.undoManager!.setActionName("Import Image")
                 logger.info("\(url): done!")
                 return .success(id)

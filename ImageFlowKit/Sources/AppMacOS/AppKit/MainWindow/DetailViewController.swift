@@ -6,6 +6,7 @@ import CanvasFeature
 import CanvasView
 import PreviewFeature
 import SwiftUI
+import AssetSystem
 
 final class DetailViewController: NSViewController {
 
@@ -16,7 +17,7 @@ final class DetailViewController: NSViewController {
         self.canvasVC.canvasView
     }
 
-    init(_ flow: Flow, _ coordinator: GlobalCoordinator, _ assetStore: any AssetStoreService) {
+    init(_ flow: Flow, _ coordinator: GlobalCoordinator, _ assetStore: AssetStore) {
         self.canvasVC = .init(flow: flow, coordinator: coordinator, assetStore: assetStore)
         self.previewVC = .init(flow: flow, coordinator: coordinator, assetStore: assetStore)
 

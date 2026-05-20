@@ -1,7 +1,6 @@
 #if os(macOS)
 import AppKit
 import AssetBrowserFeature
-import AssetManager
 import PreviewFeature
 import Backend
 import CanvasFeature
@@ -13,13 +12,14 @@ import Helpers
 import XKit
 import SwiftUI
 import Combine
+import AssetSystem
 
 final class MainViewController: NSSplitViewController {
 
     // MARK: - Properties
 
     var flow: SharedModels::Flow
-    var assetStore: any AssetStoreService
+    var assetStore: AssetStore
     var backendRunner: BackendRunner!
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
@@ -72,13 +72,13 @@ final class MainViewController: NSSplitViewController {
 
     // MARK: - Initialization
 
-    init(_ flow: SharedModels::Flow, _ assetStore: AssetStoreService) {
+    init(_ flow: SharedModels::Flow, _ assetStore: AssetStore) {
         self.flow = flow
         self.assetStore = assetStore
 
         super.init(nibName: nil, bundle: nil)
 
-        self.backendRunner = .init(flow, .init(self), assetStore.assetManager, assetStore)
+        self.backendRunner = .init(flow, .init(self), assetStore)
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()

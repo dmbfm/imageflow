@@ -2,6 +2,7 @@
 import AppKit
 import SharedModels
 import SwiftUI
+import AssetSystem
 
 final class MainWindowController: NSWindowController {
 
@@ -10,7 +11,7 @@ final class MainWindowController: NSWindowController {
 
     let toolbarController: ToolbarController
 
-    init(_ flow: Flow, _ assetStore: any AssetStoreService) {
+    init(_ flow: Flow, _ assetStore: AssetStore) {
         let mainVC = MainViewController(flow, assetStore)
         self.toolbarController = .init(mainVC: mainVC)
         let window = MainWindow(contentViewController: mainVC)

@@ -4,6 +4,7 @@ import SwiftUI
 import AppKit
 import SharedModels
 import Helpers
+import AssetSystem
 
 // swiftlint:disable force_cast
 class WindowPreviewWindowController: NSWindowController, NSWindowDelegate {
@@ -23,7 +24,7 @@ class WindowPreviewWindowController: NSWindowController, NSWindowDelegate {
         frame: CGRect,
         center: Bool,
         cache: WindowPreviewCache,
-        assetStore: any AssetStoreService,
+        assetStore: AssetStore,
         flow: Flow,
         coordinator: GlobalCoordinator,
         location: OutputPortLocation,
