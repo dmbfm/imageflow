@@ -72,6 +72,7 @@ public enum UserAction {
     case selectAllNodes
     case selectNodesInteractive
     case pasteNodes(Point?)
+    case dropImages([URL], Point?)
     case exportPreviewedImage
     case exportImage(image: CIImage, filename: String?)
     case exportImageForNode(UUID)

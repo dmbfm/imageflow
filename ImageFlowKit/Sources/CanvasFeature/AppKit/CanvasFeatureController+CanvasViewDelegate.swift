@@ -7,6 +7,15 @@ import XKit
 import AppKit
 #endif
 
+private let draggableTypes: [UTType] = [
+    UTType.png,
+    UTType.tiff,
+    UTType.jpeg,
+    UTType.webP,
+    UTType.gif,
+    UTType.bmp,
+]
+
 extension CanvasFeatureViewController: CanvasViewDelegate {
     public func canvasViewEditMenuShouldAppear() -> Bool {
         self.flow.selection.isEmpty
@@ -41,9 +50,33 @@ extension CanvasFeatureViewController: CanvasViewDelegate {
         {
             self.coordinator.perform(userAction: .newNodeWithKind(kind: item.kind, at: .canvasView(point)))
             return true
-        } else {
-            return false
         }
+
+        let urls = pb.urls(forTypes: draggableTypes)
+        if !urls.isEmpty {
+            self.coordinator.perform(userAction: .dropImages(urls, .canvasView(point)))
+            return true
+        }
+
+        return false
+    }
+
+    public func canvasViewCanPerformDragOperation() -> Bool {
+        let pb = NSPasteboard(name: .drag)
+
+        if pb.canReadItem(withDataConformingToTypes: [
+            UTType.imageFlowNodeKindDragItem.identifier
+        ]) {
+            return true
+        }
+
+        if pb.uttypesOfURLs.contains(where: {
+            draggableTypes.contains($0)
+        }) {
+            return true
+        }
+
+        return false
     }
 
     public func canvasView(didRemoveViewForNode id: UUID) {

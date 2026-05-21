@@ -56,12 +56,49 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.pasteNodes(point)
         case .selectAllNodes:
             self.flow.selectAll()
+        case .dropImages(let urls, let point):
+            self.dropImages(urls, point)
         case .selectNone:
             self.flow.selectNone()
         case .showNodeSearch(let typedPort, let canvasPosition):
             self.showNodeSearch(typedPort, canvasPosition)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
+        }
+    }
+
+    func dropImages(_ urls: [URL], _ point: Point?) {
+
+        let canvasPos =
+            point?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint
+            ?? self.pasteCanvasPosition()
+
+        let positions: [CGPoint] = urls.indices.reduce(
+            [],
+            { acc, i in
+                let offset = 50.0 * Double(i)
+                return acc.appending(canvasPos + .init(x: offset, y: offset))
+            }
+        )
+
+        for (idx, url) in urls.enumerated() {
+            Task {
+                do {
+                    let id = try await self.assetStore.importAsset(
+                        fromURL: url,
+                        kind: .image,
+                        undoManager: self.undoManager
+                    )
+                    var node = FlowNode(kind: .valueNode(.image))
+                    node.inputs[0].value = .image(.asset(id))
+                    self.newNode(node: node, centeredAt: .canvas(positions[idx]), typedPort: nil)
+                    self.undoManager?.setActionName("Import Image")
+                } catch {
+                    let alert = NSAlert()
+                    alert.messageText = "Failed to import images from clipboard: \(error.localizedDescription)"
+                    alert.runModal()
+                }
+            }
         }
     }
 

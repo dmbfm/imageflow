@@ -46,6 +46,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
     private var scaleAtStartOfMagnification: CGFloat = 1.0
     private var leftPanInitialPos: CGPoint?
+    private var dropController: DropController = .init()
     var cancellable: Set<AnyEventEmitterCancellable> = []
 
     var zoomAnimLink: CADisplayLink?
@@ -95,6 +96,7 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
         self.autoresizesSubviews = true
         self.clipsToBounds = true
+        self.dropController.canvas = self
 
         self.setupGridView()
         self.setupContentView()
@@ -309,19 +311,18 @@ extension CanvasNSView: CanvasGridView.Delegate {
     }
 }
 
+import UniformTypeIdentifiers
 extension CanvasNSView {
+    public override func draggingEntered(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        return self.dropController.draggingEntered(sender)
+    }
+
     public override func draggingUpdated(_ sender: any NSDraggingInfo) -> NSDragOperation {
-        let location = self.convert(sender.draggingLocation, from: nil)
-        if self.safeAreaRect.contains(location) {
-            return .copy
-        } else {
-            return []
-        }
+        return self.dropController.draggingUpdated(sender)
     }
 
     public override func performDragOperation(_ sender: any NSDraggingInfo) -> Bool {
-        let loc = self.convert(sender.draggingLocation, from: nil)
-        return self.delegate?.canvasViewPerformDragOperation(at: loc) ?? false
+        return self.dropController.performDragOperation(sender)
     }
 }
 

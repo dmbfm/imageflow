@@ -98,7 +98,10 @@ public final class CanvasFeatureViewController: NSViewController {
         self.view = self.canvasView
 
         self.canvasView.registerForDraggedTypes([
-            .init(UTType.imageFlowNodeKindDragItem.identifier)
+            .init(UTType.imageFlowNodeKindDragItem.identifier),
+            .png,
+            .tiff,
+            .fileURL,
         ])
     }
 
