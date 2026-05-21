@@ -485,7 +485,7 @@ public final class CardStageView: XViewEx {
     // MARK: - NSView Lifecycle
 
     public override func resetCursorRects() {
-        self.discardCursorRects()
+        super.resetCursorRects()
 
         if self.state.isFloating, let square = self.geometry.square {
             let rects = square.resizeRects(anchor: self.state.anchor, thickness: 10)
