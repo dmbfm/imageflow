@@ -31,6 +31,27 @@ struct SimpleFileImporter: AssetImporter {
     }
 }
 
+struct DataImporter: AssetImporter {
+    var filename: String
+    var kind: AssetKind
+    var data: Data
+
+    func doImport(_ store: AssetStoreProxy) async throws -> UUID {
+
+        @concurrent func write(_ data: Data, _ url: URL) async throws {
+            try data.write(to: url)
+        }
+
+        return try await store.performStandardAssetLoading(
+            kind: self.kind,
+            originalFilename: self.filename,
+            perform: { dest in
+                try await write(self.data, dest)
+            }
+        )
+    }
+}
+
 struct ImageItemProviderImporter: AssetImporter {
     var item: NSItemProvider
 

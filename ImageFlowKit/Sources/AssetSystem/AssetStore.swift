@@ -75,6 +75,15 @@ public final class AssetStore {
     }
 
     public func importAsset(
+        fromData data: Data,
+        filename: String,
+        kind: AssetKind,
+        undoManager um: UndoManager? = nil
+    ) async throws -> UUID {
+        try await self.importAsset(DataImporter(filename: filename, kind: kind, data: data), undoManager: um)
+    }
+
+    public func importAsset(
         fromURL url: URL,
         kind: AssetKind,
         undoManager um: UndoManager? = nil

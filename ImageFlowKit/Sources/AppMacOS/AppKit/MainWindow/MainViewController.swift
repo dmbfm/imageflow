@@ -144,7 +144,7 @@ extension MainViewController {
     ///   - point: The optional `Point` where to create tne node at.
     ///
     func newNode(kind: NodeKind, at point: Point?) {
-        self.newNode(node: .init(kind: kind), at: point, typedPort: nil)
+        self.newNode(node: .init(kind: kind), centeredAt: point, typedPort: nil)
     }
 
     /// Adds the given `node` to the flow graph, at the given `Point`, while
@@ -157,7 +157,7 @@ extension MainViewController {
     ///   - point: The optional point to create the node at.
     ///   - typedPort: The optonal existing port it will be connected to.
     ///
-    func newNode(node: FlowNode, at point: Point?, typedPort: TypedPortLocation?) {
+    func newNode(node: FlowNode, centeredAt point: Point?, typedPort: TypedPortLocation?) {
         let point = point ?? .canvasView(self.canvasView.safeAreaRect.center)
         let nodeView = NodeView(node)
         let nodeSize = nodeView.intrinsicContentSize

@@ -15,7 +15,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
         case let .newNodeWithKind(kind, point):
             self.newNode(kind: kind, at: point)
         case let .newNode(node, point, port):
-            self.newNode(node: node, at: point, typedPort: port)
+            self.newNode(node: node, centeredAt: point, typedPort: port)
         case let .openAssetPicker(node, portIndex, kind):
             self.presentAsSheet(
                 AssetBrowserSheetController(
@@ -95,22 +95,30 @@ extension MainViewController: GlobalCoordinatorProtocol {
         }
     }
 
+    func pasteCanvasPosition() -> CGPoint {
+        #if os(macOS)
+        let viewport = self.canvasView.viewport
+        let view = self.canvasView
+
+        guard let mouseWindowPos = NSApp.keyWindow?.mouseLocationOutsideOfEventStream else {
+            return viewport.convert(view.bounds.center, from: .screen, to: .canvas)
+        }
+
+        let mouseCanvasPos = view.convert(mouseWindowPos, from: nil)
+        if view.safeAreaRect.contains(mouseCanvasPos) {
+            return viewport.convert(mouseCanvasPos, from: .screen, to: .canvas)
+        } else {
+            return viewport.convert(view.bounds.center, from: .screen, to: .canvas)
+        }
+        #elseif os(iOS)
+        fatalError("TODO: Implement this")
+        #endif
+    }
+
     func pasteNodes(_ point: Point?) {
         func doPaste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
             #if os(macOS)
-            if let mwp = NSApp.keyWindow?.mouseLocationOutsideOfEventStream {
-                let viewport = self.canvasView.viewport
-                let view = self.canvasView
-                let mp = view.convert(mwp, from: nil)
-                var pos: CGPoint = .zero
-                if view.safeAreaRect.contains(mp) {
-                    pos = viewport.convert(mp, from: .screen, to: .canvas)
-                } else {
-                    pos = viewport.convert(view.bounds.center, from: .screen, to: .canvas)
-                }
-
-                self.flow.paste(pasteboardData: data, at: pos, undoManager: self.undoManager)
-            }
+            self.flow.paste(pasteboardData: data, at: self.pasteCanvasPosition(), undoManager: self.undoManager)
             #endif
 
             #if os(iOS)
@@ -132,6 +140,29 @@ extension MainViewController: GlobalCoordinatorProtocol {
             for o in objects {
                 if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
                     doPaste(data: data, at: nil)
+                }
+            }
+        }
+        if let (data, filename) =
+            NSPasteboard.general.data(forType: .tiff).map({ ($0, "clipboard-image.tiff") })
+            ?? NSPasteboard.general.data(forType: .png).map({ ($0, "clipboard-image.png") })
+        {
+            Task {
+                do {
+                    let id = try await self.assetStore.importAsset(
+                        fromData: data,
+                        filename: filename,
+                        kind: .image,
+                        undoManager: self.undoManager
+                    )
+                    var node = FlowNode(kind: .valueNode(.image))
+                    node.inputs[0].value = .image(.asset(id))
+                    self.newNode(node: node, centeredAt: .canvas(self.pasteCanvasPosition()), typedPort: nil)
+                    self.undoManager?.setActionName("Paste Image")
+                } catch {
+                    let alert = NSAlert()
+                    alert.messageText = "Failed to import images from clipboard: \(error.localizedDescription)"
+                    alert.runModal()
                 }
             }
         }
