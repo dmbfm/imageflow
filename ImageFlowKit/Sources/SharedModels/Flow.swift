@@ -1,4 +1,5 @@
 import Backend
+import Combine
 import CoreGraphics
 import Foundation
 import Helpers
@@ -39,6 +40,7 @@ public final class Flow: ObservableObject {
         didSet {
             self.delegate?.flow(nodesDidChange: self.nodes)
             self.emitter.emit(.nodesDidChange(self.nodes))
+            self.nodesDidChangePublisher.send(())
             self.nodeCount = self.nodes.count
         }
     }
@@ -84,6 +86,8 @@ public final class Flow: ObservableObject {
             self.emitter.emit(.liveMoveNodesSnapshotDidChange)
         }
     }
+
+    public var nodesDidChangePublisher: PassthroughSubject<(), Never> = .init()
 
     var portDraggingState: PortDraggingState = .idle
 

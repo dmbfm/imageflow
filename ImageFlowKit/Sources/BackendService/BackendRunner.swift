@@ -14,9 +14,8 @@ public final class BackendRunner {
     public var runMode: RunMode
     var flow: SharedModels::Flow
     var coordinator: GlobalCoordinator
-    var cancellables: Set<AnyEventEmitterCancellable> = []
     var assetProvider: any BackendAssetProvider
-    var combineCancellables: Set<AnyCancellable> = []
+    var cancellables: Set<AnyCancellable> = []
 
     private var task: Task<(), Never>?
     private var needsToRunAgain: Bool = false
@@ -38,13 +37,13 @@ public final class BackendRunner {
         self.coordinator = coordinator
         self.runMode = runMode
 
-        self.flow.emitter.on({ [weak self] event in
-            self?.onFlowEvent(event)
-        }).store(in: &self.cancellables)
+        self.flow.nodesDidChangePublisher.sink { [weak self] _ in
+            self?.nodesDidChange()
+        }.store(in: &self.cancellables)
 
         assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
-        }.store(in: &self.combineCancellables)
+        }.store(in: &self.cancellables)
     }
 
     func onAssetStoreEvent(_ event: AssetSystemEvent) {
@@ -58,14 +57,9 @@ public final class BackendRunner {
         }
     }
 
-    func onFlowEvent(_ event: SharedModels::FlowEvent) {
-        switch event {
-        case .nodesDidChange:
-            if !self.locked {
-                self.runWithCurrentMode()
-            }
-        default:
-            break
+    func nodesDidChange() {
+        if !self.locked {
+            self.runWithCurrentMode()
         }
     }
 
