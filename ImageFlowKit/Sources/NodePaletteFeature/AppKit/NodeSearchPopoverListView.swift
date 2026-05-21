@@ -38,6 +38,8 @@ class NodeSearchPopoverListView: NSTableView {
     }
 
     override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
         for ta in self.trackingAreas {
             self.removeTrackingArea(ta)
         }

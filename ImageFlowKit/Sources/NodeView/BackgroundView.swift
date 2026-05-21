@@ -21,6 +21,8 @@ final class BackgroundView: XView {
 
     var gradientLayer: CAGradientLayer = CAGradientLayer()
 
+    override var isOpaque: Bool { true }
+
     init(style: BackgroundViewStyle = .default) {
         self.style = style
 

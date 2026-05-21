@@ -84,7 +84,7 @@ class CardContentView: XViewEx {
         }
         let trackingArea = NSTrackingArea(
             rect: self.bounds,
-            options: [.cursorUpdate, .activeInKeyWindow, .mouseEnteredAndExited, .mouseMoved],
+            options: [.activeInKeyWindow, .mouseEnteredAndExited],
             owner: self,
             userInfo: nil
         )

@@ -317,6 +317,11 @@ public final class CanvasFeatureViewController: NSViewController {
     // MARK: - Edges
 
     func upadteEdges() {
+        if self.flow.edges.isEmpty && self.flow.partialEdge == nil {
+            self.canvasView.edgeLayers = []
+            return
+        }
+
         var edges: [CanvasView.EdgeLayer] = [
             .init(
                 color: Colors.portConnected.platformColor,
@@ -366,6 +371,11 @@ public final class CanvasFeatureViewController: NSViewController {
     }
 
     func updatePlusIconPosition() {
+
+        if self.flow.partialEdge == nil && self.canvasView.plusIconState.visible == false {
+            return
+        }
+
         self.canvasView.plusIconState.visible = true
 
         guard let e = self.flow.partialEdge else {
