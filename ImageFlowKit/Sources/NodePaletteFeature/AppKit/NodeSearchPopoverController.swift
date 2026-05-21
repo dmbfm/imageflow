@@ -308,7 +308,6 @@ private struct PreviewRepresentable: NSViewControllerRepresentable {
 }
 
 #Preview {
-    let radiuc = 34
     VStack {
         ContentRepresentable()
             .frame(width: popoverSize.width, height: popoverSize.height)
