@@ -20,6 +20,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.presentAsSheet(
                 AssetBrowserSheetController(
                     assetStore: self.assetStore,
+                    coordinator: .init(self),
                     type: .picker(.init(assetKind: kind, portLocation: .init(node: node, index: portIndex))),
                     delegate: self
                 )
@@ -28,6 +29,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.presentAsSheet(
                 AssetBrowserSheetController(
                     assetStore: self.assetStore,
+                    coordinator: .init(self),
                     type: .browser(.init(assetKinds: .all)),
                     delegate: self,
                 )
@@ -52,12 +54,12 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.deleteNodes(target)
         case .duplicate(let target):
             self.duplicateNodes(target)
-        case .pasteNodes(let point):
-            self.pasteNodes(point)
+        case .pasteNodes(let items, let point):
+            self.pasteNodes(items, point)
         case .selectAllNodes:
             self.flow.selectAll()
-        case .dropImages(let urls, let point):
-            self.dropImages(urls, point)
+        case .dropPasteImages(let payload):
+            self.dropPasteImages(payload)
         case .selectNone:
             self.flow.selectNone()
         case .showNodeSearch(let typedPort, let canvasPosition):
@@ -67,38 +69,51 @@ extension MainViewController: GlobalCoordinatorProtocol {
         }
     }
 
-    func dropImages(_ urls: [URL], _ point: Point?) {
-
-        let canvasPos =
-            point?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint
-            ?? self.pasteCanvasPosition()
-
-        let positions: [CGPoint] = urls.indices.reduce(
-            [],
-            { acc, i in
-                let offset = 50.0 * Double(i)
-                return acc.appending(canvasPos + .init(x: offset, y: offset))
-            }
-        )
-
-        for (idx, url) in urls.enumerated() {
+    func dropPasteImages(_ info: UserAction.DropPasteImages) {
+        switch info.payload {
+        case .data(let data):
             Task {
-                do {
+                let id = try await self.assetStore.importAsset(
+                    fromData: data.data,
+                    filename: data.filename,
+                    kind: .image,
+                    undoManager: self.undoManager
+                )
+                if case let .canvas(maybePoint) = info.target {
+                    let canvasPos =
+                        maybePoint?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint
+                        ?? self.pasteCanvasPosition()
+                    var node = FlowNode(kind: .valueNode(.image))
+                    node.inputs[0].value = .image(.asset(id))
+                    self.newNode(node: node, centeredAt: .canvas(canvasPos), typedPort: nil)
+                }
+                self.undoManager?.setActionName("Import Image")
+            }
+        case .url(let urls):
+            for (idx, url) in urls.enumerated() {
+                let offset: CGFloat = 80 * Double(idx)
+                Task {
                     let id = try await self.assetStore.importAsset(
                         fromURL: url,
                         kind: .image,
                         undoManager: self.undoManager
                     )
-                    var node = FlowNode(kind: .valueNode(.image))
-                    node.inputs[0].value = .image(.asset(id))
-                    self.newNode(node: node, centeredAt: .canvas(positions[idx]), typedPort: nil)
+                    if case let .canvas(maybePoint) = info.target {
+                        let canvasPos =
+                            maybePoint?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint
+                            ?? self.pasteCanvasPosition()
+                        var node = FlowNode(kind: .valueNode(.image))
+                        node.inputs[0].value = .image(.asset(id))
+                        self.newNode(
+                            node: node,
+                            centeredAt: .canvas(canvasPos + .init(x: offset, y: offset)),
+                            typedPort: nil
+                        )
+                    }
                     self.undoManager?.setActionName("Import Image")
-                } catch {
-                    let alert = NSAlert()
-                    alert.messageText = "Failed to import images from clipboard: \(error.localizedDescription)"
-                    alert.runModal()
                 }
             }
+            break
         }
     }
 
@@ -152,78 +167,25 @@ extension MainViewController: GlobalCoordinatorProtocol {
         #endif
     }
 
-    func pasteNodes(_ point: Point?) {
-        func doPaste(data: FlowPasteboardData, at maybePos: CGPoint? = nil) {
-            #if os(macOS)
-            self.flow.paste(pasteboardData: data, at: self.pasteCanvasPosition(), undoManager: self.undoManager)
-            #endif
-
-            #if os(iOS)
-            if let pos = maybePos, let viewport = self.canvasViewModel?.viewport {
-                let pastePos = viewport.convert(pos, from: .screen, to: .canvas)
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            } else if let pastePos = self.pointerData?.positionInCanvas {
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            } else if let centerPos = self.canvasViewModel?.view?.bounds.center,
-                let viewport = self.canvasViewModel?.viewport
-            {
-                let pastePos = viewport.convert(centerPos, from: .screen, to: .canvas)
-                self.flow.paste(pasteboardData: data, at: pastePos, undoManager: self.undoManager)
-            }
-            #endif
+    func pasteNodes(_ items: [FlowPasteboardItem], _ point: Point?) {
+        guard !items.isEmpty else {
+            logger.warning("Attemping to paste 0 items!")
+            return
         }
-        #if os(macOS)
-        if let objects = NSPasteboard.general.readObjects(forClasses: [FlowPasteboardItem.self]) {
-            for o in objects {
-                if let data = (o as? FlowPasteboardItem?)??.flowPasteboardData {
-                    doPaste(data: data, at: nil)
-                }
-            }
-        }
-        if let (data, filename) =
-            NSPasteboard.general.data(forType: .tiff).map({ ($0, "clipboard-image.tiff") })
-            ?? NSPasteboard.general.data(forType: .png).map({ ($0, "clipboard-image.png") })
-        {
-            Task {
-                do {
-                    let id = try await self.assetStore.importAsset(
-                        fromData: data,
-                        filename: filename,
-                        kind: .image,
-                        undoManager: self.undoManager
-                    )
-                    var node = FlowNode(kind: .valueNode(.image))
-                    node.inputs[0].value = .image(.asset(id))
-                    self.newNode(node: node, centeredAt: .canvas(self.pasteCanvasPosition()), typedPort: nil)
-                    self.undoManager?.setActionName("Paste Image")
-                } catch {
-                    let alert = NSAlert()
-                    alert.messageText = "Failed to import images from clipboard: \(error.localizedDescription)"
-                    alert.runModal()
-                }
-            }
-        }
-        #endif
 
-        #if os(iOS)
-        let pb = UIPasteboard.general
-
-        if let data = pb.data(forPasteboardType: UTType.flowNode.identifier),
-            let flowPasteboardData = FlowPasteboardData(data: data)
-        {
-            let point: CGPoint? =
-                if let point = maybePoint ?? (self.pointerData?.positionInCanvas).map({ Point.canvas($0) }),
-                    let vm = self.canvasViewModel,
-                    let view = vm.view
-                {
-                    point.canvas(view: view, viewport: vm.viewport).cgPoint
-                } else {
-                    nil
-                }
-
-            self.doPaste(data: flowPasteboardData, at: point)
+        if items.count > 1 {
+            logger.warning("Attemping to paste more thaen 1 pasteboard item!")
         }
-        #endif
+
+        let point = self.pasteCanvasPosition()
+
+        if let item = items.first {
+            self.flow.paste(
+                pasteboardData: item.flowPasteboardData,
+                at: point,
+                undoManager: self.undoManager
+            )
+        }
     }
 
     func copyNodes(_ target: UserAction.Target) {

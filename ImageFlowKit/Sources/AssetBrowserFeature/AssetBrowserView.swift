@@ -44,13 +44,14 @@ public struct AssetBrowserView: View {
     public var body: some View {
         #if os(macOS)
         self.content
-            .onDrop(
-                of: [.image],
-                isTargeted: nil,
-                perform: { providers in
-                    return self.vm.delegate?.onDropImages(providers) ?? false
-                }
-            )
+            .onDrop(of: [.image], delegate: self.vm)
+            // .onDrop(
+            //     of: [.image],
+            //     isTargeted: nil,
+            //     perform: { providers in
+            //         return self.vm.delegate?.onDropImages(providers) ?? false
+            //     }
+            // )
             .frame(minHeight: 600)
             .onKeyPress(.escape) {
                 self.vm.onDismiss(.cancel)

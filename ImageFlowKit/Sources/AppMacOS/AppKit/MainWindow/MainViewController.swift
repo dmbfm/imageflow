@@ -4,6 +4,7 @@ import AssetBrowserFeature
 import PreviewFeature
 import Backend
 import CanvasFeature
+import SharedControllers
 import SharedModels
 import BackendService
 import CanvasView
@@ -20,13 +21,15 @@ final class MainViewController: NSSplitViewController {
 
     var flow: SharedModels::Flow
     var assetStore: AssetStore
+    var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
+    var modalContainerVM: ModalContainerViewModel = .init()
+    var cancellables: Set<AnyEventEmitterCancellable> = []
+
     var backendRunner: BackendRunner!
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
     var inspectorVC: InspectorViewController!
-    var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
-    var modalContainerVM: ModalContainerViewModel = .init()
-    var cancellables: Set<AnyEventEmitterCancellable> = []
+    var pasteboardController: PasteboardController!
 
     // MARK: - Computed Properties
 
@@ -75,6 +78,7 @@ final class MainViewController: NSSplitViewController {
     init(_ flow: SharedModels::Flow, _ assetStore: AssetStore) {
         self.flow = flow
         self.assetStore = assetStore
+        // self.pasteboardController = .init(.ini)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -82,6 +86,7 @@ final class MainViewController: NSSplitViewController {
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
         self.inspectorVC = .init()
+        self.pasteboardController = .init(.init(self))
 
         self.flow.emitter.on({ [weak self] event in
             self?.onFlowEvent(event)

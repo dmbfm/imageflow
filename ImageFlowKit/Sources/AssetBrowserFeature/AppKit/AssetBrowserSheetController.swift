@@ -3,24 +3,28 @@
 import AppKit
 import SwiftUI
 import SharedModels
+import SharedControllers
 import UniformTypeIdentifiers
 import PhotosUI
 import AssetSystem
 
 public final class AssetBrowserSheetController: NSHostingController<AssetBrowserView> {
-
     let vm: AssetBrowserViewModel
     let assetStore: AssetStore
     weak var delegate: Delegate?
+    var pasteboardController: PasteboardController
 
     public init(
         assetStore: AssetStore,
+        coordinator: GlobalCoordinator,
         type: AssetBrowserType,
         delegate: Delegate
     ) {
         self.assetStore = assetStore
+        self.pasteboardController = .init(coordinator)
         self.vm = .init(
             assetsProvider: assetStore,
+            coordinator: coordinator,
             assetBrowserType: type,
         )
         self.delegate = delegate
@@ -39,18 +43,11 @@ public final class AssetBrowserSheetController: NSHostingController<AssetBrowser
     }
 
     @objc func paste(_ sender: Any?) {
-        let pb = NSPasteboard.general
-
-        if let (data, filename) =
-            pb.data(forType: .tiff).map({ ($0, "clipboard-image.tiff") })
-            ?? pb.data(forType: .png).map({ ($0, "clipboard-image.png") })
-        {
-            self.delegate?.assetBrowserSheetImportAsset(self, kind: .image, data: data, filename: filename)
-        }
+        self.pasteboardController.performPaste(context: .assetBrowser)
     }
 
     @objc func validateUserInterfaceItem(_ item: any NSValidatedUserInterfaceItem) -> Bool {
-        return PasteboardObserver.shared.canPaste
+        return self.pasteboardController.canPaste(context: .assetBrowser)
     }
 }
 
@@ -110,16 +107,6 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
         pvc.preferredContentSize = self.view.frame.size
         pvc.delegate = self
         self.presentAsSheet(pvc)
-    }
-
-    public func onDropImages(_ providers: [NSItemProvider]) -> Bool {
-        if let delegate = self.delegate {
-            delegate.assetBrowserSheetImportImageAssets(self, providers: providers)
-            return true
-        } else {
-
-            return false
-        }
     }
 
     public func deleteAsset(_ asset: SharedModels.Asset) {

@@ -27,7 +27,7 @@ extension MainViewController {
     }
 
     @objc func paste(_ sender: Any?) {
-        self.perform(userAction: .pasteNodes(nil))
+        self.pasteboardController.performPaste(context: .canvas)
     }
 
     @objc func delete(_ sender: Any?) {
@@ -89,10 +89,9 @@ extension MainViewController {
         } else if item.action == #selector(Self.exportImageCommand(_:)) {
             return self.detailVC?.previewVC.canExportImage == true
         } else if item.action == #selector(Self.paste(_:)) {
-            return PasteboardObserver.shared.canPaste
+            return self.pasteboardController.canPaste(context: .canvas)
         } else if actionsThatNeedSelection.contains(item.action) {
             return !self.flow.selection.isEmpty
-            // }
         } else if item.action == #selector(Self.cancelOperation(_:)) {
             return true
         } else if item.action == #selector(Self.deselectAll(_:)) {

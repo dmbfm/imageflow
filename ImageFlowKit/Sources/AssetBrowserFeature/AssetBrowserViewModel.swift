@@ -1,7 +1,9 @@
 import AssetSystem
 import Combine
 import Foundation
+import SharedControllers
 import SharedModels
+import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
@@ -9,6 +11,7 @@ import UniformTypeIdentifiers
 public final class AssetBrowserViewModel {
 
     let assetStore: AssetStore
+    let pasteboardController: PasteboardController
     var allowedAssetKinds: AssetKindSet
     var allowedImportTypes: [UTType]
     var photoPickerDisabled: Bool
@@ -28,17 +31,18 @@ public final class AssetBrowserViewModel {
         func openFileImporter(_: [UTType])
         func openPhotoPicker()
         func deleteAsset(_: Asset)
-        func onDropImages(_: [NSItemProvider]) -> Bool
     }
 
     public init(
         assetsProvider: AssetStore,
+        coordinator: GlobalCoordinator,
         allowedAssetKinds: AssetKindSet,
         allowedImportTypes: [UTType],
         photoPickerDisabled: Bool,
         type: AssetBrowserType = .browser(.init(assetKinds: .all)),
     ) {
         self.assetStore = assetsProvider
+        self.pasteboardController = .init(coordinator)
         self.allowedAssetKinds = allowedAssetKinds
         self.allowedImportTypes = allowedImportTypes
         self.photoPickerDisabled = photoPickerDisabled
@@ -50,9 +54,11 @@ public final class AssetBrowserViewModel {
 
     public init(
         assetsProvider: AssetStore,
+        coordinator: GlobalCoordinator,
         assetBrowserType type: AssetBrowserType,
     ) {
         self.assetStore = assetsProvider
+        self.pasteboardController = .init(coordinator)
         self.type = type
         self.allowedAssetKinds = type.allowedAssetKinds
         self.allowedImportTypes = type.allowedAssetKinds.types
@@ -186,6 +192,16 @@ public final class AssetBrowserViewModel {
 
     func deleteAsset(_ asset: Asset) {
         self.delegate?.deleteAsset(asset)
+    }
+}
+
+extension AssetBrowserViewModel: DropDelegate {
+    public func performDrop(info: DropInfo) -> Bool {
+        self.pasteboardController.performDrop(onTarget: .assetBrowser)
+    }
+
+    public func validateDrop(info: DropInfo) -> Bool {
+        self.pasteboardController.canDrop(context: .assetBrowser)
     }
 }
 

@@ -69,6 +69,7 @@ struct ImageItemProviderImporter: AssetImporter {
                     completionHandler: { url, _, error in
 
                         if let error {
+                            logger.error("loadFileRepresentation: \(error)")
                             continuation.resume(throwing: AssetSystemError.other(error))
                             return
                         }

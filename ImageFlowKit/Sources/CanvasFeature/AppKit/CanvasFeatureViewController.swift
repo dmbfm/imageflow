@@ -3,6 +3,7 @@
 import AppKit
 import CanvasView
 import SharedModels
+import SharedControllers
 import Helpers
 import NodeView
 import Values
@@ -32,6 +33,8 @@ public final class CanvasFeatureViewController: NSViewController {
     public var viewportPublisher: PassthroughSubject<CanvasView.Viewport, Never> = .init()
     /// Provider for canvas context menus
     var canvasContextMenuProvider: CanvasContextMenuProvider?
+    /// An instance of `PasteBoardController`.
+    var pasteboardController: PasteboardController
     /// Set to true whenever the user is dragging a partial edge starting from a
     /// connected input port of a node.
     var isDraggingConnectedInputPort: Bool = false
@@ -71,6 +74,7 @@ public final class CanvasFeatureViewController: NSViewController {
         self.flow = flow
         self.coordinator = coordinator
         self.assetStore = assetStore
+        self.pasteboardController = .init(coordinator)
         super.init(nibName: nil, bundle: nil)
 
         self.flow.emitter.on({ [weak self] event in
@@ -101,6 +105,7 @@ public final class CanvasFeatureViewController: NSViewController {
             .init(UTType.imageFlowNodeKindDragItem.identifier),
             .png,
             .tiff,
+            .init("public.jpeg"),
             .fileURL,
         ])
     }

@@ -23,6 +23,7 @@ let package = Package(
         .library(name: "Controls"),
         .library(name: "Design"),
         .library(name: "SharedModels"),
+        .library(name: "SharedControllers"),
         .library(name: "PreviewFeature"),
         .library(name: "NodePaletteFeature"),
         .library(name: "ImageExporter"),
@@ -52,6 +53,7 @@ let package = Package(
                 "Helpers",
                 "Backend",
                 "SharedModels",
+                "SharedControllers",
                 "SettingsFeature",
                 "SidebarFeature",
                 "CanvasFeature",
@@ -108,6 +110,13 @@ let package = Package(
             ]
         ),
         .target(
+            name: "SharedControllers",
+            dependencies: [
+                "Helpers",
+                "SharedModels",
+            ]
+        ),
+        .target(
             name: "PreviewFeature",
             dependencies: [
                 "Backend",
@@ -160,6 +169,7 @@ let package = Package(
                 "Values",
                 "Helpers",
                 "SharedModels",
+                "SharedControllers",
                 "AssetSystem",
             ]
         ),
@@ -191,6 +201,7 @@ let package = Package(
                 "Design",
                 "CanvasView",
                 "SharedModels",
+                "SharedControllers",
                 "NodeView",
                 "PreviewFeature",
                 "NodePaletteFeature",
@@ -239,6 +250,7 @@ let package = Package(
             dependencies: [
                 "SharedModels",
                 "Helpers",
+                "SharedControllers",
             ]
         ),
         .target(

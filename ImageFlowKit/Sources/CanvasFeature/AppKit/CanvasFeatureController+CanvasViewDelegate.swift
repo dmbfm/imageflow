@@ -1,4 +1,5 @@
 import CanvasView
+import SharedControllers
 import SharedModels
 import UniformTypeIdentifiers
 import XKit
@@ -41,42 +42,11 @@ extension CanvasFeatureViewController: CanvasViewDelegate {
     }
 
     public func canvasViewPerformDragOperation(at point: CGPoint) -> Bool {
-        logger.debug("drag operation at: \("\(point)")")
-
-        let pb = NSPasteboard(name: .drag)
-
-        if let data = pb.data(forType: .init(UTType.imageFlowNodeKindDragItem.identifier)),
-            let item = try? JSONDecoder().decode(NodeKindDragItem.self, from: data)
-        {
-            self.coordinator.perform(userAction: .newNodeWithKind(kind: item.kind, at: .canvasView(point)))
-            return true
-        }
-
-        let urls = pb.urls(forTypes: draggableTypes)
-        if !urls.isEmpty {
-            self.coordinator.perform(userAction: .dropImages(urls, .canvasView(point)))
-            return true
-        }
-
-        return false
+        self.pasteboardController.performDrop(onTarget: .canvas(point))
     }
 
     public func canvasViewCanPerformDragOperation() -> Bool {
-        let pb = NSPasteboard(name: .drag)
-
-        if pb.canReadItem(withDataConformingToTypes: [
-            UTType.imageFlowNodeKindDragItem.identifier
-        ]) {
-            return true
-        }
-
-        if pb.uttypesOfURLs.contains(where: {
-            draggableTypes.contains($0)
-        }) {
-            return true
-        }
-
-        return false
+        self.pasteboardController.canDrop(context: .canvas)
     }
 
     public func canvasView(didRemoveViewForNode id: UUID) {

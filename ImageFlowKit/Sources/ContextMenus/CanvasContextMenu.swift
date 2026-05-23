@@ -1,4 +1,5 @@
 import Foundation
+import SharedControllers
 import SharedModels
 import SwiftUI
 
@@ -14,9 +15,11 @@ import AppKit
 public class CanvasContextMenuProvider {
 
     var coordinator: GlobalCoordinator
+    var pasteboardController: PasteboardController
 
     public init(_ coordinator: GlobalCoordinator) {
         self.coordinator = coordinator
+        self.pasteboardController = .init(coordinator)
     }
 
     func pickItem(_ item: NodePaletteItem, _ pos: CGPoint) {
@@ -84,7 +87,7 @@ public class CanvasContextMenuProvider {
 
     public func makeMenu(at location: CGPoint) -> NSMenu? {
         let menu = NSMenu(title: "Canvas")
-        let canPaste = PasteboardObserver.shared.canPaste
+        let canPaste = self.pasteboardController.canPaste(context: .canvas)
 
         self.zoomMenuController = .init(coordinator)
 
@@ -183,7 +186,7 @@ public class CanvasContextMenuProvider {
     }
 
     @objc func paste() {
-        self.coordinator.perform(userAction: .pasteNodes(nil))
+        _ = self.pasteboardController.performPaste(context: .canvas)
     }
 
     @objc func showNodeSearch(_ item: NodePaletteNSMenuItem) {

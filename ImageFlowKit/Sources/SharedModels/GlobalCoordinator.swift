@@ -71,8 +71,8 @@ public enum UserAction {
     case selectNone
     case selectAllNodes
     case selectNodesInteractive
-    case pasteNodes(Point?)
-    case dropImages([URL], Point?)
+    case pasteNodes([FlowPasteboardItem], Point?)
+    case dropPasteImages(DropPasteImages)
     case exportPreviewedImage
     case exportImage(image: CIImage, filename: String?)
     case exportImageForNode(UUID)
@@ -92,6 +92,36 @@ public enum UserAction {
         case nodes(Set<UUID>)
     }
 
+    public struct DropPasteImages {
+        public var payload: Payload
+        public var target: Target
+
+        public init(payload: Payload, target: Target) {
+            self.payload = payload
+            self.target = target
+        }
+
+        public enum Payload {
+            case url([URL])
+            case data(DataPayload)
+
+            public struct DataPayload {
+                public var data: Data
+                public var filename: String
+
+                public init(data: Data, filename: String) {
+                    self.data = data
+                    self.filename = filename
+                }
+            }
+        }
+
+        public enum Target: Equatable {
+            case canvas(Point?)
+            case assetBrowser
+        }
+    }
+
     public enum PreviewAction {
         case zoomIn
         case zoomOut
@@ -109,7 +139,7 @@ public enum UserAction {
     }
 }
 
-public enum Point {
+public enum Point: Equatable {
     case canvas(CGPoint)
     case canvasView(CGPoint)
     case window(CGPoint)
