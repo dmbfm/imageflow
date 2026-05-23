@@ -55,4 +55,11 @@ public enum AssetKind: Sendable, Equatable, Codable {
         case .lut: .lut
         }
     }
+
+    public var displayName: String {
+        switch self {
+        case .image: "image"
+        case .lut: "LUT"
+        }
+    }
 }

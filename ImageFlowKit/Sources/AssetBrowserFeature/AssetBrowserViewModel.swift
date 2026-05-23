@@ -28,6 +28,7 @@ public final class AssetBrowserViewModel {
         func openFileImporter(_: [UTType])
         func openPhotoPicker()
         func deleteAsset(_: Asset)
+        func onDropImages(_: [NSItemProvider]) -> Bool
     }
 
     public init(

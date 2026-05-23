@@ -58,6 +58,47 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
         }
     }
 
+    func assetBrowserSheetImportAsset(
+        _ sender: AssetBrowserSheetController,
+        kind: AssetKind,
+        data: Data,
+        filename: String
+    ) {
+        _ = Task<(), Never> {
+            do {
+                let _ = try await self.assetStore.importAsset(
+                    fromData: data,
+                    filename: filename,
+                    kind: kind,
+                    undoManager: self.undoManager
+                )
+                self.undoManager?.setActionName("Paste \(kind.displayName.capitalized)")
+            } catch {
+                let alert = NSAlert()
+                alert.messageText = "Failed to import file: \(error)"
+                alert.runModal()
+            }
+        }
+    }
+
+    func assetBrowserSheetImportImageAssets(_ sender: AssetBrowserSheetController, providers: [NSItemProvider]) {
+        for provider in providers {
+            Task {
+                do {
+                    _ = try await self.assetStore.importAsset(
+                        imageFromItemProvider: provider,
+                        undoManager: self.undoManager
+                    )
+                    self.undoManager?.setActionName("Import Image")
+                } catch {
+                    let alert = NSAlert()
+                    alert.messageText = "Failed to import file: \(error)"
+                    alert.runModal()
+                }
+            }
+        }
+    }
+
     func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: SharedModels.Asset) {
         self.undoManager?.beginUndoGrouping()
 

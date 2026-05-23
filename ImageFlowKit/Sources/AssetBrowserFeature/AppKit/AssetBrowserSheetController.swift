@@ -37,11 +37,33 @@ public final class AssetBrowserSheetController: NSHostingController<AssetBrowser
     @objc func cancel(_ sender: Any?) {
         self.dismiss(nil)
     }
+
+    @objc func paste(_ sender: Any?) {
+        let pb = NSPasteboard.general
+
+        if let (data, filename) =
+            pb.data(forType: .tiff).map({ ($0, "clipboard-image.tiff") })
+            ?? pb.data(forType: .png).map({ ($0, "clipboard-image.png") })
+        {
+            self.delegate?.assetBrowserSheetImportAsset(self, kind: .image, data: data, filename: filename)
+        }
+    }
+
+    @objc func validateUserInterfaceItem(_ item: any NSValidatedUserInterfaceItem) -> Bool {
+        return PasteboardObserver.shared.canPaste
+    }
 }
 
 extension AssetBrowserSheetController {
     public protocol Delegate: AnyObject {
         func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, urls: [URL])
+        func assetBrowserSheetImportImageAssets(_ sender: AssetBrowserSheetController, providers: [NSItemProvider])
+        func assetBrowserSheetImportAsset(
+            _ sender: AssetBrowserSheetController,
+            kind: AssetKind,
+            data: Data,
+            filename: String
+        )
         func assetBrowserSheetPickAsset(kind: AssetKind, assetId: UUID, port: InputPortLocation)
         func assetBrowserSheetCreateNode(kind: AssetKind, assetId: UUID)
         func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: Asset)
@@ -88,6 +110,16 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
         pvc.preferredContentSize = self.view.frame.size
         pvc.delegate = self
         self.presentAsSheet(pvc)
+    }
+
+    public func onDropImages(_ providers: [NSItemProvider]) -> Bool {
+        if let delegate = self.delegate {
+            delegate.assetBrowserSheetImportImageAssets(self, providers: providers)
+            return true
+        } else {
+
+            return false
+        }
     }
 
     public func deleteAsset(_ asset: SharedModels.Asset) {
