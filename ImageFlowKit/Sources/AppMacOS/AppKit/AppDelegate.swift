@@ -20,6 +20,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ aNotification: Notification) {
         logger.info("applicationWillTerminate")
+
+        logger.info("Cleaning-up...")
+
+        let fm = FileManager.default
+        let url = fm.imageFlowTemporaryAssetsDirectory
+
+        do {
+            if fm.fileExists(atPath: url.path(), isDirectory: nil) {
+                try fm.removeItem(at: url)
+            }
+        } catch {
+            logger.error("Failed to remove temoporary assets directory!!")
+        }
+
+        logger.info("Cleaning-up... done!")
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

@@ -16,8 +16,8 @@ public struct PathManager: Sendable {
     }
 
     public var assetsDir: URL {
-        FileManager.default.temporaryDirectory
-            .appending(path: "ImageFlowAssets")
+        FileManager.default
+            .imageFlowTemporaryAssetsDirectory
             .appending(path: "\(self.documentInfo.id.uuidString)")
     }
 
