@@ -656,10 +656,9 @@ extension CanvasFeatureViewController: NodeViewDelegate {
     public func titleForAsset(id: Values.AssetIdentifier) -> String? {
         switch id {
         case .asset(let id):
-            self.assetStore.assets[id]?.filename
+            self.assetStore.assets[id]?.originalFilename
         case .nodeOutput:
             nil
-        // "node: \(noed), port: \(port)"
         }
     }
 
