@@ -7,6 +7,7 @@ import SharedModels
 import UniformTypeIdentifiers
 import Values
 import AssetSystem
+import PhotosUI
 
 extension MainViewController: AssetBrowserSheetController.Delegate {
     func assetBrowserSheetPickAsset(kind: SharedModels.AssetKind, assetId: UUID, port: SharedModels.InputPortLocation) {
@@ -58,41 +59,19 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
         }
     }
 
-    func assetBrowserSheetImportAsset(
-        _ sender: AssetBrowserSheetController,
-        kind: AssetKind,
-        data: Data,
-        filename: String
-    ) {
-        _ = Task<(), Never> {
-            do {
-                let _ = try await self.assetStore.importAsset(
-                    fromData: data,
-                    filename: filename,
-                    kind: kind,
-                    undoManager: self.undoManager
-                )
-                self.undoManager?.setActionName("Paste \(kind.displayName.capitalized)")
-            } catch {
-                let alert = NSAlert()
-                alert.messageText = "Failed to import file: \(error)"
-                alert.runModal()
-            }
-        }
-    }
-
-    func assetBrowserSheetImportImageAssets(_ sender: AssetBrowserSheetController, providers: [NSItemProvider]) {
-        for provider in providers {
-            Task {
+    func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, photoPickerItems items: [PHPickerResult])
+    {
+        for item in items.map({ $0.itemProvider }) {
+            Task { @MainActor in
                 do {
                     _ = try await self.assetStore.importAsset(
-                        imageFromItemProvider: provider,
+                        imageFromItemProvider: item,
                         undoManager: self.undoManager
                     )
-                    self.undoManager?.setActionName("Import Image")
+                    self.undoManager?.setActionName("Import Photo")
                 } catch {
                     let alert = NSAlert()
-                    alert.messageText = "Failed to import file: \(error)"
+                    alert.messageText = "Failed to import image: \(error.localizedDescription)"
                     alert.runModal()
                 }
             }
@@ -112,7 +91,6 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
                         index: input.index,
                         newValue: input.value.type.defaultValue,
                         undoManager: self.undoManager,
-                        //                        dontSetActionName: true
                     )
                 }
             }

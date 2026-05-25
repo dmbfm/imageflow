@@ -54,13 +54,7 @@ public final class AssetBrowserSheetController: NSHostingController<AssetBrowser
 extension AssetBrowserSheetController {
     public protocol Delegate: AnyObject {
         func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, urls: [URL])
-        func assetBrowserSheetImportImageAssets(_ sender: AssetBrowserSheetController, providers: [NSItemProvider])
-        func assetBrowserSheetImportAsset(
-            _ sender: AssetBrowserSheetController,
-            kind: AssetKind,
-            data: Data,
-            filename: String
-        )
+        func assetBrowserSheetImportAssets(_ sender: AssetBrowserSheetController, photoPickerItems: [PHPickerResult])
         func assetBrowserSheetPickAsset(kind: AssetKind, assetId: UUID, port: InputPortLocation)
         func assetBrowserSheetCreateNode(kind: AssetKind, assetId: UUID)
         func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: Asset)
@@ -117,18 +111,7 @@ extension AssetBrowserSheetController: AssetBrowserViewModel.Delegate {
 extension AssetBrowserSheetController: PHPickerViewControllerDelegate {
     public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(nil)
-
-        for item in results.map({ $0.itemProvider }) {
-            Task { @MainActor in
-                do {
-                    _ = try await self.assetStore.importAsset(imageFromItemProvider: item)
-                } catch {
-                    let alert = NSAlert()
-                    alert.messageText = "Failed to import image: \(error.localizedDescription)"
-                    alert.runModal()
-                }
-            }
-        }
+        self.delegate?.assetBrowserSheetImportAssets(self, photoPickerItems: results)
     }
 }
 
