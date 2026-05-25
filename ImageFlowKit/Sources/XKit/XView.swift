@@ -5,6 +5,13 @@ import SwiftUI
 import AppKit
 public typealias XView = NSView
 public typealias XViewController = NSViewController
+public typealias XImageView = NSImageView
+public typealias XImage = NSImage
+public typealias XLabel = NSTextField
+public typealias XStackView = NSStackView
+public typealias XButton = NSButton
+public typealias XEvent = NSEvent
+public typealias XScrollView = NSScrollView
 #endif
 
 #if canImport(UIKit)

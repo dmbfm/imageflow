@@ -1,9 +1,11 @@
 #if os(macOS)
 import AppKit
+@_exported import AppKit
 #endif
 
 #if os(iOS)
 import UIKit
+@_exported import UIKit
 #endif
 
 public struct XMouseButton: OptionSet, Sendable, Equatable {

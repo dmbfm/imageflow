@@ -14,6 +14,7 @@ import XKit
 import SwiftUI
 import Combine
 import AssetSystem
+import InspectorFeature
 
 final class MainViewController: NSSplitViewController {
 
@@ -28,7 +29,7 @@ final class MainViewController: NSSplitViewController {
     var backendRunner: BackendRunner!
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
-    var inspectorVC: InspectorViewController!
+    var inspectorVC: InspectorFeatureController!
     var pasteboardController: PasteboardController!
 
     // MARK: - Computed Properties
@@ -68,6 +69,10 @@ final class MainViewController: NSSplitViewController {
 
     lazy var inspectorItem: NSSplitViewItem = {
         let item = NSSplitViewItem(inspectorWithViewController: self.inspectorVC)
+        // item.automaticallyAdjustsSafeAreaInsets = true
+        // item.too
+        item.allowsFullHeightLayout = true
+        item.titlebarSeparatorStyle = .line
         item.minimumThickness = 200
         item.maximumThickness = 400
         return item
@@ -85,7 +90,7 @@ final class MainViewController: NSSplitViewController {
         self.backendRunner = .init(flow, .init(self), assetStore)
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
-        self.inspectorVC = .init()
+        self.inspectorVC = .init(self.flow)
         self.pasteboardController = .init(.init(self))
 
         self.flow.emitter.on({ [weak self] event in
@@ -136,6 +141,7 @@ final class MainViewController: NSSplitViewController {
     override func splitViewWillResizeSubviews(_ notification: Notification) {
         let s = self.detailVC.view.safeAreaInsets
         self.detailVC.updateSafeAreaInsets(s)
+        // self.inspectorVC.view.additionalSafeAreaInsets = s
     }
 }
 

@@ -34,7 +34,7 @@ public protocol FlowDelegate: AnyObject {
 /// Observable model backing the node-based flow editor, responsible for nodes,
 /// edges, selection state, and related graph validation utilities.
 @MainActor
-public final class Flow: ObservableObject {
+public final class Flow {
     /// All nodes keyed by identifier.
     public var nodes: [UUID: FlowNode] {
         didSet {
@@ -56,6 +56,7 @@ public final class Flow: ObservableObject {
         didSet {
             self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
             self.selectionCount = self.selection.count
+            self.selectionDidChangePublisher.send(())
         }
     }
     /// All edges currently present in the graph.
@@ -88,6 +89,7 @@ public final class Flow: ObservableObject {
     }
 
     public var nodesDidChangePublisher: PassthroughSubject<(), Never> = .init()
+    public var selectionDidChangePublisher: PassthroughSubject<(), Never> = .init()
 
     var portDraggingState: PortDraggingState = .idle
 

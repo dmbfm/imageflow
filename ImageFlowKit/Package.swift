@@ -63,6 +63,7 @@ let package = Package(
                 "ImageExporter",
                 "NodePaletteFeature",
                 "AssetSystem",
+                "InspectorFeature",
             ]
         ),
         .target(
