@@ -45,6 +45,27 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
         self.mainVC.perform(userAction: .openAssetBrowser)
     }
 
+    @objc func showNodeList(_ sender: NSToolbarItem) {
+
+        if let presented = self.mainVC.presentedViewControllers,
+            let nodeListVC = presented.first(where: { $0 is NodeListViewController })
+        {
+            nodeListVC.dismiss(nil)
+        } else {
+            guard let view = sender.value(forKey: "_view") as? NSView else {
+                logger.error("showNodeList: view is nil!")
+                return
+            }
+            self.mainVC.present(
+                NodeListViewController(self.mainVC.flow),
+                asPopoverRelativeTo: view.bounds,
+                of: view,
+                preferredEdge: .maxY,
+                behavior: .transient
+            )
+        }
+    }
+
     func toolbar(
         _ toolbar: NSToolbar,
         itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
@@ -64,7 +85,20 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
                 accessibilityDescription: "Show Asset Browser"
             )
             item.label = "Show Asset Browser"
+            item.toolTip = "Show Asset Browser"
             item.action = #selector(Self.showAssetBrowser)
+            item.target = self
+            return item
+        case .nodeList:
+            let item = NSToolbarItem(itemIdentifier: .nodeList)
+            item.image = .init(
+                systemSymbolName: .systemIconNodeList,
+                accessibilityDescription: "Node List"
+            )
+            item.label = "Node List"
+            item.toolTip = "Node List"
+            // item.title = "Node List"
+            item.action = #selector(Self.showNodeList(_:))
             item.target = self
             return item
         default:
@@ -75,7 +109,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [
             .toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace, .inspectorTrackingSeparator, .toggleInspector,
-            .space, .cloudSharing, .mainWindowZoom, .showAssetBrowser,
+            .space, .cloudSharing, .mainWindowZoom, .showAssetBrowser, .nodeList,
         ]
     }
 
@@ -84,6 +118,8 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             .toggleSidebar,
             .sidebarTrackingSeparator,
             .mainWindowZoom,
+            .flexibleSpace,
+            .nodeList,
             .inspectorTrackingSeparator,
             .flexibleSpace,
             .showAssetBrowser,
@@ -94,8 +130,9 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
 }
 
 extension NSToolbarItem.Identifier {
-    public static let mainWindowZoom: Self = .init(rawValue: "main-window-zoom")
-    public static let showAssetBrowser: Self = .init("show-asset-browser")
+    public static let mainWindowZoom: Self = .init(rawValue: "com.dmbfm.imageflow.toolbar.main-window-zoom")
+    public static let showAssetBrowser: Self = .init("com.dmbfm.imageflow.toolbar.show-asset-browser")
+    public static let nodeList: Self = .init("com.dmbfm.imageflow.toolbar.node-list")
 }
 
 #endif
