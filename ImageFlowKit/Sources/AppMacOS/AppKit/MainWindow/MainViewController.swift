@@ -71,9 +71,10 @@ final class MainViewController: NSSplitViewController {
         let item = NSSplitViewItem(inspectorWithViewController: self.inspectorVC)
         // item.automaticallyAdjustsSafeAreaInsets = true
         // item.too
+//        item.isCollapsed = true
         item.allowsFullHeightLayout = true
         item.titlebarSeparatorStyle = .line
-        item.minimumThickness = 200
+        item.minimumThickness = 240
         item.maximumThickness = 400
         return item
     }()
@@ -123,6 +124,13 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.sidebarItem)
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
+        
+//        print("\(self.splitView.maxPossiblePositionOfDivider(at: 1))")
+//        print("\(self.splitView.minPossiblePositionOfDivider(at: 1))")
+//        self.splitView.setPosition(500, ofDividerAt: 1)
+//
+//        print("\(self.splitView.maxPossiblePositionOfDivider(at: 0))")
+//        print("\(self.splitView.minPossiblePositionOfDivider(at: 0))")
 
         self.view.addSubview(NSHostingView(rootView: ModalContainerView(vm: self.modalContainerVM)))
 
@@ -130,7 +138,13 @@ final class MainViewController: NSSplitViewController {
             self.backendRunner.run()
         }
     }
-
+    
+    override func viewDidAppear() {
+//        self.splitView.setPosition(500, ofDividerAt: 1)
+//        self.splitView.setPosition(500, ofDividerAt: 1)
+//        self.splitView.setPosition(500, ofDividerAt: 1)
+    }
+    
     #if os(macOS)
     let maxZoom: CGFloat = 4
     #else

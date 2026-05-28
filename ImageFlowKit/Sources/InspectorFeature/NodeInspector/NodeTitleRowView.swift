@@ -39,9 +39,10 @@ class NodeTitleRowView: XViewEx {
             )
                 ?? .init()
         )
-        view.symbolConfiguration = .init(textStyle: .headline, scale: .large).applying(
-            .init(hierarchicalColor: .secondaryLabelColor)
-        )
+        view.symbolConfiguration =
+            .init(pointSize: 16, weight: .regular)
+            // .init(textStyle: .headline, scale: .large)
+            .applying(.init(hierarchicalColor: .secondaryLabelColor))
         return view
     }()
 
