@@ -54,9 +54,11 @@ public final class Flow {
     /// The set of node identifiers that are currently selected.
     public var selection: Set<UUID> {
         didSet {
-            self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
-            self.selectionCount = self.selection.count
-            self.selectionDidChangePublisher.send(())
+            if self.selection != oldValue {
+                self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
+                self.selectionCount = self.selection.count
+                self.selectionDidChangePublisher.send(())
+            }
         }
     }
     /// All edges currently present in the graph.

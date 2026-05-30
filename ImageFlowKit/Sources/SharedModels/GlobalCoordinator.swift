@@ -154,6 +154,7 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public init() {}
     public let emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> = .init()
 
     public func perform(userAction: UserAction) {

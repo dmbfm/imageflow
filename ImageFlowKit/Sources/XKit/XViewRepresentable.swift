@@ -30,6 +30,58 @@ extension XViewRepresentable {
         nil
     }
 }
+
+public protocol XViewControllerRepresentable: NSViewControllerRepresentable
+where NSViewControllerType == ViewControllerType {
+    associatedtype ViewControllerType: XViewController
+
+    func makeViewController(context: Context) -> ViewControllerType
+    func updateViewController(_ controller: ViewControllerType, context: Context)
+    func sizeThatFits(_ proposal: ProposedViewSize, controller: ViewControllerType, context: Context) -> CGSize?
+}
+
+extension XViewControllerRepresentable {
+    public func makeNSViewController(context: Context) -> NSViewControllerType {
+        self.makeNSViewController(context: context)
+    }
+
+    public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
+        self.updateViewController(nsViewController, context: context)
+    }
+
+    public func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        nsViewController: NSViewControllerType,
+        context: Context
+    ) -> CGSize? {
+        self.sizeThatFits(proposal, controller: nsViewController, context: context)
+    }
+
+    public func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        controller: ViewControllerType,
+        context: Context
+    ) -> CGSize? {
+        nil
+    }
+}
+
+public struct XSimpleViewControllerRepresentable: XViewControllerRepresentable {
+    let controller: () -> XViewController
+
+    public init(_ controller: @autoclosure @escaping () -> XViewController) {
+        self.controller = controller
+    }
+
+    public func makeViewController(context: Context) -> XViewController {
+        self.controller()
+    }
+
+    public func updateViewController(_ controller: XViewController, context: Context) {
+
+    }
+}
+
 #endif
 
 #if canImport(UIKit)

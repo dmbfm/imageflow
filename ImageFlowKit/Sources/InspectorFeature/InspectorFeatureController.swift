@@ -8,6 +8,7 @@ public typealias Flow = SharedModels::Flow
 public final class InspectorFeatureController: XViewController {
 
     let flow: Flow
+    let coordinator: GlobalCoordinator
     var contentView: ContentView!
     var nodeInspectorVC: NodeInspectorController!
     var canvasInspectorVC: CanvasInspectorController!
@@ -16,8 +17,9 @@ public final class InspectorFeatureController: XViewController {
         self.contentView.tabView
     }
 
-    public init(_ flow: Flow) {
+    public init(_ flow: Flow, _ coordinator: GlobalCoordinator) {
         self.flow = flow
+        self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -40,7 +42,7 @@ public final class InspectorFeatureController: XViewController {
     }
 
     func setupTabs() {
-        self.nodeInspectorVC = NodeInspectorController(self.flow)
+        self.nodeInspectorVC = NodeInspectorController(self.flow, self.coordinator)
         let nodeInspectorItem = NSTabViewItem(viewController: self.nodeInspectorVC)
         nodeInspectorItem.label = ""
         nodeInspectorItem.image = NSImage(

@@ -17,11 +17,8 @@ class NodeTitleRowView: XViewEx {
     }
 
     var name: String {
-        didSet {
-            if self.nameTextField.text != self.name {
-                self.nameTextField.text = self.name
-            }
-        }
+        get { self.nameTextField.text }
+        set { self.nameTextField.text = newValue }
     }
 
     var locked: Bool {
@@ -47,11 +44,10 @@ class NodeTitleRowView: XViewEx {
         return view
     }()
 
-    lazy var nameTextField: XTextField = {
+    lazy var nameTextField: NodeNameTextField = {
         let view = NodeNameTextField()
         view.maximumNumberOfLines = 1
         view.lineBreakMode = .byTruncatingTail
-        view.text = self.name
         view.font = .preferredFont(forTextStyle: .headline)
         view.drawsBackground = false
         view.isBordered = false
@@ -63,21 +59,12 @@ class NodeTitleRowView: XViewEx {
     lazy var lockButtonView: XButton = {
         let view = XButton(
             image: .init(systemSymbolName: .systemIconLock, accessibilityDescription: nil)!,
-            target: nil,
-            action: nil
+            target: self,
+            action: #selector(Self.onLockButtonClick)
         )
         view.isBordered = false
         return view
     }()
-
-    var dummyContextMenu: NSMenu {
-        let menu = NSMenu()
-        menu.items = [
-            .init(title: "Hello", action: nil, keyEquivalent: ""),
-            .init(title: "World!", action: nil, keyEquivalent: ""),
-        ]
-        return menu
-    }
 
     lazy var nodeTitleEllipsisButton: EllipsisMenuButton = {
         let view = EllipsisMenuButton(
@@ -87,7 +74,7 @@ class NodeTitleRowView: XViewEx {
                 )!
         )
         view.onMouseDown = { [weak self] event in
-            if let menu = self?.dummyContextMenu {
+            if let menu = self?.delegate?.nodeTitleRowViewContextMenu() {
                 NSMenu.popUpContextMenu(menu, with: event, for: view)
             }
         }
@@ -104,11 +91,12 @@ class NodeTitleRowView: XViewEx {
     }()
 
     init(icon: String, name: String, locked: Bool) {
-        self.name = name
         self.icon = icon
         self.locked = locked
 
         super.init(frame: .zero)
+
+        self.name = name
 
         self.setupViews()
         self.update()
@@ -137,10 +125,13 @@ class NodeTitleRowView: XViewEx {
     override var intrinsicContentSize: NSSize {
         .init(
             width: Self.noIntrinsicMetric,
-            height: self.stackView.subviews.reduce(0.0, { acc, view in max(acc, view.intrinsicContentSize.height) })
+            height: self.stackView.subviews.reduce(0.0, { acc, view in max(acc, view.intrinsicContentSize.height) }) + 4
         )
     }
 
+    @objc func onLockButtonClick() {
+        self.delegate?.nodeTitleRowViewLockButtonClick(self)
+    }
 }
 
 extension NodeTitleRowView {
@@ -188,7 +179,10 @@ class EllipsisMenuButton: XImageView {
 
 extension NodeTitleRowView {
     class NodeNameTextField: XTextField {
-        override var acceptsFirstResponder: Bool { false }
+
+        var isFocusable: Bool = false
+
+        override var acceptsFirstResponder: Bool { self.isFocusable }
     }
 }
 
@@ -218,10 +212,12 @@ fileprivate struct PreviewRepresentable: XViewRepresentable {
 
 #Preview {
     VStack {
-        XSimpleViewRepresentable(NodeTitleRowView(icon: "plus", name: "Some Node Name", locked: false))
-            .frame(minWidth: 280)
-            .fixedSize()
-            .border(.teal.opacity(0.1))
-            .padding()
+        XSimpleViewRepresentable(
+            NodeTitleRowView(icon: NodeKind.valueNode(.color4).icon, name: "Some Node Name", locked: false)
+        )
+        .frame(minWidth: 280)
+        .fixedSize()
+        .border(.teal.opacity(0.1))
+        .padding()
     }
 }

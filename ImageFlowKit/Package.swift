@@ -264,6 +264,7 @@ let package = Package(
                 "Backend",
                 "Values",
                 "TextInput",
+                "ContextMenus",
             ]
         ),
         .target(

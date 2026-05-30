@@ -69,14 +69,14 @@ final class MainViewController: NSSplitViewController {
 
     lazy var inspectorItem: NSSplitViewItem = {
         let item = NSSplitViewItem(inspectorWithViewController: self.inspectorVC)
-        
+
         item.allowsFullHeightLayout = true
         item.titlebarSeparatorStyle = .line
         item.collapseBehavior = .useConstraints
         item.maximumThickness = .greatestFiniteMagnitude
         item.minimumThickness = 240
-//        item.isCollapsed = true
-        
+        //        item.isCollapsed = true
+
         return item
     }()
 
@@ -92,7 +92,7 @@ final class MainViewController: NSSplitViewController {
         self.backendRunner = .init(flow, .init(self), assetStore)
         self.sidebarVC = .init(globalCoordinator: .init(self))
         self.detailVC = .init(self.flow, .init(self), self.assetStore)
-        self.inspectorVC = .init(self.flow)
+        self.inspectorVC = .init(self.flow, .init(self))
         self.pasteboardController = .init(.init(self))
 
         self.flow.emitter.on({ [weak self] event in
@@ -125,13 +125,13 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.sidebarItem)
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
-        
-//        print("\(self.splitView.maxPossiblePositionOfDivider(at: 1))")
-//        print("\(self.splitView.minPossiblePositionOfDivider(at: 1))")
-//        self.splitView.setPosition(500, ofDividerAt: 1)
-//
-//        print("\(self.splitView.maxPossiblePositionOfDivider(at: 0))")
-//        print("\(self.splitView.minPossiblePositionOfDivider(at: 0))")
+
+        //        print("\(self.splitView.maxPossiblePositionOfDivider(at: 1))")
+        //        print("\(self.splitView.minPossiblePositionOfDivider(at: 1))")
+        //        self.splitView.setPosition(500, ofDividerAt: 1)
+        //
+        //        print("\(self.splitView.maxPossiblePositionOfDivider(at: 0))")
+        //        print("\(self.splitView.minPossiblePositionOfDivider(at: 0))")
 
         self.view.addSubview(NSHostingView(rootView: ModalContainerView(vm: self.modalContainerVM)))
 
@@ -139,13 +139,13 @@ final class MainViewController: NSSplitViewController {
             self.backendRunner.run()
         }
     }
-    
+
     override func viewDidAppear() {
-//        self.splitView.setPosition(500, ofDividerAt: 1)
-//        self.splitView.setPosition(500, ofDividerAt: 1)
-//        self.splitView.setPosition(500, ofDividerAt: 1)
+        //        self.splitView.setPosition(500, ofDividerAt: 1)
+        //        self.splitView.setPosition(500, ofDividerAt: 1)
+        //        self.splitView.setPosition(500, ofDividerAt: 1)
     }
-    
+
     #if os(macOS)
     let maxZoom: CGFloat = 4
     #else
