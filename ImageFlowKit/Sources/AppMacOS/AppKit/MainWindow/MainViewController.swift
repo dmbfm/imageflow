@@ -69,13 +69,14 @@ final class MainViewController: NSSplitViewController {
 
     lazy var inspectorItem: NSSplitViewItem = {
         let item = NSSplitViewItem(inspectorWithViewController: self.inspectorVC)
-        // item.automaticallyAdjustsSafeAreaInsets = true
-        // item.too
-//        item.isCollapsed = true
+        
         item.allowsFullHeightLayout = true
         item.titlebarSeparatorStyle = .line
+        item.collapseBehavior = .useConstraints
+        item.maximumThickness = .greatestFiniteMagnitude
         item.minimumThickness = 240
-        item.maximumThickness = 400
+//        item.isCollapsed = true
+        
         return item
     }()
 
