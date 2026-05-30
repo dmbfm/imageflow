@@ -7,13 +7,17 @@ public typealias Flow = SharedModels::Flow
 
 public final class InspectorFeatureController: XViewController {
 
+    let flow: Flow
     var contentView: ContentView!
+    var nodeInspectorVC: NodeInspectorController!
+    var canvasInspectorVC: CanvasInspectorController!
 
     var tabView: InspectorTabView {
         self.contentView.tabView
     }
 
     public init(_ flow: Flow) {
+        self.flow = flow
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -32,20 +36,29 @@ public final class InspectorFeatureController: XViewController {
     }
 
     public override func viewDidLoad() {
-        self.setupTabView()
+        self.setupTabs()
     }
 
-    func setupTabView() {
-        let redVC = NSHostingController(rootView: Color.red)
-        let redItem = NSTabViewItem(viewController: redVC)
-        redItem.label = ""
-        redItem.image = NSImage(systemSymbolName: "list.bullet.rectangle.portrait.fill", accessibilityDescription: nil)
-        self.tabView.addTabViewItem(redItem)
+    func setupTabs() {
+        self.nodeInspectorVC = NodeInspectorController(self.flow)
+        let nodeInspectorItem = NSTabViewItem(viewController: self.nodeInspectorVC)
+        nodeInspectorItem.label = ""
+        nodeInspectorItem.image = NSImage(
+            systemSymbolName: "list.bullet.rectangle.portrait.fill",
+            accessibilityDescription: nil
+        )
+        self.tabView.addTabViewItem(nodeInspectorItem)
 
-        let blueVC = NSHostingController(rootView: Color.blue)
-        let blueItem = NSTabViewItem(viewController: blueVC)
-        blueItem.label = ""
-        blueItem.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)
-        self.tabView.addTabViewItem(blueItem)
+        self.canvasInspectorVC = CanvasInspectorController()
+        let canvasInspectorItem = NSTabViewItem(viewController: self.canvasInspectorVC)
+        canvasInspectorItem.label = ""
+        canvasInspectorItem.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)
+        self.tabView.addTabViewItem(canvasInspectorItem)
+
+        // let redVC = NSHostingController(rootView: Color.red)
+        // let item = NSTabViewItem(viewController: redVC)
+        // item.label = ""
+        // item.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)
+        // self.tabView.addTabViewItem(item)
     }
 }
