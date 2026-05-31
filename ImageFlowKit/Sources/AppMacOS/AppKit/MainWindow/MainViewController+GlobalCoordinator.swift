@@ -64,6 +64,9 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.flow.selectNone()
         case .showNodeSearch(let typedPort, let canvasPosition):
             self.showNodeSearch(typedPort, canvasPosition)
+        case .convertNode(let id, let kind):
+            self.flow.convertNodeAction(id, kind: kind, undoManager: self.undoManager)
+            self.undoManager?.setActionName("Convert Node")
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }

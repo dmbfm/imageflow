@@ -23,6 +23,10 @@ class NodeInspectorController: XViewController {
         }
     }
 
+    var node: FlowNode? {
+        self.vm.node
+    }
+
     // MARK: - Views
 
     lazy var emptyView: XView = {
@@ -39,6 +43,10 @@ class NodeInspectorController: XViewController {
 
     var nodeTitleRowView: NodeTitleRowView {
         self.contentView.nodeTitleRowView
+    }
+
+    var nodeTypeRowView: NodeTypeRowView {
+        self.contentView.nodeTypeRowView
     }
 
     // MARK: - Init
@@ -85,6 +93,10 @@ class NodeInspectorController: XViewController {
         }.store(in: &self.cancellables)
 
         self.nodeTitleRowView.delegate = self
+
+        self.nodeTypeRowView.didPickItem = { [weak self] value in
+            self?.nodeTypeRowView(didPickItem: value)
+        }
     }
 
     // MARK: - State updates
@@ -94,7 +106,13 @@ class NodeInspectorController: XViewController {
     }
 
     func nodesDidChange() {
+        self.vm.update(.nodesDidChange(nodes: self.flow.nodes))
+    }
 
+    func nodeTypeRowView(didPickItem item: String) {
+        if let node = self.node, let newKind = node.variations.first(where: { $0.displayName == item }) {
+            self.coordinator.perform(userAction: .convertNode(node.id, newKind))
+        }
     }
 
     // MARK: - View updates
@@ -102,6 +120,7 @@ class NodeInspectorController: XViewController {
     func updateView() {
         self.updateRoute()
         self.updateNodeTitleRowView()
+        self.updateNodeTypeRowView()
     }
 
     func updateNodeTitleRowView() {
@@ -118,6 +137,15 @@ class NodeInspectorController: XViewController {
             }
         case .empty:
             break
+        }
+    }
+
+    func updateNodeTypeRowView() {
+        if let node = self.node {
+            self.nodeTypeRowView.vm = .init(
+                value: node.kind.displayName,
+                options: node.variations.map({ $0.displayName })
+            )
         }
     }
 
@@ -148,6 +176,8 @@ class NodeInspectorController: XViewController {
         }
     }
 
+    // MARK: - Node Context Menu Actions
+
     @objc func delete(_ sender: Any?) {
         if let node = self.vm.node {
             self.coordinator.perform(userAction: .delete(.nodes([node.id])))
@@ -166,6 +196,8 @@ class NodeInspectorController: XViewController {
         self.nodeTitleRowView.nameTextField.isFocusable = false
     }
 }
+
+// MARK: - NodeTitleRowView.Delegate
 
 extension NodeInspectorController: NodeTitleRowView.Delegate {
     func nodeTitleRowViewLockButtonClick(_: NodeTitleRowView) {
@@ -213,6 +245,8 @@ extension NodeInspectorController: NodeTitleRowView.Delegate {
         }
     }
 }
+
+// MARK: - Previews
 
 #Preview("Empty", traits: .fixedLayout(width: 280, height: 600)) {
     NodeInspectorController(

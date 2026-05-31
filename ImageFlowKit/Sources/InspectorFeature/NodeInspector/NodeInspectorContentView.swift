@@ -14,7 +14,8 @@ class NodeInspectorContentView: XViewEx {
 
     lazy var stackView: XStackView = {
         let view = XStackView(views: [
-            self.nodeTitleRowView
+            self.nodeTitleRowView,
+            self.nodeTypeRowView,
         ])
         view.orientation = .vertical
         view.alignment = .leading
@@ -24,6 +25,11 @@ class NodeInspectorContentView: XViewEx {
 
     lazy var nodeTitleRowView: NodeTitleRowView = {
         let view = NodeTitleRowView(icon: "plus", name: "Some Node", locked: false)
+        return view
+    }()
+
+    lazy var nodeTypeRowView: NodeTypeRowView = {
+        let view = NodeTypeRowView()
         return view
     }()
 
@@ -42,6 +48,9 @@ class NodeInspectorContentView: XViewEx {
         NSLayoutConstraint.activate([
             self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor),
             self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor),
+        ])
+        NSLayoutConstraint.activate([
+            self.nodeTypeRowView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
 }
