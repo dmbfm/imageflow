@@ -51,6 +51,7 @@ class BlockView: XViewEx {
 
     override func draw(_ dirtyRect: NSRect) {
         self.layer?.cornerRadius = self.radius
+        self.layer?.cornerCurve = .continuous
         self.layer?.backgroundColor = self.backgroundColor.cgColor
     }
 }

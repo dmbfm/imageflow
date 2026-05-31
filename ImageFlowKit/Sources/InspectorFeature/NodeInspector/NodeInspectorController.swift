@@ -49,6 +49,10 @@ class NodeInspectorController: XViewController {
         self.contentView.nodeTypeRowView
     }
 
+    var nodeInputsView: NodeInputsView {
+        self.contentView.nodeInputsView
+    }
+
     // MARK: - Init
 
     init(_ flow: Flow, _ coordinator: GlobalCoordinator) {
@@ -64,7 +68,13 @@ class NodeInspectorController: XViewController {
 
     // MARK: - Setup
 
+    override func loadView() {
+        self.view = .init()
+    }
+
     override func viewDidLoad() {
+        super.viewDidLoad()
+
         self.setupViews()
         self.setupObservers()
         self.selectionDidChange()
@@ -121,6 +131,50 @@ class NodeInspectorController: XViewController {
         self.updateRoute()
         self.updateNodeTitleRowView()
         self.updateNodeTypeRowView()
+        self.updateInputs()
+    }
+
+    func updateInputs() {
+        guard let node = self.vm.node else { return }
+
+        let needsRepopulate =
+            node.inputs.count != self.nodeInputsView.inputViews.count
+            || zip(node.inputs, nodeInputsView.inputViews).first(where: { (a, b) in a.value.type != b.type }) != nil
+
+        logger.info("needsRepopulate: \(needsRepopulate)")
+
+        if needsRepopulate {
+            self.nodeInputsView.removeAllInputViews()
+
+            for input in node.inputs {
+                let view = self.view(forInput: input)
+                let index = input.index
+                view.valueDidChange = { [weak self] change in
+                    guard let self else { return }
+                    guard let node = self.node else { return }
+                    logger.info("valueDidChange:\(index), \(node.id), \("\(change)")")
+                    self.flow.setNodeValue(
+                        id: node.id,
+                        index: index,
+                        oldValue: change.oldValue,
+                        newValue: change.newValue,
+                        undoManager: change.commit ? self.undoManager : nil
+                    )
+                    if change.commit {
+                        self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
+                    }
+                }
+                self.nodeInputsView.addInputView(view)
+            }
+
+            return
+        }
+
+        for (idx, view) in self.nodeInputsView.inputViews.enumerated() {
+            if view.value != node.inputs[idx].value {
+                view.value = node.inputs[idx].value
+            }
+        }
     }
 
     func updateNodeTitleRowView() {
@@ -173,6 +227,22 @@ class NodeInspectorController: XViewController {
         }
         if !self.emptyView.isHidden {
             self.emptyView.isHidden = true
+        }
+    }
+
+    // MARK: - Input Views
+
+    func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
+        switch input.value.type {
+        case .float:
+            switch input.semantics {
+            case .float(.range(let range)):
+                NodeFloatInputControlView(input.label, input.value, range)
+            default:
+                NodeFloatInputControlView(input.label, input.value)
+            }
+        default:
+            DummyInputControlView(input.label, input.value)
         }
     }
 
@@ -246,27 +316,35 @@ extension NodeInspectorController: NodeTitleRowView.Delegate {
     }
 }
 
-// MARK: - Previews
+fileprivate struct PreviewView: XViewRepresentable {
 
-#Preview("Empty", traits: .fixedLayout(width: 280, height: 600)) {
-    NodeInspectorController(
-        {
-            let flow = Flow()
-            return flow
-        }(),
-        .init(MockGlobalCoordinator())
-    )
+    func makeView(context: Context) -> some NSView {
+        let flow = Flow()
+        let node = FlowNode(kind: .valueNode(.float))
+        flow.addNode(node, at: .zero)
+        flow.selection = [node.id]
+        context.coordinator.controller = NodeInspectorController(flow, .init(MockGlobalCoordinator()))
+        return context.coordinator.controller.view
+    }
+
+    func updateView(_ view: ViewType, context: Context) {
+
+    }
+
+    func makeCoordinator() -> Coordinator {
+        .init()
+    }
+
+    class Coordinator {
+        var controller: NodeInspectorController!
+    }
 }
 
-#Preview("Single Node Selected", traits: .fixedLayout(width: 280, height: 600)) {
-    NodeInspectorController(
-        {
-            let flow = Flow()
-            let node = FlowNode(kind: .valueNode(.float))
-            flow.addNode(node, at: .zero)
-            flow.selection = [node.id]
-            return flow
-        }(),
-        .init(MockGlobalCoordinator())
-    )
+#Preview {
+    VStack {
+        PreviewView()
+            .padding(10)
+    }
+    .frame(width: 300)
+    // .frame(minWidth: 240)
 }

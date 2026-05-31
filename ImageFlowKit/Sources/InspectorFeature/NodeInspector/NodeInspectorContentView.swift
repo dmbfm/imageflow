@@ -1,3 +1,4 @@
+import SwiftUI
 import XKit
 
 class NodeInspectorContentView: XViewEx {
@@ -16,10 +17,20 @@ class NodeInspectorContentView: XViewEx {
         let view = XStackView(views: [
             self.nodeTitleRowView,
             self.nodeTypeRowView,
+            self.nodeInputsView,
         ])
         view.orientation = .vertical
         view.alignment = .leading
         view.translatesAutoresizingMaskIntoConstraints = false
+
+        view.setCustomSpacing(16, after: self.nodeTitleRowView)
+        view.setCustomSpacing(16, after: self.nodeTypeRowView)
+
+        // view.withLayer({
+        //     $0.borderWidth = 1
+        //     $0.borderColor = .red
+        // })
+
         return view
     }()
 
@@ -30,6 +41,11 @@ class NodeInspectorContentView: XViewEx {
 
     lazy var nodeTypeRowView: NodeTypeRowView = {
         let view = NodeTypeRowView()
+        return view
+    }()
+
+    lazy var nodeInputsView: NodeInputsView = {
+        let view = NodeInputsView()
         return view
     }()
 
@@ -51,6 +67,9 @@ class NodeInspectorContentView: XViewEx {
         ])
         NSLayoutConstraint.activate([
             self.nodeTypeRowView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+        NSLayoutConstraint.activate([
+            self.nodeInputsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
 }
