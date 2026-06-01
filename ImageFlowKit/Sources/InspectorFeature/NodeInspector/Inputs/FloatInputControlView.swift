@@ -10,6 +10,11 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         set { self.titleView.name = newValue }
     }
 
+    var connected: Bool {
+        get { self.titleView.connected }
+        set { self.titleView.connected = newValue }
+    }
+
     let type: Values.ValueType = .float
 
     var value: Values.Value = .float(0.0) {
@@ -68,13 +73,14 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         self.numberInputController.view
     }
 
-    init(_ label: String, _ value: Value, _ range: ClosedRange<Double>? = nil) {
+    init(label: String, value: Value, connected: Bool = false, range: ClosedRange<Double>? = nil) {
         self.value = value
         self.range = range
 
         super.init(frame: .zero)
 
-        self.label = label
+        self.titleView.name = label
+        self.titleView.connected = connected
 
         self.setupView()
     }
@@ -91,6 +97,10 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         NSLayoutConstraint.activate([
             self.numberInputView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),
             self.numberInputView.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor),
+        ])
+
+        NSLayoutConstraint.activate([
+            self.titleView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor)
         ])
     }
 }
@@ -112,7 +122,7 @@ extension NodeFloatInputControlView: NumberTextInputDelegate {
     VStack {
         XSimpleViewRepresentable(
             {
-                let view = NodeFloatInputControlView("Value", .float(5))
+                let view = NodeFloatInputControlView(label: "Value", value: .float(5))
                 return view
             }()
         )

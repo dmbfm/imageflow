@@ -16,7 +16,6 @@ class NodeInspectorController: XViewController {
 
     private var vm: NodeInspectorViewModel = .empty {
         didSet {
-            logger.debug("vm didSet: \("\(oldValue)") -> \("\(self.vm)")")
             if self.vm != oldValue {
                 self.updateView()
             }
@@ -141,8 +140,6 @@ class NodeInspectorController: XViewController {
             node.inputs.count != self.nodeInputsView.inputViews.count
             || zip(node.inputs, nodeInputsView.inputViews).first(where: { (a, b) in a.value.type != b.type }) != nil
 
-        logger.info("needsRepopulate: \(needsRepopulate)")
-
         if needsRepopulate {
             self.nodeInputsView.removeAllInputViews()
 
@@ -152,7 +149,6 @@ class NodeInspectorController: XViewController {
                 view.valueDidChange = { [weak self] change in
                     guard let self else { return }
                     guard let node = self.node else { return }
-                    logger.info("valueDidChange:\(index), \(node.id), \("\(change)")")
                     self.flow.setNodeValue(
                         id: node.id,
                         index: index,
@@ -173,6 +169,9 @@ class NodeInspectorController: XViewController {
         for (idx, view) in self.nodeInputsView.inputViews.enumerated() {
             if view.value != node.inputs[idx].value {
                 view.value = node.inputs[idx].value
+            }
+            if view.connected != node.inputs[idx].connected {
+                view.connected = node.inputs[idx].connected
             }
         }
     }
@@ -236,13 +235,47 @@ class NodeInspectorController: XViewController {
         switch input.value.type {
         case .float:
             switch input.semantics {
+            case .float(.angle(nil)):
+                NodeAngleInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected
+                )
+            case .float(.angle(.some(let range))):
+                if abs(range.span - 2.0 * .pi) < 0.001 {
+                    NodeAngleInputControlView(
+                        label: input.label,
+                        value: input.value,
+                        connected: input.connected,
+                    )
+                } else {
+                    NodeAngleInputControlView(
+                        label: input.label,
+                        value: input.value,
+                        connected: input.connected,
+                        range: range
+                    )
+                }
             case .float(.range(let range)):
-                NodeFloatInputControlView(input.label, input.value, range)
+                NodeFloatInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected,
+                    range: range
+                )
             default:
-                NodeFloatInputControlView(input.label, input.value)
+                NodeFloatInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected
+                )
             }
         default:
-            DummyInputControlView(input.label, input.value)
+            DummyInputControlView(
+                label: input.label,
+                value: input.value,
+                connected: input.connected
+            )
         }
     }
 

@@ -62,6 +62,7 @@ class NodeInspectorContentView: XViewEx {
         self.addSubview(self.scrollView)
         NSLayoutConstraint.activateConstraint(self.scrollView, toFill: self)
         NSLayoutConstraint.activate([
+            self.stackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
             self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor),
             self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor),
         ])
