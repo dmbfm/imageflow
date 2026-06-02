@@ -671,6 +671,17 @@ extension Flow {
 // MARK: - setNodeValue
 
 extension Flow {
+    public func restoreDefaultValue(
+        id: UUID,
+        index: Int,
+        undoManager: UndoManager?,
+    ) {
+        guard let node = self.nodes[id], let defaultValue = node.defaultValue(forInput: index) else {
+            return
+        }
+        self.setNodeValue(id: id, index: index, oldValue: nil, newValue: defaultValue, undoManager: undoManager)
+    }
+
     public func setNodeValue(
         id: UUID,
         index: Int,

@@ -308,4 +308,29 @@ public struct FlowNode: Sendable, Equatable, Codable {
         node.disconnectAllPorts()
         return node
     }
+
+    public func defaultValue(forInput index: Int) -> Value? {
+
+        let schema = self.kind.schema
+
+        guard schema.inputs.indices.contains(index) else {
+            return nil
+        }
+
+        let inputSchema = schema.inputs[index]
+        return inputSchema.defaultValue ?? inputSchema.type.defaultValue
+    }
+
+    public func hasChanges(forInput index: Int) -> Bool {
+        let schema = self.kind.schema
+
+        guard schema.inputs.indices.contains(index), self.inputs.indices.contains(index) else {
+            return false
+        }
+
+        let inputSchema = schema.inputs[index]
+        let defaultValue = inputSchema.defaultValue ?? inputSchema.type.defaultValue
+
+        return self.inputs[index].value != defaultValue
+    }
 }

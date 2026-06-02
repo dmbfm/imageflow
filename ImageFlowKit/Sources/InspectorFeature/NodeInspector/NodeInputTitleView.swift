@@ -16,11 +16,13 @@ class NodeInputTitleView: XViewEx {
         }
     }
 
-    var changed: Bool = false {
+    var hasChanges: Bool = false {
         didSet {
-            self.restoreButtonView.isHidden = !self.changed
+            self.restoreButtonView.isHidden = !self.hasChanges
         }
     }
+
+    var context: NodeInputControlContext?
 
     lazy var stackView: XStackView = {
         let view = XStackView(views: [self.portButtonView, self.nameLabelView, self.restoreButtonView])
@@ -32,24 +34,26 @@ class NodeInputTitleView: XViewEx {
     }()
 
     lazy var portButtonView: XButton = {
-        let button = XButton(image: self.portButtonButtonImage, target: nil, action: nil)
+        let button = XButton(image: self.portButtonButtonImage, target: self, action: #selector(Self.portButtonHandler))
         button.isBordered = false
         button.isEnabled = self.connected
         button.contentTintColor = .system.secondaryLabel
         button.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        button.toolTip = "Select Connected Node"
         return button
     }()
 
     lazy var restoreButtonView: XButton = {
         let button = XButton(
             image: .init(systemSymbolName: "arrow.uturn.backward", accessibilityDescription: nil)!,
-            target: nil,
-            action: nil
+            target: self,
+            action: #selector(Self.restoreButtonHandler)
         )
-        button.isHidden = !self.changed
+        button.isHidden = !self.hasChanges
         button.isBordered = false
         button.contentTintColor = .system.secondaryLabel
         button.font = .systemFont(ofSize: NSFont.systemFontSize - 2, weight: .regular)
+        button.toolTip = "Restore to Default Value"
         return button
     }()
 
@@ -69,11 +73,13 @@ class NodeInputTitleView: XViewEx {
 
     static let connectedImage: NSImage = .init(
         systemSymbolName: "arrow.backward.circle",
+        // systemSymbolName: "arrow.backward.circle.fill",
         accessibilityDescription: nil
     )!
 
     static let notConnectedImage: NSImage = .init(
         systemSymbolName: "circle.dotted",
+        // systemSymbolName: "circle",
         accessibilityDescription: nil
     )!
 
@@ -87,6 +93,14 @@ class NodeInputTitleView: XViewEx {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    @objc func portButtonHandler() {
+        self.context?.onEvent(.portButtonClicked)
+    }
+
+    @objc func restoreButtonHandler() {
+        self.context?.onEvent(.restoreButtonClicked)
+    }
 }
 
 #Preview {
@@ -95,7 +109,7 @@ class NodeInputTitleView: XViewEx {
             {
                 let view = NodeInputTitleView()
                 view.name = "Intensity"
-                view.changed = true
+                view.hasChanges = true
                 return view
             }()
         )

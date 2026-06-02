@@ -23,7 +23,16 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         }
     }
 
-    var valueDidChange: ((ValueChange) -> ())?
+    var context: NodeInputControlContext? {
+        didSet {
+            self.titleView.context = self.context
+        }
+    }
+
+    var hasChanges: Bool {
+        get { self.titleView.hasChanges }
+        set { self.titleView.hasChanges = newValue }
+    }
 
     var range: ClosedRange<Double>?
 
@@ -108,11 +117,13 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
 extension NodeFloatInputControlView: NumberTextInputDelegate {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
         logger.info("numberInputDidChange: \("\(change)")")
-        self.valueDidChange?(
-            .init(
-                newValue: .float(change.newValue),
-                oldValue: .float(change.oldValue),
-                commit: change.commit
+        self.context?.onEvent(
+            .valueDidChange(
+                .init(
+                    newValue: .float(change.newValue),
+                    oldValue: .float(change.oldValue),
+                    commit: change.commit
+                )
             )
         )
     }

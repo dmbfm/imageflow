@@ -14,9 +14,18 @@ class DummyInputControlView: XViewEx, NodeInputControlView {
         set { self.titleView.connected = newValue }
     }
 
+    var hasChanges: Bool {
+        get { self.titleView.hasChanges }
+        set { self.titleView.hasChanges = newValue }
+    }
+
     var value: Value
     var type: ValueType { self.value.type }
-    var valueDidChange: ((ValueChange) -> ())?
+    var context: NodeInputControlContext? {
+        didSet {
+            self.titleView.context = self.context
+        }
+    }
 
     lazy var blockView: BlockView = {
         let view = BlockView(self.titleView)
@@ -26,7 +35,6 @@ class DummyInputControlView: XViewEx, NodeInputControlView {
 
     lazy var titleView: NodeInputTitleView = {
         let view = NodeInputTitleView()
-        view.changed = true
         return view
     }()
 

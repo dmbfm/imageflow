@@ -133,6 +133,33 @@ class NodeInspectorController: XViewController {
         self.updateInputs()
     }
 
+    func onNodeInputControlEvent(_ port: Int, _ event: NodeInputControlEvent) {
+        switch event {
+        case .portButtonClicked:
+            guard let node = self.node else { return }
+            self.flow.select(nodeConnectedToNode: node.id, atInputPort: port)
+        case .restoreButtonClicked:
+            guard let node = self.node else { return }
+            self.flow.restoreDefaultValue(id: node.id, index: port, undoManager: self.undoManager)
+            self.undoManager?.setActionName("Restore Default Value")
+        case .valueDidChange(let change):
+            guard let node = self.node else { return }
+            self.flow.setNodeValue(
+                id: node.id,
+                index: port,
+                oldValue: change.oldValue,
+                newValue: change.newValue,
+                undoManager: change.commit ? self.undoManager : nil
+            )
+            if change.commit {
+                self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
+                // if self.nodeInputsView.inputViews.indices.contains(port), let node = self.node {
+                //     self.nodeInputsView.inputViews[port].hasChanges = node.hasChanges(forInput: port)
+                // }
+            }
+        }
+    }
+
     func updateInputs() {
         guard let node = self.vm.node else { return }
 
@@ -145,21 +172,8 @@ class NodeInspectorController: XViewController {
 
             for input in node.inputs {
                 let view = self.view(forInput: input)
-                let index = input.index
-                view.valueDidChange = { [weak self] change in
-                    guard let self else { return }
-                    guard let node = self.node else { return }
-                    self.flow.setNodeValue(
-                        id: node.id,
-                        index: index,
-                        oldValue: change.oldValue,
-                        newValue: change.newValue,
-                        undoManager: change.commit ? self.undoManager : nil
-                    )
-                    if change.commit {
-                        self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
-                    }
-                }
+                view.context = .init(self, input.index)
+                view.hasChanges = node.hasChanges(forInput: input.index)
                 self.nodeInputsView.addInputView(view)
             }
 
@@ -172,6 +186,10 @@ class NodeInspectorController: XViewController {
             }
             if view.connected != node.inputs[idx].connected {
                 view.connected = node.inputs[idx].connected
+            }
+            let hasChanges = node.hasChanges(forInput: idx)
+            if view.hasChanges != hasChanges {
+                view.hasChanges = hasChanges
             }
         }
     }

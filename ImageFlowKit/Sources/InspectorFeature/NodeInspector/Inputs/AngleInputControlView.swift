@@ -17,7 +17,16 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
 
     let type: Values.ValueType = .float
 
-    var valueDidChange: ((ValueChange) -> ())?
+    var context: NodeInputControlContext? {
+        didSet {
+            self.titleView.context = self.context
+        }
+    }
+
+    var hasChanges: Bool {
+        get { self.titleView.hasChanges }
+        set { self.titleView.hasChanges = newValue }
+    }
 
     let range: ClosedRange<Double>?
 
@@ -288,11 +297,13 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
 
 extension NodeAngleInputControlView: NumberTextInputDelegate {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
-        self.valueDidChange?(
-            .init(
-                newValue: .float(change.newValue.toRadians(from: self.unit)),
-                oldValue: .float(change.oldValue.toRadians(from: self.unit)),
-                commit: change.commit
+        self.context?.onEvent(
+            .valueDidChange(
+                .init(
+                    newValue: .float(change.newValue.toRadians(from: self.unit)),
+                    oldValue: .float(change.oldValue.toRadians(from: self.unit)),
+                    commit: change.commit
+                )
             )
         )
     }
