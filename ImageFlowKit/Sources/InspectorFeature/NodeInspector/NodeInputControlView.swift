@@ -3,7 +3,6 @@ import XKit
 
 protocol NodeInputControlView: XView {
     var label: String { get set }
-    var type: ValueType { get }
     var value: Value { get set }
     var connected: Bool { get set }
     var hasChanges: Bool { get set }

@@ -12,6 +12,7 @@ public typealias XStackView = NSStackView
 public typealias XButton = NSButton
 public typealias XEvent = NSEvent
 public typealias XScrollView = NSScrollView
+public typealias XStepper = NSStepper
 #endif
 
 #if canImport(UIKit)

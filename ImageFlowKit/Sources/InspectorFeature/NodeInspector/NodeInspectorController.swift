@@ -153,9 +153,6 @@ class NodeInspectorController: XViewController {
             )
             if change.commit {
                 self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
-                // if self.nodeInputsView.inputViews.indices.contains(port), let node = self.node {
-                //     self.nodeInputsView.inputViews[port].hasChanges = node.hasChanges(forInput: port)
-                // }
             }
         }
     }
@@ -165,7 +162,8 @@ class NodeInspectorController: XViewController {
 
         let needsRepopulate =
             node.inputs.count != self.nodeInputsView.inputViews.count
-            || zip(node.inputs, nodeInputsView.inputViews).first(where: { (a, b) in a.value.type != b.type }) != nil
+            || zip(node.inputs, nodeInputsView.inputViews).first(where: { (a, b) in a.value.type != b.value.type })
+                != nil
 
         if needsRepopulate {
             self.nodeInputsView.removeAllInputViews()
@@ -251,6 +249,35 @@ class NodeInspectorController: XViewController {
 
     func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
         switch input.value.type {
+        case .int:
+            switch input.semantics {
+            case .integer(.picker(let options)):
+                fatalError("TODO")
+            case .integer(.range(let range)):
+                NodeIntegerInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected,
+                    range: range,
+                    minValue: nil
+                )
+            case .integer(.partialRangeFrom(let minValue)):
+                NodeIntegerInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected,
+                    range: nil,
+                    minValue: minValue
+                )
+            default:
+                NodeIntegerInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected,
+                    range: nil,
+                    minValue: nil
+                )
+            }
         case .float:
             switch input.semantics {
             case .float(.angle(nil)):

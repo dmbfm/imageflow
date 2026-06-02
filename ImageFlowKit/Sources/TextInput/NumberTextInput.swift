@@ -502,9 +502,25 @@ public struct RoundingDigitsNumberInputFormatter: NumberTextInputFormatter {
     }
 }
 
+public struct IntegerNumberInputFormatter: NumberTextInputFormatter {
+    public func numperInputFormatter(formatValue value: Double) -> String {
+        "\(Int(value.rounded()))"
+    }
+
+    public func numperInputFormatter(parseString string: String) -> Double? {
+        Int(string).map({ Double($0) })
+    }
+}
+
 extension NumberTextInputFormatter where Self == RoundingDigitsNumberInputFormatter {
     public static func roundingDigits(fractionalDigits digits: Int) -> Self {
         .init(digits: digits)
+    }
+}
+
+extension NumberTextInputFormatter where Self == IntegerNumberInputFormatter {
+    public static var integer: Self {
+        .init()
     }
 }
 
