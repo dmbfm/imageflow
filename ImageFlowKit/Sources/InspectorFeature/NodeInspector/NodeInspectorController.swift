@@ -320,6 +320,12 @@ class NodeInspectorController: XViewController {
                     connected: input.connected
                 )
             }
+        case .bool:
+            NodeBoolinputControlView(
+                label: input.label,
+                value: input.value,
+                connected: input.connected
+            )
         default:
             DummyInputControlView(
                 label: input.label,
