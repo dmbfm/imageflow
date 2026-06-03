@@ -39,6 +39,10 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
             public var label: String?
             public var value: Int
 
+            public var displayName: String {
+                self.label ?? "\(self.value)"
+            }
+
             public init(label: String? = nil, value: Int) {
                 self.label = label
                 self.value = value

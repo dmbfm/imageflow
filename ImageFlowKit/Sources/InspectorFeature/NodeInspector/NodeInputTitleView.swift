@@ -60,6 +60,9 @@ class NodeInputTitleView: XViewEx {
     lazy var nameLabelView: XLabel = {
         let label = XLabel(labelWithString: self.name)
         label.textColor = .system.secondaryLabel
+        label.lineBreakMode = .byTruncatingTail
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
 

@@ -13,6 +13,7 @@ public typealias XButton = NSButton
 public typealias XEvent = NSEvent
 public typealias XScrollView = NSScrollView
 public typealias XStepper = NSStepper
+public typealias XPopUpButton = NSPopUpButton
 #endif
 
 #if canImport(UIKit)

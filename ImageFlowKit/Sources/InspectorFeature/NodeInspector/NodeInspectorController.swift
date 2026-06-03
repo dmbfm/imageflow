@@ -252,7 +252,12 @@ class NodeInspectorController: XViewController {
         case .int:
             switch input.semantics {
             case .integer(.picker(let options)):
-                fatalError("TODO")
+                NodeIntegerOptionInputControlView(
+                    label: input.label,
+                    value: input.value,
+                    connected: input.connected,
+                    options: options
+                )
             case .integer(.range(let range)):
                 NodeIntegerInputControlView(
                     label: input.label,

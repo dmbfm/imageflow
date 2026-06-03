@@ -36,7 +36,7 @@ final class NodeTypeRowView: BlockView {
         view.textColor = .system.secondaryLabel
         view.lineBreakMode = .byTruncatingTail
         view.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
-        // view.setContentCompressionResistancePriority(.defaultLow - 2, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return view
     }()
 
