@@ -49,8 +49,8 @@ final class NodeColorInput: XViewEx, NodeControl {
             switch event {
             case .didChange(let change):
                 if let new = self.value(forPlatformColor: change.newValue) {
-                    let old = change.oldValue.flatMap({ self.value(forPlatformColor: $0) })
-                    self.setValue(newValue: new, oldValue: old, registerUndo: change.commit)
+                    let old = self.value
+                    self.setValue(newValue: new, oldValue: old, registerUndo: old != new)
                 }
             }
         }

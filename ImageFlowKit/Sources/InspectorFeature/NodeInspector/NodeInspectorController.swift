@@ -249,6 +249,8 @@ class NodeInspectorController: XViewController {
 
     func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
         switch input.value.type {
+        case .color4:
+            NodeColorInputControlView(label: input.label, value: input.value, connected: input.connected)
         case .int:
             switch input.semantics {
             case .integer(.picker(let options)):
