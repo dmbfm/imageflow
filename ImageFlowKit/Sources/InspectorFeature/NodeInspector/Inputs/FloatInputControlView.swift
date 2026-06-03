@@ -3,36 +3,7 @@ import TextInput
 import Values
 import XKit
 
-final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
-
-    var label: String {
-        get { self.titleView.name }
-        set { self.titleView.name = newValue }
-    }
-
-    var connected: Bool {
-        get { self.titleView.connected }
-        set { self.titleView.connected = newValue }
-    }
-
-    let type: Values.ValueType = .float
-
-    var value: Values.Value = .float(0.0) {
-        didSet {
-            self.numberInputController.value = self.doubleValue
-        }
-    }
-
-    var context: NodeInputControlContext? {
-        didSet {
-            self.titleView.context = self.context
-        }
-    }
-
-    var hasChanges: Bool {
-        get { self.titleView.hasChanges }
-        set { self.titleView.hasChanges = newValue }
-    }
+final class NodeFloatInputControlView: BaseNodeInputControlView {
 
     var range: ClosedRange<Double>?
 
@@ -48,12 +19,6 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         }
     }
 
-    lazy var blockView: BlockView = {
-        let view = BlockView(self.stackView)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     lazy var stackView: XStackView = {
         let view = XStackView(views: [
             self.titleView,
@@ -62,11 +27,6 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
         view.orientation = .vertical
         view.alignment = .leading
         return view
-    }()
-
-    lazy var titleView: NodeInputTitleView = {
-        let titleView = NodeInputTitleView()
-        return titleView
     }()
 
     lazy var numberInputController: NumberInputController = {
@@ -83,13 +43,9 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
     }
 
     init(label: String, value: Value, connected: Bool = false, range: ClosedRange<Double>? = nil) {
-        self.value = value
         self.range = range
 
-        super.init(frame: .zero)
-
-        self.titleView.name = label
-        self.titleView.connected = connected
+        super.init(label: label, value: value, connected: connected)
 
         self.setupView()
     }
@@ -99,9 +55,7 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
     }
 
     func setupView() {
-        self.addSubview(self.blockView)
-
-        NSLayoutConstraint.activateConstraint(self.blockView, toFill: self)
+        self.blockView.content = self.stackView
 
         NSLayoutConstraint.activate([
             self.numberInputView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),
@@ -112,19 +66,18 @@ final class NodeFloatInputControlView: XViewEx, NodeInputControlView {
             self.titleView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor)
         ])
     }
+
+    override func update() {
+        self.numberInputController.value = self.doubleValue
+    }
 }
 
 extension NodeFloatInputControlView: NumberTextInputDelegate {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
-        logger.info("numberInputDidChange: \("\(change)")")
-        self.context?.onEvent(
-            .valueDidChange(
-                .init(
-                    newValue: .float(change.newValue),
-                    oldValue: .float(change.oldValue),
-                    commit: change.commit
-                )
-            )
+        self.setValue(
+            newValue: .float(change.newValue),
+            oldValue: .float(change.oldValue),
+            commit: change.commit
         )
     }
 }

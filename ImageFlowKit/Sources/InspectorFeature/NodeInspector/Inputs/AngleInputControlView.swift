@@ -5,28 +5,7 @@ import TextInput
 import Values
 import XKit
 
-// TODO: - Snap button
-
-final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
-
-    var value: Values.Value = .float(0.0) {
-        didSet {
-            self.didSetValue()
-        }
-    }
-
-    let type: Values.ValueType = .float
-
-    var context: NodeInputControlContext? {
-        didSet {
-            self.titleView.context = self.context
-        }
-    }
-
-    var hasChanges: Bool {
-        get { self.titleView.hasChanges }
-        set { self.titleView.hasChanges = newValue }
-    }
+final class NodeAngleInputControlView: BaseNodeInputControlView {
 
     let range: ClosedRange<Double>?
 
@@ -39,18 +18,6 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
     var snapEnabled: Bool = false {
         didSet {
             self.didSetSnap()
-        }
-    }
-
-    var label: String {
-        get { self.titleView.name }
-        set { self.titleView.name = newValue }
-    }
-
-    var connected: Bool {
-        get { self.titleView.connected }
-        set {
-            self.titleView.connected = newValue
         }
     }
 
@@ -101,12 +68,6 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
         )
     }
 
-    lazy var blockView: BlockView = {
-        let view = BlockView(self.stackView)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     lazy var stackView: XStackView = {
         let view = XStackView(views: [
             // self.titleView,
@@ -141,13 +102,6 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
         view.orientation = .horizontal
         view.alignment = .centerY
         return view
-    }()
-
-    lazy var titleView: NodeInputTitleView = {
-        let titleView = NodeInputTitleView()
-        titleView.setContentHuggingPriority(.defaultLow - 10, for: .horizontal)
-        titleView.setContentCompressionResistancePriority(.defaultLow - 10, for: .horizontal)
-        return titleView
     }()
 
     lazy var numberInputController: NumberInputController = {
@@ -209,13 +163,9 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
     }
 
     init(label: String, value: Value, connected: Bool, range: ClosedRange<Double>? = nil) {
-        self.value = value
         self.range = range
 
-        super.init(frame: .zero)
-
-        self.titleView.connected = connected
-        self.titleView.name = label
+        super.init(label: label, value: value, connected: connected)
 
         self.setupView()
     }
@@ -225,9 +175,7 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
     }
 
     func setupView() {
-        self.addSubview(self.blockView)
-
-        NSLayoutConstraint.activateConstraint(self.blockView, toFill: self)
+        self.blockView.content = self.stackView
 
         NSLayoutConstraint.activate([
             self.hstackView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),
@@ -261,7 +209,7 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
 
     // MARK: - DidSets
 
-    func didSetValue() {
+    override func update() {
         self.updateNumberTextInput()
         self.updateAngleDial()
     }
@@ -297,14 +245,10 @@ final class NodeAngleInputControlView: XViewEx, NodeInputControlView {
 
 extension NodeAngleInputControlView: NumberTextInputDelegate {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
-        self.context?.onEvent(
-            .valueDidChange(
-                .init(
-                    newValue: .float(change.newValue.toRadians(from: self.unit)),
-                    oldValue: .float(change.oldValue.toRadians(from: self.unit)),
-                    commit: change.commit
-                )
-            )
+        self.setValue(
+            newValue: .float(change.newValue.toRadians(from: self.unit)),
+            oldValue: .float(change.oldValue.toRadians(from: self.unit)),
+            commit: change.commit
         )
     }
 }

@@ -3,37 +3,7 @@ import TextInput
 import Values
 import XKit
 
-final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
-
-    var label: String {
-        get { self.titleView.name }
-        set { self.titleView.name = newValue }
-    }
-
-    var connected: Bool {
-        get { self.titleView.connected }
-        set { self.titleView.connected = newValue }
-    }
-
-    let type: Values.ValueType = .int
-
-    var value: Values.Value = .int(0) {
-        didSet {
-            self.numberInputController.value = Double(self.intValue)
-            self.stepperView.doubleValue = Double(self.intValue)
-        }
-    }
-
-    var context: NodeInputControlContext? {
-        didSet {
-            self.titleView.context = self.context
-        }
-    }
-
-    var hasChanges: Bool {
-        get { self.titleView.hasChanges }
-        set { self.titleView.hasChanges = newValue }
-    }
+final class NodeIntegerInputControlView: BaseNodeInputControlView {
 
     var range: ClosedRange<Int>?
 
@@ -74,13 +44,6 @@ final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
             )
         }
     }
-
-    lazy var blockView: BlockView = {
-        let view = BlockView(self.stackView)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     lazy var stackView: XStackView = {
         let view = XStackView(views: [
             self.titleView,
@@ -89,11 +52,6 @@ final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
         view.orientation = .vertical
         view.alignment = .leading
         return view
-    }()
-
-    lazy var titleView: NodeInputTitleView = {
-        let titleView = NodeInputTitleView()
-        return titleView
     }()
 
     lazy var numberStackView: XStackView = {
@@ -132,14 +90,10 @@ final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
     }
 
     init(label: String, value: Value, connected: Bool = false, range: ClosedRange<Int>? = nil, minValue: Int? = nil) {
-        self.value = value
         self.range = range
         self.minValue = minValue
 
-        super.init(frame: .zero)
-
-        self.titleView.name = label
-        self.titleView.connected = connected
+        super.init(label: label, value: value, connected: connected)
 
         self.setupView()
     }
@@ -149,9 +103,7 @@ final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
     }
 
     func setupView() {
-        self.addSubview(self.blockView)
-
-        NSLayoutConstraint.activateConstraint(self.blockView, toFill: self)
+        self.blockView.content = self.stackView
 
         NSLayoutConstraint.activate([
             self.numberStackView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),
@@ -163,16 +115,16 @@ final class NodeIntegerInputControlView: XViewEx, NodeInputControlView {
         ])
     }
 
+    override func update() {
+        self.numberInputController.value = Double(self.intValue)
+        self.stepperView.doubleValue = Double(self.intValue)
+    }
+
     @objc func stepperHandler() {
-        logger.info("stepper value: \(self.stepperView.doubleValue)")
-        self.context?.onEvent(
-            .valueDidChange(
-                .init(
-                    newValue: .int(Int(self.stepperView.doubleValue)),
-                    oldValue: .int(self.intValue),
-                    commit: true
-                )
-            )
+        self.setValue(
+            newValue: .int(Int(self.stepperView.doubleValue)),
+            oldValue: .int(self.intValue),
+            commit: true
         )
     }
 }

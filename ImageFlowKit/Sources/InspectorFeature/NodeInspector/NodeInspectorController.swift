@@ -321,7 +321,7 @@ class NodeInspectorController: XViewController {
                 )
             }
         case .bool:
-            NodeBoolinputControlView(
+            NodeBoolInputControlView(
                 label: input.label,
                 value: input.value,
                 connected: input.connected
