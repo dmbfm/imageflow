@@ -17,6 +17,8 @@ public class NumberInputController {
 
     public let view: TextInput
 
+    public var tag: Int = 0
+
     public var value: Double = 0.0 {
         didSet {
             if self.value != oldValue {

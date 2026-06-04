@@ -3,7 +3,7 @@ import TextInput
 import Values
 import XKit
 
-final class NodeFloatInputControlView: BaseNodeInputControlView {
+final class NodeFloatInputControlView: BaseNodeInputControlView, MultiRowNodeInputControlView {
 
     var range: ClosedRange<Double>?
 
@@ -19,15 +19,15 @@ final class NodeFloatInputControlView: BaseNodeInputControlView {
         }
     }
 
-    lazy var stackView: XStackView = {
-        let view = XStackView(views: [
-            self.titleView,
-            self.numberInputView,
-        ])
-        view.orientation = .vertical
-        view.alignment = .leading
-        return view
-    }()
+    var vstackedMixin: MultiRowNodeInputControlViewMixin!
+
+    var controlView: XView {
+        self.numberInputView
+    }
+
+    var numberInputView: TextInput {
+        self.numberInputController.view
+    }
 
     lazy var numberInputController: NumberInputController = {
         let controller = NumberInputController()
@@ -38,33 +38,16 @@ final class NodeFloatInputControlView: BaseNodeInputControlView {
         return controller
     }()
 
-    var numberInputView: TextInput {
-        self.numberInputController.view
-    }
-
     init(label: String, value: Value, connected: Bool = false, range: ClosedRange<Double>? = nil) {
         self.range = range
 
         super.init(label: label, value: value, connected: connected)
 
-        self.setupView()
+        self.vstackedMixin = .init(self)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    func setupView() {
-        self.blockView.content = self.stackView
-
-        NSLayoutConstraint.activate([
-            self.numberInputView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),
-            self.numberInputView.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor),
-        ])
-
-        NSLayoutConstraint.activate([
-            self.titleView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor)
-        ])
     }
 
     override func update() {
