@@ -313,7 +313,13 @@ public final class TextInput: XViewEx {
     }
 
     public override func resetCursorRects() {
-        self.addCursorRect(self.bounds, cursor: .columnResize)
+        let cursor: NSCursor =
+            if self.behaviours.contains(.dragWhenNotEditable) {
+                .columnResize
+            } else {
+                .iBeam
+            }
+        self.addCursorRect(self.bounds, cursor: cursor)
     }
 
     @objc
