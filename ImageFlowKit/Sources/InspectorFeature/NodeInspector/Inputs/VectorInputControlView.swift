@@ -3,7 +3,7 @@ import TextInput
 import Values
 import XKit
 
-final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeInputControlView {
+class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeInputControlView {
 
     var vstackedMixin: MultiRowNodeInputControlViewMixin!
 
@@ -43,7 +43,7 @@ final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeIn
         }
     }
 
-    static func label(_ index: Int) -> String {
+    func label(_ index: Int) -> String {
         switch index {
         case 0: "x"
         case 1: "y"
@@ -57,6 +57,23 @@ final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeIn
         self.rows.map({ $0.0 })
     }
 
+    var labelFont: NSFont {
+        .preferredFont(forTextStyle: .caption1)
+    }
+
+    func labelColumnWidth() -> CGFloat {
+        NSAttributedString(
+            string: "w",
+            attributes: [
+                NSAttributedString.Key.font: self.labelFont as Any
+            ]
+        ).size().width
+    }
+
+    var dragConfiguration: NumberInputController.DragConfiguration {
+        .free(.init(sensitivity: .init(), fractionalDigits: 2))
+    }
+
     lazy var stackView: XStackView = {
         let view = XStackView(views: self.rows.map({ $0.1 }))
         view.orientation = .vertical
@@ -65,7 +82,7 @@ final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeIn
 
     lazy var rows: [(NumberInputController, XView)] = {
         let labels = (0..<self.dim).map({ index in
-            let label = XLabel(labelWithString: Self.label(index))
+            let label = XLabel(labelWithString: self.label(index))
             label.textColor = .system.secondaryLabel
             label.font = .preferredFont(forTextStyle: .caption1)
             label.font = .systemFont(ofSize: NSFont.systemFontSize - 3, weight: .bold)
@@ -73,12 +90,7 @@ final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeIn
             return label
         })
 
-        let width = NSAttributedString(
-            string: "w",
-            attributes: [
-                NSAttributedString.Key.font: NSFont.systemFont(ofSize: NSFont.systemFontSize - 3, weight: .bold) as Any
-            ]
-        ).size().width
+        let width = self.labelColumnWidth()
 
         return (0..<self.dim).map({ index in
             let label = labels[index]
@@ -88,6 +100,7 @@ final class NodeVectorInputControlView: BaseNodeInputControlView, MultiRowNodeIn
             ])
             let controller = NumberInputController()
             controller.value = self.doubleValue(index)
+            controller.dragConfiguration = self.dragConfiguration
             controller.view.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
             controller.view.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)
             controller.tag = index

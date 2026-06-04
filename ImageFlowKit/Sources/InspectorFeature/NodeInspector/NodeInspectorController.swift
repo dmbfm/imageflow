@@ -254,6 +254,12 @@ class NodeInspectorController: XViewController {
 
     func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
         switch input.value.type {
+        case .rect:
+            NodeRectInputControlView(
+                label: input.label,
+                value: input.value,
+                connected: input.connected
+            )
         case .vector2, .vector3, .vector4:
             NodeVectorInputControlView(
                 label: input.label,
