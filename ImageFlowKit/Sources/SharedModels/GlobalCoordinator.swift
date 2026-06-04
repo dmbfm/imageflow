@@ -11,6 +11,7 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func currentZoom() -> CGFloat
     func nodeCount() -> Int
     func selectedNodeCount() -> Int
+    func assetTitle(_ asset: UUID) -> String?
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
 }
 
@@ -20,6 +21,9 @@ public enum GlobalCoordinatorEvent {
 
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
+    public func assetTitle(_ asset: UUID) -> String? {
+        self.impl?.assetTitle(asset)
+    }
 
     public var emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> {
         self.impl?.emitter ?? self.dummy.emitter
@@ -154,6 +158,10 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public func assetTitle(_ asset: UUID) -> String? {
+        return nil
+    }
+
     public init() {}
     public let emitter: Helpers.EventEmitter<GlobalCoordinatorEvent> = .init()
 

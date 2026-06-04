@@ -135,6 +135,11 @@ class NodeInspectorController: XViewController {
 
     func onNodeInputControlEvent(_ port: Int, _ event: NodeInputControlEvent) {
         switch event {
+        case .openAssetPicker:
+            guard let node = self.node,
+                let assetKind = node.inputs[tryGetAt: port]?.value.type.assetKind
+            else { return }
+            self.coordinator.perform(userAction: .openAssetPicker(node: node.id, portIndex: port, kind: assetKind))
         case .portButtonClicked:
             guard let node = self.node else { return }
             self.flow.select(nodeConnectedToNode: node.id, atInputPort: port)
@@ -249,6 +254,12 @@ class NodeInspectorController: XViewController {
 
     func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
         switch input.value.type {
+        case .image, .lut:
+            NodeAssetInputControlView(
+                label: input.label,
+                value: input.value,
+                connected: input.connected
+            )
         case .color4:
             NodeColorInputControlView(label: input.label, value: input.value, connected: input.connected)
         case .int:

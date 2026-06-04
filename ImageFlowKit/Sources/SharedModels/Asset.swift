@@ -63,3 +63,13 @@ public enum AssetKind: Sendable, Equatable, Codable {
         }
     }
 }
+
+public extension ValueType {
+    var assetKind: AssetKind? {
+        switch self {
+        case .image: .image
+        case .lut: .lut
+        default: nil
+        }
+    }
+}

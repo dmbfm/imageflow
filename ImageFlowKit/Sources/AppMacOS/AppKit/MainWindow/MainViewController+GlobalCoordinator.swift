@@ -8,6 +8,11 @@ import AppKit
 #endif
 
 extension MainViewController: GlobalCoordinatorProtocol {
+
+    func assetTitle(_ asset: UUID) -> String? {
+        self.assetStore.assets[asset]?.originalFilename
+    }
+
     func perform(userAction: SharedModels.UserAction) {
         logger.info("userAction: \("\(userAction)")")
 

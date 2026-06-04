@@ -13,6 +13,7 @@ enum NodeInputControlEvent {
     case valueDidChange(ValueChange)
     case portButtonClicked
     case restoreButtonClicked
+    case openAssetPicker
 }
 
 struct ValueChange {
@@ -33,5 +34,9 @@ struct NodeInputControlContext {
 
     func onEvent(_ event: NodeInputControlEvent) {
         self.controller?.onNodeInputControlEvent(self.index, event)
+    }
+
+    func displayName(forAsset id: UUID) -> String? {
+        self.controller?.coordinator.assetTitle(id)
     }
 }
