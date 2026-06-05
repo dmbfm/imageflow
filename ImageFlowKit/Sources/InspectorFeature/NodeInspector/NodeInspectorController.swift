@@ -254,6 +254,12 @@ class NodeInspectorController: XViewController {
 
     func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
         switch input.value.type {
+        case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
+            NodeMatrixInputControlView(
+                label: input.label,
+                value: input.value,
+                connected: input.connected
+            )
         case .string:
             NodeStringInputControlView(
                 label: input.label,
