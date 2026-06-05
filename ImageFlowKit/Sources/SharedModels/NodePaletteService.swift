@@ -36,6 +36,7 @@ private struct Categories {
                         ValueType.data,
                         .attributedString,
                         .colorSpace,
+                        .affineTransform,
                     ]
                 )
                 .map { NodeKind.valueNode($0) }
