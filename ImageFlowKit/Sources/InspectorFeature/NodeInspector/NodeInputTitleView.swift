@@ -1,7 +1,7 @@
 import SwiftUI
 import XKit
 
-class NodeInputTitleView: XViewEx {
+class NodePropertyTitleView: XViewEx {
 
     var name: String = "" {
         didSet {
@@ -16,16 +16,10 @@ class NodeInputTitleView: XViewEx {
         }
     }
 
-    var hasChanges: Bool = false {
-        didSet {
-            self.restoreButtonView.isHidden = !self.hasChanges
-        }
-    }
-
-    var context: NodeInputControlContext?
+    // var context: NodeInputControlContext?
 
     lazy var stackView: XStackView = {
-        let view = XStackView(views: [self.portButtonView, self.nameLabelView, self.restoreButtonView])
+        let view = XStackView(views: [self.portButtonView, self.nameLabelView])
         view.alignment = .firstBaseline
         view.translatesAutoresizingMaskIntoConstraints = false
         view.spacing = 4
@@ -34,26 +28,12 @@ class NodeInputTitleView: XViewEx {
     }()
 
     lazy var portButtonView: XButton = {
-        let button = XButton(image: self.portButtonButtonImage, target: self, action: #selector(Self.portButtonHandler))
+        let button = XButton(image: self.portButtonButtonImage, target: self, action: #selector(Self.onPortButtonClick))
         button.isBordered = false
         button.isEnabled = self.connected
         button.contentTintColor = .system.secondaryLabel
         button.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
         button.toolTip = "Select Connected Node"
-        return button
-    }()
-
-    lazy var restoreButtonView: XButton = {
-        let button = XButton(
-            image: .init(systemSymbolName: "arrow.uturn.backward", accessibilityDescription: nil)!,
-            target: self,
-            action: #selector(Self.restoreButtonHandler)
-        )
-        button.isHidden = !self.hasChanges
-        button.isBordered = false
-        button.contentTintColor = .system.secondaryLabel
-        button.font = .systemFont(ofSize: NSFont.systemFontSize - 2, weight: .regular)
-        button.toolTip = "Restore to Default Value"
         return button
     }()
 
@@ -97,7 +77,43 @@ class NodeInputTitleView: XViewEx {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc func portButtonHandler() {
+    @objc func onPortButtonClick() {
+    }
+}
+
+class NodeInputTitleView: NodePropertyTitleView {
+
+    var context: NodeInputControlContext?
+    var hasChanges: Bool = false {
+        didSet {
+            self.restoreButtonView.isHidden = !self.hasChanges
+        }
+    }
+
+    lazy var restoreButtonView: XButton = {
+        let button = XButton(
+            image: .init(systemSymbolName: "arrow.uturn.backward", accessibilityDescription: nil)!,
+            target: self,
+            action: #selector(Self.restoreButtonHandler)
+        )
+        button.isHidden = !self.hasChanges
+        button.isBordered = false
+        button.contentTintColor = .system.secondaryLabel
+        button.font = .systemFont(ofSize: NSFont.systemFontSize - 2, weight: .regular)
+        button.toolTip = "Restore to Default Value"
+        return button
+    }()
+
+    override init() {
+        super.init()
+        self.stackView.addArrangedSubview(self.restoreButtonView)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func onPortButtonClick() {
         self.context?.onEvent(.portButtonClicked)
     }
 

@@ -18,6 +18,7 @@ class NodeInspectorContentView: XViewEx {
             self.nodeTitleRowView,
             self.nodeTypeRowView,
             self.nodeInputsView,
+            self.nodeOutputsView,
         ])
         view.orientation = .vertical
         view.alignment = .leading
@@ -25,6 +26,7 @@ class NodeInspectorContentView: XViewEx {
 
         view.setCustomSpacing(16, after: self.nodeTitleRowView)
         view.setCustomSpacing(16, after: self.nodeTypeRowView)
+        view.setCustomSpacing(16, after: self.nodeInputsView)
 
         // view.withLayer({
         //     $0.borderWidth = 1
@@ -46,6 +48,11 @@ class NodeInspectorContentView: XViewEx {
 
     lazy var nodeInputsView: NodeInputsView = {
         let view = NodeInputsView()
+        return view
+    }()
+
+    lazy var nodeOutputsView: NodeOutputsView = {
+        let view = NodeOutputsView()
         return view
     }()
 
@@ -71,6 +78,9 @@ class NodeInspectorContentView: XViewEx {
         ])
         NSLayoutConstraint.activate([
             self.nodeInputsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+        NSLayoutConstraint.activate([
+            self.nodeOutputsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
 }

@@ -52,6 +52,10 @@ class NodeInspectorController: XViewController {
         self.contentView.nodeInputsView
     }
 
+    var nodeOutputsView: NodeOutputsView {
+        self.contentView.nodeOutputsView
+    }
+
     // MARK: - Init
 
     init(_ flow: Flow, _ coordinator: GlobalCoordinator) {
@@ -131,6 +135,15 @@ class NodeInspectorController: XViewController {
         self.updateNodeTitleRowView()
         self.updateNodeTypeRowView()
         self.updateInputs()
+        self.updateOutputs()
+    }
+
+    func onNodeOutputControlEvent(_ port: Int, _ event: NodeOutputControlEvent) {
+        switch event {
+        case .portButtonClicked:
+            guard let node = self.node else { return }
+            self.flow.select(nodeConnectedToNode: node.id, atOutputPort: port)
+        }
     }
 
     func onNodeInputControlEvent(_ port: Int, _ event: NodeInputControlEvent) {
@@ -158,6 +171,40 @@ class NodeInspectorController: XViewController {
             )
             if change.commit {
                 self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
+            }
+        }
+    }
+
+    func updateOutputs() {
+        guard let node = self.vm.node else { return }
+
+        let needsRepopulate =
+            node.outputs.count != self.nodeOutputsView.outputViews.count
+
+        if needsRepopulate {
+            self.nodeOutputsView.removeAllOutputViews()
+
+            for output in node.outputs {
+                let view = NodeOutputView()
+                view.context = .init(self, output.index)
+                view.name = output.label
+                view.connected = output.connected
+                view.type = output.type
+                self.nodeOutputsView.addOutputView(view)
+            }
+
+            return
+        }
+
+        for (idx, view) in self.nodeOutputsView.outputViews.enumerated() {
+            if view.name != node.outputs[idx].label {
+                view.name = node.outputs[idx].label
+            }
+            if view.connected != node.outputs[idx].connected {
+                view.connected = node.outputs[idx].connected
+            }
+            if view.type != node.outputs[idx].type {
+                view.type = node.outputs[idx].type
             }
         }
     }
