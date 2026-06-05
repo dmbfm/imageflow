@@ -1,7 +1,10 @@
 import Design
 import Helpers
+import OSLog
 import SwiftUI
 import XKit
+
+let logger = Logger(subsystem: "com.dmbfm.imageflow", category: "text-input")
 
 #if os(macOS)
 import AppKit
@@ -130,6 +133,12 @@ public final class TextInput: XViewEx {
     }()
 
     // MARK: macOS
+
+    // NOTE: Wrapping this under a different same because, for some bizarre reason,
+    // sourcekit-lsp, which is utter trash, crashes when `textField` itself is public.
+    public var theTextField: NSTextField {
+        self.textField
+    }
 
     #if os(macOS)
     lazy var textField: NSTextField = {
@@ -577,6 +586,11 @@ extension TextInput: NSTextFieldDelegate {
             self.delegate?.textInputDidCancel(self)
 
             return true
+        } else if commandSelector == #selector(NSResponder.insertTab(_:))
+            && self.delegate?.textInputRespondsToInsertTab(self) == true
+        {
+            self.delegate?.textInputDidInsertTab(self)
+            return true
         }
 
         return false
@@ -711,6 +725,8 @@ public protocol TextInputDelegate: AnyObject {
     func textInputDidCancel(_ textInput: TextInput)
     func textInputDidDrag(_ textInput: TextInput, dragData: TextInput.DragData)
     func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double)
+    func textInputRespondsToInsertTab(_ textInput: TextInput) -> Bool
+    func textInputDidInsertTab(_ textInput: TextInput)
 }
 
 extension TextInput {
@@ -735,6 +751,8 @@ extension TextInputDelegate {
         windowVerticalOverlap: Double,
         animationDuration: Double
     ) {}
+    public func textInputRespondsToInsertTab(_ textInput: TextInput) -> Bool { false }
+    public func textInputDidInsertTab(_ textInput: TextInput) {}
 }
 
 // MARK: - Style

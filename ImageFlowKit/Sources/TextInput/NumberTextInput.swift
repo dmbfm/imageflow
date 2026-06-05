@@ -59,6 +59,11 @@ public class NumberInputController {
         set { self.view.isEnabled = newValue }
     }
 
+    public var isEditable: Bool {
+        get { self.view.isEditable }
+        set { self.view.isEditable = newValue }
+    }
+
     public var placeholder: String? {
         get { self.view.placeholder }
         set { self.view.placeholder = newValue }
@@ -283,6 +288,14 @@ extension NumberInputController: TextInputDelegate {
             animationDuration: animationDuration
         )
     }
+
+    public func textInputRespondsToInsertTab(_ textInput: TextInput) -> Bool {
+        self.delegate?.numberInputRespondsToInsertTab(self) ?? false
+    }
+
+    public func textInputDidInsertTab(_ textInput: TextInput) {
+        self.delegate?.numberInputDidInsertTab(self)
+    }
 }
 
 extension NumberInputController {
@@ -454,6 +467,8 @@ public protocol NumberTextInputDelegate: AnyObject {
         windowVerticalOverlap: Double,
         animationDuration: Double
     )
+    func numberInputRespondsToInsertTab(_ numberInput: NumberInputController) -> Bool
+    func numberInputDidInsertTab(_ numberInput: NumberInputController)
 }
 
 extension NumberTextInputDelegate {
@@ -465,6 +480,8 @@ extension NumberTextInputDelegate {
         windowVerticalOverlap: Double,
         animationDuration: Double
     ) {}
+    public func numberInputRespondsToInsertTab(_ numberInput: NumberInputController) -> Bool { false }
+    public func numberInputDidInsertTab(_ numberInput: NumberInputController) {}
 }
 
 public protocol NumberTextInputFormatter: Sendable, Equatable {

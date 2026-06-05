@@ -139,4 +139,18 @@ extension NodeVectorInputControlView: NumberTextInputDelegate {
         let oldValue = self.value(settingIndex: index, to: change.oldValue)
         self.setValue(newValue: newValue, oldValue: oldValue, commit: change.commit)
     }
+
+    func numberInputRespondsToInsertTab(_ numberInput: NumberInputController) -> Bool {
+        true
+    }
+
+    func numberInputDidInsertTab(_ numberInput: NumberInputController) {
+        let nextIndex = (numberInput.tag + 1) % self.dim
+        guard let next = self.numberInputs[tryGetAt: nextIndex] else { return }
+        numberInput.isEditable = false
+        next.isEditable = true
+        Task(priority: .medium) {
+            self.window?.makeFirstResponder(next.view.theTextField)
+        }
+    }
 }
