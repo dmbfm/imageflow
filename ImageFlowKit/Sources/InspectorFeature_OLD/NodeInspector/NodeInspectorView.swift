@@ -29,7 +29,7 @@ final class NodeInspectorView: XViewEx {
         // view.withLayer({ $0.backgroundColor = XColor.systemTeal.cgColor })
         return view
     }()
-    
+
     init() {
         super.init(frame: .zero)
 
@@ -43,7 +43,7 @@ final class NodeInspectorView: XViewEx {
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func presentContentUnavailableView() {
         self.nodeSelectedView.removeFromSuperview()
         self.addSubview(self.contentUnavailableView)
@@ -55,21 +55,21 @@ final class NodeInspectorView: XViewEx {
         self.addSubview(self.nodeSelectedView)
         NSLayoutConstraint.activateConstraint(self.nodeSelectedView, toFill: self)
     }
-    
+
     func setupViews() {
         self.updatePresentedView()
-//        self.addSubview(self.contentUnavailableView)
-//        self.addSubview(self.nodeSelectedView)
-//
-//        for view in self.subviews {
-//            NSLayoutConstraint.activate([
-//                view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-//                view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-//                view.topAnchor.constraint(equalTo: self.topAnchor),
-//                view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-//            ])
-//        }
-//        self.updatePresentedView()
+        //        self.addSubview(self.contentUnavailableView)
+        //        self.addSubview(self.nodeSelectedView)
+        //
+        //        for view in self.subviews {
+        //            NSLayoutConstraint.activate([
+        //                view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+        //                view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+        //                view.topAnchor.constraint(equalTo: self.topAnchor),
+        //                view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+        //            ])
+        //        }
+        //        self.updatePresentedView()
     }
 
     func updatePresentedView() {
@@ -81,8 +81,6 @@ final class NodeInspectorView: XViewEx {
         }
     }
 }
-
-
 
 // MARK: - Previews
 

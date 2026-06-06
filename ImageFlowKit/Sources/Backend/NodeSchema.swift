@@ -18,8 +18,6 @@ public struct NodeSchema: Sendable {
     public var inputs: [InputPropertySchema]
     /// The output properties of the node.
     public var outputs: [OutputPropertySchema]
-    /// The options for the node.
-    public var options: [NodeOptionSchema]
 
     /// Creates a new `NodeSchema`.
     public init(
@@ -27,13 +25,11 @@ public struct NodeSchema: Sendable {
         displayName: String? = nil,
         inputs: [InputPropertySchema],
         outputs: [OutputPropertySchema],
-        options: [NodeOptionSchema] = []
     ) {
         self.name = name
         self.displayName = displayName ?? name
         self.inputs = inputs
         self.outputs = outputs
-        self.options = options
     }
 }
 
@@ -86,23 +82,28 @@ public struct InputPropertySchema: Sendable, Hashable {
     public var range: ClosedRange<Double>?
     /// The `ValueSemantics` associated with this input.
     public var semantics: ValueSemantics
-    /// The options for this input.
-    public var options: [NodeOptionSchema] = []
+    ///
+    public var editorVisibility: EditorVisibility
+
+    public enum EditorVisibility: Sendable, Hashable {
+        case all
+        case inspectorOnly
+    }
 
     /// Creates a new `InputPropertySchema` with the given name and type, without a default value.
     public init(
         name: String,
         type: ValueType,
         semantics: ValueSemantics = .default,
-        options: [NodeOptionSchema] = [],
         range: ClosedRange<Double>? = nil,
+        editorVisibility: EditorVisibility = .all
     ) {
         self.name = name
         self.type = type
         self.defaultValue = nil
         self.semantics = semantics
-        self.options = options
         self.range = range
+        self.editorVisibility = editorVisibility
     }
 
     /// Creates a new `InputPropertySchema` with the given name, and default value.
@@ -110,15 +111,15 @@ public struct InputPropertySchema: Sendable, Hashable {
         name: String,
         defaultValue: Value,
         semantics: ValueSemantics = .default,
-        options: [NodeOptionSchema] = [],
         range: ClosedRange<Double>? = nil,
+        editorVisibility: EditorVisibility = .all
     ) {
         self.name = name
         self.type = defaultValue.type
         self.defaultValue = defaultValue
         self.semantics = semantics
-        self.options = options
         self.range = range
+        self.editorVisibility = editorVisibility
     }
 }
 
@@ -134,45 +135,5 @@ public struct OutputPropertySchema: Sendable, Hashable {
     public init(name: String, type: ValueType) {
         self.name = name
         self.type = type
-    }
-}
-
-/// An `option` is basically just a `Value` with a `name`. In practice, it
-/// should be used for additional node values that the user can set but are not
-/// (usually) displayed prominently like node controls, but more likely on the
-/// inspector panel. Currently ou can have per-node and per-input options.
-///
-/// Additionally, there is a `pickerOptions` array of strings. This should
-/// be used when you want the user to be able to select one case out of several
-/// labelled cases (e.g., but displaying a dropdown menu). When using the
-/// `pickerOptions` (i.e., when it is not nil) you must use a `.int` value which
-/// should be interpreted as the index of the chosen option.
-public struct NodeOptionSchema: Sendable, Hashable {
-    /// The name of the option.
-    public var name: String
-    /// The default value of this option. Must have type `Value.int` when `pickerOptions` is not nil.
-    public var defaultValue: Value
-
-    /// Initializes an option schema with a `name` and `defaultValue`. In this case the `pickerOptions` is `nil`.
-    /// - Parameters:
-    ///   - name: The name of the option.
-    ///   - defaultValue: The default value of the option.
-    public init(name: String, defaultValue: Value) {
-        self.name = name
-        self.defaultValue = defaultValue
-    }
-
-    /// Initializes an option schema with a given set of `pickerOptions` and a
-    /// `Int` default value, which should be an index into the `pickerOptions` array.
-    /// - Parameters:
-    ///   - name: The name of the option.
-    ///   - pickerOptions: The array of option labels.
-    ///   - defaultValue: An index into the `pickerOptions` array marking the default option value.
-    public init?(name: String, pickerOptions: [String], defaultValue: Int) {
-        if !pickerOptions.indices.contains(defaultValue) {
-            return nil
-        }
-        self.name = name
-        self.defaultValue = .int(defaultValue)
     }
 }

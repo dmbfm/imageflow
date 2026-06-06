@@ -25,12 +25,16 @@ final class NodeInputBlockView: XViewEx {
         }
     }
 
+    var visibleInputs: [FlowNode.Input] {
+        self.inputs.filter({ $0.visibility == .all })
+    }
+
     var onEvent: ((Event) -> ())?
 
     var makeNodeControlContext: ((Int) -> (NodeControlContext?))? {
         didSet {
             if let makeNodeControlContext = self.makeNodeControlContext {
-                for (idx, row) in self.rows.enumerated() {
+                for (idx, row) in self.rows {
                     if let context = makeNodeControlContext(idx) {
                         row.controlView.context = context
                     }
@@ -41,7 +45,7 @@ final class NodeInputBlockView: XViewEx {
 
     weak var delegate: (any NodeInputBlockViewDelegate)?
 
-    private(set) var rows: [NodeInputRowView] = []
+    private(set) var rows: [Int: NodeInputRowView] = [:]
 
     // MARK: - Private Properties
 
@@ -106,18 +110,17 @@ final class NodeInputBlockView: XViewEx {
     // MARK: - Updating
 
     private func update() {
-        if self.inputs.count != self.rows.count
-            || self.inputs
-                .enumerated()
-                .first(where: { $0.element.value.type != self.rows[$0.offset].input.value.type }) != nil
+        if self.visibleInputs.count != self.rows.count
+            || self.rows.first(where: { (k, v) in
+                v.input.visibility == .all && v.input.value.type != self.inputs[k].value.type
+            }) != nil
         {
             self.repopulateRows()
-
         }
 
-        for (idx, input) in self.inputs.enumerated() where input != self.rows[idx].input {
-            self.rows[idx].input = input
-            self.rows[idx].setNeedsLayout()
+        for (index, row) in self.rows {
+            row.input = self.inputs[index]
+            row.setNeedsLayout()
         }
     }
 
@@ -130,7 +133,7 @@ final class NodeInputBlockView: XViewEx {
     // MARK: - Rows
 
     func repopulateRows() {
-        for row in self.rows {
+        for (_, row) in self.rows {
             row.removeFromSuperview()
         }
         self.rows.removeAll()
@@ -141,6 +144,7 @@ final class NodeInputBlockView: XViewEx {
 
     func populateRows() {
         for (idx, input) in inputs.enumerated() {
+            guard input.visibility == .all else { continue }
             let delegate = RowDelegate(node: self.node, index: idx, delegate: self.delegate)
             let row = NodeInputRowView(input, delegate: delegate, style: self.style)
             row.clipsToBounds = false
@@ -161,7 +165,7 @@ final class NodeInputBlockView: XViewEx {
             if let makeContext = self.makeNodeControlContext, let context = makeContext(idx) {
                 row.controlView.context = context
             }
-            self.rows.append(row)
+            self.rows[idx] = row
             self.delegates.append(delegate)
             self.addSubview(row)
         }
@@ -172,7 +176,7 @@ final class NodeInputBlockView: XViewEx {
     // MARK: - Layout
 
     override var intrinsicContentSize: CGSize {
-        let width = self.rows.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
+        let width = self.rows.values.reduce(0.0, { max($0, $1.intrinsicContentSize.width) })
         let height = style.rowHeight * CGFloat(self.rows.count)
         return .init(width: width, height: height)
     }
@@ -180,7 +184,7 @@ final class NodeInputBlockView: XViewEx {
     override func layout() {
         super.layout()
 
-        for (idx, row) in self.rows.enumerated() {
+        for (idx, row) in self.rows {
             row.frame = .init(
                 x: 0,
                 y: style.rowHeight * CGFloat(idx),
@@ -194,7 +198,7 @@ final class NodeInputBlockView: XViewEx {
 
     #if os(macOS)
     override func hitTest(_ point: NSPoint) -> NSView? {
-        for row in self.rows {
+        for (_, row) in self.rows {
             let point = row.convert(point, from: self.superview)
             if let view = row.controlView.hitTest(point) {
                 return view

@@ -131,7 +131,8 @@ extension FilterInfo {
                         sliderMax: nil,
                         valueType: .bool,
                         defaultValue: .bool(true),
-                        identity: nil
+                        identity: nil,
+                        editorVisibility: .inspectorOnly,
                     )
                 ]
             } else {
@@ -147,14 +148,14 @@ extension FilterInfo {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")))
+                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")), editorVisibility: \(input.editorVisibility.expr))
                             """
                     )
                 } else {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr(input) ?? ".default"))
+                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr(input) ?? ".default"), editorVisibility: \(input.editorVisibility.expr))
                             """
                     )
                 }
@@ -203,6 +204,15 @@ extension FilterInfo {
                     """
                 }
             }
+        }
+    }
+}
+
+extension FilterInput.EditorVisibility {
+    var expr: String {
+        switch self {
+        case .all: ".all"
+        case .inspectorOnly: ".inspectorOnly"
         }
     }
 }

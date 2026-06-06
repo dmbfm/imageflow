@@ -32,14 +32,35 @@ public struct FlowNode: Sendable, Equatable, Codable {
         public var value: Value
         public var semantics: ValueSemantics
         public var connected: Bool
+        public var visibility: Visibility?
         public var id: Int { self.index }
 
-        public init(label: String, index: Int, value: Value, semantics: ValueSemantics, connected: Bool) {
+        public enum Visibility: Hashable, Sendable, Codable {
+            case all
+            case inspectorOnly
+
+            init(_ value: InputPropertySchema.EditorVisibility) {
+                switch value {
+                case .all: self = .all
+                case .inspectorOnly: self = .inspectorOnly
+                }
+            }
+        }
+
+        public init(
+            label: String,
+            index: Int,
+            value: Value,
+            semantics: ValueSemantics,
+            connected: Bool,
+            visibility: Visibility? = .all
+        ) {
             self.label = label
             self.index = index
             self.value = value
             self.semantics = semantics
             self.connected = connected
+            self.visibility = visibility
         }
     }
 
@@ -90,7 +111,8 @@ public struct FlowNode: Sendable, Equatable, Codable {
                 index: index,
                 value: input.defaultValue ?? Value.defaultValue(forType: input.type),
                 semantics: input.semantics,
-                connected: false
+                connected: false,
+                visibility: .init(input.editorVisibility),
             )
         }
         self.outputs = kind.schema.outputs.enumerated().map { (index, output) in

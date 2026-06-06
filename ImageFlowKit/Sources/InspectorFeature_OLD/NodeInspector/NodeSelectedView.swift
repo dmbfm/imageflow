@@ -40,9 +40,9 @@ final class NodeSelectedView: XViewEx {
         view.orientation = .vertical
         view.edgeInsets = self.insets
         view.alignment = .leading
-//        NSLayoutConstraint.activate([
-//            self.nodeTypeBlockView.leadingAnchor.constraint(equalTo: self.rootStackView.leadingAnchor)
-//        ])
+        //        NSLayoutConstraint.activate([
+        //            self.nodeTypeBlockView.leadingAnchor.constraint(equalTo: self.rootStackView.leadingAnchor)
+        //        ])
         return view
     }()
 
@@ -53,8 +53,8 @@ final class NodeSelectedView: XViewEx {
 
     lazy var nodeTypeBlockView: NodeTypeBlockView = {
         let view = NodeTypeBlockView()
-//        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
-//        view.translatesAutoresizingMaskIntoConstraints = false
+        //        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        //        view.translatesAutoresizingMaskIntoConstraints = false
         view.onPickKind = { [weak self] kind in self?.delegate?.nodeInpector(userSelectedNodeKind: kind) }
         return view
     }()
@@ -88,11 +88,11 @@ final class NodeSelectedView: XViewEx {
             ),
             self.rootStackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
         ])
-        
-//        NSLayoutConstraint.activate([
-//            self.nodeTypeBlockView.leadingAnchor.constraint(equalTo: self.rootStackView.leadingAnchor),
-//            self.nodeTypeBlockView.trailingAnchor.constraint(equalTo: self.rootStackView.trailingAnchor),
-//        ])
+
+        //        NSLayoutConstraint.activate([
+        //            self.nodeTypeBlockView.leadingAnchor.constraint(equalTo: self.rootStackView.leadingAnchor),
+        //            self.nodeTypeBlockView.trailingAnchor.constraint(equalTo: self.rootStackView.trailingAnchor),
+        //        ])
     }
 }
 
@@ -169,13 +169,13 @@ final class NodeTypeBlockView: XViewEx {
 
     lazy var valueLabelView: XLabel = {
         let label = XLabel(labelWithString: "Value")
-        label.setContentCompressionResistancePriority(.defaultLow-1, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)
         return label
     }()
 
     lazy var valuePickerView: NSPopUpButton = {
         let view = NSPopUpButton()
-        view.setContentCompressionResistancePriority(.defaultLow-1, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)
         view.target = self
         view.action = #selector(Self.pickerHandler)
         return view
@@ -195,7 +195,7 @@ final class NodeTypeBlockView: XViewEx {
     }
 
     override var intrinsicContentSize: NSSize {
-//        .init(width: NSView.noIntrinsicMetric, height: 80)
+        //        .init(width: NSView.noIntrinsicMetric, height: 80)
         self.blockView.intrinsicContentSize
     }
 

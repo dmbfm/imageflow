@@ -385,8 +385,8 @@ extension NodeView {
     }
 
     public var ports: [(PortLocation, PortView)] {
-        self.inputBlockView.rows.enumerated().map {
-            (.init(node: self.id, port: .input($0.offset)), $0.element.portView)
+        self.inputBlockView.rows.map {
+            (.init(node: self.id, port: .input($0.key)), $0.value.portView)
         }
             + self.outputBlockView.rows.enumerated().map {
                 (.init(node: self.id, port: .output($0.offset)), $0.element.portView)
@@ -396,7 +396,7 @@ extension NodeView {
     public func setDrawPortAsConnected(_ slot: PortSlot, _ value: Bool) {
         switch slot {
         case .input(let index):
-            self.inputBlockView.rows[index].drawPortAsConnected = value
+            self.inputBlockView.rows[index]?.drawPortAsConnected = value
         case .output(let index):
             self.outputBlockView.rows[index].drawPortAsConnected = value
         }
@@ -415,8 +415,8 @@ extension NodeView {
             if port >= self.inputBlockView.rows.count {
                 return nil
             }
-            let frame = self.inputBlockView.rows[port].portView.frame
-            return self.inputBlockView.rows[port].convert(frame, to: nil)
+            guard let frame = self.inputBlockView.rows[port]?.portView.frame else { return nil }
+            return self.inputBlockView.rows[port]?.convert(frame, to: nil)
         case .output(let port):
             if port >= self.outputBlockView.rows.count {
                 return nil
@@ -435,7 +435,7 @@ extension NodeView {
             if idx < 0 || idx >= self.inputBlockView.rows.count {
                 return nil
             }
-            return self.inputBlockView.rows[idx].portView
+            return self.inputBlockView.rows[idx]?.portView
         case .output(let idx):
             if idx < 0 || idx >= self.outputBlockView.rows.count {
                 return nil
@@ -449,16 +449,16 @@ extension NodeView {
 
 extension NodeView {
     public func value(inputIntex index: Int) -> Value? {
-        if self.inputBlockView.rows.indices.contains(index) {
-            return self.inputBlockView.rows[index].controlView.value
+        if self.inputBlockView.rows.keys.contains(index) {
+            return self.inputBlockView.rows[index]?.controlView.value
         } else {
             return nil
         }
     }
 
     public func setValue(inputIntex index: Int, value: Value) {
-        if self.inputBlockView.rows.indices.contains(index) {
-            self.inputBlockView.rows[index].controlView.value = value
+        if self.inputBlockView.rows.keys.contains(index) {
+            self.inputBlockView.rows[index]?.controlView.value = value
         }
     }
 }

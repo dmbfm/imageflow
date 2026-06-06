@@ -522,9 +522,15 @@ public struct FilterInput: Sendable, Hashable, Codable {
     public var valueType: ValueType
     public var defaultValue: Value?
     public var identity: Value?
+    public var editorVisibility: EditorVisibility = .all
     // var defaultValue: ???
     // var identity: ???
     //
+
+    public enum EditorVisibility: Sendable, Hashable, Codable {
+        case all
+        case inspectorOnly
+    }
 
     func applying(override: Override.InputOverride) -> Self {
         var result = self
