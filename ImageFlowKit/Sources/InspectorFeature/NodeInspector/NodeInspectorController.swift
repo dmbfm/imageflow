@@ -1,15 +1,17 @@
+import Backend
 import Combine
 import ContextMenus
 import Helpers
 import SharedModels
 import SwiftUI
+import Values
 import XKit
 
 class NodeInspectorController: XViewController {
 
     // MARK: - Properties
 
-    let flow: Flow
+    let flow: SharedModels::Flow
     let coordinator: GlobalCoordinator
 
     private var cancellables: Set<AnyCancellable> = []
@@ -221,7 +223,10 @@ class NodeInspectorController: XViewController {
             self.nodeInputsView.removeAllInputViews()
 
             for input in node.inputs {
-                let view = self.view(forInput: input)
+                let view = self.view(
+                    forInput: input,
+                    schema: node.schemaWithFallback(forInput: input.index)
+                )
                 view.context = .init(self, input.index)
                 view.hasChanges = node.hasChanges(forInput: input.index)
                 self.nodeInputsView.addInputView(view)
@@ -299,7 +304,7 @@ class NodeInspectorController: XViewController {
 
     // MARK: - Input Views
 
-    func view(forInput input: FlowNode.Input) -> any NodeInputControlView {
+    func view(forInput input: FlowNode.Input, schema: NodeInputSchema) -> any NodeInputControlView {
         switch input.value.type {
         case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
             NodeMatrixInputControlView(
@@ -334,7 +339,7 @@ class NodeInspectorController: XViewController {
         case .color4:
             NodeColorInputControlView(label: input.label, value: input.value, connected: input.connected)
         case .int:
-            switch input.semantics {
+            switch schema.semantics {
             case .integer(.picker(let options)):
                 NodeIntegerOptionInputControlView(
                     label: input.label,
@@ -368,7 +373,7 @@ class NodeInspectorController: XViewController {
                 )
             }
         case .float:
-            switch input.semantics {
+            switch schema.semantics {
             case .float(.angle(nil)):
                 NodeAngleInputControlView(
                     label: input.label,

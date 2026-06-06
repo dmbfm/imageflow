@@ -28,27 +28,33 @@ final class EmptyControlView: XViewEx, NodeControl {
 
 public final class NodeInputRowView: XView {
 
+    // MARK: - ViewModel
+
+    struct ViewModel: Equatable {
+        var input: FlowNode.Input
+        var semantics: ValueSemantics
+        var drawPortAsConnected: Bool
+
+        var isEditable: Bool {
+            !self.input.connected
+        }
+
+        func sameValueType(as other: ViewModel) -> Bool {
+            self.input.value.type == other.input.value.type
+        }
+    }
+
     // MARK: - Exposed Properties
 
-    var input: FlowNode.Input {
+    var vm: ViewModel {
         didSet {
-            if self.input != oldValue {
+            if self.vm != oldValue {
                 self.update()
             }
         }
     }
 
-    var drawPortAsConnected: Bool = false {
-        didSet {
-            self.portView.connected = self.drawPortAsConnected || self.input.connected
-        }
-    }
-
     var onEvent: ((Event) -> ())?
-
-    var isEditable: Bool {
-        !self.input.connected
-    }
 
     // MARK: - Exposed Types
 
@@ -73,7 +79,7 @@ public final class NodeInputRowView: XView {
     #endif
 
     lazy var portView: PortView = {
-        let view = PortView(connected: self.input.connected, style: self.style.port)
+        let view = PortView(connected: self.vm.input.connected, style: self.style.port)
         view.onEvent = { [weak self] event in
             switch event {
             case .drag(let data):
@@ -82,9 +88,9 @@ public final class NodeInputRowView: XView {
         }
 
         #if os(macOS)
-        view.toolTip = "\(self.input.value.type.displayName)"
+        view.toolTip = "\(self.vm.input.value.type.displayName)"
         #else
-        view.addInteraction(UIToolTipInteraction(defaultToolTip: "\(self.input.value.type.displayName)"))
+        view.addInteraction(UIToolTipInteraction(defaultToolTip: "\(self.vm.input.value.type.displayName)"))
         #endif
 
         return view
@@ -92,74 +98,74 @@ public final class NodeInputRowView: XView {
 
     lazy var controlView: any NodeControl = {
         let view: any NodeControl =
-            switch self.input.value.type {
+            switch self.vm.input.value.type {
             case .float:
-                switch self.input.semantics {
+                switch self.vm.semantics {
                 case .float(.angle(.some(let range))):
                     if abs(range.span - 2.0 * .pi) < 0.001 {
-                        NodeAngleInput(self.input.value, range: nil, isEditable: self.isEditable)
+                        NodeAngleInput(self.vm.input.value, range: nil, isEditable: self.vm.isEditable)
                     } else {
-                        NodeAngleInput(self.input.value, range: range, isEditable: self.isEditable)
+                        NodeAngleInput(self.vm.input.value, range: range, isEditable: self.vm.isEditable)
                     }
                 case .float(.angle(.none)):
-                    NodeAngleInput(self.input.value, range: nil, isEditable: self.isEditable)
+                    NodeAngleInput(self.vm.input.value, range: nil, isEditable: self.vm.isEditable)
                 case .float(.range(let range)):
-                    NodeNumberInput(self.input.value, range: range, isEditable: self.isEditable)
+                    NodeNumberInput(self.vm.input.value, range: range, isEditable: self.vm.isEditable)
                 default:
-                    NodeNumberInput(self.input.value, isEditable: self.isEditable)
+                    NodeNumberInput(self.vm.input.value, isEditable: self.vm.isEditable)
                 }
             case .int:
-                switch self.input.semantics {
+                switch self.vm.semantics {
                 case .integer(.range(let range)):
                     NodeIntegerInput(
-                        self.input.value,
+                        self.vm.input.value,
                         range: range,
-                        isEditable: self.isEditable
+                        isEditable: self.vm.isEditable
                     )
                 case .integer(.partialRangeFrom(let lowerBound)):
                     NodeIntegerInput(
-                        self.input.value,
+                        self.vm.input.value,
                         lowerBound: lowerBound,
-                        isEditable: self.isEditable,
+                        isEditable: self.vm.isEditable,
                     )
                 case .integer(.picker(let options)):
                     NodeOptionPickerInput(
-                        self.input.value,
+                        self.vm.input.value,
                         options: options,
-                        isEditable: self.isEditable
+                        isEditable: self.vm.isEditable
                     )
                 default:
                     NodeIntegerInput(
-                        self.input.value,
-                        isEditable: self.isEditable
+                        self.vm.input.value,
+                        isEditable: self.vm.isEditable
                     )
                 }
             case .bool:
-                NodeBooleanInput(self.input.value, isEditable: self.isEditable)
+                NodeBooleanInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .vector2, .vector3, .vector4:
-                NodeVectorInput(self.input.value, isEditable: self.isEditable)
+                NodeVectorInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .image:
                 NodeAssetPicker<ImageAssetPicker>(
-                    self.input.value,
-                    isEditable: self.isEditable,
+                    self.vm.input.value,
+                    isEditable: self.vm.isEditable,
                     delegate: self.delegate
                 )
             case .color4:
-                NodeColorInput(self.input.value, isEditable: self.isEditable)
+                NodeColorInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .rect:
-                NodeRectInput(self.input.value, isEditable: self.isEditable)
+                NodeRectInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .string:
-                NodeStringInput(self.input.value, isEditable: self.isEditable)
+                NodeStringInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .lut:
                 NodeAssetPicker<LutAssetPicker>(
-                    self.input.value,
-                    isEditable: self.isEditable,
+                    self.vm.input.value,
+                    isEditable: self.vm.isEditable,
                     delegate: self.delegate
                 )
             case .affineTransform, .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
-                EmptyControlView(value: self.input.value)
+                EmptyControlView(value: self.vm.input.value)
             default:
-                StaticLabelNodeControl(self.input.value, "<\(self.input.value.type)>")
+                StaticLabelNodeControl(self.vm.input.value, "<\(self.vm.input.value.type)>")
             }
         view.clipsToBounds = false
         view.onEvent = { [weak self] event in
@@ -184,8 +190,8 @@ public final class NodeInputRowView: XView {
 
     // MARK: - Initializers
 
-    init(_ input: FlowNode.Input, delegate: Delegate?, style: Style = .default) {
-        self.input = input
+    init(_ vm: ViewModel, delegate: Delegate?, style: Style = .default) {
+        self.vm = vm
         self.style = style
         self.delegate = delegate
 
@@ -205,19 +211,19 @@ public final class NodeInputRowView: XView {
     // MARK: - Updating
 
     private func update() {
-        self.portView.connected = self.drawPortAsConnected || self.input.connected
+        self.portView.connected = self.vm.drawPortAsConnected || self.vm.input.connected
 
-        if self.input.label != self.labelView.text {
-            self.labelView.text = self.input.label
+        if self.vm.input.label != self.labelView.text {
+            self.labelView.text = self.vm.input.label
             self.updateSize()
         }
 
-        if self.input.value != self.controlView.value {
-            self.controlView.value = self.input.value
+        if self.vm.input.value != self.controlView.value {
+            self.controlView.value = self.vm.input.value
         }
 
-        if self.controlView.isEditable != self.isEditable {
-            self.controlView.isEditable = self.isEditable
+        if self.controlView.isEditable != self.vm.isEditable {
+            self.controlView.isEditable = self.vm.isEditable
         }
     }
 
@@ -354,12 +360,11 @@ extension NodeInputRowView {
             label: "Something",
             index: 0,
             value: .float(0.5),
-            semantics: .default,
             connected: false
         )
         func makeView(context: Context) -> NodeInputRowView {
             let view = NodeInputRowView(
-                self.input,
+                .init(input: self.input, semantics: .default, drawPortAsConnected: false),
                 delegate: nil
             )
             view.onEvent = { _ in }
@@ -386,7 +391,7 @@ extension NodeInputRowView {
             .border(.gray.opacity(0.12))
 
         NodeInputRowView.Preview(
-            input: .init(label: "Other", index: 1, value: .bool(true), semantics: .default, connected: true)
+            input: .init(label: "Other", index: 1, value: .bool(true), connected: true)
         )
         .border(.gray.opacity(0.12))
     }

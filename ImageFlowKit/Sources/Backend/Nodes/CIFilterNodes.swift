@@ -820,8 +820,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Addition",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -847,12 +847,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Affine Clamp",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Transform",
                         defaultValue: .affineTransform(.init(m11: 0.4, m12: 0.0, m21: 0.0, m22: 0.4, tX: 0.0, tY: 0.0)),
                         semantics: .transform,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -883,12 +883,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Affine Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Transform",
                         defaultValue: .affineTransform(.init(m11: 0.4, m12: 0.0, m21: 0.0, m22: 0.4, tX: 0.0, tY: 0.0)),
                         semantics: .transform,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -919,12 +919,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Affine Transform",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Transform",
                         defaultValue: .affineTransform(.init(m11: 1.0, m12: 0.0, m21: 0.0, m22: 1.0, tX: 0.0, tY: 0.0)),
                         semantics: .transform,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -955,14 +955,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Alpha Weighted Histogram",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -991,8 +991,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Average",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1018,8 +1018,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Average and Maximum Red",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1045,8 +1045,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Bounds Red",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1072,14 +1072,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Histogram",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -1108,22 +1108,27 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Logarithmic Histogram",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Minimum Stop",
                         defaultValue: .float(-10.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Maximum Stop", defaultValue: .float(4.0), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Maximum Stop",
+                        defaultValue: .float(4.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1153,8 +1158,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Maximum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1180,8 +1185,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Maximum Alpha",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1207,8 +1212,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Minimum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1234,8 +1239,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Minimum Alpha",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1261,8 +1266,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Min and Max",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1288,8 +1293,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Area Min and Max Red",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1315,20 +1320,26 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bars Swipe Transition",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(3.141592653589793),
                         semantics: .float(.angle(0.0...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(30.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Bar Offset", defaultValue: .float(10.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(30.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Bar Offset",
+                        defaultValue: .float(10.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -1359,11 +1370,15 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bicubic Scale Transform",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Aspect Ratio", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "B", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "C", defaultValue: .float(0.75), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Aspect Ratio",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ), .init(name: "B", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
+                    .init(name: "C", defaultValue: .float(0.75), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1392,9 +1407,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blend With Alpha Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Mask Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1421,9 +1436,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blend With Blue Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Mask Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1450,9 +1465,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blend With Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Mask Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1479,9 +1494,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blend With Red Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Mask Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1508,19 +1523,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bloom",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Intensity",
                         defaultValue: .float(0.5),
                         semantics: .float(.range(0...1)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -1564,13 +1579,14 @@ extension Nodes {
                         name: "Extent",
                         defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 256.0, height: 256.0)),
                         semantics: .rectangle,
-                        editorVisibility: .all
-                    ), .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -1598,15 +1614,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Blurred Rounded Rectangle Generator",
                 inputs: [
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Smoothness",
+                        defaultValue: .float(0.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Sigma", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -1636,16 +1657,21 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bokeh Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Ring Amount", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Ring Size", defaultValue: .float(0.1), semantics: .default, editorVisibility: .all),
-                    .init(name: "Softness", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Ring Amount",
+                        defaultValue: .float(0.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Ring Size", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
+                    .init(name: "Softness", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -1687,13 +1713,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Box Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -1732,19 +1758,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bump Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -1785,19 +1812,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Bump Distortion Linear",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(0.0...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1826,31 +1854,36 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Canny Edge Detector",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Gaussian Sigma",
                         defaultValue: .float(1.6),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(
+                        name: "Perceptual",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Threshold High",
                         defaultValue: .float(0.05),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Threshold Low",
                         defaultValue: .float(0.02),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Hysteresis Passes",
                         defaultValue: .int(1),
                         semantics: .integer,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -1889,21 +1922,22 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1932,13 +1966,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Circle Splash Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1969,14 +2004,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Circular Screen",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2004,18 +2039,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Circular Wrap Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -2044,8 +2080,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Clamp",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2071,31 +2107,36 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "CMYK Halftone",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .distance, editorVisibility: .all),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.7),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Gray Component Replacement",
                         defaultValue: .float(1.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Under Color Removal",
                         defaultValue: .float(0.5),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -2131,8 +2172,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Absolute Difference",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Image2", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Image2", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2158,8 +2199,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2185,8 +2226,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Burn Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2212,18 +2253,18 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Clamp",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Min Components",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Max Components",
                         defaultValue: .vector4(.init(x: 1.0, y: 1.0, z: 1.0, w: 1.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -2251,10 +2292,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Controls",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Saturation", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Brightness", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Contrast", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Saturation",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Brightness",
+                        defaultValue: .float(0.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Contrast", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2282,8 +2333,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Dodge Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2308,7 +2359,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Color Invert",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -2332,8 +2383,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Map",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Gradient Image", type: .image, semantics: .gradient, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Gradient Image", type: .image, semantics: .gradient, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2359,36 +2410,36 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Matrix",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Red Vector",
                         defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Green Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Blue Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Alpha Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bias Vector",
                         defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -2419,13 +2470,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Monochrome",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 0.6, green: 0.45, blue: 0.3, alpha: 1.0)),
                         semantics: .opaqueColor,
-                        editorVisibility: .all
-                    ), .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2452,30 +2504,30 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Polynomial",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Red Coefficients",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Green Coefficients",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Blue Coefficients",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Alpha Coefficients",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -2505,8 +2557,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Posterize",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Levels", defaultValue: .float(6.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Levels", defaultValue: .float(6.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2532,8 +2584,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Color Threshold",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Threshold", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Threshold", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2558,7 +2610,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Color Threshold Otsu",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -2582,8 +2634,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Column Average",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2608,7 +2660,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Comic Effect",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -2636,7 +2688,7 @@ extension Nodes {
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     )
                 ],
                 outputs: [
@@ -2662,8 +2714,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Convert Lab to RGB",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Normalize", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Normalize",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2689,8 +2746,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Convert RGB to Lab",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Normalize", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Normalize",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2716,13 +2778,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "3 by 3 Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2749,13 +2811,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "5 by 5 Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2782,13 +2844,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "7 by 7 Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2815,13 +2877,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Horizontal 9 Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2848,13 +2910,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vertical 9 Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2881,13 +2943,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "3 by 3 RGB Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2914,13 +2976,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "5 by 5 RGB Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2947,13 +3009,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "7 by 7 RGB Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2980,13 +3042,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Horizontal 9 RGB Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3013,13 +3075,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vertical 9 RGB Convolution",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Weights",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Bias", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3046,28 +3108,29 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Copy Machine",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 0.6, green: 1.0, blue: 0.8, alpha: 1.0)),
                         semantics: .opaqueColor,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(0.0...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(200.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Opacity", defaultValue: .float(1.3), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(200.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Opacity", defaultValue: .float(1.3), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3099,12 +3162,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Crop",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Rectangle",
                         defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 100.0, height: 100.0)),
                         semantics: .rectangle,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3131,13 +3194,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Crystallize",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3165,8 +3228,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Darken Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3192,32 +3255,38 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Depth of Field",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Point 0",
                         defaultValue: .vector2(.init(x: 0.0, y: 300.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 1",
                         defaultValue: .vector2(.init(x: 300.0, y: 300.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Saturation", defaultValue: .float(1.5), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Saturation",
+                        defaultValue: .float(1.5),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Unsharp Mask Radius",
                         defaultValue: .float(2.5),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Unsharp Mask Intensity",
                         defaultValue: .float(0.5),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3247,7 +3316,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Depth To Disparity",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -3275,8 +3344,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Difference Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3302,13 +3371,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Disc Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(8.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(8.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -3346,7 +3415,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Disparity To Depth",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -3374,9 +3443,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Displacement Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Displacement Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(50.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Displacement Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(50.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3403,13 +3472,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Dissolve",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3437,18 +3506,18 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Distance Gradient From Red Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Maximum Distance",
                         defaultValue: .float(10.0),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -3487,8 +3556,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Dither",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(0.1), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3514,8 +3583,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Divide Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3541,8 +3610,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Document Enhancer",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3572,24 +3641,24 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Dot Screen",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Sharpness",
                         defaultValue: .float(0.7),
                         semantics: .float(.range(0...1)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3619,26 +3688,31 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Droste",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Inset Point 0",
                         defaultValue: .vector2(.init(x: 200.0, y: 200.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Inset Point 1",
                         defaultValue: .vector2(.init(x: 400.0, y: 400.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Strands", defaultValue: .float(1.0), semantics: .count, editorVisibility: .all),
-                    .init(name: "Periodicity", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Strands", defaultValue: .float(1.0), semantics: .count, editorPlacement: .default),
+                    .init(
+                        name: "Periodicity",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Rotation",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(0.0...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Zoom", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Zoom", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3673,20 +3747,25 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Edge Preserve Upsample Filter",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Small Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Small Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Spatial Sigma",
                         defaultValue: .float(3.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Luma Sigma", defaultValue: .float(0.15), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Luma Sigma",
+                        defaultValue: .float(0.15),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -3727,8 +3806,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Edges",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3754,8 +3833,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Edge Work",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(3.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(3.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3781,19 +3860,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Eightfold Reflected Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3821,8 +3901,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Exclusion Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3848,8 +3928,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Exposure Adjust",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "EV", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "EV", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3875,18 +3955,18 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "False Color",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 0.3, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 1.0, green: 0.9, blue: 0.8, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3914,49 +3994,49 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Flash",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.8, blue: 0.6, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Maximum Striation Radius",
                         defaultValue: .float(2.58),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Strength",
                         defaultValue: .float(0.5),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Contrast",
                         defaultValue: .float(1.375),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Fade Threshold",
                         defaultValue: .float(0.85),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -3991,24 +4071,25 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Fourfold Reflected Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Acute Angle",
                         defaultValue: .float(1.5707963267948966),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -4038,19 +4119,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Fourfold Rotated Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4078,24 +4160,25 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Fourfold Translated Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Acute Angle",
                         defaultValue: .float(1.5707963267948966),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -4124,7 +4207,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Gabor Gradients",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -4148,8 +4231,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Gamma Adjust",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Power", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Power", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4175,13 +4258,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Gaussian Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -4224,20 +4307,21 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)),
                         semantics: .color,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4265,14 +4349,15 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Glass Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Texture", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Texture", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Scale", defaultValue: .float(200.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Scale", defaultValue: .float(200.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4300,25 +4385,31 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Glass Lozenge",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Point 0",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 1",
                         defaultValue: .vector2(.init(x: 350.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Refraction", defaultValue: .float(1.7), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Refraction",
+                        defaultValue: .float(1.7),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -4360,19 +4451,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Glide Reflected Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4400,9 +4492,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Gloom",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4429,8 +4521,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hard Light Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4456,20 +4548,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hatched Screen",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4498,8 +4590,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Height Field From Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4525,13 +4617,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hexagonal Pixelate",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Scale", defaultValue: .float(8.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(8.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4558,19 +4650,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Highlight and Shadow Adjust",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Shadow Amount",
                         defaultValue: .float(0.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Highlight Amount",
                         defaultValue: .float(1.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -4599,10 +4691,15 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Histogram Display",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Height", defaultValue: .float(100.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "High Limit", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Low Limit", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Height", defaultValue: .float(100.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "High Limit",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Low Limit", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4630,18 +4727,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hole Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -4681,12 +4779,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hue Adjust",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -4713,8 +4811,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Hue Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4740,24 +4838,24 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Kaleidoscope",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(6),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -4786,16 +4884,16 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Combined Keystone Correction",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Focal Length",
                         defaultValue: .float(28.0),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4825,16 +4923,16 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Horizontal Keystone Correction",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Focal Length",
                         defaultValue: .float(28.0),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4864,16 +4962,16 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vertical Keystone Correction",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Focal Length",
                         defaultValue: .float(28.0),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorVisibility: .all),
-                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Top Left", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Top Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Right", type: .vector2, semantics: .position2, editorPlacement: .default),
+                    .init(name: "Bottom Left", type: .vector2, semantics: .position2, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4903,22 +5001,27 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "KMeans",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Means", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Means", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(8),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Passes",
                         defaultValue: .int(5),
                         semantics: .integer(.partialRangeFrom(0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(
+                        name: "Perceptual",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4948,8 +5051,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Lab ∆E",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Image2", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Image2", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4975,9 +5078,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Lanczos Scale Transform",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Aspect Ratio", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Aspect Ratio",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5008,39 +5116,44 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.9, blue: 0.8, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Halo Radius",
                         defaultValue: .float(70.0),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Halo Width", defaultValue: .float(87.0), semantics: .distance, editorVisibility: .all),
+                    .init(
+                        name: "Halo Width",
+                        defaultValue: .float(87.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Halo Overlap",
                         defaultValue: .float(0.77),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Strength",
                         defaultValue: .float(0.5),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Contrast",
                         defaultValue: .float(1.0),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5072,8 +5185,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Lighten Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5099,19 +5212,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Light Tunnel Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Rotation",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(0.0...1.5707963267948966)),
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5143,8 +5257,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Linear Burn Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5170,8 +5284,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Linear Dodge Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5201,25 +5315,25 @@ extension Nodes {
                         name: "Point 0",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 1",
                         defaultValue: .vector2(.init(x: 200.0, y: 200.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -5248,8 +5362,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Linear Light Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5274,7 +5388,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Linear to sRGB Tone Curve",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -5298,26 +5412,27 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Line Overlay",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "NR Noise Level",
                         defaultValue: .float(0.07),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "NR Sharpness",
                         defaultValue: .float(0.71),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Edge Intensity",
                         defaultValue: .float(1.0),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Threshold", defaultValue: .float(0.1), semantics: .default, editorVisibility: .all),
-                    .init(name: "Contrast", defaultValue: .float(50.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Threshold", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
+                    .init(name: "Contrast", defaultValue: .float(50.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5347,20 +5462,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Line Screen",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5389,8 +5504,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Luminosity Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5416,14 +5531,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Masked Variable Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Mask", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(5.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(5.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -5462,7 +5577,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Mask to Alpha",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -5485,7 +5600,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Maximum Component",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -5509,8 +5624,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Maximum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5536,9 +5651,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Maximum Scale Transform",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Aspect Ratio", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Aspect Ratio",
+                        defaultValue: .float(1.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5564,7 +5684,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Median",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -5587,7 +5707,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Minimum Component",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -5611,8 +5731,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Minimum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5638,9 +5758,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Mix",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5667,31 +5787,32 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Mod",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(2.0),
                         semantics: .float(.angle(-6.283185307179586...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Compression",
                         defaultValue: .float(300.0),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -5723,8 +5844,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Morphology Gradient",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(5.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(5.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5750,8 +5871,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Morphology Maximum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5777,8 +5898,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Morphology Minimum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(0.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5804,9 +5925,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Morphology Rectangle Maximum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Width", defaultValue: .int(5), semantics: .integer, editorVisibility: .all),
-                    .init(name: "Height", defaultValue: .int(5), semantics: .integer, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Width", defaultValue: .int(5), semantics: .integer, editorPlacement: .default),
+                    .init(name: "Height", defaultValue: .int(5), semantics: .integer, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5833,9 +5954,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Morphology Rectangle Minimum",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Width", defaultValue: .int(5), semantics: .integer, editorVisibility: .all),
-                    .init(name: "Height", defaultValue: .int(5), semantics: .integer, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Width", defaultValue: .int(5), semantics: .integer, editorPlacement: .default),
+                    .init(name: "Height", defaultValue: .int(5), semantics: .integer, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5862,19 +5983,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Motion Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -5914,8 +6035,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Multiply Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5941,8 +6062,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Multiply",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5968,24 +6089,24 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Nine Part Stretched",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Breakpoint0",
                         defaultValue: .vector2(.init(x: 50.0, y: 50.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Breakpoint1",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Grow Amount",
                         defaultValue: .vector2(.init(x: 100.0, y: 100.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -6014,26 +6135,31 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Nine Part Tiled",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Breakpoint0",
                         defaultValue: .vector2(.init(x: 50.0, y: 50.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Breakpoint1",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Grow Amount",
                         defaultValue: .vector2(.init(x: 100.0, y: 100.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Flip Y Tiles", defaultValue: .bool(true), semantics: .boolean, editorVisibility: .all),
+                    .init(
+                        name: "Flip Y Tiles",
+                        defaultValue: .bool(true),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6062,9 +6188,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Noise Reduction",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Noise Level", defaultValue: .float(0.02), semantics: .default, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Noise Level",
+                        defaultValue: .float(0.02),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6095,19 +6226,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Op Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Scale", defaultValue: .float(2.8), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(2.8), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(65.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(65.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6140,8 +6272,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Overlay Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6167,23 +6299,24 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Page Curl",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Backside Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Shading Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Backside Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Shading Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6219,29 +6352,35 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Page Curl With Shadow",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Backside Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Backside Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Shadow Size", defaultValue: .float(0.5), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Shadow Size",
+                        defaultValue: .float(0.5),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Shadow Amount",
                         defaultValue: .float(0.7),
                         semantics: .distance,
-                        editorVisibility: .all
-                    ), .init(name: "Shadow Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Shadow Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6279,9 +6418,14 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Palettize",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Palette Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Palette Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Perceptual",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6308,25 +6452,26 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Parallelogram Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Acute Angle",
                         defaultValue: .float(1.5707963267948966),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6355,31 +6500,31 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Perspective Correction",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Top Left",
                         defaultValue: .vector2(.init(x: 118.0, y: 484.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Top Right",
                         defaultValue: .vector2(.init(x: 646.0, y: 507.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Right",
                         defaultValue: .vector2(.init(x: 548.0, y: 140.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Left",
                         defaultValue: .vector2(.init(x: 155.0, y: 153.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Crop", defaultValue: .bool(true), semantics: .boolean, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Crop", defaultValue: .bool(true), semantics: .boolean, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6409,30 +6554,30 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Perspective Rotate",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Focal Length",
                         defaultValue: .float(28.0),
                         semantics: .float(.range(15.0...100.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Pitch",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-0.5235987755982988...0.5235987755982988)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Yaw",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-0.5235987755982988...0.5235987755982988)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Roll",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-0.7853981633974483...0.7853981633974483)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -6462,30 +6607,30 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Perspective Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Top Left",
                         defaultValue: .vector2(.init(x: 118.0, y: 484.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Top Right",
                         defaultValue: .vector2(.init(x: 646.0, y: 507.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Right",
                         defaultValue: .vector2(.init(x: 548.0, y: 140.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Left",
                         defaultValue: .vector2(.init(x: 155.0, y: 153.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -6515,30 +6660,30 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Perspective Transform",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Top Left",
                         defaultValue: .vector2(.init(x: 118.0, y: 484.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Top Right",
                         defaultValue: .vector2(.init(x: 646.0, y: 507.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Right",
                         defaultValue: .vector2(.init(x: 548.0, y: 140.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Left",
                         defaultValue: .vector2(.init(x: 155.0, y: 153.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -6568,37 +6713,37 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Perspective Transform with Extent",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Top Left",
                         defaultValue: .vector2(.init(x: 118.0, y: 484.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Top Right",
                         defaultValue: .vector2(.init(x: 646.0, y: 507.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Right",
                         defaultValue: .vector2(.init(x: 548.0, y: 140.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Bottom Left",
                         defaultValue: .vector2(.init(x: 155.0, y: 153.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -6641,8 +6786,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Chrome",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6668,8 +6818,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Fade",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6695,8 +6850,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Instant",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6722,8 +6882,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Mono",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6749,8 +6914,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Noir",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6776,8 +6946,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Process",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6803,8 +6978,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Tonal",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6830,8 +7010,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Photo Effect Transfer",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6857,14 +7042,15 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Pinch Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6892,8 +7078,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Pin Light Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6919,13 +7105,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Pixelate",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Scale", defaultValue: .float(8.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(8.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6952,19 +7138,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Pointillize",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(20.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7008,20 +7194,26 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius 1", defaultValue: .float(5.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Radius 2", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius 1", defaultValue: .float(5.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Radius 2",
+                        defaultValue: .float(100.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7074,22 +7266,23 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Ripple",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Shading Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Shading Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(50.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(50.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7121,14 +7314,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Rounded Rectangle Generator",
                 inputs: [
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Smoothness",
+                        defaultValue: .float(0.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7157,15 +7355,21 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Rounded Rectangle Stroke Generator",
                 inputs: [
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Smoothness", defaultValue: .float(0.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Smoothness",
+                        defaultValue: .float(0.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7194,8 +7398,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Row Average",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7220,7 +7424,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Saliency Map Filter",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -7243,7 +7447,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Sample Nearest",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -7267,8 +7471,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Saturation Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7294,8 +7498,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Screen Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7321,8 +7525,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Sepia Tone",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7348,9 +7552,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Shaded Material",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Shading Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Scale", defaultValue: .float(10.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Shading Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Scale", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7377,9 +7581,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Sharpen Luminance",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(1.69), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(1.69), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7406,12 +7610,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Signed Distance Gradient From Red Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Maximum Distance",
                         defaultValue: .float(10.0),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7438,19 +7642,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Sixfold Reflected Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7478,19 +7683,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Sixfold Rotated Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7522,25 +7728,25 @@ extension Nodes {
                         name: "Point 0",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 1",
                         defaultValue: .vector2(.init(x: 200.0, y: 200.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7568,7 +7774,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Sobel Gradients",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -7592,8 +7798,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Soft Light Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7619,8 +7825,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Source Atop",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7646,8 +7852,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Source In",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7673,8 +7879,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Source Out",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7700,8 +7906,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Source Over",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7727,49 +7933,79 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Spot Color",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center Color 1",
                         defaultValue: .color4(.init(red: 0.0784, green: 0.0627, blue: 0.0706, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Replacement Color 1",
                         defaultValue: .color4(.init(red: 0.4392, green: 0.1922, blue: 0.1961, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Closeness 1", defaultValue: .float(0.22), semantics: .default, editorVisibility: .all),
-                    .init(name: "Contrast 1", defaultValue: .float(0.98), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Closeness 1",
+                        defaultValue: .float(0.22),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Contrast 1",
+                        defaultValue: .float(0.98),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Center Color 2",
                         defaultValue: .color4(.init(red: 0.5255, green: 0.3059, blue: 0.3451, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Replacement Color 2",
                         defaultValue: .color4(.init(red: 0.9137, green: 0.5608, blue: 0.5059, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Closeness 2", defaultValue: .float(0.15), semantics: .default, editorVisibility: .all),
-                    .init(name: "Contrast 2", defaultValue: .float(0.98), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Closeness 2",
+                        defaultValue: .float(0.15),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Contrast 2",
+                        defaultValue: .float(0.98),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Center Color 3",
                         defaultValue: .color4(.init(red: 0.9216, green: 0.4549, blue: 0.3333, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Replacement Color 3",
                         defaultValue: .color4(.init(red: 0.9098, green: 0.7529, blue: 0.6078, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Closeness 3", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
-                    .init(name: "Contrast 3", defaultValue: .float(0.99), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Closeness 3",
+                        defaultValue: .float(0.5),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Contrast 3",
+                        defaultValue: .float(0.99),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7806,31 +8042,36 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Spot Light",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Light Position",
                         defaultValue: .vector3(.init(x: 400.0, y: 600.0, z: 150.0)),
                         semantics: .position3,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Light Points At",
                         defaultValue: .vector3(.init(x: 200.0, y: 200.0, z: 0.0)),
                         semantics: .position3,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Brightness", defaultValue: .float(3.0), semantics: .distance, editorVisibility: .all),
+                    .init(
+                        name: "Brightness",
+                        defaultValue: .float(3.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Concentration",
                         defaultValue: .float(0.1),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .opaqueColor,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7864,7 +8105,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "sRGB Tone Curve to Linear",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -7892,29 +8133,40 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.8, blue: 0.6, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(50.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Cross Scale", defaultValue: .float(15.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(50.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Cross Scale",
+                        defaultValue: .float(15.0),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Cross Angle",
                         defaultValue: .float(0.6),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Cross Opacity",
                         defaultValue: .float(-2.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Cross Width", defaultValue: .float(2.5), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Epsilon", defaultValue: .float(-2.0), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Cross Width",
+                        defaultValue: .float(2.5),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Epsilon", defaultValue: .float(-2.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7946,12 +8198,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Straighten",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -7978,19 +8230,24 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Stretch Crop",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Size",
                         defaultValue: .vector2(.init(x: 1280.0, y: 720.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Crop Amount", defaultValue: .float(0.25), semantics: .default, editorVisibility: .all),
+                    .init(
+                        name: "Crop Amount",
+                        defaultValue: .float(0.25),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Center Stretch Amount",
                         defaultValue: .float(0.25),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -8023,21 +8280,22 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 0",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color 1",
                         defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Sharpness", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Sharpness", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8066,8 +8324,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Subtract Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8097,33 +8355,38 @@ extension Nodes {
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Sun Radius", defaultValue: .float(40.0), semantics: .distance, editorVisibility: .all),
+                    .init(
+                        name: "Sun Radius",
+                        defaultValue: .float(40.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Maximum Striation Radius",
                         defaultValue: .float(2.58),
                         semantics: .distance,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Strength",
                         defaultValue: .float(0.5),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Striation Contrast",
                         defaultValue: .float(1.375),
                         semantics: .default,
-                        editorVisibility: .all
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8154,28 +8417,29 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Swipe",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Target Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Target Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .opaqueColor,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Time",
                         defaultValue: .float(0.0),
                         semantics: .float(.range(0.0...1.0)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Opacity", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Opacity", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8207,18 +8471,18 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Temperature and Tint",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Neutral",
                         defaultValue: .vector2(.init(x: 6500.0, y: 0.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Target Neutral",
                         defaultValue: .vector2(.init(x: 6500.0, y: 0.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -8245,7 +8509,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Thermal",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -8269,38 +8533,43 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Tone Curve",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Point 0",
                         defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 1",
                         defaultValue: .vector2(.init(x: 0.25, y: 0.25)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 2",
                         defaultValue: .vector2(.init(x: 0.5, y: 0.5)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 3",
                         defaultValue: .vector2(.init(x: 0.75, y: 0.75)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Point 4",
                         defaultValue: .vector2(.init(x: 1.0, y: 1.0)),
                         semantics: .offset,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
-                    .init(name: "Extrapolate", defaultValue: .bool(false), semantics: .boolean, editorVisibility: .all),
+                    .init(
+                        name: "Extrapolate",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8331,13 +8600,13 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Tone Map Headroom",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Source Headroom", type: .float, semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Source Headroom", type: .float, semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Target Headroom",
                         defaultValue: .float(1.0),
                         semantics: .default,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -8365,20 +8634,26 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Torus Lens Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(160.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Refraction", defaultValue: .float(1.7), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(160.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Width", defaultValue: .float(80.0), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Refraction",
+                        defaultValue: .float(1.7),
+                        semantics: .default,
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -8420,19 +8695,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Triangle Kaleidoscope",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Point",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Size", defaultValue: .float(700.0), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Size", defaultValue: .float(700.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Rotation",
                         defaultValue: .float(5.924285296593801),
                         semantics: .float(.angle(0.0...6.283185307179586)),
-                        editorVisibility: .all
-                    ), .init(name: "Decay", defaultValue: .float(0.85), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ), .init(name: "Decay", defaultValue: .float(0.85), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8461,19 +8736,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Triangle Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8505,19 +8781,20 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Twelvefold Reflected Tile",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Angle",
                         defaultValue: .float(0.0),
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
-                        editorVisibility: .all
-                    ), .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Width", defaultValue: .float(100.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8545,24 +8822,25 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Twirl Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(3.141592653589793),
                         semantics: .float(.angle(-12.566370614359172...12.566370614359172)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -8603,9 +8881,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Unsharp Mask",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(2.5), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(2.5), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8632,8 +8910,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vibrance",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Amount", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Amount", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8659,9 +8937,9 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vignette",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(0.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Radius", defaultValue: .float(1.0), semantics: .distance, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
+                    .init(name: "Radius", defaultValue: .float(1.0), semantics: .distance, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8688,15 +8966,16 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vignette Effect",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorVisibility: .all),
-                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorVisibility: .all),
-                    .init(name: "Falloff", defaultValue: .float(0.5), semantics: .default, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(150.0), semantics: .distance, editorPlacement: .default),
+                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(name: "Falloff", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8725,8 +9004,8 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vivid Light Blend Mode",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
-                    .init(name: "Background Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8752,24 +9031,25 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Vortex Distortion",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Angle",
                         defaultValue: .float(56.548667764616276),
                         semantics: .float(.angle(-94.24777960769379...94.24777960769379)),
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -8810,12 +9090,12 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "White Point Adjust",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Color",
                         defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
                         semantics: .color,
-                        editorVisibility: .all
+                        editorPlacement: .default
                     ),
                 ],
                 outputs: [
@@ -8841,7 +9121,7 @@ extension Nodes {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "X-Ray",
-                inputs: [.init(name: "Image", type: .image, semantics: .image, editorVisibility: .all)],
+                inputs: [.init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)],
                 outputs: [
                     .init(name: "Output Image", type: .image)
                 ]
@@ -8865,18 +9145,19 @@ extension Nodes {
             let schema = NodeSchema(
                 name: "Zoom Blur",
                 inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorVisibility: .all),
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Center",
                         defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
                         semantics: .position2,
-                        editorVisibility: .all
-                    ), .init(name: "Amount", defaultValue: .float(20.0), semantics: .distance, editorVisibility: .all),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Amount", defaultValue: .float(20.0), semantics: .distance, editorPlacement: .default),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
                         semantics: .boolean,
-                        editorVisibility: .inspectorOnly
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [

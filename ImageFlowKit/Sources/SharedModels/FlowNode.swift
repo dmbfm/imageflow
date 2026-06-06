@@ -6,6 +6,7 @@
 //
 
 import Backend
+import Helpers
 import SwiftUI
 import Values
 
@@ -30,37 +31,19 @@ public struct FlowNode: Sendable, Equatable, Codable {
         public var label: String
         public var index: Int
         public var value: Value
-        public var semantics: ValueSemantics
         public var connected: Bool
-        public var visibility: Visibility?
         public var id: Int { self.index }
-
-        public enum Visibility: Hashable, Sendable, Codable {
-            case all
-            case inspectorOnly
-
-            init(_ value: InputPropertySchema.EditorVisibility) {
-                switch value {
-                case .all: self = .all
-                case .inspectorOnly: self = .inspectorOnly
-                }
-            }
-        }
 
         public init(
             label: String,
             index: Int,
             value: Value,
-            semantics: ValueSemantics,
             connected: Bool,
-            visibility: Visibility? = .all
         ) {
             self.label = label
             self.index = index
             self.value = value
-            self.semantics = semantics
             self.connected = connected
-            self.visibility = visibility
         }
     }
 
@@ -110,9 +93,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
                 label: input.name,
                 index: index,
                 value: input.defaultValue ?? Value.defaultValue(forType: input.type),
-                semantics: input.semantics,
                 connected: false,
-                visibility: .init(input.editorVisibility),
             )
         }
         self.outputs = kind.schema.outputs.enumerated().map { (index, output) in
@@ -354,5 +335,39 @@ public struct FlowNode: Sendable, Equatable, Codable {
         let defaultValue = inputSchema.defaultValue ?? inputSchema.type.defaultValue
 
         return self.inputs[index].value != defaultValue
+    }
+
+    // MARK: - Filtering
+
+    public func inputs(withNodeViewPlacement placement: NodeInputSchema.EditorPlacement.NodeView) -> [Input] {
+        let schema = self.schema
+        return self.inputs.filter({ schema.inputs[$0.index].editorPlacement.nodeView == placement })
+    }
+
+    public func inputs(withInspectorPlacement placement: NodeInputSchema.EditorPlacement.Inspector) -> [Input] {
+        let schema = self.schema
+        return self.inputs.filter({ schema.inputs[$0.index].editorPlacement.inspector == placement })
+    }
+
+    // MARK: - Schema
+
+    public var schema: NodeSchema {
+        self.kind.schema
+    }
+
+    public func schema(forInput index: Int) -> NodeInputSchema? {
+        self.schema.inputs[tryGetAt: index]
+    }
+
+    public func schemaWithFallback(forInput index: Int) -> NodeInputSchema {
+        self.schema.inputs[tryGetAt: index] ?? .init(name: "Missing Schema", type: .float, semantics: .default)
+    }
+
+    public func schema(forOuptut index: Int) -> NodeOutputSchema? {
+        self.schema.outputs[tryGetAt: index]
+    }
+
+    public func semantics(forInput index: Int) -> ValueSemantics? {
+        self.schema(forInput: index)?.semantics
     }
 }

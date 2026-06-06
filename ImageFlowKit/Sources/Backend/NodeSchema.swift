@@ -15,16 +15,16 @@ public struct NodeSchema: Sendable {
     /// The display name of the node.
     public var displayName: String
     /// The input properties of the node.
-    public var inputs: [InputPropertySchema]
+    public var inputs: [NodeInputSchema]
     /// The output properties of the node.
-    public var outputs: [OutputPropertySchema]
+    public var outputs: [NodeOutputSchema]
 
     /// Creates a new `NodeSchema`.
     public init(
         name: String,
         displayName: String? = nil,
-        inputs: [InputPropertySchema],
-        outputs: [OutputPropertySchema],
+        inputs: [NodeInputSchema],
+        outputs: [NodeOutputSchema],
     ) {
         self.name = name
         self.displayName = displayName ?? name
@@ -71,7 +71,7 @@ extension NodeSchema {
 }
 
 /// A schema for a node's input property.
-public struct InputPropertySchema: Sendable, Hashable {
+public struct NodeInputSchema: Sendable, Hashable {
     /// The name of the property.
     public var name: String
     /// The type of the property.
@@ -82,8 +82,31 @@ public struct InputPropertySchema: Sendable, Hashable {
     public var range: ClosedRange<Double>?
     /// The `ValueSemantics` associated with this input.
     public var semantics: ValueSemantics
-    ///
-    public var editorVisibility: EditorVisibility
+    /// The placement of this input in the various components of the app/editor.
+    public var editorPlacement: EditorPlacement
+
+    public struct EditorPlacement: Sendable, Hashable {
+        public var nodeView: NodeView
+        public var inspector: Inspector
+
+        public enum NodeView: Sendable, Hashable {
+            case visible
+            case hidden
+        }
+
+        public enum Inspector: Sendable, Hashable {
+            case inputs
+            case options
+            case controls
+        }
+
+        public init(nodeView: NodeView, inspector: Inspector) {
+            self.nodeView = nodeView
+            self.inspector = inspector
+        }
+
+        public static let `default`: EditorPlacement = .init(nodeView: .visible, inspector: .inputs)
+    }
 
     public enum EditorVisibility: Sendable, Hashable {
         case all
@@ -96,14 +119,14 @@ public struct InputPropertySchema: Sendable, Hashable {
         type: ValueType,
         semantics: ValueSemantics = .default,
         range: ClosedRange<Double>? = nil,
-        editorVisibility: EditorVisibility = .all
+        editorPlacement: EditorPlacement = .default
     ) {
         self.name = name
         self.type = type
         self.defaultValue = nil
         self.semantics = semantics
         self.range = range
-        self.editorVisibility = editorVisibility
+        self.editorPlacement = editorPlacement
     }
 
     /// Creates a new `InputPropertySchema` with the given name, and default value.
@@ -112,20 +135,20 @@ public struct InputPropertySchema: Sendable, Hashable {
         defaultValue: Value,
         semantics: ValueSemantics = .default,
         range: ClosedRange<Double>? = nil,
-        editorVisibility: EditorVisibility = .all
+        editorPlacement: EditorPlacement = .default
     ) {
         self.name = name
         self.type = defaultValue.type
         self.defaultValue = defaultValue
         self.semantics = semantics
         self.range = range
-        self.editorVisibility = editorVisibility
+        self.editorPlacement = editorPlacement
     }
 }
 
 /// A schema for a node's output property. Different from `InputPropertySchema`
 /// in that it doesn't have a default value, only a name and a type.
-public struct OutputPropertySchema: Sendable, Hashable {
+public struct NodeOutputSchema: Sendable, Hashable {
     /// The name of the property.
     public var name: String
     /// The type of the property.

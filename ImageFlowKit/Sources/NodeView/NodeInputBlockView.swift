@@ -1,3 +1,4 @@
+import Backend
 import Helpers
 import SharedModels
 import SwiftUI
@@ -13,20 +14,62 @@ public protocol NodeInputBlockViewDelegate: AnyObject {
 
 final class NodeInputBlockView: XViewEx {
 
-    // MARK: - Exposed Properties
+    // MARK: - ViewModel
 
-    var node: UUID
+    struct ViewModel: Equatable {
+        var node: UUID
+        var inputs: [NodeInputRowView.ViewModel]
 
-    var inputs: [FlowNode.Input] {
-        didSet {
-            if self.inputs != oldValue {
-                self.update()
+        init(node: UUID, inputs: [NodeInputRowView.ViewModel]) {
+            self.node = node
+            self.inputs = inputs
+        }
+
+        init(node: FlowNode) {
+            self.node = node.id
+            self.inputs = node.inputs(withNodeViewPlacement: .visible).map({ input in
+                .init(
+                    input: input,
+                    semantics: node.semantics(forInput: input.index) ?? .default,
+                    drawPortAsConnected: false
+                )
+            })
+        }
+
+        mutating func setDrawPortAsConnected(index: Int, value: Bool) {
+            if let index = self.inputs.firstIndex(where: { $0.input.index == index }) {
+                self.inputs[index].drawPortAsConnected = value
+            }
+        }
+
+        mutating func update(_ node: FlowNode) {
+            let visibleInputs = node.inputs(withNodeViewPlacement: .visible)
+            let differentNode = node.id != self.node
+            let differentInputCount = visibleInputs.count != self.inputs.count
+            let needsReload = differentNode || differentInputCount
+
+            if needsReload {
+                self = .init(node: node)
+            } else {
+                self.inputs = zip(self.inputs, visibleInputs).map({ (vmInput, nodeInput) in
+                    .init(
+                        input: nodeInput,
+                        semantics: node.semantics(forInput: nodeInput.index) ?? .default,
+                        drawPortAsConnected: vmInput.drawPortAsConnected
+                    )
+                })
             }
         }
     }
 
-    var visibleInputs: [FlowNode.Input] {
-        self.inputs.filter({ $0.visibility == .all })
+    // MARK: - Exposed Properties
+
+    var vm: ViewModel {
+        didSet {
+            if self.vm != oldValue {
+                self.update()
+            }
+        }
     }
 
     var onEvent: ((Event) -> ())?
@@ -88,13 +131,11 @@ final class NodeInputBlockView: XViewEx {
     // MARK: - Init
 
     init(
-        node: UUID,
-        _ inputs: [FlowNode.Input],
+        _ vm: ViewModel,
         delegate: NodeInputBlockViewDelegate? = nil,
         style: NodeInputRowView.Style = .default,
     ) {
-        self.node = node
-        self.inputs = inputs
+        self.vm = vm
         self.style = style
         self.delegate = delegate
 
@@ -110,16 +151,24 @@ final class NodeInputBlockView: XViewEx {
     // MARK: - Updating
 
     private func update() {
-        if self.visibleInputs.count != self.rows.count
-            || self.rows.first(where: { (k, v) in
-                v.input.visibility == .all && v.input.value.type != self.inputs[k].value.type
-            }) != nil
-        {
+        var needsRepopulateRows: Bool {
+            var countChanged: Bool {
+                self.vm.inputs.count != self.rows.count
+            }
+            var anyInputTypeChanged: Bool {
+                self.vm.inputs.firstIndex(where: { vm in
+                    !(self.rows[vm.input.index]?.vm.sameValueType(as: vm) ?? false)
+                }) != nil
+            }
+            return countChanged || anyInputTypeChanged
+        }
+
+        if needsRepopulateRows {
             self.repopulateRows()
         }
 
         for (index, row) in self.rows {
-            row.input = self.inputs[index]
+            row.vm = self.vm.inputs[index]
             row.setNeedsLayout()
         }
     }
@@ -143,17 +192,17 @@ final class NodeInputBlockView: XViewEx {
     }
 
     func populateRows() {
-        for (idx, input) in inputs.enumerated() {
-            guard input.visibility == .all else { continue }
-            let delegate = RowDelegate(node: self.node, index: idx, delegate: self.delegate)
-            let row = NodeInputRowView(input, delegate: delegate, style: self.style)
+        for vm in self.vm.inputs {
+            let index = vm.input.index
+            let delegate = RowDelegate(node: self.vm.node, index: index, delegate: self.delegate)
+            let row = NodeInputRowView(vm, delegate: delegate, style: self.style)
             row.clipsToBounds = false
             row.onEvent = { [weak self] event in
                 switch event {
                 case .valueDidChange(let value):
-                    self?.onEvent?(.valueDidChange(input.index, value))
+                    self?.onEvent?(.valueDidChange(index, value))
                 case .dragPort(let data):
-                    self?.onEvent?(.dragPort(input.index, data))
+                    self?.onEvent?(.dragPort(index, data))
                 case .sizeDidChange:
                     self?.updateSize()
                 case .keyboardWillShow(windowVerticalOverlap: let value, let duration):
@@ -162,10 +211,10 @@ final class NodeInputBlockView: XViewEx {
                     self?.delegate?.statusBarMessage(message: message)
                 }
             }
-            if let makeContext = self.makeNodeControlContext, let context = makeContext(idx) {
+            if let makeContext = self.makeNodeControlContext, let context = makeContext(index) {
                 row.controlView.context = context
             }
-            self.rows[idx] = row
+            self.rows[index] = row
             self.delegates.append(delegate)
             self.addSubview(row)
         }
@@ -243,12 +292,21 @@ extension NodeInputBlockView {
     fileprivate struct Preview: XViewRepresentable {
         func makeView(context: Context) -> NodeInputBlockView {
             let view = NodeInputBlockView(
-                node: .init(),
-                [
-                    .init(label: "Some number", index: 0, value: .float(0.5), semantics: .default, connected: false),
-                    .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
-                    .init(label: "Other", index: 0, value: .float(0.1234), semantics: .default, connected: false),
-                ]
+                .init(
+                    node: .init(),
+                    inputs: [
+                        .init(
+                            input: .init(label: "Some number", index: 0, value: .float(0.5), connected: false),
+                            semantics: .default,
+                            drawPortAsConnected: false
+                        ),
+                        .init(
+                            input: .init(label: "Other", index: 1, value: .float(0.1234), connected: false),
+                            semantics: .default,
+                            drawPortAsConnected: false
+                        ),
+                    ]
+                )
             )
             return view
         }

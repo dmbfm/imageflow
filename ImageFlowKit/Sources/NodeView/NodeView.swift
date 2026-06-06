@@ -97,8 +97,7 @@ public final class NodeView: XViewEx, CanvasNodeView {
 
     lazy var inputBlockView: NodeInputBlockView = {
         let view = NodeInputBlockView(
-            node: self.node.id,
-            self.node.inputs,
+            .init(node: self.node),
             delegate: self.delegate,
             style: self.style.inputRow
         )
@@ -173,7 +172,7 @@ public final class NodeView: XViewEx, CanvasNodeView {
 
     private func update() {
         self.titleView.vm = self.titleModel
-        self.inputBlockView.inputs = self.node.inputs
+        self.inputBlockView.vm.update(self.node)
         self.outputBlockView.outputs = self.node.outputs
     }
 
@@ -396,7 +395,7 @@ extension NodeView {
     public func setDrawPortAsConnected(_ slot: PortSlot, _ value: Bool) {
         switch slot {
         case .input(let index):
-            self.inputBlockView.rows[index]?.drawPortAsConnected = value
+            self.inputBlockView.vm.setDrawPortAsConnected(index: index, value: value)
         case .output(let index):
             self.outputBlockView.rows[index].drawPortAsConnected = value
         }
