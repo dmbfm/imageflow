@@ -6,6 +6,7 @@ protocol NodeInputControlView: XView {
     var value: Value { get set }
     var connected: Bool { get set }
     var hasChanges: Bool { get set }
+    var showPortButton: Bool { get set }
     var context: NodeInputControlContext? { get set }
 }
 

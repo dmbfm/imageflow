@@ -3,6 +3,9 @@ import XKit
 
 final class NodeInputsView: XViewEx {
 
+    let title: String
+    let showPortButton: Bool
+
     private(set) var inputViews: [any NodeInputControlView] = []
 
     lazy var stackView: XStackView = {
@@ -14,19 +17,16 @@ final class NodeInputsView: XViewEx {
     }()
 
     lazy var titleLabel: XLabel = {
-        var label = XLabel(labelWithString: "Inputs")
+        var label = XLabel(labelWithString: self.title)
         label.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .bold)
         return label
     }()
 
-    init() {
+    init(title: String = "Inputs", showPortButton: Bool = true) {
+        self.title = title
+        self.showPortButton = showPortButton
+
         super.init(frame: .zero)
-
-        // self.withLayer({
-        //     $0.borderWidth = 1
-        //     $0.borderColor = XColor.systemRed.withAlphaComponent(0.2).cgColor
-        // })
-
         self.addSubview(self.stackView)
 
         NSLayoutConstraint.activateConstraint(self.stackView, toFill: self)
@@ -46,6 +46,7 @@ final class NodeInputsView: XViewEx {
     }
 
     func addInputView(_ view: any NodeInputControlView) {
+        view.showPortButton = self.showPortButton
         self.stackView.addArrangedSubview(view)
         self.inputViews.append(view)
         view.translatesAutoresizingMaskIntoConstraints = false

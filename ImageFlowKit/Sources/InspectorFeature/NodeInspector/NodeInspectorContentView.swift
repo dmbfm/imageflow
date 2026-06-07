@@ -19,19 +19,13 @@ class NodeInspectorContentView: XViewEx {
             self.nodeTypeRowView,
             self.nodeInputsView,
             self.nodeOutputsView,
+            self.nodeOptionsView,
         ])
+
         view.orientation = .vertical
         view.alignment = .leading
         view.translatesAutoresizingMaskIntoConstraints = false
-
-        view.setCustomSpacing(16, after: self.nodeTitleRowView)
-        view.setCustomSpacing(16, after: self.nodeTypeRowView)
-        view.setCustomSpacing(16, after: self.nodeInputsView)
-
-        // view.withLayer({
-        //     $0.borderWidth = 1
-        //     $0.borderColor = .red
-        // })
+        view.spacing = 16
 
         return view
     }()
@@ -47,7 +41,12 @@ class NodeInspectorContentView: XViewEx {
     }()
 
     lazy var nodeInputsView: NodeInputsView = {
-        let view = NodeInputsView()
+        let view = NodeInputsView(title: "Inputs", showPortButton: true)
+        return view
+    }()
+
+    lazy var nodeOptionsView: NodeInputsView = {
+        let view = NodeInputsView(title: "Options", showPortButton: false)
         return view
     }()
 
@@ -78,6 +77,9 @@ class NodeInspectorContentView: XViewEx {
         ])
         NSLayoutConstraint.activate([
             self.nodeInputsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+        NSLayoutConstraint.activate([
+            self.nodeOptionsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
         NSLayoutConstraint.activate([
             self.nodeOutputsView.trailingAnchor.constraint(equalTo: self.trailingAnchor)

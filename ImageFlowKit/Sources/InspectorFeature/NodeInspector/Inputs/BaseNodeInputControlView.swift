@@ -29,6 +29,11 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
         set { self.titleView.hasChanges = newValue }
     }
 
+    var showPortButton: Bool {
+        get { self.titleView.showPortButton }
+        set { self.titleView.showPortButton = newValue }
+    }
+
     var blockView: BlockView
     var titleView: NodeInputTitleView
 

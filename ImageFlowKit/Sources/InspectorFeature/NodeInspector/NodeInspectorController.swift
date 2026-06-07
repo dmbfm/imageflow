@@ -54,6 +54,10 @@ class NodeInspectorController: XViewController {
         self.contentView.nodeInputsView
     }
 
+    var nodeOptionsView: NodeInputsView {
+        self.contentView.nodeOptionsView
+    }
+
     var nodeOutputsView: NodeOutputsView {
         self.contentView.nodeOutputsView
     }
@@ -136,8 +140,10 @@ class NodeInspectorController: XViewController {
         self.updateRoute()
         self.updateNodeTitleRowView()
         self.updateNodeTypeRowView()
-        self.updateInputs()
+        self.update(inputsView: self.nodeInputsView, placement: .inputs)
+        self.update(inputsView: self.nodeOptionsView, placement: .options)
         self.updateOutputs()
+        // self.updateOptions()
     }
 
     func onNodeOutputControlEvent(_ port: Int, _ event: NodeOutputControlEvent) {
@@ -211,31 +217,39 @@ class NodeInspectorController: XViewController {
         }
     }
 
-    func updateInputs() {
+    func update(inputsView: NodeInputsView, placement: NodeInputSchema.EditorPlacement.Inspector) {
         guard let node = self.vm.node else { return }
+        let inputs = node.inputs(withInspectorPlacement: placement)
 
-        let needsRepopulate =
-            node.inputs.count != self.nodeInputsView.inputViews.count
-            || zip(node.inputs, nodeInputsView.inputViews).first(where: { (a, b) in a.value.type != b.value.type })
-                != nil
+        inputsView.isHidden = inputs.isEmpty
+
+        var needsRepopulate: Bool {
+            var differentCount: Bool { inputs.count != inputsView.inputViews.count }
+            var differentTypes: Bool {
+                zip(node.inputs, inputsView.inputViews).first(where: { (a, b) in a.value.type != b.value.type })
+                    != nil
+            }
+
+            return differentCount || differentTypes
+        }
 
         if needsRepopulate {
-            self.nodeInputsView.removeAllInputViews()
+            inputsView.removeAllInputViews()
 
-            for input in node.inputs {
+            for input in inputs {
                 let view = self.view(
                     forInput: input,
                     schema: node.schemaWithFallback(forInput: input.index)
                 )
                 view.context = .init(self, input.index)
                 view.hasChanges = node.hasChanges(forInput: input.index)
-                self.nodeInputsView.addInputView(view)
+                inputsView.addInputView(view)
             }
 
             return
         }
 
-        for (idx, view) in self.nodeInputsView.inputViews.enumerated() {
+        for (idx, view) in inputsView.inputViews.enumerated() {
             if view.value != node.inputs[idx].value {
                 view.value = node.inputs[idx].value
             }

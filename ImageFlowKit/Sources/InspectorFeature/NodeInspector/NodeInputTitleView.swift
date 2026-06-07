@@ -84,6 +84,11 @@ class NodePropertyTitleView: XViewEx {
 class NodeInputTitleView: NodePropertyTitleView {
 
     var context: NodeInputControlContext?
+    var showPortButton: Bool = true {
+        didSet {
+            self.portButtonView.isHidden = !self.showPortButton
+        }
+    }
     var hasChanges: Bool = false {
         didSet {
             self.restoreButtonView.isHidden = !self.hasChanges

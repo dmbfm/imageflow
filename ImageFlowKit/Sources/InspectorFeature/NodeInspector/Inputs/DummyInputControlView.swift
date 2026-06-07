@@ -19,6 +19,11 @@ class DummyInputControlView: XViewEx, NodeInputControlView {
         set { self.titleView.hasChanges = newValue }
     }
 
+    var showPortButton: Bool {
+        get { self.titleView.showPortButton }
+        set { self.titleView.showPortButton = newValue }
+    }
+
     var value: Value
     var type: ValueType { self.value.type }
     var context: NodeInputControlContext? {
