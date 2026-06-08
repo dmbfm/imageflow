@@ -86,7 +86,7 @@ public struct FlowNode: Sendable, Equatable, Codable {
     ///   - name: The node's name.
     public init(id: UUID = UUID(), kind: NodeKind, name: String? = nil) {
         self.id = id
-        self.name = name ?? kind.displayName
+        self.name = name ?? kind.defaultNodeName
         self.kind = kind
         self.inputs = kind.schema.inputs.enumerated().map { (index, input) in
             .init(

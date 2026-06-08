@@ -15,6 +15,16 @@ import AppKit
 #endif
 
 public extension NodeKind {
+
+    var defaultNodeName: String {
+        switch self {
+        case .math(.addNode(_)): "Add"
+        case .math(.mulNode(_)): "Multiply"
+        case .math(.subNode(_)): "Subtract"
+        default: self.displayName
+        }
+    }
+
     var displayName: String {
         switch self {
         case .valueNode(let type):
