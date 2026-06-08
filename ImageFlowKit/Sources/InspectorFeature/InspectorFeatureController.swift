@@ -12,6 +12,7 @@ public final class InspectorFeatureController: XViewController {
     var contentView: ContentView!
     var nodeInspectorVC: NodeInspectorController!
     var canvasInspectorVC: CanvasInspectorController!
+    var undoHistoryInspectorVC: UndoHistoryInspectorController!
 
     var tabView: InspectorTabView {
         self.contentView.tabView
@@ -51,16 +52,21 @@ public final class InspectorFeatureController: XViewController {
         )
         self.tabView.addTabViewItem(nodeInspectorItem)
 
-        self.canvasInspectorVC = CanvasInspectorController()
+        self.canvasInspectorVC = CanvasInspectorController(self.flow)
         let canvasInspectorItem = NSTabViewItem(viewController: self.canvasInspectorVC)
         canvasInspectorItem.label = ""
         canvasInspectorItem.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)
         self.tabView.addTabViewItem(canvasInspectorItem)
 
-        // let redVC = NSHostingController(rootView: Color.red)
-        // let item = NSTabViewItem(viewController: redVC)
-        // item.label = ""
-        // item.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)
-        // self.tabView.addTabViewItem(item)
+        self.undoHistoryInspectorVC = UndoHistoryInspectorController()
+        let undoHistoryItem = NSTabViewItem(viewController: self.undoHistoryInspectorVC)
+        undoHistoryItem.label = ""
+        undoHistoryItem.image = NSImage(
+            systemSymbolName: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+            accessibilityDescription: nil
+        )
+        self.tabView.addTabViewItem(undoHistoryItem)
     }
 }
+
+class UndoHistoryInspectorController: XViewController {}
