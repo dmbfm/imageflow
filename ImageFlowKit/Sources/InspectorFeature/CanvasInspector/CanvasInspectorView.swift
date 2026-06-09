@@ -1,3 +1,4 @@
+import SharedModels
 import XKit
 
 final class CanvasInspectorView: ScrollableStackXView {
@@ -5,6 +6,13 @@ final class CanvasInspectorView: ScrollableStackXView {
     struct ViewModel {
         var nodeCount: Int = 0
         var edgeCount: Int = 0
+        var viewport: CanvasViewportModel = .init(origin: .zero, scale: 1.0)
+    }
+
+    var vm: ViewModel = .init() {
+        didSet {
+            self.update()
+        }
     }
 
     lazy var titleRowView: XLabel = {
@@ -47,6 +55,7 @@ final class CanvasInspectorView: ScrollableStackXView {
     lazy var positionRowView: NodeVectorInputControlView = {
         let view = NodeVectorInputControlView(label: "Viewport Position", value: .vector2(.init(x: 128.12, y: 50.0)))
         view.showPortButton = false
+        // view.delegate = self
         // view.context = .init(NodeInspectorController, Int)
         return view
     }()
@@ -71,5 +80,9 @@ final class CanvasInspectorView: ScrollableStackXView {
         NSLayoutConstraint.activate([
             self.positionRowView.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor)
         ])
+    }
+
+    func update() {
+        self.positionRowView.value = .vector2(.init(x: self.vm.viewport.origin.x, y: self.vm.viewport.origin.y))
     }
 }

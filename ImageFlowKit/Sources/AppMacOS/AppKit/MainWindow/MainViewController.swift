@@ -42,8 +42,12 @@ final class MainViewController: NSSplitViewController {
         self.detailVC.previewVC
     }
 
-    var canvasViewportPublisher: PassthroughSubject<CanvasView.Viewport, Never> {
-        self.detailVC.canvasVC.viewportPublisher
+    var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
+        .init(
+            self.detailVC.canvasVC.viewportPublisher.map({ viewport in
+                .init(origin: viewport.origin, scale: viewport.scale)
+            })
+        )
     }
 
     // MARK: - Lazy Properties

@@ -52,7 +52,7 @@ public final class InspectorFeatureController: XViewController {
         )
         self.tabView.addTabViewItem(nodeInspectorItem)
 
-        self.canvasInspectorVC = CanvasInspectorController(self.flow)
+        self.canvasInspectorVC = CanvasInspectorController(self.flow, self.coordinator)
         let canvasInspectorItem = NSTabViewItem(viewController: self.canvasInspectorVC)
         canvasInspectorItem.label = ""
         canvasInspectorItem.image = NSImage(systemSymbolName: "circle.grid.3x3.fill", accessibilityDescription: nil)

@@ -8,11 +8,9 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
         }
     }
 
-    var context: NodeInputControlContext? {
-        didSet {
-            self.titleView.context = self.context
-        }
-    }
+    weak var delegate: (any NodeInputControlDelegate)?
+
+    var portIndex: Int = -1
 
     var label: String {
         get { self.titleView.name }
@@ -35,6 +33,7 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
     }
 
     var blockView: BlockView
+
     var titleView: NodeInputTitleView
 
     init(label: String, value: Value, connected: Bool = false) {
@@ -47,6 +46,15 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
 
         self.titleView.name = label
         self.titleView.connected = connected
+        self.titleView.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .portButtonClicked:
+                self.delegate?.nodeInputControlPortButtonClicked(self)
+            case .restoreButtonClicked:
+                self.delegate?.nodeInputControlRestoreButtonClicked(self)
+            }
+        }
 
         self.addSubview(self.blockView)
         NSLayoutConstraint.activateConstraint(self.blockView, toFill: self)
@@ -57,14 +65,9 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
     }
 
     func setValue(newValue: Value, oldValue: Value?, commit: Bool) {
-        self.context?.onEvent(
-            .valueDidChange(
-                .init(
-                    newValue: newValue,
-                    oldValue: oldValue,
-                    commit: commit
-                )
-            )
+        self.delegate?.nodeInputControl(
+            self,
+            valueDidChange: .init(newValue: newValue, oldValue: oldValue, commit: commit)
         )
     }
 

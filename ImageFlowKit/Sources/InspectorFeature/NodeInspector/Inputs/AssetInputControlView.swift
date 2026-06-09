@@ -8,15 +8,12 @@ final class NodeAssetInputControlView: BaseNodeInputControlView {
 
     var assetButtonLabel: String {
         switch self.value {
-        case .image(.asset(let id)), .lut(.asset(let id)): self.context?.displayName(forAsset: id) ?? "\(id)"
-        case .image(.nodeOutput), .lut(.nodeOutput): ""
-        default: "Select..."
-        }
-    }
-
-    override var context: NodeInputControlContext? {
-        didSet {
-            self.update()
+        case .image(.asset(let id)), .lut(.asset(let id)):
+            self.delegate?.nodeInputControl(self, displayNameForAsset: id) ?? "\(id)"
+        case .image(.nodeOutput), .lut(.nodeOutput):
+            ""
+        default:
+            "Select..."
         }
     }
 
@@ -74,7 +71,7 @@ final class NodeAssetInputControlView: BaseNodeInputControlView {
     }
 
     @objc func assetButtonHandler() {
-        self.context?.onEvent(.openAssetPicker)
+        self.delegate?.nodeInputControlOpenAssetPicker(self)
     }
 
     @objc func removeButtonHandler() {

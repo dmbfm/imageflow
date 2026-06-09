@@ -154,35 +154,6 @@ class NodeInspectorController: XViewController {
         }
     }
 
-    func onNodeInputControlEvent(_ port: Int, _ event: NodeInputControlEvent) {
-        switch event {
-        case .openAssetPicker:
-            guard let node = self.node,
-                let assetKind = node.inputs[tryGetAt: port]?.value.type.assetKind
-            else { return }
-            self.coordinator.perform(userAction: .openAssetPicker(node: node.id, portIndex: port, kind: assetKind))
-        case .portButtonClicked:
-            guard let node = self.node else { return }
-            self.flow.select(nodeConnectedToNode: node.id, atInputPort: port)
-        case .restoreButtonClicked:
-            guard let node = self.node else { return }
-            self.flow.restoreDefaultValue(id: node.id, index: port, undoManager: self.undoManager)
-            self.undoManager?.setActionName("Restore Default Value")
-        case .valueDidChange(let change):
-            guard let node = self.node else { return }
-            self.flow.setNodeValue(
-                id: node.id,
-                index: port,
-                oldValue: change.oldValue,
-                newValue: change.newValue,
-                undoManager: change.commit ? self.undoManager : nil
-            )
-            if change.commit {
-                self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
-            }
-        }
-    }
-
     func updateOutputs() {
         guard let node = self.vm.node else { return }
 
@@ -241,8 +212,9 @@ class NodeInspectorController: XViewController {
                     forInput: input,
                     schema: node.schemaWithFallback(forInput: input.index)
                 )
-                view.context = .init(self, input.index)
+                view.portIndex = input.index
                 view.hasChanges = node.hasChanges(forInput: input.index)
+                view.delegate = self
                 inputsView.addInputView(view)
             }
 
@@ -460,6 +432,45 @@ class NodeInspectorController: XViewController {
 }
 
 // MARK: - NodeTitleRowView.Delegate
+
+extension NodeInspectorController: NodeInputControlDelegate {
+    func nodeInputControl(_ sender: any NodeInputControlView, valueDidChange change: ValueChange) {
+        guard let node = self.node else { return }
+        self.flow.setNodeValue(
+            id: node.id,
+            index: sender.portIndex,
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            undoManager: change.commit ? self.undoManager : nil
+        )
+        if change.commit {
+            self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
+        }
+    }
+
+    func nodeInputControl(_ sender: any NodeInputControlView, displayNameForAsset asset: UUID) -> String? {
+        self.coordinator.assetTitle(asset)
+    }
+
+    func nodeInputControlPortButtonClicked(_ sender: any NodeInputControlView) {
+        guard let node = self.node else { return }
+        self.flow.select(nodeConnectedToNode: node.id, atInputPort: sender.portIndex)
+    }
+
+    func nodeInputControlRestoreButtonClicked(_ sender: any NodeInputControlView) {
+        guard let node = self.node else { return }
+        self.flow.restoreDefaultValue(id: node.id, index: sender.portIndex, undoManager: self.undoManager)
+        self.undoManager?.setActionName("Restore Default Value")
+    }
+
+    func nodeInputControlOpenAssetPicker(_ sender: any NodeInputControlView) {
+        let port = sender.portIndex
+        guard let node = self.node,
+            let assetKind = node.inputs[tryGetAt: port]?.value.type.assetKind
+        else { return }
+        self.coordinator.perform(userAction: .openAssetPicker(node: node.id, portIndex: port, kind: assetKind))
+    }
+}
 
 extension NodeInspectorController: NodeTitleRowView.Delegate {
     func nodeTitleRowViewLockButtonClick(_: NodeTitleRowView) {

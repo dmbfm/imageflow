@@ -16,8 +16,6 @@ class NodePropertyTitleView: XViewEx {
         }
     }
 
-    // var context: NodeInputControlContext?
-
     lazy var stackView: XStackView = {
         let view = XStackView(views: [self.portButtonView, self.nameLabelView])
         view.alignment = .firstBaseline
@@ -83,16 +81,23 @@ class NodePropertyTitleView: XViewEx {
 
 class NodeInputTitleView: NodePropertyTitleView {
 
-    var context: NodeInputControlContext?
     var showPortButton: Bool = true {
         didSet {
             self.portButtonView.isHidden = !self.showPortButton
         }
     }
+
     var hasChanges: Bool = false {
         didSet {
             self.restoreButtonView.isHidden = !self.hasChanges
         }
+    }
+
+    var onEvent: ((Event) -> ())?
+
+    enum Event {
+        case portButtonClicked
+        case restoreButtonClicked
     }
 
     lazy var restoreButtonView: XButton = {
@@ -119,11 +124,11 @@ class NodeInputTitleView: NodePropertyTitleView {
     }
 
     override func onPortButtonClick() {
-        self.context?.onEvent(.portButtonClicked)
+        self.onEvent?(.portButtonClicked)
     }
 
     @objc func restoreButtonHandler() {
-        self.context?.onEvent(.restoreButtonClicked)
+        self.onEvent?(.restoreButtonClicked)
     }
 }
 

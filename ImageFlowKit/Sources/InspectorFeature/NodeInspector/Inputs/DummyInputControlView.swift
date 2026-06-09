@@ -26,11 +26,8 @@ class DummyInputControlView: XViewEx, NodeInputControlView {
 
     var value: Value
     var type: ValueType { self.value.type }
-    var context: NodeInputControlContext? {
-        didSet {
-            self.titleView.context = self.context
-        }
-    }
+    weak var delegate: (any NodeInputControlDelegate)?
+    var portIndex: Int = -1
 
     lazy var blockView: BlockView = {
         let view = BlockView(self.titleView)

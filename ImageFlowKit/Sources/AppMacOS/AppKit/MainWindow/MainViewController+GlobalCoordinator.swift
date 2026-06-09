@@ -72,6 +72,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
         case .convertNode(let id, let kind):
             self.flow.convertNodeAction(id, kind: kind, undoManager: self.undoManager)
             self.undoManager?.setActionName("Convert Node")
+        case .setCanvasViewPort(let viewport):
+            self.canvasView.viewport = .init(origin: viewport.origin, scale: viewport.scale)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }

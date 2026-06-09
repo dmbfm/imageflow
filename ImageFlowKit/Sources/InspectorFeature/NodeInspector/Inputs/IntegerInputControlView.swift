@@ -131,15 +131,14 @@ final class NodeIntegerInputControlView: BaseNodeInputControlView {
 
 extension NodeIntegerInputControlView: NumberTextInputDelegate {
     func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
-        logger.info("numberInputDidChange: \("\(change)")")
-        self.context?.onEvent(
-            .valueDidChange(
+        self.delegate?.nodeInputControl(
+            self,
+            valueDidChange:
                 .init(
                     newValue: .int(Int(change.newValue)),
                     oldValue: .int(Int(change.oldValue)),
                     commit: change.commit
                 )
-            )
         )
     }
 }

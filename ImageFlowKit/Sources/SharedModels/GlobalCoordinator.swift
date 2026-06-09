@@ -1,4 +1,5 @@
 import Backend
+import Combine
 import CoreImage
 import Foundation
 import Helpers
@@ -13,6 +14,7 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func selectedNodeCount() -> Int
     func assetTitle(_ asset: UUID) -> String?
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
+    var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> { get }
 }
 
 public enum GlobalCoordinatorEvent {
@@ -21,6 +23,10 @@ public enum GlobalCoordinatorEvent {
 
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
+    public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
+        self.impl?.canvasViewportPublisher ?? .init(PassthroughSubject())
+    }
+
     public func assetTitle(_ asset: UUID) -> String? {
         self.impl?.assetTitle(asset)
     }
@@ -90,6 +96,7 @@ public enum UserAction {
     case viewport(ViewportAction)
     case disconnect(InputPortLocation)
     case openFileImporter([UTType])
+    case setCanvasViewPort(CanvasViewportModel)
 
     public enum Target {
         case selection
@@ -158,6 +165,8 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> = .init(PassthroughSubject())
+
     public func assetTitle(_ asset: UUID) -> String? {
         return nil
     }

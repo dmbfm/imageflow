@@ -3,11 +3,12 @@ import XKit
 
 protocol NodeInputControlView: XView {
     var label: String { get set }
+    var portIndex: Int { get set }
     var value: Value { get set }
     var connected: Bool { get set }
     var hasChanges: Bool { get set }
     var showPortButton: Bool { get set }
-    var context: NodeInputControlContext? { get set }
+    var delegate: (any NodeInputControlDelegate)? { get set }
 }
 
 enum NodeInputControlEvent {
@@ -23,21 +24,10 @@ struct ValueChange {
     var commit: Bool
 }
 
-@MainActor
-struct NodeInputControlContext {
-    var index: Int
-    private weak var controller: NodeInspectorController?
-
-    init(_ controller: NodeInspectorController, _ index: Int) {
-        self.controller = controller
-        self.index = index
-    }
-
-    func onEvent(_ event: NodeInputControlEvent) {
-        self.controller?.onNodeInputControlEvent(self.index, event)
-    }
-
-    func displayName(forAsset id: UUID) -> String? {
-        self.controller?.coordinator.assetTitle(id)
-    }
+protocol NodeInputControlDelegate: AnyObject {
+    func nodeInputControl(_ sender: any NodeInputControlView, valueDidChange: ValueChange)
+    func nodeInputControl(_ sender: any NodeInputControlView, displayNameForAsset: UUID) -> String?
+    func nodeInputControlPortButtonClicked(_ sender: any NodeInputControlView)
+    func nodeInputControlRestoreButtonClicked(_ sender: any NodeInputControlView)
+    func nodeInputControlOpenAssetPicker(_ sender: any NodeInputControlView)
 }
