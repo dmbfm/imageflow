@@ -72,7 +72,7 @@ class ZoomMenuController {
     }
 
     @objc func zoomActualSize() {
-        self.coordinator.perform(userAction: .viewport(.setZoom(1.0)))
+        self.coordinator.perform(userAction: .viewport(.setZoom(1.0, anim: true)))
     }
 
     @objc func zoomToFit() {

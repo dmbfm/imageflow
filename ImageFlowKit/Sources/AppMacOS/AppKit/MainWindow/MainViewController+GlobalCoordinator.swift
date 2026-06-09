@@ -45,8 +45,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.canvasView.zoomIn()
         case .viewport(.zoomOut):
             self.canvasView.zoomOut()
-        case .viewport(.setZoom(let zoom)):
-            self.canvasView.setZoom(zoom)
+        case .viewport(.setZoom(let zoom, let anim)):
+            self.canvasView.setZoom(zoom, anim)
         case .rename(let id):
             self.showRenameSheet(forNode: id)
         case .exportPreviewedImage:

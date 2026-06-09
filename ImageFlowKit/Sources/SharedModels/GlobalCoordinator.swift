@@ -144,7 +144,7 @@ public enum UserAction {
     public enum ViewportAction {
         case zoomIn
         case zoomOut
-        case setZoom(CGFloat)
+        case setZoom(CGFloat, anim: Bool)
         case zoomToFitContent
         case zoomToFitSelection
     }

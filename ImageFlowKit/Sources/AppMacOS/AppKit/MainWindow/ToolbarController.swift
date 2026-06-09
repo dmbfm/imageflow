@@ -31,7 +31,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
         }
 
         self.canvasZoomControlVM.setZoom = { [weak self] zoom in
-            self?.mainVC.perform(userAction: .viewport(.setZoom(zoom)))
+            self?.mainVC.perform(userAction: .viewport(.setZoom(zoom, anim: true)))
         }
 
         self.mainVC.canvasViewportPublisher

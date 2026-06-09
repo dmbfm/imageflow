@@ -30,7 +30,9 @@ public final class CanvasFeatureViewController: NSViewController {
     /// The coordinator
     public var coordinator: GlobalCoordinator
     /// Publisher for viewport changes.
-    public var viewportPublisher: PassthroughSubject<CanvasView.Viewport, Never> = .init()
+    public var viewportPublisher: CurrentValueSubject<CanvasView.Viewport, Never> = .init(
+        .init(origin: .zero, scale: 1.0)
+    )
     /// Provider for canvas context menus
     var canvasContextMenuProvider: CanvasContextMenuProvider?
     /// An instance of `PasteBoardController`.
@@ -113,6 +115,7 @@ public final class CanvasFeatureViewController: NSViewController {
     public override func viewDidLoad() {
         self.upadteEdges()
         self.updateSelection()
+        self.viewportPublisher.send(self.viewport)
     }
 
     // MARK: - Asset Store

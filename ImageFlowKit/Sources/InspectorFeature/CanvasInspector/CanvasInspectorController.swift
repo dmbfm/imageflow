@@ -37,17 +37,28 @@ final class CanvasInspectorController: XViewController {
         }.store(in: &self.cancellables)
 
         self.contentView.positionRowView.delegate = self
+        self.contentView.zoomRowView.delegate = self
     }
 }
 
 extension CanvasInspectorController: NodeInputControlDelegate {
     func nodeInputControl(_ sender: any NodeInputControlView, valueDidChange change: ValueChange) {
-        let v = change.newValue.vector2
-        self.coordinator.perform(
-            userAction: .setCanvasViewPort(
-                .init(origin: .init(x: v.x, y: v.y), scale: self.contentView.vm.viewport.scale)
+        if sender == self.contentView.positionRowView {
+            let v = change.newValue.vector2
+            self.coordinator.perform(
+                userAction: .setCanvasViewPort(
+                    .init(origin: .init(x: v.x, y: v.y), scale: self.contentView.vm.viewport.scale)
+                )
             )
-        )
+        } else if sender == self.contentView.zoomRowView {
+            let scale = change.newValue.float
+            self.coordinator.perform(userAction: .viewport(.setZoom(scale, anim: false)))
+            // self.coordinator.perform(
+            //     userAction: .setCanvasViewPort(
+            //         .init(origin: self.contentView.vm.viewport.origin, scale: scale)
+            //     )
+            // )
+        }
     }
 
     func nodeInputControl(_ sender: any NodeInputControlView, displayNameForAsset: UUID) -> String? {
