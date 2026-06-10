@@ -6,6 +6,10 @@ extension NSEdgeInsets: @retroactive Equatable {
     public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
         lhs.top == rhs.top && lhs.bottom == rhs.bottom && lhs.left == rhs.left && lhs.right == rhs.right
     }
+
+    public init(_ value: CGFloat) {
+        self.init(top: value, left: value, bottom: value, right: value)
+    }
 }
 
 #endif

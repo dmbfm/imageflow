@@ -490,6 +490,7 @@ public protocol NumberTextInputFormatter: Sendable, Equatable {
 }
 
 public struct DefaultNumberInputFormatter: NumberTextInputFormatter {
+    public init() {}
     public func numperInputFormatter(formatValue value: Double) -> String {
         "\(value)"
     }

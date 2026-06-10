@@ -35,7 +35,6 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
         }
 
         self.mainVC.canvasViewportPublisher
-            // .throttle(for: 0.04, scheduler: DispatchQueue.main, latest: true)
             .sink(receiveValue: { [weak self] viewport in
                 self?.canvasZoomControlVM.zoom = Double(Int(viewport.scale * 100.0)) / 100.0
             }).store(in: &self.combineCancellables)

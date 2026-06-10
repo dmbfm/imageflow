@@ -238,7 +238,6 @@ public final class TextInput: XViewEx {
     public override var intrinsicContentSize: CGSize {
         let textSize = self.textBasedSize
         let insets = self.style.insets
-        let bounds = self.bounds
 
         let height = textSize.height + insets.verticalSum
 
@@ -246,7 +245,7 @@ public final class TextInput: XViewEx {
         case .fixedWidth(let width):
             return .init(width: width, height: height)
         case .fillWidth:
-            return .init(width: bounds.width, height: height)
+            return .init(width: Self.noIntrinsicMetric, height: height)
         case .textWidth:
             return .init(width: textSize.width + insets.horizontalSum, height: height)
         }

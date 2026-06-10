@@ -22,3 +22,26 @@ public extension With {
         return s
     }
 }
+
+/// A protocol that contains a single function, `with`, used to create a new
+/// object by mutating a keypath of the original object.
+///
+/// The default implementation covers the intended effect, so to use this
+/// protocol you should just add it to the protocol list for your type, without
+/// giving a custom implementation.
+public protocol WithRef {
+    /// Returns a new object wich is equal to the current object with the given keypath set to the given value.
+    /// - Parameters:
+    ///   - kp: The keypath to be mutated.
+    ///   - value: The value to be assigned to the keypath.
+    ///
+    /// - Returns: The new object.
+    func with<V>(_ kp: ReferenceWritableKeyPath<Self, V>, _ value: V) -> Self
+}
+
+public extension WithRef {
+    func with<V>(_ kp: ReferenceWritableKeyPath<Self, V>, _ value: V) -> Self {
+        self[keyPath: kp] = value
+        return self
+    }
+}

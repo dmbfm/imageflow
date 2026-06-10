@@ -42,6 +42,7 @@ let package = Package(
         .library(name: "TextInput"),
         .library(name: "CardStage"),
         .library(name: "CubeLutKit"),
+        .library(name: "ComponentKit"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
@@ -74,6 +75,7 @@ let package = Package(
             ]
         ),
         .target(name: "XKit", dependencies: ["Helpers"]),
+        .target(name: "ComponentKit", dependencies: ["Helpers", "XKit"]),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "CubeLutKit"),
@@ -265,6 +267,7 @@ let package = Package(
                 "Values",
                 "TextInput",
                 "ContextMenus",
+                "ComponentKit",
             ]
         ),
         .target(
