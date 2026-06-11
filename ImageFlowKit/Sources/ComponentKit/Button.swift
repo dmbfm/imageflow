@@ -25,6 +25,7 @@ public final class Button: XButton, Rx, WithRef {
         self.image = image
         self.contentTintColor = tint
         self.imagePosition = .imageLeading
+        self.bezelStyle = .push
     }
 
     public convenience init(

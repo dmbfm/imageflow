@@ -116,6 +116,27 @@ public extension XView {
         return self
     }
 
+    @discardableResult
+    func constraintToFill(_ view: XView, insets: XEdgeInsets = .init(0)) -> [NSLayoutConstraint] {
+        let constraints = [
+            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
+            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -insets.right),
+            self.topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top),
+            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -insets.bottom),
+        ]
+        NSLayoutConstraint.activate(constraints)
+        return constraints
+    }
+
+    @discardableResult
+    func constraintToFillSuperview(insets: XEdgeInsets = .init(0)) -> [NSLayoutConstraint] {
+        if let view = self.superview {
+            self.constraintToFill(view, insets: insets)
+        } else {
+            []
+        }
+    }
+
     #if os(macOS)
     func setNeedsLayout() {
         self.needsLayout = true

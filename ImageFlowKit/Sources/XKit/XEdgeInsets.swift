@@ -10,6 +10,10 @@ extension NSEdgeInsets: @retroactive Equatable {
     public init(_ value: CGFloat) {
         self.init(top: value, left: value, bottom: value, right: value)
     }
+
+    public init(vertical: CGFloat, horizontal: CGFloat) {
+        self.init(top: vertical, left: horizontal, bottom: vertical, right: horizontal)
+    }
 }
 
 #endif
