@@ -1,8 +1,9 @@
-import XKit
-import Helpers
 import Combine
+import Helpers
+import XKit
 
 public final class Label: XLabel, Rx, WithRef {
+
     public var cancellables: Set<AnyCancellable> = []
 
     public init(_ label: String, font: XFont? = nil, alignment: NSTextAlignment? = nil) {

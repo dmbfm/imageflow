@@ -84,23 +84,27 @@ public extension XView {
         #endif
     }
 
+    @discardableResult
     func constrainingWidth(toConstant value: CGFloat) -> Self {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.widthAnchor.constraint(equalToConstant: value).isActive = true
         return self
     }
 
+    @discardableResult
     func constrainingHeight(toConstant value: CGFloat) -> Self {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.heightAnchor.constraint(equalToConstant: value).isActive = true
         return self
     }
 
+    @discardableResult
     func constrainingSize(toConstant value: CGSize) -> Self {
         self.constrainingWidth(toConstant: value.width)
             .constrainingHeight(toConstant: value.height)
     }
 
+    @discardableResult
     func withContentHuggingPriority(
         _ priority: NSLayoutConstraint.Priority,
         for orientation: NSLayoutConstraint.Orientation
@@ -109,6 +113,7 @@ public extension XView {
         return self
     }
 
+    @discardableResult
     func withContentCompressionResistancePriority(
         _ priority: NSLayoutConstraint.Priority,
         for orientation: NSLayoutConstraint.Orientation

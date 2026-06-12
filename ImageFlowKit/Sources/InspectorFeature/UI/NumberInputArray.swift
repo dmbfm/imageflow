@@ -42,8 +42,6 @@ final class NumberInputArray: XView, WithRef, Rx {
             })
         ).with(\.translatesAutoresizingMaskIntoConstraints, false)
 
-        print("label: \(self.label)")
-
         self.addSubview(self.stackView)
         NSLayoutConstraint.activateConstraint(self.stackView, toFill: self)
     }
