@@ -112,6 +112,7 @@ public final class TextField: XView, Rx, WithRef {
         self.inner.usesSingleLineMode = true
         self.inner.lineBreakMode = .byTruncatingTail
         self.inner.delegate = self
+        self.inner.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
 
         self.addSubview(self.inner)
         self.inner.constraintToFillSuperview()

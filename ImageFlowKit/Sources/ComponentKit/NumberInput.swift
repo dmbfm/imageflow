@@ -21,7 +21,17 @@ public final class NumberInput: XView, Rx, WithRef {
         }
     }
 
+    public var stepperConfiguration: StepperConfiguration? = nil {
+        didSet {
+            self.update()
+        }
+    }
+
     public private(set) var textField: TextField
+
+    public private(set) var stackView: HStack
+
+    public private(set) var stepper: Stepper
 
     public var cancellables: Set<AnyCancellable> = []
 
@@ -66,6 +76,19 @@ public final class NumberInput: XView, Rx, WithRef {
     private var dragStartLocation: CGPoint = .zero
     private var valueAtDragStart: Double = 0
 
+    // MARK: - Privaet Types
+
+    private struct DragData: Sendable, Equatable {
+        public var phase: XGestureRecognizer.State
+        public var modifiers: XModifierFlags
+        public var region: CGRect
+        public var translation: CGPoint
+        public var start: CGPoint
+        public var current: CGPoint
+    }
+
+    // MARK: - Initialization
+
     init(
         _ value: Double,
         formatter: FloatingPointFormatStyle<Double> = .number,
@@ -73,12 +96,16 @@ public final class NumberInput: XView, Rx, WithRef {
     ) {
         self.value = value
         self.textField = .init("", style: style)
+        self.stackView = .init(alignment: .center, spacing: 4, views: [])
+        self.stepper = .init(value)
         self.formatter = formatter
         self.publisher = .init(value)
 
         super.init(frame: .zero)
 
+        self.setupStackView()
         self.setupTextField()
+        self.setupStepper()
         self.setupGestures()
 
         self.update()
@@ -97,13 +124,30 @@ public final class NumberInput: XView, Rx, WithRef {
 
     // MARK: - Private Methods
 
+    private func setupStackView() {
+        self.addSubview(self.stackView)
+        self.stackView.translatesAutoresizingMaskIntoConstraints = false
+        self.stackView.constraintToFillSuperview()
+    }
+
     private func setupTextField() {
-        self.addSubview(self.textField)
-        self.textField.translatesAutoresizingMaskIntoConstraints = false
-        self.textField.constraintToFillSuperview()
+        self.stackView.addView(self.textField)
         self.textField.alignment = .right
         self.textField.isEditable = false
         self.textField.onEndEditting { [weak self] _, _ in self?.didEndEditing() }
+    }
+
+    private func setupStepper() {
+        self.stackView.addView(self.stepper)
+        self.stepper.onChange { value in
+            let oldValue = self.value
+            if value != oldValue {
+                self.value = value
+                self.emitChange(
+                    .init(newValue: value, oldValue: oldValue, commit: true, dragging: false)
+                )
+            }
+        }
     }
 
     private func emitChange(_ change: Change) {
@@ -113,6 +157,24 @@ public final class NumberInput: XView, Rx, WithRef {
 
     private func update() {
         self.textField.text = self.formatter.format(self.value)
+        self.stepper.value = self.value
+
+        if let config = self.stepperConfiguration {
+            self.stepper.isHidden = false
+            self.stepper.increment = config.step
+            self.stepper.componentSize = config.size
+            switch self.dragConfiguration {
+            case .range(.closed(let range)):
+                self.stepper.range = range.range
+            case .range(.partialFrom(let partial)):
+                self.stepper.range = .init(uncheckedBounds: (partial.lowerBound, Double.greatestFiniteMagnitude))
+            case .free:
+                break
+            }
+        } else {
+            self.stepper.isHidden = true
+        }
+
     }
 
     private func updateValue(fromText text: String) {
@@ -148,7 +210,7 @@ public final class NumberInput: XView, Rx, WithRef {
         }
     }
 
-    func didEndEditing() {
+    private func didEndEditing() {
         self.enableGestures()
         self.textField.isEditable = false
         self.updateValue(fromText: self.textField.text)
@@ -159,11 +221,11 @@ public final class NumberInput: XView, Rx, WithRef {
     private func setupGestures() {
         let clickGR = NSClickGestureRecognizer(target: self, action: #selector(Self.clickHandler(_:)))
         clickGR.delegate = self
-        self.addGestureRecognizer(clickGR)
+        self.textField.addGestureRecognizer(clickGR)
 
         let panGR = NSPanGestureRecognizer(target: self, action: #selector(Self.dragHandler(_:)))
         panGR.delegate = self
-        self.addGestureRecognizer(panGR)
+        self.textField.addGestureRecognizer(panGR)
     }
 
     private func enableGestures() {
@@ -178,15 +240,6 @@ public final class NumberInput: XView, Rx, WithRef {
         Task {
             self.beginEditting()
         }
-    }
-
-    struct DragData: Sendable, Equatable {
-        public var phase: XGestureRecognizer.State
-        public var modifiers: XModifierFlags
-        public var region: CGRect
-        public var translation: CGPoint
-        public var start: CGPoint
-        public var current: CGPoint
     }
 
     @objc func dragHandler(_ gesture: NSPanGestureRecognizer) {
@@ -287,7 +340,7 @@ public final class NumberInput: XView, Rx, WithRef {
         }
     }
 
-    func handleDragRange(
+    private func handleDragRange(
         dragData: DragData,
         configuration: DragConfiguration.Range.Closed
     ) {
@@ -339,6 +392,13 @@ public final class NumberInput: XView, Rx, WithRef {
 extension NumberInput: NSGestureRecognizerDelegate {
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: NSGestureRecognizer) -> Bool {
         !self.textField.isEditable
+    }
+}
+
+extension NumberInput {
+    public struct StepperConfiguration: Sendable, Equatable, With {
+        public var step: Double = 1.0
+        public var size: ComponentSize = .small
     }
 }
 
@@ -502,6 +562,7 @@ extension NumberInput {
                 .onChange({ print("change: \($0)") }),
             NumberInput(0.5)
                 .with(\.alignment, .center)
+                .with(\.stepperConfiguration, .init())
                 .onChange({ print("change: \($0)") }),
         ]
     )

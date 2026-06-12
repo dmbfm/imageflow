@@ -38,7 +38,7 @@ public class BaseStack<A: StackAlignment>: XViewEx {
 
     private var edgeConstraints: [NSLayoutConstraint] = []
 
-    public init(alignment: A = A.default, views: [XView]) {
+    public init(alignment: A = A.default, spacing: CGFloat? = nil, views: [XView]) {
         self.alignment = alignment
 
         super.init(frame: .zero)
@@ -47,6 +47,10 @@ public class BaseStack<A: StackAlignment>: XViewEx {
         self.stackView.orientation = A.orientation
         self.stackView.alignment = self.alignment.attribute
         self.stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        if let spacing {
+            self.stackView.spacing = spacing
+        }
 
         self.addSubview(self.stackView)
         NSLayoutConstraint.activateConstraint(self.stackView, toFill: self)

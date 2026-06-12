@@ -15,6 +15,7 @@ public typealias XScrollView = NSScrollView
 public typealias XStepper = NSStepper
 public typealias XPopUpButton = NSPopUpButton
 public typealias XButtonSize = NSControl.ControlSize
+public typealias XSwitch = NSSwitch
 #endif
 
 #if canImport(UIKit)
