@@ -1,0 +1,7 @@
+#+title: Image Flow
+#+seq_todo: TODO(t) WORKING(w) | DONE(d) CANCELLED(c)
+
+* WORKING Inspector Feature
+** WORKING Canvas inspector tab
+** TODO Undo history tab
+* TODO Other...

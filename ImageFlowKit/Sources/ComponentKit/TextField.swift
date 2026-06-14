@@ -2,9 +2,13 @@ import Combine
 import Helpers
 import XKit
 
-extension NSFont: @unchecked @retroactive Sendable {}
-
+/// A Single-lined text input field. Wraps a `NSTextField` with some
+/// customizations applied to it.
 public final class TextField: XView, Rx, WithRef {
+
+    // MARK: - Public Properties
+
+    /// The TextField's style that configures its overall look.
     public var style: TextFieldStyle {
         didSet {
             if self.style != oldValue {
@@ -16,59 +20,83 @@ public final class TextField: XView, Rx, WithRef {
         }
     }
 
+    /// When this value is non-nil, the TextField's background will work as a
+    /// progress indicator, filling the background with a different color, up to
+    /// a position proportional to the value of `progress` taken as a percentage
+    /// (that is, as a value between 0 and 1.) The filling color is given by
+    /// `TextFieldStyle.progressColor`
     public var progress: Double? = nil {
         didSet {
             self.setNeedsDisplay()
         }
     }
 
+    /// When set to `false`, the user can't edit the text in this `TextField`.
     public var isEditable: Bool {
         get { self.inner.isEditable }
         set { self.inner.isEditable = newValue }
     }
 
+    /// When set to `false` this view will ignore any mouse events. It will also
+    /// draw the view in a slightly different manner to indicate this, by
+    /// drawing the text using the `disabledTextColor` property of the current
+    /// `style`.
     public var isEnabled: Bool {
         get { self.inner.isEnabled }
         set { self.inner.isEnabled = newValue }
     }
 
+    /// The current text being displayed by the view.
     public var text: String {
         get { self.inner.text }
         set { self.inner.text = newValue }
     }
 
+    /// The placeholder text to be displayed when `text` is an empty string.
     public var placeholderString: String? {
         get { self.inner.placeholderString }
         set { self.inner.placeholderString = newValue }
     }
 
+    /// The content type of the text field (see `NSTextContentType`).
     public var contentType: NSTextContentType? {
         get { self.inner.contentType }
         set { self.inner.contentType = newValue }
     }
 
+    /// Whether the `TextField` can be focused automatically (e.g., by tab-cycle
+    /// navigation). Even when set to `false` the user can still focus the text
+    /// field directly, e.g, by clicking on it using the mouse.
     public var focusable: Bool {
         get { self.inner.focusable }
         set { self.inner.focusable = newValue }
     }
 
+    /// The alignment of the text inside the view.
     public var alignment: NSTextAlignment {
         get { self.inner.alignment }
         set { self.inner.alignment = newValue }
     }
 
+    /// When set to `true`, the text field will un-focus itself when the user
+    /// commits a change, e.g., by pressing the return key.
     public var unfocusOnCommit: Bool = true
 
+    /// It `true`, the user can cancel the current edit by pressing the escape key.
     public var cancellable: Bool = true
 
+    /// Publishes the current `text` value.
     public var publisher: CurrentValueSubject<String, Never>
 
+    /// Required by the `Rx` protocol.
     public var cancellables: Set<AnyCancellable> = []
 
+    /// If true, the text field has input focus.
     public var isFocused: Bool {
         self.inner.focused
     }
 
+    /// The type of focus ring drawn by the text field.
     public override var focusRingType: NSFocusRingType {
         get { self.inner.focusRingType }
         set { self.inner.focusRingType = newValue }
@@ -81,15 +109,17 @@ public final class TextField: XView, Rx, WithRef {
         )
     }
 
+    // MARK: - Private Properties
+
     private var inner: InnerTextField
-
     private var textAtEdittingStart: String = ""
+    private var _onChange: ((TextField, String) -> ())?
+    private var _onBeginEditting: ((TextField, String) -> ())?
+    private var _onEndEditting: ((TextField, String) -> ())?
 
-    var _onChange: ((TextField, String) -> ())?
-    var _onBeginEditting: ((TextField, String) -> ())?
-    var _onEndEditting: ((TextField, String) -> ())?
+    // MARK: - Initialization
 
-    init(_ text: String, style: TextFieldStyle = .default) {
+    public init(_ text: String, style: TextFieldStyle = .default) {
         self.inner = InnerTextField()
         self.style = style
         self.publisher = .init(text)
@@ -125,28 +155,49 @@ public final class TextField: XView, Rx, WithRef {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Sets a closure to be called wheneve the user changes the value of the
+    /// text field by editing it.
+    /// - Parameter perform: The closure, whose parameters are the sending
+    /// `TextField` and the text `String` value.
+    /// - Returns: A `Self` reference for chaining.
     @discardableResult
     public func onChange(_ perform: @escaping (TextField, String) -> ()) -> Self {
         self._onChange = perform
         return self
     }
 
+    /// Sets a closure to be called wheneve the user finished editing the text field.
+    /// - Parameter perform: The closure to be called whose parameters are the
+    /// sending `TextField` the text `String` value.
+    /// - Returns: A `Self` reference for chaining.
     @discardableResult
     public func onEndEditting(_ perform: @escaping (TextField, String) -> ()) -> Self {
         self._onEndEditting = perform
         return self
     }
 
+    /// Sets a closure to be called wheneve the user begins editing the text field.
+    /// - Parameter perform: The closure to be called whose parameters are the
+    /// sending `TextField` the text `String` value.
+    /// - Returns: A `Self` reference for chaining.
     @discardableResult
     public func onBeginEditting(_ perform: @escaping (TextField, String) -> ()) -> Self {
         self._onBeginEditting = perform
         return self
     }
 
+    /// Sets the font used to draw the text.
+    /// - Parameter font: The font
+    /// - Returns: A `Self` reference for chaining.
     @discardableResult
     public func withFont(_ font: XFont) -> Self {
         self.style = self.style.with(\.font, font)
         return self
+    }
+
+    /// Makes this text field become focused. Works even if `focusable` is `false`.
+    public func focus() {
+        self.inner.window?.makeFirstResponder(self.inner)
     }
 
     lazy var fillLayer: CAShapeLayer = {
@@ -181,10 +232,6 @@ public final class TextField: XView, Rx, WithRef {
             }
 
         })
-    }
-
-    public func focus() {
-        self.inner.window?.makeFirstResponder(self.inner)
     }
 }
 
@@ -374,6 +421,10 @@ public struct TextFieldStyle: Sendable, Equatable, With {
     }
 }
 
+#if os(macOS)
+extension NSFont: @unchecked @retroactive Sendable {}
+#endif
+
 #Preview {
     {
         TextField("Hello!")
@@ -381,7 +432,6 @@ public struct TextFieldStyle: Sendable, Equatable, With {
             .onBeginEditting({ print("begin: \($1)") })
             .onEndEditting({
                 print("end: \($1)")
-                // $0.focusable = false
             })
             .with(\.placeholderString, "Insert text...")
             .constrainingWidth(toConstant: 120)
