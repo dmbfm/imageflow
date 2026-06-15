@@ -1,17 +1,16 @@
 import Backend
+import ComponentKit
 import Helpers
 import SharedModels
 import SwiftUI
 import XKit
 
-class NodeTitleRowView: XViewEx {
-
-    let iconSize = CGSize(width: 20, height: 20)
+class NodeTitleRowView: XView {
 
     var icon: String {
         didSet {
             if self.icon != oldValue {
-                self.iconView.image = .init(systemSymbolName: self.icon, accessibilityDescription: nil)
+                self.iconView.systemName = self.icon
             }
         }
     }
@@ -31,17 +30,9 @@ class NodeTitleRowView: XViewEx {
 
     weak var delegate: Delegate? = nil
 
-    lazy var iconView: XImageView = {
-        let view = XImageView(
-            image: .init(
-                systemSymbolName: icon,
-                accessibilityDescription: nil
-            ) ?? .init()
-        )
-        view.symbolConfiguration =
-            .init(pointSize: 16, weight: .regular)
-            .applying(.init(hierarchicalColor: .secondaryLabelColor))
-        return view
+    lazy var iconView: Icon = {
+        Icon(systemName: self.icon)
+            .with(\.fontConfiguration, .preferred(.headline))
     }()
 
     lazy var nameTextField: NodeNameTextField = {
@@ -56,14 +47,15 @@ class NodeTitleRowView: XViewEx {
         return view
     }()
 
-    lazy var lockButtonView: XButton = {
-        let view = XButton(
-            image: .init(systemSymbolName: .systemIconLock, accessibilityDescription: nil)!,
-            target: self,
-            action: #selector(Self.onLockButtonClick)
-        )
-        view.isBordered = false
-        return view
+    lazy var lockButtonView: ComponentKit::Button = {
+        Button(
+            "",
+            image: XImage(systemSymbolName: .systemIconLock, accessibilityDescription: nil),
+            buttonSize: .regular
+        ) { [weak self] in
+            self?.onLockButtonClick()
+        }
+        .with(\.isBordered, false)
     }()
 
     lazy var nodeTitleEllipsisButton: EllipsisMenuButton = {
@@ -81,12 +73,15 @@ class NodeTitleRowView: XViewEx {
         return view
     }()
 
-    lazy var stackView: XStackView = {
-        let view = XStackView(views: [
-            self.iconView, self.nameTextField, self.lockButtonView, self.nodeTitleEllipsisButton,
-        ])
-        view.orientation = .horizontal
-        view.alignment = .centerY
+    lazy var stackView: ComponentKit::HStack = {
+        let view = HStack(
+            alignment: .center,
+            views: [
+                self.iconView, self.nameTextField, self.lockButtonView, self.nodeTitleEllipsisButton,
+            ]
+        )
+        view.distribution = .fill
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
@@ -96,6 +91,8 @@ class NodeTitleRowView: XViewEx {
 
         super.init(frame: .zero)
 
+        self.clipsToBounds = false
+        self.stackView.clipsToBounds = false
         self.name = name
 
         self.setupViews()
@@ -108,7 +105,7 @@ class NodeTitleRowView: XViewEx {
 
     func setupViews() {
         self.addSubview(self.stackView)
-        NSLayoutConstraint.activateConstraint(self.stackView, toFill: self)
+        self.stackView.constraintToFillSuperview()
     }
 
     func update() {

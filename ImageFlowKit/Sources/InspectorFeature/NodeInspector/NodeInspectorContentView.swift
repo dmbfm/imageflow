@@ -34,6 +34,7 @@ class NodeInspectorContentView: ScrollableStackXView {
         self.stackView.addArrangedSubview(self.nodeInputsView)
         self.stackView.addArrangedSubview(self.nodeOutputsView)
         self.stackView.addArrangedSubview(self.nodeOptionsView)
+
         NSLayoutConstraint.activate([
             self.nodeTypeRowView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
