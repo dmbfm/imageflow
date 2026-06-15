@@ -12,6 +12,7 @@ public final class TextField: XView, Rx, WithRef {
     public var style: TextFieldStyle {
         didSet {
             if self.style != oldValue {
+                self.inner.textColor = self.isEnabled ? self.style.textColor : self.style.disabledTextColor
                 self.inner.font = style.font
                 self.inner.padding = style.padding
                 self.inner.cornerRadius = style.cornerRadius
@@ -43,7 +44,10 @@ public final class TextField: XView, Rx, WithRef {
     /// `style`.
     public var isEnabled: Bool {
         get { self.inner.isEnabled }
-        set { self.inner.isEnabled = newValue }
+        set {
+            self.inner.isEnabled = newValue
+            self.inner.textColor = self.inner.isEnabled ? self.style.textColor : self.style.disabledTextColor
+        }
     }
 
     /// The current text being displayed by the view.
@@ -143,6 +147,7 @@ public final class TextField: XView, Rx, WithRef {
         self.inner.lineBreakMode = .byTruncatingTail
         self.inner.delegate = self
         self.inner.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
+        self.inner.textColor = self.style.textColor
 
         self.addSubview(self.inner)
         self.inner.constraintToFillSuperview()
@@ -392,17 +397,21 @@ class CustomTextFieldCell: NSTextFieldCell {
 }
 
 public struct TextFieldStyle: Sendable, Equatable, With {
-    public var backgroundColor: XColor = .system.secondaryFill
-    public var progressColor: XColor = .system.fill
-    public var borderColor: XColor? = .system.fill
-    public var cornerRadius: CGFloat = 6
-    public var cornerCurve: CALayerCornerCurve = .continuous
-    public var padding: CGSize = .init(width: 6, height: 4)
-    public var font: XFont = .preferredFont(forTextStyle: .body)
+    public var textColor: XColor
+    public var disabledTextColor: XColor
+    public var backgroundColor: XColor
+    public var progressColor: XColor
+    public var borderColor: XColor?
+    public var cornerRadius: CGFloat
+    public var cornerCurve: CALayerCornerCurve
+    public var padding: CGSize
+    public var font: XFont
 
     public static let `default`: Self = .init()
 
     public init(
+        textColor: XColor = .system.label,
+        disabledTextColor: XColor = .system.secondaryLabel,
         backgroundColor: XColor = .system.secondaryFill,
         borderColor: XColor? = .system.fill,
         progressColor: XColor = .system.fill,
@@ -411,6 +420,8 @@ public struct TextFieldStyle: Sendable, Equatable, With {
         padding: CGSize = .init(width: 6, height: 4),
         font: XFont = .preferredFont(forTextStyle: .body)
     ) {
+        self.textColor = textColor
+        self.disabledTextColor = disabledTextColor
         self.backgroundColor = backgroundColor
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
@@ -434,6 +445,20 @@ extension NSFont: @unchecked @retroactive Sendable {}
                 print("end: \($1)")
             })
             .with(\.placeholderString, "Insert text...")
+            .constrainingWidth(toConstant: 120)
+    }()
+}
+
+#Preview("Disabled") {
+    {
+        TextField("Hello!")
+            .onChange({ print("change: \($1)") })
+            .onBeginEditting({ print("begin: \($1)") })
+            .onEndEditting({
+                print("end: \($1)")
+            })
+            .with(\.placeholderString, "Insert text...")
+            .with(\.isEnabled, false)
             .constrainingWidth(toConstant: 120)
     }()
 }
