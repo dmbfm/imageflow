@@ -122,6 +122,21 @@ public final class NumberInput: XView, Rx, WithRef {
         return self
     }
 
+    // MARK: - XView
+
+    #if os(macOS)
+    public override func resetCursorRects() {
+        let cursor: NSCursor =
+            if !self.textField.isFocused {
+                .columnResize
+            } else {
+                .iBeam
+            }
+
+        self.addCursorRect(self.textField.frame, cursor: cursor)
+    }
+    #endif
+
     // MARK: - Private Methods
 
     private func setupStackView() {
