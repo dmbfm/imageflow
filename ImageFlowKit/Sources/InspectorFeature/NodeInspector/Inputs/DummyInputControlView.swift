@@ -1,3 +1,4 @@
+import ComponentKit
 import SharedModels
 import Values
 import XKit
@@ -29,8 +30,8 @@ class DummyInputControlView: XViewEx, NodeInputControlView {
     weak var delegate: (any NodeInputControlDelegate)?
     var portIndex: Int = -1
 
-    lazy var blockView: BlockView = {
-        let view = BlockView(self.titleView)
+    lazy var blockView: Box = {
+        let view = block(self.titleView)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

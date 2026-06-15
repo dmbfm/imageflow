@@ -37,7 +37,7 @@ final class NodeColorInputControlView: BaseNodeInputControlView {
 
     override init(label: String, value: Value, connected: Bool = false) {
         super.init(label: label, value: value, connected: connected)
-        self.blockView.content = self.stackView
+        self.blockView.view = self.stackView
         NSLayoutConstraint.activate([
             self.colorPickerView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor),
             self.titleView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor),

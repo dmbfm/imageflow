@@ -22,7 +22,7 @@ struct MultiRowNodeInputControlViewMixin {
     init(_ owner: MultiRowNodeInputControlView) {
         self.owner = owner
 
-        self.owner.blockView.content = self.stackView
+        self.owner.blockView.view = self.stackView
 
         NSLayoutConstraint.activate([
             self.owner.controlView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),

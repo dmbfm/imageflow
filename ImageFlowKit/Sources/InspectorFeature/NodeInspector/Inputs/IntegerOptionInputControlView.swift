@@ -44,7 +44,7 @@ final class NodeIntegerOptionInputControlView: BaseNodeInputControlView {
 
         super.init(label: label, value: value, connected: connected)
 
-        self.blockView.content = self.stackView
+        self.blockView.view = self.stackView
     }
 
     required init?(coder: NSCoder) {

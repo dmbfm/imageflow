@@ -1,9 +1,8 @@
+import ComponentKit
 import SharedModels
 import XKit
 
-final class NodeTypeRowView: BlockView {
-
-    var stackView: XStackView!
+final class NodeTypeRowView: XView {
 
     var vm: ViewModel = .init(value: "Float Value", options: ["FloatValue"]) {
         didSet {
@@ -13,15 +12,19 @@ final class NodeTypeRowView: BlockView {
         }
     }
 
-    override var intrinsicContentSize: NSSize {
-        .init(
-            width: Self.noIntrinsicMetric,
-            height: max(
-                self.valueLabel.intrinsicContentSize.height,
-                self.valuePicker.intrinsicContentSize.height
-            ) + self.insets.top + self.insets.bottom
-        )
-    }
+    lazy var boxView: Box = {
+        let view = block(self.stackView)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    lazy var stackView: XStackView = {
+        let stackView = XStackView()
+        stackView.orientation = .horizontal
+        stackView.alignment = .centerY
+        stackView.distribution = .fillEqually
+        return stackView
+    }()
 
     var didPickItem: ((String) -> ())?
 
@@ -60,14 +63,10 @@ final class NodeTypeRowView: BlockView {
     }()
 
     init() {
-        let stackView = XStackView()
-        stackView.orientation = .horizontal
-        stackView.alignment = .centerY
-        stackView.distribution = .fillEqually
+        super.init(frame: .zero)
 
-        super.init(stackView)
-
-        self.stackView = stackView
+        self.addSubview(self.boxView)
+        self.boxView.constraintToFillSuperview()
 
         self.stackView.addArrangedSubview(self.label)
         self.update()

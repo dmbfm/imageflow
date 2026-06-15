@@ -1,7 +1,8 @@
+import ComponentKit
 import Values
 import XKit
 
-final class NodeOutputView: BlockView {
+final class NodeOutputView: XView {
 
     var type: ValueType = .float {
         didSet {
@@ -25,12 +26,21 @@ final class NodeOutputView: BlockView {
         set { self.titleView.connected = newValue }
     }
 
-    private var titleView: TitleView
+    lazy var box: Box = {
+        let view = block(self.titleView)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    lazy private var titleView: TitleView = {
+        .init()
+    }()
 
     init() {
-        let titleView = TitleView()
-        self.titleView = titleView
-        super.init(titleView)
+        super.init(frame: .zero)
+
+        self.addSubview(self.box)
+        self.box.constraintToFillSuperview()
     }
 
     required init?(coder: NSCoder) {

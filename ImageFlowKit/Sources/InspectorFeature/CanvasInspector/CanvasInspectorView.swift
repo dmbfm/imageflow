@@ -1,3 +1,4 @@
+import ComponentKit
 import SharedModels
 import XKit
 
@@ -22,7 +23,7 @@ final class CanvasInspectorView: ScrollableStackXView {
         return view
     }()
 
-    lazy var nodeCountRowView: BlockView = {
+    lazy var nodeCountRowView: Box = {
         let stack = XStackView(views: [
             {
                 let icon = XImageView(
@@ -46,11 +47,11 @@ final class CanvasInspectorView: ScrollableStackXView {
         ])
         stack.orientation = .horizontal
         stack.distribution = .fill
-        let view = BlockView(stack)
+        let view = block(stack)
         return view
     }()
 
-    lazy var edgeCountRowView: BlockView = {
+    lazy var edgeCountRowView: Box = {
         let stack = XStackView(views: [
             {
                 let icon = XImageView(
@@ -74,7 +75,7 @@ final class CanvasInspectorView: ScrollableStackXView {
         ])
         stack.orientation = .horizontal
         stack.distribution = .fill
-        let view = BlockView(stack)
+        let view = block(stack)
         return view
     }()
 

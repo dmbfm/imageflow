@@ -23,14 +23,8 @@ final class NodeOutputsView: XViewEx {
     init() {
         super.init(frame: .zero)
 
-        // self.withLayer({
-        //     $0.borderWidth = 1
-        //     $0.borderColor = XColor.systemRed.withAlphaComponent(0.2).cgColor
-        // })
-
         self.addSubview(self.stackView)
-
-        NSLayoutConstraint.activateConstraint(self.stackView, toFill: self)
+        self.stackView.constraintToFillSuperview()
     }
 
     required init?(coder: NSCoder) {
@@ -59,7 +53,8 @@ final class NodeOutputsView: XViewEx {
         self.outputViews.append(view)
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            view.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
         ])
     }
 }

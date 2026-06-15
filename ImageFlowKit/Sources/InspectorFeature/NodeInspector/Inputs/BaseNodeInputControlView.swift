@@ -1,3 +1,4 @@
+import ComponentKit
 import Values
 import XKit
 
@@ -32,14 +33,14 @@ class BaseNodeInputControlView: XViewEx, NodeInputControlView {
         set { self.titleView.showPortButton = newValue }
     }
 
-    var blockView: BlockView
+    var blockView: Box
 
     var titleView: NodeInputTitleView
 
     init(label: String, value: Value, connected: Bool = false) {
         self.value = value
         self.titleView = .init()
-        self.blockView = .init(.init())
+        self.blockView = block(.init())
         self.blockView.translatesAutoresizingMaskIntoConstraints = false
 
         super.init(frame: .zero)

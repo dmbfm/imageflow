@@ -175,7 +175,7 @@ final class NodeAngleInputControlView: BaseNodeInputControlView {
     }
 
     func setupView() {
-        self.blockView.content = self.stackView
+        self.blockView.view = self.stackView
 
         NSLayoutConstraint.activate([
             self.hstackView.leadingAnchor.constraint(equalTo: self.stackView.leadingAnchor),

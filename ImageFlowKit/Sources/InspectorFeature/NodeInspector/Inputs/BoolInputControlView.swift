@@ -28,7 +28,7 @@ final class NodeBoolInputControlView: BaseNodeInputControlView {
 
     override init(label: String, value: Value, connected: Bool = false) {
         super.init(label: label, value: value, connected: connected)
-        self.blockView.content = self.stackView
+        self.blockView.view = self.stackView
         self.update()
     }
 
