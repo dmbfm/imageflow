@@ -107,11 +107,11 @@ final class CanvasInspectorView: ScrollableStackXView {
         super.setupViews()
 
         self.stackView.spacing = 8
-        self.stackView.addArrangedSubview(self.titleRowView)
-        self.stackView.addArrangedSubview(self.nodeCountRowView)
-        self.stackView.addArrangedSubview(self.edgeCountRowView)
-        self.stackView.addArrangedSubview(self.positionRowView)
-        self.stackView.addArrangedSubview(self.zoomRowView)
+        self.stackView.addView(self.titleRowView)
+        self.stackView.addView(self.nodeCountRowView)
+        self.stackView.addView(self.edgeCountRowView)
+        self.stackView.addView(self.positionRowView)
+        self.stackView.addView(self.zoomRowView)
 
         self.stackView.setCustomSpacing(16, after: self.titleRowView)
 

@@ -43,6 +43,8 @@ public class BaseStack<A: StackAlignment>: XViewEx {
 
         super.init(frame: .zero)
 
+        self.clipsToBounds = false
+
         self.stackView = XStackView(views: views)
         self.stackView.orientation = A.orientation
         self.stackView.alignment = self.alignment.attribute
@@ -61,6 +63,12 @@ public class BaseStack<A: StackAlignment>: XViewEx {
     public func addView(_ view: XView) {
         self.stackView.addArrangedSubview(view)
         self.updateEdgeConstraints()
+    }
+
+    @discardableResult
+    public func setCustomSpacing(_ spacing: CGFloat, after view: XView) -> Self {
+        self.stackView.setCustomSpacing(spacing, after: view)
+        return self
     }
 
     public func insertView(_ view: XView, at index: Int) {

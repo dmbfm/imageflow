@@ -12,39 +12,21 @@ final class NodeTypeRowView: XView {
         }
     }
 
-    lazy var boxView: Box = {
-        let view = block(self.stackView)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    lazy var stackView: HStack = {
+        HStack(views: [])
+            .with(\.distribution, .fillEqually)
+            .with(\.translatesAutoresizingMaskIntoConstraints, false)
     }()
 
-    lazy var stackView: XStackView = {
-        let stackView = XStackView()
-        stackView.orientation = .horizontal
-        stackView.alignment = .centerY
-        stackView.distribution = .fillEqually
-        return stackView
-    }()
-
-    var didPickItem: ((String) -> ())?
+    var context: InspectorContext?
 
     struct ViewModel: Equatable {
         var value: String
         var options: [String]
     }
 
-    lazy var label: XLabel = {
-        let view = XLabel(labelWithString: "Node Type")
-        view.font = .preferredFont(forTextStyle: .body)
-        view.textColor = .system.secondaryLabel
-        view.lineBreakMode = .byTruncatingTail
-        view.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
-        view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        return view
-    }()
-
-    lazy var valueLabel: XLabel = {
-        let view = XLabel(labelWithString: "")
+    lazy var valueLabel: Label = {
+        let view = Label("")
         view.alignment = .right
         view.font = .preferredFont(forTextStyle: .body)
         return view
@@ -55,9 +37,7 @@ final class NodeTypeRowView: XView {
         view.target = self
         view.action = #selector(Self.pickerHandler)
         view.font = .preferredFont(forTextStyle: .body)
-        // view.controlSize = .small
         view.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
-        // view.activeCompressionOptions = .reduceMetrics
         view.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)
         return view
     }()
@@ -65,10 +45,10 @@ final class NodeTypeRowView: XView {
     init() {
         super.init(frame: .zero)
 
-        self.addSubview(self.boxView)
-        self.boxView.constraintToFillSuperview()
+        self.addSubview(self.stackView)
+        self.stackView.constraintToFillSuperview()
 
-        self.stackView.addArrangedSubview(self.label)
+        // self.stackView.addView(self.label)
         self.update()
     }
 
@@ -78,7 +58,7 @@ final class NodeTypeRowView: XView {
 
     @objc func pickerHandler() {
         if let value = self.valuePicker.selectedItem?.title {
-            self.didPickItem?(value)
+            self.context?.onNodeTypePickItem?(value)
         }
     }
 
@@ -88,7 +68,7 @@ final class NodeTypeRowView: XView {
                 self.valueLabel.removeFromSuperview()
             }
             if self.valuePicker.superview == nil {
-                self.stackView.addView(self.valuePicker, in: .trailing)
+                self.stackView.addView(self.valuePicker)
             }
 
             self.valuePicker.removeAllItems()
@@ -106,7 +86,7 @@ final class NodeTypeRowView: XView {
                 self.valuePicker.removeFromSuperview()
             }
             if self.valueLabel.superview == nil {
-                self.stackView.addView(self.valueLabel, in: .trailing)
+                self.stackView.addView(self.valueLabel)
             }
 
             if self.valueLabel.text != self.vm.value {
@@ -114,4 +94,9 @@ final class NodeTypeRowView: XView {
             }
         }
     }
+}
+
+#Preview {
+    NodeTypeRowView()
+        .constrainingWidth(toConstant: 320)
 }

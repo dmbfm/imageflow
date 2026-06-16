@@ -2,6 +2,9 @@
 #+seq_todo: TODO(t) WORKING(w) | DONE(d) CANCELLED(c)
 
 * WORKING Inspector Feature
-** WORKING Canvas inspector tab
+** WORKING Use ~ComponentKit~ views on inspector.
+Also, refactor inputs so that they can be re-usable across inspector tabs, i.e.,
+so that they do not depend on node inputs directly.
+** TODO Canvas inspector tab
 ** TODO Undo history tab
 * TODO Other...

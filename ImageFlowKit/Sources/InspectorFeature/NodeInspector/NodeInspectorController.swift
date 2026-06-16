@@ -28,6 +28,20 @@ class NodeInspectorController: XViewController {
         self.vm.node
     }
 
+    lazy var context: InspectorContext = {
+        .init(
+            onNodeTypePickItem: { [weak self] value in
+                self?.nodeTypeRowView(didPickItem: value)
+            },
+            onPortClick: { [weak self] in
+                logger.error("TODO: onPortClick")
+            },
+            onRestoreButtonClick: { [weak self] in
+                logger.error("TODO: onRestoreButtonClick")
+            }
+        )
+    }()
+
     // MARK: - Views
 
     lazy var emptyView: XView = {
@@ -37,7 +51,7 @@ class NodeInspectorController: XViewController {
     }()
 
     lazy var contentView: NodeInspectorContentView = {
-        let view = NodeInspectorContentView()
+        let view = NodeInspectorContentView(self.context)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -113,9 +127,9 @@ class NodeInspectorController: XViewController {
 
         self.nodeTitleRowView.delegate = self
 
-        self.nodeTypeRowView.didPickItem = { [weak self] value in
-            self?.nodeTypeRowView(didPickItem: value)
-        }
+        // self.nodeTypeRowView.didPickItem = { [weak self] value in
+        //     self?.nodeTypeRowView(didPickItem: value)
+        // }
     }
 
     // MARK: - State updates
@@ -165,7 +179,9 @@ class NodeInspectorController: XViewController {
 
             for output in node.outputs {
                 let view = NodeOutputView()
-                view.context = .init(self, output.index)
+                view.context = .init(onPortClick: { [weak self] in
+                    self?.onNodeOutputControlEvent(output.index, .portButtonClicked)
+                })
                 view.name = output.label
                 view.connected = output.connected
                 view.type = output.type

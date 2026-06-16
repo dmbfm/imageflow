@@ -1,3 +1,4 @@
+import ComponentKit
 import SharedModels
 import Values
 import XKit
@@ -6,16 +7,14 @@ final class NodeOutputsView: XViewEx {
 
     private(set) var outputViews: [NodeOutputView] = []
 
-    lazy var stackView: XStackView = {
-        let view = XStackView(views: [self.titleLabel])
-        view.orientation = .vertical
-        view.alignment = .leading
+    lazy var stackView: VStack = {
+        let view = VStack(alignment: .fill, views: [self.titleLabel])
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
-    lazy var titleLabel: XLabel = {
-        var label = XLabel(labelWithString: "Outputs")
+    lazy var titleLabel: Label = {
+        var label = Label("Outputs")
         label.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .bold)
         return label
     }()
@@ -49,12 +48,7 @@ final class NodeOutputsView: XViewEx {
     }
 
     func addOutputView(_ view: NodeOutputView) {
-        self.stackView.addArrangedSubview(view)
+        self.stackView.addView(view)
         self.outputViews.append(view)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-        ])
     }
 }

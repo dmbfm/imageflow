@@ -1,3 +1,4 @@
+import ComponentKit
 import XKit
 
 class ScrollableStackXView: XViewEx {
@@ -11,13 +12,10 @@ class ScrollableStackXView: XViewEx {
         return view
     }()
 
-    lazy var stackView: XStackView = {
-        let view = XStackView()
-        view.orientation = .vertical
-        view.alignment = .leading
+    lazy var stackView: VStack = {
+        let view = VStack(alignment: .fill, views: [])
         view.translatesAutoresizingMaskIntoConstraints = false
         view.spacing = 16
-
         return view
     }()
 
