@@ -26,6 +26,7 @@ public protocol Rx: AnyObject {
 }
 
 public extension Rx {
+    @discardableResult
     func rx<V>(_ publisher: any Publisher<V, Never>, kp: ReferenceWritableKeyPath<Self, V>) -> Self {
         publisher
             .sink { [weak self] in self?[keyPath: kp] = $0 }
@@ -33,6 +34,7 @@ public extension Rx {
         return self
     }
 
+    @discardableResult
     func rx<V>(_ publisher: any Publisher<V, Never>, setter: @escaping (Self, V) -> ()) -> Self {
         publisher
             .sink { [weak self] value in self.map({ setter($0, value) }) }

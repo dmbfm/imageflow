@@ -35,6 +35,13 @@ public final class TabView: XView, WithRef {
         public var view: XView
         public var label: String
         public var icon: String?
+
+        public init(view: XView, label: String, icon: String? = nil) {
+            self.view = view
+            self.label = label
+            self.icon = icon
+        }
+
     }
 
     private lazy var segmentedControlView: NSSegmentedControl = {
@@ -43,7 +50,9 @@ public final class TabView: XView, WithRef {
         view.target = self
         view.action = #selector(Self.segmentedControlHandler)
         view.controlSize = .large
-        view.segmentDistribution = .fillEqually
+        // NOTE: Connented-out this line because, for some reason, it caused
+        // some glithces when resizing.
+        // view.segmentDistribution = .fillEqually
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -80,22 +89,22 @@ public final class TabView: XView, WithRef {
         switch segmentedControlAlignment {
         case .center:
             NSLayoutConstraint.activate([
-                self.segmentedControlView.topAnchor.constraint(equalTo: self.topAnchor),
-                self.segmentedControlView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+                self.segmentedControlView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
+                self.segmentedControlView.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
             ])
         case .fill:
             NSLayoutConstraint.activate([
-                self.segmentedControlView.topAnchor.constraint(equalTo: self.topAnchor),
-                self.segmentedControlView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                self.segmentedControlView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                self.segmentedControlView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
+                self.segmentedControlView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
+                self.segmentedControlView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
             ])
         }
 
         self.addSubview(self.contentView)
         NSLayoutConstraint.activate([
-            self.contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            self.contentView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
+            self.contentView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
+            self.contentView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor),
         ])
         self.spacingConstraint = self.contentView.topAnchor.constraint(
             equalTo: self.segmentedControlView.bottomAnchor,
