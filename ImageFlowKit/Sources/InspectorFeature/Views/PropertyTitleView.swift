@@ -25,8 +25,6 @@ final class PropertyTitleView: XView, Rx, WithRef {
 
     public var type: String? = nil
 
-    public var context: InspectorContext? = nil
-
     var cancellables: Set<AnyCancellable> = []
 
     private var _connected: Bool {
@@ -34,9 +32,7 @@ final class PropertyTitleView: XView, Rx, WithRef {
     }
 
     lazy var portButtonView: PortButton = {
-        PortButton(self._connected) { [weak self] in
-            self?.context?.onPortClick?()
-        }
+        PortButton(self._connected)
     }()
 
     lazy var labelView: Label = {
@@ -44,10 +40,8 @@ final class PropertyTitleView: XView, Rx, WithRef {
     }()
 
     lazy var restoreButton: Button = {
-        Button("", systemSymbolName: "arrow.uturn.backward") { [weak self] in
-            self?.context?.onRestoreButtonClick?()
-        }
-        .with(\.isBordered, false)
+        Button("", systemSymbolName: "arrow.uturn.backward")
+            .with(\.isBordered, false)
     }()
 
     lazy var typePillView: Pill = {
@@ -83,13 +77,11 @@ final class PropertyTitleView: XView, Rx, WithRef {
         connected: Bool? = nil,
         hasChanges: Bool = false,
         type: String? = nil,
-        context: InspectorContext? = nil
     ) {
         self.label = label
         self.connected = connected
         self.hasChanges = hasChanges
         self.type = type
-        self.context = context
 
         super.init(frame: .zero)
 
@@ -131,7 +123,6 @@ final class PropertyTitleView: XView, Rx, WithRef {
         connected: true,
         hasChanges: true,
         type: "Float",
-        context: .init(onPortClick: { print("port!") }, onRestoreButtonClick: { print("restore!") })
     )
     .constrainingWidth(toConstant: 320)
 }

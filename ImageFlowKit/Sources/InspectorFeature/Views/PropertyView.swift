@@ -31,11 +31,6 @@ final class PropertyView: XView, Rx, WithRef {
         set { self.titleView.type = newValue }
     }
 
-    public var context: InspectorContext? {
-        get { self.titleView.context }
-        set { self.titleView.context = newValue }
-    }
-
     public var configuration: Configuration = .regular {
         didSet {
             self.updateConfiguration()
@@ -50,7 +45,7 @@ final class PropertyView: XView, Rx, WithRef {
     }
 
     lazy var boxView: ComponentKit::Box = {
-        block(self.stackView)
+        Box(inspectorBlockWithView: self.stackView)
             .with(\.translatesAutoresizingMaskIntoConstraints, false)
     }()
 
@@ -134,15 +129,13 @@ final class PropertyView: XView, Rx, WithRef {
             PropertyView(Label("Control View"))
                 .with(\.connected, false)
                 .with(\.hasChanges, true)
-                .with(\.context, .init(onPortClick: { print("port!") }, onRestoreButtonClick: { print("restore!") }))
                 .with(\.configuration, .compact),
 
             PropertyView(Label("Control View"), configuration: .compact)
                 .with(\.connected, false)
                 .with(\.hasChanges, true)
                 .with(\.configuration, .regular)
-                .with(\.view, Label("Another Control View"))
-                .with(\.context, .init(onPortClick: { print("port!") }, onRestoreButtonClick: { print("restore!") })),
+                .with(\.view, Label("Another Control View")),
         ]
     )
     .constrainingWidth(toConstant: 320)

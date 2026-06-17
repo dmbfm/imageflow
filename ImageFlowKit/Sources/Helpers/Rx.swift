@@ -42,3 +42,28 @@ public extension Rx {
         return self
     }
 }
+
+public protocol RxEventHandler: Rx {
+    associatedtype Event
+    func receive(event: Event)
+    func handleEvents(from publisher: any Publisher<Event, Never>)
+}
+
+public extension RxEventHandler {
+    func handleEvents(from publisher: any Publisher<Event, Never>) {
+        publisher.sink { [weak self] event in
+            self?.receive(event: event)
+        }.store(in: &self.cancellables)
+    }
+}
+
+public extension Publisher {
+    func sendEvents<Handler>(to handler: Handler)
+    where
+        Handler: RxEventHandler,
+        Failure == Never,
+        Output == Handler.Event
+    {
+        handler.handleEvents(from: self)
+    }
+}

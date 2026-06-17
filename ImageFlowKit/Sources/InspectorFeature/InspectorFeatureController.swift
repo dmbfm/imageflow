@@ -2,6 +2,25 @@ import ComponentKit
 import SharedModels
 import XKit
 
+@MainActor
+protocol InspectorContext {
+    var undoManager: UndoManager? { get }
+}
+
+struct InspectorFeatureControllerProxy: InspectorContext {
+
+    weak var controller: InspectorFeatureController?
+
+    init(_ controller: InspectorFeatureController) {
+        self.controller = controller
+    }
+
+    @MainActor
+    var undoManager: UndoManager? {
+        self.controller?.undoManager
+    }
+}
+
 public class InspectorFeatureController: XViewController {
 
     @ViewLoading var tabView: TabView
@@ -20,14 +39,15 @@ public class InspectorFeatureController: XViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
-        self.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.view.widthAnchor.constraint(greaterThanOrEqualToConstant: 240),
-            self.view.widthAnchor.constraint(lessThanOrEqualToConstant: 600),
-        ])
+    class ContainerView: XView {
+    }
 
-        self.nodeTabView = NodeTabView(.init(self.flow))
+    public override func loadView() {
+        self.view = ContainerView(frame: .zero)
+    }
+
+    public override func viewDidLoad() {
+        self.nodeTabView = NodeTabView(.init(self.flow, InspectorFeatureControllerProxy(self)))
         self.canvasTabView = CanvasTabView()
         self.undoHistoryTabView = UndoHistoryTabView()
 
@@ -50,7 +70,7 @@ public class InspectorFeatureController: XViewController {
                 ),
             ],
             selectedIndex: 0
-        )
+        ).with(\.spacing, 12)
         self.tabView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(self.tabView)
         self.tabView.constraintToFillSuperview(insets: .init(top: 0, left: 10, bottom: 0, right: 10))

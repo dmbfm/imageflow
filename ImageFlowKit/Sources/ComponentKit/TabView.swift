@@ -52,7 +52,7 @@ public final class TabView: XView, WithRef {
         view.controlSize = .large
         // NOTE: Connented-out this line because, for some reason, it caused
         // some glithces when resizing.
-        // view.segmentDistribution = .fillEqually
+        view.segmentDistribution = .fillEqually
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

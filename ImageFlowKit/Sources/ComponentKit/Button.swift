@@ -9,6 +9,8 @@ public final class Button: XButton, Rx, WithRef {
 
     public var cancellables: Set<AnyCancellable> = []
 
+    public var publisher: PassthroughSubject<(), Never> = .init()
+
     public init(
         _ label: String,
         image: XImage? = nil,
@@ -50,6 +52,7 @@ public final class Button: XButton, Rx, WithRef {
 
     @objc func click() {
         self.onClick?()
+        self.publisher.send(())
     }
 }
 

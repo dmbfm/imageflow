@@ -57,7 +57,7 @@ public final class Flow {
             if self.selection != oldValue {
                 self.emitter.emit(.selectionDidChange(self.selection, liveSelect: self.liveSelectSnapshot != nil))
                 self.selectionCount = self.selection.count
-                self.selectionDidChangePublisher.send(())
+                self.selectionDidChangePublisher.send(self.selection)
             }
         }
     }
@@ -91,7 +91,7 @@ public final class Flow {
     }
 
     public var nodesDidChangePublisher: PassthroughSubject<(), Never> = .init()
-    public var selectionDidChangePublisher: PassthroughSubject<(), Never> = .init()
+    public var selectionDidChangePublisher: CurrentValueSubject<Set<UUID>, Never>
 
     var portDraggingState: PortDraggingState = .idle
 
@@ -117,6 +117,7 @@ public final class Flow {
         self.edges = edges
         self.nodeCount = nodes.count
         self.selectionCount = selection.count
+        self.selectionDidChangePublisher = .init(selection)
     }
 
     /// Creates a new flow model.
@@ -136,6 +137,7 @@ public final class Flow {
         self.edges = edges
         self.nodeCount = nodes.count
         self.selectionCount = selection.count
+        self.selectionDidChangePublisher = .init(selection)
     }
 
     convenience public init() {
