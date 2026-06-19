@@ -4,7 +4,6 @@ import Helpers
 import XKit
 
 final class PropertyView: XView, Rx, WithRef {
-
     public var view: XView {
         didSet {
             self.updateView(oldValue)

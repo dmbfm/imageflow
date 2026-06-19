@@ -4,6 +4,36 @@ import Helpers
 import SharedModels
 import XKit
 
+final class NodeInputsView: XView, Rx, WithRef {
+
+    var cancellables: Set<AnyCancellable> = []
+
+    lazy var stackView: VStack = {
+        VStack(
+            alignment: .fill,
+            spacing: 8,
+            views: [
+                Label("Inputs")
+                    .with(\.font, .systemFont(ofSize: XFont.systemFontSize, weight: .bold))
+            ]
+        )
+        .with(\.translatesAutoresizingMaskIntoConstraints, false)
+    }()
+
+    var controls: [NodeInputControl] = []
+
+    init() {
+        super.init(frame: .zero)
+
+        self.addSubview(self.stackView)
+        self.stackView.constraintToFillSuperview()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 final class NodeTabView: XView, Rx {
 
     var vm: NodeTabViewModel
@@ -38,6 +68,10 @@ final class NodeTabView: XView, Rx {
         NodeTypeView()
     }()
 
+    lazy var nodeInputsView: NodeInputsView = {
+        NodeInputsView()
+    }()
+
     init(_ vm: NodeTabViewModel) {
         self.vm = vm
 
@@ -64,6 +98,7 @@ final class NodeTabView: XView, Rx {
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
+        self.stackView.addView(self.nodeInputsView)
     }
 
     func setupBindings() {

@@ -1,7 +1,11 @@
+import Backend
 import Combine
 import Helpers
 import SharedModels
+import Values
 import XKit
+
+struct OutputModel: Equatable {}
 
 @MainActor
 final class NodeTabViewModel: RxEventHandler, WithRef {
@@ -11,13 +15,13 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     @Published var route: Route = .contentUnavailable
     @Published var name: String = ""
     @Published var icon: String = ""
-    @Published var locked: Bool = false {
-        didSet {
-            self.lockedDidChange()
-        }
-    }
+    @Published var locked: Bool = false { didSet { self.lockedDidChange() } }
     @Published var typeName: String = ""
     @Published var typeOptions: [String] = []
+    @Published var controls: [InputModel] = []
+    @Published var inputs: [InputModel] = []
+    @Published var options: [InputModel] = []
+    @Published var outputs: [OutputModel] = []
 
     // MARK: - Other Properties
 
@@ -30,7 +34,7 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     }
 
     var cancellables: Set<AnyCancellable> = []
-    let flow: Flow
+    let flow: SharedModels::Flow
     let context: InspectorContext
 
     // MARK: - Types
@@ -50,7 +54,7 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
 
     // MARK: - Initialization
 
-    init(_ flow: Flow, _ context: any InspectorContext) {
+    init(_ flow: SharedModels::Flow, _ context: any InspectorContext) {
         self.flow = flow
         self.context = context
 
@@ -154,6 +158,11 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
         if self.typeOptions != typeOptions {
             self.typeOptions = typeOptions
         }
+
+        let allInputs = node.inputModels
+        self.inputs = allInputs.filter({ $0.placement == .inputs })
+        self.controls = allInputs.filter({ $0.placement == .controls })
+        self.options = allInputs.filter({ $0.placement == .options })
     }
 
     func lockedDidChange() {
@@ -196,5 +205,34 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
                 self.context.coordinator?.perform(userAction: .convertNode(node.id, newKind))
             }
         }
+    }
+}
+
+extension NodeTabViewModel {
+    struct InputModel: Equatable {
+        public var name: String = ""
+        // public var node: UUID = .init()
+        public var index: Int = 0
+        public var value: Value = .float(0)
+        public var connected: Bool = false
+        public var semantics: ValueSemantics = .default
+        public var placement: NodeInputSchema.EditorPlacement.Inspector
+
+        init(input: FlowNode.Input, schema: NodeInputSchema) {
+            self.name = input.label
+            self.index = input.index
+            self.value = input.value
+            self.connected = input.connected
+            self.semantics = schema.semantics
+            self.placement = schema.editorPlacement.inspector
+        }
+    }
+}
+
+extension FlowNode {
+    var inputModels: [NodeTabViewModel.InputModel] {
+        zip(self.inputs, self.schema.inputs).map({ (input, schema) in
+            .init(input: input, schema: schema)
+        })
     }
 }
