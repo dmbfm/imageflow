@@ -17,7 +17,7 @@ func valueAtShouldReturnCorrectValue() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "", index: 0, value: .float(0.5), semantics: .default, connected: false)],
+        inputs: [.init(label: "", index: 0, value: .float(0.5), connected: false)],
         outputs: []
     )
 
@@ -30,7 +30,7 @@ func valueAtShouldSetValue() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "", index: 0, value: .float(0.5), semantics: .default, connected: false)],
+        inputs: [.init(label: "", index: 0, value: .float(0.5), connected: false)],
         outputs: []
     )
 
@@ -44,7 +44,7 @@ func valueTypeAtShouldReturnCorrectType() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "", index: 0, value: .float(0.5), semantics: .default, connected: false)],
+        inputs: [.init(label: "", index: 0, value: .float(0.5), connected: false)],
         outputs: []
     )
 
@@ -57,7 +57,7 @@ func labelAtShouldReturnCorrectValue() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: false)],
+        inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: false)],
         outputs: []
     )
 
@@ -70,7 +70,7 @@ func connectedAtShouldReturnCorrectValue() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: true)],
+        inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: true)],
         outputs: []
     )
 
@@ -83,7 +83,7 @@ func connectedAtShouldSetCorrectValue() async {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: true)],
+        inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: true)],
         outputs: []
     )
 
@@ -98,7 +98,7 @@ func slotsTest() {
         id: .init(),
         name: "",
         kind: .valueNode(.float),
-        inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: true)],
+        inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: true)],
         outputs: [.init(label: "", index: 0, type: .float, connected: false)]
     )
 
@@ -112,7 +112,7 @@ func testNumConnectedSlots() {
             id: .init(),
             name: "",
             kind: .valueNode(.float),
-            inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: true)],
+            inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: true)],
             outputs: [.init(label: "", index: 0, type: .float, connected: false)]
         ).numConnectedSlots == 1
     )
@@ -121,7 +121,7 @@ func testNumConnectedSlots() {
             id: .init(),
             name: "",
             kind: .valueNode(.float),
-            inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: true)],
+            inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: true)],
             outputs: [.init(label: "", index: 0, type: .float, connected: true)]
         ).numConnectedSlots == 2
     )
@@ -130,7 +130,7 @@ func testNumConnectedSlots() {
             id: .init(),
             name: "",
             kind: .valueNode(.float),
-            inputs: [.init(label: "Number", index: 0, value: .float(0.5), semantics: .default, connected: false)],
+            inputs: [.init(label: "Number", index: 0, value: .float(0.5), connected: false)],
             outputs: [.init(label: "", index: 0, type: .float, connected: false)]
         ).numConnectedSlots == 0
     )

@@ -4,7 +4,7 @@ import SharedModels
 import XKit
 
 @MainActor
-final class NodeTabViewModel: RxEventHandler {
+final class NodeTabViewModel: RxEventHandler, WithRef {
 
     // MARK: - Published Properties
 
@@ -16,6 +16,8 @@ final class NodeTabViewModel: RxEventHandler {
             self.lockedDidChange()
         }
     }
+    @Published var typeName: String = ""
+    @Published var typeOptions: [String] = []
 
     // MARK: - Other Properties
 
@@ -143,6 +145,15 @@ final class NodeTabViewModel: RxEventHandler {
         if self.icon != node.kind.icon {
             self.icon = node.kind.icon
         }
+
+        if self.typeName != node.kind.displayName {
+            self.typeName = node.kind.displayName
+        }
+
+        let typeOptions = node.variations.map({ $0.displayName })
+        if self.typeOptions != typeOptions {
+            self.typeOptions = typeOptions
+        }
     }
 
     func lockedDidChange() {
@@ -156,6 +167,7 @@ final class NodeTabViewModel: RxEventHandler {
     enum Event {
         case editName(String)
         case lockButtonClick
+        case nodeTypeSelected(Int)
     }
 
     func receive(event: Event) {
@@ -164,6 +176,8 @@ final class NodeTabViewModel: RxEventHandler {
             self.updateNodeName(newName)
         case .lockButtonClick:
             self.toggleLocked()
+        case .nodeTypeSelected(let index):
+            self.nodeTypeSelected(index)
         }
     }
 
@@ -172,5 +186,15 @@ final class NodeTabViewModel: RxEventHandler {
     func updateNodeName(_ newName: String) {
         guard let node = self.currentNode else { return }
         self.flow.setNodeName(id: node.id, newValue: newName, undoManager: self.context.undoManager)
+    }
+
+    func nodeTypeSelected(_ index: Int) {
+        guard let node = self.currentNode else { return }
+        if node.variations.indices.contains(index) {
+            let newKind = node.variations[index]
+            if newKind != node.kind {
+                self.context.coordinator?.perform(userAction: .convertNode(node.id, newKind))
+            }
+        }
     }
 }

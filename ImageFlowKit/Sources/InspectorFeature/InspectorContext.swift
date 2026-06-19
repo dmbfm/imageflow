@@ -1,16 +1,25 @@
 import ContextMenus
 import Foundation
+import SharedModels
 import XKit
 
 @MainActor
 protocol InspectorContext {
     var undoManager: UndoManager? { get }
+    var coordinator: GlobalCoordinator? { get }
     var nodeContextMenuProvider: (UUID) -> XMenu? { get }
 }
 
-struct InspectorFeatureControllerProxy: InspectorContext {
+extension InspectorContext where Self == DummyInspectorContext {
+    static var dummy: DummyInspectorContext { DummyInspectorContext() }
+}
 
+struct InspectorFeatureControllerProxy: InspectorContext {
     weak var controller: InspectorFeatureController?
+
+    var coordinator: GlobalCoordinator? {
+        self.controller?.coordinator
+    }
 
     init(_ controller: InspectorFeatureController) {
         self.controller = controller
@@ -27,4 +36,12 @@ struct InspectorFeatureControllerProxy: InspectorContext {
             return NodeContextMenu.make(flow, id, showSelectAll: false)
         }
     }
+}
+
+struct DummyInspectorContext: InspectorContext {
+    let coordinator: SharedModels.GlobalCoordinator? = nil
+
+    let undoManager: UndoManager? = nil
+
+    let nodeContextMenuProvider: (UUID) -> XKit.XMenu? = { _ in nil }
 }

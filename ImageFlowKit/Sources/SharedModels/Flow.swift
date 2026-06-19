@@ -185,13 +185,13 @@ extension Flow {
     /// - Returns: `true` if the node was added; `false` if there was another node
     /// with the same `id`, in which case nothing is done.
     @discardableResult
-    public func addNode(_ node: FlowNode, at position: CGPoint) -> Bool {
+    public func addNode(_ node: FlowNode, at position: CGPoint) -> UUID? {
         if !self.hasNode(node.id) {
             self.nodes[node.id] = node
             self.nodePositions[node.id] = position
-            return true
+            return node.id
         } else {
-            return false
+            return nil
         }
     }
 
@@ -266,7 +266,7 @@ extension Flow {
 extension Flow {
     @discardableResult
     func addNode(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) -> Bool {
-        if self.addNode(node, at: position) {
+        if self.addNode(node, at: position) != nil {
             um?.registerUndo(
                 withTarget: self,
                 handler: { [weak um] this in

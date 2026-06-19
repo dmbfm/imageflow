@@ -34,6 +34,10 @@ final class NodeTabView: XView, Rx {
         return view
     }()
 
+    lazy var nodeTypeView: NodeTypeView = {
+        NodeTypeView()
+    }()
+
     init(_ vm: NodeTabViewModel) {
         self.vm = vm
 
@@ -59,6 +63,7 @@ final class NodeTabView: XView, Rx {
         self.stackView.constraintToFillSuperview()
 
         self.stackView.addView(self.nodeTitleView)
+        self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
     }
 
     func setupBindings() {
@@ -70,11 +75,15 @@ final class NodeTabView: XView, Rx {
         self.nodeTitleView.rx(self.vm.$name, kp: \.name)
         self.nodeTitleView.rx(self.vm.$icon, kp: \.icon)
         self.nodeTitleView.rx(self.vm.$locked, kp: \.locked)
+
+        self.nodeTypeView.rx(self.vm.$typeName, kp: \.name)
+        self.nodeTypeView.rx(self.vm.$typeOptions, kp: \.options)
     }
 
     func setupNotifications() {
         self.vm.handleEvents(from: self.nodeTitleView.didEditNodeName.map({ .editName($0) }))
         self.vm.handleEvents(from: self.nodeTitleView.lockButtonPublisher.map({ .lockButtonClick }))
+        self.vm.handleEvents(from: self.nodeTypeView.selectedIndexPublisher.map({ .nodeTypeSelected($0) }))
     }
 
     @objc func rename(_ sender: Any?) {
@@ -83,4 +92,39 @@ final class NodeTabView: XView, Rx {
         self.nodeTitleView.nameTextField.becomeFirstResponder()
         self.nodeTitleView.nameTextField.isFocusable = false
     }
+}
+
+#Preview("Content Unavailable") {
+    NodeTabView(.init(.init(), .dummy))
+        .constrainingWidth(toConstant: 320)
+}
+
+#Preview("Float Node") {
+    NodeTabView(
+        .init(
+            {
+                let flow = Flow()
+                let id = flow.addNode(.init(kind: .valueNode(.float)), at: .zero)
+                flow.selection = [id!]
+                return flow
+            }(),
+            .dummy
+        )
+    )
+    .constrainingWidth(toConstant: 320)
+}
+
+#Preview("Add Node") {
+    NodeTabView(
+        .init(
+            {
+                let flow = Flow()
+                let id = flow.addNode(.init(kind: .math(.addNode(.float))), at: .zero)
+                flow.selection = [id!]
+                return flow
+            }(),
+            .dummy
+        )
+    )
+    .constrainingWidth(toConstant: 320)
 }

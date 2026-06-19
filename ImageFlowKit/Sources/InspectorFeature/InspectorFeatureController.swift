@@ -10,9 +10,11 @@ public class InspectorFeatureController: XViewController {
     @ViewLoading var undoHistoryTabView: UndoHistoryTabView
 
     let flow: Flow
+    let coordinator: GlobalCoordinator
 
     public init(_ flow: Flow, _ coordinator: GlobalCoordinator) {
         self.flow = flow
+        self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
     }
 
