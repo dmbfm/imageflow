@@ -5,7 +5,7 @@ import SharedModels
 
 public struct NodeContextMenu {
     @MainActor
-    public static func make(_ flow: Flow, _ node: UUID) -> NSMenu? {
+    public static func make(_ flow: Flow, _ node: UUID, showSelectAll: Bool = true) -> NSMenu? {
 
         let menu = NSMenu()
 
@@ -73,16 +73,18 @@ public struct NodeContextMenu {
                 keyEquivatletModifierMask: []
             )
         )
-        menu.addItem(
-            NSMenuItemForNode(
-                node: node,
-                title: "Select All",
-                systemSymbolName: .systemIconMenuSelectAll,
-                accessibilityDescription: "Select All",
-                action: #selector(NSResponder.selectAll(_:)),
-                keyEquivalent: "a"
+        if showSelectAll {
+            menu.addItem(
+                NSMenuItemForNode(
+                    node: node,
+                    title: "Select All",
+                    systemSymbolName: .systemIconMenuSelectAll,
+                    accessibilityDescription: "Select All",
+                    action: #selector(NSResponder.selectAll(_:)),
+                    keyEquivalent: "a"
+                )
             )
-        )
+        }
         return menu
     }
 }

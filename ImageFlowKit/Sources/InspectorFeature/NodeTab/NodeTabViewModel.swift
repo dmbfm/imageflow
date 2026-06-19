@@ -55,6 +55,12 @@ final class NodeTabViewModel: RxEventHandler {
         self.setupObservers()
     }
 
+    // MARK: - View-related
+
+    func nodeContextMenu() -> XMenu? {
+        self.currentNode.flatMap({ self.context.nodeContextMenuProvider($0.id) })
+    }
+
     // MARK: - Model Observation
 
     var selectionWhenUnlockedPublisher: AnyPublisher<Set<UUID>, Never> {
@@ -99,7 +105,7 @@ final class NodeTabViewModel: RxEventHandler {
         }
     }
 
-    // MARK: - State Mutation
+    // MARK: - State
 
     func setRoute(_ route: Route) {
         self.route = route

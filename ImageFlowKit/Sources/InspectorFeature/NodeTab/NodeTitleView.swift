@@ -42,6 +42,7 @@ final class NodeTitleView: XView, Rx {
     lazy var iconView: Icon = {
         Icon(systemName: self.icon)
             .with(\.fontConfiguration, .preferred(.headline))
+            .with(\.scale, .large)
     }()
 
     lazy var nameTextField: NodeNameTextField = {
@@ -68,9 +69,8 @@ final class NodeTitleView: XView, Rx {
     lazy var nodeTitleEllipsisButton: EllipsisMenuButton = {
         let view = EllipsisMenuButton(
             image:
-                .init(systemSymbolName: "ellipsis", accessibilityDescription: nil)!.withSymbolConfiguration(
-                    .init(scale: .large)
-                )!
+                .init(systemSymbolName: "ellipsis", accessibilityDescription: nil)!
+                .withSymbolConfiguration(.init(scale: .large))!
         )
         view.onMouseDown = { [weak self, weak view] event in
             if let view, let menu = self?.nodeContextMenuProvider?() {
@@ -82,7 +82,7 @@ final class NodeTitleView: XView, Rx {
 
     lazy var stackView: ComponentKit::HStack = {
         let view = HStack(
-            alignment: .center,
+            alignment: .firstTextBaseline,
             views: [
                 self.iconView, self.nameTextField, self.lockButtonView, self.nodeTitleEllipsisButton,
             ]

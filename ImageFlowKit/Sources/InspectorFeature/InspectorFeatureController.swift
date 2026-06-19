@@ -1,28 +1,9 @@
 import ComponentKit
+import ContextMenus
 import SharedModels
 import XKit
 
-@MainActor
-protocol InspectorContext {
-    var undoManager: UndoManager? { get }
-}
-
-struct InspectorFeatureControllerProxy: InspectorContext {
-
-    weak var controller: InspectorFeatureController?
-
-    init(_ controller: InspectorFeatureController) {
-        self.controller = controller
-    }
-
-    @MainActor
-    var undoManager: UndoManager? {
-        self.controller?.undoManager
-    }
-}
-
 public class InspectorFeatureController: XViewController {
-
     @ViewLoading var tabView: TabView
     @ViewLoading var nodeTabView: NodeTabView
     @ViewLoading var canvasTabView: CanvasTabView

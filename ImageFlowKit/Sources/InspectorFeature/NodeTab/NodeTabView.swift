@@ -28,6 +28,9 @@ final class NodeTabView: XView, Rx {
 
     lazy var nodeTitleView: NodeTitleView = {
         let view = NodeTitleView(icon: "questionmark", name: "", locked: false)
+        view.nodeContextMenuProvider = { [weak self] in
+            self?.vm.nodeContextMenu()
+        }
         return view
     }()
 
@@ -72,5 +75,12 @@ final class NodeTabView: XView, Rx {
     func setupNotifications() {
         self.vm.handleEvents(from: self.nodeTitleView.didEditNodeName.map({ .editName($0) }))
         self.vm.handleEvents(from: self.nodeTitleView.lockButtonPublisher.map({ .lockButtonClick }))
+    }
+
+    @objc func rename(_ sender: Any?) {
+        if self.isHidden { return }
+        self.nodeTitleView.nameTextField.isFocusable = true
+        self.nodeTitleView.nameTextField.becomeFirstResponder()
+        self.nodeTitleView.nameTextField.isFocusable = false
     }
 }

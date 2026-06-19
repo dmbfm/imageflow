@@ -96,7 +96,11 @@ public final class Icon: XView, WithRef {
 
         self.addSubview(self.imageView)
         self.imageView.translatesAutoresizingMaskIntoConstraints = false
-        self.imageView.constraintToFillSuperview()
+        NSLayoutConstraint.activate([
+            self.imageView.firstBaselineAnchor.constraint(equalTo: self.firstBaselineAnchor),
+            self.imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            self.imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+        ])
 
         self.update()
     }
