@@ -71,6 +71,6 @@ final class NodeTabView: XView, Rx {
 
     func setupNotifications() {
         self.vm.handleEvents(from: self.nodeTitleView.didEditNodeName.map({ .editName($0) }))
+        self.vm.handleEvents(from: self.nodeTitleView.lockButtonPublisher.map({ .lockButtonClick }))
     }
 }
-

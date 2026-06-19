@@ -11,7 +11,11 @@ final class NodeTabViewModel: RxEventHandler {
     @Published var route: Route = .contentUnavailable
     @Published var name: String = ""
     @Published var icon: String = ""
-    @Published var locked: Bool = false
+    @Published var locked: Bool = false {
+        didSet {
+            self.lockedDidChange()
+        }
+    }
 
     // MARK: - Other Properties
 
@@ -66,19 +70,8 @@ final class NodeTabViewModel: RxEventHandler {
     }
 
     func observeSelection() {
-        self.selectionWhenUnlockedPublisher.sink { [unowned self] selection in
-            self.setRoute(selection.isEmpty ? .contentUnavailable : .node)
-        }.store(in: &self.cancellables)
-
-        self.selectionWhenUnlockedPublisher.sink { [unowned self] selection in
-            switch (self.currentNode, selection) {
-            case (.some(_), []), (.none, []):
-                self.setCurrentNode(nil)
-            case (.some(let node), let selection) where selection.contains(node.id):
-                break
-            case (.some(_), _), (.none, _):
-                self.pickNewNodeFromSelection()
-            }
+        self.selectionWhenUnlockedPublisher.sink { [unowned self] _ in
+            self.selectionDidChange()
         }.store(in: &self.cancellables)
     }
 
@@ -93,6 +86,19 @@ final class NodeTabViewModel: RxEventHandler {
         self.setCurrentNode(newValue)
     }
 
+    func selectionDidChange() {
+        self.setRoute(self.flow.selection.isEmpty ? .contentUnavailable : .node)
+
+        switch (self.currentNode, self.flow.selection) {
+        case (.some(_), []), (.none, []):
+            self.setCurrentNode(nil)
+        case (.some(let node), let selection) where selection.contains(node.id):
+            break
+        case (.some(_), _), (.none, _):
+            self.pickNewNodeFromSelection()
+        }
+    }
+
     // MARK: - State Mutation
 
     func setRoute(_ route: Route) {
@@ -101,6 +107,10 @@ final class NodeTabViewModel: RxEventHandler {
 
     func setCurrentNode(_ node: FlowNode?) {
         self.currentNode = node
+    }
+
+    func toggleLocked() {
+        self.locked.toggle()
     }
 
     func pickNewNodeFromSelection() {
@@ -129,16 +139,25 @@ final class NodeTabViewModel: RxEventHandler {
         }
     }
 
+    func lockedDidChange() {
+        if !self.locked {
+            self.selectionDidChange()
+        }
+    }
+
     // MARK: - Events
 
     enum Event {
         case editName(String)
+        case lockButtonClick
     }
 
     func receive(event: Event) {
         switch event {
         case .editName(let newName):
             self.updateNodeName(newName)
+        case .lockButtonClick:
+            self.toggleLocked()
         }
     }
 
