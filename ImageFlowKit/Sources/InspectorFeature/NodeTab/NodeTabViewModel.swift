@@ -12,16 +12,16 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
 
     // MARK: - Published Properties
 
-    @Published var route: Route = .contentUnavailable
-    @Published var name: String = ""
-    @Published var icon: String = ""
-    @Published var locked: Bool = false { didSet { self.lockedDidChange() } }
-    @Published var typeName: String = ""
-    @Published var typeOptions: [String] = []
-    @Published var controls: [InputModel] = []
-    @Published var inputs: [InputModel] = []
-    @Published var options: [InputModel] = []
-    @Published var outputs: [OutputModel] = []
+    @PublishedEx var route: Route = .contentUnavailable
+    @PublishedEx var name: String = ""
+    @PublishedEx var icon: String = ""
+    @PublishedEx var locked: Bool = false { didSet { self.lockedDidChange() } }
+    @PublishedEx var typeName: String = ""
+    @PublishedEx var typeOptions: [String] = []
+
+    @PublishedEx var inputs: NodeInputsViewModel  // = .init().with(\.title, "Inputs")
+    var options: NodeInputsViewModel  //= .init().with(\.title, "Options")
+    var controls: NodeInputsViewModel  // = .init().with(\.title, "")
 
     // MARK: - Other Properties
 
@@ -57,6 +57,9 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     init(_ flow: SharedModels::Flow, _ context: any InspectorContext) {
         self.flow = flow
         self.context = context
+        self.inputs = .init().with(\.context, context).with(\.title, "Inputs")
+        self.options = .init().with(\.context, context).with(\.title, "Options")
+        self.controls = .init().with(\.context, context).with(\.title, "")
 
         self.setupObservers()
     }
@@ -71,7 +74,6 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
 
     var selectionWhenUnlockedPublisher: AnyPublisher<Set<UUID>, Never> {
         self.flow.selectionDidChangePublisher
-            .print("selectionWhenUnlockedPublisher")
             .filter({ [unowned self] _ in !self.locked })
             .eraseToAnyPublisher()
     }
@@ -159,10 +161,11 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
             self.typeOptions = typeOptions
         }
 
-        let allInputs = node.inputModels
-        self.inputs = allInputs.filter({ $0.placement == .inputs })
-        self.controls = allInputs.filter({ $0.placement == .controls })
-        self.options = allInputs.filter({ $0.placement == .options })
+        self.inputs.update(
+            node.id,
+            zip(node.inputs, node.schema.inputs)
+                .filter({ (input, schema) in schema.editorPlacement.inspector == .inputs })
+        )
     }
 
     func lockedDidChange() {

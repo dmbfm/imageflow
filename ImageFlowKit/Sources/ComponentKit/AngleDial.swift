@@ -1,21 +1,8 @@
-import Foundation
+import Combine
 import Helpers
-import SwiftUI
 import XKit
 
-#if os(iOS)
-import UIKit
-// typealias AngleDialView = AngleDialUIView
-#endif
-
-#if os(macOS)
-import AppKit
-// typealias AngleDialView = AngleDialNSView
-#endif
-
-// MARK: - AngleDialView
-
-public final class AngleDialView: XViewEx {
+public final class AngleDial: XView, WithRef {
 
     // MARK: - Exposed Properties
 
@@ -159,7 +146,7 @@ public final class AngleDialView: XViewEx {
 
 // MARK: - Style
 
-extension AngleDialView {
+extension AngleDial {
     public struct Style: With {
         public var fillColor: DynamicColor = .init(
             light: .init(white: 0.85, alpha: 1.0),
@@ -179,7 +166,7 @@ extension AngleDialView {
 
 // MARK: - DrawData
 
-extension AngleDialView {
+extension AngleDial {
     struct DrawData {
         var largeCircleRect: CGRect
         var smallCircleRect: CGRect
@@ -208,31 +195,4 @@ extension AngleDialView {
             self.smallCircleRect = smallCircleRect
         }
     }
-}
-
-// MARK: - Previews
-
-extension AngleDialView {
-    struct Preview: XViewRepresentable {
-        var angle: Double
-        var range: ClosedRange<Double>? = nil
-        func makeView(context: Context) -> AngleDialView {
-            let view = AngleDialView(angle: self.angle, range: self.range)
-            return view
-        }
-
-        func updateView(_ view: AngleDialView, context: Context) {
-
-        }
-    }
-}
-
-#Preview {
-    VStack {
-        AngleDialView.Preview(angle: 45.0.radians)
-            .frame(width: 25, height: 25)
-        AngleDialView.Preview(angle: 45.0.radians, range: (-.pi * 0.25)...(.pi * 0.25))
-            .frame(width: 25, height: 25)
-    }
-    .frame(minWidth: 300, minHeight: 300)
 }

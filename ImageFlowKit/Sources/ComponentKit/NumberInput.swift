@@ -89,7 +89,7 @@ public final class NumberInput: XView, Rx, WithRef {
 
     // MARK: - Initialization
 
-    init(
+    public init(
         _ value: Double,
         formatter: FloatingPointFormatStyle<Double> = .number,
         style: TextFieldStyle = .default
@@ -117,6 +117,7 @@ public final class NumberInput: XView, Rx, WithRef {
 
     // MARK: - Public Methods
 
+    @discardableResult
     public func onChange(_ perform: @escaping (Change) -> ()) -> Self {
         self._onChange = perform
         return self
@@ -173,6 +174,10 @@ public final class NumberInput: XView, Rx, WithRef {
     private func update() {
         self.textField.text = self.formatter.format(self.value)
         self.stepper.value = self.value
+
+        if let range = self.dragConfiguration.range {
+            self.textField.progress = range.progress(self.value)
+        }
 
         if let config = self.stepperConfiguration {
             self.stepper.isHidden = false
@@ -261,16 +266,18 @@ public final class NumberInput: XView, Rx, WithRef {
         guard self.isEnabled else { return }
 
         if gesture.state == .began {
-            self.dragStartLocation = gesture.location(in: nil)
+            self.dragStartLocation = self.convert(gesture.location(in: nil), from: nil)
         }
+
+        let currentLocation = self.convert(gesture.location(in: nil), from: nil)
 
         let dragData = DragData(
             phase: gesture.state,
             modifiers: .init(rawValue: gesture.modifierFlags.rawValue),
-            region: .zero,
-            translation: gesture.translation(in: nil),
+            region: self.bounds,
+            translation: currentLocation - self.dragStartLocation,
             start: self.dragStartLocation,
-            current: gesture.location(in: nil)
+            current: currentLocation
         )
 
         if dragData.phase == .began {
@@ -366,6 +373,8 @@ public final class NumberInput: XView, Rx, WithRef {
 
         let current = dragData.start.x + s * dragData.translation.x
         let p = ((current - dragData.region.minX) / dragData.region.width).clamped(to: 0...1)
+
+        print("s = \(s), p = \(p), current = \(current), \(dragData)")
 
         let newValue = snap.maybeReduce(
             fractionalDigits.maybeReduce(

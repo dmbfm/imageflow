@@ -4,6 +4,7 @@ import CoreImage
 import Foundation
 import Helpers
 import UniformTypeIdentifiers
+import Values
 
 public protocol GlobalCoordinatorProtocol: AnyObject {
     func perform(userAction: UserAction)
@@ -81,6 +82,7 @@ public enum UserAction {
     case selectNone
     case selectAllNodes
     case selectNodesInteractive
+    case selectNodesConnectedToPort(PortLocation)
     case pasteNodes([FlowPasteboardItem], Point?)
     case dropPasteImages(DropPasteImages)
     case exportPreviewedImage
@@ -97,6 +99,8 @@ public enum UserAction {
     case disconnect(InputPortLocation)
     case openFileImporter([UTType])
     case setCanvasViewPort(CanvasViewportModel)
+    case setNodeInputValue(port: InputPortLocation, newValue: Value, oldValue: Value?, undo: Bool)
+    case restoreNodeInputDefaultValue(InputPortLocation)
 
     public enum Target {
         case selection

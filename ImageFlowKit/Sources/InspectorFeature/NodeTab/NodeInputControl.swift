@@ -1,4 +1,5 @@
 import Combine
+import ComponentKit
 import Helpers
 import Values
 import XKit
@@ -6,9 +7,19 @@ import XKit
 @MainActor
 final class NodeInputControl: Rx, WithRef {
 
-    typealias InnerView = PropertyControlView<Values::Value, NodeInputControlContext, AnyNodeInputValueControl>
+    typealias InnerView = PropertyControlView<
+        Values::Value,
+        NodeInputControlConfiguration,
+        NodeInputControlContext,
+        AnyNodeInputValueControl
+    >
 
     public private(set) var view: InnerView
+
+    var value: Value {
+        get { self.view.control.value }
+        set { self.view.control.value = newValue }
+    }
 
     var connected: Bool {
         get { self.view.connected ?? false }
@@ -25,7 +36,22 @@ final class NodeInputControl: Rx, WithRef {
         set { self.view.label = newValue }
     }
 
+    var disabled: Bool {
+        get { false }
+        set { self.view.setDisabled(newValue) }
+    }
+
+    var restoreButtonPublisher: PassthroughSubject<(), Never> {
+        self.view.restoreButtonPublisher
+    }
+
+    var portButtonPublisher: PassthroughSubject<(), Never> {
+        self.view.portButtonPublisher
+    }
+
     var cancellables: Set<AnyCancellable> = []
+
+    var changePublisher: PassthroughSubject<Change<Value>, Never> = .init()
 
     init(view: InnerView) {
         self.view = view
@@ -34,16 +60,44 @@ final class NodeInputControl: Rx, WithRef {
     }
 
     init<C>(_ control: C, configuration: PropertyView.Configuration = .regular)
-    where C: Control<Values::Value, NodeInputControlContext> {
+    where C: Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext> {
         self.view = .init(control.eraseToAnyNodeInputValueControl(), configuration: configuration)
+        self.view.control.onChange = { [weak self] change in
+            print("node input change: \(change)")
+            self?.changePublisher.send(change)
+        }
     }
 
+    public func setDisabled(_ disabled: Bool) {
+        self.view.setDisabled(disabled)
+    }
 }
 
 struct NodeInputControlContext {
 }
 
-final class AnyNodeInputValueControl: Control<Values::Value, NodeInputControlContext> {
+enum NodeInputControlConfiguration {
+    case float(FloatControlConfiguration)
+    case angle(AngleControlConfiguration)
+    case nothing
+
+    var float: FloatControlConfiguration? {
+        switch self {
+        case .float(let float): float
+        default: nil
+        }
+    }
+
+    var angle: AngleControlConfiguration? {
+        switch self {
+        case .angle(let angle): angle
+        default: nil
+        }
+    }
+
+}
+
+final class AnyNodeInputValueControl: Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext> {
     var value: Values.Value {
         get { self.inner.value }
         set { self.inner.value = newValue }
@@ -54,8 +108,17 @@ final class AnyNodeInputValueControl: Control<Values::Value, NodeInputControlCon
         set { self.inner.context = newValue }
     }
 
+    var configuration: NodeInputControlConfiguration {
+        get { self.inner.configuration }
+        set { self.inner.configuration = newValue }
+    }
+
     var view: XView {
         self.inner.view
+    }
+
+    var auxiliaryView: XView? {
+        self.inner.auxiliaryView
     }
 
     var onChange: ((Change<Values.Value>) -> ())? {
@@ -63,46 +126,78 @@ final class AnyNodeInputValueControl: Control<Values::Value, NodeInputControlCon
         set { self.inner.onChange = newValue }
     }
 
-    var inner: any Control<Values::Value, NodeInputControlContext>
+    var inner: any Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext>
 
-    init<C>(_ inner: C) where C: Control<Values::Value, NodeInputControlContext> {
+    init<C>(_ inner: C) where C: Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext> {
         self.inner = inner
+    }
+
+    func setDisabled(_ disabled: Bool) {
+        self.inner.setDisabled(disabled)
     }
 }
 
-extension Control where Value == Values::Value, Context == NodeInputControlContext {
+extension Control
+where Value == Values::Value, Context == NodeInputControlContext, Configuration == NodeInputControlConfiguration {
     func eraseToAnyNodeInputValueControl() -> AnyNodeInputValueControl {
         .init(self)
     }
 }
 
-@MainActor
-final class ControlThatUsesContext: Control<Values::Value, NodeInputControlContext> {
-    var value: Values.Value
-
-    var context: NodeInputControlContext
-
-    let view: XKit.XView
-
-    var onChange: ((Change<Values.Value>) -> ())?
-
-    init(_ value: Value, context: NodeInputControlContext) {
-        self.value = value
-        self.context = context
-        self.view = .init()
+extension NodeInputControl {
+    static func float(
+        _ value: Value,
+        _ configuration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2))
+    ) -> NodeInputControl {
+        NodeInputControl(
+            FloatControl.map(
+                value,
+                bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
+                make: { .init($0) }
+            ).mapConfiguration(
+                .float(.init(drag: configuration)),
+                map: { $0.float ?? .init(drag: .free(.init())) }
+            ).overContext(.init()),
+            configuration: .regular
+        )
     }
-}
 
-@MainActor
-func f() {
-    var _ = NodeInputControl(
-        BoolControl.map(
-            .bool(false),
-            bij: .init(to: { .bool($0) }, from: { $0.maybeBool ?? false }),
-            make: { BoolControl($0) }
-        ).overContext(.init()),
-        configuration: .compact
-    )
+    static func angle(
+        _ value: Value,
+        range: ClosedRange<Double>?
+    ) -> NodeInputControl {
+        let range: ClosedRange<Double>? = range.flatMap({ range in
+            if abs(range.span - 2 * .pi) < 0.001 {
+                return nil
+            } else {
+                return range
+            }
+        })
+        return NodeInputControl(
+            AngleControl.map(
+                value,
+                bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
+                make: { .init($0) }
+            )
+            .mapConfiguration(
+                .angle(.init(range: range)),
+                map: { $0.angle ?? .init() }
+            )
+            .overContext(.init()),
+            configuration: .regular
+        )
+    }
 
-    var _ = NodeInputControl(ControlThatUsesContext(.int(0), context: .init()), configuration: .regular)
+    static func bool(_ value: Value) -> NodeInputControl {
+        NodeInputControl(
+            BoolControl.map(
+                value,
+                bij: .init(to: { .bool($0) }, from: { $0.maybeBool ?? false }),
+                make: { .init($0) }
+            )
+            .mapConfiguration(.nothing, map: { _ in () })
+            .overContext(.init()),
+            configuration: .compact
+        )
+    }
 }

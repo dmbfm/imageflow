@@ -4,8 +4,9 @@ import Helpers
 import Values
 import XKit
 
-final class PropertyControlView<Value, Context, C>: XView, Rx, WithRef
-where Value: Equatable & Sendable, C: Control<Value, Context> {
+/// Similar to a `PropertyView`, but restricts the content view to b a `Control` view.
+final class PropertyControlView<Value, Configuration, Context, C>: XView, Rx, WithRef
+where Value: Equatable & Sendable, C: Control<Value, Configuration, Context> {
 
     public var connected: Bool? {
         get { self.propertyView.connected }
@@ -32,6 +33,14 @@ where Value: Equatable & Sendable, C: Control<Value, Context> {
         set { self.propertyView.configuration = newValue }
     }
 
+    public var restoreButtonPublisher: PassthroughSubject<(), Never> {
+        self.propertyView.restoreButtonPublisher
+    }
+
+    public var portButtonPublisher: PassthroughSubject<(), Never> {
+        self.propertyView.portButtonPublisher
+    }
+
     public private(set) var control: C
 
     public private(set) var propertyView: PropertyView
@@ -40,7 +49,7 @@ where Value: Equatable & Sendable, C: Control<Value, Context> {
 
     public init(_ control: C, configuration: PropertyView.Configuration = .regular) {
         self.control = control
-        self.propertyView = .init(control.view, configuration: configuration)
+        self.propertyView = .init(control.view, control.auxiliaryView, configuration: configuration)
         super.init(frame: .zero)
 
         self.propertyView.translatesAutoresizingMaskIntoConstraints = false
@@ -50,6 +59,10 @@ where Value: Equatable & Sendable, C: Control<Value, Context> {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    public func setDisabled(_ disabled: Bool) {
+        self.control.setDisabled(disabled)
     }
 }
 

@@ -5,11 +5,17 @@ import Values
 import XKit
 
 @MainActor
-final class BoolControl: Control<Bool, ()> {
+final class BoolControl: Control<Bool, (), ()> {
 
     var context: ()
 
-    @Published var value: Bool
+    var configuration: ()
+
+    @PublishedEx var value: Bool {
+        didSet {
+            self.checkbox.value = self.value
+        }
+    }
 
     var checkbox: Checkbox
 
@@ -34,11 +40,15 @@ final class BoolControl: Control<Bool, ()> {
             }
         }
     }
+
+    func setDisabled(_ disabled: Bool) {
+        self.checkbox.disabled = disabled
+    }
 }
 
 extension BoolControl {
     fileprivate class PreviewController: XViewController {
-        var _control: MappedControl<Bool, Values::Value, (), BoolControl>!
+        var _control: MappedControl<Bool, Values::Value, (), (), BoolControl>!
         override func loadView() {
             self._control = BoolControl(false).map(
                 .init(

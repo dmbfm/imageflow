@@ -12,7 +12,7 @@ public final class Picker: XView, Rx, WithRef {
         }
     }
 
-    @Published
+    @PublishedEx
     public var selected: Int {
         didSet {
             if self.selected != oldValue {
@@ -20,6 +20,32 @@ public final class Picker: XView, Rx, WithRef {
                 self.onChange?(self.selected)
             }
         }
+    }
+
+    public var alignment: NSTextAlignment {
+        get { self.inner.alignment }
+        set { self.inner.alignment = newValue }
+    }
+
+    public var font: XFont? {
+        get { self.inner.font }
+        set { self.inner.font = newValue }
+    }
+
+    public var tint: XColor? {
+        get { self.inner.contentTintColor }
+        set { self.inner.contentTintColor = newValue }
+    }
+
+    public var style: Style = .bordered {
+        didSet {
+            self.inner.isBordered = self.style == .bordered
+        }
+    }
+
+    public enum Style {
+        case bordered
+        case plain
     }
 
     public var onChange: ((Int) -> ())?

@@ -4,19 +4,33 @@ import XKit
 
 /// Represents a controller class (a pseude or lightweight view controller) that
 /// manages a view that is edits or displays a `Value`.
-protocol Control<Value, Context>: AnyObject {
+protocol Control<Value, Configuration, Context>: AnyObject {
     /// The type of the value that this controller edits or displays.
     associatedtype Value: Sendable & Equatable
     /// A `Context` type used for additional... context for the control.
     associatedtype Context
+    /// A description
+    associatedtype Configuration
     /// Holds the `Value` of the control.
     var value: Value { get set }
+    /// A description
+    var configuration: Configuration { get set }
     /// Holds the `Context` of the control.
     var context: Context { get set }
     /// The view that is managed by the control.
     var view: XView { get }
+    /// A description
+    var auxiliaryView: XView? { get }
     /// Notifies consumers of changes in the `Value`.
     var onChange: ((Change<Value>) -> ())? { get set }
+    ///
+    func setDisabled(_ disabled: Bool)
+}
+
+extension Control {
+    var auxiliaryView: XView? {
+        nil
+    }
 }
 
 /// Represents a change in the `Value` of a `Control`
@@ -31,17 +45,68 @@ struct Change<Value> where Value: Sendable & Equatable {
     var commit: Bool
 }
 
+final class MappedConfigurationControl<Value, Context, OldConfiguration, NewConfiguration, C>: Control<
+    Value, NewConfiguration, Context
+>
+where
+    C: Control<Value, OldConfiguration, Context>
+{
+    var value: Value {
+        get { self.control.value }
+        set { self.control.value = newValue }
+    }
+
+    var configuration: NewConfiguration {
+        didSet {
+            self.control.configuration = self.map(self.configuration)
+        }
+    }
+
+    var context: Context {
+        get { self.control.context }
+        set { self.control.context = newValue }
+    }
+
+    var view: XKit.XView {
+        get { self.control.view }
+    }
+
+    var auxiliaryView: XView? {
+        get { self.control.auxiliaryView }
+    }
+
+    var onChange: ((Change<Value>) -> ())? {
+        get { self.control.onChange }
+        set { self.control.onChange = newValue }
+    }
+
+    var control: C
+
+    var map: (NewConfiguration) -> OldConfiguration
+
+    init(_ control: C, _ configuration: NewConfiguration, map: @escaping (NewConfiguration) -> OldConfiguration) {
+        self.control = control
+        self.control.configuration = map(configuration)
+        self.configuration = configuration
+        self.map = map
+    }
+
+    func setDisabled(_ disabled: Bool) {
+        self.control.setDisabled(disabled)
+    }
+}
+
 /// Wraps a `Control<OldValue, Context>`, mapping values from `OldValue` to
 /// `NewValue` using a  mapping given by `Bijection<OldValue, NewValue>`, producing
 /// an object that is a `Control<NewValue, Context>`.
 ///
 /// In a nutshell, this class maps
 /// controls from one value type to another, while maintaining the same context type.
-final class MappedControl<OldValue, NewValue, Context, C>: Control<NewValue, C.Context>
+final class MappedControl<OldValue, NewValue, Context, Configuration, C>: Control<NewValue, Configuration, C.Context>
 where
     OldValue: Sendable & Equatable,
     NewValue: Sendable & Equatable,
-    C: Control<OldValue, Context>
+    C: Control<OldValue, Configuration, Context>
 {
     var value: NewValue {
         get {
@@ -57,12 +122,21 @@ where
         set { self.control.context = newValue }
     }
 
+    var configuration: Configuration {
+        get { self.control.configuration }
+        set { self.control.configuration = newValue }
+    }
+
     var control: C
 
     let bij: Bijection<OldValue, NewValue>
 
     var view: XKit.XView {
         self.control.view
+    }
+
+    var auxiliaryView: XView? {
+        self.control.auxiliaryView
     }
 
     var onChange: ((Change<NewValue>) -> ())?
@@ -87,21 +161,36 @@ where
             )
         }
     }
+
+    func setDisabled(_ disabled: Bool) {
+        self.control.setDisabled(disabled)
+    }
 }
 
 /// Wraps the original `Control<Value, NewContex>` creating an control instance
 /// with a new context, i.e., `Control<Value, NewContext>`. It will "overwrite" the
 /// original context, in the sense that consumers will only be able to interact with
 /// the new context. This is mostly used to appease the type-system in some situations.
-final class OverContextControl<Value, OldContext, NewContext, C>: Control<Value, NewContext>
-where C: Control<Value, OldContext> {
+final class OverContextControl<Value, OldContext, NewContext, Configuration, C>: Control<
+    Value, Configuration, NewContext
+>
+where C: Control<Value, Configuration, OldContext> {
     var value: Value {
         get { self.control.value }
         set { self.control.value = newValue }
     }
 
+    var configuration: Configuration {
+        get { self.control.configuration }
+        set { self.control.configuration = newValue }
+    }
+
     var view: XKit.XView {
         self.control.view
+    }
+
+    var auxiliaryView: XView? {
+        self.control.auxiliaryView
     }
 
     var onChange: ((Change<Value>) -> ())? {
@@ -126,6 +215,10 @@ where C: Control<Value, OldContext> {
         self.control = control
         self.context = context
     }
+
+    func setDisabled(_ disabled: Bool) {
+        self.control.setDisabled(disabled)
+    }
 }
 
 extension Control {
@@ -135,7 +228,9 @@ extension Control {
     ///
     /// - Parameter bij: The `Bijection` tht maps `Value` to and from `NewValue`
     /// - Returns: An instance that conforms to `Control<NewValue, Self.Context>`.
-    func map<NewValue>(_ bij: Bijection<Value, NewValue>) -> MappedControl<Value, NewValue, Self.Context, Self> {
+    func map<NewValue>(
+        _ bij: Bijection<Value, NewValue>
+    ) -> MappedControl<Value, NewValue, Self.Context, Self.Configuration, Self> {
         .init(control: self, bij: bij)
     }
 
@@ -150,14 +245,23 @@ extension Control {
         _ value: NewValue,
         bij: Bijection<Value, NewValue>,
         make: (Value) -> Self
-    ) -> MappedControl<Value, NewValue, Self.Context, Self> {
+    ) -> MappedControl<Value, NewValue, Self.Context, Self.Configuration, Self> {
         .init(control: make(bij.from(value)), bij: bij)
     }
 
     /// Wraps thi control creating an instance of `Control` over the same value type but with a different context type.
     /// - Parameter context: The `NewContext` value/instance.
     /// - Returns: The instance of the control using the new context type.
-    func overContext<NewContext>(_ context: NewContext) -> OverContextControl<Value, Context, NewContext, Self> {
+    func overContext<NewContext>(
+        _ context: NewContext
+    ) -> OverContextControl<Value, Context, NewContext, Self.Configuration, Self> {
         .init(control: self, context: context)
+    }
+
+    func mapConfiguration<NewConfiguration>(
+        _ configuration: NewConfiguration,
+        map: @escaping (NewConfiguration) -> Self.Configuration
+    ) -> MappedConfigurationControl<Value, Context, Self.Configuration, NewConfiguration, Self> {
+        .init(self, configuration, map: map)
     }
 }

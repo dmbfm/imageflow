@@ -5,7 +5,7 @@ import XKit
 
 final class NodeTypeView: XView, Rx, WithRef {
 
-    @Published var name: String = "Type" {
+    @PublishedEx var name: String = "Type" {
         didSet {
             if self.name != oldValue {
                 self.update()

@@ -15,6 +15,10 @@ final class PortButton: XView, Rx, WithRef {
 
     var cancellables: Set<AnyCancellable> = []
 
+    var publisher: PassthroughSubject<(), Never> {
+        self.button.publisher
+    }
+
     private var portSymbolName: String {
         if self.connected {
             "arrow.backward.circle"

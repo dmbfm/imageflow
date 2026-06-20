@@ -3,10 +3,19 @@ import ComponentKit
 import Helpers
 import XKit
 
+/// A container view that displays a `PropertyTitleView` along side an arbitrary
+/// view in a stack, either in a single row (`.compact` `Configuration`), or in
+/// vertical, separate rows.
 final class PropertyView: XView, Rx, WithRef {
     public var view: XView {
         didSet {
             self.updateView(oldValue)
+        }
+    }
+
+    public var auxiliaryView: XView? {
+        didSet {
+            self.updateAuxiliaryView(oldValue)
         }
     }
 
@@ -28,6 +37,14 @@ final class PropertyView: XView, Rx, WithRef {
     public var type: String? {
         get { self.titleView.type }
         set { self.titleView.type = newValue }
+    }
+
+    public var restoreButtonPublisher: PassthroughSubject<(), Never> {
+        self.titleView.restoreButton.publisher
+    }
+
+    public var portButtonPublisher: PassthroughSubject<(), Never> {
+        self.titleView.portButtonView.publisher
     }
 
     public var configuration: Configuration = .regular {
@@ -60,7 +77,12 @@ final class PropertyView: XView, Rx, WithRef {
             VStack(
                 alignment: .fill,
                 views: [
-                    self.titleView,
+                    HStack(
+                        views: [
+                            self.titleView,
+                            Spacer(),
+                        ] + (self.auxiliaryView.map({ [$0] }) ?? [])
+                    ),
                     self.view,
                 ]
             )
@@ -71,8 +93,9 @@ final class PropertyView: XView, Rx, WithRef {
         PropertyTitleView("Property", connected: false)
     }()
 
-    init(_ view: XView, configuration: Configuration = .regular) {
+    init(_ view: XView, _ auxiliaryView: XView? = nil, configuration: Configuration = .regular) {
         self.view = view
+        self.auxiliaryView = auxiliaryView
         self.configuration = configuration
 
         super.init(frame: .zero)
@@ -110,6 +133,9 @@ final class PropertyView: XView, Rx, WithRef {
         } else if let view = self.stackView as? VStack {
             view.addView(self.view)
         }
+    }
+
+    private func updateAuxiliaryView(_ oldValue: XView?) {
     }
 
     private func removeStackViews() {

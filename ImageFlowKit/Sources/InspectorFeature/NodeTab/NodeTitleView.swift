@@ -197,7 +197,6 @@ fileprivate struct PreviewRepresentable: XViewRepresentable {
             width: proposal.replacingUnspecifiedDimensions().width,
             height: view.intrinsicContentSize.height
         )
-        print("size: \(size)")
         return size
     }
 }

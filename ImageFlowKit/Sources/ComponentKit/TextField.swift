@@ -16,6 +16,7 @@ public final class TextField: XView, Rx, WithRef {
                 self.inner.font = style.font
                 self.inner.padding = style.padding
                 self.inner.cornerRadius = style.cornerRadius
+                self.backgroundView.style = self.style
                 self.setNeedsDisplay()
             }
         }
@@ -28,7 +29,7 @@ public final class TextField: XView, Rx, WithRef {
     /// `TextFieldStyle.progressColor`
     public var progress: Double? = nil {
         didSet {
-            self.setNeedsDisplay()
+            self.backgroundView.progress = self.progress
         }
     }
 
@@ -121,6 +122,12 @@ public final class TextField: XView, Rx, WithRef {
     private var _onBeginEditting: ((TextField, String) -> ())?
     private var _onEndEditting: ((TextField, String) -> ())?
 
+    private lazy var backgroundView: BackgroundView = {
+        let view = BackgroundView(style: self.style, progress: self.progress)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     // MARK: - Initialization
 
     public init(_ text: String, style: TextFieldStyle = .default) {
@@ -149,6 +156,8 @@ public final class TextField: XView, Rx, WithRef {
         self.inner.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
         self.inner.textColor = self.style.textColor
 
+        self.addSubview(self.backgroundView)
+        self.backgroundView.constraintToFillSuperview()
         self.addSubview(self.inner)
         self.inner.constraintToFillSuperview()
 
@@ -204,6 +213,21 @@ public final class TextField: XView, Rx, WithRef {
     public func focus() {
         self.inner.window?.makeFirstResponder(self.inner)
     }
+}
+
+class BackgroundView: XView {
+
+    var style: TextFieldStyle {
+        didSet {
+            self.setNeedsDisplay()
+        }
+    }
+
+    var progress: Double? {
+        didSet {
+            self.setNeedsDisplay()
+        }
+    }
 
     lazy var fillLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
@@ -237,6 +261,17 @@ public final class TextField: XView, Rx, WithRef {
             }
 
         })
+    }
+
+    init(style: TextFieldStyle, progress: Double? = nil) {
+        self.style = style
+        self.progress = progress
+
+        super.init(frame: .zero)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

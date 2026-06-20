@@ -2,37 +2,8 @@ import Combine
 import ComponentKit
 import Helpers
 import SharedModels
+import Values
 import XKit
-
-final class NodeInputsView: XView, Rx, WithRef {
-
-    var cancellables: Set<AnyCancellable> = []
-
-    lazy var stackView: VStack = {
-        VStack(
-            alignment: .fill,
-            spacing: 8,
-            views: [
-                Label("Inputs")
-                    .with(\.font, .systemFont(ofSize: XFont.systemFontSize, weight: .bold))
-            ]
-        )
-        .with(\.translatesAutoresizingMaskIntoConstraints, false)
-    }()
-
-    var controls: [NodeInputControl] = []
-
-    init() {
-        super.init(frame: .zero)
-
-        self.addSubview(self.stackView)
-        self.stackView.constraintToFillSuperview()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
 
 final class NodeTabView: XView, Rx {
 
@@ -69,7 +40,7 @@ final class NodeTabView: XView, Rx {
     }()
 
     lazy var nodeInputsView: NodeInputsView = {
-        NodeInputsView()
+        NodeInputsView(self.vm.inputs)
     }()
 
     init(_ vm: NodeTabViewModel) {
@@ -94,7 +65,12 @@ final class NodeTabView: XView, Rx {
         self.contentUnavailableView.constraintToFillSuperview()
 
         self.contentView.addSubview(self.stackView)
-        self.stackView.constraintToFillSuperview()
+        NSLayoutConstraint.activate([
+            self.stackView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+            self.stackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
+            self.stackView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+        ])
+        // self.stackView.constraintToFillSuperview()
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
@@ -113,6 +89,8 @@ final class NodeTabView: XView, Rx {
 
         self.nodeTypeView.rx(self.vm.$typeName, kp: \.name)
         self.nodeTypeView.rx(self.vm.$typeOptions, kp: \.options)
+
+        // self.nodeInputsView.rx(self.vm.$inputs, kp: \.vm)
     }
 
     func setupNotifications() {

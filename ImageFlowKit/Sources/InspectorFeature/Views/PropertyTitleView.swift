@@ -51,25 +51,16 @@ final class PropertyTitleView: XView, Rx, WithRef {
     lazy var stackView: HStack = {
         HStack(
             alignment: .center,
-            spacing: 4,
+            spacing: 6,
             views: [
                 self.portButtonView,
-                self.labelTypeStack,
+                self.labelView,
+                self.typePillView,
                 self.restoreButton,
             ]
         )
         .with(\.translatesAutoresizingMaskIntoConstraints, false)
-    }()
-
-    lazy var labelTypeStack: HStack = {
-        HStack(
-            alignment: .lastTextBaseline,
-            views: [
-                self.labelView,
-                self.typePillView,
-            ]
-        )
-        .setCustomSpacing(6, after: self.labelView)
+        .setCustomSpacing(8, after: self.labelView)
     }()
 
     public init(

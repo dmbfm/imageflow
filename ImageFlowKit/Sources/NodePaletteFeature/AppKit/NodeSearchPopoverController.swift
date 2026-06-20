@@ -137,6 +137,7 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
         view.font = .systemFont(ofSize: 12, weight: .regular)
         view.drawsBackground = true
         view.delegate = self
+        view.contentType = .password
         return view
     }()
 
@@ -238,7 +239,7 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
     }
 
     public func controlTextDidChange(_ obj: Notification) {
-        self.searchText = self.searchTextField.text
+        self.searchText = self.searchTextField.text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Methods

@@ -2,6 +2,7 @@ import AssetBrowserFeature
 import Foundation
 import NodePaletteFeature
 import SharedModels
+import Values
 
 #if canImport(AppKit)
 import AppKit
@@ -63,6 +64,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.pasteNodes(items, point)
         case .selectAllNodes:
             self.flow.selectAll()
+        case .selectNodesConnectedToPort(let port):
+            self.selectNodesConnectedToPort(port)
         case .dropPasteImages(let payload):
             self.dropPasteImages(payload)
         case .selectNone:
@@ -74,8 +77,39 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.undoManager?.setActionName("Convert Node")
         case .setCanvasViewPort(let viewport):
             self.canvasView.viewport = .init(origin: viewport.origin, scale: viewport.scale)
+        case .setNodeInputValue(port: let port, let newValue, let oldValue, let undo):
+            self.setNodeInputValue(port, newValue, oldValue, undo)
+        case .restoreNodeInputDefaultValue(let port):
+            self.restoreNodeInputDefaultValue(port)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
+        }
+    }
+
+    func selectNodesConnectedToPort(_ port: PortLocation) {
+        switch port.slot {
+        case .input(let index):
+            self.flow.select(nodeConnectedToNode: port.node, atInputPort: index)
+        case .output(let index):
+            self.flow.select(nodesConnectedToNode: port.node, atOutputPort: index)
+        }
+    }
+
+    func restoreNodeInputDefaultValue(_ port: InputPortLocation) {
+        self.flow.restoreDefaultValue(id: port.node, index: port.index, undoManager: self.undoManager)
+        self.undoManager?.setActionName("Restore Default Value")
+    }
+
+    func setNodeInputValue(_ port: InputPortLocation, _ newValue: Value, _ oldValue: Value?, _ undo: Bool) {
+        self.flow.setNodeValue(
+            id: port.node,
+            index: port.index,
+            oldValue: oldValue,
+            newValue: newValue,
+            undoManager: undo ? self.undoManager : nil
+        )
+        if undo {
+            self.undoManager?.setActionName("\(newValue.type.displayName) Value Change")
         }
     }
 

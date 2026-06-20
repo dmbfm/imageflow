@@ -34,6 +34,11 @@ public final class Checkbox: XView, Rx, WithRef {
         case hidden
     }
 
+    public var disabled: Bool {
+        get { !self.button.isEnabled }
+        set { self.button.isEnabled = !newValue }
+    }
+
     public var button: XButton
     public var stackView: HStack!
     public var labelView: Label
