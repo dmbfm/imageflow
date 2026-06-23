@@ -9,7 +9,9 @@ protocol Control<Value, Configuration, Context>: AnyObject {
     associatedtype Value: Sendable & Equatable
     /// A `Context` type used for additional... context for the control.
     associatedtype Context
-    /// A description
+    /// A `Configuration` type used for additional control-specific
+    // configuration. For instance, sometimes you want controls to share the same
+    // `Value` and `Context` but with additional options that are distinct.
     associatedtype Configuration
     /// Holds the `Value` of the control.
     var value: Value { get set }
@@ -19,11 +21,12 @@ protocol Control<Value, Configuration, Context>: AnyObject {
     var context: Context { get set }
     /// The view that is managed by the control.
     var view: XView { get }
-    /// A description
+    /// An auxiliary view the control may use to display additional context to
+    /// the user, depending on the context.
     var auxiliaryView: XView? { get }
     /// Notifies consumers of changes in the `Value`.
     var onChange: ((Change<Value>) -> ())? { get set }
-    ///
+    /// Disable/enagle the control.
     func setDisabled(_ disabled: Bool)
 }
 

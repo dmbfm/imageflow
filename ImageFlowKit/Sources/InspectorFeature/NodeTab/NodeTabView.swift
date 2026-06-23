@@ -70,7 +70,6 @@ final class NodeTabView: XView, Rx {
             self.stackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
             self.stackView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
         ])
-        // self.stackView.constraintToFillSuperview()
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
@@ -89,8 +88,6 @@ final class NodeTabView: XView, Rx {
 
         self.nodeTypeView.rx(self.vm.$typeName, kp: \.name)
         self.nodeTypeView.rx(self.vm.$typeOptions, kp: \.options)
-
-        // self.nodeInputsView.rx(self.vm.$inputs, kp: \.vm)
     }
 
     func setupNotifications() {

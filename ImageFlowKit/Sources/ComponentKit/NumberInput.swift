@@ -374,8 +374,6 @@ public final class NumberInput: XView, Rx, WithRef {
         let current = dragData.start.x + s * dragData.translation.x
         let p = ((current - dragData.region.minX) / dragData.region.width).clamped(to: 0...1)
 
-        print("s = \(s), p = \(p), current = \(current), \(dragData)")
-
         let newValue = snap.maybeReduce(
             fractionalDigits.maybeReduce(
                 range.lowerBound + p * (range.upperBound - range.lowerBound),
