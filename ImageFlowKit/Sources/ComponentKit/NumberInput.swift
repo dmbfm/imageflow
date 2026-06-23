@@ -421,6 +421,11 @@ extension NumberInput {
     public struct StepperConfiguration: Sendable, Equatable, With {
         public var step: Double = 1.0
         public var size: ComponentSize = .small
+
+        public init(step: Double = 1.0, size: ComponentSize = .small) {
+            self.step = step
+            self.size = size
+        }
     }
 }
 

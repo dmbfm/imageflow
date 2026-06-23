@@ -17,7 +17,7 @@ public final class Picker: XView, Rx, WithRef {
         didSet {
             if self.selected != oldValue {
                 self.update()
-                self.onChange?(self.selected)
+                self._onChange?(self.selected)
             }
         }
     }
@@ -43,12 +43,17 @@ public final class Picker: XView, Rx, WithRef {
         }
     }
 
+    public var disabled: Bool {
+        get { !self.inner.isEnabled }
+        set { self.inner.isEnabled = !newValue }
+    }
+
     public enum Style {
         case bordered
         case plain
     }
 
-    public var onChange: ((Int) -> ())?
+    private var _onChange: ((Int) -> ())?
 
     lazy var inner: NSPopUpButton = {
         let view = NSPopUpButton()
@@ -66,7 +71,7 @@ public final class Picker: XView, Rx, WithRef {
     public init(_ options: [String], selected: Int, onChange: ((Int) -> ())? = nil) {
         self.options = options
         self.selected = selected
-        self.onChange = onChange
+        self._onChange = onChange
 
         super.init(frame: .zero)
 
@@ -74,6 +79,11 @@ public final class Picker: XView, Rx, WithRef {
         self.inner.constraintToFillSuperview()
 
         self.update()
+    }
+
+    public func onChange(_ perform: @escaping ((Int) -> ())) -> Self {
+        self._onChange = perform
+        return self
     }
 
     func update() {

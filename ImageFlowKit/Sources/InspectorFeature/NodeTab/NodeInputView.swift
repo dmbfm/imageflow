@@ -58,6 +58,17 @@ final class NodeInputView: XView, Rx, WithRef {
 
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .int:
+            switch self.vm.semantics {
+            case .integer(.picker(let options)):
+                .picker(self.vm.value, options: options.map({ $0.displayName }))
+            case .integer(.partialRangeFrom(let minValue)):
+                .int(self.vm.value, .minValue(minValue))
+            case .integer(.range(let range)):
+                .int(self.vm.value, .closed(range))
+            default:
+                .int(self.vm.value, .none)
+            }
         case .bool:
             .bool(self.vm.value)
         case .float:

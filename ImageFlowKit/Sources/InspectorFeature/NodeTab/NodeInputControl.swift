@@ -200,4 +200,31 @@ extension NodeInputControl {
             configuration: .compact
         )
     }
+
+    static func int(_ value: Value, _ range: IntControlConfiguration.Range = .none) -> NodeInputControl {
+        NodeInputControl(
+            IntControl.map(
+                value,
+                bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
+                make: { .init($0) }
+            )
+            .mapConfiguration(.nothing, map: { _ in .init(range: range) })
+            .overContext(.init()),
+            configuration: .regular
+        )
+    }
+
+    static func picker(_ value: Value, options: [String]) -> NodeInputControl {
+        NodeInputControl(
+            PickerControl.map(
+                value,
+                bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
+                make: { .init($0) }
+            )
+            .mapConfiguration(.nothing, map: { _ in .init(options: options) })
+            .overContext(.init()),
+            configuration: .compact
+        )
+    }
+
 }
