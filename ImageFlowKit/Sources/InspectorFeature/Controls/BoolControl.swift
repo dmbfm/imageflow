@@ -45,27 +45,3 @@ final class BoolControl: Control<Bool, (), ()> {
         self.checkbox.disabled = disabled
     }
 }
-
-extension BoolControl {
-    fileprivate class PreviewController: XViewController {
-        var _control: MappedControl<Bool, Values::Value, (), (), BoolControl>!
-        override func loadView() {
-            self._control = BoolControl(false).map(
-                .init(
-                    to: {
-                        Values::Value.bool($0)
-                    },
-                    from: { $0.maybeBool ?? false }
-                )
-            )
-            self._control.onChange = { change in
-                print("-> change: \(change)")
-            }
-            self.view = self._control.view
-        }
-    }
-}
-
-#Preview {
-    BoolControl.PreviewController()
-}

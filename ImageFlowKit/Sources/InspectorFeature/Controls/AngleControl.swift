@@ -159,9 +159,9 @@ final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
         ])
     }()
 
-    init(_ value: Value) {
+    init(_ value: Value, configuration: Configuration = .init(range: nil)) {
         self.value = value
-        self.configuration = .init(range: nil)
+        self.configuration = configuration
     }
 
     func setDisabled(_ disabled: Bool) {

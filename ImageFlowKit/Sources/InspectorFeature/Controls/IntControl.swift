@@ -94,8 +94,9 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
         .with(\.stepperConfiguration, .init(step: 1.0, size: .small))
     }()
 
-    init(_ value: Int) {
+    init(_ value: Int, configuration: Configuration = .init(range: .none)) {
         self.value = value
+        self.configuration = configuration
     }
 
     func setDisabled(_ disabled: Bool) {

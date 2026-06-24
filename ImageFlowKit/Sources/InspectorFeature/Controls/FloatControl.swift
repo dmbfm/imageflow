@@ -47,8 +47,9 @@ final class FloatControl: Control<Double, FloatControlConfiguration, ()> {
         self.inner.setDisabled(disabled)
     }
 
-    init(_ value: Double) {
+    init(_ value: Double, configuration: Configuration) {
         self.value = value
+        self.configuration = configuration
     }
 }
 

@@ -5,7 +5,7 @@ import SharedModels
 import Values
 import XKit
 
-struct PickerControlConfiguration {
+struct PickerControlConfiguration: Equatable {
     let options: [String]
 }
 
@@ -21,7 +21,9 @@ final class PickerControl: Control<Int, PickerControlConfiguration, ()> {
 
     var configuration: PickerControlConfiguration {
         didSet {
-            self.pickerView.options = self.configuration.options
+            if self.configuration != oldValue {
+                self.pickerView.options = self.configuration.options
+            }
         }
     }
 
@@ -50,9 +52,9 @@ final class PickerControl: Control<Int, PickerControlConfiguration, ()> {
             }
     }()
 
-    init(_ value: Int) {
+    init(_ value: Int, configuration: PickerControlConfiguration = .init(options: [])) {
         self.value = value
-        self.configuration = .init(options: [""])
+        self.configuration = configuration
     }
 
     func setDisabled(_ disabled: Bool) {

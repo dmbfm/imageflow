@@ -79,11 +79,20 @@ struct NodeInputControlContext {
 enum NodeInputControlConfiguration {
     case float(FloatControlConfiguration)
     case angle(AngleControlConfiguration)
+    case picker(PickerControlConfiguration)
+    case int(IntControlConfiguration)
     case nothing
 
     var float: FloatControlConfiguration? {
         switch self {
         case .float(let float): float
+        default: nil
+        }
+    }
+
+    var int: IntControlConfiguration? {
+        switch self {
+        case .int(let int): int
         default: nil
         }
     }
@@ -95,6 +104,12 @@ enum NodeInputControlConfiguration {
         }
     }
 
+    var picker: PickerControlConfiguration? {
+        switch self {
+        case .picker(let picker): picker
+        default: nil
+        }
+    }
 }
 
 final class AnyNodeInputValueControl: Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext> {
@@ -152,12 +167,15 @@ extension NodeInputControl {
         NodeInputControl(
             FloatControl.map(
                 value,
+                configuration: .float(.init(drag: configuration)),
+                context: NodeInputControlContext(),
+                makeControl: { value, configuration, context in .init(value, configuration: configuration) },
                 bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
-                make: { .init($0) }
-            ).mapConfiguration(
-                .float(.init(drag: configuration)),
-                map: { $0.float ?? .init(drag: .free(.init())) }
-            ).overContext(.init()),
+                configMap: { config in
+                    .init(drag: config.float?.drag ?? .free(.init()))
+                },
+                contextMap: { _ in }
+            ),
             configuration: .regular
         )
     }
@@ -166,24 +184,18 @@ extension NodeInputControl {
         _ value: Value,
         range: ClosedRange<Double>?
     ) -> NodeInputControl {
-        let range: ClosedRange<Double>? = range.flatMap({ range in
-            if abs(range.span - 2 * .pi) < 0.001 {
-                return nil
-            } else {
-                return range
-            }
-        })
-        return NodeInputControl(
+        .init(
             AngleControl.map(
                 value,
+                configuration: .angle(.init(range: range)),
+                context: .init(),
+                makeControl: { value, configuration, context in
+                    .init(value, configuration: configuration)
+                },
                 bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
-                make: { .init($0) }
-            )
-            .mapConfiguration(
-                .angle(.init(range: range)),
-                map: { $0.angle ?? .init() }
-            )
-            .overContext(.init()),
+                configMap: { .init(range: $0.angle?.range ?? nil) },
+                contextMap: { _ in }
+            ),
             configuration: .regular
         )
     }
@@ -192,11 +204,13 @@ extension NodeInputControl {
         NodeInputControl(
             BoolControl.map(
                 value,
+                configuration: .nothing,
+                context: .init(),
+                makeControl: { value, _, _ in .init(value) },
                 bij: .init(to: { .bool($0) }, from: { $0.maybeBool ?? false }),
-                make: { .init($0) }
-            )
-            .mapConfiguration(.nothing, map: { _ in () })
-            .overContext(.init()),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
             configuration: .compact
         )
     }
@@ -205,11 +219,13 @@ extension NodeInputControl {
         NodeInputControl(
             IntControl.map(
                 value,
+                configuration: .int(.init(range: range)),
+                context: .init(),
+                makeControl: { value, configuration, _ in .init(value, configuration: configuration) },
                 bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
-                make: { .init($0) }
-            )
-            .mapConfiguration(.nothing, map: { _ in .init(range: range) })
-            .overContext(.init()),
+                configMap: { $0.int ?? .init(range: .none) },
+                contextMap: { _ in }
+            ),
             configuration: .regular
         )
     }
@@ -218,12 +234,29 @@ extension NodeInputControl {
         NodeInputControl(
             PickerControl.map(
                 value,
+                configuration: .picker(.init(options: options)),
+                context: .init(),
+                makeControl: { value, configuration, _ in .init(value, configuration: configuration) },
                 bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
-                make: { .init($0) }
-            )
-            .mapConfiguration(.nothing, map: { _ in .init(options: options) })
-            .overContext(.init()),
+                configMap: { $0.picker ?? .init(options: []) },
+                contextMap: { _ in }
+            ),
             configuration: .compact
+        )
+    }
+
+    static func staticLabel(_ value: Value) -> NodeInputControl {
+        .init(
+            StaticLabelControl.map(
+                value,
+                configuration: .nothing,
+                context: .init(),
+                makeControl: { value, _, _ in .init(value) },
+                bij: .init(to: { .string($0) }, from: { "\($0)" }),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
+            configuration: .regular
         )
     }
 

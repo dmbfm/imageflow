@@ -82,16 +82,7 @@ final class NodeInputView: XView, Rx, WithRef {
             }
         default:
             {
-                .init(
-                    StaticLabelControl.map(
-                        self.vm.value,
-                        bij: .init(to: { [weak self] in self?.vm.value ?? .string($0) }, from: { "\($0)" }),
-                        make: { .init($0) }
-                    )
-                    .mapConfiguration(.nothing, map: { _ in () })
-                    .overContext(.init()),
-                    configuration: .regular
-                )
+                .staticLabel(self.vm.value)
             }()
         }
     }
