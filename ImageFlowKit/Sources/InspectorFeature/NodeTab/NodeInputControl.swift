@@ -245,6 +245,24 @@ extension NodeInputControl {
         )
     }
 
+    static func color(_ value: Value) -> NodeInputControl {
+        NodeInputControl(
+            ColorControl.map(
+                value,
+                configuration: .nothing,
+                context: .init(),
+                makeControl: { value, _, _ in ColorControl(value) },
+                bij: .init(
+                    to: { .color4(.init(nsColor: $0) ?? .init(red: 0, green: 0, blue: 0, alpha: 1)) },
+                    from: { $0.maybeColor4?.nsColor ?? .black }
+                ),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
+            configuration: .regular
+        )
+    }
+
     static func staticLabel(_ value: Value) -> NodeInputControl {
         .init(
             StaticLabelControl.map(

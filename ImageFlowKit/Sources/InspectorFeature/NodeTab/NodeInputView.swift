@@ -58,6 +58,8 @@ final class NodeInputView: XView, Rx, WithRef {
 
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .color4:
+            .color(self.vm.value)
         case .int:
             switch self.vm.semantics {
             case .integer(.picker(let options)):
