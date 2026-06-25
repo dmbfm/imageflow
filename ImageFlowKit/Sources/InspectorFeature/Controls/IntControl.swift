@@ -76,7 +76,7 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
     lazy var numberInput: NumberInput = {
         NumberInput(
             Double(self.value),
-            formatter: .number.precision(.fractionLength(0)),
+            formatter: .int,
             style: .default
         )
         .onChange { [weak self] change in

@@ -7,6 +7,7 @@ import XKit
 
 struct AngleControlConfiguration {
     var range: ClosedRange<Double>?
+    var formatter: FloatingPointFormatStyle<Double> = .default
 }
 
 @MainActor
@@ -32,7 +33,14 @@ final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
 
     var context: ()
 
-    var configuration: AngleControlConfiguration
+    var configuration: AngleControlConfiguration {
+        didSet {
+            self.floatControlView.configuration = .init(
+                drag: self.dragConfiguration,
+                formatter: self.configuration.formatter
+            )
+        }
+    }
 
     var onChange: ((Change<Double>) -> ())?
 
@@ -90,7 +98,7 @@ final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
     lazy var floatControlView: FloatControlView = {
         FloatControlView(
             self.transformedDoubleValue,
-            configuration: .init(drag: self.dragConfiguration)
+            configuration: .init(drag: self.dragConfiguration, formatter: self.configuration.formatter)
         )
         .with(
             \.onChange,

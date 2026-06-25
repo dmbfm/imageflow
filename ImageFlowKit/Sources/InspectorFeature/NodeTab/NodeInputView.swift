@@ -85,6 +85,8 @@ final class NodeInputView: XView, Rx, WithRef {
             switch self.vm.semantics {
             case .float(.range(let range)):
                 .float(self.vm.value, .range(.closed(.init(range: range, fractionalDigits: 2))))
+            case .float(.angle(.some(let range))) where abs(range.span - 2.0 * .pi) < 0.001:
+                .angle(self.vm.value, range: nil)
             case .float(.angle(let maybeRange)):
                 .angle(self.vm.value, range: maybeRange)
             default:

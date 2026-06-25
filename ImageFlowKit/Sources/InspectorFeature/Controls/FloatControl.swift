@@ -1,11 +1,13 @@
 import Combine
 import ComponentKit
 import Helpers
+import SharedModels
 import Values
 import XKit
 
 struct FloatControlConfiguration {
     var drag: NumberInput.DragConfiguration
+    var formatter: FloatingPointFormatStyle = .default
 }
 
 @MainActor
@@ -32,13 +34,16 @@ final class FloatControl: Control<Double, FloatControlConfiguration, ()> {
     }
 
     lazy var inner: FloatControlView = {
-        FloatControlView(self.value, configuration: self.configuration)
-            .with(
-                \.onChange,
-                { [weak self] change in
-                    self?.onChange?(change)
-                }
-            )
+        FloatControlView(
+            self.value,
+            configuration: self.configuration
+        )
+        .with(
+            \.onChange,
+            { [weak self] change in
+                self?.onChange?(change)
+            }
+        )
     }()
 
     var onChange: ((Change<Double>) -> ())?
@@ -65,6 +70,7 @@ final class FloatControlView: XView, WithRef {
     var configuration: FloatControlConfiguration {
         didSet {
             self.numberInput.dragConfiguration = self.configuration.drag
+            self.numberInput.formatter = self.configuration.formatter
         }
     }
 
@@ -73,7 +79,7 @@ final class FloatControlView: XView, WithRef {
     lazy var numberInput: NumberInput = {
         NumberInput(
             value,
-            formatter: .number.precision(.fractionLength(2)),
+            formatter: self.configuration.formatter,
             style: .default
         )
         .onChange { [weak self] change in

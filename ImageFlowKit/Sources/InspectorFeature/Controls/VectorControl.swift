@@ -6,6 +6,7 @@ import XKit
 
 struct VectorControlConfiguration {
     var drag: NumberInput.DragConfiguration
+    var formatter: FloatingPointFormatStyle<Double> = .default
     var labels: [String] = []
 }
 
@@ -24,6 +25,7 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, ()> {
     var configuration: VectorControlConfiguration {
         didSet {
             self.inner.dragConfiguration = self.configuration.drag
+            self.inner.formatter = self.configuration.formatter
             if self.configuration.labels != oldValue.labels {
                 self.inner.reloadLabels()
             }
@@ -35,25 +37,29 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, ()> {
     }
 
     lazy var inner: NumberInputArray = {
-        NumberInputArray(self.value, formatter: .number.precision(.fractionLength(2)), style: .default)
-            .labelForRow({ [weak self] index in
-                self?.configuration.labels[tryGetAt: index] ?? "\(index)"
-            })
-            .onChange { [weak self] index, change in
-                guard let self else { return }
-                if self.value.indices.contains(index) {
-                    var oldValue = self.value
-                    oldValue[index] = change.oldValue
-                    self.value[index] = change.newValue
-                    self.onChange?(
-                        .init(
-                            newValue: self.value,
-                            oldValue: oldValue,
-                            commit: change.commit
-                        )
+        NumberInputArray(
+            self.value,
+            formatter: self.configuration.formatter,
+            style: .default
+        )
+        .labelForRow({ [weak self] index in
+            self?.configuration.labels[tryGetAt: index] ?? "\(index)"
+        })
+        .onChange { [weak self] index, change in
+            guard let self else { return }
+            if self.value.indices.contains(index) {
+                var oldValue = self.value
+                oldValue[index] = change.oldValue
+                self.value[index] = change.newValue
+                self.onChange?(
+                    .init(
+                        newValue: self.value,
+                        oldValue: oldValue,
+                        commit: change.commit
                     )
-                }
+                )
             }
+        }
     }()
 
     var onChange: ((Change<[Double]>) -> ())?

@@ -59,6 +59,10 @@ where
         self.control.view
     }
 
+    var auxiliaryView: XView? {
+        self.control.auxiliaryView
+    }
+
     var onChange: ((Change<Value>) -> ())?
 
     var value: Value {

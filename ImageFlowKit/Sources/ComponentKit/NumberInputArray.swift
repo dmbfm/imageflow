@@ -70,7 +70,13 @@ public final class NumberInputArray: XView, Rx, WithRef {
 
     private var style: TextFieldStyle
 
-    private var formatter: FloatingPointFormatStyle<Double>
+    public var formatter: FloatingPointFormatStyle<Double> {
+        didSet {
+            for input in self.numberInputs {
+                input.formatter = self.formatter
+            }
+        }
+    }
 
     /// Creates a new `NumberInputArray` instance.
     /// - Parameters:
