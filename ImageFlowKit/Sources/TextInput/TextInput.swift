@@ -334,10 +334,7 @@ public final class TextInput: XViewEx {
     func clickGestureHandler(_ gesture: NSClickGestureRecognizer) {
         if self.behaviours.contains(.clickBecomeEditableAndFocus) {
             self.isEditable = true
-            // NOTE: This task avoids some QOS priority warning bullshit
-            Task(priority: .medium) {
-                self.textField.window?.makeFirstResponder(self.textField)
-            }
+            self.textField.becomeFirstResponder()
         }
     }
 

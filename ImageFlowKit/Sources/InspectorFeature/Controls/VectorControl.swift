@@ -1,0 +1,72 @@
+import Combine
+import ComponentKit
+import Helpers
+import Values
+import XKit
+
+struct VectorControlConfiguration {
+    var drag: NumberInput.DragConfiguration
+    var labels: [String] = []
+}
+
+@MainActor
+final class VectorControl: Control<[Double], VectorControlConfiguration, ()> {
+    @PublishedEx var value: [Double] {
+        didSet {
+            if self.value != oldValue {
+                self.inner.values = self.value
+            }
+        }
+    }
+
+    var context: ()
+
+    var configuration: VectorControlConfiguration {
+        didSet {
+            self.inner.dragConfiguration = self.configuration.drag
+            if self.configuration.labels != oldValue.labels {
+                self.inner.reloadLabels()
+            }
+        }
+    }
+
+    var view: XView {
+        self.inner
+    }
+
+    lazy var inner: NumberInputArray = {
+        NumberInputArray(self.value, formatter: .number.precision(.fractionLength(2)), style: .default)
+            .labelForRow({ [weak self] index in
+                self?.configuration.labels[tryGetAt: index] ?? "\(index)"
+            })
+            .onChange { [weak self] index, change in
+                guard let self else { return }
+                if self.value.indices.contains(index) {
+                    var oldValue = self.value
+                    oldValue[index] = change.oldValue
+                    self.value[index] = change.newValue
+                    self.onChange?(
+                        .init(
+                            newValue: self.value,
+                            oldValue: oldValue,
+                            commit: change.commit
+                        )
+                    )
+                }
+            }
+    }()
+
+    var onChange: ((Change<[Double]>) -> ())?
+
+    init(
+        _ value: [Double],
+        configuration: VectorControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)))
+    ) {
+        self.value = value
+        self.configuration = configuration
+    }
+
+    func setDisabled(_ disabled: Bool) {
+        self.inner.disabled = disabled
+    }
+}

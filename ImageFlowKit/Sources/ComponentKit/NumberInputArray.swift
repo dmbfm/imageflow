@@ -27,6 +27,27 @@ public final class NumberInputArray: XView, Rx, WithRef {
     /// The `NumberInput` views.
     public var numberInputs: [NumberInput] = []
 
+    public var disabled: Bool {
+        get { !self.isEnabled }
+        set { self.isEnabled = !newValue }
+    }
+
+    public var isEnabled = true {
+        didSet {
+            for input in self.numberInputs {
+                input.isEnabled = self.isEnabled
+            }
+        }
+    }
+
+    public var dragConfiguration: NumberInput.DragConfiguration {
+        didSet {
+            for input in self.numberInputs {
+                input.dragConfiguration = self.dragConfiguration
+            }
+        }
+    }
+
     /// Publishes the latest set of values.
     public var publisher: CurrentValueSubject<[Double], Never>
 
@@ -59,12 +80,14 @@ public final class NumberInputArray: XView, Rx, WithRef {
     public init(
         _ values: [Double],
         formatter: FloatingPointFormatStyle<Double> = .number,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
         style: TextFieldStyle = .default
     ) {
         self.values = values
         self.publisher = .init(values)
         self.style = style
         self.formatter = formatter
+        self.dragConfiguration = dragConfiguration
 
         super.init(frame: .zero)
 
@@ -128,6 +151,7 @@ public final class NumberInputArray: XView, Rx, WithRef {
                     .with(\.alignment, .right)
                     .withRef({ self.labels.append($0) }),
                 NumberInput(value, formatter: self.formatter, style: self.style)
+                    .with(\.dragConfiguration, self.dragConfiguration)
                     .onChange({ [weak self] in self?.numberInputChange(index, change: $0) })
                     .withRef({ self.numberInputs.append($0) }),
             ])

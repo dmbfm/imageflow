@@ -58,6 +58,14 @@ final class NodeInputView: XView, Rx, WithRef {
 
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .vector2:
+            .vector2(self.vm.value)
+        case .vector3:
+            .vector3(self.vm.value)
+        case .vector4:
+            .vector4(self.vm.value)
+        case .rect:
+            .rect(self.vm.value)
         case .color4:
             .color(self.vm.value)
         case .int:

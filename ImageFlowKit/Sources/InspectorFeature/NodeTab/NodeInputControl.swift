@@ -63,7 +63,6 @@ final class NodeInputControl: Rx, WithRef {
     where C: Control<Values::Value, NodeInputControlConfiguration, NodeInputControlContext> {
         self.view = .init(control.eraseToAnyNodeInputValueControl(), configuration: configuration)
         self.view.control.onChange = { [weak self] change in
-            print("node input change: \(change)")
             self?.changePublisher.send(change)
         }
     }
@@ -81,6 +80,7 @@ enum NodeInputControlConfiguration {
     case angle(AngleControlConfiguration)
     case picker(PickerControlConfiguration)
     case int(IntControlConfiguration)
+    case vector(VectorControlConfiguration)
     case nothing
 
     var float: FloatControlConfiguration? {
@@ -107,6 +107,13 @@ enum NodeInputControlConfiguration {
     var picker: PickerControlConfiguration? {
         switch self {
         case .picker(let picker): picker
+        default: nil
+        }
+    }
+
+    var vector: VectorControlConfiguration? {
+        switch self {
+        case .vector(let vector): vector
         default: nil
         }
     }
@@ -260,6 +267,116 @@ extension NodeInputControl {
                 contextMap: { _ in }
             ),
             configuration: .regular
+        )
+    }
+
+    static func vector(
+        _ value: Value,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        labels: [String],
+        bij: Bijection<[Double], Value>,
+    ) -> NodeInputControl {
+        return NodeInputControl(
+            VectorControl.map(
+                value,
+                configuration: .vector(.init(drag: dragConfiguration, labels: labels)),
+                context: .init(),
+                makeControl: { value, configuration, _ in VectorControl(value, configuration: configuration) },
+                bij: bij,
+                configMap: {
+                    if let config = $0.vector {
+                        return .init(drag: config.drag, labels: config.labels)
+                    } else {
+                        return .init(drag: dragConfiguration)
+                    }
+                },
+                contextMap: { _ in }
+            ),
+            configuration: .regular
+        )
+    }
+
+    static func vector2(
+        _ value: Value,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+    ) -> NodeInputControl {
+        Self.vector(
+            value,
+            dragConfiguration: dragConfiguration,
+            labels: ["x", "y"],
+            bij: .init(
+                to: { .vector2(.init(x: $0[0], y: $0[1])) },
+                from: {
+                    if let v = $0.maybeVector2 {
+                        return [v.x, v.y]
+                    } else {
+                        return [0, 0]
+                    }
+                }
+            )
+        )
+    }
+
+    static func vector3(
+        _ value: Value,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+    ) -> NodeInputControl {
+        Self.vector(
+            value,
+            dragConfiguration: dragConfiguration,
+            labels: ["x", "y", "z"],
+            bij: .init(
+                to: { .vector3(.init(x: $0[0], y: $0[1], z: $0[2])) },
+                from: {
+                    if let v = $0.maybeVector3 {
+                        return [v.x, v.y, v.z]
+                    } else {
+                        return [0, 0, 0]
+                    }
+                }
+            )
+        )
+    }
+
+    static func vector4(
+        _ value: Value,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+    ) -> NodeInputControl {
+        Self.vector(
+            value,
+            dragConfiguration: dragConfiguration,
+            labels: ["x", "y", "z", "w"],
+            bij: .init(
+                to: { .vector4(.init(x: $0[0], y: $0[1], z: $0[2], w: $0[3])) },
+                from: {
+                    if let v = $0.maybeVector4 {
+                        return [v.x, v.y, v.z, v.w]
+                    } else {
+                        return [0, 0, 0, 0]
+                    }
+                }
+            )
+        )
+    }
+
+    static func rect(
+        _ value: Value,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+    ) -> NodeInputControl {
+        Self.vector(
+            value,
+            dragConfiguration: dragConfiguration,
+            labels: ["x", "y", "width", "height"],
+            bij: .init(
+                to: { .rect(.init(x: $0[0], y: $0[1], width: $0[2], height: $0[3])) },
+                from: {
+                    if let r = $0.maybeRect {
+                        return [r.origin.x, r.origin.y, r.size.width, r.size.height]
+                    } else {
+                        return [0, 0, 0, 0]
+                    }
+                }
+            )
         )
     }
 

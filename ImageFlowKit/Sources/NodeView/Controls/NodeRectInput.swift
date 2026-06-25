@@ -48,7 +48,7 @@ final class NodeRectInput: XViewEx, NodeControl {
 
     lazy var nodeVectorInput: NodeVectorInput = {
         let rect = self.value.rect
-        let vec = Value.vector4(.init(x: rect.minX, y: rect.minY, z: rect.width, w: rect.height))
+        let vec = Value.vector4(.init(x: rect.origin.x, y: rect.origin.y, z: rect.size.width, w: rect.size.height))
         let view = NodeVectorInput(vec)
         view.context = self.innerContext
 
@@ -111,7 +111,7 @@ final class NodeRectInput: XViewEx, NodeControl {
 
     private func update() {
         let rect = self.value.rect
-        let vec = Value.vector4(.init(x: rect.minX, y: rect.minY, z: rect.width, w: rect.height))
+        let vec = Value.vector4(.init(x: rect.origin.x, y: rect.origin.y, z: rect.size.width, w: rect.size.height))
 
         if self.nodeVectorInput.value != vec {
             self.nodeVectorInput.value = vec
