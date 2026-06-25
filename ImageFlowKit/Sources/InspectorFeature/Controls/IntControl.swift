@@ -77,6 +77,7 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
         NumberInput(
             Double(self.value),
             formatter: .int,
+            stepperConfiguration: .init(step: 1.0, size: .small),
             style: .default
         )
         .onChange { [weak self] change in
@@ -91,7 +92,6 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
             )
         }
         .with(\.dragConfiguration, self.dragConfiguration)
-        .with(\.stepperConfiguration, .init(step: 1.0, size: .small))
     }()
 
     init(_ value: Int, configuration: Configuration = .init(range: .none)) {

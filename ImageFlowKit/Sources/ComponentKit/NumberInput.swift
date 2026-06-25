@@ -21,11 +21,7 @@ public final class NumberInput: XView, Rx, WithRef {
         }
     }
 
-    public var stepperConfiguration: StepperConfiguration? = nil {
-        didSet {
-            self.update()
-        }
-    }
+    public let stepperConfiguration: StepperConfiguration?
 
     public private(set) var textField: TextField
 
@@ -76,6 +72,10 @@ public final class NumberInput: XView, Rx, WithRef {
     private var dragStartLocation: CGPoint = .zero
     private var valueAtDragStart: Double = 0
 
+    private var stepperDisabled: Bool {
+        self.stepperConfiguration == nil
+    }
+
     // MARK: - Privaet Types
 
     private struct DragData: Sendable, Equatable {
@@ -92,6 +92,7 @@ public final class NumberInput: XView, Rx, WithRef {
     public init(
         _ value: Double,
         formatter: FloatingPointFormatStyle<Double> = .number,
+        stepperConfiguration: StepperConfiguration? = nil,
         style: TextFieldStyle = .default
     ) {
         self.value = value
@@ -100,6 +101,7 @@ public final class NumberInput: XView, Rx, WithRef {
         self.stepper = .init(value)
         self.formatter = formatter
         self.publisher = .init(value)
+        self.stepperConfiguration = stepperConfiguration
 
         super.init(frame: .zero)
 
@@ -138,22 +140,48 @@ public final class NumberInput: XView, Rx, WithRef {
     }
     #endif
 
+    public override func setContentCompressionResistancePriority(
+        _ priority: NSLayoutConstraint.Priority,
+        for orientation: NSLayoutConstraint.Orientation
+    ) {
+        super.setContentCompressionResistancePriority(priority, for: orientation)
+        self.textField.setContentCompressionResistancePriority(priority, for: orientation)
+    }
+
+    public override func setContentHuggingPriority(
+        _ priority: NSLayoutConstraint.Priority,
+        for orientation: NSLayoutConstraint.Orientation
+    ) {
+        super.setContentHuggingPriority(priority, for: orientation)
+        self.textField.setContentHuggingPriority(priority, for: orientation)
+    }
+
     // MARK: - Private Methods
 
     private func setupStackView() {
-        self.addSubview(self.stackView)
-        self.stackView.translatesAutoresizingMaskIntoConstraints = false
-        self.stackView.constraintToFillSuperview()
+        if !self.stepperDisabled {
+            self.addSubview(self.stackView)
+            self.stackView.translatesAutoresizingMaskIntoConstraints = false
+            self.stackView.constraintToFillSuperview()
+        }
     }
 
     private func setupTextField() {
-        self.stackView.addView(self.textField)
+        if self.stepperDisabled {
+            self.textField.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(self.textField)
+            self.textField.constraintToFillSuperview()
+        } else {
+            self.stackView.addView(self.textField)
+        }
         self.textField.alignment = .right
         self.textField.isEditable = false
         self.textField.onEndEditting { [weak self] _, _ in self?.didEndEditing() }
     }
 
     private func setupStepper() {
+        if self.stepperDisabled { return }
+
         self.stackView.addView(self.stepper)
         self.stepper.onChange { value in
             let oldValue = self.value
@@ -180,7 +208,7 @@ public final class NumberInput: XView, Rx, WithRef {
         }
 
         if let config = self.stepperConfiguration {
-            self.stepper.isHidden = false
+            // self.stepper.isHidden = false
             self.stepper.increment = config.step
             self.stepper.componentSize = config.size
             switch self.dragConfiguration {
@@ -191,10 +219,9 @@ public final class NumberInput: XView, Rx, WithRef {
             case .free:
                 break
             }
-        } else {
-            self.stepper.isHidden = true
-        }
-
+        }  // else {
+        //     self.stepper.isHidden = true
+        // }
     }
 
     private func updateValue(fromText text: String) {
@@ -587,9 +614,8 @@ extension NumberInput {
         views: [
             NumberInput(0.5)
                 .onChange({ print("change: \($0)") }),
-            NumberInput(0.5)
+            NumberInput(0.5, stepperConfiguration: .init())
                 .with(\.alignment, .center)
-                .with(\.stepperConfiguration, .init())
                 .onChange({ print("change: \($0)") }),
         ]
     )

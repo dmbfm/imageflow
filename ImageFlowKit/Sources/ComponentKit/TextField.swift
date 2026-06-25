@@ -169,6 +169,22 @@ public final class TextField: XView, Rx, WithRef {
         fatalError("init(coder:) has not been implemented")
     }
 
+    public override func setContentCompressionResistancePriority(
+        _ priority: NSLayoutConstraint.Priority,
+        for orientation: NSLayoutConstraint.Orientation
+    ) {
+        super.setContentCompressionResistancePriority(priority, for: orientation)
+        self.inner.setContentCompressionResistancePriority(priority, for: orientation)
+    }
+
+    public override func setContentHuggingPriority(
+        _ priority: NSLayoutConstraint.Priority,
+        for orientation: NSLayoutConstraint.Orientation
+    ) {
+        super.setContentHuggingPriority(priority, for: orientation)
+        self.inner.setContentHuggingPriority(priority, for: orientation)
+    }
+
     /// Sets a closure to be called wheneve the user changes the value of the
     /// text field by editing it.
     /// - Parameter perform: The closure, whose parameters are the sending

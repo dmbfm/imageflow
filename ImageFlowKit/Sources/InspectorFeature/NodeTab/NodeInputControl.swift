@@ -81,6 +81,7 @@ enum NodeInputControlConfiguration {
     case picker(PickerControlConfiguration)
     case int(IntControlConfiguration)
     case vector(VectorControlConfiguration)
+    case matrix(MatrixControlConfiguration)
     case nothing
 
     var float: FloatControlConfiguration? {
@@ -114,6 +115,13 @@ enum NodeInputControlConfiguration {
     var vector: VectorControlConfiguration? {
         switch self {
         case .vector(let vector): vector
+        default: nil
+        }
+    }
+
+    var matrix: MatrixControlConfiguration? {
+        switch self {
+        case .matrix(let matrix): matrix
         default: nil
         }
     }
@@ -377,6 +385,44 @@ extension NodeInputControl {
                     }
                 }
             )
+        )
+    }
+
+    static func matrix(
+        _ value: Value,
+        dim: Int,
+        configuration: MatrixControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)), formatter: .default)
+    ) -> NodeInputControl {
+        NodeInputControl(
+            MatrixControl.map(
+                value,
+                configuration: .matrix(configuration),
+                context: .init(),
+                makeControl: { value, configuration, _ in MatrixControl(value, configuration: configuration)! },
+                bij: .init(
+                    to: { array in
+                        switch dim {
+                        case 2: .matrix2x2(.init(array))
+                        case 3: .matrix3x3(.init(array))
+                        case 5: .matrix5x5(.init(array))
+                        case 7: .matrix7x7(.init(array))
+                        default: .matrix2x2(.init(array))
+                        }
+                    },
+                    from: { value in
+                        switch dim {
+                        case 2: value.maybeMatrix2x2?.values ?? []
+                        case 3: value.maybeMatrix3x3?.values ?? []
+                        case 5: value.maybeMatrix5x5?.values ?? []
+                        case 7: value.maybeMatrix7x7?.values ?? []
+                        default: []
+                        }
+                    }
+                ),
+                configMap: { $0.matrix ?? .init() },
+                contextMap: { _ in }
+            ),
+            configuration: .regular
         )
     }
 
