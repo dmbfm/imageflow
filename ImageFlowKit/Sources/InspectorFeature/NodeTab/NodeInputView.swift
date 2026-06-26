@@ -56,8 +56,31 @@ final class NodeInputView: XView, Rx, WithRef {
         self.setupControlNotifications()
     }
 
+    var assetControlContext: AssetControlContext {
+        .init(
+            openAssetPicker: { [weak self] in
+                self?.vm.receive(event: .openAssetPicker)
+            },
+            titleForAsset: { [weak self] id in
+                self?.vm.titleForAsset(id)
+            }
+        )
+    }
+
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .lut:
+            .asset(
+                self.vm.value,
+                assetKind: .lut,
+                context: self.assetControlContext
+            )
+        case .image:
+            .asset(
+                self.vm.value,
+                assetKind: .image,
+                context: self.assetControlContext
+            )
         case .string:
             .string(self.vm.value)
         case .matrix2x2:

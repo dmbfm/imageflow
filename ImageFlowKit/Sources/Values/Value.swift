@@ -563,6 +563,22 @@ public enum Value: Sendable, Hashable, Codable {
         }
     }
 
+    public var maybeLut: LutValue? {
+        get {
+            if case .lut(let value) = self {
+                return value
+            }
+            return nil
+        }
+        set {
+            if let newValue = newValue {
+                self = .lut(newValue)
+            } else {
+                fatalError("Value is not an image: \(self.type)")
+            }
+        }
+    }
+
     public var maybeString: String? {
         get {
             if case .string(let value) = self {

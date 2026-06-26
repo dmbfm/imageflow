@@ -26,6 +26,7 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
         case valueChange(Change<Value>)
         case restoreButtonClicked
         case portButtonClicked
+        case openAssetPicker
     }
 
     init() {}
@@ -56,7 +57,25 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
             self.context?.coordinator?.perform(
                 userAction: .selectNodesConnectedToPort(.init(node: self.node, port: .input(self.index)))
             )
+        case .openAssetPicker:
+            self.context?.coordinator?.perform(
+                userAction: .openAssetPicker(
+                    node: self.node,
+                    portIndex: self.index,
+                    kind: {
+                        switch self.value {
+                        case .image(_): .image
+                        case .lut(_): .lut
+                        default: .image
+                        }
+                    }()
+                )
+            )
         }
+    }
+
+    func titleForAsset(_ id: UUID) -> String? {
+        self.context?.coordinator?.assetTitle(id)
     }
 
     func update(_ node: UUID, _ input: FlowNode.Input, _ schema: NodeInputSchema) {

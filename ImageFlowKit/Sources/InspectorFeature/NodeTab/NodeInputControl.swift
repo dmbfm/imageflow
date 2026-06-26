@@ -1,6 +1,7 @@
 import Combine
 import ComponentKit
 import Helpers
+import SharedModels
 import Values
 import XKit
 
@@ -72,7 +73,9 @@ final class NodeInputControl: Rx, WithRef {
     }
 }
 
-struct NodeInputControlContext {
+enum NodeInputControlContext {
+    case asset(AssetControlContext)
+    case nothing
 }
 
 enum NodeInputControlConfiguration {
@@ -183,7 +186,7 @@ extension NodeInputControl {
             FloatControl.map(
                 value,
                 configuration: .float(.init(drag: configuration)),
-                context: NodeInputControlContext(),
+                context: .nothing,
                 makeControl: { value, configuration, context in .init(value, configuration: configuration) },
                 bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
                 configMap: { config in
@@ -203,7 +206,7 @@ extension NodeInputControl {
             AngleControl.map(
                 value,
                 configuration: .angle(.init(range: range)),
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, configuration, context in
                     .init(value, configuration: configuration)
                 },
@@ -220,7 +223,7 @@ extension NodeInputControl {
             BoolControl.map(
                 value,
                 configuration: .nothing,
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, _, _ in .init(value) },
                 bij: .init(to: { .bool($0) }, from: { $0.maybeBool ?? false }),
                 configMap: { _ in },
@@ -235,7 +238,7 @@ extension NodeInputControl {
             IntControl.map(
                 value,
                 configuration: .int(.init(range: range)),
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, configuration, _ in .init(value, configuration: configuration) },
                 bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
                 configMap: { $0.int ?? .init(range: .none) },
@@ -250,7 +253,7 @@ extension NodeInputControl {
             PickerControl.map(
                 value,
                 configuration: .picker(.init(options: options)),
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, configuration, _ in .init(value, configuration: configuration) },
                 bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
                 configMap: { $0.picker ?? .init(options: []) },
@@ -265,7 +268,7 @@ extension NodeInputControl {
             ColorControl.map(
                 value,
                 configuration: .nothing,
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, _, _ in ColorControl(value) },
                 bij: .init(
                     to: { .color4(.init(nsColor: $0) ?? .init(red: 0, green: 0, blue: 0, alpha: 1)) },
@@ -288,7 +291,7 @@ extension NodeInputControl {
             VectorControl.map(
                 value,
                 configuration: .vector(.init(drag: dragConfiguration, labels: labels)),
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, configuration, _ in VectorControl(value, configuration: configuration) },
                 bij: bij,
                 configMap: {
@@ -397,7 +400,7 @@ extension NodeInputControl {
             MatrixControl.map(
                 value,
                 configuration: .matrix(configuration),
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, configuration, _ in MatrixControl(value, configuration: configuration)! },
                 bij: .init(
                     to: { array in
@@ -431,7 +434,7 @@ extension NodeInputControl {
             StringControl.map(
                 value,
                 configuration: .nothing,
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, _, _ in .init(value) },
                 bij: .init(to: { .string($0) }, from: { $0.maybeString ?? "" }),
                 configMap: { _ in },
@@ -440,12 +443,46 @@ extension NodeInputControl {
         )
     }
 
+    static func asset(_ value: Value, assetKind: AssetKind, context: AssetControlContext) -> NodeInputControl {
+        NodeInputControl(
+            AssetControl.map(
+                value,
+                configuration: .nothing,
+                context: .asset(context),
+                makeControl: { value, _, context in .init(value, context: context) },
+                bij: .init(
+                    to: {
+                        switch assetKind {
+                        case .image: .image($0)
+                        case .lut: .lut($0)
+                        }
+                    },
+                    from: {
+                        switch assetKind {
+                        case .image: $0.maybeImage ?? .none
+                        case .lut: $0.maybeLut ?? .none
+                        }
+                    }
+                ),
+                configMap: { _ in },
+                contextMap: {
+                    switch $0 {
+                    case .asset(let asset): asset
+                    case .nothing: .init(openAssetPicker: {}, titleForAsset: { _ in nil })
+                    }
+                }
+            ),
+            configuration: .compact
+        )
+
+    }
+
     static func staticLabel(_ value: Value) -> NodeInputControl {
         .init(
             StaticLabelControl.map(
                 value,
                 configuration: .nothing,
-                context: .init(),
+                context: .nothing,
                 makeControl: { value, _, _ in .init(value) },
                 bij: .init(to: { .string($0) }, from: { "\($0)" }),
                 configMap: { _ in },
