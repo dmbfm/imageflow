@@ -426,6 +426,20 @@ extension NodeInputControl {
         )
     }
 
+    static func string(_ value: Value) -> NodeInputControl {
+        NodeInputControl(
+            StringControl.map(
+                value,
+                configuration: .nothing,
+                context: .init(),
+                makeControl: { value, _, _ in .init(value) },
+                bij: .init(to: { .string($0) }, from: { $0.maybeString ?? "" }),
+                configMap: { _ in },
+                contextMap: { _ in }
+            )
+        )
+    }
+
     static func staticLabel(_ value: Value) -> NodeInputControl {
         .init(
             StaticLabelControl.map(

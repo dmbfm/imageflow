@@ -90,9 +90,6 @@ public final class TextField: XView, Rx, WithRef {
     /// It `true`, the user can cancel the current edit by pressing the escape key.
     public var cancellable: Bool = true
 
-    /// Publishes the current `text` value.
-    public var publisher: CurrentValueSubject<String, Never>
-
     /// Required by the `Rx` protocol.
     public var cancellables: Set<AnyCancellable> = []
 
@@ -133,7 +130,6 @@ public final class TextField: XView, Rx, WithRef {
     public init(_ text: String, style: TextFieldStyle = .default) {
         self.inner = InnerTextField()
         self.style = style
-        self.publisher = .init(text)
 
         super.init(frame: .zero)
 
@@ -304,9 +300,7 @@ extension TextField: NSTextFieldDelegate {
     }
 
     public func controlTextDidChange(_ obj: Notification) {
-        print("first? \(self.inner.focused)")
         self._onChange?(self, self.text)
-        self.publisher.send(self.text)
     }
 
     public func controlTextDidEndEditing(_ obj: Notification) {
@@ -324,7 +318,6 @@ extension TextField: NSTextFieldDelegate {
     }
 
     public func controlTextDidBeginEditing(_ obj: Notification) {
-        print("!!!!!!!!!!!! begin")
         self._onBeginEditting?(self, self.text)
     }
 

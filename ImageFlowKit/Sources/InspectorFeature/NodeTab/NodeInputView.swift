@@ -58,6 +58,8 @@ final class NodeInputView: XView, Rx, WithRef {
 
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .string:
+            .string(self.vm.value)
         case .matrix2x2:
             .matrix(self.vm.value, dim: 2, configuration: .init())
         case .matrix3x3:
