@@ -43,6 +43,14 @@ final class NodeTabView: XView, Rx {
         NodeInputsView(self.vm.inputs)
     }()
 
+    lazy var nodeOptionsView: NodeInputsView = {
+        NodeInputsView(self.vm.options)
+    }()
+
+    lazy var nodeControlsView: NodeInputsView = {
+        NodeInputsView(self.vm.controls)
+    }()
+
     init(_ vm: NodeTabViewModel) {
         self.vm = vm
 
@@ -69,7 +77,9 @@ final class NodeTabView: XView, Rx {
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
+        self.stackView.addView(self.nodeControlsView)
         self.stackView.addView(self.nodeInputsView)
+        self.stackView.addView(self.nodeOptionsView)
     }
 
     func setupBindings() {
@@ -120,12 +130,12 @@ final class NodeTabView: XView, Rx {
     .constrainingWidth(toConstant: 320)
 }
 
-#Preview("Add Node") {
+#Preview("Gaussian Blur Node") {
     NodeTabView(
         .init(
             {
                 let flow = Flow()
-                let id = flow.addNode(.init(kind: .math(.addNode(.float))), at: .zero)
+                let id = flow.addNode(.init(kind: .coreImageFilterNode(.blur(.CIGaussianBlur))), at: .zero)
                 flow.selection = [id!]
                 return flow
             }(),

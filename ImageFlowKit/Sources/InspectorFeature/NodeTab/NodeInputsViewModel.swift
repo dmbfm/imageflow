@@ -8,13 +8,14 @@ import SharedModels
 final class NodeInputsViewModel: WithRef {
     @PublishedEx var title: String = "Inputs"
     @PublishedEx var inputs: [NodeInputViewModel] = []
+    @PublishedEx var hidePortButton: Bool = false
 
     var context: InspectorContext?
 
     func update(_ node: UUID, _ nodeInputs: [(FlowNode.Input, NodeInputSchema)]) {
 
         for index in 0..<min(self.inputs.count, nodeInputs.count) {
-            self.inputs[index].update(node, nodeInputs[index].0, nodeInputs[index].1)
+            self.inputs[index].update(node, nodeInputs[index].0, nodeInputs[index].1, self.hidePortButton)
         }
 
         if nodeInputs.count > self.inputs.count {
@@ -24,7 +25,8 @@ final class NodeInputsViewModel: WithRef {
                         node,
                         input: nodeInputs[index].0,
                         schema: nodeInputs[index].1,
-                        context: self.context
+                        context: self.context,
+                        hidePortButton: self.hidePortButton
                     )
                 )
             }

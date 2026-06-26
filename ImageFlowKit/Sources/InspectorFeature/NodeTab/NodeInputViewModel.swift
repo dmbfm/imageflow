@@ -12,6 +12,7 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
     @PublishedEx var connected: Bool = false
     @PublishedEx var hasChanges: Bool = false
     @PublishedEx var semantics: ValueSemantics = .default
+    @PublishedEx var hidePortButton: Bool = false
 
     var disabled: AnyPublisher<Bool, Never> {
         self.$connected.map({ $0 }).eraseToAnyPublisher()
@@ -31,9 +32,16 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
 
     init() {}
 
-    init(_ node: UUID, input: FlowNode.Input, schema: NodeInputSchema, context: InspectorContext? = nil) {
+    init(
+        _ node: UUID,
+        input: FlowNode.Input,
+        schema: NodeInputSchema,
+        context: InspectorContext? = nil,
+        hidePortButton: Bool = false
+    ) {
         self.context = context
-        self.update(node, input, schema)
+        self.hidePortButton = hidePortButton
+        self.update(node, input, schema, hidePortButton)
     }
 
     func receive(event: Event) {
@@ -78,7 +86,7 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
         self.context?.coordinator?.assetTitle(id)
     }
 
-    func update(_ node: UUID, _ input: FlowNode.Input, _ schema: NodeInputSchema) {
+    func update(_ node: UUID, _ input: FlowNode.Input, _ schema: NodeInputSchema, _ hidePortButton: Bool = false) {
 
         if self.name != input.label {
             self.name = input.label
@@ -104,6 +112,10 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
 
         if self.node != node {
             self.node = node
+        }
+
+        if self.hidePortButton != hidePortButton {
+            self.hidePortButton = hidePortButton
         }
     }
 }

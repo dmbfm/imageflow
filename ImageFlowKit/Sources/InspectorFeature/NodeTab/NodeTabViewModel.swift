@@ -20,8 +20,8 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     @PublishedEx var typeOptions: [String] = []
 
     @PublishedEx var inputs: NodeInputsViewModel  // = .init().with(\.title, "Inputs")
-    var options: NodeInputsViewModel  //= .init().with(\.title, "Options")
-    var controls: NodeInputsViewModel  // = .init().with(\.title, "")
+    @PublishedEx var options: NodeInputsViewModel  //= .init().with(\.title, "Options")
+    @PublishedEx var controls: NodeInputsViewModel  // = .init().with(\.title, "")
 
     // MARK: - Other Properties
 
@@ -58,8 +58,8 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
         self.flow = flow
         self.context = context
         self.inputs = .init().with(\.context, context).with(\.title, "Inputs")
-        self.options = .init().with(\.context, context).with(\.title, "Options")
-        self.controls = .init().with(\.context, context).with(\.title, "")
+        self.options = .init().with(\.context, context).with(\.title, "Options").with(\.hidePortButton, true)
+        self.controls = .init().with(\.context, context).with(\.title, "").with(\.hidePortButton, true)
 
         self.setupObservers()
     }
@@ -165,6 +165,18 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
             node.id,
             zip(node.inputs, node.schema.inputs)
                 .filter({ (input, schema) in schema.editorPlacement.inspector == .inputs })
+        )
+
+        self.options.update(
+            node.id,
+            zip(node.inputs, node.schema.inputs)
+                .filter({ (input, schema) in schema.editorPlacement.inspector == .options })
+        )
+
+        self.controls.update(
+            node.id,
+            zip(node.inputs, node.schema.inputs)
+                .filter({ (input, schema) in schema.editorPlacement.inspector == .controls })
         )
     }
 

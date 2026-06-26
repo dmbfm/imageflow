@@ -148,6 +148,7 @@ final class NodeInputView: XView, Rx, WithRef {
         self.control.rx(self.vm.$connected, kp: \.connected)
         self.control.rx(self.vm.$hasChanges, kp: \.hasChanges)
         self.control.rx(self.vm.disabled, kp: \.disabled)
+        self.control.rx(self.vm.$hidePortButton, kp: \.hidePortButton)
     }
 
     func setupControlNotifications() {

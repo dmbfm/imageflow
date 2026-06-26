@@ -17,6 +17,14 @@ final class NodeInputControl: Rx, WithRef {
 
     public private(set) var view: InnerView
 
+    public var hidePortButton: Bool = false {
+        didSet {
+            if self.hidePortButton {
+                self.view.connected = nil
+            }
+        }
+    }
+
     var value: Value {
         get { self.view.control.value }
         set { self.view.control.value = newValue }
@@ -24,7 +32,7 @@ final class NodeInputControl: Rx, WithRef {
 
     var connected: Bool {
         get { self.view.connected ?? false }
-        set { self.view.connected = newValue }
+        set { self.view.connected = self.hidePortButton ? nil : newValue }
     }
 
     var hasChanges: Bool {
