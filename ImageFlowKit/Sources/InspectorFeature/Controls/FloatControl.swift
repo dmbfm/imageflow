@@ -94,6 +94,7 @@ final class FloatControlView: XView, WithRef {
         }
         .with(\.dragConfiguration, self.configuration.drag)
         .with(\.translatesAutoresizingMaskIntoConstraints, false)
+        .withContentHuggingPriority(.defaultLow - 10, for: .horizontal)
     }()
 
     init(

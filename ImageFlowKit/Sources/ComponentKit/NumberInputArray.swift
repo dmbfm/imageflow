@@ -159,7 +159,8 @@ public final class NumberInputArray: XView, Rx, WithRef {
                 NumberInput(value, formatter: self.formatter, style: self.style)
                     .with(\.dragConfiguration, self.dragConfiguration)
                     .onChange({ [weak self] in self?.numberInputChange(index, change: $0) })
-                    .withRef({ self.numberInputs.append($0) }),
+                    .withRef({ self.numberInputs.append($0) })
+                    .withContentHuggingPriority(.defaultLow - 10, for: .horizontal),
             ])
         })
         for view in views {
