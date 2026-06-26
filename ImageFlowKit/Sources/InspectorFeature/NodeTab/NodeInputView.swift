@@ -133,7 +133,7 @@ final class NodeInputView: XView, Rx, WithRef {
     }
 
     func setupOtherBindings() {
-        self.rx(self.vm.$semantics.receive(on: RunLoop.main), kp: \.semantics)
+        self.rx(self.vm.$semantics, kp: \.semantics)
         self.vm.$value.sink { [unowned self] value in
             if self.control.value.type != value.type {
                 self.reloadControl()
