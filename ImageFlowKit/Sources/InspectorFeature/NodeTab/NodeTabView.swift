@@ -16,8 +16,8 @@ final class NodeTabView: XView, Rx {
             .with(\.translatesAutoresizingMaskIntoConstraints, false)
     }()
 
-    lazy var stackView: VStack = {
-        VStack(alignment: .fill, spacing: 16, views: [])
+    lazy var stackView: VScrollView = {
+        VScrollView(views: [], spacing: 16)
             .with(\.translatesAutoresizingMaskIntoConstraints, false)
     }()
 
@@ -65,11 +65,7 @@ final class NodeTabView: XView, Rx {
         self.contentUnavailableView.constraintToFillSuperview()
 
         self.contentView.addSubview(self.stackView)
-        NSLayoutConstraint.activate([
-            self.stackView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
-            self.stackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
-            self.stackView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
-        ])
+        self.stackView.constraintToFillSuperview()
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
@@ -137,4 +133,7 @@ final class NodeTabView: XView, Rx {
         )
     )
     .constrainingWidth(toConstant: 320)
+    .constrainingHeight(toConstant: 300)
+    .withContentHuggingPriority(.defaultLow - 10, for: .vertical)
+    .withBorder(.systemGray.withAlphaComponent(0.2))
 }

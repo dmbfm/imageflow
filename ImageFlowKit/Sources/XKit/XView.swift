@@ -85,6 +85,14 @@ public extension XView {
     }
 
     @discardableResult
+    func withBorder(_ color: XColor = .red, width: CGFloat = 1.0) -> Self {
+        self.withLayer({
+            $0.borderColor = color.cgColor
+            $0.borderWidth = width
+        })
+    }
+
+    @discardableResult
     func constrainingWidth(toConstant value: CGFloat) -> Self {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.widthAnchor.constraint(equalToConstant: value).isActive = true

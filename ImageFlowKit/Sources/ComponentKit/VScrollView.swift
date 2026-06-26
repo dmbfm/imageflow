@@ -6,6 +6,7 @@ public final class VScrollView: XView, WithRef {
         class ClipView: NSClipView { override var isFlipped: Bool { true } }
         let view = XScrollView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.hasVerticalScroller = true
         view.contentView = ClipView()
         view.documentView = self.stackView
         view.drawsBackground = false
@@ -14,7 +15,7 @@ public final class VScrollView: XView, WithRef {
 
     public let stackView: VStack
 
-    public init(_ views: [XView], spacing: CGFloat? = nil) {
+    public init(views: [XView], spacing: CGFloat? = nil) {
         self.stackView = VStack(alignment: .fill, spacing: spacing, views: views)
             .with(\.translatesAutoresizingMaskIntoConstraints, false)
 
@@ -52,4 +53,15 @@ public final class VScrollView: XView, WithRef {
     public func removeAllViews() {
         self.stackView.removeAllViews()
     }
+}
+
+#Preview {
+    VScrollView(
+        views: (0..<10).map({ index in
+            let view = XView()
+                .withLayer({ $0.backgroundColor = .red })
+                .constrainingHeight(toConstant: 40)
+            return view
+        })
+    )
 }
