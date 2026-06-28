@@ -51,6 +51,10 @@ final class NodeTabView: XView, Rx {
         NodeInputsView(self.vm.controls)
     }()
 
+    lazy var nodeOutputsView: NodeOutputsView = {
+        NodeOutputsView(self.vm.outputs)
+    }()
+
     init(_ vm: NodeTabViewModel) {
         self.vm = vm
 
@@ -73,13 +77,14 @@ final class NodeTabView: XView, Rx {
         self.contentUnavailableView.constraintToFillSuperview()
 
         self.contentView.addSubview(self.stackView)
-        self.stackView.constraintToFillSuperview()
+        self.stackView.constraintToFillSuperview(insets: .init(top: 0, left: 0, bottom: 12, right: 0))
 
         self.stackView.addView(self.nodeTitleView)
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
         self.stackView.addView(self.nodeControlsView)
         self.stackView.addView(self.nodeInputsView)
         self.stackView.addView(self.nodeOptionsView)
+        self.stackView.addView(self.nodeOutputsView)
     }
 
     func setupBindings() {

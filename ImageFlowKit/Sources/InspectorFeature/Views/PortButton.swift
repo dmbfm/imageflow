@@ -19,6 +19,10 @@ final class PortButton: XView, Rx, WithRef {
         self.button.publisher
     }
 
+    override var firstBaselineAnchor: NSLayoutYAxisAnchor {
+        self.button.firstBaselineAnchor
+    }
+
     private var portSymbolName: String {
         if self.connected {
             "arrow.backward.circle"

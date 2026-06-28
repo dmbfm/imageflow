@@ -23,7 +23,11 @@ final class PropertyTitleView: XView, Rx, WithRef {
         }
     }
 
-    public var type: String? = nil
+    public var type: String? = nil {
+        didSet {
+            self.updateTypePill()
+        }
+    }
 
     var cancellables: Set<AnyCancellable> = []
 
@@ -50,7 +54,7 @@ final class PropertyTitleView: XView, Rx, WithRef {
 
     lazy var stackView: HStack = {
         HStack(
-            alignment: .center,
+            alignment: .firstTextBaseline,
             spacing: 6,
             views: [
                 self.portButtonView,

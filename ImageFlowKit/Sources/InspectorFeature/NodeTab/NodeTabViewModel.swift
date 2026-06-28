@@ -22,6 +22,7 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     @PublishedEx var inputs: NodeInputsViewModel  // = .init().with(\.title, "Inputs")
     @PublishedEx var options: NodeInputsViewModel  //= .init().with(\.title, "Options")
     @PublishedEx var controls: NodeInputsViewModel  // = .init().with(\.title, "")
+    @PublishedEx var outputs: NodeOutputsViewModel
 
     // MARK: - Other Properties
 
@@ -60,6 +61,7 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
         self.inputs = .init().with(\.context, context).with(\.title, "Inputs")
         self.options = .init().with(\.context, context).with(\.title, "Options").with(\.hidePortButton, true)
         self.controls = .init().with(\.context, context).with(\.title, "").with(\.hidePortButton, true)
+        self.outputs = .init().with(\.context, context).with(\.title, "Outputs")
 
         self.setupObservers()
     }
@@ -178,6 +180,8 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
             zip(node.inputs, node.schema.inputs)
                 .filter({ (input, schema) in schema.editorPlacement.inspector == .controls })
         )
+
+        self.outputs.update(node.id, node.outputs)
     }
 
     func lockedDidChange() {

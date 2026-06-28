@@ -105,6 +105,8 @@ public final class NumberInput: XView, Rx, WithRef {
 
         super.init(frame: .zero)
 
+        self.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
+
         self.setupStackView()
         self.setupTextField()
         self.setupStepper()
