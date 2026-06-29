@@ -31,7 +31,7 @@ public class InspectorFeatureController: XViewController {
 
     public override func viewDidLoad() {
         self.nodeTabView = NodeTabView(.init(self.flow, InspectorFeatureControllerProxy(self)))
-        self.canvasTabView = CanvasTabView()
+        self.canvasTabView = CanvasTabView(.init(self.flow, InspectorFeatureControllerProxy(self)))
         self.undoHistoryTabView = UndoHistoryTabView()
 
         self.tabView = TabView(

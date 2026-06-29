@@ -3,6 +3,7 @@ import AppKit
 import SharedModels
 import SwiftUI
 import AssetSystem
+import CanvasFeature
 
 final class MainWindowController: NSWindowController {
 
@@ -11,8 +12,8 @@ final class MainWindowController: NSWindowController {
 
     let toolbarController: ToolbarController
 
-    init(_ flow: Flow, _ assetStore: AssetStore) {
-        let mainVC = MainViewController(flow, assetStore)
+    init(_ flow: Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState) {
+        let mainVC = MainViewController(flow, assetStore, canvasState)
         self.toolbarController = .init(mainVC: mainVC)
         let window = MainWindow(contentViewController: mainVC)
         window.mainWindowDelegate = mainVC

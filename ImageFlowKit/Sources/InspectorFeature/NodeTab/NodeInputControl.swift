@@ -8,12 +8,7 @@ import XKit
 @MainActor
 final class NodeInputControl: Rx, WithRef {
 
-    typealias InnerView = PropertyControlView<
-        Values::Value,
-        NodeInputControlConfiguration,
-        NodeInputControlContext,
-        AnyNodeInputValueControl
-    >
+    typealias InnerView = PropertyControlView<AnyNodeInputValueControl>
 
     public private(set) var view: InnerView
 

@@ -16,6 +16,7 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func assetTitle(_ asset: UUID) -> String?
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
     var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> { get }
+    var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> { get }
 }
 
 public enum GlobalCoordinatorEvent {
@@ -26,6 +27,10 @@ public enum GlobalCoordinatorEvent {
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
     public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
         self.impl?.canvasViewportPublisher ?? .init(PassthroughSubject())
+    }
+
+    public var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> {
+        self.impl?.canvasBookmarksPublisher ?? .init(PassthroughSubject())
     }
 
     public func assetTitle(_ asset: UUID) -> String? {
@@ -101,6 +106,9 @@ public enum UserAction {
     case setCanvasViewPort(CanvasViewportModel)
     case setNodeInputValue(port: InputPortLocation, newValue: Value, oldValue: Value?, undo: Bool)
     case restoreNodeInputDefaultValue(InputPortLocation)
+    case createBookmark
+    case removeBookmark(UUID)
+    case renameBookmark(UUID, String)
 
     public enum Target {
         case selection
@@ -151,6 +159,7 @@ public enum UserAction {
         case setZoom(CGFloat, anim: Bool)
         case zoomToFitContent
         case zoomToFitSelection
+        case setOrigin(CGPoint)
     }
 }
 
@@ -170,6 +179,8 @@ public enum Point: Equatable {
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
     public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> = .init(PassthroughSubject())
+
+    public var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> = .init(PassthroughSubject())
 
     public func assetTitle(_ asset: UUID) -> String? {
         return nil

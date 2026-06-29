@@ -5,13 +5,13 @@ import Values
 import XKit
 
 struct VectorControlConfiguration {
-    var drag: NumberInput.DragConfiguration
+    var drag: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2))
     var formatter: FloatingPointFormatStyle<Double> = .default
     var labels: [String] = []
 }
 
 @MainActor
-final class VectorControl: Control<[Double], VectorControlConfiguration, ()> {
+final class VectorControl: Control<[Double], VectorControlConfiguration, ()>, WithRef {
     @PublishedEx var value: [Double] {
         didSet {
             if self.value != oldValue {
@@ -74,5 +74,11 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, ()> {
 
     func setDisabled(_ disabled: Bool) {
         self.inner.disabled = disabled
+    }
+
+    @discardableResult
+    public func setDragConfiguration(for index: Int, _ config: NumberInput.DragConfiguration) -> Self {
+        self.inner.setDragConfiguration(for: index, config)
+        return self
     }
 }

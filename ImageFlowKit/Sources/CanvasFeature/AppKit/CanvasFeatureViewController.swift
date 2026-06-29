@@ -21,6 +21,8 @@ public final class CanvasFeatureViewController: NSViewController {
 
     /// The Flow model
     public var flow: Flow
+    /// A description
+    public var state: CanvasFeatureState
     /// The asset provider
     public var assetStore: AssetStore
     /// Storage for the `NodeView` instances to be displayed
@@ -70,13 +72,16 @@ public final class CanvasFeatureViewController: NSViewController {
 
     public init(
         flow: Flow,
+        state: CanvasFeatureState,
         coordinator: GlobalCoordinator,
         assetStore: AssetStore,
     ) {
         self.flow = flow
+        self.state = state
         self.coordinator = coordinator
         self.assetStore = assetStore
         self.pasteboardController = .init(coordinator)
+
         super.init(nibName: nil, bundle: nil)
 
         self.flow.emitter.on({ [weak self] event in
@@ -96,7 +101,7 @@ public final class CanvasFeatureViewController: NSViewController {
 
     public override func loadView() {
         self.canvasView = .init(
-            viewport: .init(),
+            viewport: self.state.viewport,
             nodePositions: self.flow.nodePositions,
         )
         self.canvasView.onEvent = { [weak self] in self?.onCanvasEvent($0) }
@@ -134,6 +139,7 @@ public final class CanvasFeatureViewController: NSViewController {
     func onCanvasEvent(_ event: CanvasPlatformView.Event) {
         switch event {
         case .viewportDidChange(let viewport):
+            self.state.viewport = viewport
             self.viewportPublisher.send(viewport)
         case .rectSelect(let state):
             self.onCanvasRectSelect(state)
@@ -547,6 +553,65 @@ public final class CanvasFeatureViewController: NSViewController {
             self.flow.liveSelectUpdate(nodes, mode: shiftDown ? .union : .replace)
         case .ended:
             self.flow.liveSelectEnd()
+        }
+    }
+
+    // MARK: - Bookmarks
+
+    public func addBookmark(_ b: CanvasBookmark) {
+        self.state.bookmarks.add(b)
+        let id = b.id
+        self.undoManager?.registerUndo(
+            withTarget: self,
+            handler: { [weak self] _ in
+                self?.removeBookmark(id)
+            }
+        )
+        self.undoManager?.setActionName("Create Bookmark")
+    }
+
+    public func createBookmark() {
+        let id = UUID()
+        let name = "Bookmark \(self.state.bookmarks.count + 1)"
+        self.state.bookmarks.add(
+            .init(
+                id: id,
+                name: name,
+                viewport: self.viewport,
+            )
+        )
+
+        self.undoManager?.registerUndo(
+            withTarget: self,
+            handler: { [weak self] _ in
+                self?.removeBookmark(id)
+            }
+        )
+        self.undoManager?.setActionName("Create Bookmark")
+    }
+
+    public func removeBookmark(_ id: UUID) {
+        if let b = self.state.bookmarks.remove(id) {
+            self.undoManager?.registerUndo(
+                withTarget: self,
+                handler: { [weak self] _ in
+                    self?.addBookmark(b)
+                }
+            )
+            self.undoManager?.setActionName("Remove Bookmark")
+        }
+    }
+
+    public func renameBookmark(_ id: UUID, _ name: String) {
+        if let oldName = self.state.bookmarks.get(withID: id)?.name {
+            self.state.bookmarks.rename(id, name)
+            self.undoManager?.registerUndo(
+                withTarget: self,
+                handler: { [weak self] _ in
+                    self?.renameBookmark(id, oldName)
+                }
+            )
+            self.undoManager?.setActionName("Rename Bookmark")
         }
     }
 }

@@ -16,6 +16,7 @@ public typealias XStepper = NSStepper
 public typealias XPopUpButton = NSPopUpButton
 public typealias XButtonSize = NSControl.ControlSize
 public typealias XSwitch = NSSwitch
+public typealias XTableView = NSTableView
 #endif
 
 #if canImport(UIKit)

@@ -41,7 +41,9 @@ public final class Flow {
             self.delegate?.flow(nodesDidChange: self.nodes)
             self.emitter.emit(.nodesDidChange(self.nodes))
             self.nodesDidChangePublisher.send(())
-            self.nodeCount = self.nodes.count
+            if self.nodeCount != self.nodes.count {
+                self.nodeCount = self.nodes.count
+            }
         }
     }
     /// The positions of the nodes.
@@ -66,10 +68,15 @@ public final class Flow {
         didSet {
             self.delegate?.flow(edgesDidChange: self.edges)
             self.emitter.emit(.edgesDidChange(self.edges))
+            if self.edgeCount != self.edges.count {
+                self.edgeCount = self.edges.count
+            }
         }
     }
 
-    public var nodeCount: Int
+    @PublishedEx public var nodeCount: Int
+    @PublishedEx public var edgeCount: Int
+
     public var selectionCount: Int
 
     public var partialEdge: PartialEdge? = nil {
@@ -116,6 +123,7 @@ public final class Flow {
         self.selection = selection
         self.edges = edges
         self.nodeCount = nodes.count
+        self.edgeCount = edges.count
         self.selectionCount = selection.count
         self.selectionDidChangePublisher = .init(selection)
     }
@@ -136,6 +144,7 @@ public final class Flow {
         self.selection = selection
         self.edges = edges
         self.nodeCount = nodes.count
+        self.edgeCount = edges.count
         self.selectionCount = selection.count
         self.selectionDidChangePublisher = .init(selection)
     }

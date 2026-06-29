@@ -188,6 +188,10 @@ extension CanvasPlatformView {
         }
     }
 
+    public func setOrigin(_ value: CGPoint) {
+        self.viewport.origin = value
+    }
+
     public func setZoom(_ value: CGFloat, _ anim: Bool = true) {
         if anim {
             self.zoomAnim(value, self.safeAreaRect.center)

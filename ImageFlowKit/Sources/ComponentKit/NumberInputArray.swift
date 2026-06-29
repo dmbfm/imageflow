@@ -130,6 +130,12 @@ public final class NumberInputArray: XView, Rx, WithRef {
         return self
     }
 
+    @discardableResult
+    public func setDragConfiguration(for index: Int, _ config: NumberInput.DragConfiguration) -> Self {
+        self.numberInputs[tryGetAt: index]?.dragConfiguration = config
+        return self
+    }
+
     /// Reloads the text labels for all the rows.
     public func reloadLabels() {
         var needsToUpdateConstraints = false

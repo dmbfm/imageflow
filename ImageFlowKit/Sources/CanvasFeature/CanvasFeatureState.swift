@@ -1,5 +1,6 @@
 import Backend
 import CanvasView
+import Helpers
 import SharedModels
 import SwiftUI
 
@@ -13,12 +14,16 @@ public final class CanvasFeatureState {
         }
     }
 
+    @PublishedEx public var bookmarks: CanvasBookmarks = .init()
+
     public weak var delegate: CanvasFeatureStateDelegate? = nil
 
     public init(
         viewport: CanvasView.Viewport = .init(),
+        bookmarks: CanvasBookmarks = .init(),
     ) {
         self.viewport = viewport
+        self.bookmarks = bookmarks
     }
 }
 
@@ -29,21 +34,24 @@ public protocol CanvasFeatureStateDelegate: AnyObject {
 extension CanvasFeatureState: Storable {
     public struct StorableData: Sendable, Codable, Equatable {
         public var viewport: CanvasView.Viewport
+        public var bookmarks: CanvasBookmarks?
 
-        public init(viewport: CanvasView.Viewport = .init()) {
+        public init(viewport: CanvasView.Viewport = .init(), bookmarks: CanvasBookmarks? = nil) {
             self.viewport = viewport
+            self.bookmarks = bookmarks
         }
     }
 
     public convenience init(_ store: StorableData) {
-        self.init(viewport: store.viewport)
+        self.init(viewport: store.viewport, bookmarks: store.bookmarks ?? .init())
     }
 
     public func snapshot() -> StorableData {
-        .init(viewport: self.viewport)
+        StorableData(viewport: self.viewport, bookmarks: self.bookmarks)
     }
 
     public func restore(_ snapshot: StorableData) {
         self.viewport = snapshot.viewport
+        self.bookmarks = snapshot.bookmarks ?? .init()
     }
 }

@@ -31,7 +31,7 @@ public final class FlowDocument: NSDocument {
     public override func makeWindowControllers() {
         let documentInfo = DocumentInfo(id: self.id, url: self.fileURL)
         self.assetStore.setDocumentInfo(documentInfo)
-        self.addWindowController(MainWindowController(self.flow, self.assetStore))
+        self.addWindowController(MainWindowController(self.flow, self.assetStore, self.canvas))
 
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.closeWelcomeWindow()

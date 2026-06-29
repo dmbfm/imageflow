@@ -5,8 +5,8 @@ import Values
 import XKit
 
 /// Similar to a `PropertyView`, but restricts the content view to b a `Control` view.
-final class PropertyControlView<Value, Configuration, Context, C>: XView, Rx, WithRef
-where Value: Equatable & Sendable, C: Control<Value, Configuration, Context> {
+final class PropertyControlView<C>: XView, Rx, WithRef
+where Value: Equatable & Sendable, C: Control {
 
     public var connected: Bool? {
         get { self.propertyView.connected }
@@ -39,6 +39,11 @@ where Value: Equatable & Sendable, C: Control<Value, Configuration, Context> {
 
     public var portButtonPublisher: PassthroughSubject<(), Never> {
         self.propertyView.portButtonPublisher
+    }
+
+    public var value: C.Value {
+        get { self.control.value }
+        set { self.control.value = newValue }
     }
 
     public private(set) var control: C

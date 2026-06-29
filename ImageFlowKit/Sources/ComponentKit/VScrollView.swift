@@ -38,8 +38,10 @@ public final class VScrollView: XView, WithRef {
         self.stackView.addView(view)
     }
 
-    public func setCustomSpacing(_ spacing: CGFloat, after view: XView) {
+    @discardableResult
+    public func setCustomSpacing(_ spacing: CGFloat, after view: XView) -> Self {
         self.stackView.setCustomSpacing(spacing, after: view)
+        return self
     }
 
     public func insertView(_ view: XView, at index: Int) {

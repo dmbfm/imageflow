@@ -45,9 +45,16 @@ final class MainViewController: NSSplitViewController {
     var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
         .init(
             self.detailVC.canvasVC.viewportPublisher.map({ viewport in
-                .init(origin: viewport.origin, scale: viewport.scale)
+                .init(
+                    origin: viewport.origin,
+                    scale: viewport.scale
+                )
             })
         )
+    }
+
+    var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> {
+        self.detailVC.canvasVC.state.$bookmarks.eraseToAnyPublisher()
     }
 
     // MARK: - Lazy Properties
@@ -84,7 +91,7 @@ final class MainViewController: NSSplitViewController {
 
     // MARK: - Initialization
 
-    init(_ flow: SharedModels::Flow, _ assetStore: AssetStore) {
+    init(_ flow: SharedModels::Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState) {
         self.flow = flow
         self.assetStore = assetStore
         // self.pasteboardController = .init(.ini)
@@ -93,7 +100,7 @@ final class MainViewController: NSSplitViewController {
 
         self.backendRunner = .init(flow, .init(self), assetStore)
         self.sidebarVC = .init(globalCoordinator: .init(self))
-        self.detailVC = .init(self.flow, .init(self), self.assetStore)
+        self.detailVC = .init(self.flow, .init(self), canvasState, self.assetStore)
         self.inspectorVC = .init(self.flow, .init(self))
         self.pasteboardController = .init(.init(self))
 

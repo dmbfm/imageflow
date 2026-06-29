@@ -48,6 +48,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.canvasView.zoomOut()
         case .viewport(.setZoom(let zoom, let anim)):
             self.canvasView.setZoom(zoom, anim)
+        case .viewport(.setOrigin(let origin)):
+            self.canvasView.setOrigin(origin)
         case .rename(let id):
             self.showRenameSheet(forNode: id)
         case .exportPreviewedImage:
@@ -81,6 +83,12 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.setNodeInputValue(port, newValue, oldValue, undo)
         case .restoreNodeInputDefaultValue(let port):
             self.restoreNodeInputDefaultValue(port)
+        case .createBookmark:
+            self.detailVC.canvasVC.createBookmark()
+        case .removeBookmark(let id):
+            self.detailVC.canvasVC.removeBookmark(id)
+        case .renameBookmark(let id, let name):
+            self.detailVC.canvasVC.renameBookmark(id, name)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }
