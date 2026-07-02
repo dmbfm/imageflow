@@ -8,8 +8,8 @@ import Testing
 func portDragAndCreateEdge() throws {
     let flow = Flow()
     let ids = [UUID(), UUID()]
-    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoManager: nil)
-    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoService: nil)
+    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoService: nil)
 
     let src = PortLocation(node: ids[1], port: .output(0))
     let dst = PortLocation(node: ids[0], port: .input(0))
@@ -21,7 +21,7 @@ func portDragAndCreateEdge() throws {
     #expect(flow.partialEdge == .init(port: src, pointer: .init(x: 300, y: 400), state: .canConnect))
     um.removeAllActions()
     um.withGroup {
-        flow.portDragEnd(undoManager: um, position: nil, travelDistance: 1000)
+        flow.portDragEnd(undoService: undoService, position: nil, travelDistance: 1000)
     }
     #expect(flow.edges.count == 1)
     #expect(flow.edges.first == (try Edge.fromPorts(src, dst).get()))
@@ -36,8 +36,8 @@ func portDragAndCreateEdge() throws {
 func portDragAndCancel() throws {
     let flow = Flow()
     let ids = [UUID(), UUID()]
-    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoManager: nil)
-    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoService: nil)
+    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoService: nil)
 
     let src = PortLocation(node: ids[1], port: .output(0))
     let dst = PortLocation(node: ids[0], port: .input(0))
@@ -58,8 +58,8 @@ func portDragAndCancel() throws {
 func portDragConnectedInputShouldDelete() throws {
     let flow = Flow()
     let ids = [UUID(), UUID()]
-    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoManager: nil)
-    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: ids[0], kind: .math(.addNode(.float))), at: .zero, undoService: nil)
+    flow.newNodeAction(.init(id: ids[1], kind: .valueNode(.float)), at: .zero, undoService: nil)
 
     let src = PortLocation(node: ids[1], port: .output(0))
     let dst = PortLocation(node: ids[0], port: .input(0))
@@ -67,7 +67,7 @@ func portDragConnectedInputShouldDelete() throws {
     flow.portDragStart(src, .zero)
     flow.portDragUpdate(.init(x: 300, y: 400), dst)
     um.withGroup {
-        flow.portDragEnd(undoManager: um, position: nil, travelDistance: 1000)
+        flow.portDragEnd(undoService: undoService, position: nil, travelDistance: 1000)
     }
     #expect(flow.edges.count == 1)
     #expect(flow.getPortConnected(src) == true)
@@ -80,7 +80,7 @@ func portDragConnectedInputShouldDelete() throws {
 
     flow.portDragUpdate(.zero, nil)
     um.withGroup {
-        flow.portDragEnd(undoManager: um, position: nil, travelDistance: 1000)
+        flow.portDragEnd(undoService: undoService, position: nil, travelDistance: 1000)
     }
     #expect(flow.edges.isEmpty)
 

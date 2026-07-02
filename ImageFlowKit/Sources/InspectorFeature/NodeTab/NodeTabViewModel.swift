@@ -213,7 +213,7 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
 
     func updateNodeName(_ newName: String) {
         guard let node = self.currentNode else { return }
-        self.flow.setNodeName(id: node.id, newValue: newName, undoManager: self.context.undoManager)
+        self.flow.setNodeName(id: node.id, newValue: newName, undoService: self.context.coordinator?.undoService)
     }
 
     func nodeTypeSelected(_ index: Int) {

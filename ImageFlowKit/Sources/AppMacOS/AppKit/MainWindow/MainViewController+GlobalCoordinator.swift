@@ -75,8 +75,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
         case .showNodeSearch(let typedPort, let canvasPosition):
             self.showNodeSearch(typedPort, canvasPosition)
         case .convertNode(let id, let kind):
-            self.flow.convertNodeAction(id, kind: kind, undoManager: self.undoManager)
-            self.undoManager?.setActionName("Convert Node")
+            self.flow.convertNodeAction(id, kind: kind, undoService: self.undoService)
+            self.undoService.setActionName("Convert Node", icon: .systemIconNode)
         case .setCanvasViewPort(let viewport):
             self.canvasView.viewport = .init(origin: viewport.origin, scale: viewport.scale)
         case .setNodeInputValue(port: let port, let newValue, let oldValue, let undo):
@@ -104,8 +104,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
     }
 
     func restoreNodeInputDefaultValue(_ port: InputPortLocation) {
-        self.flow.restoreDefaultValue(id: port.node, index: port.index, undoManager: self.undoManager)
-        self.undoManager?.setActionName("Restore Default Value")
+        self.flow.restoreDefaultValue(id: port.node, index: port.index, undoService: self.undoService)
+        self.undoService.setActionName("Restore Default Value", icon: .systemIconValue)
     }
 
     func setNodeInputValue(_ port: InputPortLocation, _ newValue: Value, _ oldValue: Value?, _ undo: Bool) {
@@ -114,10 +114,10 @@ extension MainViewController: GlobalCoordinatorProtocol {
             index: port.index,
             oldValue: oldValue,
             newValue: newValue,
-            undoManager: undo ? self.undoManager : nil
+            undoService: undo ? self.undoService : nil
         )
         if undo {
-            self.undoManager?.setActionName("\(newValue.type.displayName) Value Change")
+            self.undoService.setActionName("\(newValue.type.displayName) Value Change", icon: .systemIconValue)
         }
     }
 
@@ -129,7 +129,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
                     fromData: data.data,
                     filename: data.filename,
                     kind: .image,
-                    undoManager: self.undoManager
+                    undoService: self.undoService,
                 )
                 if case let .canvas(maybePoint) = info.target {
                     let canvasPos =
@@ -139,7 +139,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
                     node.inputs[0].value = .image(.asset(id))
                     self.newNode(node: node, centeredAt: .canvas(canvasPos), typedPort: nil)
                 }
-                self.undoManager?.setActionName("Import Image")
+                self.undoService.setActionName("Import Image", icon: "photo")
             }
         case .url(let urls):
             for (idx, url) in urls.enumerated() {
@@ -148,7 +148,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
                     let id = try await self.assetStore.importAsset(
                         fromURL: url,
                         kind: .image,
-                        undoManager: self.undoManager
+                        undoService: self.undoService
                     )
                     if case let .canvas(maybePoint) = info.target {
                         let canvasPos =
@@ -162,7 +162,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
                             typedPort: nil
                         )
                     }
-                    self.undoManager?.setActionName("Import Image")
+                    self.undoService.setActionName("Import Image", icon: "photo")
                 }
             }
             break
@@ -235,7 +235,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.flow.paste(
                 pasteboardData: item.flowPasteboardData,
                 at: point,
-                undoManager: self.undoManager
+                undoService: self.undoService
             )
         }
     }
@@ -272,8 +272,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
         if nodes.isEmpty { return }
 
         self.copyNodes(.nodes(nodes))
-        self.flow.deleteNodesAction(nodes, undoManager: self.undoManager)
-        self.undoManager?.setActionName("Cut \(nodes.nodeName)")
+        self.flow.deleteNodesAction(nodes, undoService: self.undoService)
+        self.undoService.setActionName("Cut \(nodes.nodeName)", icon: .systemIconMenuCut)
     }
 
     func deleteNodes(_ target: UserAction.Target) {
@@ -281,8 +281,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
 
         if nodes.isEmpty { return }
 
-        self.flow.deleteNodesAction(nodes, undoManager: self.undoManager)
-        self.undoManager?.setActionName("Delete \(nodes.nodeName)")
+        self.flow.deleteNodesAction(nodes, undoService: self.undoService)
+        self.undoService.setActionName("Delete \(nodes.nodeName)", icon: .systemIconMenuDelete)
     }
 
     func showRenameSheet(forNode id: UUID) {

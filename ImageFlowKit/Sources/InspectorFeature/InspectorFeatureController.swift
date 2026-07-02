@@ -11,10 +11,13 @@ public class InspectorFeatureController: XViewController {
 
     let flow: Flow
     let coordinator: GlobalCoordinator
+    let undoHistoryTabViewModel: UndoHistoryTabViewModel
 
     public init(_ flow: Flow, _ coordinator: GlobalCoordinator) {
         self.flow = flow
         self.coordinator = coordinator
+        self.undoHistoryTabViewModel = .init(coordinator)
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -32,14 +35,14 @@ public class InspectorFeatureController: XViewController {
     public override func viewDidLoad() {
         self.nodeTabView = NodeTabView(.init(self.flow, InspectorFeatureControllerProxy(self)))
         self.canvasTabView = CanvasTabView(.init(self.flow, InspectorFeatureControllerProxy(self)))
-        self.undoHistoryTabView = UndoHistoryTabView()
+        self.undoHistoryTabView = UndoHistoryTabView(self.undoHistoryTabViewModel)
 
         self.tabView = TabView(
             [
                 .init(
                     view: self.nodeTabView,
                     label: "",
-                    icon: "list.bullet.rectangle.portrait.fill"
+                    icon: .systemIconNode
                 ),
                 .init(
                     view: self.canvasTabView,

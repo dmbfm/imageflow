@@ -135,7 +135,7 @@ extension Flow {
             }
 
         if let edge = removedEdge {
-            self.deleteEdgeAction(edge, undoManager: nil)
+            self.deleteEdgeAction(edge, undoService: nil)
         }
 
         do {
@@ -168,27 +168,27 @@ extension Flow {
         return nil
     }
 
-    public func portDragEnd(undoManager um: UndoManager?, position: CGPoint?, travelDistance: CGFloat) {
+    public func portDragEnd(undoService: UndoService?, position: CGPoint?, travelDistance: CGFloat) {
         do {
             let result = try self.portDraggingState.endDragging()
 
-            um?.beginUndoGrouping()
+            undoService?.beginUndoGrouping()
 
             if let edge = result.removedEdge {
                 self.newEdgeAction(edge)
-                self.deleteEdgeAction(edge, undoManager: um)
+                self.deleteEdgeAction(edge, undoService: undoService)
             }
 
             if let edge = result.edgeToCreate {
                 if let fix = result.fix {
-                    self.newEdgeWithTypeErrorFixAction(edge, fix, undoManager: um)
+                    self.newEdgeWithTypeErrorFixAction(edge, fix, undoService: undoService)
                 } else {
-                    self.newEdgeAction(edge, undoManager: um)
+                    self.newEdgeAction(edge, undoService: undoService)
                 }
             }
 
-            um?.endUndoGrouping()
-            um?.setActionName("Create Edge")
+            undoService?.endUndoGrouping()
+            undoService?.setActionName("Create Edge", icon: .systemIconEdge)
 
             let cantConnect = self.partialEdge?.state == .cantConnect
 

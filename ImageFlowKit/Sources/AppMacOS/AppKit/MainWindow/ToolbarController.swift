@@ -91,7 +91,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
         case .nodeList:
             let item = NSToolbarItem(itemIdentifier: .nodeList)
             item.image = .init(
-                systemSymbolName: .systemIconNodeList,
+                systemSymbolName: .systemIconNode,
                 accessibilityDescription: "Node List"
             )
             item.label = "Node List"

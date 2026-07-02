@@ -47,7 +47,7 @@ public final class InspectorFeatureController: XViewController {
         let nodeInspectorItem = NSTabViewItem(viewController: self.nodeInspectorVC)
         nodeInspectorItem.label = ""
         nodeInspectorItem.image = NSImage(
-            systemSymbolName: "list.bullet.rectangle.portrait.fill",
+            systemSymbolName: .systemIconNode,
             accessibilityDescription: nil
         )
         self.tabView.addTabViewItem(nodeInspectorItem)

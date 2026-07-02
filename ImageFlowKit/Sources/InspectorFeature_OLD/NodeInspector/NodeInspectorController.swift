@@ -460,7 +460,10 @@ extension NodeInspectorController: NodeInputControlDelegate {
             undoManager: change.commit ? self.undoManager : nil
         )
         if change.commit {
-            self.undoManager?.setActionName("\(change.newValue.type.displayName) Value Change")
+            self.coordinator.undoService.setActionName(
+                "\(change.newValue.type.displayName) Value Change",
+                icon: .systemIconValue,
+            )
         }
     }
 
@@ -476,7 +479,7 @@ extension NodeInspectorController: NodeInputControlDelegate {
     func nodeInputControlRestoreButtonClicked(_ sender: any NodeInputControlView) {
         guard let node = self.node else { return }
         self.flow.restoreDefaultValue(id: node.id, index: sender.portIndex, undoManager: self.undoManager)
-        self.undoManager?.setActionName("Restore Default Value")
+        self.coordinator.undoService.setActionName("Restore Default Value", icon: .systemIconValue)
     }
 
     func nodeInputControlOpenAssetPicker(_ sender: any NodeInputControlView) {

@@ -1,12 +1,11 @@
-import CanvasView
 import Foundation
 
 public struct CanvasBookmark: Sendable, Codable, Equatable, Identifiable {
     public var id: UUID
     public var name: String
-    public var viewport: CanvasView.Viewport
+    public var viewport: CanvasViewportModel
 
-    public init(id: UUID = .init(), name: String, viewport: CanvasView.Viewport) {
+    public init(id: UUID = .init(), name: String, viewport: CanvasViewportModel) {
         self.id = id
         self.name = name
         self.viewport = viewport

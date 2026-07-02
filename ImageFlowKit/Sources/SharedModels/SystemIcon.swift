@@ -16,5 +16,7 @@ public extension String {
     static let systemIconLock = "lock.fill"
     static let systemIconLockOpen = "lock.open"
     static let systemIconAssetBrowser = "photo.stack.fill"
-    static let systemIconNodeList = "list.bullet"
+    static let systemIconNode = "list.bullet.rectangle.portrait.fill"
+    static let systemIconEdge = "point.topleft.down.to.point.bottomright.curvepath.fill"
+    static let systemIconValue = "number"
 }

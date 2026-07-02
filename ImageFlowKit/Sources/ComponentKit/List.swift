@@ -107,6 +107,10 @@ public final class List: XView, WithRef, Rx {
     public func removeViews(atOffsets set: IndexSet) {
         self.views.remove(atOffsets: set)
     }
+
+    public func removeAllViews() {
+        self.views.removeAll()
+    }
 }
 
 extension List: NSTableViewDataSource {

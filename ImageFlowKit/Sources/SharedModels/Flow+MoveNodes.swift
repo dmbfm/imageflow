@@ -15,17 +15,19 @@ extension Flow {
     }
 
     @discardableResult
-    public func moveNode(_ id: UUID, to position: CGPoint, undoManager um: UndoManager? = nil) -> CGPoint? {
+    public func moveNode(_ id: UUID, to position: CGPoint, undoService: UndoService? = nil) -> CGPoint? {
         guard let prev = self.nodePositions[id] else {
             return nil
         }
 
         if position != prev {
             self.nodePositions[id] = position
-            um?.registerUndo(
+            undoService?.register(
                 withTarget: self,
-                handler: { [weak um] this in
-                    this.moveNode(id, to: prev, undoManager: um)
+                title: nil,
+                icon: nil,
+                handler: { [weak undoService] this in
+                    this.moveNode(id, to: prev, undoService: undoService)
                 }
             )
             return prev
@@ -68,24 +70,24 @@ extension Flow {
         return prev
     }
 
-    public func liveMoveNodesEnd(undoManager um: UndoManager?) {
+    public func liveMoveNodesEnd(undoService: UndoService? = nil) {
         guard let snap = self.liveMoveNodesSnapshot else {
             fatalError("called `liveMoveNodesEnd` before calling `liveMoveNodesStart` ")
         }
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
 
         var didMoveNode: Bool = false
 
-        for (id, pos) in snap where self.hasNode(id) && self.moveNode(id, to: pos, undoManager: um) != nil {
+        for (id, pos) in snap where self.hasNode(id) && self.moveNode(id, to: pos, undoService: undoService) != nil {
             didMoveNode = true
         }
 
-        um?.endUndoGrouping()
-        um?.setActionName("Move Node" + (snap.count > 1 ? "s" : ""))
+        undoService?.endUndoGrouping()
+        undoService?.setActionName("Move Node" + (snap.count > 1 ? "s" : ""), icon: .systemIconNode)
 
         if !didMoveNode {
-            um?.undo()
+            undoService?.undo()
         }
 
         self.liveMoveNodesSnapshot = nil

@@ -35,40 +35,46 @@ public final class AssetStore {
         self.documentInfo = info
     }
 
-    public func registerAsset(_ asset: Asset, undoManager um: UndoManager? = nil) {
+    public func registerAsset(_ asset: Asset, undoService: UndoService? = nil) {
         self.assets[asset.id] = asset
         Task {
             await self.resourceManager.registerAssetResources(asset: asset)
         }
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
-                this.removeAsset(asset.id, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                this.removeAsset(asset.id, undoService: undoService)
             }
         )
     }
 
-    public func removeAsset(_ id: UUID, undoManager um: UndoManager? = nil) {
+    public func removeAsset(_ id: UUID, undoService: UndoService? = nil) {
         guard let asset = self.assets[id] else { return }
         self.assets.removeValue(forKey: id)
         Task {
             await self.resourceManager.removeAssetResources(asset: asset)
         }
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
-                this.registerAsset(asset, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                this.registerAsset(asset, undoService: undoService)
             }
         )
     }
 
-    public func importAsset(_ importer: AssetImporter, undoManager um: UndoManager? = nil) async throws -> UUID {
+    public func importAsset(_ importer: AssetImporter, undoService: UndoService? = nil) async throws -> UUID {
         try self.pathManager.ensureAssetsDir()
         let id = try await importer.doImport(.init(self, self.pathManager))
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
-                this.removeAsset(id, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                this.removeAsset(id, undoService: undoService)
             }
         )
         return id
@@ -78,24 +84,24 @@ public final class AssetStore {
         fromData data: Data,
         filename: String,
         kind: AssetKind,
-        undoManager um: UndoManager? = nil
+        undoService: UndoService? = nil,
     ) async throws -> UUID {
-        try await self.importAsset(DataImporter(filename: filename, kind: kind, data: data), undoManager: um)
+        try await self.importAsset(DataImporter(filename: filename, kind: kind, data: data), undoService: undoService)
     }
 
     public func importAsset(
         fromURL url: URL,
         kind: AssetKind,
-        undoManager um: UndoManager? = nil
+        undoService: UndoService? = nil,
     ) async throws -> UUID {
-        try await self.importAsset(SimpleFileImporter(url: url, kind: kind), undoManager: um)
+        try await self.importAsset(SimpleFileImporter(url: url, kind: kind), undoService: undoService)
     }
 
     public func importAsset(
         imageFromItemProvider item: NSItemProvider,
-        undoManager um: UndoManager? = nil
+        undoService: UndoService? = nil,
     ) async throws -> UUID {
-        try await self.importAsset(ImageItemProviderImporter(item: item), undoManager: um)
+        try await self.importAsset(ImageItemProviderImporter(item: item), undoService: undoService)
     }
 }
 

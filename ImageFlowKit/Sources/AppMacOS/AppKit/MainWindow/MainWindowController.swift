@@ -12,7 +12,7 @@ final class MainWindowController: NSWindowController {
 
     let toolbarController: ToolbarController
 
-    init(_ flow: Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState) {
+    init(_ flow: Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState, undoManager: UndoManager? = nil) {
         let mainVC = MainViewController(flow, assetStore, canvasState)
         self.toolbarController = .init(mainVC: mainVC)
         let window = MainWindow(contentViewController: mainVC)
@@ -33,6 +33,7 @@ final class MainWindowController: NSWindowController {
         window.center()
 
         super.init(window: window)
+        mainVC.undoService.undoManager = undoManager
 
         window.delegate = self
         window.toolbar = self.toolbarController.toolbar

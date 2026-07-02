@@ -87,6 +87,10 @@ public final class Icon: XView, WithRef {
         }
     }
 
+    public override var firstBaselineAnchor: NSLayoutYAxisAnchor {
+        self.imageView.firstBaselineAnchor
+    }
+
     public init(systemName: String) {
         self.systemName = systemName
 
@@ -96,11 +100,7 @@ public final class Icon: XView, WithRef {
 
         self.addSubview(self.imageView)
         self.imageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.imageView.firstBaselineAnchor.constraint(equalTo: self.firstBaselineAnchor),
-            self.imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-        ])
+        self.imageView.constraintToFillSuperview()
 
         self.update()
     }

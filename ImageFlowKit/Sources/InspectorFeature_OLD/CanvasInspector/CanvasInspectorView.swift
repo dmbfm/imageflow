@@ -28,7 +28,7 @@ final class CanvasInspectorView: ScrollableStackXView {
             {
                 let icon = XImageView(
                     image: XImage(
-                        systemSymbolName: "list.bullet.rectangle.portrait.fill",
+                        systemSymbolName: .systemIconNode,
                         accessibilityDescription: nil
                     )!
                 )
@@ -56,7 +56,7 @@ final class CanvasInspectorView: ScrollableStackXView {
             {
                 let icon = XImageView(
                     image: XImage(
-                        systemSymbolName: "point.topleft.down.to.point.bottomright.curvepath.fill",
+                        systemSymbolName: .systemIconEdge,
                         accessibilityDescription: nil
                     )!
                 )

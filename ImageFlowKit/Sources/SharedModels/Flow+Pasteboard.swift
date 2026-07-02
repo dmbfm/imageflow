@@ -116,17 +116,17 @@ extension Flow {
         self.pasteboardData(forNodes: self.selection)
     }
 
-    public func paste(pasteboardData data: FlowPasteboardData, at point: CGPoint, undoManager um: UndoManager?) {
+    public func paste(pasteboardData data: FlowPasteboardData, at point: CGPoint, undoService: UndoService?) {
         guard let center = Array(data.nodePositions.values).centerPoint else { return }
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
         var ids: [UUID: UUID] = [:]
         for (id, node) in data.nodes {
             guard let nodePos = data.nodePositions[id] else { continue }
             var newNode = node
             newNode.id = UUID()
             ids[node.id] = newNode.id
-            self.newNodeAction(newNode, at: nodePos - center + point, undoManager: um)
+            self.newNodeAction(newNode, at: nodePos - center + point, undoService: undoService)
         }
 
         for edge in data.edges {
@@ -139,13 +139,13 @@ extension Flow {
             {
                 self.newEdgeAction(
                     edge,
-                    undoManager: um
+                    undoService: undoService
                 )
             }
         }
 
-        um?.endUndoGrouping()
-        um?.setActionName("Paste Node" + (ids.count > 1 ? "s" : ""))
+        undoService?.endUndoGrouping()
+        undoService?.setActionName("Paste Node" + (ids.count > 1 ? "s" : ""), icon: .systemIconMenuPaste)
 
         self.select(Set(ids.values))
     }

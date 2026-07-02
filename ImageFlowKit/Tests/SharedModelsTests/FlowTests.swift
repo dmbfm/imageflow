@@ -12,11 +12,15 @@ import class SharedModels.Flow
 // MARK: - Helpers
 
 @MainActor
-let um: UndoManager = {
+let undoService: UndoService = {
     let um = UndoManager()
     um.groupsByEvent = false
-    return um
+    let undoService = UndoService(um)
+    return undoService
 }()
+
+@MainActor
+var um: UndoManager { undoService.undoManager! }
 
 extension UndoManager {
     func withGroup(_ perform: () -> ()) {
@@ -298,7 +302,7 @@ func testRemoveEdge() throws {
 func testAddNodeUndoRedo() {
     let flow = Flow()
     let node = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node, at: .zero, undoService: undoService) }
     #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node.id] == node)
     um.undo()
@@ -317,10 +321,10 @@ func testRemoveNodeUndoRedo() {
     let flow = Flow()
     let node1 = FlowNode(kind: .valueNode(.float))
     let node2 = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
-    um.withGroup { flow.addNode(node2, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoService: undoService) }
+    um.withGroup { flow.addNode(node2, at: .zero, undoService: undoService) }
     #expect(flow.nodes.count == 2)
-    um.withGroup { flow.removeNode(node2.id, undoManager: um) }
+    um.withGroup { flow.removeNode(node2.id, undoService: undoService) }
     #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node1.id] == node1)
     #expect(flow.nodes[node2.id] == nil)
@@ -340,10 +344,10 @@ func testAddRemoveNodeUndoRedo() {
     let flow = Flow()
     let node1 = FlowNode(kind: .valueNode(.float))
     let node2 = FlowNode(kind: .valueNode(.float))
-    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
-    um.withGroup { flow.addNode(node2, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoService: undoService) }
+    um.withGroup { flow.addNode(node2, at: .zero, undoService: undoService) }
     #expect(flow.nodes.count == 2)
-    um.withGroup { flow.removeNode(node2.id, undoManager: um) }
+    um.withGroup { flow.removeNode(node2.id, undoService: undoService) }
     #expect(flow.nodes.count == 1)
     #expect(flow.nodes[node1.id] == node1)
     #expect(flow.nodes[node2.id] == nil)
@@ -382,12 +386,12 @@ func testUpdateNodeUndoRedo() {
     let node = FlowNode(kind: .math(.addNode(.vector2)))
     let node1 = FlowNode(id: id, kind: .valueNode(.float))
     let node2 = FlowNode(id: id, kind: .valueNode(.int))
-    um.withGroup { flow.addNode(node, at: .zero, undoManager: um) }
-    um.withGroup { flow.addNode(node1, at: .zero, undoManager: um) }
+    um.withGroup { flow.addNode(node, at: .zero, undoService: undoService) }
+    um.withGroup { flow.addNode(node1, at: .zero, undoService: undoService) }
     #expect(flow.nodes.count == 2)
     #expect(flow.nodes[id] == node1)
     #expect(flow.nodes[node.id] == node)
-    um.withGroup { flow.updateNode(node2, undoManager: um) }
+    um.withGroup { flow.updateNode(node2, undoService: undoService) }
     #expect(flow.nodes.count == 2)
     #expect(flow.nodes[id] == node2)
     #expect(flow.nodes[node.id] == node)
@@ -407,7 +411,7 @@ func testAddEdgeUndo() throws {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
     let edge = try Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
-    um.withGroup { flow.addEdge(edge, undoManager: um) }
+    um.withGroup { flow.addEdge(edge, undoService: undoService) }
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
     um.undo()
@@ -420,10 +424,10 @@ func testRemoveEdgeUndo() throws {
     let flow = Flow()
     #expect(flow.edges.isEmpty)
     let edge = try Edge.fromPorts(.init(node: .init(), port: .output(0)), .init(node: .init(), port: .input(0))).get()
-    um.withGroup { flow.addEdge(edge, undoManager: um) }
+    um.withGroup { flow.addEdge(edge, undoService: undoService) }
     #expect(flow.edges.count == 1)
     #expect(flow.edges.contains(edge))
-    um.withGroup { flow.removeEdge(edge, undoManager: um) }
+    um.withGroup { flow.removeEdge(edge, undoService: undoService) }
     #expect(flow.edges.isEmpty)
     um.undo()
     #expect(flow.edges.count == 1)
@@ -445,7 +449,7 @@ func newNodeActionShouldCreateNewNode() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoService: undoService)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -457,7 +461,7 @@ func newNodeActionShouldUndo() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoService: undoService)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -471,7 +475,7 @@ func newNodeActionShouldUndoThenRedo() {
     um.removeAllActions()
     let flow = Flow()
     um.withGroup {
-        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoManager: um)
+        flow.newNodeAction(.init(kind: .valueNode(.float)), at: .zero, undoService: undoService)
     }
     #expect(flow.nodes.count == 1)
     #expect(um.canUndo)
@@ -489,10 +493,10 @@ func deletNodeActionShouldDeleteNode() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoService: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
-        flow.deleteNodeAction(id, undoManager: um)
+        flow.deleteNodeAction(id, undoService: undoService)
     }
     #expect(um.canUndo)
     #expect(flow.nodes.isEmpty)
@@ -504,10 +508,10 @@ func deletNodeActionShouldUndo() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoService: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
-        flow.deleteNodeAction(id, undoManager: um)
+        flow.deleteNodeAction(id, undoService: undoService)
     }
     #expect(um.canUndo)
     #expect(flow.nodes.isEmpty)
@@ -521,10 +525,10 @@ func deletNodeActionShouldUndoThenRedo() {
     um.removeAllActions()
     let flow = Flow()
     let id = UUID()
-    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoManager: nil)
+    flow.newNodeAction(.init(id: id, kind: .valueNode(.float)), at: .zero, undoService: nil)
     #expect(flow.nodes.count == 1)
     um.withGroup {
-        flow.deleteNodeAction(id, undoManager: um)
+        flow.deleteNodeAction(id, undoService: undoService)
     }
     #expect(um.canUndo)
     #expect(flow.nodes.isEmpty)
@@ -545,7 +549,7 @@ func deleteEdgeActionShouldRegisterUndo() throws {
     let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
-        flow.deleteEdgeAction(edge, undoManager: um)
+        flow.deleteEdgeAction(edge, undoService: undoService)
     }
     #expect(flow.edges.isEmpty)
     #expect(um.canUndo)
@@ -563,7 +567,7 @@ func deleteEdgeActionShouldDisconnectPorts() throws {
     let dst = PortLocation(node: ids[1], port: .input(0))
     let edge = try Edge.fromPorts(src, dst).get()
     #expect(flow.edges.contains(edge))
-    flow.deleteEdgeAction(edge, undoManager: nil)
+    flow.deleteEdgeAction(edge, undoService: nil)
     #expect(flow.edges.isEmpty)
     #expect(!flow.getPortConnected(src))
     #expect(!flow.getPortConnected(dst))
@@ -584,7 +588,7 @@ func deleteEdgeActionShouldDisconnectPortsV2() throws {
     let edge2 = try Edge.fromPorts(src, dst2).get()
     #expect(flow.edges.contains(edge1))
     #expect(flow.edges.contains(edge2))
-    flow.deleteEdgeAction(edge1, undoManager: nil)
+    flow.deleteEdgeAction(edge1, undoService: nil)
     #expect(!flow.edges.contains(edge1))
     #expect(flow.edges.contains(edge2))
     #expect(flow.getPortConnected(src))
@@ -603,7 +607,7 @@ func deleteEdgeActionShouldUndo() throws {
     let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
-        flow.deleteEdgeAction(edge, undoManager: um)
+        flow.deleteEdgeAction(edge, undoService: undoService)
     }
     #expect(flow.edges.isEmpty)
     #expect(um.canUndo)
@@ -622,7 +626,7 @@ func deleteEdgeActionShouldUndoThenRedo() throws {
     let edge = try Edge.fromPorts(.init(node: ids[0], port: .output(0)), .init(node: ids[1], port: .input(0))).get()
     #expect(flow.edges.contains(edge))
     um.withGroup {
-        flow.deleteEdgeAction(edge, undoManager: um)
+        flow.deleteEdgeAction(edge, undoService: undoService)
     }
     #expect(flow.edges.isEmpty)
     #expect(um.canUndo)
@@ -645,7 +649,7 @@ func newEdgeActionShouldCreateNewEdge() throws {
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
     um.withGroup {
-        flow.newEdgeAction(edge, undoManager: um)
+        flow.newEdgeAction(edge, undoService: undoService)
     }
     #expect(um.canUndo)
     #expect(flow.edges.contains(edge))
@@ -666,7 +670,7 @@ func newEdgeActionShouldUndo() throws {
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
     um.withGroup {
-        flow.newEdgeAction(edge, undoManager: um)
+        flow.newEdgeAction(edge, undoService: undoService)
     }
     #expect(flow.edges.contains(edge))
     #expect(flow.nodes[ids[0]]!.outputs[0].connected)
@@ -691,7 +695,7 @@ func newEdgeActionShouldUndoThenRedo() throws {
     #expect(!flow.nodes[ids[0]]!.outputs[0].connected)
     #expect(!flow.nodes[ids[1]]!.inputs[0].connected)
     um.withGroup {
-        flow.newEdgeAction(edge, undoManager: um)
+        flow.newEdgeAction(edge, undoService: undoService)
     }
     #expect(um.canUndo)
     #expect(flow.nodes[ids[0]]!.outputs[0].connected)
@@ -1087,10 +1091,10 @@ func setPortConnectedUndoTest() throws {
     )
 
     um.withGroup {
-        flow.setNodePortConnected(.init(node: ids[0], port: .output(0)), false, undoManager: um)
+        flow.setNodePortConnected(.init(node: ids[0], port: .output(0)), false, undoService: undoService)
     }
     um.withGroup {
-        flow.setNodePortConnected(.init(node: ids[0], port: .input(0)), true, undoManager: um)
+        flow.setNodePortConnected(.init(node: ids[0], port: .input(0)), true, undoService: undoService)
     }
     #expect(!flow.getPortConnected(.init(node: ids[0], port: .output(0))))
     #expect(flow.getPortConnected(.init(node: ids[0], port: .input(0))))
@@ -1261,7 +1265,7 @@ func moveNodeShouldUndoChangeNodePosition() throws {
     let (flow, ids) = makeFlow([.valueNode(.float)])
     #expect(flow.nodePositions[ids[0]] == .zero)
     um.withGroup {
-        flow.moveNode(ids[0], to: .init(x: 200, y: 300), undoManager: um)
+        flow.moveNode(ids[0], to: .init(x: 200, y: 300), undoService: undoService)
     }
     #expect(flow.nodePositions[ids[0]] == CGPoint(x: 200, y: 300))
     um.undo()
@@ -1294,7 +1298,7 @@ func testLiveMoveNodes() throws {
         }.0
     flow.liveMoveNodesUpdate(pos)
     #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
-    flow.liveMoveNodesEnd(undoManager: nil)
+    flow.liveMoveNodesEnd(undoService: nil)
     #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
 }
 
@@ -1358,7 +1362,7 @@ func testLiveMoveNodesUndo() throws {
     flow.liveMoveNodesUpdate(pos)
     #expect(flow.nodePositionsWithLiveMove.filter({ e in movedNodes.contains(e.key) }) == pos)
     um.withGroup {
-        flow.liveMoveNodesEnd(undoManager: um)
+        flow.liveMoveNodesEnd(undoService: undoService)
     }
     #expect(flow.nodePositions.filter({ e in movedNodes.contains(e.key) }) == pos)
     um.undo()

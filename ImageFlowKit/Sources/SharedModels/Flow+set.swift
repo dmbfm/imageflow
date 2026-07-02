@@ -5,7 +5,7 @@ extension Flow {
         id: UUID,
         newValue: String,
         oldValue: String? = nil,
-        undoManager um: UndoManager?
+        undoService: UndoService?
     ) {
         guard let node = self.nodes[id], node.name != newValue else {
             return
@@ -15,17 +15,18 @@ extension Flow {
 
         self.nodes[id]?.name = newValue
 
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
+            title: "Change Node Name",
+            icon: nil,
+            handler: { [weak undoService] this in
                 this.setNodeName(
                     id: id,
                     newValue: oldValue,
                     oldValue: newValue,
-                    undoManager: um
+                    undoService: undoService
                 )
             }
         )
-        um?.setActionName("Change Node Name")
     }
 }

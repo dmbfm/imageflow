@@ -234,7 +234,7 @@ extension Flow {
     @discardableResult
     public func duplicateNode(
         _ id: UUID,
-        undoManager um: UndoManager? = nil
+        undoService: UndoService? = nil
     ) -> FlowNode? {
         guard var node = self.nodes[id], let pos = self.nodePositions[id] else { return nil }
 
@@ -244,7 +244,7 @@ extension Flow {
         for i in node.inputs.indices { node.inputs[i].connected = false }
         for i in node.outputs.indices { node.outputs[i].connected = false }
 
-        self.addNode(node, at: pos + self.duplicateOrPasteOffset, undoManager: um)
+        self.addNode(node, at: pos + self.duplicateOrPasteOffset, undoService: undoService)
 
         return node
     }
@@ -274,12 +274,14 @@ extension Flow {
 
 extension Flow {
     @discardableResult
-    func addNode(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) -> Bool {
+    func addNode(_ node: FlowNode, at position: CGPoint, undoService: UndoService?) -> Bool {
         if self.addNode(node, at: position) != nil {
-            um?.registerUndo(
+            undoService?.register(
                 withTarget: self,
-                handler: { [weak um] this in
-                    this.removeNode(node.id, undoManager: um)
+                title: nil,
+                icon: nil,
+                handler: { [weak undoService] this in
+                    this.removeNode(node.id, undoService: undoService)
                 }
             )
             return true
@@ -289,15 +291,17 @@ extension Flow {
     }
 
     @discardableResult
-    func removeNode(_ id: UUID, undoManager um: UndoManager?) -> (FlowNode, CGPoint)? {
+    func removeNode(_ id: UUID, undoService: UndoService?) -> (FlowNode, CGPoint)? {
         guard let (previousNode, previousPos) = self.removeNode(id) else {
             return nil
         }
 
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
-                this.addNode(previousNode, at: previousPos, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                this.addNode(previousNode, at: previousPos, undoService: undoService)
             }
         )
 
@@ -309,27 +313,31 @@ extension Flow {
     }
 
     @discardableResult
-    func updateNode(_ node: FlowNode, undoManager um: UndoManager?) -> FlowNode? {
+    func updateNode(_ node: FlowNode, undoService: UndoService?) -> FlowNode? {
         guard let previous = self.updateNode(node) else {
             return nil
         }
 
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] _ in
-                self.updateNode(previous, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] _ in
+                self.updateNode(previous, undoService: undoService)
             }
         )
         return previous
     }
 
     @discardableResult
-    public func addEdge(_ edge: Edge, undoManager um: UndoManager?) -> Bool {
+    public func addEdge(_ edge: Edge, undoService: UndoService?) -> Bool {
         if self.addEdge(edge) {
-            um?.registerUndo(
+            undoService?.register(
                 withTarget: self,
-                handler: { [weak um] this in
-                    this.removeEdge(edge, undoManager: um)
+                title: nil,
+                icon: nil,
+                handler: { [weak undoService] this in
+                    this.removeEdge(edge, undoService: undoService)
                 }
             )
             return true
@@ -339,12 +347,14 @@ extension Flow {
     }
 
     @discardableResult
-    func removeEdge(_ edge: Edge, undoManager um: UndoManager?) -> Edge? {
+    func removeEdge(_ edge: Edge, undoService: UndoService?) -> Edge? {
         if let edge = self.removeEdge(edge) {
-            um?.registerUndo(
+            undoService?.register(
                 withTarget: self,
-                handler: { [weak um] this in
-                    this.addEdge(edge, undoManager: um)
+                title: nil,
+                icon: nil,
+                handler: { [weak undoService] this in
+                    this.addEdge(edge, undoService: undoService)
                 }
             )
             return edge
@@ -357,14 +367,14 @@ extension Flow {
 // MARK: - Nodes, Ports and Edges - Complex Actions
 
 extension Flow {
-    public func newNodeAction(kind: NodeKind, at position: CGPoint, undoManager um: UndoManager?) {
-        self.newNodeAction(.init(kind: kind), at: position, undoManager: um)
+    public func newNodeAction(kind: NodeKind, at position: CGPoint, undoService: UndoService?) {
+        self.newNodeAction(.init(kind: kind), at: position, undoService: undoService)
     }
 
-    public func newNodeAction(_ node: FlowNode, at position: CGPoint, undoManager um: UndoManager?) {
+    public func newNodeAction(_ node: FlowNode, at position: CGPoint, undoService: UndoService?) {
         precondition(node.numConnectedSlots == 0, "Can't add a node connected node.")
         precondition(!self.hasNode(node.id), "A node with the same ID already exists.")
-        let result = self.addNode(node, at: position, undoManager: um)
+        let result = self.addNode(node, at: position, undoService: undoService)
         assert(result, "`addNode` unexpectedly failed.")
     }
 
@@ -373,13 +383,13 @@ extension Flow {
         kind: NodeKind,
         at position: CGPoint,
         connectingToExistingPort typedPortLocation: TypedPortLocation,
-        undoManager um: UndoManager?
+        undoService: UndoService?
     ) -> PortSlot? {
         self.newNodeAction(
             .init(kind: kind),
             at: position,
             connectingToExistingPort: typedPortLocation,
-            undoManager: um
+            undoService: undoService
         )
     }
 
@@ -388,11 +398,11 @@ extension Flow {
         _ node: FlowNode,
         at position: CGPoint,
         connectingToExistingPort typedPortLocation: TypedPortLocation,
-        undoManager um: UndoManager?
+        undoService: UndoService?
     ) -> PortSlot? {
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
 
-        self.newNodeAction(node, at: position, undoManager: um)
+        self.newNodeAction(node, at: position, undoService: undoService)
 
         let schema = node.kind.schema
 
@@ -410,36 +420,35 @@ extension Flow {
 
         if let slot, case let .success(edge) = Edge.fromPorts(typedPortLocation.port, .init(node: node.id, port: slot))
         {
-            self.newEdgeAction(edge, undoManager: um)
+            self.newEdgeAction(edge, undoService: undoService)
         }
 
-        um?.endUndoGrouping()
+        undoService?.endUndoGrouping()
 
         return slot
     }
 
-    private func withNodes(_ nodes: Set<UUID>, undoManager um: UndoManager?, perform action: (UUID, UndoManager?) -> ())
-    {
+    private func withNodes(_ nodes: Set<UUID>, undoService: UndoService?, perform action: (UUID, UndoService?) -> ()) {
         if nodes.isEmpty { return }
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
         for id in nodes {
-            action(id, um)
+            action(id, undoService)
         }
-        um?.endUndoGrouping()
+        undoService?.endUndoGrouping()
     }
 
-    public func deleteSelectedNodesAction(undoManager um: UndoManager?) {
-        self.deleteNodesAction(self.selection, undoManager: um)
+    public func deleteSelectedNodesAction(undoService: UndoService?) {
+        self.deleteNodesAction(self.selection, undoService: undoService)
     }
 
-    public func deleteNodesAction(_ nodes: Set<UUID>, undoManager um: UndoManager?) {
-        self.withNodes(nodes, undoManager: um) { id, um in
-            self.deleteNodeAction(id, undoManager: um)
+    public func deleteNodesAction(_ nodes: Set<UUID>, undoService: UndoService?) {
+        self.withNodes(nodes, undoService: undoService) { id, um in
+            self.deleteNodeAction(id, undoService: undoService)
         }
     }
 
-    public func duplidateSelectedNodesAction(undoManager um: UndoManager?) {
+    public func duplidateSelectedNodesAction(undoService: UndoService?) {
         guard let data = self.pasteboardData(forNodes: self.selection) else {
             return
         }
@@ -450,47 +459,49 @@ extension Flow {
         self.paste(
             pasteboardData: data,
             at: newCenter,
-            undoManager: um
+            undoService: undoService
         )
     }
 
-    public func deleteNodeAction(_ id: UUID, undoManager um: UndoManager?, undoTitle: String? = nil) {
+    public func deleteNodeAction(_ id: UUID, undoService: UndoService?, undoTitle: String? = nil) {
         precondition(self.hasNode(id), "Can't delete a non-existing node.")
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
 
         for edge in self.edges(ofNode: id) {
-            self.deleteEdgeAction(edge, undoManager: um)
+            self.deleteEdgeAction(edge, undoService: undoService)
         }
 
-        self.removeNode(id, undoManager: um)
+        self.removeNode(id, undoService: undoService)
 
-        um?.endUndoGrouping()
+        undoService?.endUndoGrouping()
     }
 
-    public func convertNodeAction(_ id: UUID, kind: NodeKind, undoManager um: UndoManager?) {
+    public func convertNodeAction(_ id: UUID, kind: NodeKind, undoService: UndoService?) {
         guard let node = self.nodes[id] else { return }
         if self.nodes[id]?.convert(toVariation: kind) == true {
-            um?.registerUndo(
+            undoService?.register(
                 withTarget: self,
-                handler: { [weak um] this in
-                    this.convertNodeAction(node.id, kind: node.kind, undoManager: um)
+                title: nil,
+                icon: nil,
+                handler: { [weak undoService] this in
+                    this.convertNodeAction(node.id, kind: node.kind, undoService: undoService)
                 }
             )
         }
     }
 
-    public func deleteEdgeAction(_ edge: Edge, undoManager um: UndoManager?) {
+    public func deleteEdgeAction(_ edge: Edge, undoService: UndoService?) {
         precondition(self.edges.contains(edge))
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
 
-        self.removeEdge(edge, undoManager: um)
+        self.removeEdge(edge, undoService: undoService)
 
-        self.setNodePortConnected(edge.toPort, false, undoManager: um)
+        self.setNodePortConnected(edge.toPort, false, undoService: undoService)
 
         if self.numberOfEdges(ofPort: edge.fromPort) == 0 {
-            self.setNodePortConnected(edge.fromPort, false, undoManager: um)
+            self.setNodePortConnected(edge.fromPort, false, undoService: undoService)
         }
 
         if let node = self.nodes[edge.to.node] {
@@ -501,39 +512,39 @@ extension Flow {
             }
         }
 
-        um?.endUndoGrouping()
+        undoService?.endUndoGrouping()
     }
 
-    public func deleteEdge(connectedToInput port: InputPortLocation, undoManager um: UndoManager?) {
+    public func deleteEdge(connectedToInput port: InputPortLocation, undoService: UndoService?) {
         if let edge = self.edges(ofPort: .init(node: port.node, port: .input(port.index))).first {
-            self.deleteEdgeAction(edge, undoManager: um)
+            self.deleteEdgeAction(edge, undoService: undoService)
         }
     }
 
-    public func newEdgeAction(_ edge: Edge, undoManager um: UndoManager? = nil) {
+    public func newEdgeAction(_ edge: Edge, undoService: UndoService? = nil) {
         guard !self.edges.contains(edge) else {
             logger.warning("[Flow][newEdgeAction]: edge already exists: \("\(edge)")")
             return
         }
 
-        um?.beginUndoGrouping()
+        undoService?.beginUndoGrouping()
 
         // If the port is already connected, we need to remove the old edge first
         // to replace it with a new one.
         if let edge = self.edge(incoming: edge.to) {
-            self.removeEdge(edge, undoManager: um)
+            self.removeEdge(edge, undoService: undoService)
         }
 
-        self.addEdge(edge, undoManager: um)
-        self.setNodePortConnected(edge.fromPort, true, undoManager: um)
-        self.setNodePortConnected(edge.toPort, true, undoManager: um)
+        self.addEdge(edge, undoService: undoService)
+        self.setNodePortConnected(edge.fromPort, true, undoService: undoService)
+        self.setNodePortConnected(edge.toPort, true, undoService: undoService)
 
-        um?.endUndoGrouping()
+        undoService?.endUndoGrouping()
     }
 
-    func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoManager um: UndoManager?) {
-        um?.beginUndoGrouping()
-        defer { um?.endUndoGrouping() }
+    func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoService: UndoService?) {
+        undoService?.beginUndoGrouping()
+        defer { undoService?.endUndoGrouping() }
 
         if let ((portToFix, kind)) =
             switch fix {
@@ -547,7 +558,7 @@ extension Flow {
             precondition(converted)
         }
 
-        self.newEdgeAction(edge, undoManager: um)
+        self.newEdgeAction(edge, undoService: undoService)
     }
 }
 
@@ -685,12 +696,12 @@ extension Flow {
     public func restoreDefaultValue(
         id: UUID,
         index: Int,
-        undoManager: UndoManager?,
+        undoService: UndoService?,
     ) {
         guard let node = self.nodes[id], let defaultValue = node.defaultValue(forInput: index) else {
             return
         }
-        self.setNodeValue(id: id, index: index, oldValue: nil, newValue: defaultValue, undoManager: undoManager)
+        self.setNodeValue(id: id, index: index, oldValue: nil, newValue: defaultValue, undoService: undoService)
     }
 
     public func setNodeValue(
@@ -698,7 +709,7 @@ extension Flow {
         index: Int,
         oldValue: Value? = nil,
         newValue: Value,
-        undoManager: UndoManager?,
+        undoService: UndoService?,
     ) {
         guard let node = self.nodes[id] else {
             logger.error("Node not found: \(id)")
@@ -716,15 +727,17 @@ extension Flow {
 
         self.nodes[id]?.inputs[index].value = newValue
 
-        undoManager?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um = undoManager] this in
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
                 this.setNodeValue(
                     id: id,
                     index: index,
                     oldValue: newValue,
                     newValue: oldValue,
-                    undoManager: um,
+                    undoService: undoService,
                 )
             }
         )
@@ -735,15 +748,17 @@ extension Flow {
 
 extension Flow {
     @discardableResult
-    func setNodePortConnected(_ port: PortLocation, _ value: Bool, undoManager um: UndoManager?) -> Bool? {
+    func setNodePortConnected(_ port: PortLocation, _ value: Bool, undoService: UndoService?) -> Bool? {
         guard let prev = self.setNodePortConnected(port, value) else {
             return nil
         }
 
-        um?.registerUndo(
+        undoService?.register(
             withTarget: self,
-            handler: { [weak um] this in
-                this.setNodePortConnected(port, prev, undoManager: um)
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                this.setNodePortConnected(port, prev, undoService: undoService)
             }
         )
 

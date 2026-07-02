@@ -32,7 +32,7 @@ struct NodeListView: View {
 
     var body: some View {
         if nodes.isEmpty {
-            ContentUnavailableView("No nodes created!", systemImage: "list.bullet.rectangle.portrait.fill")
+            ContentUnavailableView("No nodes created!", systemImage: .systemIconNode)
         } else {
             List(selection: self.selection) {
                 Section("Nodes") {

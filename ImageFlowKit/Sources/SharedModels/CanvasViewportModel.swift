@@ -1,6 +1,6 @@
 import Foundation
 
-public struct CanvasViewportModel: Sendable, Equatable {
+public struct CanvasViewportModel: Sendable, Equatable, Codable {
     public var origin: CGPoint
     public var scale: CGFloat
 

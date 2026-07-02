@@ -5,7 +5,6 @@ import XKit
 
 @MainActor
 protocol InspectorContext {
-    var undoManager: UndoManager? { get }
     var coordinator: GlobalCoordinator? { get }
     var nodeContextMenuProvider: (UUID) -> XMenu? { get }
 }
@@ -25,11 +24,6 @@ struct InspectorFeatureControllerProxy: InspectorContext {
         self.controller = controller
     }
 
-    @MainActor
-    var undoManager: UndoManager? {
-        self.controller?.undoManager
-    }
-
     var nodeContextMenuProvider: (UUID) -> XMenu? {
         { id in
             guard let flow = self.controller?.flow else { return nil }
@@ -41,7 +35,7 @@ struct InspectorFeatureControllerProxy: InspectorContext {
 struct DummyInspectorContext: InspectorContext {
     let coordinator: SharedModels.GlobalCoordinator? = nil
 
-    let undoManager: UndoManager? = nil
+    let undoService: UndoService? = nil
 
     let nodeContextMenuProvider: (UUID) -> XKit.XMenu? = { _ in nil }
 }

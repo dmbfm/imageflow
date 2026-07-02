@@ -6,6 +6,7 @@ import Helpers
 import UniformTypeIdentifiers
 import Values
 
+@MainActor
 public protocol GlobalCoordinatorProtocol: AnyObject {
     func perform(userAction: UserAction)
     func canZoomIn() -> Bool
@@ -14,6 +15,7 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func nodeCount() -> Int
     func selectedNodeCount() -> Int
     func assetTitle(_ asset: UUID) -> String?
+    var undoService: UndoService { get }
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
     var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> { get }
     var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> { get }
@@ -25,6 +27,10 @@ public enum GlobalCoordinatorEvent {
 
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
+    public var undoService: UndoService {
+        self.impl?.undoService ?? .init(nil)
+    }
+
     public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
         self.impl?.canvasViewportPublisher ?? .init(PassthroughSubject())
     }
@@ -178,6 +184,10 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public var undoService: UndoService {
+        .init(nil)
+    }
+
     public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> = .init(PassthroughSubject())
 
     public var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> = .init(PassthroughSubject())

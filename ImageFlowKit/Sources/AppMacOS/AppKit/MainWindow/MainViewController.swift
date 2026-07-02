@@ -25,6 +25,7 @@ final class MainViewController: NSSplitViewController {
     var emitter: EventEmitter<GlobalCoordinatorEvent> = .init()
     var modalContainerVM: ModalContainerViewModel = .init()
     var cancellables: Set<AnyEventEmitterCancellable> = []
+    var undoService: UndoService
 
     var backendRunner: BackendRunner!
     var sidebarVC: SidebarViewController!
@@ -91,10 +92,15 @@ final class MainViewController: NSSplitViewController {
 
     // MARK: - Initialization
 
-    init(_ flow: SharedModels::Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState) {
+    init(
+        _ flow: SharedModels::Flow,
+        _ assetStore: AssetStore,
+        _ canvasState: CanvasFeatureState,
+        _ undoService: UndoService? = nil
+    ) {
         self.flow = flow
         self.assetStore = assetStore
-        // self.pasteboardController = .init(.ini)
+        self.undoService = .init(nil)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -135,24 +141,11 @@ final class MainViewController: NSSplitViewController {
         self.addSplitViewItem(self.detailItem)
         self.addSplitViewItem(self.inspectorItem)
 
-        //        print("\(self.splitView.maxPossiblePositionOfDivider(at: 1))")
-        //        print("\(self.splitView.minPossiblePositionOfDivider(at: 1))")
-        //        self.splitView.setPosition(500, ofDividerAt: 1)
-        //
-        //        print("\(self.splitView.maxPossiblePositionOfDivider(at: 0))")
-        //        print("\(self.splitView.minPossiblePositionOfDivider(at: 0))")
-
         self.view.addSubview(NSHostingView(rootView: ModalContainerView(vm: self.modalContainerVM)))
 
         Task {
             self.backendRunner.run()
         }
-    }
-
-    override func viewDidAppear() {
-        //        self.splitView.setPosition(500, ofDividerAt: 1)
-        //        self.splitView.setPosition(500, ofDividerAt: 1)
-        //        self.splitView.setPosition(500, ofDividerAt: 1)
     }
 
     #if os(macOS)
@@ -206,7 +199,7 @@ extension MainViewController {
                 node,
                 at: pos,
                 connectingToExistingPort: typedPort,
-                undoManager: self.undoManager
+                undoService: self.undoService,
             )
             if let slot = maybeSlot, let portView = nodeView.portView(slot) {
                 let portPos = nodeView.convert(portView.bounds.center, from: portView)
@@ -217,10 +210,10 @@ extension MainViewController {
             self.flow.newNodeAction(
                 node,
                 at: pos,
-                undoManager: self.undoManager
+                undoService: self.undoService
             )
         }
-        self.undoManager?.setActionName("New Node")
+        self.undoService.setActionName("New Node", icon: .systemIconNode)
         self.flow.select([node.id])
     }
 }
@@ -245,7 +238,7 @@ extension Point {
 
 extension MainViewController: RenameNodeSheetViewController.Delegate {
     func renameNodeSheetDidConfirm(_ node: UUID, _ newName: String) {
-        self.flow.setNodeName(id: node, newValue: newName, undoManager: self.undoManager)
+        self.flow.setNodeName(id: node, newValue: newName, undoService: self.undoService)
     }
 
     func renameNodeSheetDidCancel() {}

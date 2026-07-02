@@ -20,7 +20,7 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
                 index: port.index,
                 oldValue: nil,
                 newValue: value,
-                undoManager: self.undoManager
+                undoService: self.undoService
             )
         } else {
             logger.error("Failed to create value for asset: kind: \("\(kind)"), id: \(assetId)")
@@ -66,9 +66,9 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
                 do {
                     _ = try await self.assetStore.importAsset(
                         imageFromItemProvider: item,
-                        undoManager: self.undoManager
+                        undoService: self.undoService
                     )
-                    self.undoManager?.setActionName("Import Photo")
+                    self.undoService.setActionName("Import Photo", icon: "photo")
                 } catch {
                     let alert = NSAlert()
                     alert.messageText = "Failed to import image: \(error.localizedDescription)"
@@ -79,7 +79,7 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
     }
 
     func assetBrowserDeleteAsset(_ sender: AssetBrowserSheetController, asset: SharedModels.Asset) {
-        self.undoManager?.beginUndoGrouping()
+        self.undoService.beginUndoGrouping()
 
         for (_, node) in self.flow.nodes {
             for input in node.inputs {
@@ -90,15 +90,15 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
                         id: node.id,
                         index: input.index,
                         newValue: input.value.type.defaultValue,
-                        undoManager: self.undoManager,
+                        undoService: self.undoService,
                     )
                 }
             }
         }
 
-        self.assetStore.removeAsset(asset.id, undoManager: self.undoManager)
-        self.undoManager?.setActionName("Remove Asset")
-        self.undoManager?.endUndoGrouping()
+        self.assetStore.removeAsset(asset.id, undoService: self.undoService)
+        self.undoService.setActionName("Remove Asset", icon: "photo")
+        self.undoService.endUndoGrouping()
     }
 }
 
@@ -121,8 +121,8 @@ extension MainViewController {
                     throw ImportItemError.missingUTType
                 }
 
-                let id = try await self.assetStore.importAsset(fromURL: url, kind: kind, undoManager: self.undoManager)
-                self.undoManager!.setActionName("Import Image")
+                let id = try await self.assetStore.importAsset(fromURL: url, kind: kind, undoService: self.undoService)
+                self.undoService.setActionName("Import Image", icon: "photo")
                 logger.info("\(url): done!")
                 return .success(id)
             } catch {

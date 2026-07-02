@@ -283,7 +283,7 @@ public final class CanvasFeatureViewController: NSViewController {
                 self.flow.liveMoveNodesUpdate(next)
             }
         case .ended:
-            self.flow.liveMoveNodesEnd(undoManager: self.undoManager)
+            self.flow.liveMoveNodesEnd(undoService: self.coordinator.undoService)
         default:
             logger.warning("onNodeDragGesture: \("\(gesture.phase)")")
         }
@@ -322,13 +322,14 @@ public final class CanvasFeatureViewController: NSViewController {
 
         self.flow.nodes[id]?.inputs[index].value = newValue
 
-        self.undoManager?.registerUndo(
+        self.coordinator.undoService.register(
             withTarget: self,
+            title: "\(newValue.type.displayName) Value Change",
+            icon: .systemIconValue,
             handler: { this in
                 this.setNodeValue(id, index, newValue, oldValue)
             }
         )
-        self.undoManager?.setActionName("\(newValue.type.displayName) Value Change")
     }
 
     // MARK: - Edges
@@ -511,7 +512,11 @@ public final class CanvasFeatureViewController: NSViewController {
                     to: .canvas
                 )
 
-            self.flow.portDragEnd(undoManager: self.undoManager, position: pos, travelDistance: travelDistance)
+            self.flow.portDragEnd(
+                undoService: self.coordinator.undoService,
+                position: pos,
+                travelDistance: travelDistance
+            )
             self.nodeViews[port.node]?.setDrawPortAsConnected(port.slot, false)
             self.hideAnnotation()
 
@@ -561,13 +566,14 @@ public final class CanvasFeatureViewController: NSViewController {
     public func addBookmark(_ b: CanvasBookmark) {
         self.state.bookmarks.add(b)
         let id = b.id
-        self.undoManager?.registerUndo(
+        self.coordinator.undoService.register(
             withTarget: self,
-            handler: { [weak self] _ in
-                self?.removeBookmark(id)
+            title: "Create Bookmark",
+            icon: nil,
+            handler: { this in
+                this.removeBookmark(id)
             }
         )
-        self.undoManager?.setActionName("Create Bookmark")
     }
 
     public func createBookmark() {
@@ -577,41 +583,38 @@ public final class CanvasFeatureViewController: NSViewController {
             .init(
                 id: id,
                 name: name,
-                viewport: self.viewport,
+                viewport: self.viewport.into(),
             )
         )
 
-        self.undoManager?.registerUndo(
+        self.coordinator.undoService.register(
             withTarget: self,
-            handler: { [weak self] _ in
-                self?.removeBookmark(id)
-            }
+            title: "Create Bookmark",
+            icon: nil,
+            handler: { this in this.removeBookmark(id) }
         )
-        self.undoManager?.setActionName("Create Bookmark")
     }
 
     public func removeBookmark(_ id: UUID) {
         if let b = self.state.bookmarks.remove(id) {
-            self.undoManager?.registerUndo(
+            self.coordinator.undoService.register(
                 withTarget: self,
-                handler: { [weak self] _ in
-                    self?.addBookmark(b)
-                }
+                title: "Remove Bookmark",
+                icon: nil,
+                handler: { this in this.addBookmark(b) }
             )
-            self.undoManager?.setActionName("Remove Bookmark")
         }
     }
 
     public func renameBookmark(_ id: UUID, _ name: String) {
         if let oldName = self.state.bookmarks.get(withID: id)?.name {
             self.state.bookmarks.rename(id, name)
-            self.undoManager?.registerUndo(
+            self.coordinator.undoService.register(
                 withTarget: self,
-                handler: { [weak self] _ in
-                    self?.renameBookmark(id, oldName)
-                }
+                title: "Rename Bookmark",
+                icon: nil,
+                handler: { this in this.renameBookmark(id, oldName) }
             )
-            self.undoManager?.setActionName("Rename Bookmark")
         }
     }
 }
