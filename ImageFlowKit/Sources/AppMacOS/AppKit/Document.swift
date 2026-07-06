@@ -53,11 +53,12 @@ public final class FlowDocument: NSDocument {
     }
 
     public override nonisolated func write(to url: URL, ofType typeName: String) throws {
-        logger.info("fileWrapper:\(typeName)")
-
         let existing: FileWrapper? =
-            if self.fileURL == url {
-                try? FileWrapper(url: url)
+            if let url = self.fileURL {
+                {
+                    _ = url.startAccessingSecurityScopedResource()
+                    return try? FileWrapper(url: url)
+                }()
             } else {
                 nil
             }
