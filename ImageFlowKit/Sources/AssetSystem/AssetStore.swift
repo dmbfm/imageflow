@@ -35,10 +35,14 @@ public final class AssetStore {
         self.documentInfo = info
     }
 
-    public func registerAsset(_ asset: Asset, undoService: UndoService? = nil) {
+    public func registerAsset(_ asset: Asset, prefetchThumbs: Bool = false, undoService: UndoService? = nil) {
         self.assets[asset.id] = asset
         Task {
             await self.resourceManager.registerAssetResources(asset: asset)
+
+            if prefetchThumbs && asset.kind == .image {
+                _ = try? await self.resourceManager.fetch(cgImageThumb: .asset(asset.id))
+            }
         }
         undoService?.register(
             withTarget: self,
@@ -125,7 +129,7 @@ extension AssetStore: Storable {
         Task {
             await self.resourceManager.clear()
             for (_, asset) in snapshot.assets {
-                self.registerAsset(asset)
+                self.registerAsset(asset, prefetchThumbs: true)
             }
         }
     }
