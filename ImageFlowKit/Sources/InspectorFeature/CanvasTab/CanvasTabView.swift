@@ -78,7 +78,7 @@ final class CanvasTabView: XView {
         )
         .with(\.connected, nil)
         .with(\.label, "Viewport")
-        .rx(self.vm.$viewportValues, kp: \.value)
+        .rx(self.vm.$viewportValues.print("viewport values:"), kp: \.value)
         .rx(self.vm.$viewportValues.map({ $0[0] != 0 || $0[1] != 0 || $0[2] != 0 }), kp: \.hasChanges)
     }()
 
@@ -89,6 +89,8 @@ final class CanvasTabView: XView {
     lazy var bookmarkListView: BookmarkListView = {
         .init(.init(self.vm.context))
     }()
+
+    private var cancellables: Set<AnyCancellable> = []
 
     init(_ vm: CanvasTabViewModel) {
         self.vm = vm
@@ -111,28 +113,21 @@ final class CanvasTabView: XView {
         self.stackView.setCustomSpacing(16, after: self.viewportPositionView)
         self.stackView.setCustomSpacing(10, after: self.bookmarksTitleView)
 
-        // View model events
-        self.viewportPositionView.control.$value
-            .filter({ [weak self] v in
-                guard let self else { return false }
-                return v[2] == self.vm.viewportValues[2]
-                    && (v[0] != self.vm.viewportValues[0] || v[1] != self.vm.viewportValues[1])
-            })
-            .map({ v in
-                .viewportOrigin(v[0], v[1])
-            })
-            .print("viewport origin")
-            .sendEvents(to: self.vm)
-
-        self.viewportPositionView.control.$value
-            .filter({ [weak self] v in v[2] != self?.vm.viewportValues[2] })
-            .map({ v in
-                .viewportScale(v[2].clamped(to: 0.1...4.0))
-            })
-            .print("viewport scale")
-            .sendEvents(to: self.vm)
+        self.viewportPositionView.control.$value.sink { [weak self] v in
+            self?.onControlValuesChanged(values: v)
+        }.store(in: &self.cancellables)
 
         self.viewportPositionView.restoreButtonPublisher.map({ .viewportRestore }).sendEvents(to: self.vm)
+    }
+
+    func onControlValuesChanged(values v: [Double]) {
+        let values = self.vm.viewportValues
+
+        if v[2] != values[2] {
+            self.vm.receive(event: .viewportScale(v[2]))
+        } else if v[0] != values[0] || v[1] != values[1] {
+            self.vm.receive(event: .viewportOrigin(v[0], v[1]))
+        }
     }
 
     required init?(coder: NSCoder) {
