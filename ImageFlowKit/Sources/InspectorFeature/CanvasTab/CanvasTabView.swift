@@ -83,7 +83,7 @@ final class CanvasTabView: XView {
     }()
 
     lazy var addBookmarkButton: Button = {
-        Button("Add Bookmark") { self.vm.receive(event: .createBookmark) }
+        Button("Add Bookmark") { [weak self] in self?.vm.receive(event: .createBookmark) }
     }()
 
     lazy var bookmarkListView: BookmarkListView = {
@@ -113,8 +113,9 @@ final class CanvasTabView: XView {
 
         // View model events
         self.viewportPositionView.control.$value
-            .filter({ v in
-                v[2] == self.vm.viewportValues[2]
+            .filter({ [weak self] v in
+                guard let self else { return false }
+                return v[2] == self.vm.viewportValues[2]
                     && (v[0] != self.vm.viewportValues[0] || v[1] != self.vm.viewportValues[1])
             })
             .map({ v in
@@ -124,7 +125,7 @@ final class CanvasTabView: XView {
             .sendEvents(to: self.vm)
 
         self.viewportPositionView.control.$value
-            .filter({ v in v[2] != self.vm.viewportValues[2] })
+            .filter({ [weak self] v in v[2] != self?.vm.viewportValues[2] })
             .map({ v in
                 .viewportScale(v[2].clamped(to: 0.1...4.0))
             })
