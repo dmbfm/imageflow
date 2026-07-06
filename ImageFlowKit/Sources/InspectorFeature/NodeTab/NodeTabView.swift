@@ -79,7 +79,7 @@ final class NodeTabView: XView, Rx {
         self.contentView.addSubview(self.stackView)
         self.stackView.constraintToFillSuperview(insets: .init(top: 0, left: 0, bottom: 12, right: 0))
 
-        self.stackView.addView(self.nodeTitleView)
+        self.stackView.addView(Padded(self.nodeTitleView, insets: .init(top: 4, left: 0, bottom: 0, right: 0)))
         self.stackView.addView(Box(inspectorBlockWithView: self.nodeTypeView))
         self.stackView.addView(self.nodeControlsView)
         self.stackView.addView(self.nodeInputsView)
