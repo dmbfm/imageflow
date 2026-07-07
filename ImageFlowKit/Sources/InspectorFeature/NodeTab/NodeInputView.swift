@@ -84,21 +84,21 @@ final class NodeInputView: XView, Rx, WithRef {
         case .string:
             .string(self.vm.value)
         case .matrix2x2:
-            .matrix(self.vm.value, dim: 2, configuration: .init())
+            .matrix(self.vm.value, dim: 2, configuration: .init(), context: self.floatControlContextContext)
         case .matrix3x3:
-            .matrix(self.vm.value, dim: 3, configuration: .init())
+            .matrix(self.vm.value, dim: 3, configuration: .init(), context: self.floatControlContextContext)
         case .matrix5x5:
-            .matrix(self.vm.value, dim: 5, configuration: .init())
+            .matrix(self.vm.value, dim: 5, configuration: .init(), context: self.floatControlContextContext)
         case .matrix7x7:
-            .matrix(self.vm.value, dim: 7, configuration: .init())
+            .matrix(self.vm.value, dim: 7, configuration: .init(), context: self.floatControlContextContext)
         case .vector2:
-            .vector2(self.vm.value)
+            .vector2(self.vm.value, context: self.floatControlContextContext)
         case .vector3:
-            .vector3(self.vm.value)
+            .vector3(self.vm.value, context: self.floatControlContextContext)
         case .vector4:
-            .vector4(self.vm.value)
+            .vector4(self.vm.value, context: self.floatControlContextContext)
         case .rect:
-            .rect(self.vm.value)
+            .rect(self.vm.value, context: self.floatControlContextContext)
         case .color4:
             .color(self.vm.value)
         case .int:
@@ -106,30 +106,40 @@ final class NodeInputView: XView, Rx, WithRef {
             case .integer(.picker(let options)):
                 .picker(self.vm.value, options: options.map({ $0.displayName }))
             case .integer(.partialRangeFrom(let minValue)):
-                .int(self.vm.value, .minValue(minValue))
+                .int(self.vm.value, .minValue(minValue), context: self.floatControlContextContext)
             case .integer(.range(let range)):
-                .int(self.vm.value, .closed(range))
+                .int(self.vm.value, .closed(range), context: self.floatControlContextContext)
             default:
-                .int(self.vm.value, .none)
+                .int(self.vm.value, .none, context: self.floatControlContextContext)
             }
         case .bool:
             .bool(self.vm.value)
         case .float:
             switch self.vm.semantics {
             case .float(.range(let range)):
-                .float(self.vm.value, .range(.closed(.init(range: range, fractionalDigits: 2))))
+                .float(
+                    self.vm.value,
+                    .range(.closed(.init(range: range, fractionalDigits: 2))),
+                    context: self.floatControlContextContext
+                )
             case .float(.angle(.some(let range))) where abs(range.span - 2.0 * .pi) < 0.001:
-                .angle(self.vm.value, range: nil)
+                .angle(self.vm.value, range: nil, context: self.floatControlContextContext)
             case .float(.angle(let maybeRange)):
-                .angle(self.vm.value, range: maybeRange)
+                .angle(self.vm.value, range: maybeRange, context: self.floatControlContextContext)
             default:
-                .float(self.vm.value)
+                .float(self.vm.value, context: self.floatControlContextContext)
             }
         default:
             {
                 .staticLabel(self.vm.value)
             }()
         }
+    }
+
+    var floatControlContextContext: NumericControlContext {
+        .init(statusBarMessage: { [weak self] message in
+            self?.vm.receive(event: .statusBarMessage(message))
+        })
     }
 
     func setupOtherBindings() {

@@ -115,6 +115,7 @@ public enum UserAction {
     case createBookmark
     case removeBookmark(UUID)
     case renameBookmark(UUID, String)
+    case statusBarMessage(String?)
 
     public enum Target {
         case selection

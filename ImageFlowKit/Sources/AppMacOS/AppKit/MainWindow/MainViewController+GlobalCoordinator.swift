@@ -89,6 +89,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.detailVC.canvasVC.removeBookmark(id)
         case .renameBookmark(let id, let name):
             self.detailVC.canvasVC.renameBookmark(id, name)
+        case .statusBarMessage(let maybeMessage):
+            self.detailVC.canvasVC.statusBarMessage(message: maybeMessage)
         default:
             logger.warning("Unhandled userAction: \("\(userAction)")")
         }

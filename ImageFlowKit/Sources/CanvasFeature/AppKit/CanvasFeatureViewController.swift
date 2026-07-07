@@ -42,12 +42,18 @@ public final class CanvasFeatureViewController: NSViewController {
     /// Set to true whenever the user is dragging a partial edge starting from a
     /// connected input port of a node.
     var isDraggingConnectedInputPort: Bool = false
+    /// The state of the displayed status bar message view.
+    var statusBarState: StatusBarState = .init(visible: false, text: "")
 
     var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
     var cancellables: Set<AnyEventEmitterCancellable> = []
     var cancellables2: Set<AnyCancellable> = []
 
     // MARK: - Computed Variables
+
+    public var emitter: EventEmitter<NodeViewDelegateEvent> {
+        self.nodeViewDelegateEmitter
+    }
 
     /// The current interaction mode of the canvas
     var interactionMode: CanvasInteractionMode {
@@ -121,6 +127,8 @@ public final class CanvasFeatureViewController: NSViewController {
         self.upadteEdges()
         self.updateSelection()
         self.viewportPublisher.send(self.viewport)
+
+        self.statusBarSetup()
     }
 
     // MARK: - Asset Store
@@ -656,12 +664,26 @@ extension CanvasFeatureViewController: NodeViewDelegate {
         }
     }
 
-    public func statusBarMessage(message: String?) {
-        logger.warning("TODO: statusBarMessage")
+    // MARK: - Status Bar
+
+    public func statusBarSetup() {
+        let statusView = NSHostingView(rootView: StatusBarView(state: self.statusBarState))
+        statusView.translatesAutoresizingMaskIntoConstraints = false
+
+        self.view.addSubview(statusView)
+        NSLayoutConstraint.activate([
+            statusView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            statusView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+        ])
     }
 
-    public var emitter: EventEmitter<NodeViewDelegateEvent> {
-        self.nodeViewDelegateEmitter
+    public func statusBarMessage(message: String?) {
+        if let message {
+            self.statusBarState.text = message
+            self.statusBarState.visible = true
+        } else {
+            self.statusBarState.visible = false
+        }
     }
 
 }

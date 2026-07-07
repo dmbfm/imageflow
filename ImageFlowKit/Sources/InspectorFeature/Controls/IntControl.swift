@@ -16,7 +16,7 @@ struct IntControlConfiguration {
 }
 
 @MainActor
-final class IntControl: Control<Int, IntControlConfiguration, ()> {
+final class IntControl: Control<Int, IntControlConfiguration, NumericControlContext> {
 
     @PublishedEx var value: Int {
         didSet {
@@ -32,7 +32,7 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
         }
     }
 
-    var context: ()
+    var context: NumericControlContext
 
     var view: XKit.XView {
         self.numberInput
@@ -94,9 +94,23 @@ final class IntControl: Control<Int, IntControlConfiguration, ()> {
         .with(\.dragConfiguration, self.dragConfiguration)
     }()
 
-    init(_ value: Int, configuration: Configuration = .init(range: .none)) {
+    var cancellables: Set<AnyCancellable> = []
+
+    init(_ value: Int, configuration: Configuration = .init(range: .none), context: NumericControlContext = .default) {
         self.value = value
         self.configuration = configuration
+        self.context = context
+
+        self.numberInput.$isDragging.sink { [weak self] isDragging in
+            guard let self else { return }
+            let message: String? =
+                switch self.dragConfiguration {
+                case .range(.closed(_)): .statusMessageNumberRangeDrag
+                default: .statusMessageNumberDrag
+                }
+
+            self.context.statusBarMessage(isDragging ? message : nil)
+        }.store(in: &self.cancellables)
     }
 
     func setDisabled(_ disabled: Bool) {

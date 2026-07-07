@@ -37,7 +37,7 @@ extension NodeVectorInput {
         }
 
         func numberInputDragStarted(_ numberInput: NumberInputController) {
-            self.control?.emit(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
+            self.control?.emit(.statusBarMessage(.statusMessageNumberDrag))
         }
 
         func numberInputDragEnded(_ numberInput: NumberInputController) {

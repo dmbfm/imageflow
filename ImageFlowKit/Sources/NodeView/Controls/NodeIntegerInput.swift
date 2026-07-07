@@ -239,44 +239,6 @@ final class NodeIntegerInput: XViewEx, NodeControl {
         self.textField.value = Double(self.value.int)
         self.stepper.value = Double(self.value.int)
     }
-
-    @State var valueAtDragStart: Int = 0
-
-    func onDrag(_ value: NodeTextFieldEvent.Drag) {
-        let phase = value.phase
-        let optionDown = value.optionDown
-        let shiftDown = value.shiftDown
-        let dx = value.dx
-
-        self.updateStatusBarMessage(phase)
-
-        switch phase {
-        case .began:
-            self.valueAtDragStart = self.value.int
-        default:
-            break
-        }
-
-        let sensitivity = shiftDown ? 0.01 : (optionDown ? 1.0 : 0.1)
-        let t = dx * sensitivity
-        let newValue = Int(round(Double(self.valueAtDragStart) + t).truncateTo(fractionalDigits: 2))
-
-        if phase == .ended {
-            self.setValue(newValue: .int(newValue), oldValue: .int(self.valueAtDragStart), registerUndo: true)
-        } else {
-            self.setValue(newValue: .int(newValue))
-        }
-    }
-
-    func updateStatusBarMessage(_ phase: XGestureRecognizer.State) {
-        switch phase {
-        case .began:
-            self.onEvent?(.statusBarMessage(StatusBarMessage.dragFloat.rawValue))
-        case .ended, .cancelled:
-            self.onEvent?(.statusBarMessage(nil))
-        default: break
-        }
-    }
 }
 
 extension NodeIntegerInput: NumberTextInputDelegate {
@@ -292,9 +254,9 @@ extension NodeIntegerInput: NumberTextInputDelegate {
     func numberInputDragStarted(_ numberInput: NumberInputController) {
         let message: String? =
             if self.range != nil {
-                StatusBarMessage.dragFloatRange.rawValue
+                .statusMessageNumberRangeDrag
             } else {
-                StatusBarMessage.dragFloat.rawValue
+                .statusMessageNumberDrag
             }
 
         self.onEvent?(.statusBarMessage(message))

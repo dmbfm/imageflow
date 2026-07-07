@@ -32,6 +32,8 @@ public final class NumberInputArray: XView, Rx, WithRef {
         set { self.isEnabled = !newValue }
     }
 
+    @PublishedEx public private(set) var isDragging: Bool = false
+
     public var isEnabled = true {
         didSet {
             for input in self.numberInputs {
@@ -68,8 +70,6 @@ public final class NumberInputArray: XView, Rx, WithRef {
         )
     }()
 
-    private var style: TextFieldStyle
-
     public var formatter: FloatingPointFormatStyle<Double> {
         didSet {
             for input in self.numberInputs {
@@ -77,6 +77,10 @@ public final class NumberInputArray: XView, Rx, WithRef {
             }
         }
     }
+
+    private var style: TextFieldStyle
+
+    private var numberInputCancellables: Set<AnyCancellable> = []
 
     /// Creates a new `NumberInputArray` instance.
     /// - Parameters:
@@ -157,6 +161,7 @@ public final class NumberInputArray: XView, Rx, WithRef {
         self.labels = []
         self.numberInputs = []
         self.stackView.removeAllViews()
+        self.numberInputCancellables.removeAll()
         let views = self.values.enumerated().map({ index, value in
             HStack(views: [
                 Label(self.resolve(labelForRow: index))
@@ -166,6 +171,7 @@ public final class NumberInputArray: XView, Rx, WithRef {
                     .with(\.dragConfiguration, self.dragConfiguration)
                     .onChange({ [weak self] in self?.numberInputChange(index, change: $0) })
                     .withRef({ self.numberInputs.append($0) })
+                    .withRef({ $0.$isDragging.assign(self, \.isDragging).store(in: &self.cancellables) })
                     .withContentHuggingPriority(.defaultLow - 10, for: .horizontal),
             ])
         })

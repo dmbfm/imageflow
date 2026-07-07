@@ -77,8 +77,16 @@ final class NodeInputControl: Rx, WithRef {
 }
 
 enum NodeInputControlContext {
+    case float(NumericControlContext)
     case asset(AssetControlContext)
     case nothing
+
+    var float: NumericControlContext {
+        switch self {
+        case .float(let ctx): ctx
+        default: .default
+        }
+    }
 }
 
 enum NodeInputControlConfiguration {
@@ -183,19 +191,22 @@ where Value == Values::Value, Context == NodeInputControlContext, Configuration 
 extension NodeInputControl {
     static func float(
         _ value: Value,
-        _ configuration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2))
+        _ configuration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        context: NumericControlContext = .init(statusBarMessage: { _ in })
     ) -> NodeInputControl {
         NodeInputControl(
             FloatControl.map(
                 value,
                 configuration: .float(.init(drag: configuration)),
-                context: .nothing,
-                makeControl: { value, configuration, context in .init(value, configuration: configuration) },
+                context: .float(context),
+                makeControl: { value, configuration, context in
+                    .init(value, configuration: configuration, context: context)
+                },
                 bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
                 configMap: { config in
                     .init(drag: config.float?.drag ?? .free(.init()))
                 },
-                contextMap: { _ in }
+                contextMap: { context in context.float }
             ),
             configuration: .regular
         )
@@ -203,19 +214,20 @@ extension NodeInputControl {
 
     static func angle(
         _ value: Value,
-        range: ClosedRange<Double>?
+        range: ClosedRange<Double>?,
+        context: NumericControlContext,
     ) -> NodeInputControl {
         .init(
             AngleControl.map(
                 value,
                 configuration: .angle(.init(range: range)),
-                context: .nothing,
+                context: .float(context),
                 makeControl: { value, configuration, context in
-                    .init(value, configuration: configuration)
+                    .init(value, configuration: configuration, context: context)
                 },
                 bij: .init(to: { .float($0) }, from: { $0.maybeFloat ?? 0.0 }),
                 configMap: { .init(range: $0.angle?.range ?? nil) },
-                contextMap: { _ in }
+                contextMap: { $0.float }
             ),
             configuration: .regular
         )
@@ -236,16 +248,22 @@ extension NodeInputControl {
         )
     }
 
-    static func int(_ value: Value, _ range: IntControlConfiguration.Range = .none) -> NodeInputControl {
+    static func int(
+        _ value: Value,
+        _ range: IntControlConfiguration.Range = .none,
+        context: NumericControlContext
+    ) -> NodeInputControl {
         NodeInputControl(
             IntControl.map(
                 value,
                 configuration: .int(.init(range: range)),
-                context: .nothing,
-                makeControl: { value, configuration, _ in .init(value, configuration: configuration) },
+                context: .float(context),
+                makeControl: { value, configuration, context in
+                    .init(value, configuration: configuration, context: context)
+                },
                 bij: .init(to: { .int($0) }, from: { $0.maybeInt ?? 0 }),
                 configMap: { $0.int ?? .init(range: .none) },
-                contextMap: { _ in }
+                contextMap: { $0.float }
             ),
             configuration: .regular
         )
@@ -289,13 +307,16 @@ extension NodeInputControl {
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
         labels: [String],
         bij: Bijection<[Double], Value>,
+        context: NumericControlContext,
     ) -> NodeInputControl {
         return NodeInputControl(
             VectorControl.map(
                 value,
                 configuration: .vector(.init(drag: dragConfiguration, labels: labels)),
-                context: .nothing,
-                makeControl: { value, configuration, _ in VectorControl(value, configuration: configuration) },
+                context: .float(context),
+                makeControl: { value, configuration, context in
+                    VectorControl(value, configuration: configuration, context: context)
+                },
                 bij: bij,
                 configMap: {
                     if let config = $0.vector {
@@ -304,7 +325,7 @@ extension NodeInputControl {
                         return .init(drag: dragConfiguration)
                     }
                 },
-                contextMap: { _ in }
+                contextMap: { $0.float }
             ),
             configuration: .regular
         )
@@ -313,6 +334,7 @@ extension NodeInputControl {
     static func vector2(
         _ value: Value,
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        context: NumericControlContext,
     ) -> NodeInputControl {
         Self.vector(
             value,
@@ -327,13 +349,15 @@ extension NodeInputControl {
                         return [0, 0]
                     }
                 }
-            )
+            ),
+            context: context
         )
     }
 
     static func vector3(
         _ value: Value,
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        context: NumericControlContext,
     ) -> NodeInputControl {
         Self.vector(
             value,
@@ -348,13 +372,15 @@ extension NodeInputControl {
                         return [0, 0, 0]
                     }
                 }
-            )
+            ),
+            context: context
         )
     }
 
     static func vector4(
         _ value: Value,
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        context: NumericControlContext,
     ) -> NodeInputControl {
         Self.vector(
             value,
@@ -369,13 +395,15 @@ extension NodeInputControl {
                         return [0, 0, 0, 0]
                     }
                 }
-            )
+            ),
+            context: context
         )
     }
 
     static func rect(
         _ value: Value,
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        context: NumericControlContext,
     ) -> NodeInputControl {
         Self.vector(
             value,
@@ -390,21 +418,25 @@ extension NodeInputControl {
                         return [0, 0, 0, 0]
                     }
                 }
-            )
+            ),
+            context: context
         )
     }
 
     static func matrix(
         _ value: Value,
         dim: Int,
-        configuration: MatrixControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)), formatter: .default)
+        configuration: MatrixControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)), formatter: .default),
+        context: NumericControlContext,
     ) -> NodeInputControl {
         NodeInputControl(
             MatrixControl.map(
                 value,
                 configuration: .matrix(configuration),
-                context: .nothing,
-                makeControl: { value, configuration, _ in MatrixControl(value, configuration: configuration)! },
+                context: .float(context),
+                makeControl: { value, configuration, context in
+                    MatrixControl(value, configuration: configuration, context: context)!
+                },
                 bij: .init(
                     to: { array in
                         switch dim {
@@ -426,7 +458,7 @@ extension NodeInputControl {
                     }
                 ),
                 configMap: { $0.matrix ?? .init() },
-                contextMap: { _ in }
+                contextMap: { $0.float }
             ),
             configuration: .regular
         )
@@ -471,7 +503,7 @@ extension NodeInputControl {
                 contextMap: {
                     switch $0 {
                     case .asset(let asset): asset
-                    case .nothing: .init(openAssetPicker: {}, titleForAsset: { _ in nil })
+                    default: .init(openAssetPicker: {}, titleForAsset: { _ in nil })
                     }
                 }
             ),

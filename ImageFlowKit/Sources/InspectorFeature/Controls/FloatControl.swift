@@ -10,8 +10,13 @@ struct FloatControlConfiguration {
     var formatter: FloatingPointFormatStyle = .default
 }
 
+struct NumericControlContext {
+    var statusBarMessage: (String?) -> ()
+    static var `default`: Self { .init(statusBarMessage: { _ in }) }
+}
+
 @MainActor
-final class FloatControl: Control<Double, FloatControlConfiguration, ()> {
+final class FloatControl: Control<Double, FloatControlConfiguration, NumericControlContext> {
 
     @PublishedEx var value: Double {
         didSet {
@@ -21,7 +26,7 @@ final class FloatControl: Control<Double, FloatControlConfiguration, ()> {
         }
     }
 
-    var context: ()
+    var context: NumericControlContext
 
     var configuration: FloatControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2))) {
         didSet {
@@ -52,9 +57,23 @@ final class FloatControl: Control<Double, FloatControlConfiguration, ()> {
         self.inner.setDisabled(disabled)
     }
 
-    init(_ value: Double, configuration: Configuration) {
+    var cancellables: Set<AnyCancellable> = []
+
+    init(_ value: Double, configuration: Configuration, context: NumericControlContext) {
         self.value = value
         self.configuration = configuration
+        self.context = context
+
+        self.inner.numberInput.$isDragging.sink { [weak self] isDragging in
+            guard let self else { return }
+            let message: String =
+                switch self.configuration.drag {
+                case .range(.closed(_)): .statusMessageNumberRangeDrag
+                default: .statusMessageNumberDrag
+                }
+
+            self.context.statusBarMessage(isDragging ? message : nil)
+        }.store(in: &self.cancellables)
     }
 }
 

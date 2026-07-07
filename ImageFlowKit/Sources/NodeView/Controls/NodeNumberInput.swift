@@ -122,9 +122,9 @@ extension NodeNumberInput: NumberTextInputDelegate {
     func numberInputDragStarted(_ numberInput: NumberInputController) {
         let message: String? =
             if self.range != nil {
-                StatusBarMessage.dragFloatRange.rawValue
+                .statusMessageNumberDrag
             } else {
-                StatusBarMessage.dragFloat.rawValue
+                .statusMessageNumberRangeDrag
             }
 
         self.onEvent?(.statusBarMessage(message))

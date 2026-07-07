@@ -11,7 +11,7 @@ struct AngleControlConfiguration {
 }
 
 @MainActor
-final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
+final class AngleControl: Control<Double, AngleControlConfiguration, NumericControlContext> {
 
     @PublishedEx var value: Double {
         didSet {
@@ -31,7 +31,7 @@ final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
         }
     }
 
-    var context: ()
+    var context: NumericControlContext
 
     var configuration: AngleControlConfiguration {
         didSet {
@@ -167,9 +167,16 @@ final class AngleControl: Control<Double, AngleControlConfiguration, ()> {
         ])
     }()
 
-    init(_ value: Value, configuration: Configuration = .init(range: nil)) {
+    var cancellables: Set<AnyCancellable> = []
+
+    init(_ value: Value, configuration: Configuration = .init(range: nil), context: NumericControlContext) {
         self.value = value
         self.configuration = configuration
+        self.context = context
+
+        self.floatControlView.numberInput.$isDragging.sink { [weak self] isDragging in
+            self?.context.statusBarMessage(isDragging ? .statusMessageNumberSnapDrag : nil)
+        }.store(in: &self.cancellables)
     }
 
     func setDisabled(_ disabled: Bool) {

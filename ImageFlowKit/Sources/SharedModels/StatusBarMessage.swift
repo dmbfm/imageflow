@@ -10,6 +10,8 @@ public struct StatusBarMessageBuilder {
         case shift = "⇧"
         case command = "⌘"
         case option = "⌥"
+        case rightMouseButton = "RMB "
+        // case rightMouseButton = "RMB􀺣 "
     }
 
     public struct Item: Sendable {
@@ -19,6 +21,7 @@ public struct StatusBarMessageBuilder {
         public static let dragSlower: Self = .init(.shift, label: "Slower")
         public static let dragFaster: Self = .init(.option, label: "Faster")
         public static let dragSnap: Self = .init(.command, label: "Snap")
+        public static let cancel: Self = .init(.rightMouseButton, label: "Cancel")
 
         public static let empty: Self = .init(.shift, label: "")
 
@@ -30,6 +33,14 @@ public struct StatusBarMessageBuilder {
             self.key = key
             self.label = label
         }
+    }
+
+    public static var standardNumberDrag: String {
+        Self.build([
+            .dragSlower,
+            .dragFaster,
+            .cancel,
+        ])
     }
 
     public static func build(_ items: [Item], spacing: Int = 4) -> String {
@@ -44,5 +55,28 @@ public struct StatusBarMessageBuilder {
                 }
             }
         ).trimmingSuffix(spacer)
+    }
+}
+
+public extension String {
+    static var statusMessageNumberDrag: String {
+        StatusBarMessageBuilder.build([
+            .dragSlower,
+            .dragFaster,
+            .cancel,
+        ])
+    }
+    static var statusMessageNumberRangeDrag: String {
+        StatusBarMessageBuilder.build([
+            .dragSlower,
+            .cancel,
+        ])
+    }
+    static var statusMessageNumberSnapDrag: String {
+        StatusBarMessageBuilder.build([
+            .dragSlower,
+            .dragSnap,
+            .cancel,
+        ])
     }
 }

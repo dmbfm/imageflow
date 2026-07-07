@@ -11,7 +11,7 @@ struct VectorControlConfiguration {
 }
 
 @MainActor
-final class VectorControl: Control<[Double], VectorControlConfiguration, ()>, WithRef {
+final class VectorControl: Control<[Double], VectorControlConfiguration, NumericControlContext>, WithRef {
     @PublishedEx var value: [Double] {
         didSet {
             if self.value != oldValue {
@@ -20,7 +20,7 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, ()>, Wi
         }
     }
 
-    var context: ()
+    var context: NumericControlContext
 
     var configuration: VectorControlConfiguration {
         didSet {
@@ -64,12 +64,21 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, ()>, Wi
 
     var onChange: ((Change<[Double]>) -> ())?
 
+    private var cancellables: Set<AnyCancellable> = []
+
     init(
         _ value: [Double],
-        configuration: VectorControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)))
+        configuration: VectorControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2))),
+        context: NumericControlContext = .default,
     ) {
         self.value = value
         self.configuration = configuration
+        self.context = context
+
+        self.inner.$isDragging.sink { [weak self] isDragging in
+            guard let self else { return }
+            self.context.statusBarMessage(isDragging ? .statusMessageNumberDrag : nil)
+        }.store(in: &self.cancellables)
     }
 
     func setDisabled(_ disabled: Bool) {

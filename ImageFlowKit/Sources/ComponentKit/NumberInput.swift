@@ -21,6 +21,8 @@ public final class NumberInput: XView, Rx, WithRef {
         }
     }
 
+    @PublishedEx public private(set) var isDragging: Bool = false
+
     public let stepperConfiguration: StepperConfiguration?
 
     public private(set) var textField: TextField
@@ -334,6 +336,12 @@ public final class NumberInput: XView, Rx, WithRef {
                 fractionalDigits: partial.fractionalDigits,
                 partialRange: partial.lowerBound...
             )
+        }
+
+        switch dragData.phase {
+        case .began: self.isDragging = true
+        case .changed: break
+        default: self.isDragging = false
         }
     }
 

@@ -10,7 +10,7 @@ struct MatrixControlConfiguration {
 }
 
 @MainActor
-final class MatrixControl: Control<[Double], MatrixControlConfiguration, ()> {
+final class MatrixControl: Control<[Double], MatrixControlConfiguration, NumericControlContext> {
     @PublishedEx var value: [Double] {
         didSet {
             if self.value != oldValue {
@@ -21,7 +21,7 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, ()> {
 
     var onChange: ((Change<[Double]>) -> ())?
 
-    var context: ()
+    var context: NumericControlContext
 
     var configuration: MatrixControlConfiguration {
         didSet {
@@ -38,6 +38,8 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, ()> {
 
     private let dim: Int
 
+    private var cancellables: Set<AnyCancellable> = []
+
     lazy var inner: RegularGrid = {
         RegularGrid(self.dim, verticalSpacing: 4, horizontalSpacing: 4, views: self.numberInputs)
     }()
@@ -53,6 +55,9 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, ()> {
             .onChange({ [weak self] change in self?.onNumberInputChange(i, change) })
             .with(\.dragConfiguration, self.configuration.drag)
             view.setContentCompressionResistancePriority(.defaultLow - 10, for: .horizontal)
+            view.$isDragging.sink { [weak self] isDragging in
+                self?.context.statusBarMessage(isDragging ? .statusMessageNumberDrag : nil)
+            }.store(in: &self.cancellables)
             views.append(view)
         }
         return views
@@ -65,9 +70,10 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, ()> {
         self.onChange?(.init(newValue: self.value, oldValue: oldValue, commit: change.commit))
     }
 
-    init?(_ value: [Double], configuration: MatrixControlConfiguration) {
+    init?(_ value: [Double], configuration: MatrixControlConfiguration, context: Context) {
         self.value = value
         self.configuration = configuration
+        self.context = context
         self.dim =
             switch value.count {
             case 4: 2

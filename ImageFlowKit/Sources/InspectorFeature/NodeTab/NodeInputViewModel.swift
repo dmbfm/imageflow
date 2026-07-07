@@ -28,6 +28,7 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
         case restoreButtonClicked
         case portButtonClicked
         case openAssetPicker
+        case statusBarMessage(String?)
     }
 
     init() {}
@@ -79,6 +80,8 @@ final class NodeInputViewModel: RxEventHandler, WithRef {
                     }()
                 )
             )
+        case .statusBarMessage(let message):
+            self.context?.coordinator?.perform(userAction: .statusBarMessage(message))
         }
     }
 

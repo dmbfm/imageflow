@@ -303,7 +303,7 @@ extension NodeAngleInput: NumberTextInputDelegate {
     }
 
     func numberInputDragStarted(_ numberInput: NumberInputController) {
-        self.onEvent?(.statusBarMessage(StatusBarMessageBuilder.build([.dragSlower, .dragSnap])))
+        self.onEvent?(.statusBarMessage(.statusMessageNumberSnapDrag))
     }
 
     func numberInputDragEnded(_ numberInput: NumberInputController) {
