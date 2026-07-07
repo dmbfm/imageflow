@@ -179,6 +179,12 @@ CA
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="uyl-h8-XO2"/>
+                            <menuItem title="Duplicate Selected" keyEquivalent="d" id="lwR-MT-cyI">
+                                <connections>
+                                    <action selector="duplicate:" target="-1" id="wCC-rM-OD4"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="xCk-Lp-mc6"/>
                             <menuItem title="Find" id="4EN-yA-p0u">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Find" id="1b7-l0-nxx">

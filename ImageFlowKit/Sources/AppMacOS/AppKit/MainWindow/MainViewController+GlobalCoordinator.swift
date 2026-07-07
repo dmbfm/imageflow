@@ -261,9 +261,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
     }
 
     func duplicateNodes(_ target: UserAction.Target) {
-        logger.warning("TODO: implement duplicateNodes")
-        // let nodes = self.nodes(forTarget: target)
-        // if nodes.isEmpty { return }
+        self.flow.duplidateSelectedNodesAction(undoService: self.undoService)
     }
 
     func cutNodes(_ target: UserAction.Target) {
