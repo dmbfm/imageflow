@@ -133,6 +133,8 @@ public final class CanvasFeatureViewController: NSViewController {
         self.viewportPublisher.send(self.viewport)
 
         self.statusBarSetup()
+
+        self.annotationView.isHidden = true
     }
 
     // MARK: - Asset Store
