@@ -543,6 +543,7 @@ public final class CanvasFeatureViewController: NSViewController {
             self.hideAnnotation()
 
         default:
+            self.hideAnnotation()
             logger.warning("onNodePortDrag: \("\(gesture.phase)")")
         }
     }
