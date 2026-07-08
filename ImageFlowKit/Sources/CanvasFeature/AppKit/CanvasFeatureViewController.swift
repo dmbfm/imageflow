@@ -44,6 +44,10 @@ public final class CanvasFeatureViewController: NSViewController {
     var isDraggingConnectedInputPort: Bool = false
     /// The state of the displayed status bar message view.
     var statusBarState: StatusBarState = .init(visible: false, text: "")
+    /// The annotation view used to display pop-up messages in the canvas (over the nodes)
+    var annotationView: AnnotationView = .empty
+    /// The position of the annotation view (when it's visible)
+    var annotationPosition: CGPoint? = .zero
 
     var nodeViewDelegateEmitter: EventEmitter<NodeViewDelegateEvent> = .init()
     var cancellables: Set<AnyEventEmitterCancellable> = []
@@ -203,7 +207,17 @@ public final class CanvasFeatureViewController: NSViewController {
     }
 
     func updateNodePositions() {
-        let newValue = self.flow.nodePositionsWithLiveMove
+        let newValue =
+            if let pos = self.annotationPosition {
+                {
+                    var value = self.flow.nodePositionsWithLiveMove
+                    value[self.annotationView.id] = pos
+                    return value
+                }()
+            } else {
+                self.flow.nodePositionsWithLiveMove
+            }
+
         if self.canvasView.nodePositions != newValue {
             self.canvasView.nodePositions = newValue
         }
@@ -214,10 +228,9 @@ public final class CanvasFeatureViewController: NSViewController {
             return view
         }
 
-        // TODO: Annotation view
-        // if id == self.annotationView.id {
-        //     return self.annotationView
-        // }
+        if id == self.annotationView.id {
+            return self.annotationView
+        }
 
         guard let node = self.flow.nodes[id] else {
             logger.warning("Node data not found for id: \(id)")
@@ -536,14 +549,16 @@ public final class CanvasFeatureViewController: NSViewController {
     // MARK: - Annotations
 
     func showAnnotation(_ annotation: Annotation, at point: CGPoint) {
-        // self.annotationView.annotation = annotation
-        // self.annotationPosition = point
-        // self.annotationView.isHidden = false
+        self.annotationView.annotation = annotation
+        self.annotationPosition = point
+        self.annotationView.isHidden = false
+        self.updateNodePositions()
     }
 
     func hideAnnotation() {
-        // self.annotationView.isHidden = true
-        // self.annotationPosition = nil
+        self.annotationView.isHidden = true
+        self.annotationPosition = nil
+        self.updateNodePositions()
     }
 
     // MARK: - Selection
