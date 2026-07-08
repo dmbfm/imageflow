@@ -358,6 +358,7 @@ public final class CanvasFeatureViewController: NSViewController {
     func upadteEdges() {
         if self.flow.edges.isEmpty && self.flow.partialEdge == nil {
             self.canvasView.edgeLayers = []
+            self.updatePlusIconPosition()
             return
         }
 
