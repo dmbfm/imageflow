@@ -172,7 +172,8 @@ extension MainViewController: GlobalCoordinatorProtocol {
     }
 
     func showNodeSearch(_ typedPortLocation: TypedPortLocation?, _ canvasPosition: CGPoint?) {
-        let position = canvasPosition ?? self.canvasView.bounds.center
+        let viewPos = canvasPosition.map({ self.canvasView.viewport.convert($0, from: .canvas, to: .screen) })
+        let position = viewPos ?? self.canvasView.bounds.center
         let rect = CGRect(x: position.x - 1, y: position.y - 1, width: 2, height: 2)
 
         self.present(
