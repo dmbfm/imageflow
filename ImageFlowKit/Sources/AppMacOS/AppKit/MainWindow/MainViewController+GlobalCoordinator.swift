@@ -177,7 +177,7 @@ extension MainViewController: GlobalCoordinatorProtocol {
         let rect = CGRect(x: position.x - 1, y: position.y - 1, width: 2, height: 2)
 
         self.present(
-            NodePaletteSearchPopoverController { [weak self] item in
+            NodePaletteSearchPopoverController(typedPort: typedPortLocation) { [weak self] item in
                 Task {
                     self?.perform(
                         userAction: .newNode(

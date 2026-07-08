@@ -345,11 +345,23 @@ public class NodePaletteService {
         }
     }
 
-    public func items(searchText: String = "") -> [NodePaletteItem] {
+    public func items(searchText: String = "", typedPort: TypedPortLocation? = nil) -> [NodePaletteItem] {
+        let items =
+            if let typedPort {
+                switch typedPort.port.slot {
+                case .input(_):
+                    self.items(connectingToInputOfType: typedPort.type)
+                case .output(_):
+                    self.items(connectingToOutputOfType: typedPort.type)
+                }
+            } else {
+                self.allItems
+            }
+
         if searchText.isEmpty {
-            return self.allItems
+            return items
         } else {
-            return self.allItems.filter { entry in
+            return items.filter { entry in
                 let text = searchText.lowercased()
                 return entry.categoryName.rawValue.lowercased().contains(text)
                     || entry.displayName.lowercased().contains(text)

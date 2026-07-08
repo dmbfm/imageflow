@@ -25,13 +25,16 @@ public final class NodePaletteSearchPopoverController: NSViewController, NSTable
     var onPick: ((NodePaletteItem) -> ())?
 
     var items: [NodePaletteItem] {
-        NodePaletteService.shared.items(searchText: self.searchText)
+        NodePaletteService.shared.items(searchText: self.searchText, typedPort: self.typedPort)
     }
+
+    var typedPort: TypedPortLocation?
 
     // MARK: - Initialization
 
-    public init(_ onPick: ((NodePaletteItem) -> ())? = nil) {
+    public init(typedPort: TypedPortLocation? = nil, _ onPick: ((NodePaletteItem) -> ())? = nil) {
         self.onPick = onPick
+        self.typedPort = typedPort
         super.init(nibName: nil, bundle: nil)
     }
 
