@@ -100,7 +100,8 @@ final class NodeTabView: XView, Rx {
         self.nodeTypeView.rx(self.vm.$typeName, kp: \.name)
         self.nodeTypeView.rx(self.vm.$typeOptions, kp: \.options)
 
-        self.nodeOptionsView.rx(self.vm.$options.map({ $0.inputs.isEmpty }), kp: \.isHidden)
+        self.nodeOptionsView.rx(self.vm.options.$inputs.map({ $0.isEmpty }), kp: \.isHidden)
+        self.nodeControlsView.rx(self.vm.controls.$inputs.map({ $0.isEmpty }), kp: \.isHidden)
     }
 
     func setupNotifications() {

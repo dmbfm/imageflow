@@ -33,6 +33,7 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIAttributedTextImageGenerator",
             "CITextImageGenerator",
             "CIGuidedFilter",
+            "CIColorClamp",
         ]
 
     static let overrides: [Override] = [
@@ -212,6 +213,8 @@ struct Override {
 func defaultValue(_ type: ValueType, inputType: InputType?, _ obj: Any??) -> Value? {
     guard let obj else { return nil }
     switch type {
+    case .floatArray:
+        fatalError(".floatArray is not supported in codegen!")
     case .float:
         if let nsnum = obj as? NSNumber {
             return .float(nsnum.doubleValue)

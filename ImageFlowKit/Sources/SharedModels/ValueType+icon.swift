@@ -12,6 +12,8 @@ extension ValueType {
         switch self {
         case .float:
             return "number"
+        case .floatArray:
+            return "number"
         case .vector2, .vector3, .vector4:
             return "arrow.up.forward"
         case .int:

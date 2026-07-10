@@ -10,6 +10,7 @@ extension ValueType {
         case .colorSpace: "Color Space"
         case .data: "Data"
         case .float: "Float"
+        case .floatArray: "Float Array"
         case .image: "Image"
         case .lut: "LUT"
         case .int: "Integer"

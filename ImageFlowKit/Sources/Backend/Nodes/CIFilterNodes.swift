@@ -103,7 +103,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
     }
     public enum ColoradjustmentNodeKind: Sendable, Hashable, Codable, CaseIterable {
         case CIColorAbsoluteDifference
-        case CIColorClamp
         case CIColorControls
         case CIColorMatrix
         case CIColorPolynomial
@@ -125,8 +124,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
             switch self {
             case .CIColorAbsoluteDifference:
                 Nodes.CIColorAbsoluteDifferenceNode.impl()
-            case .CIColorClamp:
-                Nodes.CIColorClampNode.impl()
             case .CIColorControls:
                 Nodes.CIColorControlsNode.impl()
             case .CIColorMatrix:
@@ -2238,45 +2235,6 @@ extension Nodes {
                 let filter = CIFilter(name: "CIColorBurnBlendMode")!
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(await context.getImage(node.inputs[1].image), forKey: "inputBackgroundImage")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIColorClampNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Color Clamp",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(
-                        name: "Min Components",
-                        defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 0.0)),
-                        semantics: .default,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Max Components",
-                        defaultValue: .vector4(.init(x: 1.0, y: 1.0, z: 1.0, w: 1.0)),
-                        semantics: .default,
-                        editorPlacement: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIColorClamp")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector4.ciVector, forKey: "inputMinComponents")
-                filter.setValue(node.inputs[2].vector4.ciVector, forKey: "inputMaxComponents")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))

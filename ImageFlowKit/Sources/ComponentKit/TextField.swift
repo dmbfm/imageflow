@@ -29,7 +29,7 @@ public final class TextField: XView, Rx, WithRef {
     /// `TextFieldStyle.progressColor`
     public var progress: Double? = nil {
         didSet {
-            self.backgroundView.progress = self.progress
+            self.backgroundView.progressMax = self.progress
         }
     }
 
@@ -120,7 +120,7 @@ public final class TextField: XView, Rx, WithRef {
     private var _onEndEditting: ((TextField, String) -> ())?
 
     private lazy var backgroundView: BackgroundView = {
-        let view = BackgroundView(style: self.style, progress: self.progress)
+        let view = BackgroundView(style: self.style, progressMax: self.progress)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -235,7 +235,13 @@ class BackgroundView: XView {
         }
     }
 
-    var progress: Double? {
+    var progressMin: Double? {
+        didSet {
+            self.setNeedsDisplay()
+        }
+    }
+
+    var progressMax: Double? {
         didSet {
             self.setNeedsDisplay()
         }
@@ -247,6 +253,8 @@ class BackgroundView: XView {
         layer.isHidden = true
         return layer
     }()
+
+    public var minOffset: CGFloat = 0.0
 
     public override func draw(_ dirtyRect: NSRect) {
         self.withLayer({ layer in
@@ -261,10 +269,16 @@ class BackgroundView: XView {
             layer.cornerRadius = self.style.cornerRadius
             layer.cornerCurve = self.style.cornerCurve
 
-            if let progress = self.progress {
+            if let progress = self.progressMax {
+                let min = self.progressMin ?? 0.0
                 self.fillLayer.isHidden = false
                 self.fillLayer.path = .init(
-                    rect: .init(x: 0, y: 0, width: self.bounds.width * progress, height: self.bounds.height),
+                    rect: .init(
+                        x: minOffset + (self.bounds.width - 2 * minOffset) * min,
+                        y: 0,
+                        width: (self.bounds.width - 2 * minOffset) * (progress - min),
+                        height: self.bounds.height
+                    ),
                     transform: nil
                 )
                 self.fillLayer.fillColor = self.style.progressColor.cgColor
@@ -275,9 +289,10 @@ class BackgroundView: XView {
         })
     }
 
-    init(style: TextFieldStyle, progress: Double? = nil) {
+    init(style: TextFieldStyle, progressMin: Double? = nil, progressMax: Double? = nil) {
         self.style = style
-        self.progress = progress
+        self.progressMax = progressMax
+        self.progressMin = progressMin
 
         super.init(frame: .zero)
     }

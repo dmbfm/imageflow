@@ -281,6 +281,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     public enum ColorAdjustment: Sendable, Hashable, Codable, CaseIterable {
         case lutFilterNode
+        case colorClamp
 
         public static var allKinds: [NodeKind] {
             ColorAdjustment.allCases.map { .coreImageCustomNode(.colorAdjustment($0)) }
@@ -294,6 +295,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
             switch self {
             case .lutFilterNode:
                 Nodes.CoreImageCustom.LutFilterNode.impl()
+            case .colorClamp:
+                Nodes.CoreImageCustom.ColorClampCustom.impl()
             }
         }
     }

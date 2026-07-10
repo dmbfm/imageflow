@@ -157,7 +157,7 @@ final class AngleControl: Control<Double, AngleControlConfiguration, NumericCont
         ) { [weak self] in self?.snapEnabled.toggle() }
         .with(\.imagePosition, .imageOnly)
         .withRef({ $0.setButtonType(.onOff) })
-        .rx(self.$snapEnabled.map({ $0 ? .on : .off }).print("snap button state"), kp: \.state)
+        .rx(self.$snapEnabled.map({ $0 ? .on : .off }), kp: \.state)
     }()
 
     lazy var auxStackView: HStack = {

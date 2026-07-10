@@ -96,11 +96,19 @@ enum NodeInputControlConfiguration {
     case int(IntControlConfiguration)
     case vector(VectorControlConfiguration)
     case matrix(MatrixControlConfiguration)
+    case floatArray(MinMaxSliderArrayControlConfiguration)
     case nothing
 
     var float: FloatControlConfiguration? {
         switch self {
         case .float(let float): float
+        default: nil
+        }
+    }
+
+    var floatArray: MinMaxSliderArrayControlConfiguration? {
+        switch self {
+        case .floatArray(let floatArray): floatArray
         default: nil
         }
     }
@@ -207,6 +215,29 @@ extension NodeInputControl {
                     .init(drag: config.float?.drag ?? .free(.init()))
                 },
                 contextMap: { context in context.float }
+            ),
+            configuration: .regular
+        )
+    }
+
+    static func floatArray(
+        _ value: Value,
+        _ configuration: MinMaxSliderArrayControlConfiguration = .init(),
+    ) -> NodeInputControl {
+        .init(
+            MinMaxSliderArrayControl.map(
+                value,
+                configuration: .floatArray(configuration),
+                context: .nothing,
+                makeControl: { value, configuration, context in
+                    MinMaxSliderArrayControl(value: value, configuration: configuration)
+                },
+                bij: .init(
+                    to: { minMaxs in .floatArray(minMaxsToArray(minMaxs)) },
+                    from: { value in arrayToMinMaxs(value.maybeFloatArray ?? []) }
+                ),
+                configMap: { $0.floatArray ?? .init() },
+                contextMap: { _ in }
             ),
             configuration: .regular
         )
@@ -526,5 +557,26 @@ extension NodeInputControl {
             configuration: .regular
         )
     }
+}
 
+func minMaxsToArray(_ minMaxs: [MinMax]) -> [Double] {
+    var result = [Double]()
+    for m in minMaxs {
+        result.append(m.min)
+        result.append(m.max)
+    }
+    return result
+}
+
+func arrayToMinMaxs(_ arr: [Double]) -> [MinMax] {
+    var result = [MinMax]()
+    var curr = [Double]()
+    for i in arr {
+        curr.append(i)
+        if curr.count == 2 {
+            result.append(.init(min: curr[0], max: curr[1]))
+            curr.removeAll(keepingCapacity: true)
+        }
+    }
+    return result
 }

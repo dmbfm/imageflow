@@ -7,6 +7,7 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
     case boolean
     case integer(IntegerSemantics)
     case float(FloatSemantics)
+    case floatArray(FloatArraySemantics)
     case count
     case offset
     case position2
@@ -21,6 +22,10 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
 
     static var integer: Self {
         .integer(.default)
+    }
+
+    public enum FloatArraySemantics: Sendable, Hashable, Codable {
+        case colorClamp
     }
 
     public enum FloatSemantics: Sendable, Hashable, Codable {

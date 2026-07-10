@@ -22,6 +22,7 @@ public enum Value: Sendable, Hashable, Codable {
     case matrix3x3(Matrix3x3)
     case matrix5x5(Matrix5x5)
     case matrix7x7(Matrix7x7)
+    case floatArray([Double])
 
     // Accessors for every case defined above
 
@@ -347,6 +348,22 @@ public enum Value: Sendable, Hashable, Codable {
         }
     }
 
+    public var floatArray: [Double] {
+        get {
+            if case .floatArray(let value) = self {
+                return value
+            }
+            fatalError("Value is not a floatArray: \(self.type)")
+        }
+        set {
+            if case .floatArray(_) = self {
+                self = .floatArray(newValue)
+            } else {
+                fatalError("Value is not an floatArray: \(self.type)")
+            }
+        }
+    }
+
     public var maybeMatrix2x2: Matrix2x2? {
         get {
             if case .matrix2x2(let value) = self {
@@ -527,6 +544,22 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .vector4(newValue)
             } else {
                 fatalError("Value is not a vector4: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeFloatArray: [Double]? {
+        get {
+            if case .floatArray(let value) = self {
+                return value
+            }
+            return nil
+        }
+        set {
+            if let newValue = newValue {
+                self = .floatArray(newValue)
+            } else {
+                fatalError("Value is not a floatArray: \(self.type)")
             }
         }
     }
@@ -773,6 +806,8 @@ extension Value {
             return .matrix5x5(.zero)
         case .matrix7x7:
             return .matrix7x7(.zero)
+        case .floatArray:
+            return .floatArray([])
         }
     }
 
@@ -816,6 +851,8 @@ extension Value {
             return .matrix5x5
         case .matrix7x7:
             return .matrix7x7
+        case .floatArray:
+            return .floatArray
         }
     }
 }
@@ -825,6 +862,8 @@ extension Value: CustomStringConvertible {
         switch self {
         case let .float(value):
             return "Float(\(value))"
+        case let .floatArray(value):
+            return "FloatArray(\(value))"
         case let .int(value):
             return "Int(\(value))"
         case let .vector2(value):

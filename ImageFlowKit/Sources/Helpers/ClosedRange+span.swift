@@ -6,4 +6,8 @@ extension ClosedRange where Bound: BinaryFloatingPoint {
     public func progress(_ value: Bound) -> Bound {
         (value - self.lowerBound) / (self.upperBound - self.lowerBound)
     }
+
+    public func value(forFraction x: Bound) -> Bound {
+        self.lowerBound + self.span * x
+    }
 }

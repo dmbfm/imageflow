@@ -129,6 +129,13 @@ final class NodeInputView: XView, Rx, WithRef {
             default:
                 .float(self.vm.value, context: self.floatControlContextContext)
             }
+        case .floatArray:
+            switch self.vm.semantics {
+            case .floatArray(.colorClamp):
+                .floatArray(self.vm.value, .init())
+            default:
+                .staticLabel(.string(""))
+            }
         default:
             {
                 .staticLabel(self.vm.value)

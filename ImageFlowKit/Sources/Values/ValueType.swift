@@ -18,6 +18,7 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case matrix3x3
     case matrix5x5
     case matrix7x7
+    case floatArray
 }
 
 extension ValueType: Identifiable {
@@ -28,6 +29,7 @@ extension ValueType: CustomStringConvertible {
     public var description: String {
         switch self {
         case .float: return "Float"
+        case .floatArray: return "FloatArray"
         case .int: return "Int"
         case .bool: return "Bool"
         case .rect: return "Rect"

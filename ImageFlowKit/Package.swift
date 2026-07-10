@@ -293,6 +293,12 @@ let package = Package(
             ]
         ),
         .testTarget(
+            name: "ComponentKitTests",
+            dependencies: [
+                "ComponentKit"
+            ]
+        ),
+        .testTarget(
             name: "CubeLutKitTests",
             dependencies: ["CubeLutKit"]
         ),

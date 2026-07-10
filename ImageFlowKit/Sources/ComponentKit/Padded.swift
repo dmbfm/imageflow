@@ -1,6 +1,7 @@
+import Helpers
 import XKit
 
-public class Padded<V: XView>: XView {
+public final class Padded<V: XView>: XView, With {
     public let view: V
 
     public let insets: XEdgeInsets

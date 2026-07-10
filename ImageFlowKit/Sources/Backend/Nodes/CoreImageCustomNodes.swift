@@ -970,4 +970,50 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public struct ColorClampCustom: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Color Clamp",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image),
+                    .init(
+                        name: "Ranges",
+                        defaultValue: .floatArray([
+                            0.0, 1.0,
+                            0.0, 1.0,
+                            0.0, 1.0,
+                            0.0, 1.0,
+                        ]),
+                        semantics: .floatArray(.colorClamp),
+                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = CIFilter(name: "CIColorClamp")!
+                    guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                        return
+                    }
+                    let arr = node.inputs[1].floatArray
+                    filter.setValue(inputImage, forKey: "inputImage")
+                    filter.setValue(CIVector(x: arr[0], y: arr[2], z: arr[4], w: arr[6]), forKey: "inputMinComponents")
+                    filter.setValue(CIVector(x: arr[1], y: arr[3], z: arr[5], w: arr[7]), forKey: "inputMaxComponents")
+                    let outputImage = filter.outputImage
+                    if let outputImage, !outputImage.extent.isEmpty {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                    }
+                }
+            )
+        }
+    }
+
 }

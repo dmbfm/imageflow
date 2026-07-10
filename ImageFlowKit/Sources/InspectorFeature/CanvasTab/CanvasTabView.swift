@@ -78,7 +78,7 @@ final class CanvasTabView: XView {
         )
         .with(\.connected, nil)
         .with(\.label, "Viewport")
-        .rx(self.vm.$viewportValues.print("viewport values:"), kp: \.value)
+        .rx(self.vm.$viewportValues, kp: \.value)
         .rx(self.vm.$viewportValues.map({ $0[0] != 0 || $0[1] != 0 || $0[2] != 0 }), kp: \.hasChanges)
     }()
 
