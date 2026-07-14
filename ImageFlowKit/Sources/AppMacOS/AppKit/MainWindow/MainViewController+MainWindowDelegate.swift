@@ -16,6 +16,8 @@ extension MainViewController: MainWindowDelegate {
                         typedPortLocation: nil,
                         canvasPosition: locationInWindow.map({
                             self.canvasView.convert($0, from: nil).clamped(toRect: self.canvasView.safeAreaRect)
+                        }).map({
+                            self.canvasView.viewport.convert($0, from: .screen, to: .canvas)
                         })
                     )
                 )
