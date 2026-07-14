@@ -6,6 +6,11 @@ import Values
 let semantics: [String: [String: String]] = [
     "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"],
     "CIPerspectiveRotate": ["inputFocalLength": ".float(.range(15.0...100.0))"],
+    "CIColorControls": [
+        "inputContrast": ".float(.range(-10.0...10.0))",
+        "inputBrightness": ".float(.range(-2.0...2.0))",
+        "inputSaturation": ".float(.range(-20.0...20.0))",
+    ],
     "CIBloom": ["inputIntensity": ".float(.range(0...1))"],
 ]
 

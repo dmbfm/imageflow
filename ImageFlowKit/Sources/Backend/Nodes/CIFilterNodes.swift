@@ -2254,16 +2254,21 @@ extension Nodes {
                     .init(
                         name: "Saturation",
                         defaultValue: .float(1.0),
-                        semantics: .default,
+                        semantics: .float(.range(-20.0...20.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Brightness",
                         defaultValue: .float(0.0),
-                        semantics: .default,
+                        semantics: .float(.range(-2.0...2.0)),
                         editorPlacement: .default
                     ),
-                    .init(name: "Contrast", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Contrast",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(-10.0...10.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
