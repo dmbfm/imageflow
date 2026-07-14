@@ -34,9 +34,12 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CITextImageGenerator",
             "CIGuidedFilter",
             "CIColorClamp",
+            "CITemperatureAndTint",
+            "CIToneCurve",
         ]
 
     static let overrides: [Override] = [
+        .init(name: "CIToneMapHeadroom", filterOverride: .input("inputSourceHeadroom", .defaultValue(.float(1.0)))),
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .type(.count))),
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .valueType(.int))),
         .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .defaultValue(.int(3)))),
@@ -63,7 +66,7 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
                     ("inputGVector", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
                     ("inputBVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 1, w: 0)))),
                     ("inputAVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 1)))),
-                    ("inputBiasVector", .defaultValue(.vector4(.init(x: 1, y: 0, z: 0, w: 0)))),
+                    ("inputBiasVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0)))),
                 ])
         ),
         .init(

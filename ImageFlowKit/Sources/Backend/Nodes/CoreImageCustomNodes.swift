@@ -1016,4 +1016,106 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public struct TemperatureAntTint: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Temperature and Tint",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Temperature",
+                        defaultValue: .float(6500),
+                        semantics: .float(.range(2000...10000)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Tint",
+                        defaultValue: .float(0),
+                        semantics: .float(.range(-100...100)),
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CITemperatureAndTint")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(CIVector(x: 6500.0, y: 0.0), forKey: "inputNeutral")
+                filter.setValue(
+                    CIVector(x: node.inputs[1].float, y: node.inputs[2].float),
+                    forKey: "inputTargetNeutral"
+                )
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct ToneMapNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Tone Map",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Black Point",
+                        defaultValue: .float(0),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Shadows",
+                        defaultValue: .float(0.25),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Midtones",
+                        defaultValue: .float(0.50),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Highlights",
+                        defaultValue: .float(0.75),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "White Point",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIToneCurve")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(CIVector(x: 0.0, y: node.inputs[1].float), forKey: "inputPoint0")
+                filter.setValue(CIVector(x: 0.25, y: node.inputs[2].float), forKey: "inputPoint1")
+                filter.setValue(CIVector(x: 0.50, y: node.inputs[3].float), forKey: "inputPoint2")
+                filter.setValue(CIVector(x: 0.75, y: node.inputs[4].float), forKey: "inputPoint3")
+                filter.setValue(CIVector(x: 1.0, y: node.inputs[5].float), forKey: "inputPoint4")
+                filter.setValue(true, forKey: "inputExtrapolate")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
 }

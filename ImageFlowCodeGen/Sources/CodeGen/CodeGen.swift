@@ -12,6 +12,21 @@ let semantics: [String: [String: String]] = [
         "inputSaturation": ".float(.range(-20.0...20.0))",
     ],
     "CIBloom": ["inputIntensity": ".float(.range(0...1))"],
+    "CIColorThreshold": ["inputThreshold": ".float(.range(0...1))"],
+    "CIExposureAdjust": ["inputEV": ".float(.range(-10.0...10.0))"],
+    "CIGammaAdjust": ["inputPower": ".float(.range(0.25...10.0))"],
+    "CIToneMapHeadroom": [
+        "inputSourceHeadroom": ".float(.range(1.0...8.0))",
+        "inputTargetHeadroom": ".float(.range(1.0...8.0))",
+    ],
+    "CIVibrance": [
+        "inputAmount": ".float(.range(-1.0...1.0))"
+    ],
+    "CIBokehBlur": [
+        "inputRingAmount": ".float(.range(0.0...1.0))",
+        "inputRingSize": ".float(.range(0.0...1.0))",
+        "inputSoftness": ".float(.range(0.0...10.0))",
+    ],
 ]
 
 let addCropToSourceOptionFilters: [String] =
@@ -148,19 +163,20 @@ extension FilterInfo {
             expressions: inputs.map { input in
 
                 let semanticsOverride = semantics[self.name]?[input.name]
+                let semanticsExpr = semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")
 
                 if let defaultValue = input.defaultValue {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")), editorPlacement: \(input.editorVisibility.expr))
+                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsExpr), editorPlacement: \(input.editorVisibility.expr))
                             """
                     )
                 } else {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(input.type?.semanticsExpr(input) ?? ".default"), editorPlacement: \(input.editorVisibility.expr))
+                            .init(name: "\(input.displayName  ?? input.name)", type: .\(input.valueType.rawValue), semantics: \(semanticsExpr), editorPlacement: \(input.editorVisibility.expr))
                             """
                     )
                 }

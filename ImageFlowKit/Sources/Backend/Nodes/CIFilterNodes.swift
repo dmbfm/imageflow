@@ -115,8 +115,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIHueAdjust
         case CILinearToSRGBToneCurve
         case CISRGBToneCurveToLinear
-        case CITemperatureAndTint
-        case CIToneCurve
         case CIToneMapHeadroom
         case CIVibrance
         case CIWhitePointAdjust
@@ -148,10 +146,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CILinearToSRGBToneCurveNode.impl()
             case .CISRGBToneCurveToLinear:
                 Nodes.CISRGBToneCurveToLinearNode.impl()
-            case .CITemperatureAndTint:
-                Nodes.CITemperatureAndTintNode.impl()
-            case .CIToneCurve:
-                Nodes.CIToneCurveNode.impl()
             case .CIToneMapHeadroom:
                 Nodes.CIToneMapHeadroomNode.impl()
             case .CIVibrance:
@@ -1659,11 +1653,21 @@ extension Nodes {
                     .init(
                         name: "Ring Amount",
                         defaultValue: .float(0.0),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
-                    .init(name: "Ring Size", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
-                    .init(name: "Softness", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Ring Size",
+                        defaultValue: .float(0.1),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Softness",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Crop to Source",
                         defaultValue: .bool(true),
@@ -2400,7 +2404,7 @@ extension Nodes {
                     ),
                     .init(
                         name: "Bias Vector",
-                        defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
+                        defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
                         editorPlacement: .default
                     ),
@@ -2548,7 +2552,12 @@ extension Nodes {
                 name: "Color Threshold",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Threshold", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Threshold",
+                        defaultValue: .float(0.5),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3892,7 +3901,12 @@ extension Nodes {
                 name: "Exposure Adjust",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "EV", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "EV",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.range(-10.0...10.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4195,7 +4209,12 @@ extension Nodes {
                 name: "Gamma Adjust",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Power", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Power",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.25...10.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8429,45 +8448,6 @@ extension Nodes {
         }
     }
 
-    public struct CITemperatureAndTintNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Temperature and Tint",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(
-                        name: "Neutral",
-                        defaultValue: .vector2(.init(x: 6500.0, y: 0.0)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Target Neutral",
-                        defaultValue: .vector2(.init(x: 6500.0, y: 0.0)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CITemperatureAndTint")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputNeutral")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputTargetNeutral")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
     public struct CIThermalNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -8491,84 +8471,22 @@ extension Nodes {
         }
     }
 
-    public struct CIToneCurveNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Tone Curve",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(
-                        name: "Point 0",
-                        defaultValue: .vector2(.init(x: 0.0, y: 0.0)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Point 1",
-                        defaultValue: .vector2(.init(x: 0.25, y: 0.25)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Point 2",
-                        defaultValue: .vector2(.init(x: 0.5, y: 0.5)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Point 3",
-                        defaultValue: .vector2(.init(x: 0.75, y: 0.75)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Point 4",
-                        defaultValue: .vector2(.init(x: 1.0, y: 1.0)),
-                        semantics: .offset,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Extrapolate",
-                        defaultValue: .bool(false),
-                        semantics: .boolean,
-                        editorPlacement: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIToneCurve")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputPoint0")
-                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputPoint1")
-                filter.setValue(node.inputs[3].vector2.ciVector, forKey: "inputPoint2")
-                filter.setValue(node.inputs[4].vector2.ciVector, forKey: "inputPoint3")
-                filter.setValue(node.inputs[5].vector2.ciVector, forKey: "inputPoint4")
-                filter.setValue(node.inputs[6].bool, forKey: "inputExtrapolate")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
     public struct CIToneMapHeadroomNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
                 name: "Tone Map Headroom",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Source Headroom", type: .float, semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Source Headroom",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(1.0...8.0)),
+                        editorPlacement: .default
+                    ),
                     .init(
                         name: "Target Headroom",
                         defaultValue: .float(1.0),
-                        semantics: .default,
+                        semantics: .float(.range(1.0...8.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -8874,7 +8792,12 @@ extension Nodes {
                 name: "Vibrance",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Amount", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Amount",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.range(-1.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
