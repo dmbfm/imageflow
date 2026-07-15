@@ -19,6 +19,7 @@ public enum ValueType: String, Sendable, CaseIterable, Codable {
     case matrix5x5
     case matrix7x7
     case floatArray
+    case gradientData
 }
 
 extension ValueType: Identifiable {
@@ -48,6 +49,7 @@ extension ValueType: CustomStringConvertible {
         case .matrix3x3: return "Matrix3x3"
         case .matrix5x5: return "Matrix5x5"
         case .matrix7x7: return "Matrix7x7"
+        case .gradientData: return "GradientData"
         }
     }
 }

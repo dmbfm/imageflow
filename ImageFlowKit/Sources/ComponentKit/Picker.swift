@@ -48,6 +48,11 @@ public final class Picker: XView, Rx, WithRef {
         set { self.inner.isEnabled = !newValue }
     }
 
+    public var controlSize: NSControl.ControlSize {
+        get { self.inner.controlSize }
+        set { self.inner.controlSize = newValue }
+    }
+
     public enum Style {
         case bordered
         case plain

@@ -1,5 +1,6 @@
 @preconcurrency import CoreImage
 @preconcurrency import CoreImage.CIFilterBuiltins
+import Filters
 import Foundation
 import GameKit
 import Helpers
@@ -1109,6 +1110,41 @@ extension Nodes.CoreImageCustom {
                 filter.setValue(CIVector(x: 0.75, y: node.inputs[4].float), forKey: "inputPoint3")
                 filter.setValue(CIVector(x: 1.0, y: node.inputs[5].float), forKey: "inputPoint4")
                 filter.setValue(true, forKey: "inputExtrapolate")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct ColorMapNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Color Map",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Gradient",
+                        defaultValue: .gradientData(.default),
+                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let grad = GradientFilter(node.inputs[1].gradientData, p0: .init(x: 0, y: 0), p1: .init(x: 256, y: 0))
+                let gradImage = grad.outputImage!.cropped(to: .init(x: 0, y: 0, width: 256, height: 1))
+
+                let filter = CIFilter(name: "CIColorMap")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(gradImage, forKey: "inputGradientImage")
+
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))

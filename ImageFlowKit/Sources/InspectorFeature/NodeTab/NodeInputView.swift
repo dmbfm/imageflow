@@ -69,6 +69,8 @@ final class NodeInputView: XView, Rx, WithRef {
 
     func makeControl() -> NodeInputControl {
         switch self.vm.value.type {
+        case .gradientData:
+            .gradientData(self.vm.value)
         case .lut:
             .asset(
                 self.vm.value,

@@ -43,11 +43,21 @@ let package = Package(
         .library(name: "CardStage"),
         .library(name: "CubeLutKit"),
         .library(name: "ComponentKit"),
+        .library(name: "Filters"),
     ],
     dependencies: [
-        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master")
+        .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
+        .package(url: "https://github.com/in2core/swift-cikernel-plugin.git", branch: "main"),
     ],
     targets: [
+        .target(
+            name: "Filters",
+            dependencies: ["Values"],
+            exclude: ["Kernels"],
+            plugins: [
+                .plugin(name: "Swift-CIKernel", package: "Swift-CIKernel-Plugin")
+            ]
+        ),
         .target(
             name: "AppMacOS",
             dependencies: [
@@ -75,7 +85,11 @@ let package = Package(
             ]
         ),
         .target(name: "XKit", dependencies: ["Helpers"]),
-        .target(name: "ComponentKit", dependencies: ["Helpers", "XKit"]),
+        .target(
+            name: "ComponentKit",
+            dependencies: ["Helpers", "XKit", "Filters", "Values"],
+            resources: [.process("Resources")]
+        ),
         .target(name: "Values"),
         .target(name: "Helpers"),
         .target(name: "CubeLutKit"),
@@ -102,6 +116,7 @@ let package = Package(
                 "SwiftGraph",
                 "CubeLutKit",
                 "Helpers",
+                "Filters",
             ]
         ),
         .target(

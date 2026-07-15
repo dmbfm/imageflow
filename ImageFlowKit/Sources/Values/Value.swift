@@ -23,8 +23,27 @@ public enum Value: Sendable, Hashable, Codable {
     case matrix5x5(Matrix5x5)
     case matrix7x7(Matrix7x7)
     case floatArray([Double])
+    case gradientData(GradientData)
 
     // Accessors for every case defined above
+
+    public var gradientData: GradientData {
+        get {
+            if case .gradientData(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a gradientData: \(self.type)")
+            }
+        }
+
+        set {
+            if case .gradientData(_) = self {
+                self = .gradientData(newValue)
+            } else {
+                fatalError("Value is not a gradientData: \(self.type)")
+            }
+        }
+    }
 
     public var matrix2x2: Matrix2x2 {
         get {
@@ -360,6 +379,24 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .floatArray(newValue)
             } else {
                 fatalError("Value is not an floatArray: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeGradientData: GradientData? {
+        get {
+            if case .gradientData(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .gradientData(value)
+            } else {
+                fatalError("Value is not a gradientData: \(self.type)")
             }
         }
     }
@@ -808,6 +845,8 @@ extension Value {
             return .matrix7x7(.zero)
         case .floatArray:
             return .floatArray([])
+        case .gradientData:
+            return .gradientData(.default)
         }
     }
 
@@ -853,6 +892,8 @@ extension Value {
             return .matrix7x7
         case .floatArray:
             return .floatArray
+        case .gradientData:
+            return .gradientData
         }
     }
 }
@@ -900,6 +941,8 @@ extension Value: CustomStringConvertible {
             return "Matrix5x5(\(value))"
         case let .matrix7x7(value):
             return "Matrix7x7(\(value))"
+        case let .gradientData(value):
+            return "GradientData(\(value))"
         }
     }
 }

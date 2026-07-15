@@ -543,6 +543,21 @@ extension NodeInputControl {
 
     }
 
+    static func gradientData(_ value: Value) -> NodeInputControl {
+        .init(
+            GradientDataControl.map(
+                value,
+                configuration: .nothing,
+                context: .nothing,
+                makeControl: { value, _, _ in .init(value) },
+                bij: .init(to: { .gradientData($0) }, from: { $0.maybeGradientData ?? .default }),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
+            configuration: .regular
+        )
+    }
+
     static func staticLabel(_ value: Value) -> NodeInputControl {
         .init(
             StaticLabelControl.map(

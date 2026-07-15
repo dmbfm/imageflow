@@ -37,6 +37,7 @@ private struct Categories {
                         .attributedString,
                         .colorSpace,
                         .affineTransform,
+                        .gradientData,
                     ]
                 )
                 .map { NodeKind.valueNode($0) }
@@ -103,6 +104,7 @@ private struct Categories {
         .init(
             name: .colorEffect,
             items: CIFilterNodeKind.ColoreffectNodeKind.allCases
+                .excluding(elementsOf: [.CIColorMap])
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .colorEffect) }

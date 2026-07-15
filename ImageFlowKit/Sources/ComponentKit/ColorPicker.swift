@@ -39,17 +39,10 @@ public final class ColorPicker: XView, Rx, WithRef {
 
     private var token: ColorPanelManager.Token?
 
-    lazy var bgView: XView = {
-        let view = XView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
-    lazy var fgView: XView = {
-        let view = XView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    private let checkerBoardLayer = CALayer()
+    private let colorLayer = CALayer()
+    private let borderLayer = CALayer()
+    private var lastDrawSize: CGSize?
 
     var height: CGFloat = 24 { didSet { self.invalidateIntrinsicContentSize() } }
     var width: CGFloat = XView.noIntrinsicMetric { didSet { self.invalidateIntrinsicContentSize() } }
@@ -67,10 +60,23 @@ public final class ColorPicker: XView, Rx, WithRef {
 
         super.init(frame: .zero)
 
-        self.addSubview(self.bgView)
-        self.addSubview(self.fgView)
-        self.bgView.constraintToFillSuperview()
-        self.fgView.constraintToFillSuperview(insets: .init(1))
+        self.withLayer { layer in
+
+            layer.cornerCurve = .continuous
+            layer.cornerRadius = self.radius
+            layer.masksToBounds = true
+
+            self.borderLayer.cornerCurve = .continuous
+            self.borderLayer.cornerRadius = self.radius
+            self.borderLayer.borderWidth = self.borderWidth
+
+            layer.addSublayer(self.checkerBoardLayer)
+            layer.addSublayer(self.colorLayer)
+            layer.addSublayer(self.borderLayer)
+        }
+
+        self.colorLayer.delegate = self
+        self.borderLayer.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -85,19 +91,22 @@ public final class ColorPicker: XView, Rx, WithRef {
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
 
-        self.bgView.withLayer { layer in
-            layer.borderWidth = self.borderWidth
-            layer.cornerRadius = self.radius
-            layer.cornerCurve = .continuous
-            layer.borderColor = self.borderColor.cgColor
-            layer.backgroundColor = self.effectiveAppearance.isDarkMode ? .black : .white
+        if self.lastDrawSize != self.bounds.size {
+            self.checkerBoardLayer.contents = NSImage.checkerboard(nil, size: self.bounds.size)
+            self.lastDrawSize = self.bounds.size
         }
 
-        self.fgView.withLayer { layer in
-            layer.cornerRadius = self.radius
-            layer.cornerCurve = .continuous
-            layer.backgroundColor = self.color.cgColor
-            layer.compositingFilter = self.effectiveAppearance.isDarkMode ? "exclusionBlendMode" : "multiplyBlendMode"
+        self.withLayer { layer in
+            self.checkerBoardLayer.frame = layer.bounds
+            self.colorLayer.frame = layer.bounds
+            self.borderLayer.frame = layer.bounds
+
+            self.colorLayer.backgroundColor = self.color.cgColor
+            let lum =
+                0.2126 * self.color.redComponent + 0.7152 * self.color.greenComponent + 0.0722
+                * self.color.blueComponent
+
+            self.borderLayer.borderColor = .init(gray: lum < 0.5 ? 1.0 : 0.0, alpha: 0.25)
         }
     }
 
@@ -177,15 +186,21 @@ public final class ColorPicker: XView, Rx, WithRef {
     func animBorder(to value: CGFloat, duration: CGFloat = 0.2) {
         let anim = CABasicAnimation()
         anim.timingFunction = .init(name: .easeInEaseOut)
-        anim.fromValue = self.bgView.layer?.borderWidth
+        anim.fromValue = self.borderLayer.borderWidth
         anim.toValue = value
         anim.duration = CFTimeInterval(duration)
-        self.bgView.layer?.add(anim, forKey: "borderWidth")
-        self.bgView.layer?.borderWidth = value
+        self.borderLayer.add(anim, forKey: "borderWidth")
+        self.borderLayer.borderWidth = value
     }
 
     func update() {
         self.setNeedsDisplay()
+    }
+}
+
+extension ColorPicker: CALayerDelegate {
+    public func action(for layer: CALayer, forKey event: String) -> (any CAAction)? {
+        return NSNull()
     }
 }
 

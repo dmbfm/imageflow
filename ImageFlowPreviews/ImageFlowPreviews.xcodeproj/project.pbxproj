@@ -7,17 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE06156230163CC80032B136 /* Filters in Frameworks */ = {isa = PBXBuildFile; productRef = AE06156130163CC80032B136 /* Filters */; };
+		AE06156430163CD00032B136 /* XKit in Frameworks */ = {isa = PBXBuildFile; productRef = AE06156330163CD00032B136 /* XKit */; };
+		AE06156630163CD70032B136 /* Helpers in Frameworks */ = {isa = PBXBuildFile; productRef = AE06156530163CD70032B136 /* Helpers */; };
 		AE0A45352FB2527F006B2CC7 /* CIImageView in Frameworks */ = {isa = PBXBuildFile; productRef = AE0A45342FB2527F006B2CC7 /* CIImageView */; };
 		AEAEEC6A2FAD02B7001980AF /* CardStage in Frameworks */ = {isa = PBXBuildFile; productRef = AEAEEC692FAD02B7001980AF /* CardStage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AE06155630163CB90032B136 /* FiltersPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiltersPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE0A45292FB25274006B2CC7 /* CIImageViewPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CIImageViewPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE4563132FAC0A6D00E1FB28 /* ImageFlowPreviews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFlowPreviews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEAEEC5D2FAD02AB001980AF /* CardStagePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardStagePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AE06155730163CB90032B136 /* FiltersPreview */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FiltersPreview;
+			sourceTree = "<group>";
+		};
 		AE0A452A2FB25274006B2CC7 /* CIImageViewPreview */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CIImageViewPreview;
@@ -36,6 +45,16 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AE06155330163CB90032B136 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE06156630163CD70032B136 /* Helpers in Frameworks */,
+				AE06156430163CD00032B136 /* XKit in Frameworks */,
+				AE06156230163CC80032B136 /* Filters in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE0A45262FB25274006B2CC7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -68,6 +87,7 @@
 				AE4563152FAC0A6D00E1FB28 /* ImageFlowPreviews */,
 				AEAEEC5E2FAD02AB001980AF /* CardStagePreview */,
 				AE0A452A2FB25274006B2CC7 /* CIImageViewPreview */,
+				AE06155730163CB90032B136 /* FiltersPreview */,
 				AEAEEC682FAD02B7001980AF /* Frameworks */,
 				AE4563142FAC0A6D00E1FB28 /* Products */,
 			);
@@ -79,6 +99,7 @@
 				AE4563132FAC0A6D00E1FB28 /* ImageFlowPreviews.app */,
 				AEAEEC5D2FAD02AB001980AF /* CardStagePreview.app */,
 				AE0A45292FB25274006B2CC7 /* CIImageViewPreview.app */,
+				AE06155630163CB90032B136 /* FiltersPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -93,6 +114,31 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AE06155530163CB90032B136 /* FiltersPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE06156030163CBB0032B136 /* Build configuration list for PBXNativeTarget "FiltersPreview" */;
+			buildPhases = (
+				AE06155230163CB90032B136 /* Sources */,
+				AE06155330163CB90032B136 /* Frameworks */,
+				AE06155430163CB90032B136 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE06155730163CB90032B136 /* FiltersPreview */,
+			);
+			name = FiltersPreview;
+			packageProductDependencies = (
+				AE06156130163CC80032B136 /* Filters */,
+				AE06156330163CD00032B136 /* XKit */,
+				AE06156530163CD70032B136 /* Helpers */,
+			);
+			productName = FiltersPreview;
+			productReference = AE06155630163CB90032B136 /* FiltersPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
 		AE0A45282FB25274006B2CC7 /* CIImageViewPreview */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AE0A45332FB25276006B2CC7 /* Build configuration list for PBXNativeTarget "CIImageViewPreview" */;
@@ -168,9 +214,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2650;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
+					AE06155530163CB90032B136 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					AE0A45282FB25274006B2CC7 = {
 						CreatedOnToolsVersion = 26.5;
 					};
@@ -199,11 +248,19 @@
 				AE4563122FAC0A6D00E1FB28 /* ImageFlowPreviews */,
 				AEAEEC5C2FAD02AB001980AF /* CardStagePreview */,
 				AE0A45282FB25274006B2CC7 /* CIImageViewPreview */,
+				AE06155530163CB90032B136 /* FiltersPreview */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AE06155430163CB90032B136 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE0A45272FB25274006B2CC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -228,6 +285,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AE06155230163CB90032B136 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE0A45252FB25274006B2CC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -252,6 +316,74 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		AE06155E30163CBB0032B136 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.FiltersPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AE06155F30163CBB0032B136 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F325FKC3ZQ;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmbfm.FiltersPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		AE0A45312FB25276006B2CC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -635,6 +767,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AE06156030163CBB0032B136 /* Build configuration list for PBXNativeTarget "FiltersPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE06155E30163CBB0032B136 /* Debug */,
+				AE06155F30163CBB0032B136 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE0A45332FB25276006B2CC7 /* Build configuration list for PBXNativeTarget "CIImageViewPreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -674,6 +815,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AE06156130163CC80032B136 /* Filters */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Filters;
+		};
+		AE06156330163CD00032B136 /* XKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XKit;
+		};
+		AE06156530163CD70032B136 /* Helpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Helpers;
+		};
 		AE0A45342FB2527F006B2CC7 /* CIImageView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CIImageView;

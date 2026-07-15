@@ -46,6 +46,8 @@ extension ValueType {
             return "square.grid.3x3.fill"
         case .matrix7x7:
             return "square.grid.3x3.fill"
+        case .gradientData:
+            return "lightspectrum.horizontal"
         }
     }
 }
