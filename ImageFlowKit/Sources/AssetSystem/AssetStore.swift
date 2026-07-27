@@ -35,6 +35,22 @@ public final class AssetStore {
         self.documentInfo = info
     }
 
+    private func restoreRegisterAssets<C>(_ assets: C) async where C: Collection<Asset> {
+        await withTaskGroup(of: Void.self) { group in
+            for asset in assets {
+                self.assets[asset.id] = asset
+                group.addTask {
+                    await self.resourceManager.registerAssetResources(asset: asset)
+                    if asset.kind == .image {
+                        _ = try? await self.resourceManager.fetch(cgImageThumb: .asset(asset.id))
+                    }
+                }
+            }
+
+            await group.waitForAll()
+        }
+    }
+
     public func registerAsset(_ asset: Asset, prefetchThumbs: Bool = false, undoService: UndoService? = nil) {
         self.assets[asset.id] = asset
         Task {
@@ -128,9 +144,8 @@ extension AssetStore: Storable {
     public func restore(_ snapshot: StorableData) {
         Task {
             await self.resourceManager.clear()
-            for (_, asset) in snapshot.assets {
-                self.registerAsset(asset, prefetchThumbs: true)
-            }
+            await self.restoreRegisterAssets(snapshot.assets.values)
+            self.publisher.send(.asssetsDidChange)
         }
     }
 
