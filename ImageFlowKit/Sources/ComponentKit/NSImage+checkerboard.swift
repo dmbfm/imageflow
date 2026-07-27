@@ -3,7 +3,7 @@
 import XKit
 
 extension NSImage {
-    static func checkerboard(
+    public static func checkerboard(
         _ context: CIContext?,
         color0: CIColor = .white,
         color1: CIColor = .init(red: 0.85, green: 0.85, blue: 0.85, alpha: 8.0),

@@ -1,4 +1,5 @@
 import Backend
+import ComponentKit
 import Controls
 import Helpers
 import SwiftUI
@@ -39,22 +40,14 @@ final class NodeColorInput: XViewEx, NodeControl {
         }
     }
 
-    lazy var colorPicker: ColorPickerPlatformView = {
-        let picker = ColorPickerPlatformView()
-        picker.color = self.platformColor
-        picker.commitedColor = self.platformColor
-        picker.showsAlpha = self.value.type == .color4
-        picker.onEvent = { [weak self] event in
-            guard let self else { return }
-            switch event {
-            case .didChange(let change):
-                if let new = self.value(forPlatformColor: change.newValue) {
-                    let old = self.value
-                    self.setValue(newValue: new, oldValue: old, registerUndo: old != new)
+    lazy var colorPicker: ComponentKit::ColorPicker = {
+        ComponentKit::ColorPicker(self.platformColor)
+            .onChange { [unowned self] newValue in
+                if let newValue = self.value(forPlatformColor: newValue) {
+                    let oldValue = self.value
+                    self.setValue(newValue: newValue, oldValue: oldValue, registerUndo: true)
                 }
             }
-        }
-        return picker
     }()
 
     var isEditable: Bool {
@@ -103,13 +96,12 @@ final class NodeColorInput: XViewEx, NodeControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        self.colorPicker.intrinsicContentSize
+        .init(width: 40, height: 25)
     }
 
     override func layout() {
         super.layout()
-        self.colorPicker.frame = .init(origin: .zero, size: self.colorPicker.intrinsicContentSize)
-
+        self.colorPicker.frame = .init(origin: .zero, size: .init(width: 40, height: 25))
         Layout.align(views: [self.colorPicker], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }
 }

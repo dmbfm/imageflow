@@ -97,7 +97,7 @@ public final class ColorPicker: XView, Rx, WithRef {
         }
 
         self.withLayer { layer in
-            self.checkerBoardLayer.frame = layer.bounds
+            self.checkerBoardLayer.frame = layer.bounds.insetBy(dx: 0.5, dy: 0.5)
             self.colorLayer.frame = layer.bounds
             self.borderLayer.frame = layer.bounds
 

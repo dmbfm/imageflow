@@ -210,6 +210,7 @@ let package = Package(
                 "Backend",
                 "SharedModels",
                 "TextInput",
+                "ComponentKit",
             ]
         ),
         .target(
