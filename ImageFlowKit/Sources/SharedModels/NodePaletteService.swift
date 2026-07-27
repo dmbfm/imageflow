@@ -166,6 +166,9 @@ private struct Categories {
                         CIFilterNodeKind.GradientNodeKind.CIGaussianGradient,
                         CIFilterNodeKind.GradientNodeKind.CIDistanceGradientFromRedMask,
                         CIFilterNodeKind.GradientNodeKind.CISignedDistanceGradientFromRedMask,
+                        CIFilterNodeKind.GradientNodeKind.CILinearGradient,
+                        CIFilterNodeKind.GradientNodeKind.CISmoothLinearGradient,
+                        CIFilterNodeKind.GradientNodeKind.CIRadialGradient,
                     ].contains($0)
                 })
                 .map { NodeKind.coreImageFilterNode(.gradient($0)) }

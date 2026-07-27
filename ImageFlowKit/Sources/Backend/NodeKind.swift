@@ -133,14 +133,10 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case gaussianGradient
         case distanceGradientFromRedMask
         case signedDistanceGradientFromRedMask
+        case linearGradient
 
         public static var allKinds: [NodeKind] {
-            [
-                .coreImageCustomNode(.gradient(.radialGradient)),
-                .coreImageCustomNode(.gradient(.gaussianGradient)),
-                .coreImageCustomNode(.gradient(.distanceGradientFromRedMask)),
-                .coreImageCustomNode(.gradient(.signedDistanceGradientFromRedMask)),
-            ]
+            Gradient.allCases.map({ .coreImageCustomNode(.gradient($0)) })
         }
 
         public var kind: NodeKind {
@@ -157,6 +153,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.DistanceGradientFromRedMaskNode.impl()
             case .signedDistanceGradientFromRedMask:
                 Nodes.CoreImageCustom.SignedDistanceGradientFromRedMaskNode.impl()
+            case .linearGradient:
+                Nodes.CoreImageCustom.LinearGradientNode.impl()
             }
         }
     }

@@ -4,6 +4,7 @@ import Filters
 import Foundation
 import GameKit
 import Helpers
+import Values
 
 extension Nodes {
     struct CoreImageCustom {}
@@ -797,61 +798,6 @@ extension Nodes.CoreImageCustom {
         }
     }
 
-    public struct RadialGradientNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Radial Gradient",
-                inputs: [
-                    .init(name: "Radius 1", defaultValue: .float(5.0), semantics: .distance),
-                    .init(name: "Radius 2", defaultValue: .float(100.0), semantics: .distance),
-                    .init(
-                        name: "Color 0",
-                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
-                        semantics: .color
-                    ),
-                    .init(
-                        name: "Color 1",
-                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)),
-                        semantics: .color
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIRadialGradient")!
-
-                let center = CIVector(cgPoint: .zero)
-                let r0 = node.inputs[0].float
-                let r1 = node.inputs[1].float
-
-                filter.setValue(center, forKey: "inputCenter")
-                filter.setValue(r0, forKey: "inputRadius0")
-                filter.setValue(r1, forKey: "inputRadius1")
-                filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputColor0")
-                filter.setValue(node.inputs[3].color4.ciColor, forKey: "inputColor1")
-
-                let r = max(r0, r1)
-
-                let extent = CGRect(
-                    x: center.x - r,
-                    y: center.y - r,
-                    width: 2 * r,
-                    height: 2 * r
-                )
-
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: extent), 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
     public struct GaussianGradientNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
@@ -1152,6 +1098,88 @@ extension Nodes.CoreImageCustom {
                     node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
             }
+        }
+    }
+
+    public struct LinearGradientNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Linear Gradient",
+                inputs: [
+                    .init(name: "Start Point", defaultValue: .vector2(.init(x: 0, y: 0))),
+                    .init(name: "End Point", defaultValue: .vector2(.init(x: 256, y: 256))),
+                    .init(name: "Width", defaultValue: .int(256)),
+                    .init(name: "Height", defaultValue: .int(256)),
+                    .init(
+                        name: "Colors",
+                        defaultValue: .gradientData(.default),
+                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let gradientData = node.inputs[4].gradientData
+                    let p0 = node.inputs[0].vector2
+                    let p1 = node.inputs[1].vector2
+                    let width = node.inputs[2].int
+                    let height = node.inputs[3].int
+                    let gradientFilter = GradientFilter(gradientData, p0: p0, p1: p1)
+                    if let image = gradientFilter.outputImage?.cropped(
+                        to: .init(x: 0, y: 0, width: width, height: height)
+                    ) {
+                        node.outputs[0] = .image(await context.addImage(image, 0))
+                    }
+                }
+            )
+        }
+    }
+
+    public struct RadialGradientNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Radial Gradient",
+                inputs: [
+                    .init(name: "Inner Radius", defaultValue: .float(0.0)),
+                    .init(name: "Outer Radius", defaultValue: .float(128.0)),
+                    .init(name: "Padding", defaultValue: .int(0), semantics: .integer(.partialRangeFrom(0))),
+                    .init(
+                        name: "Colors",
+                        defaultValue: .gradientData(.default),
+                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let gradientData = node.inputs[3].gradientData
+                    let padding = node.inputs[2].int
+                    let r0 = node.inputs[0].float.clamped(to: 0.0...Double.greatestFiniteMagnitude)
+                    let r1 = node.inputs[1].float.clamped(to: r0...Double.greatestFiniteMagnitude)
+                    let c = Int(ceil(r1)) + padding
+                    let size = 2 * c + 1
+                    let p0 = Vector2(x: Double(c), y: Double(c))
+                    let p1 = Vector2(x: r0, y: r1)
+                    let width = size
+                    let height = size
+                    let gradientFilter = GradientFilter(gradientData, gradientType: .radial, p0: p0, p1: p1)
+                    if let image = gradientFilter.outputImage?.cropped(
+                        to: .init(x: 0, y: 0, width: width, height: height)
+                    ) {
+                        node.outputs[0] = .image(await context.addImage(image, 0))
+                    }
+                }
+            )
         }
     }
 }

@@ -90,7 +90,7 @@ let package = Package(
             dependencies: ["Helpers", "XKit", "Filters", "Values"],
             resources: [.process("Resources")]
         ),
-        .target(name: "Values"),
+        .target(name: "Values", dependencies: ["Helpers"]),
         .target(name: "Helpers"),
         .target(name: "CubeLutKit"),
         .target(

@@ -60,10 +60,7 @@ extern "C" {
             return float4(0.0, 0.0, 0.0, 0.0);
         }
         
-        float4 filter_kernel(sampler data, int interp_type, float noise_amount, float2 p0, float2 p1, destination dest) {
-            int gradient_type = GRAD_TYPE_LINEAR;
-            
-            
+        float4 filter_kernel(sampler data, int gradient_type, int interp_type, float noise_amount, float2 p0, float2 p1, destination dest) {
             switch (gradient_type) {
                 case GRAD_TYPE_LINEAR:
                 {
@@ -80,7 +77,15 @@ extern "C" {
                     
                 case GRAD_TYPE_RADIAL:
                 {
-                    return float4(1.0, 0.0, 0.0, 1.0);
+                    float2 p = dest.coord();
+                    float dist = distance(p, p0);
+                    float s = (dist - p1.x) / (p1.y - p1.x);
+                    
+                    if (noise_amount > 0) {
+                        s += noise_amount * 0.15 * triangle_noise(dest.coord());
+                    }
+                    
+                    return grad_sample(data, interp_type, s);
                 } break;
                     
                 default:

@@ -8,6 +8,12 @@ public final class GradientFilter: CIFilter {
     public var gradientData: GradientData
     public var p0: Vector2
     public var p1: Vector2
+    public var gradientType: GradientType
+
+    public enum GradientType: Int {
+        case linear
+        case radial
+    }
 
     private struct Kernels {
         let kernel: CIKernel
@@ -29,10 +35,12 @@ public final class GradientFilter: CIFilter {
             .init(position: 0.5, color: .black),
             .init(position: 1.0, color: .init(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)),
         ]),
+        gradientType: GradientType = .linear,
         p0: Vector2 = .init(x: 0.0, y: 0.0),
         p1: Vector2 = .init(x: 256.0, y: 256.0),
     ) {
         self.gradientData = gradientData
+        self.gradientType = gradientType
         self.p0 = p0
         self.p1 = p1
         super.init()
@@ -77,6 +85,7 @@ public final class GradientFilter: CIFilter {
             kernels.kernel,
             arguments: [
                 dataImage,
+                self.gradientType.rawValue,
                 self.gradientData.interpolation.rawValue,
                 self.gradientData.noiseAmount,
                 p0,
