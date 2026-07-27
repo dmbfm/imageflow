@@ -9,6 +9,7 @@ public struct GradientData: Sendable, Hashable, Codable, With {
     public enum InterpolationType: Int, Sendable, Equatable, Codable {
         case linear
         case step
+        case cubic
     }
 
     public struct Stop: Sendable, Hashable, Codable, With {

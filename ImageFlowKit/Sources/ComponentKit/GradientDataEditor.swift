@@ -39,7 +39,7 @@ public final class GradientDataEditor: XView, WithRef {
     private var cancellables: Set<AnyCancellable> = []
 
     private lazy var interpPickerView: Picker = {
-        Picker(["Linear", "Step"], selected: self.value.interpolation.rawValue)
+        Picker(["Linear", "Step", "Cubic"], selected: self.value.interpolation.rawValue)
             .with(\.controlSize, .small)
             .onChange { [unowned self] index in
                 if let newValue = GradientData.InterpolationType(rawValue: index),

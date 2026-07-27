@@ -3,12 +3,21 @@
 
 #define INTERP_LINEAR       0
 #define INTERP_STEP         1
+#define INTERP_CUBIC        2
 
 #define GRAD_TYPE_LINEAR    0
 #define GRAD_TYPE_RADIAL    1
 
 extern "C" {
     namespace coreimage {
+        
+        float cubic(float x) {
+            if (x < 0.5) {
+                return 4.0 * x * x * x;
+            } else {
+                return 1.0 - pow(-2.0 * x + 2.0, 3.0) / 2.0;
+            }
+        }
         
         float triangle_noise(const float2 n) {
             // triangle noise, in [-0.5..1.5[ range
@@ -25,8 +34,12 @@ extern "C" {
         float4 interp(int type, float p0, float p1, float4 c0, float4 c1, float x) {
             switch (type) {
                 case INTERP_LINEAR:
+                case INTERP_CUBIC:
                 {
                     float s = (x - p0) / (p1 - p0);
+                    if (type == INTERP_CUBIC) {
+                        s = cubic(s);
+                    }
                     return mix(c0, c1, s);
                 } break;
                 case INTERP_STEP: return c0;
