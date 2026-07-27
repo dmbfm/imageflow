@@ -126,15 +126,13 @@ final class NodeIntegerInput: XViewEx, NodeControl {
     #if os(macOS)
     lazy var stepper: NSStepper = {
         let view = NSStepper()
-        // view.minValue = self.min.map { Double($0) } ?? -.infinity
-        // view.maxValue = self.max.map { Double($0) } ?? .infinity
         view.increment = 1
         view.autorepeat = true
         view.isContinuous = true
         view.target = self
         view.action = #selector(Self.stepperHandler)
-        view.value = Double(self.value.int)
         self.updateRange(view)
+        view.value = Double(self.value.int)
         return view
     }()
     #endif
