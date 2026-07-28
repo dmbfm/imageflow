@@ -344,6 +344,11 @@ public struct FlowNode: Sendable, Equatable, Codable {
         return self.inputs.filter({ schema.inputs[$0.index].editorPlacement.nodeView == placement })
     }
 
+    public func inputs(withNodeViewPlacements placements: [NodeInputSchema.EditorPlacement.NodeView]) -> [Input] {
+        let schema = self.schema
+        return self.inputs.filter({ placements.contains(schema.inputs[$0.index].editorPlacement.nodeView) })
+    }
+
     public func inputs(withInspectorPlacement placement: NodeInputSchema.EditorPlacement.Inspector) -> [Input] {
         let schema = self.schema
         return self.inputs.filter({ schema.inputs[$0.index].editorPlacement.inspector == placement })

@@ -27,11 +27,12 @@ final class NodeInputBlockView: XViewEx {
 
         init(node: FlowNode) {
             self.node = node.id
-            self.inputs = node.inputs(withNodeViewPlacement: .visible).map({ input in
+            self.inputs = node.inputs(withNodeViewPlacements: [.visible, .hiddenControl]).map({ input in
                 .init(
                     input: input,
                     semantics: node.semantics(forInput: input.index) ?? .default,
-                    drawPortAsConnected: false
+                    drawPortAsConnected: false,
+                    placement: node.schema(forInput: input.index)?.editorPlacement.nodeView ?? .visible  // input.edi
                 )
             })
         }
@@ -43,7 +44,7 @@ final class NodeInputBlockView: XViewEx {
         }
 
         mutating func update(_ node: FlowNode) {
-            let visibleInputs = node.inputs(withNodeViewPlacement: .visible)
+            let visibleInputs = node.inputs(withNodeViewPlacements: [.visible, .hiddenControl])
             let differentNode = node.id != self.node
             let differentInputCount = visibleInputs.count != self.inputs.count
             let needsReload = differentNode || differentInputCount
@@ -55,7 +56,8 @@ final class NodeInputBlockView: XViewEx {
                     .init(
                         input: nodeInput,
                         semantics: node.semantics(forInput: nodeInput.index) ?? .default,
-                        drawPortAsConnected: vmInput.drawPortAsConnected
+                        drawPortAsConnected: vmInput.drawPortAsConnected,
+                        placement: node.schema(forInput: nodeInput.index)?.editorPlacement.nodeView ?? .visible
                     )
                 })
             }
@@ -298,12 +300,14 @@ extension NodeInputBlockView {
                         .init(
                             input: .init(label: "Some number", index: 0, value: .float(0.5), connected: false),
                             semantics: .default,
-                            drawPortAsConnected: false
+                            drawPortAsConnected: false,
+                            placement: .visible
                         ),
                         .init(
                             input: .init(label: "Other", index: 1, value: .float(0.1234), connected: false),
                             semantics: .default,
-                            drawPortAsConnected: false
+                            drawPortAsConnected: false,
+                            placement: .visible
                         ),
                     ]
                 )

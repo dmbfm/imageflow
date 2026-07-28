@@ -92,6 +92,7 @@ public struct NodeInputSchema: Sendable, Hashable {
         public enum NodeView: Sendable, Hashable {
             case visible
             case hidden
+            case hiddenControl
         }
 
         public enum Inspector: Sendable, Hashable {

@@ -6,7 +6,13 @@ extension Nodes {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
                     name: "Split Vector2",
-                    inputs: [.init(name: "Value", defaultValue: .vector2(.init(x: 0, y: 0)))],
+                    inputs: [
+                        .init(
+                            name: "Value",
+                            defaultValue: .vector2(.init(x: 0, y: 0)),
+                            editorPlacement: .init(nodeView: .hiddenControl, inspector: .inputs)
+                        )
+                    ],
                     outputs: [
                         .init(name: "x", type: .float),
                         .init(name: "y", type: .float),
@@ -28,7 +34,13 @@ extension Nodes {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
                     name: "Split Vector3",
-                    inputs: [.init(name: "Value", defaultValue: .vector3(.init(x: 0, y: 0, z: 0)))],
+                    inputs: [
+                        .init(
+                            name: "Value",
+                            defaultValue: .vector3(.init(x: 0, y: 0, z: 0)),
+                            editorPlacement: .init(nodeView: .hiddenControl, inspector: .inputs)
+                        )
+                    ],
                     outputs: [
                         .init(name: "x", type: .float),
                         .init(name: "y", type: .float),
@@ -52,7 +64,13 @@ extension Nodes {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
                     name: "Split Vector4",
-                    inputs: [.init(name: "Value", defaultValue: .vector4(.init(x: 0, y: 0, z: 0, w: 0)))],
+                    inputs: [
+                        .init(
+                            name: "Value",
+                            defaultValue: .vector4(.init(x: 0, y: 0, z: 0, w: 0)),
+                            editorPlacement: .init(nodeView: .hiddenControl, inspector: .inputs)
+                        )
+                    ],
                     outputs: [
                         .init(name: "x", type: .float),
                         .init(name: "y", type: .float),
@@ -78,7 +96,13 @@ extension Nodes {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
                     name: "Split Rectangle",
-                    inputs: [.init(name: "Value", type: .rect)],
+                    inputs: [
+                        .init(
+                            name: "Value",
+                            type: .rect,
+                            editorPlacement: .init(nodeView: .hiddenControl, inspector: .inputs)
+                        )
+                    ],
                     outputs: [
                         .init(name: "x", type: .float),
                         .init(name: "y", type: .float),

@@ -34,6 +34,7 @@ public final class NodeInputRowView: XView {
         var input: FlowNode.Input
         var semantics: ValueSemantics
         var drawPortAsConnected: Bool
+        var placement: NodeInputSchema.EditorPlacement.NodeView
 
         var isEditable: Bool {
             !self.input.connected
@@ -97,6 +98,11 @@ public final class NodeInputRowView: XView {
     }()
 
     lazy var controlView: any NodeControl = {
+
+        if self.vm.placement == .hiddenControl {
+            return EmptyControlView(value: .float(0))
+        }
+
         let view: any NodeControl =
             switch self.vm.input.value.type {
             case .float:
@@ -364,7 +370,7 @@ extension NodeInputRowView {
         )
         func makeView(context: Context) -> NodeInputRowView {
             let view = NodeInputRowView(
-                .init(input: self.input, semantics: .default, drawPortAsConnected: false),
+                .init(input: self.input, semantics: .default, drawPortAsConnected: false, placement: .visible),
                 delegate: nil
             )
             view.onEvent = { _ in }
