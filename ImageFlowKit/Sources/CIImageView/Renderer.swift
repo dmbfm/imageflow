@@ -8,6 +8,7 @@ import os
 
 @MainActor
 class Renderer {
+    public var maxImageWidthOrHeight: CGFloat = 16384
     private let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let renderPassDescriptor: MTLRenderPassDescriptor
@@ -32,6 +33,12 @@ class Renderer {
     func render(_ rd: RenderData, _ drawable: (() -> (any CAMetalDrawable)?)) {
         guard let image = rd.image else { return }
         guard rd.drawableSize.width > 0, rd.drawableSize.height > 0 else { return }
+        guard image.extent.size.width <= self.maxImageWidthOrHeight,
+            image.extent.size.height <= self.maxImageWidthOrHeight
+        else {
+            logger.error("Image exceeds 16384 in width or height")
+            return
+        }
 
         let id = sp.makeSignpostID()
         let state = sp.beginInterval("Renderer::render", id: id)
