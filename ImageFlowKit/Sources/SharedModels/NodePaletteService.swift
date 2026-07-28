@@ -33,7 +33,8 @@ private struct Categories {
             items: ValueType.allCases
                 .excluding(
                     elementsOf: [
-                        ValueType.data,
+                        .data,
+                        .floatArray,
                         .attributedString,
                         .colorSpace,
                         .affineTransform,
