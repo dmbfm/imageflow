@@ -41,7 +41,14 @@ public final class NumberInput: XView, Rx, WithRef {
 
     public var isEnabled: Bool {
         get { self.textField.isEnabled }
-        set { self.textField.isEnabled = newValue }
+        set {
+            self.textField.isEnabled = newValue
+            self.window?.invalidateCursorRects(for: self)
+            if !newValue {
+                self.textField.resignFirstResponder()
+                self.textField.isEditable = false
+            }
+        }
     }
 
     public var alignment: NSTextAlignment {
@@ -134,7 +141,9 @@ public final class NumberInput: XView, Rx, WithRef {
     #if os(macOS)
     public override func resetCursorRects() {
         let cursor: NSCursor =
-            if !self.textField.isFocused {
+            if !self.isEnabled {
+                .arrow
+            } else if !self.textField.isFocused {
                 .columnResize
             } else {
                 .iBeam
@@ -288,6 +297,7 @@ public final class NumberInput: XView, Rx, WithRef {
     }
 
     @objc func clickHandler(_ gesture: NSClickGestureRecognizer) {
+        if !self.isEnabled { return }
         Task {
             self.beginEditting()
         }

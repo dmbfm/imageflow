@@ -37,7 +37,6 @@ private struct Categories {
                         .floatArray,
                         .attributedString,
                         .colorSpace,
-                        .affineTransform,
                         .gradientData,
                     ]
                 )
@@ -424,7 +423,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case split = "Split"
     case combine = "Combine"
     case imageTransform = "Transform Image"
-    case transform = "Transforms"
+    case transform = "Affine Transforms"
     case colorAdjustment = "Color Adjustment"
     case colorEffect = "Color Effect"
     case compositeOperation = "Composite Operation"

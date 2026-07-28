@@ -10,7 +10,7 @@ struct MatrixControlConfiguration {
 }
 
 @MainActor
-final class MatrixControl: Control<[Double], MatrixControlConfiguration, NumericControlContext> {
+final class MatrixControl: Control<[Double], MatrixControlConfiguration, NumericControlContext>, WithRef {
     @PublishedEx var value: [Double] {
         didSet {
             if self.value != oldValue {

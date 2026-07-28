@@ -454,6 +454,51 @@ extension NodeInputControl {
         )
     }
 
+    static func affine(
+        _ value: Value,
+        configuration: MatrixControlConfiguration = .init(drag: .free(.init(fractionalDigits: 2)), formatter: .default),
+        context: NumericControlContext,
+    ) -> NodeInputControl {
+        NodeInputControl(
+            AffineTransformControl.map(
+                value,
+                configuration: .matrix(configuration),
+                context: .float(context),
+                makeControl: { value, configuration, context in
+                    AffineTransformControl(value, configuration: configuration, context: context)
+                },
+                bij: .init(
+                    to: { value in
+                        .affineTransform(
+                            .init(
+                                m11: value[0],
+                                m12: value[1],
+                                m21: value[2],
+                                m22: value[3],
+                                tX: value[4],
+                                tY: value[5]
+                            )
+                        )
+                    },
+                    from: { value in
+                        let t = value.maybeAffineTransform ?? .identity
+                        return [
+                            t.m11,
+                            t.m12,
+                            t.m21,
+                            t.m22,
+                            t.tX,
+                            t.tY,
+                        ]
+                    }
+                ),
+                configMap: { $0.matrix ?? .init() },
+                contextMap: { $0.float }
+            ),
+            configuration: .regular
+        )
+    }
+
     static func matrix(
         _ value: Value,
         dim: Int,
