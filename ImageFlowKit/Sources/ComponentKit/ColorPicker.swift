@@ -102,11 +102,24 @@ public final class ColorPicker: XView, Rx, WithRef {
             self.borderLayer.frame = layer.bounds
 
             self.colorLayer.backgroundColor = self.color.cgColor
-            let lum =
-                0.2126 * self.color.redComponent + 0.7152 * self.color.greenComponent + 0.0722
-                * self.color.blueComponent
 
-            self.borderLayer.borderColor = .init(gray: lum < 0.5 ? 1.0 : 0.0, alpha: 0.25)
+            let lum = max(self.color.redComponent, max(self.color.blueComponent, self.color.greenComponent))
+
+            if self.effectiveAppearance.isDarkMode {
+                self.borderLayer.borderColor =
+                    .init(
+                        gray: (1.0 - lum),
+                        alpha: 0.25
+                    )
+            } else {
+                let min = 0.16
+                let max = 0.45
+                self.borderLayer.borderColor =
+                    .init(
+                        gray: (1.0 - lum),
+                        alpha: (min - max) * lum + max,
+                    )
+            }
         }
     }
 
