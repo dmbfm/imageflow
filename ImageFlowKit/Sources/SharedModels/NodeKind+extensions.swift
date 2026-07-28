@@ -80,7 +80,7 @@ public extension NodeKind {
             "arrow.right.circle.dotted"
         case .valueNode(let valueType):
             valueType.icon
-        case .splitValue(.imageInfo):
+        case .splitValue(.imageRect), .splitValue(.imageSize), .splitValue(.imageOrigin):
             "photo.badge.magnifyingglass"
         case .splitValue(_):
             "arrow.trianglehead.branch"

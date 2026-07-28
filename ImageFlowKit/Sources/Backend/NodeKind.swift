@@ -67,7 +67,9 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case vector4
     case color4
     case rect
-    case imageInfo
+    case imageSize
+    case imageRect
+    case imageOrigin
 
     public var impl: NodeImpl {
         switch self {
@@ -79,8 +81,12 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.SplitValueNodes.SlipVector4Node.impl()
         case .color4:
             Nodes.SplitValueNodes.SlipColorRGBNode.impl()
-        case .imageInfo:
-            Nodes.SplitValueNodes.ImageInfoNode.impl()
+        case .imageSize:
+            Nodes.SplitValueNodes.ImageSizeNode.impl()
+        case .imageRect:
+            Nodes.SplitValueNodes.ImageRectNode.impl()
+        case .imageOrigin:
+            Nodes.SplitValueNodes.ImageOriginNode.impl()
         case .rect:
             Nodes.SplitValueNodes.SlipRectNode.impl()
         }

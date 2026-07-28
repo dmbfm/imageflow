@@ -181,5 +181,86 @@ extension Nodes {
                 )
             }
         }
+
+        struct ImageRectNode: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Image Rect",
+                    inputs: [
+                        .init(name: "Value", type: .image)
+                    ],
+                    outputs: [
+                        .init(name: "Rect", type: .rect)
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+                        guard let image = await context.getImage(node.inputs[0].image) else {
+                            node.outputs[0].rect = .zero
+                            return
+                        }
+
+                        node.outputs[0].rect = image.extent
+                    }
+                )
+            }
+        }
+
+        struct ImageOriginNode: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Image Origin",
+                    inputs: [
+                        .init(name: "Value", type: .image)
+                    ],
+                    outputs: [
+                        .init(name: "Origin", type: .vector2)
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+                        guard let image = await context.getImage(node.inputs[0].image) else {
+                            node.outputs[0].vector2 = .zero
+                            return
+                        }
+
+                        node.outputs[0].vector2 = .init(x: image.extent.origin.x, y: image.extent.origin.y)
+                    }
+                )
+            }
+        }
+
+        struct ImageSizeNode: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Image Size",
+                    inputs: [
+                        .init(name: "Value", type: .image)
+                    ],
+                    outputs: [
+                        .init(name: "Width", type: .float),
+                        .init(name: "Height", type: .float),
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+                        guard let image = await context.getImage(node.inputs[0].image) else {
+                            node.outputs[0].float = 0.0
+                            node.outputs[1].float = 0.0
+                            return
+                        }
+
+                        node.outputs[0].float = image.extent.width
+                        node.outputs[1].float = image.extent.height
+                    }
+                )
+            }
+        }
     }
 }
