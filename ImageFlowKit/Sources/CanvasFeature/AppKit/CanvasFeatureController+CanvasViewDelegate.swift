@@ -41,9 +41,11 @@ extension CanvasFeatureViewController: CanvasViewDelegate {
         false
     }
 
-    public func canvasViewPerformDragOperation(at point: CGPoint) -> Bool {
-        self.pasteboardController.performDrop(onTarget: .canvas(point))
+    #if os(macOS)
+    public func canvasViewPerformDragOperation(at point: CGPoint, pb: NSPasteboard) -> Bool {
+        self.pasteboardController.performDrop(onTarget: .canvas(point), pb: pb)
     }
+    #endif
 
     public func canvasViewCanPerformDragOperation() -> Bool {
         self.pasteboardController.canDrop(context: .canvas)

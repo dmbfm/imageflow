@@ -1,5 +1,5 @@
 {
-  "originHash" : "c153b39a4bc0745af28a17ea46619e51ee21fea3a2c273c6cc9743767bac499f",
+  "originHash" : "53445f0a24f3972fe1bf6cf1e4d8044649224ca7a42281e68dea5002d9651027",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "cdd0ef3755280949551dc26dee5de9ddeda89f54",
         "version" : "1.6.2"
+      }
+    },
+    {
+      "identity" : "swift-cikernel-plugin",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/in2core/swift-cikernel-plugin.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8b00fe7cc4e045f47945917255fbd1ef6d53cac5"
       }
     },
     {

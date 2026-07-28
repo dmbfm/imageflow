@@ -88,9 +88,10 @@ public final class PasteboardController {
     }
 
     @discardableResult
-    public func performDrop(onTarget target: DropTarget) -> Bool {
+    public func performDrop(onTarget target: DropTarget, pb: NSPasteboard) -> Bool {
 
-        let pb = NSPasteboard(name: .drag)
+        // let pb = NSPasteboard(name: .drag)
+        print("urls: \(pb.urls)")
 
         if case let .canvas(location) = target,
             let data = pb.data(forType: .init(UTType.imageFlowNodeKindDragItem.identifier)),

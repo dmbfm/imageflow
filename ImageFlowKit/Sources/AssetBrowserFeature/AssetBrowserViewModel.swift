@@ -197,7 +197,7 @@ public final class AssetBrowserViewModel {
 
 extension AssetBrowserViewModel: DropDelegate {
     public func performDrop(info: DropInfo) -> Bool {
-        self.pasteboardController.performDrop(onTarget: .assetBrowser)
+        self.pasteboardController.performDrop(onTarget: .assetBrowser, pb: NSPasteboard(name: .drag))
     }
 
     public func validateDrop(info: DropInfo) -> Bool {

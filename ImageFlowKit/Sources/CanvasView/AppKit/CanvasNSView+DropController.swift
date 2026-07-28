@@ -31,7 +31,10 @@ extension CanvasNSView {
         func performDragOperation(_ sender: any NSDraggingInfo) -> Bool {
             guard let canvas = self.canvas, self.canDrag else { return false }
 
-            return canvas.delegate?.canvasViewPerformDragOperation(at: sender.location(inView: canvas)) ?? false
+            return canvas.delegate?.canvasViewPerformDragOperation(
+                at: sender.location(inView: canvas),
+                pb: sender.draggingPasteboard
+            ) ?? false
         }
     }
 }

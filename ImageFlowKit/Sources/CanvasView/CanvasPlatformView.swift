@@ -52,7 +52,11 @@ public protocol CanvasViewDelegate: AnyObject {
     func canvasView(shouldShowNodeEditMenuAfterTap id: UUID) -> Bool
     func canvasView(didRemoveViewForNode id: UUID)
     func canvasView(viewForNode id: UUID) -> (any CanvasNodeView)?
+    #if os(macOS)
+    func canvasViewPerformDragOperation(at point: CGPoint, pb: NSPasteboard) -> Bool
+    #else
     func canvasViewPerformDragOperation(at point: CGPoint) -> Bool
+    #endif
     func canvasViewCanPerformDragOperation() -> Bool
 }
 
