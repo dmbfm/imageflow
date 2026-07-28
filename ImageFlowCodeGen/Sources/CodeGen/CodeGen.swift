@@ -27,6 +27,85 @@ let semantics: [String: [String: String]] = [
         "inputRingSize": ".float(.range(0.0...1.0))",
         "inputSoftness": ".float(.range(0.0...10.0))",
     ],
+    "CIColorMonochrome": [
+        "inputIntensity": ".float(.range(0.0...1.0))"
+    ],
+    "CIDither": [
+        "inputIntensity": ".float(.range(0.0...1.0))"
+    ],
+    "CIDocumentEnhancer": [
+        "inputAmount": ".float(.range(0.0...10.0))"
+    ],
+    "CIPinchDistortion": [
+        "inputScale": ".float(.range(0.0...2.0))"
+    ],
+    "CIStretchCrop": [
+        "inputCropAmount": ".float(.range(0.0...1.0))",
+        "inputCenterStretchAmount": ".float(.range(0.0...1.0))",
+    ],
+    "CITorusLensDistortion": [
+        "inputRefraction": ".float(.range(0.0...5.0))"
+    ],
+    "CIVortexDistortion": [
+        "inputAngle": ".float(.default)"
+    ],
+    "CICMYKHalftone": [
+        "inputSharpness": ".float(.range(0.0...1.0))",
+        "inputGCR": ".float(.range(0.0...1.0))",
+        "inputUCR": ".float(.range(0.0...1.0))",
+    ],
+    "CICircularScreen": [
+        "inputSharpness": ".float(.range(0.0...1.0))"
+    ],
+    "CILineScreen": [
+        "inputSharpness": ".float(.range(0.0...1.0))"
+    ],
+    "CIHatchedScreen": [
+        "inputSharpness": ".float(.range(0.0...1.0))"
+    ],
+    "CISharpenLuminance": [
+        "inputSharpness": ".float(.range(0.0...2.0))",
+        "inputRadius": ".float(.range(0.0...20.0))",
+    ],
+    "CIUnsharpMask": [
+        "inputIntensity": ".float(.range(0.0...1.0))"
+    ],
+    "CICannyEdgeDetector": [
+        "inputGaussianSigma": ".float(.range(0.0...50.0))",
+        "inputThresholdHigh": ".float(.range(0.0...1.0))",
+        "inputThresholdLow": ".float(.range(0.0...1.0))",
+        "inputHysteresisPasses": ".integer(.range(0...20))",
+    ],
+    "CIDepthOfField": [
+        "inputSaturation": ".float(.range(0.0...10.0))",
+        "inputUnsharpMaskIntensity": ".float(.range(0.0...10.0))",
+    ],
+    "CISpotLight": [
+        "inputBrightness": ".float(.range(0.0...10.0))",
+        "inputConcentration": ".float(.range(0.001...2.0))",
+    ],
+    "CISpotColor": [
+        "inputCloseness1": ".float(.range(0.0...0.5))",
+        "inputCloseness2": ".float(.range(0.0...0.5))",
+        "inputCloseness3": ".float(.range(0.0...0.5))",
+        "inputContrast1": ".float(.range(0.0...1.0))",
+        "inputContrast2": ".float(.range(0.0...1.0))",
+        "inputContrast3": ".float(.range(0.0...1.0))",
+    ],
+    "CILineOverlay": [
+        "inputNRNoiseLevel": ".float(.range(0.0...0.1))",
+        "inputNRSharpness": ".float(.range(0.0...2.0))",
+        "inputThreshold": ".float(.range(0.0...1.0))",
+        "inputContrast": ".float(.range(0.25...200.0))",
+        "inputEdgeIntensity": ".float(.range(0.0...200.0))",
+    ],
+    "CIHighlightShadowAdjust": [
+        "inputShadowAmount": ".float(.range(-1.0...1.0))",
+        "inputHighlightAmount": ".float(.range(0.0...1.0))",
+    ],
+    "CIGloom": [
+        "inputIntensity": ".float(.range(0.0...1.0))"
+    ],
 ]
 
 let addCropToSourceOptionFilters: [String] =
@@ -50,6 +129,7 @@ let addCropToSourceOptionFilters: [String] =
         "CIDistanceGradientFromRedMask",
         "CIPointillize",
         "CIBloom",
+        "CIGloom",
     ]
 
 let forceCropToSourceFilters: [String] =
@@ -76,6 +156,16 @@ let inputImageNilGuardFilters: [String] =
         "CIPointillize",
         "CISpotLight",
         "CICannyEdgeDetector",
+        "CIDepthOfField",
+        "CIEdgeWork",
+        "CIEdges",
+        "CIGaborGradients",
+        "CIHeightFieldFromMask",
+        "CIHexagonalPixellate",
+        "CILineOverlay",
+        "CISobelGradients",
+        "CISpotColor",
+        "CISpotLight",
     ]
 
 extension FilterInfo {
@@ -312,6 +402,8 @@ extension ValueType {
             "\(base).string"
         case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .floatArray:
             fatalError()
+        case .gradientData:
+            fatalError()
         }
     }
 }
@@ -353,6 +445,8 @@ extension Value {
         case .vector4(let value):
             ".init(x: \(value.x), y: \(value.y), z: \(value.z), w: \(value.w))"
         case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .floatArray:
+            fatalError()
+        case .gradientData(_):
             fatalError()
         }
     }

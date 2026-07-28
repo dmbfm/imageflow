@@ -38,6 +38,7 @@ private struct Categories {
                         .attributedString,
                         .colorSpace,
                         .gradientData,
+                        .lut,
                     ]
                 )
                 .map { NodeKind.valueNode($0) }
@@ -112,7 +113,7 @@ private struct Categories {
         .init(
             name: .colorEffect,
             items: CIFilterNodeKind.ColoreffectNodeKind.allCases
-                .excluding(elementsOf: [.CIColorMap])
+                .excluding(elementsOf: [.CIColorMap, .CIColorPosterize, .CILabDeltaE, .CIVignetteEffect])
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .colorEffect) }
@@ -130,7 +131,12 @@ private struct Categories {
         .init(
             name: .distortionEffect,
             items: CIFilterNodeKind.DistortioneffectNodeKind.allCases
+                .excluding(elementsOf: [
+                    .CICircleSplashDistortion, .CICircularWrap, .CIDroste, .CIGlassLozenge, .CINinePartStretched,
+                    .CINinePartTiled, .CIPinchDistortion,
+                ])
                 .map { NodeKind.coreImageFilterNode(.distortionEffect($0)) }
+                // .appending(elementsOf: CoreImageCustomNodeKind.Distortion.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .distortionEffect) }
         )
 
@@ -159,6 +165,12 @@ private struct Categories {
         .init(
             name: .geometryAdjustment,
             items: CIFilterNodeKind.GeometryadjustmentNodeKind.allCases
+                .excluding(elementsOf: [
+                    .CIAffineTransform, .CIBicubicScaleTransform, .CIKeystoneCorrectionCombined,
+                    .CIEdgePreserveUpsampleFilter, .CIKeystoneCorrectionHorizontal, .CIPerspectiveCorrection,
+                    .CIPerspectiveRotate, .CIPerspectiveTransform, .CIPerspectiveTransformWithExtent,
+                    .CIKeystoneCorrectionVertical,
+                ])
                 .map { NodeKind.coreImageFilterNode(.geometryAdjustment($0)) }
                 // .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .geometryAdjustment) }
@@ -217,7 +229,7 @@ private struct Categories {
                 .excluding(elementsOf: [
                     .CIConvolution3X3, .CIConvolution5X5, .CIConvolution7X7, .CIConvolutionRGB3X3, .CIConvolutionRGB5X5,
                     .CIConvolutionRGB7X7, .CIConvolution9Vertical, .CIConvolution9Horizontal,
-                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal,
+                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal, .CIHeightFieldFromMask,
                 ])
                 .map { NodeKind.coreImageFilterNode(.stylize($0)) }
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .stylize) }
@@ -431,7 +443,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case generator = "Generator"
     case geometryAdjustment = "Geometry Adjustment"
     case gradient = "Gradient"
-    case halftoneEffect = "Haltone"
+    case halftoneEffect = "Halftone"
     case reduction = "Color Reduction"
     case sharpen = "Sharpen"
     case stylize = "Stylize"

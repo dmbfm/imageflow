@@ -1665,7 +1665,7 @@ extension Nodes {
                     .init(
                         name: "Softness",
                         defaultValue: .float(1.0),
-                        semantics: .float(.range(0.0...1.0)),
+                        semantics: .float(.range(0.0...10.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -1859,7 +1859,7 @@ extension Nodes {
                     .init(
                         name: "Gaussian Sigma",
                         defaultValue: .float(1.6),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...50.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -1871,19 +1871,19 @@ extension Nodes {
                     .init(
                         name: "Threshold High",
                         defaultValue: .float(0.05),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Threshold Low",
                         defaultValue: .float(0.02),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Hysteresis Passes",
                         defaultValue: .int(1),
-                        semantics: .integer,
+                        semantics: .integer(.range(0...20)),
                         editorPlacement: .default
                     ),
                 ],
@@ -2012,7 +2012,12 @@ extension Nodes {
                         semantics: .position2,
                         editorPlacement: .default
                     ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.7),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2124,19 +2129,19 @@ extension Nodes {
                     .init(
                         name: "Sharpness",
                         defaultValue: .float(0.7),
-                        semantics: .distance,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Gray Component Replacement",
                         defaultValue: .float(1.0),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Under Color Removal",
                         defaultValue: .float(0.5),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -2444,7 +2449,12 @@ extension Nodes {
                         semantics: .opaqueColor,
                         editorPlacement: .default
                     ),
-                    .init(name: "Intensity", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Intensity",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3243,7 +3253,7 @@ extension Nodes {
                     .init(
                         name: "Saturation",
                         defaultValue: .float(1.5),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...10.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -3255,7 +3265,7 @@ extension Nodes {
                     .init(
                         name: "Unsharp Mask Intensity",
                         defaultValue: .float(0.5),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...10.0)),
                         editorPlacement: .default
                     ),
                     .init(name: "Radius", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
@@ -3267,7 +3277,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIDepthOfField")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputPoint0")
                 filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputPoint1")
                 filter.setValue(node.inputs[3].float, forKey: "inputSaturation")
@@ -3529,7 +3543,12 @@ extension Nodes {
                 name: "Dither",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Intensity", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Intensity",
+                        defaultValue: .float(0.1),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3583,7 +3602,12 @@ extension Nodes {
                 name: "Document Enhancer",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Amount",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.0...10.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -3788,7 +3812,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIEdges")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
@@ -3815,7 +3843,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIEdgeWork")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
@@ -4192,7 +4224,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGaborGradients")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -4476,7 +4512,18 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(name: "Radius", defaultValue: .float(10.0), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Intensity",
+                        defaultValue: .float(0.5),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Crop to Source",
+                        defaultValue: .bool(true),
+                        semantics: .boolean,
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4485,12 +4532,24 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIGloom")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                if node.inputs[3].bool {
+                    filter.setValue(inputImage.clampedToExtent(), forKey: "inputImage")
+                } else {
+                    filter.setValue(inputImage, forKey: "inputImage")
+                }
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 filter.setValue(node.inputs[2].float, forKey: "inputIntensity")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    if node.inputs[3].bool {
+                        node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
                 } else {
                     node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
@@ -4543,7 +4602,12 @@ extension Nodes {
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
                         editorPlacement: .default
                     ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.7),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -4582,7 +4646,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIHeightFieldFromMask")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputRadius")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
@@ -4614,7 +4682,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CIHexagonalPixellate")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputCenter")
                 filter.setValue(node.inputs[2].float, forKey: "inputScale")
                 let outputImage = filter.outputImage
@@ -4637,13 +4709,13 @@ extension Nodes {
                     .init(
                         name: "Shadow Amount",
                         defaultValue: .float(0.0),
-                        semantics: .default,
+                        semantics: .float(.range(-1.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Highlight Amount",
                         defaultValue: .float(1.0),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -5398,23 +5470,33 @@ extension Nodes {
                     .init(
                         name: "NR Noise Level",
                         defaultValue: .float(0.07),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...0.1)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "NR Sharpness",
                         defaultValue: .float(0.71),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...2.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Edge Intensity",
                         defaultValue: .float(1.0),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...200.0)),
                         editorPlacement: .default
                     ),
-                    .init(name: "Threshold", defaultValue: .float(0.1), semantics: .default, editorPlacement: .default),
-                    .init(name: "Contrast", defaultValue: .float(50.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Threshold",
+                        defaultValue: .float(0.1),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Contrast",
+                        defaultValue: .float(50.0),
+                        semantics: .float(.range(0.25...200.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5423,7 +5505,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CILineOverlay")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputNRNoiseLevel")
                 filter.setValue(node.inputs[2].float, forKey: "inputNRSharpness")
                 filter.setValue(node.inputs[3].float, forKey: "inputEdgeIntensity")
@@ -5457,7 +5543,12 @@ extension Nodes {
                         semantics: .float(.angle(-3.141592653589793...3.141592653589793)),
                         editorPlacement: .default
                     ), .init(name: "Width", defaultValue: .float(6.0), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Sharpness", defaultValue: .float(0.7), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.7),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7032,7 +7123,12 @@ extension Nodes {
                         editorPlacement: .default
                     ),
                     .init(name: "Radius", defaultValue: .float(300.0), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Scale", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Scale",
+                        defaultValue: .float(0.5),
+                        semantics: .float(.range(0.0...2.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7564,8 +7660,18 @@ extension Nodes {
                 name: "Sharpen Luminance",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorPlacement: .default),
-                    .init(name: "Radius", defaultValue: .float(1.69), semantics: .distance, editorPlacement: .default),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.4),
+                        semantics: .float(.range(0.0...2.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Radius",
+                        defaultValue: .float(1.69),
+                        semantics: .float(.range(0.0...20.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -7764,7 +7870,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISobelGradients")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))
@@ -7931,13 +8041,13 @@ extension Nodes {
                     .init(
                         name: "Closeness 1",
                         defaultValue: .float(0.22),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...0.5)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Contrast 1",
                         defaultValue: .float(0.98),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -7955,13 +8065,13 @@ extension Nodes {
                     .init(
                         name: "Closeness 2",
                         defaultValue: .float(0.15),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...0.5)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Contrast 2",
                         defaultValue: .float(0.98),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -7979,13 +8089,13 @@ extension Nodes {
                     .init(
                         name: "Closeness 3",
                         defaultValue: .float(0.5),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...0.5)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Contrast 3",
                         defaultValue: .float(0.99),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -7996,7 +8106,11 @@ extension Nodes {
 
             return .init(schema: schema) { node, context in
                 let filter = CIFilter(name: "CISpotColor")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
                 filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputCenterColor1")
                 filter.setValue(node.inputs[2].color4.ciColor, forKey: "inputReplacementColor1")
                 filter.setValue(node.inputs[3].float, forKey: "inputCloseness1")
@@ -8040,13 +8154,13 @@ extension Nodes {
                     .init(
                         name: "Brightness",
                         defaultValue: .float(3.0),
-                        semantics: .distance,
+                        semantics: .float(.range(0.0...10.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Concentration",
                         defaultValue: .float(0.1),
-                        semantics: .default,
+                        semantics: .float(.range(0.001...2.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -8222,13 +8336,13 @@ extension Nodes {
                     .init(
                         name: "Crop Amount",
                         defaultValue: .float(0.25),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                     .init(
                         name: "Center Stretch Amount",
                         defaultValue: .float(0.25),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -8527,7 +8641,7 @@ extension Nodes {
                     .init(
                         name: "Refraction",
                         defaultValue: .float(1.7),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...5.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -8764,7 +8878,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(name: "Radius", defaultValue: .float(2.5), semantics: .distance, editorPlacement: .default),
-                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Intensity",
+                        defaultValue: .float(0.5),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -8928,7 +9047,7 @@ extension Nodes {
                     .init(
                         name: "Angle",
                         defaultValue: .float(56.548667764616276),
-                        semantics: .float(.angle(-94.24777960769379...94.24777960769379)),
+                        semantics: .float(.default),
                         editorPlacement: .default
                     ),
                     .init(

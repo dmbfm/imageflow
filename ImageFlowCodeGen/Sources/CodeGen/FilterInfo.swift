@@ -216,6 +216,8 @@ struct Override {
 func defaultValue(_ type: ValueType, inputType: InputType?, _ obj: Any??) -> Value? {
     guard let obj else { return nil }
     switch type {
+    case .gradientData:
+        fatalError(".gradientData is not supported in codegen!")
     case .floatArray:
         fatalError(".floatArray is not supported in codegen!")
     case .float:

@@ -160,9 +160,29 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     case convolution(Convolution)
     case reduction(Reduction)
     case gradient(Gradient)
+    case distortion(Distortion)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
+    }
+
+    public enum Distortion: Sendable, Hashable, Codable, CaseIterable {
+        case droste
+
+        public static var allKinds: [NodeKind] {
+            Distortion.allCases.map({ .coreImageCustomNode(.distortion($0)) })
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.distortion(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .droste:
+                Nodes.CoreImageCustom.DrosteNode.impl()
+            }
+        }
     }
 
     public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
@@ -219,6 +239,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     public enum ColorEffect: Sendable, Hashable, Codable, CaseIterable {
         case palettizeKMeans
         case colorMap
+        case colorPosterize
 
         public static var allKinds: [NodeKind] {
             ColorEffect.allCases.map { .coreImageCustomNode(.colorEffect($0)) }
@@ -234,6 +255,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.PalettizeKMeans.impl()
             case .colorMap:
                 Nodes.CoreImageCustom.ColorMapNode.impl()
+            case .colorPosterize:
+                Nodes.CoreImageCustom.ColorPosterizeNode.impl()
             }
         }
 
@@ -290,7 +313,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     }
 
     public enum ColorAdjustment: Sendable, Hashable, Codable, CaseIterable {
-        case lutFilterNode
+        // case lutFilterNode
         case colorClamp
         case temperatureAndTint
         case toneMap
@@ -305,8 +328,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
         public var impl: NodeImpl {
             switch self {
-            case .lutFilterNode:
-                Nodes.CoreImageCustom.LutFilterNode.impl()
+            // case .lutFilterNode:
+            //     Nodes.CoreImageCustom.LutFilterNode.impl()
             case .colorClamp:
                 Nodes.CoreImageCustom.ColorClampCustom.impl()
             case .temperatureAndTint:
@@ -362,6 +385,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     public var impl: NodeImpl {
         switch self {
+        case .distortion(let kind): kind.impl
         case .colorAdjustment(let kind): kind.impl
         case .colorEffect(let kind): kind.impl
         case .generator(let kind): kind.impl

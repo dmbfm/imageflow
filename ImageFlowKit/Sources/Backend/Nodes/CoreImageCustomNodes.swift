@@ -1210,4 +1210,107 @@ extension Nodes.CoreImageCustom {
             )
         }
     }
+
+    public struct ColorPosterizeNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Color Posterize",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Levels",
+                        defaultValue: .int(6),
+                        semantics: .integer(.partialRangeFrom(2)),
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIColorPosterize")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(node.inputs[1].int, forKey: "inputLevels")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct DrosteNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Droste",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Inset Point 0",
+                        defaultValue: .vector2(.init(x: 200.0, y: 200.0)),
+                        semantics: .position2,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Inset Point 1",
+                        defaultValue: .vector2(.init(x: 400.0, y: 400.0)),
+                        semantics: .position2,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Strands",
+                        defaultValue: .int(1),
+                        semantics: .integer(.range(-10...10)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Periodicity",
+                        defaultValue: .int(1),
+                        semantics: .integer(.partialRangeFrom(1)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Rotation",
+                        defaultValue: .float(0.0),
+                        semantics: .float(.angle(0.0...6.283185307179586)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Zoom",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.01...5.0)),
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIDroste")!
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                filter.setValue(inputImage, forKey: "inputImage")
+                filter.setValue(node.inputs[1].vector2.ciVector, forKey: "inputInsetPoint0")
+                filter.setValue(node.inputs[2].vector2.ciVector, forKey: "inputInsetPoint1")
+                filter.setValue(node.inputs[3].int, forKey: "inputStrands")
+                filter.setValue(node.inputs[4].int, forKey: "inputPeriodicity")
+                filter.setValue(node.inputs[5].float, forKey: "inputRotation")
+                filter.setValue(node.inputs[6].float, forKey: "inputZoom")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage.cropped(to: inputImage.extent), 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
 }
