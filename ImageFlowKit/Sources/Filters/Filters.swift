@@ -91,6 +91,6 @@ public final class GradientFilter: CIFilter {
                 p0,
                 p1,
             ]
-        )
+        )?.premultiplyingAlpha()
     }
 }
