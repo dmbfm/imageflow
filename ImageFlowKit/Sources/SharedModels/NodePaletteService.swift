@@ -66,6 +66,14 @@ private struct Categories {
                 .map { .init(nodeKind: $0, categoryName: .combine) }
         )
 
+    static let imageTransform: NodePaletteCategory =
+        .init(
+            name: .imageTransform,
+            items: ImageTransformNodeKind.allCases
+                .map({ NodeKind.imageTransform($0) })
+                .map { .init(nodeKind: $0, categoryName: .transform) }
+        )
+
     static let transform: NodePaletteCategory =
         .init(
             name: .transform,
@@ -153,7 +161,7 @@ private struct Categories {
             name: .geometryAdjustment,
             items: CIFilterNodeKind.GeometryadjustmentNodeKind.allCases
                 .map { NodeKind.coreImageFilterNode(.geometryAdjustment($0)) }
-                .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
+                // .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .geometryAdjustment) }
         )
 
@@ -276,6 +284,7 @@ public class NodePaletteService {
         result.append(Categories.input)
         result.append(Categories.split)
         result.append(Categories.combine)
+        result.append(Categories.imageTransform)
         result.append(Categories.transform)
         result.append(Categories.blur)
         result.append(Categories.colorAdjustment)
@@ -414,7 +423,8 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case blur = "Blur"
     case split = "Split"
     case combine = "Combine"
-    case transform = "Transform"
+    case imageTransform = "Transform Image"
+    case transform = "Transforms"
     case colorAdjustment = "Color Adjustment"
     case colorEffect = "Color Effect"
     case compositeOperation = "Composite Operation"

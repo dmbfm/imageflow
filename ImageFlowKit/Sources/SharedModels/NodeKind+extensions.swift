@@ -1,10 +1,3 @@
-//
-//  NodeKind+extensions.swift
-//  Models
-//
-//  Created by Daniel Fortes on 11/04/25.
-//
-
 import Backend
 import Helpers
 import SwiftUI
@@ -42,12 +35,14 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .transform(let kind):
             kind.impl.schema.displayName
+        case .imageTransform(let kind):
+            kind.impl.schema.displayName
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
-        case .coreImageFilterNode(_), .coreImageCustomNode(_):
+        case .coreImageFilterNode(_), .coreImageCustomNode(_), .imageTransform(_):
             .orange
         case .valueNode(_):
             .blue
@@ -72,7 +67,7 @@ public extension NodeKind {
             "minus.circle.fill"
         case .math(.mulNode(_)):
             "multiply.circle.fill"
-        case .coreImageFilterNode(_):
+        case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform):
             "camera.filters"
         case .coreImageCustomNode(_):
             "camera.filters"
@@ -86,11 +81,11 @@ public extension NodeKind {
             "arrow.trianglehead.branch"
         case .combineValue(_):
             "arrow.trianglehead.merge"
-        case .transform(.rotate):
+        case .transform(.rotate), .imageTransform(.rotate):
             "rectangle.landscape.rotate"
-        case .transform(.scale), .transform(.scaleUniform):
+        case .transform(.scale), .transform(.scaleUniform), .imageTransform(.scale), .imageTransform(.scaleUniform):
             "square.resize"
-        case .transform(.translate):
+        case .transform(.translate), .imageTransform(.translate):
             "arrow.up.and.down.and.arrow.left.and.right"
         case .transform(.srt):
             NodeKind.valueNode(.affineTransform).icon

@@ -159,6 +159,34 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public struct ScaleUniformFilterNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Scale",
+                inputs: [
+                    .init(name: "Image", type: .image),
+                    .init(name: "Scale", defaultValue: .float(1.0)),
+                ],
+                outputs: [
+                    .init(name: "Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let inputImage = await context.getImage(node.inputs[0].image)
+                    let t = node.inputs[1].float
+                    let outputImage = inputImage?.transformed(
+                        by: .init(scaleX: t, y: t),
+                        highQualityDownsample: true
+                    )
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                }
+            )
+        }
+    }
+
     // MARK: - Generator Nodes
 
     public struct RandomGeneratorNode: NodeImplProvider {

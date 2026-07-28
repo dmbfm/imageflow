@@ -8,6 +8,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
     case combineValue(CombineValueNodeKind)
+    case imageTransform(ImageTransformNodeKind)
     case transform(TransformNodeKind)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
@@ -57,6 +58,37 @@ public enum TransformNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.TransformNodes.TransformTranslate.impl()
         case .srt:
             Nodes.TransformNodes.TransformSRT.impl()
+        }
+    }
+}
+
+public enum ImageTransformNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case rotate
+    case scale
+    case scaleUniform
+    case translate
+    case applyAffineTransform
+
+    public static var allKinds: [NodeKind] {
+        ImageTransformNodeKind.allCases.map({ .imageTransform($0) })
+    }
+
+    public var kind: NodeKind {
+        .imageTransform(self)
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .rotate:
+            Nodes.CoreImageCustom.RotateFilterNode.impl()
+        case .scale:
+            Nodes.CoreImageCustom.ScaleFilterNode.impl()
+        case .scaleUniform:
+            Nodes.CoreImageCustom.ScaleUniformFilterNode.impl()
+        case .translate:
+            Nodes.CoreImageCustom.TranslateFilterNode.impl()
+        case .applyAffineTransform:
+            Nodes.CoreImageCustom.ApplyAffineTransformFilterNode.impl()
         }
     }
 }
@@ -121,7 +153,6 @@ public enum CombineValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
 public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
-    case geometryAdjustment(GeometryAdjustment)
     case colorAdjustment(ColorAdjustment)
     case colorEffect(ColorEffect)
     case generator(Generator)
@@ -258,34 +289,6 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         }
     }
 
-    public enum GeometryAdjustment: Sendable, Hashable, Codable, CaseIterable {
-        case applyAffineTransformNode
-        case rotateNode
-        case scaleNode
-        case translateNode
-
-        public static var allKinds: [NodeKind] {
-            GeometryAdjustment.allCases.map { .coreImageCustomNode(.geometryAdjustment($0)) }
-        }
-
-        public var kind: NodeKind {
-            .coreImageCustomNode(.geometryAdjustment(self))
-        }
-
-        public var impl: NodeImpl {
-            switch self {
-            case .applyAffineTransformNode:
-                Nodes.CoreImageCustom.ApplyAffineTransformFilterNode.impl()
-            case .rotateNode:
-                Nodes.CoreImageCustom.RotateFilterNode.impl()
-            case .scaleNode:
-                Nodes.CoreImageCustom.ScaleFilterNode.impl()
-            case .translateNode:
-                Nodes.CoreImageCustom.TranslateFilterNode.impl()
-            }
-        }
-    }
-
     public enum ColorAdjustment: Sendable, Hashable, Codable, CaseIterable {
         case lutFilterNode
         case colorClamp
@@ -361,7 +364,6 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         switch self {
         case .colorAdjustment(let kind): kind.impl
         case .colorEffect(let kind): kind.impl
-        case .geometryAdjustment(let kind): kind.impl
         case .generator(let kind): kind.impl
         case .segmentation(let kind): kind.impl
         case .convolution(let kind): kind.impl
@@ -389,6 +391,8 @@ extension NodeKind {
         case .splitValue(let kind):
             kind.impl
         case .combineValue(let kind):
+            kind.impl
+        case .imageTransform(let kind):
             kind.impl
         }
     }
