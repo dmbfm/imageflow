@@ -122,8 +122,16 @@ private struct Categories {
     static let compositeOperation: NodePaletteCategory =
         .init(
             name: .compositeOperation,
-            items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
-                .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
+            // items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
+            //     .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
+            items: CompositeOperationNodeKind.allKinds
+                .appending(elementsOf: [
+                    .coreImageFilterNode(.stylize(.CIMix))
+                    // .coreImageFilterNode(.stylize(.CIBlendWithMask)),
+                    // .coreImageFilterNode(.stylize(.CIBlendWithRedMask)),
+                    // .coreImageFilterNode(.stylize(.CIBlendWithBlueMask)),
+                    // .coreImageFilterNode(.stylize(.CIBlendWithAlphaMask)),
+                ])
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .compositeOperation) }
         )
 
@@ -229,7 +237,8 @@ private struct Categories {
                 .excluding(elementsOf: [
                     .CIConvolution3X3, .CIConvolution5X5, .CIConvolution7X7, .CIConvolutionRGB3X3, .CIConvolutionRGB5X5,
                     .CIConvolutionRGB7X7, .CIConvolution9Vertical, .CIConvolution9Horizontal,
-                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal, .CIHeightFieldFromMask,
+                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal, .CIHeightFieldFromMask, .CIMix,
+                    .CIBlendWithMask, .CIBlendWithRedMask, .CIBlendWithBlueMask, .CIBlendWithAlphaMask,
                 ])
                 .map { NodeKind.coreImageFilterNode(.stylize($0)) }
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .stylize) }

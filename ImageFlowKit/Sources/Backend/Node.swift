@@ -17,7 +17,7 @@ public struct Node: Sendable {
         self.kind = kind
         self.inputs = inputs
         self.outputs = outputs
-       assert(self.validateSchema())
+        assert(self.validateSchema())
     }
 
     public init(id: UUID = UUID(), kind: NodeKind) {

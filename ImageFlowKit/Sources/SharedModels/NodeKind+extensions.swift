@@ -39,12 +39,15 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .tileEffect(let kind):
             kind.impl.schema.displayName
+        case .compositeOperation(let kind):
+            kind.impl.schema.displayName
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
-        case .coreImageFilterNode(_), .coreImageCustomNode(_), .imageTransform(_), .tileEffect(_):
+        case .coreImageFilterNode(_), .coreImageCustomNode(_), .imageTransform(_), .tileEffect(_),
+            .compositeOperation(_):
             .orange
         case .valueNode(_):
             .blue
@@ -71,7 +74,7 @@ public extension NodeKind {
             "multiply.circle.fill"
         case .tileEffect(_), .coreImageFilterNode(.tileEffect(_)):
             "squareshape.split.3x3"
-        case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform):
+        case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform), .compositeOperation(_):
             "camera.filters"
         case .coreImageCustomNode(_):
             "camera.filters"

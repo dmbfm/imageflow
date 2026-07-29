@@ -12,8 +12,10 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case transform(TransformNodeKind)
     case tileEffect(TileEffectNodeKind)
     case passthroughNode(ValueType)
+    case compositeOperation(CompositeOperationNodeKind)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
+
 }
 
 public enum MathNodeKind: Sendable, Hashable, Codable {
@@ -36,6 +38,28 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
         case .addNode(let type): Nodes.AddNode.impl(type)
         case .subNode(let type): Nodes.SubtractNode.impl(type)
         case .mulNode(let type): Nodes.MulNode.impl(type)
+        }
+    }
+}
+
+public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case blendNode
+    case blendMaskNode
+
+    public static var allKinds: [NodeKind] {
+        CompositeOperationNodeKind.allCases.map({ .compositeOperation($0) })
+    }
+
+    public var kind: NodeKind {
+        .compositeOperation(self)
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .blendNode:
+            Nodes.CoreImageCustom.BlendNode.impl()
+        case .blendMaskNode:
+            Nodes.CoreImageCustom.BlendWithMask.impl()
         }
     }
 }
@@ -158,6 +182,7 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case imageSize
     case imageRect
     case imageOrigin
+    case imageChannels
 
     public var impl: NodeImpl {
         switch self {
@@ -175,6 +200,8 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.SplitValueNodes.ImageRectNode.impl()
         case .imageOrigin:
             Nodes.SplitValueNodes.ImageOriginNode.impl()
+        case .imageChannels:
+            Nodes.SplitValueNodes.ImageChannelsNode.impl()
         case .rect:
             Nodes.SplitValueNodes.SlipRectNode.impl()
         }
@@ -188,6 +215,8 @@ public enum CombineValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case vector4
     case color4
     case rect
+    case imageRGB
+    case imageRGBA
 
     public var impl: NodeImpl {
         switch self {
@@ -203,6 +232,10 @@ public enum CombineValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.CombineValueNodes.CombineColor4Node.impl()
         case .rect:
             Nodes.CombineValueNodes.CombineRectNode.impl()
+        case .imageRGB:
+            Nodes.CombineValueNodes.CombineImageRGB.impl()
+        case .imageRGBA:
+            Nodes.CombineValueNodes.CombineImageRGBA.impl()
         }
     }
 }
@@ -475,6 +508,8 @@ extension NodeKind {
         case .imageTransform(let kind):
             kind.impl
         case .tileEffect(let kind):
+            kind.impl
+        case .compositeOperation(let kind):
             kind.impl
         }
     }

@@ -1,7 +1,73 @@
+import Filters
 import Values
 
 extension Nodes {
     struct CombineValueNodes {
+
+        struct CombineImageRGB: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+
+                let schema = NodeSchema(
+                    name: "Combine RGB Masks",
+                    inputs: [
+                        .init(name: "Red Mask", type: .image),
+                        .init(name: "Green Mask", type: .image),
+                        .init(name: "Blue Mask", type: .image),
+                    ],
+                    outputs: [
+                        .init(name: "Output Image", type: .image)
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+
+                        let filter = JoinChannelsFilter()
+                        filter.mode = .rgb
+                        filter.imageR = await context.getImage(node.inputs[0].image)
+                        filter.imageG = await context.getImage(node.inputs[1].image)
+                        filter.imageB = await context.getImage(node.inputs[2].image)
+
+                        node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                    }
+                )
+            }
+        }
+
+        struct CombineImageRGBA: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+
+                let schema = NodeSchema(
+                    name: "Combine RGBA Masks",
+                    inputs: [
+                        .init(name: "Red Mask", type: .image),
+                        .init(name: "Green Mask", type: .image),
+                        .init(name: "Blue Mask", type: .image),
+                        .init(name: "Alpha Mask", type: .image),
+                    ],
+                    outputs: [
+                        .init(name: "Output Image", type: .image)
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+
+                        let filter = JoinChannelsFilter()
+                        filter.mode = .rgba
+                        filter.imageR = await context.getImage(node.inputs[0].image)
+                        filter.imageG = await context.getImage(node.inputs[1].image)
+                        filter.imageB = await context.getImage(node.inputs[2].image)
+                        filter.imageA = await context.getImage(node.inputs[3].image)
+
+                        node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                    }
+                )
+            }
+        }
+
         struct CombineAffineTransformNode: NodeImplProvider {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(

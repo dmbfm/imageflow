@@ -5833,7 +5833,12 @@ extension Nodes {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Amount", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Amount",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)

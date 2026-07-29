@@ -1,7 +1,66 @@
+import CoreImage
+import CoreImage.CIFilterBuiltins
 import Values
 
 extension Nodes {
     struct SplitValueNodes {
+
+        struct ImageChannelsNode: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Mask From Channel",
+                    inputs: [
+                        .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)
+                    ],
+                    outputs: [
+                        .init(name: "Red Mask", type: .image),
+                        .init(name: "Green Mask", type: .image),
+                        .init(name: "Blue Mask", type: .image),
+                        .init(name: "Alpha Mask", type: .image),
+                    ]
+                )
+
+                return .init(schema: schema) { node, context in
+                    guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                        return
+                    }
+
+                    let rfilter = CIFilter.colorMatrix()
+                    rfilter.inputImage = inputImage
+                    rfilter.rVector = .init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)
+                    rfilter.gVector = .init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)
+                    rfilter.bVector = .init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)
+                    rfilter.aVector = .init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)
+                    node.outputs[0] = .image(await context.addImage(rfilter.outputImage!, 0))
+
+                    let gfilter = CIFilter.colorMatrix()
+                    gfilter.inputImage = inputImage
+                    gfilter.rVector = .init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)
+                    gfilter.gVector = .init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)
+                    gfilter.bVector = .init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)
+                    gfilter.aVector = .init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)
+                    node.outputs[1] = .image(await context.addImage(gfilter.outputImage!, 1))
+
+                    let bfilter = CIFilter.colorMatrix()
+                    bfilter.inputImage = inputImage
+                    bfilter.rVector = .init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)
+                    bfilter.gVector = .init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)
+                    bfilter.bVector = .init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)
+                    bfilter.aVector = .init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)
+                    node.outputs[2] = .image(await context.addImage(bfilter.outputImage!, 2))
+
+                    let afilter = CIFilter.colorMatrix()
+                    afilter.inputImage = inputImage
+                    afilter.rVector = .init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)
+                    afilter.gVector = .init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)
+                    afilter.bVector = .init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)
+                    afilter.aVector = .init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)
+                    node.outputs[3] = .image(await context.addImage(afilter.outputImage!, 3))
+                }
+            }
+        }
+
         struct SlipVector2Node: NodeImplProvider {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(

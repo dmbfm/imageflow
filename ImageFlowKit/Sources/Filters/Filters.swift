@@ -19,7 +19,7 @@ public final class GradientFilter: CIFilter {
         let kernel: CIKernel
 
         init?() {
-            guard let kernel = try? CIKernel(functionName: "filter_kernel", fromMetalLibraryData: PassthroughFilterData)
+            guard let kernel = try? CIKernel(functionName: "filter_kernel", fromMetalLibraryData: GradientFilterData)
             else {
                 return nil
             }

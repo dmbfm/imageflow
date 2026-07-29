@@ -106,6 +106,9 @@ let semantics: [String: [String: String]] = [
     "CIGloom": [
         "inputIntensity": ".float(.range(0.0...1.0))"
     ],
+    "CIMix": [
+        "inputAmount": ".float(.range(0.0...1.0))"
+    ],
 ]
 
 let addCropToSourceOptionFilters: [String] =

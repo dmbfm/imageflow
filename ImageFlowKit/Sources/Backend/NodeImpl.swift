@@ -13,7 +13,7 @@ public struct NodeImpl {
 
     public func run(_ node: inout Node, _ context: NodeContext) async {
         if self.schema.validate(node: node) != .ok {
-           fatalError()
+            fatalError()
         }
         await self.runImpl(&node, context)
     }
