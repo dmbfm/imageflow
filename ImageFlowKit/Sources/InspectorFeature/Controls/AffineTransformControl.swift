@@ -54,7 +54,7 @@ final class AffineTransformControl: Control<[Double], MatrixControlConfiguration
             \.onChange,
             { [unowned self] change in
                 let oldValue = self.value
-                self.value.replaceSubrange(4...6, with: change.newValue)
+                self.value.replaceSubrange(4...5, with: change.newValue)
                 self.onChange?(.init(newValue: self.value, oldValue: oldValue, commit: change.commit))
             }
         )
