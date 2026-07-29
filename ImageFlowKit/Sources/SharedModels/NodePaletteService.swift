@@ -238,9 +238,13 @@ private struct Categories {
     static let tileEffect: NodePaletteCategory =
         .init(
             name: .tileEffect,
-            items: CIFilterNodeKind.TileeffectNodeKind.allCases
-                .map { NodeKind.coreImageFilterNode(.tileEffect($0)) }
-                .map { NodePaletteItem(nodeKind: $0, categoryName: .tileEffect) }
+            items: TileEffectNodeKind.allKinds
+                .map({ .init(nodeKind: $0, categoryName: .tileEffect) })
+            // items: CIFilterNodeKind.TileeffectNodeKind.allCases
+            //     .excluding(elementsOf: [.CIAffineClamp])
+            //     .map { NodeKind.coreImageFilterNode(.tileEffect($0)) }
+            //     .appending(elementsOf: TileEffectNodeKind.allKinds)
+            //     .map { NodePaletteItem(nodeKind: $0, categoryName: .tileEffect) }
         )
 
     static let transition: NodePaletteCategory =

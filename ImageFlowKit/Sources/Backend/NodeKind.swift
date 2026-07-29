@@ -10,6 +10,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case combineValue(CombineValueNodeKind)
     case imageTransform(ImageTransformNodeKind)
     case transform(TransformNodeKind)
+    case tileEffect(TileEffectNodeKind)
     case passthroughNode(ValueType)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
@@ -35,6 +36,61 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
         case .addNode(let type): Nodes.AddNode.impl(type)
         case .subNode(let type): Nodes.SubtractNode.impl(type)
         case .mulNode(let type): Nodes.MulNode.impl(type)
+        }
+    }
+}
+
+public enum TileEffectNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case tile
+    case affineTile
+    case eightfoldReflectedTile
+    case fourfoldReflectedTile
+    case fourfoldRotatedTile
+    case fourfoldTranslatedTile
+    case kaleidoscope
+    case opTile
+    case parallelogramTile
+    case sixfoldReflected
+    case sixfoldRotated
+    case triangleTile
+    case twelvefoldReflectedTile
+
+    public static var allKinds: [NodeKind] {
+        TileEffectNodeKind.allCases.map({ .tileEffect($0) })
+    }
+
+    public var kind: NodeKind {
+        .tileEffect(self)
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .tile:
+            Nodes.TileEffectNodes.TileNode.impl()
+        case .affineTile:
+            Nodes.TileEffectNodes.AffineTileNode.impl()
+        case .eightfoldReflectedTile:
+            Nodes.TileEffectNodes.EightfoldReflectedTileNode.impl()
+        case .fourfoldReflectedTile:
+            Nodes.TileEffectNodes.FourfoldReflectedTileNode.impl()
+        case .fourfoldRotatedTile:
+            Nodes.TileEffectNodes.FourfoldRotatedTileNode.impl()
+        case .fourfoldTranslatedTile:
+            Nodes.TileEffectNodes.FourfoldTranslatedTileNode.impl()
+        case .kaleidoscope:
+            Nodes.TileEffectNodes.KaleidoscopeNode.impl()
+        case .opTile:
+            Nodes.TileEffectNodes.OpTileNode.impl()
+        case .parallelogramTile:
+            Nodes.TileEffectNodes.ParallelogramTileNode.impl()
+        case .sixfoldReflected:
+            Nodes.TileEffectNodes.SixfoldReflectedTileNode.impl()
+        case .sixfoldRotated:
+            Nodes.TileEffectNodes.SixfoldRotatedTileNode.impl()
+        case .triangleTile:
+            Nodes.TileEffectNodes.TriangleTileNode.impl()
+        case .twelvefoldReflectedTile:
+            Nodes.TileEffectNodes.TwelvefoldReflectedTileNode.impl()
         }
     }
 }
@@ -417,6 +473,8 @@ extension NodeKind {
         case .combineValue(let kind):
             kind.impl
         case .imageTransform(let kind):
+            kind.impl
+        case .tileEffect(let kind):
             kind.impl
         }
     }
