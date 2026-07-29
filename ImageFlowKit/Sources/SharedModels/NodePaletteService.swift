@@ -316,8 +316,8 @@ public class NodePaletteService {
         result.append(Categories.segmentation)
         result.append(Categories.convolution)
         result.append(Categories.tileEffect)
-        result.append(Categories.transition)
-        result.append(Categories.video)
+        // result.append(Categories.transition)
+        // result.append(Categories.video)
 
         return
             result
