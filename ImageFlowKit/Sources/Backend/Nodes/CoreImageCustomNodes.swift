@@ -1313,4 +1313,31 @@ extension Nodes.CoreImageCustom {
             }
         }
     }
+
+    public struct AlphaToOneNode: NodeImplProvider {
+        static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Alpha to One",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                        return
+                    }
+                    node.outputs[0] = .image(
+                        await context.addImage(inputImage.settingAlphaOne(in: inputImage.extent), 0)
+                    )
+                }
+            )
+        }
+    }
 }

@@ -45,6 +45,7 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
 public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case blendNode
     case blendMaskNode
+    case setAlphaToOne
 
     public static var allKinds: [NodeKind] {
         CompositeOperationNodeKind.allCases.map({ .compositeOperation($0) })
@@ -60,6 +61,8 @@ public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterabl
             Nodes.CoreImageCustom.BlendNode.impl()
         case .blendMaskNode:
             Nodes.CoreImageCustom.BlendWithMask.impl()
+        case .setAlphaToOne:
+            Nodes.CoreImageCustom.AlphaToOneNode.impl()
         }
     }
 }
