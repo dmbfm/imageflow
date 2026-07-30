@@ -43,6 +43,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .booleanOperation(let kind):
             kind.impl.schema.displayName
+        case .mathFunction(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -53,7 +55,7 @@ public extension NodeKind {
             .orange
         case .valueNode(_):
             .blue
-        case .math(_):
+        case .math(_), .mathFunction(_):
             .blue
         case .passthroughNode(_):
             .blue
@@ -76,6 +78,8 @@ public extension NodeKind {
             "minus.circle.fill"
         case .math(.mulNode(_)):
             "multiply.circle.fill"
+        case .mathFunction(_):
+            "f.cursive"
         case .tileEffect(_), .coreImageFilterNode(.tileEffect(_)):
             "squareshape.split.3x3"
         case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform), .compositeOperation(_):

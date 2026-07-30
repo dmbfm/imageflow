@@ -5,6 +5,7 @@ import Values
 
 public enum NodeKind: Sendable, Hashable, Codable {
     case math(MathNodeKind)
+    case mathFunction(MathFunctionNodeKind)
     case booleanOperation(BooleanOperation)
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
@@ -42,6 +43,113 @@ public enum BooleanOperation: Sendable, Hashable, Codable {
             Nodes.BooleanOperations.AndNode.impl()
         case .orNode:
             Nodes.BooleanOperations.OrNode.impl()
+        }
+    }
+}
+
+public enum MathFunctionNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case sinNode
+    case asinNode
+    case cosNode
+    case acosNode
+    case tanNode
+    case atanNode
+    case atan2Node
+    case log2Node
+    case log10Node
+    case powNode
+    case abs
+    case frac
+    case truncate
+    case max
+    case min
+    case roundNode
+    case floorNode
+    case ceilNode
+    case signNode
+    case clampNode
+
+    public static var allKinds: [NodeKind] {
+        MathFunctionNodeKind.allCases.map({ .mathFunction($0) })
+    }
+
+    public var kind: NodeKind {
+        .mathFunction(self)
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .sinNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Sin", f: { sin($0) })
+        case .asinNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Asin", f: { asin($0) })
+        case .cosNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Cos", f: { cos($0) })
+        case .acosNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Acos", f: { acos($0) })
+        case .tanNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Tan", f: { tan($0) })
+        case .atanNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Atan", f: { atan($0) })
+        case .atan2Node:
+            Nodes.MathFunctions.floatFunc2NodeImpl("Atan2", f: { atan2($0, $1) })
+        case .log2Node:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Log2", f: { log2($0) })
+        case .log10Node:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Log10", f: { log10($0) })
+        case .powNode:
+            Nodes.MathFunctions.floatFunc2NodeImpl("Pow", defaultValue1: 2.0, defaultValue2: 2.0, f: { pow($0, $1) })
+        case .abs:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Abs", f: { Swift::abs($0) })
+        case .frac:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Frac", f: { $0.truncatingRemainder(dividingBy: 1.0) })
+        case .truncate:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Truncate", f: { trunc($0) })
+        case .max:
+            Nodes.MathFunctions.floatFunc2NodeImpl(
+                "Max",
+                defaultValue1: 1.0,
+                defaultValue2: 2.0,
+                f: {
+                    Swift::max($0, $1)
+                }
+            )
+        case .min:
+            Nodes.MathFunctions.floatFunc2NodeImpl(
+                "Min",
+                defaultValue1: 1.0,
+                defaultValue2: 2.0,
+                f: {
+                    Swift::min($0, $1)
+                }
+            )
+        case .roundNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Round", f: { $0.rounded() })
+        case .floorNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Floor", f: { floor($0) })
+        case .ceilNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl("Ceil", f: { ceil($0) })
+        case .signNode:
+            Nodes.MathFunctions.floatFunc1NodeImpl(
+                "Sign",
+                defaultValue: -1.0,
+                f: { $0 == 0.0 ? 0.0 : ($0 < 0 ? -1.0 : 1.0) }
+            )
+        case .clampNode:
+            Nodes.MathFunctions.floatFunc3NodeImpl(
+                "Clamp",
+                arg1: "Value",
+                defaultValue1: 10.0,
+                arg2: "Min",
+                defaultValue2: 0.0,
+                arg3: "Max",
+                defaultValue3: 1.0,
+                f: { x, lo, hi in
+                    let _lo = Swift::min(lo, hi)
+                    let _hi = Swift::max(lo, hi)
+                    return Swift::min(_hi, Swift::max(_lo, x))
+                }
+            )
         }
     }
 }
@@ -521,6 +629,8 @@ extension NodeKind {
     public var impl: NodeImpl {
         switch self {
         case .math(let kind):
+            kind.impl
+        case .mathFunction(let kind):
             kind.impl
         case .valueNode(let type):
             Nodes.ValueNode.impl(type)

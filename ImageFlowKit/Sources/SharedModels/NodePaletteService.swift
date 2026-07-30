@@ -12,6 +12,19 @@ private struct Categories {
         ]
     )
 
+    static let mathFunctions: NodePaletteCategory = .init(
+        name: .functions,
+        items: MathFunctionNodeKind.allKinds.map({ .init(nodeKind: $0, categoryName: .functions) })
+        // items: [
+        //     .init(nodeKind: .mathFunction(.sinNode), categoryName: .functions),
+        //     .init(nodeKind: .mathFunction(.cosNode), categoryName: .functions),
+        //     .init(nodeKind: .mathFunction(.tanNode), categoryName: .functions),
+        //     .init(nodeKind: .mathFunction(.log2), categoryName: .functions),
+        //     .init(nodeKind: .mathFunction(.log10), categoryName: .functions),
+        //     .init(nodeKind: .mathFunction(.pow), categoryName: .functions),
+        // ]
+    )
+
     static let math: NodePaletteCategory = .init(
         name: .math,
         items: [
@@ -314,6 +327,7 @@ public class NodePaletteService {
         var result = [NodePaletteCategory]()
 
         result.append(Categories.math)
+        result.append(Categories.mathFunctions)
         result.append(Categories.boolaenOperations)
         result.append(Categories.input)
         result.append(Categories.split)
@@ -453,7 +467,8 @@ public class NodePaletteService {
 
 public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case input = "Input"
-    case math = "Math"
+    case math = "Math Operations"
+    case functions = "Math Functions"
     case booleanOperations = "Boolean Operations"
     case blur = "Blur"
     case split = "Split"
