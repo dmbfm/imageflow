@@ -141,6 +141,7 @@ extension UIColor {
 extension DynamicColor {
     public static let red: Self = .init(.red)
     public static let blue: Self = .init(.systemBlue)
+    public static let green: Self = .init(.systemGreen)
     public static let orange: Self = .init(.systemOrange)
     public static let purple: Self = .init(.systemPurple)
 }

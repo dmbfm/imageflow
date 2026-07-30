@@ -41,6 +41,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .compositeOperation(let kind):
             kind.impl.schema.displayName
+        case .booleanOperation(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -61,6 +63,8 @@ public extension NodeKind {
             .blue
         case .transform(_):
             .purple
+        case .booleanOperation(_):
+            .blue
         }
     }
 
@@ -96,6 +100,8 @@ public extension NodeKind {
             "arrow.up.and.down.and.arrow.left.and.right"
         case .transform(.srt):
             NodeKind.valueNode(.affineTransform).icon
+        case .booleanOperation(_):
+            "switch.2"
         }
     }
 
@@ -105,13 +111,14 @@ public extension NodeKind {
         case .math(.subNode(_)): NumericValueType.allCases.map { .math(.subNode($0)) }
         case .math(.mulNode(_)): NumericValueType.allCases.map { .math(.mulNode($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
+        case .booleanOperation(_): ValueType.allCases.map { .valueNode($0) }
         default: [self]
         }
     }
 
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
-        case .math, .passthroughNode, .valueNode:
+        case .math, .passthroughNode, .valueNode, .booleanOperation:
             if inputs.contains(true) || outputs.contains(true) {
                 [self]
             } else {

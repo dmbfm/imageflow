@@ -3,6 +3,15 @@ import Helpers
 import Values
 
 private struct Categories {
+    static let boolaenOperations: NodePaletteCategory = .init(
+        name: .booleanOperations,
+        items: [
+            .init(nodeKind: .booleanOperation(.ifNode(.float)), categoryName: .booleanOperations),
+            .init(nodeKind: .booleanOperation(.andNode), categoryName: .booleanOperations),
+            .init(nodeKind: .booleanOperation(.orNode), categoryName: .booleanOperations),
+        ]
+    )
+
     static let math: NodePaletteCategory = .init(
         name: .math,
         items: [
@@ -305,6 +314,7 @@ public class NodePaletteService {
         var result = [NodePaletteCategory]()
 
         result.append(Categories.math)
+        result.append(Categories.boolaenOperations)
         result.append(Categories.input)
         result.append(Categories.split)
         result.append(Categories.combine)
@@ -444,6 +454,7 @@ public class NodePaletteService {
 public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case input = "Input"
     case math = "Math"
+    case booleanOperations = "Boolean Operations"
     case blur = "Blur"
     case split = "Split"
     case combine = "Combine"

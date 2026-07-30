@@ -5,6 +5,7 @@ import Values
 
 public enum NodeKind: Sendable, Hashable, Codable {
     case math(MathNodeKind)
+    case booleanOperation(BooleanOperation)
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
     case combineValue(CombineValueNodeKind)
@@ -16,6 +17,33 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
 
+}
+
+public enum BooleanOperation: Sendable, Hashable, Codable {
+    case ifNode(ValueType)
+    case andNode
+    case orNode
+
+    // public static var allKinds: [NodeKind] {
+    //     [
+    //         .booleanOperation(.ifNode(ValueType))
+    //     ]
+    // }
+
+    public var kind: NodeKind {
+        .booleanOperation(self)
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .ifNode(let type):
+            Nodes.BooleanOperations.IfNode.impl(type)
+        case .andNode:
+            Nodes.BooleanOperations.AndNode.impl()
+        case .orNode:
+            Nodes.BooleanOperations.OrNode.impl()
+        }
+    }
 }
 
 public enum MathNodeKind: Sendable, Hashable, Codable {
@@ -498,6 +526,8 @@ extension NodeKind {
             Nodes.ValueNode.impl(type)
         case .passthroughNode(let type):
             Nodes.PassthroughNode.impl(type)
+        case .booleanOperation(let kind):
+            kind.impl
         case .transform(let type):
             type.impl
         case .coreImageFilterNode(let type):
