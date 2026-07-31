@@ -98,7 +98,7 @@ public enum VectorValueType: Sendable, Hashable, Codable, CaseIterable {
 extension Nodes {
     public static func vectorDotNodeImpl(_ type: VectorValueType) -> NodeImpl {
         let schema = NodeSchema(
-            name: "Dot Product",
+            name: "Dot Product (\(type.valueType))",
             inputs: [
                 .init(name: "A", type: type.valueType),
                 .init(name: "B", type: type.valueType),
@@ -115,7 +115,7 @@ extension Nodes {
 
     public static func vectorDistanceNodeImpl(_ type: VectorValueType) -> NodeImpl {
         let schema = NodeSchema(
-            name: "Point Distance",
+            name: "Point Distance (\(type.valueType))",
             inputs: [
                 .init(name: "A", type: type.valueType),
                 .init(name: "B", type: type.valueType),
@@ -149,7 +149,7 @@ extension Nodes {
 
     public static func vectorLengthNodeImpl(_ type: VectorValueType) -> NodeImpl {
         let schema = NodeSchema(
-            name: "Vector Length",
+            name: "Vector Length (\(type.valueType))",
             inputs: [
                 .init(name: "Vector", type: type.valueType)
             ],
@@ -165,7 +165,7 @@ extension Nodes {
 
     public static func vectorNormalizeNodeImpl(_ type: VectorValueType) -> NodeImpl {
         let schema = NodeSchema(
-            name: "Normalize Vector",
+            name: "Normalize Vector (\(type.valueType))",
             inputs: [
                 .init(name: "Vector", type: type.valueType)
             ],

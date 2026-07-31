@@ -42,10 +42,26 @@ private struct Categories {
     static let vectorOperations: NodePaletteCategory = .init(
         name: .vectorOperations,
         items: [
-            .init(nodeKind: .vectorOperation(.dotProduct(.vector2)), categoryName: .vectorOperations),
-            .init(nodeKind: .vectorOperation(.pointDistance(.vector2)), categoryName: .vectorOperations),
-            .init(nodeKind: .vectorOperation(.vectorLength(.vector2)), categoryName: .vectorOperations),
-            .init(nodeKind: .vectorOperation(.vectorNormalize(.vector2)), categoryName: .vectorOperations),
+            .init(
+                nodeKind: .vectorOperation(.dotProduct(.vector2)),
+                displayName: "Dot Product",
+                categoryName: .vectorOperations
+            ),
+            .init(
+                nodeKind: .vectorOperation(.pointDistance(.vector2)),
+                displayName: "Point Distance",
+                categoryName: .vectorOperations
+            ),
+            .init(
+                nodeKind: .vectorOperation(.vectorLength(.vector2)),
+                displayName: "Vector Length",
+                categoryName: .vectorOperations
+            ),
+            .init(
+                nodeKind: .vectorOperation(.vectorNormalize(.vector2)),
+                displayName: "Normalize Vector",
+                categoryName: .vectorOperations
+            ),
             .init(nodeKind: .vectorOperation(.crossProduct), categoryName: .vectorOperations),
         ]
     )

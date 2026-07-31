@@ -22,6 +22,9 @@ public extension NodeKind {
         case .booleanOperation(.smaller(_)): "Less Than"
         case .booleanOperation(.smallerOrEqual(_)): "Less Than or Equal"
         case .vectorOperation(.dotProduct(_)): "Dot Product"
+        case .vectorOperation(.pointDistance(_)): "Point Distance"
+        case .vectorOperation(.vectorLength(_)): "Vector Length"
+        case .vectorOperation(.vectorNormalize(_)): "Normalize Vector"
         default: self.displayName
         }
     }
@@ -140,6 +143,9 @@ public extension NodeKind {
         case .math(.mulNode(_)): NumericValueType.allCases.map { .math(.mulNode($0)) }
         case .math(.divNode(_)): NumericDivValueType.allCases.map { .math(.divNode($0)) }
         case .vectorOperation(.dotProduct(_)): VectorValueType.allCases.map { .vectorOperation(.dotProduct($0)) }
+        case .vectorOperation(.pointDistance(_)): VectorValueType.allCases.map { .vectorOperation(.pointDistance($0)) }
+        case .vectorOperation(.vectorLength(_)): VectorValueType.allCases.map { .vectorOperation(.vectorLength($0)) }
+        case .vectorOperation(.vectorNormalize(_)): VectorValueType.allCases.map { .vectorOperation(.vectorNormalize($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
         case .booleanOperation(.ifNode(_)): ValueType.allCases.map { .booleanOperation(.ifNode($0)) }
         case .booleanOperation(.equalNode(_)): ValueType.allCases.map { .booleanOperation(.equalNode($0)) }
@@ -155,7 +161,7 @@ public extension NodeKind {
 
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
-        case .math, .passthroughNode, .valueNode, .booleanOperation, .vectorOperation(.dotProduct(_)):
+        case .math, .passthroughNode, .valueNode, .booleanOperation, .vectorOperation:
             if inputs.contains(true) || outputs.contains(true) {
                 [self]
             } else {
@@ -164,24 +170,6 @@ public extension NodeKind {
 
         default:
             self.variations
-        }
-    }
-
-    var variationDisplayName: String {
-        switch self {
-        case .math(.addNode(let type)): type.valueType.displayName
-        case .math(.subNode(let type)): type.valueType.displayName
-        case .math(.mulNode(let type)): type.valueType.displayName
-        case .math(.divNode(let type)): type.valueType.displayName
-        case .vectorOperation(.dotProduct(let type)): type.valueType.displayName
-        case .valueNode(let type): type.displayName
-        case .passthroughNode(let type): type.displayName
-        case .booleanOperation(.equalNode(let type)): type.displayName
-        case .booleanOperation(.greater(let type)): type.valueType.displayName
-        case .booleanOperation(.greaterOrEqual(let type)): type.valueType.displayName
-        case .booleanOperation(.smaller(let type)): type.valueType.displayName
-        case .booleanOperation(.smallerOrEqual(let type)): type.valueType.displayName
-        default: self.displayName
         }
     }
 }
