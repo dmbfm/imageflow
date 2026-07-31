@@ -28,9 +28,9 @@ extension Value {
             switch type {
             case .int:
                 .int(Int(value))
-            case .vector2: .vector2(.init(x: value, y: 0))
-            case .vector3: .vector3(.init(x: value, y: 0, z: 0))
-            case .vector4: .vector4(.init(x: value, y: 0, z: 0, w: 0))
+            case .vector2: .vector2(.init(x: value, y: value))
+            case .vector3: .vector3(.init(x: value, y: value, z: value))
+            case .vector4: .vector4(.init(x: value, y: value, z: value, w: value))
             case .affineTransform: .affineTransform(.init(m11: 1, m12: 0, m21: 0, m22: 1, tX: value, tY: 0))
             case .bool: .bool(value != 0)
             case .color4: .color4(.init(red: value, green: 0, blue: 0, alpha: 1))
