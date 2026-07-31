@@ -57,6 +57,7 @@ final class NodeAngleInput: XViewEx, NodeControl {
                 }
                 #endif
                 self.updateSize()
+                self.unitButton.selectItem(withTitle: self.unit.shortLabel)
                 #if os(macOS)
                 Task {
                     // NOTE: Hack because `NSPopupButton` is buggy as hell
@@ -77,7 +78,12 @@ final class NodeAngleInput: XViewEx, NodeControl {
             self.numberInput.isEnabled
         }
         set {
-            self.numberInput.isEnabled = newValue
+            if self.numberInput.isEnabled != newValue {
+                self.numberInput.isEnabled = newValue
+                if !newValue {
+                    self.unit = .radians
+                }
+            }
         }
     }
 
@@ -196,6 +202,13 @@ final class NodeAngleInput: XViewEx, NodeControl {
 
         self.clipsToBounds = false
         self.numberInput.isEnabled = isEditable
+
+        if !isEditable {
+            Task {
+                self.unit = .radians
+                self.unitButton.selectItem(withTitle: self.unit.shortLabel)
+            }
+        }
 
         self.addSubview(self.numberInput.view)
         self.addSubview(self.unitButton)

@@ -132,15 +132,15 @@ public enum MathFunctionNodeKind: Sendable, Hashable, Codable, CaseIterable {
     public var impl: NodeImpl {
         switch self {
         case .sinNode:
-            Nodes.MathFunctions.floatFunc1NodeImpl("Sin", f: { sin($0) })
+            Nodes.MathFunctions.floatFunc1NodeImpl("Sin", sema: .float(.angle(nil)), f: { sin($0) })
         case .asinNode:
             Nodes.MathFunctions.floatFunc1NodeImpl("Asin", f: { asin($0) })
         case .cosNode:
-            Nodes.MathFunctions.floatFunc1NodeImpl("Cos", f: { cos($0) })
+            Nodes.MathFunctions.floatFunc1NodeImpl("Cos", sema: .float(.angle(nil)), f: { cos($0) })
         case .acosNode:
             Nodes.MathFunctions.floatFunc1NodeImpl("Acos", f: { acos($0) })
         case .tanNode:
-            Nodes.MathFunctions.floatFunc1NodeImpl("Tan", f: { tan($0) })
+            Nodes.MathFunctions.floatFunc1NodeImpl("Tan", sema: .float(.angle(nil)), f: { tan($0) })
         case .atanNode:
             Nodes.MathFunctions.floatFunc1NodeImpl("Atan", f: { atan($0) })
         case .atan2Node:

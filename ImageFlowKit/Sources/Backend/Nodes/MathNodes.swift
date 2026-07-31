@@ -7,12 +7,13 @@ extension Nodes {
             _ name: String,
             arg: String = "Value",
             defaultValue: Double = 0.0,
+            sema: ValueSemantics = .default,
             f: @escaping (Double) -> Double
         ) -> NodeImpl {
             let schema = NodeSchema(
                 name: name,
                 inputs: [
-                    .init(name: arg, defaultValue: .float(defaultValue))
+                    .init(name: arg, defaultValue: .float(defaultValue), semantics: sema)
                 ],
                 outputs: [
                     .init(name: "Result", type: .float)
