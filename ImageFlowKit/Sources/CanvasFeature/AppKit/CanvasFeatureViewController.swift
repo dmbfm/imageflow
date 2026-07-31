@@ -454,12 +454,23 @@ public final class CanvasFeatureViewController: NSViewController {
         var center: CGPoint
     }
 
-    func portHitTest(locationInWindow point: CGPoint) -> PortHit? {
+    func portHitTest(
+        locationInWindow point: CGPoint,
+        snappingInsets: XEdgeInsets = .init(top: -10, left: -20, bottom: -10, right: -20)
+    ) -> PortHit? {
         for (_, view) in self.nodeViews {
             for (port, frame) in view.ports.map({ (loc, view) in
-                (loc, view.superview!.convert(view.frame, to: nil))
-            }) where frame.center.distance(to: point) < self.viewport.convert(32.0, from: .canvas, to: .screen) {
-                return .init(location: port, center: frame.center)
+                (loc, view.convert(view.bounds, to: nil))
+            }) {
+                let frameInView = self.canvasView.convert(frame, from: nil)
+                let frameInCanvas = self.viewport.convert(frameInView, from: .screen, to: .canvas)
+                let rect = frameInCanvas.insetted(by: snappingInsets)
+                let pointInView = self.canvasView.convert(point, from: nil)
+                let pointInCanvas = self.viewport.convert(pointInView, from: .screen, to: .canvas)
+
+                if rect.contains(pointInCanvas) {
+                    return .init(location: port, center: frame.center)
+                }
             }
         }
         return nil
