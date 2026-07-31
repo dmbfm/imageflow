@@ -1160,6 +1160,25 @@ extension Value {
             fatalError("Invalid types: \(lhs) + \(rhs)")
         }
     }
+
+    public static func / (lhs: Value, rhs: Value) -> Value {
+        switch (lhs, rhs) {
+        case (.float(let lhsValue), .float(let rhsValue)):
+            return .float(lhsValue / rhsValue)
+        case (.int(let lhsValue), .int(let rhsValue)):
+            return .int(lhsValue / rhsValue)
+        case (.vector2(let lhsValue), .vector2(let rhsValue)):
+            return .vector2(lhsValue / rhsValue)
+        case (.vector3(let lhsValue), .vector3(let rhsValue)):
+            return .vector3(lhsValue / rhsValue)
+        case (.vector4(let lhsValue), .vector4(let rhsValue)):
+            return .vector4(lhsValue / rhsValue)
+        case (.color4(let lhsValue), .color4(let rhsValue)):
+            return .color4(lhsValue / rhsValue)
+        default:
+            fatalError("Invalid types: \(lhs) + \(rhs)")
+        }
+    }
 }
 
 extension Value {

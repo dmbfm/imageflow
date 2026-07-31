@@ -14,6 +14,8 @@ public extension NodeKind {
         case .math(.addNode(_)): "Add"
         case .math(.mulNode(_)): "Multiply"
         case .math(.subNode(_)): "Subtract"
+        case .math(.divNode(_)): "Divide"
+        case .vectorOperation(.dotProduct(_)): "Dot Product"
         default: self.displayName
         }
     }
@@ -23,6 +25,8 @@ public extension NodeKind {
         case .valueNode(let type):
             "\(type.displayName)"
         case .math(let kind):
+            kind.impl.schema.displayName
+        case .vectorOperation(let kind):
             kind.impl.schema.displayName
         case .passthroughNode(_): "Passthrough"
         case .coreImageFilterNode(let kind):
@@ -55,7 +59,7 @@ public extension NodeKind {
             .orange
         case .valueNode(_):
             .blue
-        case .math(_), .mathFunction(_):
+        case .math(_), .mathFunction(_), .vectorOperation(_):
             .blue
         case .passthroughNode(_):
             .blue
@@ -78,8 +82,12 @@ public extension NodeKind {
             "minus.circle.fill"
         case .math(.mulNode(_)):
             "multiply.circle.fill"
+        case .math(.divNode(_)):
+            "divide.circle.fill"
         case .mathFunction(_):
             "f.cursive"
+        case .vectorOperation(_):
+            "arrow.up.forward"
         case .tileEffect(_), .coreImageFilterNode(.tileEffect(_)):
             "squareshape.split.3x3"
         case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform), .compositeOperation(_):
@@ -114,6 +122,8 @@ public extension NodeKind {
         case .math(.addNode(_)): NumericValueType.allCases.map { .math(.addNode($0)) }
         case .math(.subNode(_)): NumericValueType.allCases.map { .math(.subNode($0)) }
         case .math(.mulNode(_)): NumericValueType.allCases.map { .math(.mulNode($0)) }
+        case .math(.divNode(_)): NumericDivValueType.allCases.map { .math(.divNode($0)) }
+        case .vectorOperation(.dotProduct(_)): VectorValueType.allCases.map { .vectorOperation(.dotProduct($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
         case .booleanOperation(_): ValueType.allCases.map { .valueNode($0) }
         default: [self]
@@ -122,7 +132,7 @@ public extension NodeKind {
 
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
-        case .math, .passthroughNode, .valueNode, .booleanOperation:
+        case .math, .passthroughNode, .valueNode, .booleanOperation, .vectorOperation(.dotProduct(_)):
             if inputs.contains(true) || outputs.contains(true) {
                 [self]
             } else {
@@ -139,6 +149,8 @@ public extension NodeKind {
         case .math(.addNode(let type)): type.valueType.displayName
         case .math(.subNode(let type)): type.valueType.displayName
         case .math(.mulNode(let type)): type.valueType.displayName
+        case .math(.divNode(let type)): type.valueType.displayName
+        case .vectorOperation(.dotProduct(let type)): type.valueType.displayName
         case .valueNode(let type): type.displayName
         case .passthroughNode(let type): type.displayName
         default: self.displayName

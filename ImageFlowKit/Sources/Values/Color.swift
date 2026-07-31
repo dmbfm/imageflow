@@ -46,6 +46,15 @@ public struct Color4: Sendable, Hashable, Codable {
         )
     }
 
+    public static func / (lhs: Color4, rhs: Color4) -> Color4 {
+        Color4(
+            red: lhs.red / rhs.red,
+            green: lhs.green / rhs.green,
+            blue: lhs.blue / rhs.blue,
+            alpha: lhs.alpha / rhs.alpha
+        )
+    }
+
     public var ciColor: CIColor {
         .init(red: self.red, green: self.green, blue: self.blue, alpha: self.alpha)
     }

@@ -12,6 +12,17 @@ private struct Categories {
         ]
     )
 
+    static let vectorOperations: NodePaletteCategory = .init(
+        name: .vectorOperations,
+        items: [
+            .init(nodeKind: .vectorOperation(.dotProduct(.vector2)), categoryName: .vectorOperations),
+            .init(nodeKind: .vectorOperation(.pointDistance(.vector2)), categoryName: .vectorOperations),
+            .init(nodeKind: .vectorOperation(.vectorLength(.vector2)), categoryName: .vectorOperations),
+            .init(nodeKind: .vectorOperation(.vectorNormalize(.vector2)), categoryName: .vectorOperations),
+            .init(nodeKind: .vectorOperation(.crossProduct), categoryName: .vectorOperations),
+        ]
+    )
+
     static let mathFunctions: NodePaletteCategory = .init(
         name: .functions,
         items: MathFunctionNodeKind.allKinds.map({ .init(nodeKind: $0, categoryName: .functions) })
@@ -44,6 +55,12 @@ private struct Categories {
                 displayName: "Multiply",
                 icon: NodeKind.math(.mulNode(.float)).icon,
                 nodeKind: NodeKind.math(.mulNode(.float)),
+                categoryName: .math
+            ),
+            .init(
+                displayName: "Divide",
+                icon: NodeKind.math(.divNode(.float)).icon,
+                nodeKind: NodeKind.math(.divNode(.float)),
                 categoryName: .math
             ),
         ]
@@ -328,6 +345,7 @@ public class NodePaletteService {
 
         result.append(Categories.math)
         result.append(Categories.mathFunctions)
+        result.append(Categories.vectorOperations)
         result.append(Categories.boolaenOperations)
         result.append(Categories.input)
         result.append(Categories.split)
@@ -470,6 +488,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case math = "Math Operations"
     case functions = "Math Functions"
     case booleanOperations = "Boolean Operations"
+    case vectorOperations = "Vector Operations"
     case blur = "Blur"
     case split = "Split"
     case combine = "Combine"

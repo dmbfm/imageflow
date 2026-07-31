@@ -144,4 +144,25 @@ extension Nodes {
             }
         }
     }
+
+    public struct DivNode: NodeImplProvider {
+        static func impl(_ type: NumericDivValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Divide (\(type))",
+                inputs: [
+                    .init(name: "A", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
+                ],
+                outputs: [
+                    .init(name: "Result", type: type.valueType)
+                ]
+            )
+
+            return NodeImpl(
+                schema: schema,
+            ) { node, _ in
+                node.outputs[0] = node.inputs[0] / node.inputs[1]
+            }
+        }
+    }
 }

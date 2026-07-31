@@ -7,6 +7,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case math(MathNodeKind)
     case mathFunction(MathFunctionNodeKind)
     case booleanOperation(BooleanOperation)
+    case vectorOperation(VectorOperationNodeKind)
     case valueNode(ValueType)
     case splitValue(SplitValueNodeKind)
     case combineValue(CombineValueNodeKind)
@@ -18,6 +19,36 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
 
+}
+
+public enum VectorOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case dotProduct(VectorValueType)
+    case crossProduct
+    case pointDistance(VectorValueType)
+    case vectorLength(VectorValueType)
+    case vectorNormalize(VectorValueType)
+
+    public static let allCases: [VectorOperationNodeKind] =
+        VectorValueType.allCases.map({ .dotProduct($0) }) + [.crossProduct]
+
+    public static var allKinds: [NodeKind] {
+        VectorOperationNodeKind.allCases.map({ .vectorOperation($0) })
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .crossProduct:
+            Nodes.vectorCrossNodeImpl
+        case .dotProduct(let type):
+            Nodes.vectorDotNodeImpl(type)
+        case .pointDistance(let type):
+            Nodes.vectorDistanceNodeImpl(type)
+        case .vectorLength(let type):
+            Nodes.vectorLengthNodeImpl(type)
+        case .vectorNormalize(let type):
+            Nodes.vectorNormalizeNodeImpl(type)
+        }
+    }
 }
 
 public enum BooleanOperation: Sendable, Hashable, Codable {
@@ -158,6 +189,7 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
     case addNode(NumericValueType)
     case subNode(NumericValueType)
     case mulNode(NumericValueType)
+    case divNode(NumericDivValueType)
 
     public static var allCases: [Self] {
         NumericValueType.allCases.flatMap {
@@ -166,6 +198,11 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
                 .subNode($0),
                 .mulNode($0),
             ]
+                + NumericDivValueType.allCases.flatMap {
+                    [
+                        .divNode($0)
+                    ]
+                }
         }
     }
 
@@ -174,6 +211,7 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
         case .addNode(let type): Nodes.AddNode.impl(type)
         case .subNode(let type): Nodes.SubtractNode.impl(type)
         case .mulNode(let type): Nodes.MulNode.impl(type)
+        case .divNode(let type): Nodes.DivNode.impl(type)
         }
     }
 }
@@ -653,6 +691,8 @@ extension NodeKind {
         case .tileEffect(let kind):
             kind.impl
         case .compositeOperation(let kind):
+            kind.impl
+        case .vectorOperation(let kind):
             kind.impl
         }
     }
