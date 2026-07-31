@@ -9,6 +9,8 @@ private struct Categories {
             .init(nodeKind: .booleanOperation(.ifNode(.float)), categoryName: .booleanOperations),
             .init(nodeKind: .booleanOperation(.andNode), categoryName: .booleanOperations),
             .init(nodeKind: .booleanOperation(.orNode), categoryName: .booleanOperations),
+            .init(nodeKind: .booleanOperation(.xorNode), categoryName: .booleanOperations),
+            .init(nodeKind: .booleanOperation(.notNode), categoryName: .booleanOperations),
         ]
     )
 

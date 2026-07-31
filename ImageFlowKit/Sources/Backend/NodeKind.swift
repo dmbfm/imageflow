@@ -55,6 +55,8 @@ public enum BooleanOperation: Sendable, Hashable, Codable {
     case ifNode(ValueType)
     case andNode
     case orNode
+    case xorNode
+    case notNode
 
     // public static var allKinds: [NodeKind] {
     //     [
@@ -74,6 +76,10 @@ public enum BooleanOperation: Sendable, Hashable, Codable {
             Nodes.BooleanOperations.AndNode.impl()
         case .orNode:
             Nodes.BooleanOperations.OrNode.impl()
+        case .xorNode:
+            Nodes.BooleanOperations.XorNode.impl()
+        case .notNode:
+            Nodes.BooleanOperations.NotNode.impl()
         }
     }
 }

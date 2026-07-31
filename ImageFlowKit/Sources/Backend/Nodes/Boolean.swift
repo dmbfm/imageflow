@@ -65,5 +65,48 @@ extension Nodes {
                 }
             }
         }
+
+        public struct XorNode: NodeImplProvider {
+            public static func impl(_ param: (())) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Xor",
+                    inputs: [
+                        .init(name: "Condition A", defaultValue: .bool(false)),
+                        .init(name: "Condition B", defaultValue: .bool(false)),
+                    ],
+                    outputs: [
+                        .init(name: "Result", type: .bool)
+                    ]
+                )
+
+                return .init(schema: schema) { node, context in
+                    node.outputs[0].bool =
+                        switch (node.inputs[0].bool, node.inputs[1].bool) {
+                        case (true, true): false
+                        case (false, false): false
+                        case (true, false): true
+                        case (false, true): true
+                        }
+                }
+            }
+        }
+
+        public struct NotNode: NodeImplProvider {
+            public static func impl(_ param: (())) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Not",
+                    inputs: [
+                        .init(name: "Value", defaultValue: .bool(false))
+                    ],
+                    outputs: [
+                        .init(name: "Result", type: .bool)
+                    ]
+                )
+
+                return .init(schema: schema) { node, context in
+                    node.outputs[0].bool = !node.inputs[0].bool
+                }
+            }
+        }
     }
 }
