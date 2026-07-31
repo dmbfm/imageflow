@@ -15,6 +15,12 @@ public extension NodeKind {
         case .math(.mulNode(_)): "Multiply"
         case .math(.subNode(_)): "Subtract"
         case .math(.divNode(_)): "Divide"
+        case .booleanOperation(.ifNode(_)): "If"
+        case .booleanOperation(.equalNode(_)): "Equal"
+        case .booleanOperation(.greater(_)): "Greater Than"
+        case .booleanOperation(.greaterOrEqual(_)): "Greater Than or Equal"
+        case .booleanOperation(.smaller(_)): "Less Than"
+        case .booleanOperation(.smallerOrEqual(_)): "Less Than or Equal"
         case .vectorOperation(.dotProduct(_)): "Dot Product"
         default: self.displayName
         }
@@ -112,6 +118,16 @@ public extension NodeKind {
             "arrow.up.and.down.and.arrow.left.and.right"
         case .transform(.srt):
             NodeKind.valueNode(.affineTransform).icon
+        case .booleanOperation(.equalNode(_)):
+            "equal.circle.fill"
+        case .booleanOperation(.greater(_)):
+            "greaterthan.circle.fill"
+        case .booleanOperation(.greaterOrEqual(_)):
+            "greaterthanorequalto.circle.fill"
+        case .booleanOperation(.smaller(_)):
+            "lessthan.circle.fill"
+        case .booleanOperation(.smallerOrEqual(_)):
+            "lessthanorequalto.circle.fill"
         case .booleanOperation(_):
             "switch.2"
         }
@@ -125,7 +141,14 @@ public extension NodeKind {
         case .math(.divNode(_)): NumericDivValueType.allCases.map { .math(.divNode($0)) }
         case .vectorOperation(.dotProduct(_)): VectorValueType.allCases.map { .vectorOperation(.dotProduct($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
-        case .booleanOperation(_): ValueType.allCases.map { .valueNode($0) }
+        case .booleanOperation(.ifNode(_)): ValueType.allCases.map { .booleanOperation(.ifNode($0)) }
+        case .booleanOperation(.equalNode(_)): ValueType.allCases.map { .booleanOperation(.equalNode($0)) }
+        case .booleanOperation(.greater(_)): NumericComparableValueType.allCases.map { .booleanOperation(.greater($0)) }
+        case .booleanOperation(.greaterOrEqual(_)):
+            NumericComparableValueType.allCases.map { .booleanOperation(.greaterOrEqual($0)) }
+        case .booleanOperation(.smaller(_)): NumericComparableValueType.allCases.map { .booleanOperation(.smaller($0)) }
+        case .booleanOperation(.smallerOrEqual(_)):
+            NumericComparableValueType.allCases.map { .booleanOperation(.smallerOrEqual($0)) }
         default: [self]
         }
     }
@@ -153,6 +176,11 @@ public extension NodeKind {
         case .vectorOperation(.dotProduct(let type)): type.valueType.displayName
         case .valueNode(let type): type.displayName
         case .passthroughNode(let type): type.displayName
+        case .booleanOperation(.equalNode(let type)): type.displayName
+        case .booleanOperation(.greater(let type)): type.valueType.displayName
+        case .booleanOperation(.greaterOrEqual(let type)): type.valueType.displayName
+        case .booleanOperation(.smaller(let type)): type.valueType.displayName
+        case .booleanOperation(.smallerOrEqual(let type)): type.valueType.displayName
         default: self.displayName
         }
     }

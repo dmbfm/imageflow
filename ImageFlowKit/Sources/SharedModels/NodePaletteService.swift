@@ -6,7 +6,32 @@ private struct Categories {
     static let boolaenOperations: NodePaletteCategory = .init(
         name: .booleanOperations,
         items: [
-            .init(nodeKind: .booleanOperation(.ifNode(.float)), categoryName: .booleanOperations),
+            .init(nodeKind: .booleanOperation(.ifNode(.float)), displayName: "If", categoryName: .booleanOperations),
+            .init(
+                nodeKind: .booleanOperation(.equalNode(.float)),
+                displayName: "Equal",
+                categoryName: .booleanOperations
+            ),
+            .init(
+                nodeKind: .booleanOperation(.greater(.float)),
+                displayName: "Greater Than",
+                categoryName: .booleanOperations
+            ),
+            .init(
+                nodeKind: .booleanOperation(.greaterOrEqual(.float)),
+                displayName: "Greater Than or Equal",
+                categoryName: .booleanOperations
+            ),
+            .init(
+                nodeKind: .booleanOperation(.smaller(.float)),
+                displayName: "Less Than",
+                categoryName: .booleanOperations
+            ),
+            .init(
+                nodeKind: .booleanOperation(.smallerOrEqual(.float)),
+                displayName: "Less Than or Equal",
+                categoryName: .booleanOperations
+            ),
             .init(nodeKind: .booleanOperation(.andNode), categoryName: .booleanOperations),
             .init(nodeKind: .booleanOperation(.orNode), categoryName: .booleanOperations),
             .init(nodeKind: .booleanOperation(.xorNode), categoryName: .booleanOperations),
@@ -531,9 +556,9 @@ public struct NodePaletteItem: Sendable, Hashable, Identifiable, With {
 
     public var id: Self { self }
 
-    public init(nodeKind: NodeKind, categoryName: NodePaletteCategoryName) {
+    public init(nodeKind: NodeKind, displayName: String? = nil, categoryName: NodePaletteCategoryName) {
         self.init(
-            displayName: nodeKind.displayName,
+            displayName: displayName ?? nodeKind.displayName,
             icon: nodeKind.icon,
             nodeKind: nodeKind,
             categoryName: categoryName

@@ -31,6 +31,49 @@ public enum NumericValueType: Sendable, Equatable, Codable, CaseIterable {
     }
 }
 
+public enum NumericComparableValueType: Sendable, Equatable, Codable, CaseIterable {
+    case float
+    case int
+
+    public var valueType: ValueType {
+        switch self {
+        case .float: .float
+        case .int: .int
+        }
+    }
+}
+
+extension Value {
+    public static func > (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.float(let a), .float(let b)): a > b
+        case (.int(let a), .int(let b)): a > b
+        default: false
+        }
+    }
+    public static func >= (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.float(let a), .float(let b)): a >= b
+        case (.int(let a), .int(let b)): a >= b
+        default: false
+        }
+    }
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.float(let a), .float(let b)): a < b
+        case (.int(let a), .int(let b)): a < b
+        default: false
+        }
+    }
+    public static func <= (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.float(let a), .float(let b)): a <= b
+        case (.int(let a), .int(let b)): a <= b
+        default: false
+        }
+    }
+}
+
 public enum NumericDivValueType: Sendable, Equatable, Codable, CaseIterable {
     case float
     case int

@@ -53,6 +53,11 @@ public enum VectorOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
 public enum BooleanOperation: Sendable, Hashable, Codable {
     case ifNode(ValueType)
+    case equalNode(ValueType)
+    case greater(NumericComparableValueType)
+    case greaterOrEqual(NumericComparableValueType)
+    case smaller(NumericComparableValueType)
+    case smallerOrEqual(NumericComparableValueType)
     case andNode
     case orNode
     case xorNode
@@ -72,6 +77,8 @@ public enum BooleanOperation: Sendable, Hashable, Codable {
         switch self {
         case .ifNode(let type):
             Nodes.BooleanOperations.IfNode.impl(type)
+        case .equalNode(let type):
+            Nodes.BooleanOperations.equalNodeImpl(type)
         case .andNode:
             Nodes.BooleanOperations.AndNode.impl()
         case .orNode:
@@ -80,6 +87,14 @@ public enum BooleanOperation: Sendable, Hashable, Codable {
             Nodes.BooleanOperations.XorNode.impl()
         case .notNode:
             Nodes.BooleanOperations.NotNode.impl()
+        case .greater(let type):
+            Nodes.BooleanOperations.greaterThanNodeImpl(type)
+        case .greaterOrEqual(let type):
+            Nodes.BooleanOperations.greaterOrEqualThanNodeImpl(type)
+        case .smaller(let type):
+            Nodes.BooleanOperations.smallerThanNodeImpl(type)
+        case .smallerOrEqual(let type):
+            Nodes.BooleanOperations.smallerOrEqualThanNodeImpl(type)
         }
     }
 }

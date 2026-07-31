@@ -2,10 +2,81 @@ import Values
 
 extension Nodes {
     public struct BooleanOperations {
+
+        public static func equalNodeImpl(_ type: ValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Equal (\(type))",
+                inputs: [
+                    .init(name: "A", type: type),
+                    .init(name: "B", type: type),
+                ],
+                outputs: [.init(name: "Value", type: .bool)]
+            )
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].bool = node.inputs[0] == node.inputs[1]
+            }
+        }
+
+        public static func greaterThanNodeImpl(_ type: NumericComparableValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Greater Than (\(type.valueType))",
+                inputs: [
+                    .init(name: "A", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
+                ],
+                outputs: [.init(name: "Value", type: .bool)]
+            )
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].bool = node.inputs[0] > node.inputs[1]
+            }
+        }
+
+        public static func greaterOrEqualThanNodeImpl(_ type: NumericComparableValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Greater Than or Equal (\(type.valueType))",
+                inputs: [
+                    .init(name: "A", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
+                ],
+                outputs: [.init(name: "Value", type: .bool)]
+            )
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].bool = node.inputs[0] >= node.inputs[1]
+            }
+        }
+
+        public static func smallerThanNodeImpl(_ type: NumericComparableValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Less Than (\(type.valueType))",
+                inputs: [
+                    .init(name: "A", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
+                ],
+                outputs: [.init(name: "Value", type: .bool)]
+            )
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].bool = node.inputs[0] < node.inputs[1]
+            }
+        }
+
+        public static func smallerOrEqualThanNodeImpl(_ type: NumericComparableValueType) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Less Than or Equal (\(type.valueType))",
+                inputs: [
+                    .init(name: "A", type: type.valueType),
+                    .init(name: "B", type: type.valueType),
+                ],
+                outputs: [.init(name: "Value", type: .bool)]
+            )
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].bool = node.inputs[0] <= node.inputs[1]
+            }
+        }
+
         public struct IfNode: NodeImplProvider {
             public static func impl(_ type: ValueType) -> NodeImpl {
                 let schema = NodeSchema(
-                    name: "If",
+                    name: "If (\(type))",
                     inputs: [
                         .init(name: "Condition", defaultValue: .bool(false)),
                         .init(name: "Then", type: type),
