@@ -73,8 +73,12 @@ public final class FlowDocument: NSDocument {
         let (snapshot, pathManager) = MainActor.unsafeAssumeIsolated { (self.snapshot(), self.assetStore.pathManager) }
         var assetsFws = existingFile?.fileWrappers?["Assets"]?.fileWrappers ?? [String: FileWrapper]()
         var urls = [URL]()
-        // do {
-        for (_, asset) in snapshot.assets.assets {
+
+        guard case let .v0(v0) = snapshot, case let .v0(assets) = v0.assets else {
+            throw FlowDocumentError.save(.shapshotInvalidVersion)
+        }
+
+        for (_, asset) in assets.assets {
             switch asset.state {
             case .loaded(let filename, _):
                 if let url: URL = try? pathManager.url(temporaryAssetFileURL: asset),
@@ -93,7 +97,7 @@ public final class FlowDocument: NSDocument {
 
         // Exclude any unlisted assets
         assetsFws = assetsFws.filter { asset in
-            if !snapshot.assets.assets.contains(where: { e in e.value.filename == asset.key }) {
+            if !assets.assets.contains(where: { e in e.value.filename == asset.key }) {
                 false
             } else {
                 true
@@ -160,12 +164,17 @@ public final class FlowDocument: NSDocument {
 
 enum FlowDocumentError: Error {
     case read(ReadError)
+    case save(SaveError)
 
     enum ReadError: Error {
         case unsupportedType(String)
         case noChildFileWrappers
         case missinFlowJson
         case flowJsonReadDataError
+    }
+
+    enum SaveError: Error {
+        case shapshotInvalidVersion
     }
 }
 
@@ -180,11 +189,14 @@ extension MainActor {
 }
 
 extension FlowDocument: Storable {
-    public struct StorableData: Sendable, Codable {
-        public var id: UUID
-        public var flow: Flow.StorableData
-        public var canvas: CanvasFeatureState.StorableData
-        public var assets: AssetStore.StorableData
+    public enum StorableData: Sendable, Codable {
+        case v0(V0)
+        public struct V0: Sendable, Codable {
+            public var id: UUID
+            public var flow: Flow.StorableData
+            public var canvas: CanvasFeatureState.StorableData
+            public var assets: AssetStore.StorableData
+        }
     }
 
     public convenience init(_ data: StorableData) {
@@ -192,18 +204,23 @@ extension FlowDocument: Storable {
     }
 
     public func restore(_ snapshot: StorableData) {
-        self.id = snapshot.id
-        self.flow.restore(snapshot.flow)
-        self.canvas.restore(snapshot.canvas)
-        self.assetStore.restore(snapshot.assets)
+        switch snapshot {
+        case .v0(let snapshot):
+            self.id = snapshot.id
+            self.flow.restore(snapshot.flow)
+            self.canvas.restore(snapshot.canvas)
+            self.assetStore.restore(snapshot.assets)
+        }
     }
 
     public func snapshot() -> StorableData {
-        .init(
-            id: self.id,
-            flow: self.flow.snapshot(),
-            canvas: self.canvas.snapshot(),
-            assets: self.assetStore.snapshot()
+        .v0(
+            .init(
+                id: self.id,
+                flow: self.flow.snapshot(),
+                canvas: self.canvas.snapshot(),
+                assets: self.assetStore.snapshot()
+            )
         )
     }
 }

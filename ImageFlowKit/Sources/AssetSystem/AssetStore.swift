@@ -126,30 +126,41 @@ public final class AssetStore {
 }
 
 extension AssetStore: Storable {
-    public struct StorableData: Sendable, Codable {
-        public var assets: [UUID: Asset] = [:]
 
-        public init(assets: [UUID: Asset] = [:]) {
-            self.assets = assets
+    public enum StorableData: Sendable, Codable {
+        case v0(V0)
+
+        public struct V0: Sendable, Codable {
+            public var assets: [UUID: Asset] = [:]
+
+            public init(assets: [UUID: Asset] = [:]) {
+                self.assets = assets
+            }
         }
     }
 
     public convenience init(_ data: StorableData) {
-        self.init()
-        for (_, asset) in data.assets {
-            self.registerAsset(asset)
+        switch data {
+        case .v0(let data):
+            self.init()
+            for (_, asset) in data.assets {
+                self.registerAsset(asset)
+            }
         }
     }
 
     public func restore(_ snapshot: StorableData) {
-        Task {
-            await self.resourceManager.clear()
-            await self.restoreRegisterAssets(snapshot.assets.values)
-            self.publisher.send(.asssetsDidChange)
+        switch snapshot {
+        case .v0(let snapshot):
+            Task {
+                await self.resourceManager.clear()
+                await self.restoreRegisterAssets(snapshot.assets.values)
+                self.publisher.send(.asssetsDidChange)
+            }
         }
     }
 
     public func snapshot() -> StorableData {
-        .init(assets: self.assets)
+        .v0(.init(assets: self.assets))
     }
 }

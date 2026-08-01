@@ -10,7 +10,7 @@ import Helpers
 import SwiftUI
 import Values
 
-public struct FlowNode: Sendable, Equatable, Codable {
+public struct FlowNode: Sendable, Equatable {
 
     // MARK: - Public Properties
 

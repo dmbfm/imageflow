@@ -18,7 +18,6 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case compositeOperation(CompositeOperationNodeKind)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
-
 }
 
 public enum VectorOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
