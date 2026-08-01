@@ -75,7 +75,8 @@ final class AssetControl: Control<Optional<AssetIdentifier>, (), AssetControlCon
     }
 
     func setDisabled(_ disabled: Bool) {
-        self.button.isEnabled = !disabled
+        self.button.isHidden = disabled
+        self.update()
     }
 
     func onClick() {
@@ -84,6 +85,6 @@ final class AssetControl: Control<Optional<AssetIdentifier>, (), AssetControlCon
 
     func update() {
         self.button.title = self.label
-        self.removeButton.isHidden = self.value == nil
+        self.removeButton.isHidden = self.value == nil || self.button.isHidden
     }
 }
