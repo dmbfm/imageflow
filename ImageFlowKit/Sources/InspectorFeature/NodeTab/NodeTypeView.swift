@@ -44,6 +44,7 @@ final class NodeTypeView: XView, Rx, WithRef {
 
     lazy var simpleLabelView: Label = {
         Label(self.name)
+            .withContentCompressionResistancePriority(.defaultLow - 10, for: .horizontal)
     }()
 
     lazy var pickerView: Picker = {
