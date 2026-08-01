@@ -1101,9 +1101,9 @@ extension Nodes.CoreImageCustom {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
-                        name: "Gradient",
+                        name: "Gradient Data",
                         defaultValue: .gradientData(.default),
-                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                        editorPlacement: .default,
                     ),
                 ],
                 outputs: [
@@ -1139,9 +1139,9 @@ extension Nodes.CoreImageCustom {
                     .init(name: "Width", defaultValue: .int(256)),
                     .init(name: "Height", defaultValue: .int(256)),
                     .init(
-                        name: "Colors",
+                        name: "Gradient Data",
                         defaultValue: .gradientData(.default),
-                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                        editorPlacement: .default,
                     ),
                 ],
                 outputs: [
@@ -1177,9 +1177,9 @@ extension Nodes.CoreImageCustom {
                     .init(name: "Outer Radius", defaultValue: .float(128.0)),
                     .init(name: "Padding", defaultValue: .int(0), semantics: .integer(.partialRangeFrom(0))),
                     .init(
-                        name: "Colors",
+                        name: "Gradient Data",
                         defaultValue: .gradientData(.default),
-                        editorPlacement: .init(nodeView: .hidden, inspector: .controls)
+                        editorPlacement: .default,
                     ),
                 ],
                 outputs: [

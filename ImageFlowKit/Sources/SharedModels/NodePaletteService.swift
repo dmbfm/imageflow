@@ -119,7 +119,6 @@ private struct Categories {
                         .floatArray,
                         .attributedString,
                         .colorSpace,
-                        .gradientData,
                         .lut,
                     ]
                 )

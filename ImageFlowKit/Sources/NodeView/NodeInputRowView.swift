@@ -168,7 +168,7 @@ public final class NodeInputRowView: XView {
                     isEditable: self.vm.isEditable,
                     delegate: self.delegate
                 )
-            case .affineTransform, .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7:
+            case .affineTransform, .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .gradientData:
                 EmptyControlView(value: self.vm.input.value)
             default:
                 StaticLabelNodeControl(self.vm.input.value, "<\(self.vm.input.value.type)>")
