@@ -41,6 +41,7 @@ final class PropertyTitleView: XView, Rx, WithRef {
 
     lazy var labelView: Label = {
         Label(self.label)
+            .withContentCompressionResistancePriority(.defaultLow - 10, for: .horizontal)
     }()
 
     lazy var restoreButton: Button = {
