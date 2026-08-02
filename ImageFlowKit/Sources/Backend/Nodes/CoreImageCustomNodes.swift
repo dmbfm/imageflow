@@ -424,7 +424,7 @@ extension Nodes.CoreImageCustom {
                     .init(name: "Color 1", defaultValue: .color4(.red)),
                     .init(name: "Color 2", defaultValue: .color4(.white)),
                     .init(name: "Size", defaultValue: .float(40)),
-                    .init(name: "Sharpness", defaultValue: .float(1.0)),
+                    .init(name: "Sharpness", defaultValue: .float(1.0), semantics: .float(.range(0.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
