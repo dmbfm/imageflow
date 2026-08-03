@@ -183,6 +183,7 @@ private struct Categories {
         .init(
             name: .colorAdjustment,
             items: CIFilterNodeKind.ColoradjustmentNodeKind.allCases
+                .excluding(elementsOf: [.CIDisparityToDepth, .CIDepthToDisparity])
                 .map { NodeKind.coreImageFilterNode(.colorAdjustment($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorAdjustment.allKinds)
                 .map { kind in
