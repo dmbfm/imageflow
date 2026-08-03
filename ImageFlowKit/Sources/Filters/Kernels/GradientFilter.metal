@@ -85,7 +85,7 @@ extern "C" {
                         s += noise_amount * 0.15 * triangle_noise(dest.coord());
                     }
                     
-                    return grad_sample(data, interp_type, s);
+                    return premultiply(grad_sample(data, interp_type, s));
                 } break;
                     
                 case GRAD_TYPE_RADIAL:
@@ -102,7 +102,7 @@ extern "C" {
                 } break;
                     
                 default:
-                    return float4(1.0, 0.0, 0.0, 1.0);
+                    return premultiply(float4(1.0, 0.0, 0.0, 1.0));
             }
         }
     }

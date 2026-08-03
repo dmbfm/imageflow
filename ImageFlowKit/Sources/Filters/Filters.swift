@@ -57,11 +57,11 @@ public final class GradientFilter: CIFilter {
         var data = Data(count: width * 8)
 
         for (index, stop) in self.gradientData.stops.enumerated() {
-            let s = UInt8(stop.position * 255.999)
-            let r = UInt8(stop.color.red * 255.999)
-            let g = UInt8(stop.color.green * 255.999)
-            let b = UInt8(stop.color.blue * 255.999)
-            let a = UInt8(stop.color.alpha * 255.999)
+            let s = UInt8(stop.position * 255)
+            let r = UInt8(stop.color.red * 255)
+            let g = UInt8(stop.color.green * 255)
+            let b = UInt8(stop.color.blue * 255)
+            let a = UInt8(stop.color.alpha * 255)
             data[4 * index] = s
             data[4 * width + 4 * index] = r
             data[4 * width + 4 * index + 1] = g
@@ -91,6 +91,6 @@ public final class GradientFilter: CIFilter {
                 p0,
                 p1,
             ]
-        )?.premultiplyingAlpha()
+        )
     }
 }
