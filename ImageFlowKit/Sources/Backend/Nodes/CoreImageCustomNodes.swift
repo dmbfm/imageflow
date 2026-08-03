@@ -773,8 +773,6 @@ extension Nodes.CoreImageCustom {
                 name: "Palettize (KMeans)",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
-                    // .init(name: "Extent", type: .rect, semantics: .rectangle),
-                    // .init(name: "Means", type: .image, semantics: .image),
                     .init(name: "Count", defaultValue: .int(8), semantics: .integer(.partialRangeFrom(0))),
                     .init(name: "Passes", defaultValue: .int(5), semantics: .integer(.partialRangeFrom(0))),
                     .init(name: "Perceptual", defaultValue: .bool(false), semantics: .boolean),
@@ -819,6 +817,57 @@ extension Nodes.CoreImageCustom {
                     } else {
                         node.outputs[0] = .image(await context.addImage(nil, 0))
                     }
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
+    public struct PalettizeNode: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Palettize",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Palette Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Perceptual",
+                        defaultValue: .bool(false),
+                        semantics: .boolean,
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIPalettize")!
+                guard let paletteImage = await context.getImage(node.inputs[1].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+                let finalPaletteImage =
+                    if paletteImage.extent.width > 1.0 {
+                        paletteImage.cropped(
+                            to: .init(
+                                x: paletteImage.extent.origin.x,
+                                y: paletteImage.extent.origin.y,
+                                width: paletteImage.extent.width,
+                                height: 1.0
+                            )
+                        )
+                    } else {
+                        paletteImage
+                    }
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(finalPaletteImage, forKey: "inputPaletteImage")
+                filter.setValue(node.inputs[2].bool, forKey: "inputPerceptual")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
                     node.outputs[0] = .image(await context.addImage(nil, 0))
                 }

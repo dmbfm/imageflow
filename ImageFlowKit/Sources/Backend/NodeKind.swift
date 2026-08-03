@@ -524,6 +524,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     public enum ColorEffect: Sendable, Hashable, Codable, CaseIterable {
         case palettizeKMeans
+        case palettize
         case colorMap
         case colorPosterize
 
@@ -537,6 +538,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
         public var impl: NodeImpl {
             switch self {
+            case .palettize:
+                Nodes.CoreImageCustom.PalettizeNode.impl()
             case .palettizeKMeans:
                 Nodes.CoreImageCustom.PalettizeKMeans.impl()
             case .colorMap:

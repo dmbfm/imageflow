@@ -194,7 +194,7 @@ private struct Categories {
         .init(
             name: .colorEffect,
             items: CIFilterNodeKind.ColoreffectNodeKind.allCases
-                .excluding(elementsOf: [.CIColorMap, .CIColorPosterize, .CILabDeltaE, .CIVignetteEffect])
+                .excluding(elementsOf: [.CIColorMap, .CIColorPosterize, .CILabDeltaE, .CIVignetteEffect, .CIPalettize])
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .colorEffect) }
