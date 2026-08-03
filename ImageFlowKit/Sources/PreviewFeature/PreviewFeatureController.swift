@@ -18,6 +18,18 @@ public class PreviewFeatureController: XViewController {
         self.state.image != nil
     }
 
+    public var isDocked: Bool {
+        self.state.isDocked
+    }
+
+    public var dockLocation: CardDockLocation? {
+        self.state.dockLocation
+    }
+
+    public var dockedHeight: CGFloat {
+        self.cardStageView.dockedHeight
+    }
+
     // MARK: - Internal Properties
 
     /// A reference to the `Flow` model

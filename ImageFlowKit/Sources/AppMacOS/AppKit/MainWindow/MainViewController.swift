@@ -186,11 +186,29 @@ extension MainViewController {
     ///   - typedPort: The optonal existing port it will be connected to.
     ///
     func newNode(node: FlowNode, centeredAt point: Point?, typedPort: TypedPortLocation?) {
-        let point = point ?? .canvasView(self.canvasView.safeAreaRect.center)
+        var actualPoint: Point {
+            if let point = point {
+                return point
+            } else {
+                switch self.previewVC.dockLocation {
+                case .none:
+                    return .canvasView(self.canvasView.safeAreaRect.center)
+                case .bottom:
+                    var r = self.canvasView.safeAreaRect
+                    r.size.height -= self.previewVC.dockedHeight
+                    return .canvasView(r.center)
+                case .top:
+                    var r = self.canvasView.safeAreaRect
+                    r.size.height -= self.previewVC.dockedHeight
+                    r.origin.y += self.previewVC.dockedHeight
+                    return .canvasView(r.center)
+                }
+            }
+        }
         let nodeView = NodeView(node)
         let nodeSize = nodeView.intrinsicContentSize
         nodeView.frame.size = nodeSize
-        let nodeTopLeft = point.canvas(view: view, viewport: self.canvasView.viewport).cgPoint
+        let nodeTopLeft = actualPoint.canvas(view: view, viewport: self.canvasView.viewport).cgPoint
         let pos = nodeTopLeft - (nodeSize.cgPoint * 0.5)
         nodeView.setNeedsLayout()
         nodeView.layoutIfNeeded()
