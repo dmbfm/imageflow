@@ -1,7 +1,8 @@
 @preconcurrency import CoreImage
 import Foundation
+import Helpers
 
-public struct Color4: Sendable, Hashable, Codable {
+public struct Color4: Sendable, Hashable, Codable, With {
     public var red: Double
     public var green: Double
     public var blue: Double

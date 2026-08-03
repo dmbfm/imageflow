@@ -24,6 +24,7 @@ extension ValueType {
         case .matrix5x5: "Matrix 5x5"
         case .matrix7x7: "Matrix 7x7"
         case .gradientData: "Gradient Data"
+        case .textStyle: "Text Style"
         }
     }
 }

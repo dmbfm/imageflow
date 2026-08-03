@@ -48,6 +48,8 @@ extension ValueType {
             return "square.grid.3x3.fill"
         case .gradientData:
             return "lightspectrum.horizontal"
+        case .textStyle:
+            return "character.book.closed"
         }
     }
 }

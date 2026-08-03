@@ -24,6 +24,7 @@ public enum Value: Sendable, Hashable, Codable {
     case matrix7x7(Matrix7x7)
     case floatArray([Double])
     case gradientData(GradientData)
+    case textStyle(TextStyle)
 
     // Accessors for every case defined above
 
@@ -41,6 +42,24 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .gradientData(newValue)
             } else {
                 fatalError("Value is not a gradientData: \(self.type)")
+            }
+        }
+    }
+
+    public var textStyle: TextStyle {
+        get {
+            if case .textStyle(let value) = self {
+                return value
+            } else {
+                fatalError("Value is not a textStyle: \(self.type)")
+            }
+        }
+
+        set {
+            if case .textStyle(_) = self {
+                self = .textStyle(newValue)
+            } else {
+                fatalError("Value is not a textStyle: \(self.type)")
             }
         }
     }
@@ -397,6 +416,24 @@ public enum Value: Sendable, Hashable, Codable {
                 self = .gradientData(value)
             } else {
                 fatalError("Value is not a gradientData: \(self.type)")
+            }
+        }
+    }
+
+    public var maybeTextStyle: TextStyle? {
+        get {
+            if case .textStyle(let value) = self {
+                return value
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            if let value = newValue {
+                self = .textStyle(value)
+            } else {
+                fatalError("Value is not a textStyle: \(self.type)")
             }
         }
     }
@@ -847,6 +884,8 @@ extension Value {
             return .floatArray([])
         case .gradientData:
             return .gradientData(.default)
+        case .textStyle:
+            return .textStyle(.init())
         }
     }
 
@@ -894,6 +933,8 @@ extension Value {
             return .floatArray
         case .gradientData:
             return .gradientData
+        case .textStyle:
+            return .textStyle
         }
     }
 }
@@ -943,6 +984,8 @@ extension Value: CustomStringConvertible {
             return "Matrix7x7(\(value))"
         case let .gradientData(value):
             return "GradientData(\(value))"
+        case .textStyle(let value):
+            return "TextStyle \(value)"
         }
     }
 }

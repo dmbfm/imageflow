@@ -1,4 +1,5 @@
 import Backend
+import ComponentKit
 import Helpers
 import SwiftUI
 import TextInput
@@ -60,6 +61,8 @@ final class NodeStringInput: XViewEx, NodeControl {
         self.textField.isEditable = isEditable
 
         self.addSubview(self.textField)
+
+        self.update()
     }
 
     required init?(coder: NSCoder) {
@@ -69,6 +72,7 @@ final class NodeStringInput: XViewEx, NodeControl {
     private func update() {
         if self.textField.text != self.value.string {
             self.textField.text = self.value.string
+            self.emit(.sizeDidChange)
         }
     }
 
@@ -106,6 +110,87 @@ extension NodeStringInput: TextInputDelegate {
 
     func textInputKeyboardWillShow(_ textInput: TextInput, windowVerticalOverlap: Double, animationDuration: Double) {
         self.emit(.keyboardWillShow(windowVerticalOverlap: windowVerticalOverlap, duration: animationDuration))
+    }
+}
+
+final class NodeFontNameInput: XViewEx, NodeControl {
+
+    var onEvent: ((NodeControlEvent) -> ())?
+
+    var value: Value {
+        didSet {
+            if self.value != oldValue {
+                self.update()
+            }
+        }
+    }
+
+    var stringValue: String {
+        self.value.maybeString ?? "Helvetica"
+    }
+
+    var tint: XColor = .systemBlue
+
+    var isEditable: Bool {
+        get {
+            self.fontPicker.isEnabled
+        }
+
+        set {
+            self.fontPicker.isEnabled = newValue
+        }
+    }
+
+    lazy var fontPicker: FontPicker = {
+        FontPicker(self.stringValue)
+            .with(
+                \.onChange,
+                { [unowned self] newValue in
+                    if self.stringValue != newValue {
+                        self.value = .string(newValue)
+                        self.emit(.valueDidChange(self.value))
+                        self.emit(.sizeDidChange)
+                    }
+                }
+            )
+    }()
+
+    var context: NodeControlContext = .init()
+
+    func update() {
+        if self.fontPicker.fontName != self.stringValue {
+            self.fontPicker.fontName = self.stringValue
+            self.emit(.sizeDidChange)
+        }
+    }
+
+    init(_ value: Value, isEditable: Bool = true) {
+        self.value = value
+
+        super.init(frame: .zero)
+
+        self.addSubview(self.fontPicker)
+
+        self.fontPicker.isEnabled = isEditable
+
+        self.update()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override var intrinsicContentSize: NSSize {
+        self.fontPicker.intrinsicContentSize
+    }
+
+    override func layout() {
+        super.layout()
+
+        self.fontPicker.frame.origin = .zero
+        self.fontPicker.frame.size = self.fontPicker.intrinsicContentSize
+
+        Layout.align(views: [self.fontPicker], alignment: .verticalCenter, guide: .constant(self.bounds.midY))
     }
 }
 

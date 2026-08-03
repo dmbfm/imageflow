@@ -7,8 +7,58 @@ extension Nodes {
             switch type {
             case .color4:
                 color4Impl(type)
+            case .textStyle:
+                textStyleBuilderNode
             default:
                 defaultImpl(type)
+            }
+        }
+
+        public static var textStyleBuilderNode: NodeImpl {
+            let schema = NodeSchema(
+                name: "Text Style",
+                inputs: [
+                    .init(name: "Font Name", defaultValue: .string("Helvetica"), semantics: .string(.fontName)),
+                    .init(name: "Font Size", defaultValue: .float(22.0)),
+                    .init(name: "Text Color", defaultValue: .color4(.black)),
+                    .init(name: "Background Color", defaultValue: .color4(.clear)),
+                    .init(name: "Stroke Color", defaultValue: .color4(.black)),
+                    .init(name: "Stroke Width", defaultValue: .float(0.0)),
+                    .init(
+                        name: "Underline",
+                        defaultValue: .int(TextStyle.UnderlineStyle.none.rawValue),
+                        semantics: .integer(
+                            .picker(
+                                TextStyle.UnderlineStyle.allCases.map({
+                                    .init(label: $0.displayName, value: $0.rawValue)
+                                })
+                            )
+                        )
+                    ),
+                    .init(name: "Underline Color", defaultValue: .color4(.black)),
+                    .init(name: "Shadow Radius", defaultValue: .float(0.0)),
+                    .init(name: "Shadow Color", defaultValue: .color4(.black.with(\.alpha, 0.2))),
+                    .init(name: "Shadow Offset", defaultValue: .vector2(.zero)),
+                ],
+                outputs: [
+                    .init(name: "Text Style", type: .textStyle)
+                ]
+            )
+
+            return .init(schema: schema) { node, _ in
+                node.outputs[0].textStyle = .init(
+                    fontName: node.inputs[0].string,
+                    fontSize: node.inputs[1].float,
+                    foregroundColor: node.inputs[2].color4,
+                    backgroundColor: node.inputs[3].color4,
+                    strokeColor: node.inputs[4].color4,
+                    strokeWidth: node.inputs[5].float,
+                    underline: .init(rawValue: node.inputs[6].int) ?? .none,
+                    underlineColor: node.inputs[7].color4,
+                    shadowRadius: node.inputs[8].float,
+                    shadowColor: node.inputs[9].color4,
+                    shadowOffset: node.inputs[10].vector2
+                )
             }
         }
 

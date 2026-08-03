@@ -117,7 +117,7 @@ let package = Package(
                 "CubeLutKit",
                 "Helpers",
                 "Filters",
-            ]
+            ],
         ),
         .target(
             name: "SharedModels",

@@ -639,6 +639,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case checkerboardGeneratorNode
         case starShineGeneratorNode
         case constantColorGeneratorNode
+        case textGeneratorNode
 
         public static var allKinds: [NodeKind] {
             Generator.allCases.map { .coreImageCustomNode(.generator($0)) }
@@ -668,6 +669,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.StarShineGeneratorNode.impl()
             case .constantColorGeneratorNode:
                 Nodes.CoreImageCustom.ConstantColorGeneratorNode.impl()
+            case .textGeneratorNode:
+                Nodes.CoreImageCustom.TextNodes.textGeneratorNode
             }
         }
     }

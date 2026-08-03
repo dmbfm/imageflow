@@ -161,7 +161,12 @@ public final class NodeInputRowView: XView {
             case .rect:
                 NodeRectInput(self.vm.input.value, isEditable: self.vm.isEditable)
             case .string:
-                NodeStringInput(self.vm.input.value, isEditable: self.vm.isEditable)
+                switch self.vm.semantics {
+                case .string(.fontName):
+                    NodeFontNameInput(self.vm.input.value, isEditable: self.vm.isEditable)
+                default:
+                    NodeStringInput(self.vm.input.value, isEditable: self.vm.isEditable)
+                }
             case .lut:
                 NodeAssetPicker<LutAssetPicker>(
                     self.vm.input.value,
@@ -171,7 +176,7 @@ public final class NodeInputRowView: XView {
             case .affineTransform, .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .gradientData:
                 EmptyControlView(value: self.vm.input.value)
             default:
-                StaticLabelNodeControl(self.vm.input.value, "<\(self.vm.input.value.type)>")
+                EmptyControlView(value: self.vm.input.value)
             }
         view.clipsToBounds = false
         view.onEvent = { [weak self] event in

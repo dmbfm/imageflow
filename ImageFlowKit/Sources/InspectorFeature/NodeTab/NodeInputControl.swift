@@ -554,6 +554,21 @@ extension NodeInputControl {
         )
     }
 
+    static func fontName(_ value: Value) -> NodeInputControl {
+        NodeInputControl(
+            FontNameControl.map(
+                value,
+                configuration: .nothing,
+                context: .nothing,
+                makeControl: { value, _, _ in .init(value) },
+                bij: .init(to: { .string($0) }, from: { $0.maybeString ?? "" }),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
+            configuration: .compact
+        )
+    }
+
     static func asset(_ value: Value, assetKind: AssetKind, context: AssetControlContext) -> NodeInputControl {
         NodeInputControl(
             AssetControl.map(
@@ -615,6 +630,21 @@ extension NodeInputControl {
                 contextMap: { _ in }
             ),
             configuration: .regular
+        )
+    }
+
+    static func empty() -> NodeInputControl {
+        .init(
+            EmptyControl.map(
+                .string(""),
+                configuration: .nothing,
+                context: .nothing,
+                makeControl: { value, _, _ in .init(value) },
+                bij: .init(to: { .string($0) }, from: { "\($0)" }),
+                configMap: { _ in },
+                contextMap: { _ in }
+            ),
+            configuration: .compact
         )
     }
 }

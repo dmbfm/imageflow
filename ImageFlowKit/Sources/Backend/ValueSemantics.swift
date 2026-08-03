@@ -19,9 +19,14 @@ public enum ValueSemantics: Sendable, Hashable, Codable {
     case image
     case transform
     case scaleVector
+    case string(StringSemantics)
 
     static var integer: Self {
         .integer(.default)
+    }
+
+    public enum StringSemantics: Sendable, Hashable, Codable {
+        case fontName
     }
 
     public enum FloatArraySemantics: Sendable, Hashable, Codable {

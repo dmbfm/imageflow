@@ -66,15 +66,17 @@ private struct Categories {
         ]
     )
 
-    static let image: NodePaletteCategory = .init(name: .image, items: [
-        .init(nodeKind: .splitValue(.imageSize), categoryName: .image),
-        .init(nodeKind: .splitValue(.imageOrigin), categoryName: .image),
-        .init(nodeKind: .splitValue(.imageRect), categoryName: .image),
-        .init(nodeKind: .splitValue(.imageChannels), categoryName: .image),
-        .init(nodeKind: .combineValue(.imageRGB), categoryName: .image),
-        .init(nodeKind: .combineValue(.imageRGBA), categoryName: .image),
-        // .init(nodeKind: .splitValue(.mas), categoryName: .image),
-    ])
+    static let image: NodePaletteCategory = .init(
+        name: .image,
+        items: [
+            .init(nodeKind: .splitValue(.imageSize), categoryName: .image),
+            .init(nodeKind: .splitValue(.imageOrigin), categoryName: .image),
+            .init(nodeKind: .splitValue(.imageRect), categoryName: .image),
+            .init(nodeKind: .splitValue(.imageChannels), categoryName: .image),
+            .init(nodeKind: .combineValue(.imageRGB), categoryName: .image),
+            .init(nodeKind: .combineValue(.imageRGBA), categoryName: .image),
+        ]
+    )
 
     static let mathFunctions: NodePaletteCategory = .init(
         name: .functions,

@@ -29,7 +29,6 @@ final class NodeInputView: XView, Rx, WithRef {
     init(_ vm: NodeInputViewModel) {
         self.vm = vm
         self.semantics = vm.semantics
-        // self.type = vm.value.type
 
         super.init(frame: .zero)
 
@@ -86,7 +85,12 @@ final class NodeInputView: XView, Rx, WithRef {
                 context: self.assetControlContext
             )
         case .string:
-            .string(self.vm.value)
+            switch self.vm.semantics {
+            case .string(.fontName):
+                .fontName(self.vm.value)
+            default:
+                .string(self.vm.value)
+            }
         case .matrix2x2:
             .matrix(self.vm.value, dim: 2, configuration: .init(), context: self.floatControlContextContext)
         case .matrix3x3:
@@ -141,9 +145,7 @@ final class NodeInputView: XView, Rx, WithRef {
                 .staticLabel(.string(""))
             }
         default:
-            {
-                .staticLabel(self.vm.value)
-            }()
+            .empty()
         }
     }
 
