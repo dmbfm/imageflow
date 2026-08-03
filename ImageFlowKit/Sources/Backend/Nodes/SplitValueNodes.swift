@@ -8,7 +8,7 @@ extension Nodes {
         struct ImageChannelsNode: NodeImplProvider {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
-                    name: "Mask From Channel",
+                    name: "Channel Masks",
                     inputs: [
                         .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)
                     ],

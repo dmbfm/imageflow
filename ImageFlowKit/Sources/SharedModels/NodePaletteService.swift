@@ -66,6 +66,16 @@ private struct Categories {
         ]
     )
 
+    static let image: NodePaletteCategory = .init(name: .image, items: [
+        .init(nodeKind: .splitValue(.imageSize), categoryName: .image),
+        .init(nodeKind: .splitValue(.imageOrigin), categoryName: .image),
+        .init(nodeKind: .splitValue(.imageRect), categoryName: .image),
+        .init(nodeKind: .splitValue(.imageChannels), categoryName: .image),
+        .init(nodeKind: .combineValue(.imageRGB), categoryName: .image),
+        .init(nodeKind: .combineValue(.imageRGBA), categoryName: .image),
+        // .init(nodeKind: .splitValue(.mas), categoryName: .image),
+    ])
+
     static let mathFunctions: NodePaletteCategory = .init(
         name: .functions,
         items: MathFunctionNodeKind.allKinds.map({ .init(nodeKind: $0, categoryName: .functions) })
@@ -135,6 +145,7 @@ private struct Categories {
         .init(
             name: .split,
             items: SplitValueNodeKind.allCases
+                .excluding(elementsOf: [.imageRect, .imageSize, .imageOrigin, .imageChannels])
                 .map({ NodeKind.splitValue($0) })
                 .map { .init(nodeKind: $0, categoryName: .split) }
         )
@@ -143,6 +154,7 @@ private struct Categories {
         .init(
             name: .combine,
             items: CombineValueNodeKind.allCases
+                .excluding(elementsOf: [.imageRGB, .imageRGBA])
                 .map({ NodeKind.combineValue($0) })
                 .map { .init(nodeKind: $0, categoryName: .combine) }
         )
@@ -393,6 +405,7 @@ public class NodePaletteService {
         var result = [NodePaletteCategory]()
 
         result.append(Categories.input)
+        result.append(Categories.image)
         result.append(Categories.blur)
         result.append(Categories.colorAdjustment)
         result.append(Categories.colorEffect)
@@ -537,6 +550,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case math = "Math Operations"
     case functions = "Math Functions"
     case booleanOperations = "Boolean Operations"
+    case image = "Image"
     case vectorOperations = "Vector Operations"
     case blur = "Blur"
     case split = "Split"

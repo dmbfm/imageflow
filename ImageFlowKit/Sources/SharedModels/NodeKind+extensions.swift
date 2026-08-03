@@ -108,7 +108,7 @@ public extension NodeKind {
         case .valueNode(let valueType):
             valueType.icon
         case .splitValue(.imageRect), .splitValue(.imageSize), .splitValue(.imageOrigin):
-            "photo.badge.magnifyingglass"
+            "photo"
         case .splitValue(_):
             "arrow.trianglehead.branch"
         case .combineValue(_):
