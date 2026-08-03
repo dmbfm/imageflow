@@ -268,7 +268,7 @@ extension Nodes.CoreImageCustom {
                     .init(name: "Width", defaultValue: .int(256), semantics: .integer(.partialRangeFrom(1))),
                     .init(name: "Height", defaultValue: .int(256), semantics: .integer(.partialRangeFrom(1))),
                     .init(name: "Radius", defaultValue: .float(10)),
-                    .init(name: "Smoothness", defaultValue: .float(0)),
+                    .init(name: "Smoothness", defaultValue: .float(0), semantics: .float(.range(0...1))),
                     .init(name: "Blur", defaultValue: .float(10)),
                     .init(name: "Color", defaultValue: .color4(.white)),
                 ],
