@@ -1,4 +1,5 @@
 import CIImageView
+import ComponentKit
 import CoreImage
 import Design
 import SwiftUI
@@ -18,7 +19,19 @@ class CardContentView: XViewEx {
 
     var image: CIImage? {
         get { self.imageView.image }
-        set { self.imageView.image = newValue }
+        set {
+            if newValue?.extent.isEmpty == true {
+                self.imageView.isHidden = true
+                self.messageView.isHidden = false
+            } else if newValue?.extent.isInfinite == true {
+                self.imageView.isHidden = true
+                self.messageView.isHidden = false
+            } else {
+                self.imageView.isHidden = false
+                self.messageView.isHidden = true
+                self.imageView.image = newValue
+            }
+        }
     }
 
     // MARK: - Subviews
@@ -31,6 +44,13 @@ class CardContentView: XViewEx {
         )
         view.safeAreaRegions = []
         return view
+    }()
+
+    lazy var messageView: ComponentKit::VStack = {
+        VStack(views: [
+            Label("Image is empty!")
+        ])
+        .with(\.isHidden, true)
     }()
 
     lazy var imageView: CIImageXView = {
@@ -47,6 +67,7 @@ class CardContentView: XViewEx {
         super.init(frame: .zero)
 
         self.addSubview(self.imageView)
+        self.addSubview(self.messageView)
         self.addSubview(self.controlsOverlayView)
 
         #if os(iOS)
@@ -111,6 +132,7 @@ class CardContentView: XViewEx {
         super.layout()
 
         self.imageView.frame = self.bounds
+        self.messageView.frame = self.bounds
         self.controlsOverlayView.frame = self.bounds
     }
 }

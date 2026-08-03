@@ -38,70 +38,100 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIToneCurve",
         ]
 
-    static let overrides: [Override] = [
-        .init(name: "CIToneMapHeadroom", filterOverride: .input("inputSourceHeadroom", .defaultValue(.float(1.0)))),
-        .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .type(.count))),
-        .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .valueType(.int))),
-        .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .defaultValue(.int(3)))),
-        .init(
-            name: "CIBlurredRectangleGenerator",
-            filterOverride: .input(
-                "inputExtent",
-                .defaultValue(.rect(.init(x: 0, y: 0, width: 256, height: 256)))
+    static let overrides: [Override] =
+        [
+            .init(name: "CIToneMapHeadroom", filterOverride: .input("inputSourceHeadroom", .defaultValue(.float(1.0)))),
+            .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .type(.count))),
+            .init(name: "CIAccordionFoldTransition", filterOverride: .input("inputNumberOfFolds", .valueType(.int))),
+            .init(
+                name: "CIAccordionFoldTransition",
+                filterOverride: .input("inputNumberOfFolds", .defaultValue(.int(3)))
+            ),
+            .init(
+                name: "CIBlurredRectangleGenerator",
+                filterOverride: .input(
+                    "inputExtent",
+                    .defaultValue(.rect(.init(x: 0, y: 0, width: 256, height: 256)))
+                )
+            ),
+            .init(
+                name: "CIColorClamp",
+                filterOverride: .input("inputMinComponents", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0))))
+            ),
+            .init(
+                name: "CIColorClamp",
+                filterOverride: .input("inputMaxComponents", .defaultValue(.vector4(.init(x: 1, y: 1, z: 1, w: 1))))
+            ),
+            .init(
+                name: "CIColorMatrix",
+                filterOverride: .inputs(
+                    [
+                        ("inputRVector", .defaultValue(.vector4(.init(x: 1, y: 0, z: 0, w: 0)))),
+                        ("inputGVector", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputBVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 1, w: 0)))),
+                        ("inputAVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 1)))),
+                        ("inputBiasVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0)))),
+                    ])
+            ),
+            .init(
+                name: "CIColorPolynomial",
+                filterOverride: .inputs(
+                    [
+                        ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputAlphaCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ])
+            ),
+            .init(
+                name: "CIColorCrossPolynomial",
+                filterOverride: .inputs(
+                    [
+                        ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                        ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
+                    ])
+            ),
+            .init(
+                name: "CIDroste",
+                filterOverride: .inputs(
+                    [
+                        ("inputStrands", .defaultValue(.int(1))),
+                        ("inputStrands", .type(.count)),
+                    ]
+                )
+            ),
+            .init(
+                name: "CICrop",
+                filterOverride: .input(
+                    "inputRectangle",
+                    .defaultValue(.rect(.init(x: 0, y: 0, width: 100, height: 100)))
+                )
+            ),
+        ]
+        + [
+            "CIAreaAlphaWeightedHistogram",
+            "CIAreaAverage",
+            "CIAreaAverageMaximumRed",
+            "CIAreaBoundsRed",
+            "CIAreaHistogram",
+            "CIAreaLogarithmicHistogram",
+            "CIAreaMaximum",
+            "CIAreaMaximumAlpha",
+            "CIAreaMinimum",
+            "CIAreaMinimumAlpha",
+            "CIAreaMinMax",
+            "CIAreaMinMaxRed",
+            "CIColumnAverage",
+            "CIHistogramDisplayFilter",
+            "CIKMeans",
+            "CIRowAverage",
+        ].map({ name in
+            .init(
+                name: name,
+                filterOverride: .input("inputExtent", .defaultValue(.rect(.init(x: 0, y: 0, width: 150, height: 150))))
             )
-        ),
-        .init(
-            name: "CIColorClamp",
-            filterOverride: .input("inputMinComponents", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0))))
-        ),
-        .init(
-            name: "CIColorClamp",
-            filterOverride: .input("inputMaxComponents", .defaultValue(.vector4(.init(x: 1, y: 1, z: 1, w: 1))))
-        ),
-        .init(
-            name: "CIColorMatrix",
-            filterOverride: .inputs(
-                [
-                    ("inputRVector", .defaultValue(.vector4(.init(x: 1, y: 0, z: 0, w: 0)))),
-                    ("inputGVector", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputBVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 1, w: 0)))),
-                    ("inputAVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 1)))),
-                    ("inputBiasVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0)))),
-                ])
-        ),
-        .init(
-            name: "CIColorPolynomial",
-            filterOverride: .inputs(
-                [
-                    ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputAlphaCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                ])
-        ),
-        .init(
-            name: "CIColorCrossPolynomial",
-            filterOverride: .inputs(
-                [
-                    ("inputRedCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputGreenCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                    ("inputBlueCoefficients", .defaultValue(.vector4(.init(x: 0, y: 1, z: 0, w: 0)))),
-                ])
-        ),
-        .init(
-            name: "CIDroste",
-            filterOverride: .inputs(
-                [
-                    ("inputStrands", .defaultValue(.int(1))),
-                    ("inputStrands", .type(.count)),
-                ]
-            )
-        ),
-        .init(
-            name: "CICrop",
-            filterOverride: .input("inputRectangle", .defaultValue(.rect(.init(x: 0, y: 0, width: 100, height: 100))))
-        ),
-    ]
+        })
 
     static let fallbackCategories: [String: String] = [
         "CILineOverlay": kCICategoryStylize,

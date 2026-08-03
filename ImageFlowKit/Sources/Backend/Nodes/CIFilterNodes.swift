@@ -947,8 +947,12 @@ extension Nodes {
                 name: "Area Alpha Weighted Histogram",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
@@ -983,7 +987,12 @@ extension Nodes {
                 name: "Area Average",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1010,7 +1019,12 @@ extension Nodes {
                 name: "Area Average and Maximum Red",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1037,7 +1051,12 @@ extension Nodes {
                 name: "Area Bounds Red",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1064,8 +1083,12 @@ extension Nodes {
                 name: "Area Histogram",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
@@ -1100,8 +1123,12 @@ extension Nodes {
                 name: "Area Logarithmic Histogram",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
-                    .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ), .init(name: "Scale", defaultValue: .float(1.0), semantics: .default, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(64),
@@ -1150,7 +1177,12 @@ extension Nodes {
                 name: "Area Maximum",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1177,7 +1209,12 @@ extension Nodes {
                 name: "Area Maximum Alpha",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1204,7 +1241,12 @@ extension Nodes {
                 name: "Area Minimum",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1231,7 +1273,12 @@ extension Nodes {
                 name: "Area Minimum Alpha",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1258,7 +1305,12 @@ extension Nodes {
                 name: "Area Min and Max",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1285,7 +1337,12 @@ extension Nodes {
                 name: "Area Min and Max Red",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -2617,7 +2674,12 @@ extension Nodes {
                 name: "Column Average",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -5056,8 +5118,12 @@ extension Nodes {
                 name: "KMeans",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
-                    .init(name: "Means", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ), .init(name: "Means", type: .image, semantics: .image, editorPlacement: .default),
                     .init(
                         name: "Count",
                         defaultValue: .int(8),
@@ -7482,7 +7548,12 @@ extension Nodes {
                 name: "Row Average",
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(name: "Extent", type: .rect, semantics: .rectangle, editorPlacement: .default),
+                    .init(
+                        name: "Extent",
+                        defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 150.0, height: 150.0)),
+                        semantics: .rectangle,
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)

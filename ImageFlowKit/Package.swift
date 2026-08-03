@@ -148,6 +148,7 @@ let package = Package(
                 "SettingsFeature",
                 "CardStage",
                 "AssetSystem",
+                "ComponentKit",
             ]
         ),
         .target(name: "CIImageView", dependencies: ["XKit", "Helpers"]),

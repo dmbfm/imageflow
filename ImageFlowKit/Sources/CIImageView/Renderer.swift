@@ -85,6 +85,8 @@ class Renderer {
             mtlTextureProvider: { drawable.texture }
         )
 
+        print("extent: \(finalImage.extent)")
+
         do {
             let task = try self.context.startTask(
                 toRender: finalImage,

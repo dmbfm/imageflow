@@ -145,7 +145,8 @@ public extension NodeKind {
         case .vectorOperation(.dotProduct(_)): VectorValueType.allCases.map { .vectorOperation(.dotProduct($0)) }
         case .vectorOperation(.pointDistance(_)): VectorValueType.allCases.map { .vectorOperation(.pointDistance($0)) }
         case .vectorOperation(.vectorLength(_)): VectorValueType.allCases.map { .vectorOperation(.vectorLength($0)) }
-        case .vectorOperation(.vectorNormalize(_)): VectorValueType.allCases.map { .vectorOperation(.vectorNormalize($0)) }
+        case .vectorOperation(.vectorNormalize(_)):
+            VectorValueType.allCases.map { .vectorOperation(.vectorNormalize($0)) }
         case .passthroughNode(_): ValueType.allCases.map { .valueNode($0) }
         case .booleanOperation(.ifNode(_)): ValueType.allCases.map { .booleanOperation(.ifNode($0)) }
         case .booleanOperation(.equalNode(_)): ValueType.allCases.map { .booleanOperation(.equalNode($0)) }

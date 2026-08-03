@@ -297,7 +297,13 @@ private struct Categories {
         .init(
             name: .reduction,
             items: CIFilterNodeKind.ReductionNodeKind.allCases
-                .filter({ $0 != .CIKMeans })
+                .excluding(elementsOf: [
+                    .CIKMeans,
+                    .CIAreaHistogram,
+                    .CIAreaLogarithmicHistogram,
+                    .CIAreaAlphaWeightedHistogram,
+                    .CIHistogramDisplayFilter,
+                ])
                 .map { NodeKind.coreImageFilterNode(.reduction($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.Reduction.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .reduction) }
@@ -385,22 +391,16 @@ public class NodePaletteService {
 
         var result = [NodePaletteCategory]()
 
-        result.append(Categories.math)
-        result.append(Categories.mathFunctions)
-        result.append(Categories.vectorOperations)
-        result.append(Categories.boolaenOperations)
         result.append(Categories.input)
-        result.append(Categories.split)
-        result.append(Categories.combine)
-        result.append(Categories.imageTransform)
-        result.append(Categories.transform)
         result.append(Categories.blur)
         result.append(Categories.colorAdjustment)
         result.append(Categories.colorEffect)
         result.append(Categories.compositeOperation)
         result.append(Categories.distortionEffect)
-        result.append(Categories.generator)
+        result.append(Categories.imageTransform)
+        result.append(Categories.transform)
         result.append(Categories.geometryAdjustment)
+        result.append(Categories.generator)
         result.append(Categories.gradient)
         result.append(Categories.halftone)
         result.append(Categories.reduction)
@@ -409,6 +409,12 @@ public class NodePaletteService {
         result.append(Categories.segmentation)
         result.append(Categories.convolution)
         result.append(Categories.tileEffect)
+        result.append(Categories.split)
+        result.append(Categories.combine)
+        result.append(Categories.math)
+        result.append(Categories.boolaenOperations)
+        result.append(Categories.vectorOperations)
+        result.append(Categories.mathFunctions)
         // result.append(Categories.transition)
         // result.append(Categories.video)
 
