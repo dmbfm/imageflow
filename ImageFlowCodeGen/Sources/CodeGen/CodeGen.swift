@@ -3,13 +3,15 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import Values
 
+let editorVisibilityForInputName: [String: FilterInput.EditorVisibility] = ["inputExtrapolate": .inspectorOnly]
+
 let semantics: [String: [String: String]] = [
     "CIDotScreen": ["inputSharpness": ".float(.range(0...1))"],
     "CIPerspectiveRotate": ["inputFocalLength": ".float(.range(15.0...100.0))"],
     "CIColorControls": [
-        "inputContrast": ".float(.range(-10.0...10.0))",
+        "inputContrast": ".float(.range(0.0...4.0))",
         "inputBrightness": ".float(.range(-2.0...2.0))",
-        "inputSaturation": ".float(.range(-20.0...20.0))",
+        "inputSaturation": ".float(.range(0.0...2.0))",
     ],
     "CIBloom": ["inputIntensity": ".float(.range(0...1))"],
     "CIColorThreshold": ["inputThreshold": ".float(.range(0...1))"],
@@ -108,6 +110,10 @@ let semantics: [String: [String: String]] = [
     ],
     "CIMix": [
         "inputAmount": ".float(.range(0.0...1.0))"
+    ],
+    "CINoiseReduction": [
+        "inputNoiseLevel": ".float(.range(0.0...1.0))",
+        "inputSharpness": ".float(.range(0.0...2.0))",
     ],
 ]
 
@@ -257,12 +263,13 @@ extension FilterInfo {
 
                 let semanticsOverride = semantics[self.name]?[input.name]
                 let semanticsExpr = semanticsOverride ?? (input.type?.semanticsExpr(input) ?? ".default")
+                let editorVisibilityOverride = editorVisibilityForInputName[input.name]
 
                 if let defaultValue = input.defaultValue {
                     return .init(
                         stringLiteral:
                             """
-                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsExpr), editorPlacement: \(input.editorVisibility.expr))
+                            .init(name: "\(input.displayName  ?? input.name)", defaultValue: .\(input.valueType.rawValue)(\(defaultValue.expr)), semantics: \(semanticsExpr), editorPlacement: \((editorVisibilityOverride ??  input.editorVisibility).expr))
                             """
                     )
                 } else {

@@ -2320,7 +2320,7 @@ extension Nodes {
                     .init(
                         name: "Saturation",
                         defaultValue: .float(1.0),
-                        semantics: .float(.range(-20.0...20.0)),
+                        semantics: .float(.range(0.0...2.0)),
                         editorPlacement: .default
                     ),
                     .init(
@@ -2332,7 +2332,7 @@ extension Nodes {
                     .init(
                         name: "Contrast",
                         defaultValue: .float(1.0),
-                        semantics: .float(.range(-10.0...10.0)),
+                        semantics: .float(.range(0.0...4.0)),
                         editorPlacement: .default
                     ),
                 ],
@@ -6336,10 +6336,15 @@ extension Nodes {
                     .init(
                         name: "Noise Level",
                         defaultValue: .float(0.02),
-                        semantics: .default,
+                        semantics: .float(.range(0.0...1.0)),
                         editorPlacement: .default
                     ),
-                    .init(name: "Sharpness", defaultValue: .float(0.4), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Sharpness",
+                        defaultValue: .float(0.4),
+                        semantics: .float(.range(0.0...2.0)),
+                        editorPlacement: .default
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -6935,7 +6940,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -6967,7 +6972,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -6999,7 +7004,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7031,7 +7036,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7063,7 +7068,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7095,7 +7100,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7127,7 +7132,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
@@ -7159,7 +7164,7 @@ extension Nodes {
                         name: "Extrapolate",
                         defaultValue: .bool(false),
                         semantics: .boolean,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hidden, inspector: .options)
                     ),
                 ],
                 outputs: [
