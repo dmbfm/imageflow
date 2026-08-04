@@ -19,4 +19,8 @@ public extension String {
     static let systemIconNode = "list.bullet.rectangle.portrait.fill"
     static let systemIconEdge = "point.topleft.down.to.point.bottomright.curvepath.fill"
     static let systemIconValue = "number"
+    static let systemIconPreviewFloatTl = "inset.filled.topleft.rectangle"
+    static let systemIconPreviewFloatTr = "inset.filled.topright.rectangle"
+    static let systemIconPreviewFloatBl = "inset.filled.bottomleft.rectangle"
+    static let systemIconPreviewFloatBr = "inset.filled.bottomright.rectangle"
 }

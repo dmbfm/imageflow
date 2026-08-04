@@ -15,6 +15,7 @@ import SwiftUI
 import Combine
 import AssetSystem
 import InspectorFeature
+import SettingsFeature
 
 final class MainViewController: NSSplitViewController {
 
@@ -28,6 +29,7 @@ final class MainViewController: NSSplitViewController {
     var undoService: UndoService
 
     var backendRunner: BackendRunner!
+    var settings: SettingsFeatureState = .init()
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
     var inspectorVC: InspectorFeatureController!

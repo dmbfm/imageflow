@@ -5,6 +5,10 @@ import AppKit
 import SharedModels
 
 extension MainViewController {
+    @objc func openSettingsWindow(_ sender: Any?) {
+        self.settings.openSettingsWindow()
+    }
+
     @objc func exportImageCommand(_ sender: Any?) {
         self.perform(userAction: .exportPreviewedImage)
     }

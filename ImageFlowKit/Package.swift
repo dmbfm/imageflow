@@ -263,7 +263,12 @@ let package = Package(
         ),
         .target(
             name: "SettingsFeature",
-            dependencies: []
+            dependencies: [
+                "XKit",
+                "Helpers",
+                "SharedModels",
+                "ComponentKit",
+            ]
         ),
         .target(
             name: "ContextMenus",
