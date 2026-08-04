@@ -75,6 +75,7 @@ public final class ColorPicker: XView, Rx, WithRef {
             layer.addSublayer(self.borderLayer)
         }
 
+        self.checkerBoardLayer.delegate = self
         self.colorLayer.delegate = self
         self.borderLayer.delegate = self
     }
