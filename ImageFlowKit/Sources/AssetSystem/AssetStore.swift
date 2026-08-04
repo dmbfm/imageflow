@@ -70,6 +70,12 @@ public final class AssetStore {
         )
     }
 
+    public func remove(generatedAssetsForNode node: UUID) {
+        Task {
+            await self.resourceManager.remove(generatedAssetsForNode: node)
+        }
+    }
+
     public func removeAsset(_ id: UUID, undoService: UndoService? = nil) {
         guard let asset = self.assets[id] else { return }
         self.assets.removeValue(forKey: id)

@@ -12,6 +12,7 @@ struct PreviewStateMachine {
         case imageLoaded(OutputPortLocation, CIImage)
         case toggleLock
         case pick(OutputPortLocation)
+        case deleteNode(UUID)
     }
 
     enum Effect {
@@ -174,6 +175,17 @@ struct PreviewStateMachine {
                 self.updatedImage(loc)
             case .pick(let loc):
                 self.pick(loc)
+            case .deleteNode(let id):
+                self.deleteNode(id)
+            }
+        }
+
+        func deleteNode(_ node: UUID) -> StateTransition {
+            switch self.contentState {
+            case .something(_, location: let loc, _) where loc.node == node:
+                return .init(newState: self.with(\.contentState, .nothing))
+            default:
+                return .init(newState: self)
             }
         }
 

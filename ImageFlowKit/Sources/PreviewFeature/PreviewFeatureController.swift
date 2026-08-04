@@ -320,6 +320,8 @@ public class PreviewFeatureController: XViewController {
             Task {
                 await self.upadateAvailablePreviewLocations()
             }
+        case .didDeleteNode(let id):
+            self.input(.deleteNode(id))
         default:
             break
         }

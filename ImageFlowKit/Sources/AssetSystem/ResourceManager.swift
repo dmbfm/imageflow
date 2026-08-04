@@ -67,6 +67,15 @@ public final actor ResourceManager {
         }
     }
 
+    public func remove(generatedAssetsForNode node: UUID) {
+        self.storage.images.remove(where: {
+            switch $0 {
+            case .asset(_): false
+            case .nodeOutput(let id, _): id == node
+            }
+        })
+    }
+
     public func addResource(image: CIImage?, for id: AssetIdentifier) {
         if let image {
             self.storage.images[id] = .loaded(image)

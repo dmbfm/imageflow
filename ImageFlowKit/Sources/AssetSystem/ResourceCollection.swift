@@ -27,6 +27,13 @@ struct ResourceCollection<K, R> where K: Sendable & Hashable {
     mutating func remove(_ id: K) {
         self.resources.removeValue(forKey: id)
     }
+
+    mutating func remove(where pred: (K) -> Bool) {
+        let keys = self.resources.keys.filter({ pred($0) })
+        for key in keys {
+            self.resources.removeValue(forKey: key)
+        }
+    }
 }
 
 extension ResourceCollection: Sendable where R: Sendable {}

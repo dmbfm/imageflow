@@ -123,6 +123,8 @@ final class MainViewController: NSSplitViewController {
 
     func onFlowEvent(_ event: FlowEvent) {
         switch event {
+        case .didDeleteNode(let id):
+            self.assetStore.remove(generatedAssetsForNode: id)
         case let .didEndPortDragWithoutCreatingEdge(typedPortLocation, canvasPosition, travelDistance):
             if travelDistance >= GlobalConstants.minTravelDistanceToCreateNode {
                 self.perform(
