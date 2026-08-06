@@ -140,7 +140,10 @@ public class PreviewFeatureController: XViewController {
 
     @MainActor
     deinit {
-        UserDefaults.standard.previewDefaultsData = .init(anchor: self.state.anchor, dockLocation: self.state.dockLocation)
+        UserDefaults.standard.previewDefaultsData = .init(
+            anchor: self.state.anchor,
+            dockLocation: self.state.dockLocation
+        )
         for (_, window) in self.previewWindows {
             window.controller?.close()
         }
@@ -192,6 +195,10 @@ public class PreviewFeatureController: XViewController {
             let lastUsed = UserDefaults.standard.previewDefaultsData
             self.state.anchor = lastUsed.anchor
             self.state.dockLocation = lastUsed.dockLocation
+        }
+
+        if self.state.dockLocation != nil {
+            self.cardStageView.contentView = self.dockedContentView
         }
 
         self.updateView(nil)
