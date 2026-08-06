@@ -1,7 +1,7 @@
 import Foundation
 import Helpers
 
-public enum CardStageAnchor: String, Sendable, Equatable, Identifiable, CaseIterable {
+public enum CardStageAnchor: String, Sendable, Equatable, Identifiable, CaseIterable, Codable {
     public var id: Self { self }
     case topLeft
     case topRight
@@ -21,7 +21,7 @@ public enum CardVisibility {
     }
 }
 
-public enum CardDockLocation: Sendable, Equatable {
+public enum CardDockLocation: Sendable, Equatable, Codable {
     case top
     case bottom
 }

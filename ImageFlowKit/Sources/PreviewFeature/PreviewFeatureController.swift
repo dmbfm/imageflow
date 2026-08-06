@@ -9,6 +9,7 @@ import Helpers
 import CIImageView
 import XKit
 import AssetSystem
+import SettingsFeature
 
 public class PreviewFeatureController: XViewController {
 
@@ -139,6 +140,7 @@ public class PreviewFeatureController: XViewController {
 
     @MainActor
     deinit {
+        UserDefaults.standard.previewDefaultsData = .init(anchor: self.state.anchor, dockLocation: self.state.dockLocation)
         for (_, window) in self.previewWindows {
             window.controller?.close()
         }
@@ -168,6 +170,29 @@ public class PreviewFeatureController: XViewController {
         self.dockedContentView.delegate = self
 
         self.dockedToolbarVM.zoom = self.dockedContentView.zoom
+
+        switch SettingsStore.shared.defaultPreviewLocation {
+        case .bl:
+            self.state.anchor = .bottomLeft
+            self.state.dockLocation = nil
+        case .br:
+            self.state.anchor = .bottomRight
+            self.state.dockLocation = nil
+        case .tl:
+            self.state.anchor = .topLeft
+            self.state.dockLocation = nil
+        case .tr:
+            self.state.anchor = .topRight
+            self.state.dockLocation = nil
+        case .top:
+            self.state.dockLocation = .top
+        case .bottom:
+            self.state.dockLocation = .bottom
+        case .lastUsed:
+            let lastUsed = UserDefaults.standard.previewDefaultsData
+            self.state.anchor = lastUsed.anchor
+            self.state.dockLocation = lastUsed.dockLocation
+        }
 
         self.updateView(nil)
     }
@@ -703,4 +728,30 @@ extension PreviewFeatureController: CIImageScrollXViewDelegate {
         self.dockedToolbarVM.zoom = zoom
     }
 }
+
+extension String {
+    static let defaultsKeyPreviewData: String = "com.dmbfm.imageflow.preview-data"
+}
+
+extension UserDefaults {
+    var previewDefaultsData: PreviewDefaultsData {
+        get {
+            guard let data = self.data(forKey: .defaultsKeyPreviewData) else {
+                return .init(anchor: .bottomRight, dockLocation: nil)
+            }
+
+            return (try? JSONDecoder().decode(PreviewDefaultsData.self, from: data)) ?? .init(anchor: .bottomRight)
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            self.set(data, forKey: .defaultsKeyPreviewData)
+        }
+    }
+}
+
+struct PreviewDefaultsData: Sendable, Codable {
+    var anchor: CardStageAnchor
+    var dockLocation: CardDockLocation?
+}
+
 #endif
