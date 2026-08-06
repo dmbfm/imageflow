@@ -52,6 +52,7 @@ final class NodeNumberInput: XViewEx, NodeControl {
 
     lazy var textField: NumberInputController = {
         let controller = NumberInputController()
+        controller.sensitivityResolver = SensitivityResolver.shared
         controller.sizingMode = .fixedWidth(84)
         controller.style = .default
             .with(\.font, .systemFont(ofSize: 12))

@@ -83,6 +83,7 @@ final class NodeVectorInput: XViewEx, NodeControl {
     lazy var textFields: [NumberInputController] = {
         (0..<dim).map({ idx in
             let controller = NumberInputController()
+            controller.sensitivityResolver = SensitivityResolver.shared
             controller.sizingMode = .fixedWidth(68)
             controller.dragConfiguration = .free(.init(fractionalDigits: 2))
             controller.style = .default

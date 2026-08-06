@@ -101,6 +101,7 @@ final class FloatControlView: XView, WithRef {
             formatter: self.configuration.formatter,
             style: .default
         )
+        .with(\.sensitivityResolver, SensitivityResolver.shared)
         .onChange { [weak self] change in
             self?.value = change.newValue
             self?.onChange?(

@@ -2,6 +2,10 @@ import Combine
 import Helpers
 import XKit
 
+public protocol DragSensitivityResolver: AnyObject {
+    func resolve(sensitivity: Double) -> Double
+}
+
 public final class NumberInput: XView, Rx, WithRef {
 
     // MARK: - Public Properties
@@ -23,6 +27,7 @@ public final class NumberInput: XView, Rx, WithRef {
 
     @PublishedEx public private(set) var isDragging: Bool = false
 
+    public var sensitivityResolver: (any DragSensitivityResolver)?
     public let stepperConfiguration: StepperConfiguration?
 
     public private(set) var textField: TextField
@@ -362,7 +367,8 @@ public final class NumberInput: XView, Rx, WithRef {
         fractionalDigits: Int? = nil,
         partialRange: PartialRangeFrom<Double>? = nil,
     ) {
-        let s = sensitivity.value(forKeyModifiers: dragData.modifiers)
+        let _s = sensitivity.value(forKeyModifiers: dragData.modifiers)
+        let s = self.sensitivityResolver?.resolve(sensitivity: _s) ?? _s
         let snap: DragConfiguration.Snap? = snap?.resolve(dragData.modifiers)
         let newValue = snap.maybeReduce(
             fractionalDigits.maybeReduce(

@@ -52,6 +52,7 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, Numeric
                 formatter: self.configuration.formatter,
                 style: .default
             )
+            .with(\.sensitivityResolver, SensitivityResolver.shared)
             .onChange({ [weak self] change in self?.onNumberInputChange(i, change) })
             .with(\.dragConfiguration, self.configuration.drag)
             view.setContentCompressionResistancePriority(.defaultLow - 10, for: .horizontal)

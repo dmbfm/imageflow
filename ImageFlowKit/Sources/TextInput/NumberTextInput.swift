@@ -12,6 +12,10 @@ public typealias PlatformViewController = NSViewController
 import UIKit
 #endif
 
+public protocol DragSensitivityResolver: AnyObject {
+    func resolve(sensitivity: Double) -> Double
+}
+
 @MainActor
 public class NumberInputController {
 
@@ -32,6 +36,8 @@ public class NumberInputController {
             self.didSetDragConfiguration()
         }
     }
+
+    public var sensitivityResolver: (any DragSensitivityResolver)?
 
     public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter() {
         didSet {
@@ -105,6 +111,11 @@ public class NumberInputController {
         self.update()
     }
 
+    public func withSensitivityResolver<R: DragSensitivityResolver>(_ resolver: R) -> Self {
+        self.sensitivityResolver = resolver
+        return self
+    }
+
     func update() {
         self.view.text = self.formatter.numperInputFormatter(formatValue: self.value)
 
@@ -124,7 +135,8 @@ public class NumberInputController {
         fractionalDigits: Int? = nil,
         partialRange: PartialRangeFrom<Double>? = nil,
     ) {
-        let s = sensitivity.value(forKeyModifiers: dragData.modifiers)
+        let _s = sensitivity.value(forKeyModifiers: dragData.modifiers)
+        let s = self.sensitivityResolver?.resolve(sensitivity: _s) ?? _s
         let snap: DragConfiguration.Snap? = snap?.resolve(dragData.modifiers)
         let newValue = snap.maybeReduce(
             fractionalDigits.maybeReduce(

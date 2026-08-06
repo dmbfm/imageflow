@@ -116,6 +116,7 @@ final class NodeAngleInput: XViewEx, NodeControl {
 
     lazy var numberInput: NumberInputController = {
         let controller = NumberInputController()
+        controller.sensitivityResolver = SensitivityResolver.shared
         controller.sizingMode = .fixedWidth(84)
         controller.style = .default
             .with(\.font, .systemFont(ofSize: 12))

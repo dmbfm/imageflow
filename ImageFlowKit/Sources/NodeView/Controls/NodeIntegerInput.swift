@@ -113,6 +113,7 @@ final class NodeIntegerInput: XViewEx, NodeControl {
 
     lazy var textField: NumberInputController = {
         let controller = NumberInputController()
+        controller.sensitivityResolver = SensitivityResolver.shared
         controller.sizingMode = .fixedWidth(60)
         controller.value = Double(self.value.int)
         controller.dragConfiguration = self.dragConfiguration

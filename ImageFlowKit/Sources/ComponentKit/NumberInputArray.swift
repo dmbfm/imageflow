@@ -27,6 +27,14 @@ public final class NumberInputArray: XView, Rx, WithRef {
     /// The `NumberInput` views.
     public var numberInputs: [NumberInput] = []
 
+    public var sensitivityResolver: (any DragSensitivityResolver)? {
+        didSet {
+            for input in self.numberInputs {
+                input.sensitivityResolver = self.sensitivityResolver
+            }
+        }
+    }
+
     public var disabled: Bool {
         get { !self.isEnabled }
         set { self.isEnabled = !newValue }
@@ -169,6 +177,7 @@ public final class NumberInputArray: XView, Rx, WithRef {
                     .withRef({ self.labels.append($0) }),
                 NumberInput(value, formatter: self.formatter, style: self.style)
                     .with(\.dragConfiguration, self.dragConfiguration)
+                    .with(\.sensitivityResolver, self.sensitivityResolver)
                     .onChange({ [weak self] in self?.numberInputChange(index, change: $0) })
                     .withRef({ self.numberInputs.append($0) })
                     .withRef({ $0.$isDragging.assign(self, \.isDragging).store(in: &self.cancellables) })

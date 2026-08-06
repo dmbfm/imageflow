@@ -80,6 +80,7 @@ final class IntControl: Control<Int, IntControlConfiguration, NumericControlCont
             stepperConfiguration: .init(step: 1.0, size: .small),
             style: .default
         )
+        .with(\.sensitivityResolver, SensitivityResolver.shared)
         .onChange { [weak self] change in
             guard let self else { return }
             self.value = Int(change.newValue)

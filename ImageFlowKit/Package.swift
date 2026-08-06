@@ -211,6 +211,7 @@ let package = Package(
                 "SharedModels",
                 "TextInput",
                 "ComponentKit",
+                "SettingsFeature",
             ]
         ),
         .target(
@@ -282,6 +283,7 @@ let package = Package(
                 "TextInput",
                 "ContextMenus",
                 "ComponentKit",
+                "SettingsFeature",
             ]
         ),
         .target(
