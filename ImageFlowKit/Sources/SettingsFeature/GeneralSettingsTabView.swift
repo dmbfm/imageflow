@@ -25,10 +25,12 @@ final class GeneralTabViewController: NSViewController {
     lazy var stackView: ComponentKit::VStack = {
         let view = VStack(
             alignment: .fill,
-            spacing: 16,
+            spacing: 12,
             views: [
                 self.themeRow,
+                .separator,
                 self.defaultPreviewLocationRowView,
+                .separator,
                 self.numberDragSensitivityRow,
                 self.numberFormattingRow,
             ]
@@ -144,19 +146,14 @@ private final class NumberDragSensitivityRowView: SettingsRegularRowView {
 
     lazy var themePicker: ComponentKit::Picker = {
         Picker(["Light", "Dark", "System"], selected: 2)
-        // .withRef({ $0.inner. })
     }()
 
     override func makeControlView() -> XView {
-        // ComponentKit::HStack(views: [
         VanillaSlider(SettingsStore.shared.numberDragSensitivity, minValue: 0.0, maxValue: 10)
             .with(\.numberOfTickMarks, 11)
             .with(\.allowsTickMarkValuesOnly, true)
             .with(\.translatesAutoresizingMaskIntoConstraints, false)
             .with(\.onChange, { newValue in SettingsStore.shared.numberDragSensitivity = newValue })
-        //         .constrainingWidth(toConstant: 180),
-        //     Spacer(),
-        // ])
     }
 }
 
@@ -166,8 +163,17 @@ class SettingsRegularRowView: XView {
         ""
     }
 
+    var helpText: String? {
+        nil
+    }
+
+    var helpTextSpacing: CGFloat {
+        4.0
+    }
+
     var labelView: XView!
     var controlView: XView!
+    var heppTextView: XView?
 
     override var intrinsicContentSize: NSSize {
         .init(
@@ -177,11 +183,39 @@ class SettingsRegularRowView: XView {
     }
 
     func height() -> CGFloat {
-        max(self.labelView.intrinsicContentSize.height, self.controlView.intrinsicContentSize.height)
+        var x: CGFloat = 0.0
+
+        if let view = self.heppTextView as? NSTextField {
+            let width = self.bounds.width * 0.5 - 10.0
+            let cell = view.cell as! NSTextFieldCell
+            let rect = cell.drawingRect(forBounds: .init(x: 0, y: 0, width: width, height: 10_000))
+            let f = cell.cellSize(forBounds: rect)
+            x = f.height + self.helpTextSpacing
+        }
+
+        return max(
+            self.labelView.intrinsicContentSize.height + x,
+            self.controlView.intrinsicContentSize.height
+        )
     }
 
     func makeLabelView() -> XView {
         Label(self.labelText, alignment: .right)
+    }
+
+    func makeHelpTextView() -> XView? {
+        self.helpText.map({
+            let view = NSTextField(labelWithString: $0)
+            view.font = .preferredFont(forTextStyle: .caption1)
+            view.textColor = .system.secondaryLabel
+            view.maximumNumberOfLines = 1000
+            view.usesSingleLineMode = false
+            view.lineBreakMode = .byWordWrapping
+            view.alignment = .right
+            view.setContentHuggingPriority(.defaultLow - 1, for: .horizontal)
+            view.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)
+            return view
+        })
     }
 
     func makeControlView() -> XView {
@@ -200,22 +234,56 @@ class SettingsRegularRowView: XView {
         self.addSubview(self.labelView)
         self.addSubview(self.controlView)
 
-        NSLayoutConstraint.activate([
-            self.labelView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            self.labelView.trailingAnchor.constraint(equalTo: self.centerXAnchor, constant: -10),
+        if let view = self.makeHelpTextView() {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(view)
+            self.heppTextView = view
 
-            self.controlView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.controlView.leadingAnchor.constraint(equalTo: self.centerXAnchor, constant: 10),
+            NSLayoutConstraint.activate([
+                self.labelView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                self.labelView.trailingAnchor.constraint(equalTo: self.centerXAnchor, constant: -10),
+                self.labelView.topAnchor.constraint(equalTo: self.topAnchor).withPriority(.defaultLow),
 
-            self.labelView.centerYAnchor.constraint(equalTo: self.controlView.centerYAnchor).withPriority(
-                .defaultHigh
-            ),
-        ])
+                view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                view.trailingAnchor.constraint(equalTo: self.centerXAnchor, constant: -10),
+
+                view.topAnchor.constraint(equalTo: self.labelView.bottomAnchor, constant: self.helpTextSpacing),
+
+                self.controlView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                self.controlView.leadingAnchor.constraint(equalTo: self.centerXAnchor, constant: 10),
+                self.controlView.topAnchor.constraint(equalTo: self.topAnchor).withPriority(.defaultLow),
+
+                self.labelView.centerYAnchor.constraint(equalTo: self.controlView.centerYAnchor).withPriority(
+                    .defaultHigh
+                ),
+            ])
+
+        } else {
+            NSLayoutConstraint.activate([
+                self.labelView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                self.labelView.trailingAnchor.constraint(equalTo: self.centerXAnchor, constant: -10),
+
+                self.controlView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                self.controlView.leadingAnchor.constraint(equalTo: self.centerXAnchor, constant: 10),
+
+                self.labelView.centerYAnchor.constraint(equalTo: self.controlView.centerYAnchor).withPriority(
+                    .defaultHigh
+                ),
+            ])
+        }
 
         self.setContentHuggingPriority(.defaultHigh, for: .vertical)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension NSView {
+    static var separator: NSBox {
+        let view = NSBox()
+        view.boxType = .separator
+        return view
     }
 }

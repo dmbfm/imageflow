@@ -20,18 +20,11 @@ public final class SettingsFeatureState {
         let window = NSWindow(contentViewController: self.vc)
         window.styleMask = [.closable, .titled]
         window.title = "Preferences"
-        // window.contentMinSize = .zero
-        // window.contentMaxSize = .init(width: 250, height: .max)
-        // print(
-        //     "content size: \(window.contentMaxSize), \(window.contentMinSize), \(window.contentViewController?.preferredContentSize)"
-        // )
-        // window.contentMaxSize = window.frame.size
-        // window.contentMinSize = window.frame.size
+
         window.center()
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
-        // window.toolbar?.la
-        // window.toolbarStyle = .expanded
+
         window.toolbarStyle = .preference
         self.window = window
     }
@@ -44,14 +37,6 @@ final class SettingsTabViewController: NSTabViewController {
 
     var generalVC: GeneralTabViewController!
     var infoVC: InfoTabViewController!
-
-    // override func loadView() {
-    //     class ContentView: NSTabView {
-    //         override var intrinsicContentSize: NSSize { .init(width: 300, height: Self.noIntrinsicMetric) }
-    //     }
-
-    //     self.view = ContentView()
-    // }
 
     override func viewDidLoad() {
 
