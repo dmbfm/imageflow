@@ -29,7 +29,7 @@ final class MainViewController: NSSplitViewController {
     var undoService: UndoService
 
     var backendRunner: BackendRunner!
-    var settings: SettingsFeatureState = .init()
+    var settings: SettingsFeatureState = .shared
     var sidebarVC: SidebarViewController!
     var detailVC: DetailViewController!
     var inspectorVC: InspectorFeatureController!

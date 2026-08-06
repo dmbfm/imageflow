@@ -8,6 +8,8 @@ public final class SettingsFeatureState {
     private var window: NSWindow?
     private var vc: SettingsTabViewController!
 
+    public static let shared = SettingsFeatureState()
+
     public func openSettingsWindow() {
         if let window = self.window {
             window.makeKeyAndOrderFront(nil)

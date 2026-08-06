@@ -3,12 +3,19 @@ import AppKit
 import Helpers
 import SharedModels
 import SwiftUI
+import SettingsFeature
+import Combine
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var welcomeWindowController: WelcomeWindowController? = nil
     var viewMenuDelegate: ViewMenuDelegate = .init()
+    var cancellables: Set<AnyCancellable> = []
+
+    @objc func openSettingsWindow(_ sender: Any?) {
+        SettingsFeatureState.shared.openSettingsWindow()
+    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         logger.info("applicationDidFinishLaunching")
@@ -16,6 +23,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let menu = NSApp.mainMenu(submenuWithTitle: "View") {
             menu.delegate = self.viewMenuDelegate
         }
+
+        SettingsStore.shared.$appearance.sink { value in
+            let app = NSApplication.shared
+            switch value {
+                case .dark: app.appearance = .init(named: .darkAqua)
+                case .light: app.appearance = .init(named: .aqua)
+                case .system: app.appearance = nil
+            }
+        }.store(in: &self.cancellables)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

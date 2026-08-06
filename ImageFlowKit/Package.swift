@@ -33,7 +33,6 @@ let package = Package(
         .library(name: "NodeView"),
         .library(name: "CanvasFeature"),
         .library(name: "SidebarFeature"),
-        .library(name: "WelcomeWindow"),
         .library(name: "FlowDocument"),
         .library(name: "BackendService"),
         .library(name: "SettingsFeature"),
@@ -235,13 +234,6 @@ let package = Package(
             dependencies: [
                 "Backend",
                 "SharedModels",
-            ]
-        ),
-        .target(
-            name: "WelcomeWindow",
-            dependencies: [
-                "SharedModels",
-                "SettingsFeature",
             ]
         ),
         .target(

@@ -29,7 +29,7 @@ public class SettingsStore {
         }
     }
 
-    static let shared = SettingsStore()
+    public static let shared = SettingsStore()
 
     init() {
         let ud = UserDefaults.standard
@@ -41,10 +41,10 @@ public class SettingsStore {
 }
 
 extension String {
-    static let settingsKeyAppearance: String = "com.dmbfm.imageflow.settings.appearance"
-    static let settingsKeyNumberFormat: String = "com.dmbfm.imageflow.settings.number-format"
-    static let settingsKeyNumberDragSensitivity: String = "com.dmbfm.imageflow.settings.number-drag-sensitivity"
-    static let settingsKeyDefaultPreviewLocation: String = "com.dmbfm.imageflow.settings.default-preview-location"
+    public static let settingsKeyAppearance: String = "com.dmbfm.imageflow.settings.appearance"
+    public static let settingsKeyNumberFormat: String = "com.dmbfm.imageflow.settings.number-format"
+    public static let settingsKeyNumberDragSensitivity: String = "com.dmbfm.imageflow.settings.number-drag-sensitivity"
+    public static let settingsKeyDefaultPreviewLocation: String = "com.dmbfm.imageflow.settings.default-preview-location"
 }
 
 extension UserDefaults {
@@ -73,6 +73,7 @@ extension UserDefaults {
             return .init(rawValue: v) ?? .system
         }
         set {
+            print("set: \(String.settingsKeyAppearance) to \(newValue)")
             self.set(newValue.rawValue, forKey: .settingsKeyAppearance)
         }
     }
