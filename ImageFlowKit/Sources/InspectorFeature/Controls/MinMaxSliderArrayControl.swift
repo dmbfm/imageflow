@@ -60,7 +60,7 @@ final class MinMaxSliderArrayControl: Control<[MinMax], MinMaxSliderArrayControl
         )
         .with(
             \.labelForRow,
-            { index in
+            { [unowned self] index in
                 self.configuration.labels[tryGetAt: index] ?? ""
             }
         )
