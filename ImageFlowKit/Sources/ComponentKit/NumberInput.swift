@@ -146,8 +146,8 @@ public final class NumberInput: XView, Rx, WithRef {
             self.formatResolverCancellable = nil
         }
 
-        self.formatResolverCancellable = self.formatResolver.publisher.sink { [unowned self] _ in
-            self.update()
+        self.formatResolverCancellable = self.formatResolver.publisher.sink { [weak self] _ in
+            self?.update()
         }
     }
 
@@ -237,7 +237,7 @@ public final class NumberInput: XView, Rx, WithRef {
         if self.stepperDisabled { return }
 
         self.stackView.addView(self.stepper)
-        self.stepper.onChange { value in
+        self.stepper.onChange { [unowned self] value in
             let oldValue = self.value
             if value != oldValue {
                 self.value = value
