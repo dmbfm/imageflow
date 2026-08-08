@@ -3,9 +3,8 @@ import SwiftUI
 import XKit
 
 @MainActor
-public final class SettingsFeatureState {
+public final class SettingsFeatureState: NSObject {
     private var window: NSWindow?
-    private var vc: SettingsTabViewController!
 
     public static let shared = SettingsFeatureState()
 
@@ -15,20 +14,22 @@ public final class SettingsFeatureState {
             return
         }
 
-        self.vc = SettingsTabViewController()
-        let window = NSWindow(contentViewController: self.vc)
+        let window = NSWindow(contentViewController: SettingsTabViewController())
+        window.delegate = self
         window.styleMask = [.closable, .titled]
         window.title = "Preferences"
 
         window.center()
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
-
         window.toolbarStyle = .preference
         self.window = window
     }
+}
 
-    public init() {
+extension SettingsFeatureState: NSWindowDelegate {
+    public func windowWillClose(_ notification: Notification) {
+        self.window = nil
     }
 }
 
