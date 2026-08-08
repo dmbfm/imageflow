@@ -1,13 +1,15 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import Values
 import XKit
 
 struct FloatControlConfiguration {
     var drag: NumberInput.DragConfiguration
-    var formatter: FloatingPointFormatStyle = .default
+    var formatter: DoubleFormatConfiguration = .default
 }
 
 struct NumericControlContext {
@@ -89,7 +91,9 @@ final class FloatControlView: XView, WithRef {
     var configuration: FloatControlConfiguration {
         didSet {
             self.numberInput.dragConfiguration = self.configuration.drag
-            self.numberInput.formatter = self.configuration.formatter
+            self.numberInput.formatResolver = self.numberInput.formatResolver.withConfiguration(
+                self.configuration.formatter
+            )
         }
     }
 
@@ -98,7 +102,7 @@ final class FloatControlView: XView, WithRef {
     lazy var numberInput: NumberInput = {
         NumberInput(
             value,
-            formatter: self.configuration.formatter,
+            settingsResolverWithFormat: self.configuration.formatter,
             style: .default
         )
         .with(\.sensitivityResolver, SensitivityResolver.shared)

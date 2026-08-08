@@ -1,4 +1,5 @@
 import Combine
+import FormatKit
 import Helpers
 import XKit
 
@@ -38,7 +39,17 @@ public final class NumberInput: XView, Rx, WithRef {
 
     public var cancellables: Set<AnyCancellable> = []
 
-    public var formatter: FloatingPointFormatStyle<Double>
+    public var formatResolver: DoubleFormatResolver {
+        didSet {
+            self.observeFormatterResovler()
+        }
+    }
+
+    private var formatResolverCancellable: AnyCancellable?
+
+    public var formatter: FloatingPointFormatStyle<Double> {
+        self.formatResolver.current
+    }
 
     public var publisher: CurrentValueSubject<Double, Never>
 
@@ -105,7 +116,7 @@ public final class NumberInput: XView, Rx, WithRef {
 
     public init(
         _ value: Double,
-        formatter: FloatingPointFormatStyle<Double> = .number,
+        formatResolver: DoubleFormatResolver = .just(.number),
         stepperConfiguration: StepperConfiguration? = nil,
         style: TextFieldStyle = .default
     ) {
@@ -113,7 +124,7 @@ public final class NumberInput: XView, Rx, WithRef {
         self.textField = .init("", style: style)
         self.stackView = .init(alignment: .center, spacing: 4, views: [])
         self.stepper = .init(value)
-        self.formatter = formatter
+        self.formatResolver = formatResolver
         self.publisher = .init(value)
         self.stepperConfiguration = stepperConfiguration
 
@@ -125,8 +136,33 @@ public final class NumberInput: XView, Rx, WithRef {
         self.setupTextField()
         self.setupStepper()
         self.setupGestures()
+        self.observeFormatterResovler()
 
         self.update()
+    }
+
+    func observeFormatterResovler() {
+        if self.formatResolverCancellable != nil {
+            self.formatResolverCancellable = nil
+        }
+
+        self.formatResolverCancellable = self.formatResolver.publisher.sink { [unowned self] _ in
+            self.update()
+        }
+    }
+
+    public convenience init(
+        _ value: Double,
+        format: DoubleFormatConfiguration,
+        stepperConfiguration: StepperConfiguration? = nil,
+        style: TextFieldStyle = .default
+    ) {
+        self.init(
+            value,
+            formatResolver: .just(format),
+            stepperConfiguration: stepperConfiguration,
+            style: style
+        )
     }
 
     required init?(coder: NSCoder) {

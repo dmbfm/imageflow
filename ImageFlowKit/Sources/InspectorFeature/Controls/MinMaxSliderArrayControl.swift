@@ -1,13 +1,15 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import Values
 import XKit
 
 struct MinMaxSliderArrayControlConfiguration {
     var range: ClosedRange<Double> = 0...1
-    var formatter: FloatingPointFormatStyle<Double> = .number.precision(.fractionLength(2))
+    var formatter: DoubleFormatConfiguration = .number.precision(.fractionLength(2))
     var labels: [String] = [
         "Red",
         "Green",
@@ -38,7 +40,7 @@ final class MinMaxSliderArrayControl: Control<[MinMax], MinMaxSliderArrayControl
         MinMaxLabeledSliderArray(
             self.value,
             range: self.configuration.range,
-            formatter: self.configuration.formatter
+            formatResolver: .settingsResolver(self.configuration.formatter)
         )
         .with(\.translatesAutoresizingMaskIntoConstraints, false)
         .with(

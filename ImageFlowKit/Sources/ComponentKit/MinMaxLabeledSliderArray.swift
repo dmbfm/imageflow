@@ -1,3 +1,4 @@
+import FormatKit
 import Helpers
 import XKit
 
@@ -19,10 +20,10 @@ public final class MinMaxLabeledSliderArray: XView, WithRef {
     public var labelForRow: ((Int) -> String)? {
         didSet { self.reloadLabels() }
     }
-    public var formatter: FloatingPointFormatStyle<Double> {
+    public var formatResolver: DoubleFormatResolver {
         didSet {
             for slider in self.sliders {
-                slider.formatter = self.formatter
+                slider.formatResolver = self.formatResolver
             }
         }
     }
@@ -39,27 +40,13 @@ public final class MinMaxLabeledSliderArray: XView, WithRef {
     private var labelWidthConstraints: [NSLayoutConstraint] = []
     private var range: ClosedRange<Double>
 
-    // public var disabled: Bool {
-    //     get { !self.isEnabled }
-    //     set { self.isEnabled = !newValue }
-    // }
-
-    // public var isEnabled = true {
-    //     didSet {
-    //         for input in self.sliders {
-    //             input.isEnabled = self.isEnabled
-    //         }
-    //     }
-    // }
-    //
-
     public init(
         _ values: [MinMax],
         range: ClosedRange<Double> = 0...1,
-        formatter: FloatingPointFormatStyle<Double> = .number.precision(.fractionLength(2)),
+        formatResolver: DoubleFormatResolver = .just(.number.precision(.fractionLength(2)))
     ) {
         self.values = values
-        self.formatter = formatter
+        self.formatResolver = formatResolver
         self.range = range
 
         super.init(frame: .zero)
@@ -90,7 +77,7 @@ public final class MinMaxLabeledSliderArray: XView, WithRef {
                         .withRef({ self.labels.append($0) }),
                     insets: .init(top: 0, left: 0, bottom: 14, right: 0)
                 ),
-                MinMaxLabeledSlider(value, range: self.range)
+                MinMaxLabeledSlider(value, range: self.range, formatResolver: self.formatResolver)
                     .with(\.onChange, { [weak self] change in self?.onChangeHandler(index, change) })
                     .withRef({ self.sliders.append($0) })
                     .withContentHuggingPriority(.defaultLow - 10, for: .horizontal),

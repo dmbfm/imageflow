@@ -1,4 +1,5 @@
 import Combine
+import FormatKit
 import Helpers
 import XKit
 
@@ -78,10 +79,10 @@ public final class NumberInputArray: XView, Rx, WithRef {
         )
     }()
 
-    public var formatter: FloatingPointFormatStyle<Double> {
+    public var formatResolver: DoubleFormatResolver {
         didSet {
             for input in self.numberInputs {
-                input.formatter = self.formatter
+                input.formatResolver = self.formatResolver
             }
         }
     }
@@ -97,14 +98,14 @@ public final class NumberInputArray: XView, Rx, WithRef {
     ///   - style: The style of the `NumberInput`s.
     public init(
         _ values: [Double],
-        formatter: FloatingPointFormatStyle<Double> = .number,
+        formatResolver: DoubleFormatResolver = .just(.number),
         dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
         style: TextFieldStyle = .default
     ) {
         self.values = values
         self.publisher = .init(values)
         self.style = style
-        self.formatter = formatter
+        self.formatResolver = formatResolver
         self.dragConfiguration = dragConfiguration
 
         super.init(frame: .zero)
@@ -114,6 +115,20 @@ public final class NumberInputArray: XView, Rx, WithRef {
         self.stackView.constraintToFillSuperview()
 
         self.repopulateRows()
+    }
+
+    public convenience init(
+        _ values: [Double],
+        format: DoubleFormatConfiguration,
+        dragConfiguration: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2)),
+        style: TextFieldStyle = .default
+    ) {
+        self.init(
+            values,
+            formatResolver: .just(format),
+            dragConfiguration: dragConfiguration,
+            style: style
+        )
     }
 
     required init?(coder: NSCoder) {
@@ -175,7 +190,7 @@ public final class NumberInputArray: XView, Rx, WithRef {
                 Label(self.resolve(labelForRow: index))
                     .with(\.alignment, .right)
                     .withRef({ self.labels.append($0) }),
-                NumberInput(value, formatter: self.formatter, style: self.style)
+                NumberInput(value, formatResolver: self.formatResolver, style: self.style)
                     .with(\.dragConfiguration, self.dragConfiguration)
                     .with(\.sensitivityResolver, self.sensitivityResolver)
                     .onChange({ [weak self] in self?.numberInputChange(index, change: $0) })

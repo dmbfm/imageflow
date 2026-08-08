@@ -1,5 +1,7 @@
 import Backend
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import SwiftUI
 import TextInput
@@ -123,7 +125,7 @@ final class NodeAngleInput: XViewEx, NodeControl {
         controller.value = self.value.float.fromRadians(to: self.unit)
         controller.dragConfiguration = self.dragConfiguration
         controller.delegate = self
-        controller.formatter = .roundingDigits(fractionalDigits: 8)
+        controller.formatResolver = .settingsResolver(.default)
         return controller
     }()
 

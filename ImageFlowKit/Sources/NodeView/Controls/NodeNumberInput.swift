@@ -1,5 +1,6 @@
 import Backend
 import Helpers
+import SettingsFeature
 import SharedModels
 import SwiftUI
 import TextInput
@@ -59,6 +60,7 @@ final class NodeNumberInput: XViewEx, NodeControl {
         controller.value = self.value.float
         controller.dragConfiguration = self.dragConfiguration
         controller.delegate = self
+        controller.formatResolver = .settingsResolver(.default)
         return controller
     }()
 

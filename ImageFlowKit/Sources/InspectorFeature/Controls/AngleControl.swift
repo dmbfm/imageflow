@@ -1,13 +1,15 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import Values
 import XKit
 
 struct AngleControlConfiguration {
     var range: ClosedRange<Double>?
-    var formatter: FloatingPointFormatStyle<Double> = .default
+    var formatter: DoubleFormatConfiguration = .default
 }
 
 @MainActor

@@ -1,4 +1,6 @@
+import Combine
 import Design
+import FormatKit
 import Helpers
 import SwiftUI
 import XKit
@@ -39,10 +41,16 @@ public class NumberInputController {
 
     public var sensitivityResolver: (any DragSensitivityResolver)?
 
-    public var formatter: (any NumberTextInputFormatter) = DefaultNumberInputFormatter() {
+    public var formatResolver: DoubleFormatResolver {
         didSet {
-            self.update()
+            self.updateFormatResolver()
         }
+    }
+
+    private var formatResolverCancellable: AnyCancellable?
+
+    public var formatter: FloatingPointFormatStyle<Double> {
+        self.formatResolver.current
     }
 
     public var progress: Double? {
@@ -100,6 +108,7 @@ public class NumberInputController {
     private var valueAtDragStart: Double = 0.0
 
     public init(_ style: TextInputStyle = .default) {
+        self.formatResolver = .just(.number)
         self.view = TextInput(behaviours: .draggableTextInput)
         self.view.delegate = self
         self.view.style = style
@@ -108,7 +117,15 @@ public class NumberInputController {
         self.view.keyboardType = .numbersAndPunctuation
         #endif
 
+        self.updateFormatResolver()
         self.update()
+    }
+
+    private func updateFormatResolver() {
+        self.formatResolverCancellable = nil
+        self.formatResolverCancellable = self.formatResolver.publisher.sink { [unowned self] _ in
+            self.update()
+        }
     }
 
     public func withSensitivityResolver<R: DragSensitivityResolver>(_ resolver: R) -> Self {
@@ -117,7 +134,7 @@ public class NumberInputController {
     }
 
     func update() {
-        self.view.text = self.formatter.numperInputFormatter(formatValue: self.value)
+        self.view.text = self.formatResolver.current.format(self.value)
 
         if let range = self.range {
             self.view.progress = range.progress(self.value)
@@ -239,7 +256,7 @@ public class NumberInputController {
 
 extension NumberInputController: TextInputDelegate {
     public func textInputDidEndEditing(_ textInput: TextInput) {
-        if let newValue = self.formatter.numperInputFormatter(parseString: textInput.text) {
+        if let newValue = try? self.formatter.parseStrategy.parse(textInput.text) {
             let oldValue = self.value
             if newValue != oldValue {
                 self.value = newValue

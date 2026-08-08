@@ -1,4 +1,5 @@
 import Combine
+import FormatKit
 import Helpers
 import XKit
 
@@ -20,10 +21,16 @@ public final class MinMaxLabeledSlider: XView, WithRef {
         self.slider.range
     }
 
-    public var formatter: FloatingPointFormatStyle<Double> = .number.precision(.fractionLength(2)) {
+    public var formatResolver: DoubleFormatResolver {
         didSet {
-            self.updateLabels()
+            self.updateFormatResolver()
         }
+    }
+
+    private var formatResolverCancellable: AnyCancellable?
+
+    public var formatter: FloatingPointFormatStyle<Double> {
+        self.formatResolver.current
     }
 
     var slider: MinMaxSlider
@@ -61,8 +68,13 @@ public final class MinMaxLabeledSlider: XView, WithRef {
 
     private var cancellables: Set<AnyCancellable> = []
 
-    public init(_ value: MinMax, range: ClosedRange<Double>) {
+    public init(
+        _ value: MinMax,
+        range: ClosedRange<Double>,
+        formatResolver: DoubleFormatResolver = .just(.number.precision(.fractionLength(2)))
+    ) {
         self.slider = .init(value, range: range)
+        self.formatResolver = formatResolver
 
         super.init(frame: .zero)
 
@@ -73,7 +85,14 @@ public final class MinMaxLabeledSlider: XView, WithRef {
         self.addSubview(self.stackView)
         self.stackView.constraintToFillSuperview()
 
+        self.updateFormatResolver()
         self.updateLabels()
+    }
+
+    func updateFormatResolver() {
+        self.formatResolverCancellable = self.formatResolver.publisher.sink { [unowned self] _ in
+            self.updateLabels()
+        }
     }
 
     required init?(coder: NSCoder) {

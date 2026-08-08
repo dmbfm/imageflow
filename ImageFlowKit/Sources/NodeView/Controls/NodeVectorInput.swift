@@ -91,6 +91,7 @@ final class NodeVectorInput: XViewEx, NodeControl {
             let delegate = DelegateForNumberInput(control: self, index: idx)
             self.numberInputDelegates.append(delegate)
             controller.delegate = delegate
+            controller.formatResolver = .settingsResolver(.default)
             return controller
         })
     }()

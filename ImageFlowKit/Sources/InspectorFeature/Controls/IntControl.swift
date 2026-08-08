@@ -1,6 +1,8 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import Values
 import XKit
@@ -76,7 +78,7 @@ final class IntControl: Control<Int, IntControlConfiguration, NumericControlCont
     lazy var numberInput: NumberInput = {
         NumberInput(
             Double(self.value),
-            formatter: .int,
+            settingsResolverWithFormat: .int,
             stepperConfiguration: .init(step: 1.0, size: .small),
             style: .default
         )

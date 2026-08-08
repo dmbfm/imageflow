@@ -1,5 +1,7 @@
 import Backend
+import FormatKit
 import Helpers
+import SettingsFeature
 import SharedModels
 import SwiftUI
 import TextInput
@@ -14,18 +16,6 @@ import AppKit
 #if os(iOS)
 import UIKit
 #endif
-
-struct NodeIntegerInputFormat: FormatStyle {
-    func format(_ value: Int) -> String {
-        value.formatted(.number.grouping(.never))
-    }
-}
-
-extension FormatStyle where Self == NodeIntegerInputFormat {
-    static var nodeInterger: NodeIntegerInputFormat {
-        .init()
-    }
-}
 
 final class NodeIntegerInput: XViewEx, NodeControl {
     var context: NodeControlContext = .init()
@@ -120,7 +110,7 @@ final class NodeIntegerInput: XViewEx, NodeControl {
         controller.style = .default
             .with(\.font, .systemFont(ofSize: 12))
         controller.delegate = self
-        controller.formatter = Formatter()
+        controller.formatResolver = .settingsResolver(.int)
         return controller
     }()
 

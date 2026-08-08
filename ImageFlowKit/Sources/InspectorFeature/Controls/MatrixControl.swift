@@ -1,12 +1,14 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import Values
 import XKit
 
 struct MatrixControlConfiguration {
     var drag: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2))
-    var formatter: FloatingPointFormatStyle<Double> = .default
+    var formatter: DoubleFormatConfiguration = .default
 }
 
 @MainActor
@@ -27,7 +29,7 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, Numeric
         didSet {
             for input in self.numberInputs {
                 input.dragConfiguration = self.configuration.drag
-                input.formatter = self.configuration.formatter
+                input.formatResolver = input.formatResolver.withConfiguration(self.configuration.formatter)
             }
         }
     }
@@ -49,7 +51,7 @@ final class MatrixControl: Control<[Double], MatrixControlConfiguration, Numeric
         for i in 0..<(self.dim * self.dim) {
             let view = NumberInput(
                 self.value[i],
-                formatter: self.configuration.formatter,
+                settingsResolverWithFormat: self.configuration.formatter,
                 style: .default
             )
             .with(\.sensitivityResolver, SensitivityResolver.shared)

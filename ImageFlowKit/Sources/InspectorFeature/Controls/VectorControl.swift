@@ -1,12 +1,14 @@
 import Combine
 import ComponentKit
+import FormatKit
 import Helpers
+import SettingsFeature
 import Values
 import XKit
 
 struct VectorControlConfiguration {
     var drag: NumberInput.DragConfiguration = .free(.init(fractionalDigits: 2))
-    var formatter: FloatingPointFormatStyle<Double> = .default
+    var formatter: DoubleFormatConfiguration = .default
     var labels: [String] = []
 }
 
@@ -25,7 +27,7 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, Numeric
     var configuration: VectorControlConfiguration {
         didSet {
             self.inner.dragConfiguration = self.configuration.drag
-            self.inner.formatter = self.configuration.formatter
+            self.inner.formatResolver = self.inner.formatResolver.withConfiguration(self.configuration.formatter)
             if self.configuration.labels != oldValue.labels {
                 self.inner.reloadLabels()
             }
@@ -39,7 +41,7 @@ final class VectorControl: Control<[Double], VectorControlConfiguration, Numeric
     lazy var inner: NumberInputArray = {
         NumberInputArray(
             self.value,
-            formatter: self.configuration.formatter,
+            settingsResolverWithFormat: self.configuration.formatter,
             style: .default
         )
         .labelForRow({ [weak self] index in

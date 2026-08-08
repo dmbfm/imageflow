@@ -43,12 +43,14 @@ let package = Package(
         .library(name: "CubeLutKit"),
         .library(name: "ComponentKit"),
         .library(name: "Filters"),
+        .library(name: "FormatKit"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
         .package(url: "https://github.com/in2core/swift-cikernel-plugin.git", branch: "main"),
     ],
     targets: [
+        .target(name: "FormatKit", dependencies: ["Helpers"]),
         .target(
             name: "Filters",
             dependencies: ["Values"],
@@ -86,7 +88,7 @@ let package = Package(
         .target(name: "XKit", dependencies: ["Helpers"]),
         .target(
             name: "ComponentKit",
-            dependencies: ["Helpers", "XKit", "Filters", "Values"],
+            dependencies: ["Helpers", "XKit", "Filters", "Values", "FormatKit"],
             resources: [.process("Resources")]
         ),
         .target(name: "Values", dependencies: ["Helpers"]),
@@ -212,6 +214,7 @@ let package = Package(
                 "TextInput",
                 "ComponentKit",
                 "SettingsFeature",
+                "FormatKit",
             ]
         ),
         .target(
@@ -261,6 +264,7 @@ let package = Package(
                 "Helpers",
                 "SharedModels",
                 "ComponentKit",
+                "FormatKit",
             ]
         ),
         .target(
@@ -284,6 +288,7 @@ let package = Package(
                 "ContextMenus",
                 "ComponentKit",
                 "SettingsFeature",
+                "FormatKit",
             ]
         ),
         .target(
@@ -292,6 +297,7 @@ let package = Package(
                 "Helpers",
                 "Design",
                 "XKit",
+                "FormatKit",
             ],
         ),
         .testTarget(

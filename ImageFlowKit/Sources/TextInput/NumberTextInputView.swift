@@ -2,196 +2,197 @@ import Helpers
 import SwiftUI
 import XKit
 
-public struct NumberTextInputView: XViewRepresentable {
+// public struct NumberTextInputView: XViewRepresentable {
 
-    var value: Double
-    var bindedValue: Binding<Double>?
-    var dragConfiguration: NumberInputController.DragConfiguration
-    var isDragging: Binding<Bool>?
-    var onChange: ((NumberInputController.Change) -> ())?
+//     var value: Double
+//     var bindedValue: Binding<Double>?
+//     var dragConfiguration: NumberInputController.DragConfiguration
+//     var isDragging: Binding<Bool>?
+//     var onChange: ((NumberInputController.Change) -> ())?
 
-    var effectiveStyle: TextInputStyle {
-        self.style ?? .default
-    }
+//     var effectiveStyle: TextInputStyle {
+//         self.style ?? .default
+//     }
 
-    public init(
-        _ value: Double,
-        isDragging: Binding<Bool>? = nil,
-        dragConfiguration: NumberInputController.DragConfiguration = .free(
-            .init(sensitivity: .init(), fractionalDigits: 2)
-        ),
-        onChange: ((NumberInputController.Change) -> ())? = nil
-    ) {
-        self.value = value
-        self.dragConfiguration = dragConfiguration
-        self.bindedValue = nil
-        self.isDragging = isDragging
-        self.onChange = onChange
-    }
+//     public init(
+//         _ value: Double,
+//         isDragging: Binding<Bool>? = nil,
+//         dragConfiguration: NumberInputController.DragConfiguration = .free(
+//             .init(sensitivity: .init(), fractionalDigits: 2)
+//         ),
+//         onChange: ((NumberInputController.Change) -> ())? = nil
+//     ) {
+//         self.value = value
+//         self.dragConfiguration = dragConfiguration
+//         self.bindedValue = nil
+//         self.isDragging = isDragging
+//         self.onChange = onChange
+//     }
 
-    public init(
-        _ value: Binding<Double>,
-        isDragging: Binding<Bool>? = nil,
-        dragConfiguration: NumberInputController.DragConfiguration = .free(
-            .init(sensitivity: .init(), fractionalDigits: 2)
-        ),
-        onChange: ((NumberInputController.Change) -> ())? = nil
-    ) {
-        self.value = 0.0
-        self.dragConfiguration = dragConfiguration
-        self.bindedValue = value
-        self.isDragging = isDragging
-        self.onChange = onChange
-    }
+//     public init(
+//         _ value: Binding<Double>,
+//         isDragging: Binding<Bool>? = nil,
+//         dragConfiguration: NumberInputController.DragConfiguration = .free(
+//             .init(sensitivity: .init(), fractionalDigits: 2)
+//         ),
+//         onChange: ((NumberInputController.Change) -> ())? = nil
+//     ) {
+//         self.value = 0.0
+//         self.dragConfiguration = dragConfiguration
+//         self.bindedValue = value
+//         self.isDragging = isDragging
+//         self.onChange = onChange
+//     }
 
-    @Environment(\.textInputStyle) var style
-    @Environment(\.textInputSizingMode) var sizingMode
-    @Environment(\.textInputAlignment) var alignment
-    @Environment(\.numberTextInputFormatter) var formatter
-    @Environment(\.isEnabled) var isEnabled
-    #if os(iOS)
-    @Environment(\.numberTextInputKeyboardType) var keyboardType
-    #endif
+//     @Environment(\.textInputStyle) var style
+//     @Environment(\.textInputSizingMode) var sizingMode
+//     @Environment(\.textInputAlignment) var alignment
+//     @Environment(\.numberTextInputFormatter) var formatter
+//     @Environment(\.isEnabled) var isEnabled
+//     #if os(iOS)
+//     @Environment(\.numberTextInputKeyboardType) var keyboardType
+//     #endif
 
-    public func makeView(context: Context) -> TextInput {
-        let coordinator = context.coordinator
+//     public func makeView(context: Context) -> TextInput {
+//         let coordinator = context.coordinator
 
-        coordinator.controller = .init(self.effectiveStyle)
-        coordinator.controller.delegate = coordinator
-        return coordinator.controller.view
-    }
+//         coordinator.controller = .init(self.effectiveStyle)
+//         coordinator.controller.delegate = coordinator
+//         return coordinator.controller.view
+//     }
 
-    public func updateView(_ view: TextInput, context: Context) {
-        if let controller = context.coordinator.controller {
+//     public func updateView(_ view: TextInput, context: Context) {
+//         if let controller = context.coordinator.controller {
 
-            if let bindedValue = self.bindedValue {
-                if controller.value != bindedValue.wrappedValue {
-                    controller.value = bindedValue.wrappedValue
-                }
-            } else {
-                if controller.value != self.value {
-                    controller.value = self.value
-                }
-            }
+//             if let bindedValue = self.bindedValue {
+//                 if controller.value != bindedValue.wrappedValue {
+//                     controller.value = bindedValue.wrappedValue
+//                 }
+//             } else {
+//                 if controller.value != self.value {
+//                     controller.value = self.value
+//                 }
+//             }
 
-            if controller.style != self.effectiveStyle {
-                controller.style = self.effectiveStyle
-            }
+//             if controller.style != self.effectiveStyle {
+//                 controller.style = self.effectiveStyle
+//             }
 
-            if controller.sizingMode != self.sizingMode {
-                controller.sizingMode = self.sizingMode
-            }
+//             if controller.sizingMode != self.sizingMode {
+//                 controller.sizingMode = self.sizingMode
+//             }
 
-            if controller.alignment != (self.alignment ?? .right) {
-                controller.alignment = self.alignment ?? .right
-            }
+//             if controller.alignment != (self.alignment ?? .right) {
+//                 controller.alignment = self.alignment ?? .right
+//             }
 
-            if controller.dragConfiguration != self.dragConfiguration {
-                controller.dragConfiguration = self.dragConfiguration
-            }
+//             if controller.dragConfiguration != self.dragConfiguration {
+//                 controller.dragConfiguration = self.dragConfiguration
+//             }
 
-            if controller.isEnabled != self.isEnabled {
-                controller.isEnabled = self.isEnabled
-            }
+//             if controller.isEnabled != self.isEnabled {
+//                 controller.isEnabled = self.isEnabled
+//             }
 
-            if let formatter = self.formatter, type(of: controller.formatter).self != type(of: formatter) {
-                controller.formatter = formatter
-            }
+//             if let formatter = self.formatter, type(of: controller.formatter).self != type(of: formatter) {
 
-            #if os(iOS)
-            if controller.keyboardType != self.keyboardType ?? .numbersAndPunctuation {
-                controller.keyboardType = self.keyboardType ?? .numbersAndPunctuation
-            }
-            #endif
-        }
+//                 // controller.formatter = formatter
+//             }
 
-        context.coordinator.onChange = self.onChange
-        context.coordinator.bindedValue = self.bindedValue
-        context.coordinator.isDragging = self.isDragging
-    }
+//             #if os(iOS)
+//             if controller.keyboardType != self.keyboardType ?? .numbersAndPunctuation {
+//                 controller.keyboardType = self.keyboardType ?? .numbersAndPunctuation
+//             }
+//             #endif
+//         }
 
-    public func sizeThatFits(_ proposal: ProposedViewSize, view: TextInput, context: Context) -> CGSize? {
-        TextInputView.sizeThatFitsCommon(proposal, view: view, sizingMode: self.sizingMode)
-    }
+//         context.coordinator.onChange = self.onChange
+//         context.coordinator.bindedValue = self.bindedValue
+//         context.coordinator.isDragging = self.isDragging
+//     }
 
-    public func makeCoordinator() -> Coordinator {
-        .init()
-    }
+//     public func sizeThatFits(_ proposal: ProposedViewSize, view: TextInput, context: Context) -> CGSize? {
+//         TextInputView.sizeThatFitsCommon(proposal, view: view, sizingMode: self.sizingMode)
+//     }
 
-    public class Coordinator: NumberTextInputDelegate {
-        var controller: NumberInputController!
+//     public func makeCoordinator() -> Coordinator {
+//         .init()
+//     }
 
-        var bindedValue: Binding<Double>?
+//     public class Coordinator: NumberTextInputDelegate {
+//         var controller: NumberInputController!
 
-        var isDragging: Binding<Bool>?
-        var onChange: ((NumberInputController.Change) -> ())?
+//         var bindedValue: Binding<Double>?
 
-        public func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
+//         var isDragging: Binding<Bool>?
+//         var onChange: ((NumberInputController.Change) -> ())?
 
-            if let bindedValue {
-                bindedValue.wrappedValue = change.newValue
-            }
+//         public func numberInputDidChange(_ numberInput: NumberInputController, change: NumberInputController.Change) {
 
-            self.onChange?(change)
-        }
+//             if let bindedValue {
+//                 bindedValue.wrappedValue = change.newValue
+//             }
 
-        public func numberInputDragStarted(_ numberInput: NumberInputController) {
-            self.isDragging?.wrappedValue = true
-        }
+//             self.onChange?(change)
+//         }
 
-        public func numberInputDragEnded(_ numberInput: NumberInputController) {
-            self.isDragging?.wrappedValue = false
-        }
-    }
-}
+//         public func numberInputDragStarted(_ numberInput: NumberInputController) {
+//             self.isDragging?.wrappedValue = true
+//         }
 
-extension EnvironmentValues {
-    @Entry var numberTextInputFormatter: (any NumberTextInputFormatter)? = nil
-    #if os(iOS)
-    @Entry var numberTextInputKeyboardType: UIKeyboardType? = nil
-    #endif
-}
+//         public func numberInputDragEnded(_ numberInput: NumberInputController) {
+//             self.isDragging?.wrappedValue = false
+//         }
+//     }
+// }
 
-extension View {
-    public func numberTextInputFormatter<F: NumberTextInputFormatter>(_ formatter: F) -> some View {
-        self.environment(\.numberTextInputFormatter, formatter)
-    }
+// extension EnvironmentValues {
+//     @Entry var numberTextInputFormatter: (any NumberTextInputFormatter)? = nil
+//     #if os(iOS)
+//     @Entry var numberTextInputKeyboardType: UIKeyboardType? = nil
+//     #endif
+// }
 
-    #if os(iOS)
-    public func numberTextInputKeyboardType(_ type: UIKeyboardType?) -> some View {
-        self.environment(\.numberTextInputKeyboardType, type)
-    }
-    #endif
-}
+// extension View {
+//     public func numberTextInputFormatter<F: NumberTextInputFormatter>(_ formatter: F) -> some View {
+//         self.environment(\.numberTextInputFormatter, formatter)
+//     }
 
-extension NumberTextInputView {
-    public struct Preview: View {
-        @State var value: Double = 5.0
-        @State var isDragging: Bool = false
+//     #if os(iOS)
+//     public func numberTextInputKeyboardType(_ type: UIKeyboardType?) -> some View {
+//         self.environment(\.numberTextInputKeyboardType, type)
+//     }
+//     #endif
+// }
 
-        public init() {}
+// extension NumberTextInputView {
+//     public struct Preview: View {
+//         @State var value: Double = 5.0
+//         @State var isDragging: Bool = false
 
-        public var body: some View {
-            VStack {
-                NumberTextInputView(self.value, isDragging: self.$isDragging) { change in
-                    self.value = change.newValue
-                }
+//         public init() {}
 
-                NumberTextInputView(
-                    self.$value,
-                    isDragging: self.$isDragging,
-                    dragConfiguration: .range(.closed(.init(range: 0...100, fractionalDigits: 2)))
-                )
+//         public var body: some View {
+//             VStack {
+//                 NumberTextInputView(self.value, isDragging: self.$isDragging) { change in
+//                     self.value = change.newValue
+//                 }
 
-                Text("is dragging? \(self.isDragging, default: "")")
-            }
-            .padding()
-            // .textInputStyle(.default)
-            // .textInputStyle(.default.with(\.insets, .init(horizontal: 10, vertical: 8)))
-        }
-    }
-}
+//                 NumberTextInputView(
+//                     self.$value,
+//                     isDragging: self.$isDragging,
+//                     dragConfiguration: .range(.closed(.init(range: 0...100, fractionalDigits: 2)))
+//                 )
 
-#Preview {
-    NumberTextInputView.Preview()
-}
+//                 Text("is dragging? \(self.isDragging, default: "")")
+//             }
+//             .padding()
+//             // .textInputStyle(.default)
+//             // .textInputStyle(.default.with(\.insets, .init(horizontal: 10, vertical: 8)))
+//         }
+//     }
+// }
+
+// #Preview {
+//     NumberTextInputView.Preview()
+// }
