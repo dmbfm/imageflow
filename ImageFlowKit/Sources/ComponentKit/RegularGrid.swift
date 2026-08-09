@@ -65,7 +65,6 @@ public final class RegularGridManual: XView, WithRef {
 
     public override func layout() {
         let rects = self.calculateGeometry()
-        // print("rects: \(rects)")
 
         for col in 0..<self.numCols {
             for row in 0..<self.numRows {

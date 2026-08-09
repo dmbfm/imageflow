@@ -18,8 +18,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        logger.info("applicationDidFinishLaunching")
-
         if let menu = NSApp.mainMenu(submenuWithTitle: "View") {
             menu.delegate = self.viewMenuDelegate
         }
@@ -27,16 +25,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsStore.shared.$appearance.sink { value in
             let app = NSApplication.shared
             switch value {
-                case .dark: app.appearance = .init(named: .darkAqua)
-                case .light: app.appearance = .init(named: .aqua)
-                case .system: app.appearance = nil
+            case .dark: app.appearance = .init(named: .darkAqua)
+            case .light: app.appearance = .init(named: .aqua)
+            case .system: app.appearance = nil
             }
         }.store(in: &self.cancellables)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         logger.info("applicationWillTerminate")
-
         logger.info("Cleaning-up...")
 
         let fm = FileManager.default

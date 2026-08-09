@@ -1,6 +1,6 @@
+import Combine
 import Helpers
 import XKit
-import Combine
 
 public final class FontPicker: XView, WithRef, NSFontChanging, NSWindowDelegate {
 
@@ -90,7 +90,6 @@ public final class FontPicker: XView, WithRef, NSFontChanging, NSWindowDelegate 
     }
 
     public func update() {
-        print("font name: \(self.font.fontName)")
         self.button.title = "\(self.font.displayName ?? self.fontName)"
         NSFontManager.shared.setSelectedFont(self.font, isMultiple: false)
     }

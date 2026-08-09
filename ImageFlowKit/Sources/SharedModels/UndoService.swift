@@ -152,8 +152,6 @@ public final class UndoService {
             if um.groupingLevel == 0 {
                 self.history.register(self.currentItem)
                 self.currentItem = .init(id: self.currentItem.id + 1)
-                // logger.info("\("\(self.undoItems)")")
-                // logger.info("\("\(self.redoItems)")")
             }
 
         }.store(in: &self.cancellables)
@@ -167,9 +165,6 @@ public final class UndoService {
             }
 
             self.history.undo()
-            // logger.info("\("\(self.undoItems)")")
-            // logger.info("\("\(self.redoItems)")")
-
         }.store(in: &self.cancellables)
 
         NotificationCenter.default.publisher(for: UndoManager.DidRedoChangeMessage.name).sink {

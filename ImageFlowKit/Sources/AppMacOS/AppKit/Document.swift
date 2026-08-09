@@ -111,11 +111,7 @@ public final class FlowDocument: NSDocument {
     }
 
     public override nonisolated func fileWrapper(ofType typeName: String) throws -> FileWrapper {
-        logger.info("fileWrapper:\(typeName)")
-
         let snapshot = MainActor.unsafeAssumeIsolated { self.snapshot() }
-
-        logger.info("snapshot: \("\(snapshot)")")
 
         self.unblockUserInteraction()
 
@@ -127,8 +123,6 @@ public final class FlowDocument: NSDocument {
     }
 
     public override nonisolated func read(from fileWrapper: FileWrapper, ofType typeName: String) throws {
-        logger.info("read:from:ofType:\(typeName)")
-
         guard typeName.lowercased() == UTType.imageFlowDocument.identifier.lowercased() else {
             logger.critical("Trying to open unsupported file type: \(typeName)")
             throw FlowDocumentError.read(.unsupportedType(typeName))

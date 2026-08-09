@@ -38,7 +38,6 @@ public final class PasteboardController {
 
     public static let pastableTypes: [UTType] = {
         let typeIdentifiers = CGImageSourceCopyTypeIdentifiers()
-        print("\(typeIdentifiers)")
         return (typeIdentifiers as? [String])?.map({ UTType($0) }).compactMap({ $0 }) ?? []
     }()
 
@@ -89,9 +88,6 @@ public final class PasteboardController {
 
     @discardableResult
     public func performDrop(onTarget target: DropTarget, pb: NSPasteboard) -> Bool {
-
-        // let pb = NSPasteboard(name: .drag)
-        print("urls: \(pb.urls)")
 
         if case let .canvas(location) = target,
             let data = pb.data(forType: .init(UTType.imageFlowNodeKindDragItem.identifier)),

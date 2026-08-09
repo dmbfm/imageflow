@@ -44,7 +44,8 @@ extension String {
     public static let settingsKeyAppearance: String = "com.dmbfm.imageflow.settings.appearance"
     public static let settingsKeyNumberFormat: String = "com.dmbfm.imageflow.settings.number-format"
     public static let settingsKeyNumberDragSensitivity: String = "com.dmbfm.imageflow.settings.number-drag-sensitivity"
-    public static let settingsKeyDefaultPreviewLocation: String = "com.dmbfm.imageflow.settings.default-preview-location"
+    public static let settingsKeyDefaultPreviewLocation: String =
+        "com.dmbfm.imageflow.settings.default-preview-location"
 }
 
 extension UserDefaults {
@@ -73,7 +74,6 @@ extension UserDefaults {
             return .init(rawValue: v) ?? .system
         }
         set {
-            print("set: \(String.settingsKeyAppearance) to \(newValue)")
             self.set(newValue.rawValue, forKey: .settingsKeyAppearance)
         }
     }
@@ -90,7 +90,10 @@ extension UserDefaults {
 
     var imageFlowDefaultPreviewLocation: DefaultPreviewLocation {
         get {
-            let v = self.intValue(forKey: .settingsKeyDefaultPreviewLocation, defaultValue: DefaultPreviewLocation.br.rawValue)
+            let v = self.intValue(
+                forKey: .settingsKeyDefaultPreviewLocation,
+                defaultValue: DefaultPreviewLocation.br.rawValue
+            )
             return .init(rawValue: v) ?? .br
         }
         set {

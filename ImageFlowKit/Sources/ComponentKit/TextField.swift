@@ -358,7 +358,6 @@ class InnerTextField: NSTextField {
 
     public var focusable: Bool = true {
         didSet {
-            print("!!!!!!!!!! \(self.focused)")
             if !self.focusable && self.focused {
                 Task {
                     self.window?.makeFirstResponder(nil)

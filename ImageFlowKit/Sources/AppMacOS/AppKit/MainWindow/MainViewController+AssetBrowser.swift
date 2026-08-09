@@ -105,7 +105,6 @@ extension MainViewController: AssetBrowserSheetController.Delegate {
 extension MainViewController {
     private func doImport(_ urls: [URL]) async -> [Result<UUID, any Error>] {
         func importItem(_ url: URL) async -> Result<UUID, any Error> {
-            logger.info("\(url): start")
             let isSSR = url.startAccessingSecurityScopedResource()
             defer {
                 if isSSR {
@@ -123,7 +122,6 @@ extension MainViewController {
 
                 let id = try await self.assetStore.importAsset(fromURL: url, kind: kind, undoService: self.undoService)
                 self.undoService.setActionName("Import Image", icon: "photo")
-                logger.info("\(url): done!")
                 return .success(id)
             } catch {
                 return .failure(error)

@@ -339,7 +339,7 @@ public final class CanvasFeatureViewController: NSViewController {
         }
 
         guard oldValue != newValue else {
-            logger.info(("New value is equal to old value; nothing to do"))
+            // logger.info(("New value is equal to old value; nothing to do"))
             return
         }
 

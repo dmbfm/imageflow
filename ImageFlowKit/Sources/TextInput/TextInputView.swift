@@ -214,15 +214,6 @@ public extension TextInputView {
                 TextInputView($text, progress: 0.82)
                     .textInputAlignment(.right)
 
-                // TextInputView($text, placeholder: "Type in something...", behaviours: .draggableTextInput) {
-                //     print("done!")
-                // } cancelAction: {
-                //     print("cancel!")
-                // } dragAction: { drag in
-                //     print("drag: \(drag)")
-                // }
-                // .textInputStyle(.default.with(\.font, .preferredFont(forTextStyle: .caption2)))
-
                 TextInputView($text)
                     .textInputSizingMode(.textWidth)
 

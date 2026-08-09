@@ -148,7 +148,6 @@ final class BookmarkListItemView: XView {
     }
 
     @objc func rename() {
-        logger.info("rename!")
         self.labelView.isEditable = true
         self.labelView.isSelectable = true
         self.labelView.becomeFirstResponder()

@@ -23,8 +23,6 @@ extension MainViewController: GlobalCoordinatorProtocol {
     }
 
     func perform(userAction: SharedModels.UserAction) {
-        logger.info("userAction: \("\(userAction)")")
-
         switch userAction {
         case let .newNodeWithKind(kind, point):
             self.newNode(kind: kind, at: point)
