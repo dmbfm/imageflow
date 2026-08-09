@@ -6,7 +6,7 @@ import XKit
 
 @MainActor
 final class EmptyControl: Control<String, (), ()> {
-    var value: String = "" 
+    var value: String = ""
 
     var context: () = ()
 
