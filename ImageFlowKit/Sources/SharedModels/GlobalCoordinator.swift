@@ -19,6 +19,8 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
     var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> { get }
     var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> { get }
+    var selectionPublisher: AnyPublisher<Set<UUID>, Never> { get }
+    var nodeCountPublisher: AnyPublisher<Int, Never> { get }
 }
 
 public enum GlobalCoordinatorEvent {
@@ -37,6 +39,14 @@ public class GlobalCoordinator: GlobalCoordinatorProtocol {
 
     public var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> {
         self.impl?.canvasBookmarksPublisher ?? .init(PassthroughSubject())
+    }
+
+    public var selectionPublisher: AnyPublisher<Set<UUID>, Never> {
+        self.impl?.selectionPublisher ?? .init(PassthroughSubject())
+    }
+
+    public var nodeCountPublisher: AnyPublisher<Int, Never> {
+        self.impl?.nodeCountPublisher ?? .init(PassthroughSubject())
     }
 
     public func assetTitle(_ asset: UUID) -> String? {
@@ -185,6 +195,10 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public let selectionPublisher: AnyPublisher<Set<UUID>, Never> = .init(PassthroughSubject())
+
+    public let nodeCountPublisher: AnyPublisher<Int, Never> = .init(PassthroughSubject())
+
     public var undoService: UndoService {
         .init(nil)
     }

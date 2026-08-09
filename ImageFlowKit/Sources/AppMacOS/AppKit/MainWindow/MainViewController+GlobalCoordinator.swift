@@ -1,4 +1,5 @@
 import AssetBrowserFeature
+import Combine
 import Foundation
 import NodePaletteFeature
 import SharedModels
@@ -9,6 +10,13 @@ import AppKit
 #endif
 
 extension MainViewController: GlobalCoordinatorProtocol {
+    var selectionPublisher: AnyPublisher<Set<UUID>, Never> {
+        .init(self.flow.selectionDidChangePublisher)
+    }
+
+    var nodeCountPublisher: AnyPublisher<Int, Never> {
+        .init(self.flow.$nodeCount)
+    }
 
     func assetTitle(_ asset: UUID) -> String? {
         self.assetStore.assets[asset]?.originalFilename
@@ -50,6 +58,10 @@ extension MainViewController: GlobalCoordinatorProtocol {
             self.canvasView.setZoom(zoom, anim)
         case .viewport(.setOrigin(let origin)):
             self.canvasView.setOrigin(origin)
+        case .viewport(.zoomToFitContent):
+            self.canvasView.perform(canvasAction: .zoomToFitContent)
+        case .viewport(.zoomToFitSelection):
+            self.canvasView.perform(canvasAction: .zoomToFitSelection(self.flow.selection))
         case .rename(let id):
             self.showRenameSheet(forNode: id)
         case .exportPreviewedImage:

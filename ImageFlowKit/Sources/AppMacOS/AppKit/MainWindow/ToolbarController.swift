@@ -34,10 +34,48 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             self?.mainVC.perform(userAction: .viewport(.setZoom(zoom, anim: true)))
         }
 
+        self.canvasZoomControlVM.zoomToFitAll = { [unowned self] in
+            self.mainVC.perform(userAction: .viewport(.zoomToFitContent))
+        }
+
+        self.canvasZoomControlVM.zoomToFitSelected = { [unowned self] in
+            self.mainVC.perform(userAction: .viewport(.zoomToFitSelection))
+        }
+
+        self.mainVC.flow.selectionDidChangePublisher.sink { [unowned self] sel in
+            self.updateCanZoomToFitContent()
+        }.store(in: &self.combineCancellables)
+
+        self.mainVC.flow.$nodeCount.sink { [unowned self] count in
+            self.updateCanZoomToFitAll(count)
+        }.store(in: &self.combineCancellables)
+
+        self.updateCanZoomToFitContent()
+        self.updateCanZoomToFitAll()
+
         self.mainVC.canvasViewportPublisher
             .sink(receiveValue: { [weak self] viewport in
                 self?.canvasZoomControlVM.zoom = Double(Int(viewport.scale * 100.0)) / 100.0
             }).store(in: &self.combineCancellables)
+    }
+
+    func updateCanZoomToFitContent() {
+        let newValue = !self.mainVC.flow.selection.isEmpty
+        if self.canvasZoomControlVM.canZoomToFitContent != newValue {
+            self.canvasZoomControlVM.canZoomToFitContent = newValue
+        }
+    }
+
+    func updateCanZoomToFitAll(_ count: Int? = nil) {
+        let newValue =
+            if let count {
+                count > 0
+            } else {
+                !self.mainVC.flow.nodes.isEmpty
+            }
+        if self.canvasZoomControlVM.canZoomToFitAll != newValue {
+            self.canvasZoomControlVM.canZoomToFitAll = newValue
+        }
     }
 
     @objc func showAssetBrowser() {

@@ -90,6 +90,20 @@ final class CanvasTabView: XView {
         .init(.init(self.vm.context))
     }()
 
+    lazy var fitAllButton: Button = {
+        Button("Zoom to Fit Content") {
+            self.vm.receive(event: .zoomToFitContent)
+        }
+        .rx(self.vm.$canZoomToFitContent, kp: \.isEnabled)
+    }()
+
+    lazy var fitSelectionButton: Button = {
+        Button("Zoom to Fit Selection") {
+            self.vm.receive(event: .zoomToFitSelection)
+        }
+        .rx(self.vm.$canZoomToFitSelection, kp: \.isEnabled)
+    }()
+
     private var cancellables: Set<AnyCancellable> = []
 
     init(_ vm: CanvasTabViewModel) {
@@ -106,11 +120,13 @@ final class CanvasTabView: XView {
         self.stackView.addView(self.nodeCountView)
         self.stackView.addView(self.edgeCountView)
         self.stackView.addView(self.viewportPositionView)
+        self.stackView.addView(self.fitAllButton)
+        self.stackView.addView(self.fitSelectionButton)
         self.stackView.addView(self.bookmarksTitleView)
         self.stackView.addView(self.addBookmarkButton)
         self.stackView.addView(self.bookmarkListView)
 
-        self.stackView.setCustomSpacing(16, after: self.viewportPositionView)
+        self.stackView.setCustomSpacing(16, after: self.fitSelectionButton)
         self.stackView.setCustomSpacing(10, after: self.bookmarksTitleView)
 
         self.viewportPositionView.control.$value.sink { [weak self] v in

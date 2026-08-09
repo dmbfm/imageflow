@@ -7,6 +7,8 @@ final class CanvasTabViewModel: RxEventHandler {
     @PublishedEx var nodeCount: Int = 0
     @PublishedEx var edgeCount: Int = 0
     @PublishedEx var viewportValues: [Double] = [1.0, 2.0, 3.0]
+    @PublishedEx var canZoomToFitContent: Bool = false
+    @PublishedEx var canZoomToFitSelection: Bool = false
 
     let flow: Flow
     let context: InspectorContext
@@ -26,6 +28,8 @@ final class CanvasTabViewModel: RxEventHandler {
                 coordinator.canvasViewportPublisher.map({ [$0.origin.x, $0.origin.y, $0.scale] }),
                 kp: \.viewportValues
             )
+            self.rx(coordinator.nodeCountPublisher.map({ $0 > 0 }), kp: \.canZoomToFitContent)
+            self.rx(coordinator.selectionPublisher.map({ !$0.isEmpty }), kp: \.canZoomToFitSelection)
         }
     }
 
@@ -34,6 +38,8 @@ final class CanvasTabViewModel: RxEventHandler {
         case viewportScale(Double)
         case viewportRestore
         case createBookmark
+        case zoomToFitContent
+        case zoomToFitSelection
     }
 
     func receive(event: Event) {
@@ -46,6 +52,10 @@ final class CanvasTabViewModel: RxEventHandler {
             self.context.coordinator?.perform(userAction: .viewport(.setZoom(scale, anim: false)))
         case .createBookmark:
             self.context.coordinator?.perform(userAction: .createBookmark)
+        case .zoomToFitContent:
+            self.context.coordinator?.perform(userAction: .viewport(.zoomToFitContent))
+        case .zoomToFitSelection:
+            self.context.coordinator?.perform(userAction: .viewport(.zoomToFitSelection))
         }
     }
 }

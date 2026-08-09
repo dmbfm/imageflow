@@ -5,10 +5,14 @@ struct CanvasZoomToolbarControlView: View {
     @Observable
     class ViewModel {
         var zoom: CGFloat = 1.0
+        var canZoomToFitAll: Bool = false
+        var canZoomToFitContent: Bool = false
 
         var inc: (() -> ())?
         var dec: (() -> ())?
         var setZoom: ((Double) -> ())?
+        var zoomToFitAll: (() -> ())?
+        var zoomToFitSelected: (() -> ())?
     }
 
     let vm: ViewModel
@@ -58,6 +62,18 @@ struct CanvasZoomToolbarControlView: View {
                 ForEach(self.zoomValues, id: \.self) { value in
                     Toggle(self.label(forZoomValue: value), isOn: self.isOn(value))
                 }
+
+                Divider()
+
+                Button("Fit All") {
+                    self.vm.zoomToFitAll?()
+                }
+                .disabled(!self.vm.canZoomToFitAll)
+
+                Button("Fit Selected") {
+                    self.vm.zoomToFitSelected?()
+                }
+                .disabled(!self.vm.canZoomToFitContent)
             }
             .menuIndicator(.hidden)
 
