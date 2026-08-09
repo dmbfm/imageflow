@@ -36,7 +36,7 @@ extension SettingsFeatureState: NSWindowDelegate {
 final class SettingsTabViewController: NSTabViewController {
 
     var generalVC: GeneralTabViewController!
-    var infoVC: InfoTabViewController!
+    var infoVC: AboutTabViewController!
 
     override func viewDidLoad() {
 
@@ -70,8 +70,4 @@ extension NSLayoutConstraint {
         self.priority = priority
         return self
     }
-}
-
-final class InfoTabViewController: NSViewController {
-
 }

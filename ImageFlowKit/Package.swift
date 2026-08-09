@@ -266,7 +266,8 @@ let package = Package(
                 "SharedModels",
                 "ComponentKit",
                 "FormatKit",
-            ]
+            ],
+            resources: [.process("Resources")],
         ),
         .target(
             name: "ContextMenus",
