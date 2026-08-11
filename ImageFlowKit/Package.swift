@@ -50,6 +50,7 @@ let package = Package(
         .package(url: "https://github.com/in2core/swift-cikernel-plugin.git", branch: "main"),
     ],
     targets: [
+        .executableTarget(name: "GenerateNodeIndex", dependencies: ["SharedModels"]),
         .target(name: "FormatKit", dependencies: ["Helpers"]),
         .target(
             name: "Filters",

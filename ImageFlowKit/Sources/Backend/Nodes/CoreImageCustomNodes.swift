@@ -162,7 +162,7 @@ extension Nodes.CoreImageCustom {
     public struct ScaleUniformFilterNode: NodeImplProvider {
         static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(
-                name: "Scale",
+                name: "Scale Uniform",
                 inputs: [
                     .init(name: "Image", type: .image),
                     .init(name: "Scale", defaultValue: .float(1.0)),
