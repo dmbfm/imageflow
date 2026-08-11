@@ -1,4 +1,5 @@
 #if os(macOS)
+import Backend
 import AppKit
 
 public class NSMenuItemForNode: NSMenuItem {
@@ -35,6 +36,7 @@ public class NSMenuItemForNode: NSMenuItem {
 public protocol ImageFlowResponding {
     func duplicate(_: Any?)
     func rename(_: Any?)
+    func openNodeDocumentation(_: Any?)
 }
 
 #endif

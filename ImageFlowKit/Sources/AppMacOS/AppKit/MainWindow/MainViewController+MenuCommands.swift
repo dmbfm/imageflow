@@ -42,6 +42,19 @@ extension MainViewController {
         self.perform(userAction: .duplicate(.nodes(self.targetNodes(sender))))
     }
 
+    @objc func openNodeDocumentation(_ sender: Any?) {
+        guard let node = self.targetNodes(sender).first,
+            let nodeKind = self.flow.nodes[node]?.kind
+        else {
+            return
+        }
+        guard let slug = nodeKind.docSlug else {
+            logger.error("Missing docSlug for: \("\(nodeKind)")")
+            return
+        }
+        NSWorkspace.shared.open(URL(string: "https://docs.imageflowapp.com/nodes/\(slug.0)/\(slug.1)/")!)
+    }
+
     @objc
     override func selectAll(_ sender: Any?) {
         self.perform(userAction: .selectAllNodes)

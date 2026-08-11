@@ -23,4 +23,5 @@ public extension String {
     static let systemIconPreviewFloatTr = "inset.filled.topright.rectangle"
     static let systemIconPreviewFloatBl = "inset.filled.bottomleft.rectangle"
     static let systemIconPreviewFloatBr = "inset.filled.bottomright.rectangle"
+    static let systemIconDocumentation = "questionmark.circle"
 }

@@ -10,6 +10,7 @@ public struct NodeContextMenu {
         let menu = NSMenu()
 
         let nodeName = flow.selection.count > 1 && flow.selection.contains(node) ? "Nodes" : "Node"
+        let hasSlug = flow.nodes[node]?.kind.docSlug != nil
 
         menu.addItem(.sectionHeader(title: "Node"))
         menu.addItem(
@@ -85,6 +86,16 @@ public struct NodeContextMenu {
                 )
             )
         }
+        let item = NSMenuItemForNode(
+            node: node,
+            title: "Open Documentation",
+            systemSymbolName: .systemIconDocumentation,
+            accessibilityDescription: "Open Documentation",
+            action: hasSlug ? #selector(ImageFlowResponding.openNodeDocumentation(_:)) : nil,
+            keyEquivalent: "",
+            keyEquivatletModifierMask: nil
+        )
+        menu.addItem(item)
         return menu
     }
 }
