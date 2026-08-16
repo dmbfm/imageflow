@@ -10,11 +10,11 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="NewApplication" id="1Xt-HY-uBw">
+                <menuItem title="ImageFlow" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="NewApplication" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="ImageFlow" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About NewApplication" id="5kV-Vb-QxS">
+                            <menuItem title="About ImageFlow" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
@@ -32,7 +32,7 @@
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide NewApplication" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide ImageFlow" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -693,9 +693,15 @@ CA
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="NewApplication Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="Open Documentation" keyEquivalent="?" id="FKE-Sm-Kum">
                                 <connections>
-                                    <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
+                                    <action selector="openDocs:" target="-1" id="Fo9-k3-Hay"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Support" image="NSTouchBarMailTemplate" id="xU2-8s-eST" userLabel="Support">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="openSupport:" target="-1" id="Agi-ZF-XBQ"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -706,6 +712,7 @@ CA
         </menu>
     </objects>
     <resources>
+        <image name="NSTouchBarMailTemplate" width="24" height="17"/>
         <image name="photo.stack.fill" catalog="system" width="17" height="18"/>
     </resources>
 </document>

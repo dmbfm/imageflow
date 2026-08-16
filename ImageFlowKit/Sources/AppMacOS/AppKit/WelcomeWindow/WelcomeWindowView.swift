@@ -121,7 +121,11 @@ public struct WelcomeWindowView: View {
                 }
                 self.dismissWindow()
             }
-            ActionButton("Contact And Support", icon: "envelope") {}
+            ActionButton("Contact And Support", icon: "envelope") {
+                if let del_ = NSApp.delegate, let del = del_ as? AppDelegate {
+                    del.openSupport(nil)
+                }
+            }
         }
         .padding(.horizontal, 48)
     }

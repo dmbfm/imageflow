@@ -17,6 +17,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsFeatureState.shared.openSettingsWindow()
     }
 
+    @objc func openDocs(_ sender: Any) {
+        NSWorkspace.shared.open(.init(string: "https://docs.imageflowapp.com")!)
+    }
+
+    @objc func openSupport(_ sender: Any?) {
+        NSWorkspace.shared.open(.init(string: "mailto:support@imageflowapp.com")!)
+    }
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         if let menu = NSApp.mainMenu(submenuWithTitle: "View") {
             menu.delegate = self.viewMenuDelegate
