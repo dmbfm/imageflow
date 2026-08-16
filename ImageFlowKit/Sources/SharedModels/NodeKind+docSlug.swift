@@ -208,7 +208,7 @@ extension NodeKind {
         case .tileEffect(.triangleTile): ("tile-effect", "triangle-tile")
         case .tileEffect(.twelvefoldReflectedTile): ("tile-effect", "twelvefold-reflected-tile")
         // Split
-        case .splitValue(.color4): ("split", "split-color-rgb")
+        case .splitValue(.color4): ("split", "split-color-rgba")
         case .splitValue(.rect): ("split", "split-rectangle")
         case .splitValue(.vector2): ("split", "split-vector2")
         case .splitValue(.vector3): ("split", "split-vector3")

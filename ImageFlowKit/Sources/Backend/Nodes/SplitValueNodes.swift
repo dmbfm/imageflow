@@ -186,7 +186,7 @@ extension Nodes {
         struct SlipColorRGBNode: NodeImplProvider {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(
-                    name: "Split Color RBG",
+                    name: "Split Color RBGA",
                     inputs: [
                         .init(name: "Value", type: .color4)
                     ],
