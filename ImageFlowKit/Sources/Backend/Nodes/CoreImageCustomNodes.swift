@@ -1389,4 +1389,48 @@ extension Nodes.CoreImageCustom {
             )
         }
     }
+
+    public static var cropNodeImpl: NodeImpl {
+        let schema = NodeSchema(
+            name: "Crop",
+            inputs: [
+                .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                .init(
+                    name: "Rectangle",
+                    defaultValue: .rect(CGRect(x: 0.0, y: 0.0, width: 100.0, height: 100.0)),
+                    semantics: .rectangle,
+                    editorPlacement: .default
+                ),
+                .init(
+                    name: "Reset Origin",
+                    defaultValue: .bool(true),
+                    editorPlacement: .init(nodeView: .hidden, inspector: .options)
+                ),
+            ],
+            outputs: [
+                .init(name: "Output Image", type: .image)
+            ]
+        )
+
+        return .init(schema: schema) { node, context in
+            let filter = CIFilter(name: "CICrop")!
+            let rect = node.inputs[1].rect
+            let resetOrigin = node.inputs[2].bool
+            filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+            filter.setValue(CIVector(cgRect: rect), forKey: "inputRectangle")
+            let outputImage = filter.outputImage
+            if let outputImage, !outputImage.extent.isEmpty {
+                let finalImage =
+                    if resetOrigin {
+                        outputImage.transformed(by: .init(translationX: -rect.origin.x, y: -rect.origin.y))
+                    } else {
+                        outputImage
+                    }
+
+                node.outputs[0] = .image(await context.addImage(finalImage, 0))
+            } else {
+                node.outputs[0] = .image(await context.addImage(nil, 0))
+            }
+        }
+    }
 }

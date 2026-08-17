@@ -438,7 +438,6 @@ public enum CombineValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
 }
 
 public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
-
     case colorAdjustment(ColorAdjustment)
     case colorEffect(ColorEffect)
     case generator(Generator)
@@ -447,9 +446,29 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     case reduction(Reduction)
     case gradient(Gradient)
     case distortion(Distortion)
+    case geometry(GeometryAdjustment)
 
     public var kind: NodeKind {
         .coreImageCustomNode(self)
+    }
+
+    public enum GeometryAdjustment: Sendable, Hashable, Codable, CaseIterable {
+        case crop
+
+        public static var allKinds: [NodeKind] {
+            GeometryAdjustment.allCases.map({ .coreImageCustomNode(.geometry($0)) })
+        }
+
+        public var kind: NodeKind {
+            .coreImageCustomNode(.geometry(self))
+        }
+
+        public var impl: NodeImpl {
+            switch self {
+            case .crop:
+                Nodes.CoreImageCustom.cropNodeImpl
+            }
+        }
     }
 
     public enum Distortion: Sendable, Hashable, Codable, CaseIterable {
@@ -685,6 +704,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case .convolution(let kind): kind.impl
         case .reduction(let kind): kind.impl
         case .gradient(let kind): kind.impl
+        case .geometry(let kind): kind.impl
         }
     }
 }

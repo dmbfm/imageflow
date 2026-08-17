@@ -273,10 +273,10 @@ private struct Categories {
                     .CIAffineTransform, .CIBicubicScaleTransform, .CIKeystoneCorrectionCombined,
                     .CIEdgePreserveUpsampleFilter, .CIKeystoneCorrectionHorizontal, .CIPerspectiveCorrection,
                     .CIPerspectiveRotate, .CIPerspectiveTransform, .CIPerspectiveTransformWithExtent,
-                    .CIKeystoneCorrectionVertical,
+                    .CIKeystoneCorrectionVertical, .CICrop,
                 ])
                 .map { NodeKind.coreImageFilterNode(.geometryAdjustment($0)) }
-                // .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
+                .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .geometryAdjustment) }
         )
 
