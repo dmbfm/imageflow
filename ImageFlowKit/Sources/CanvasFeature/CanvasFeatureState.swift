@@ -112,7 +112,7 @@ extension CanvasFeatureState: Storable {
     }
 
     public func snapshot() -> StorableData {
-        .v0(.init(viewport: self.viewport, bookmarks: self.bookmarks))
+        .v2(.init(viewport: self.viewport, bookmarks: self.bookmarks, nodeSnapping: self.nodeSnapping))
     }
 
     public func restore(_ snapshot: StorableData) {
