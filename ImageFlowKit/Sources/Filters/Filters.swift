@@ -81,8 +81,11 @@ public final class GradientFilter: CIFilter {
         let p0 = CIVector(x: self.p0.x, y: self.p0.y)
         let p1 = CIVector(x: self.p1.x, y: self.p1.y)
 
-        return self.apply(
-            kernels.kernel,
+        return kernels.kernel.apply(
+            extent: .init(origin: .zero, size: .init(width: CGFloat.infinity, height: CGFloat.infinity)),
+            roiCallback: { _, _ in
+                .init(x: -CGFloat.infinity, y: -CGFloat.infinity, width: CGFloat.infinity, height: CGFloat.infinity)
+            },
             arguments: [
                 dataImage,
                 self.gradientType.rawValue,
