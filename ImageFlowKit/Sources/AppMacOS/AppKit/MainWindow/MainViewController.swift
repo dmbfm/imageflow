@@ -56,6 +56,10 @@ final class MainViewController: NSSplitViewController {
         )
     }
 
+    var canvasNodeSnappingEnabledPublisher: AnyPublisher<Bool, Never> {
+        self.detailVC.canvasVC.nodeSnappingEnabledPublisher.eraseToAnyPublisher()
+    }
+
     var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> {
         self.detailVC.canvasVC.state.$bookmarks.eraseToAnyPublisher()
     }

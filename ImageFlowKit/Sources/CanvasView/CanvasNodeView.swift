@@ -37,10 +37,12 @@ public struct CanvasNodeDragGesture: Sendable, Equatable {
     public var phase: XGestureRecognizer.State
     public var dx: CGFloat
     public var dy: CGFloat
+    public var t: CGPoint
 
-    public init(phase: XGestureRecognizer.State, dx: CGFloat, dy: CGFloat) {
+    public init(phase: XGestureRecognizer.State, dx: CGFloat, dy: CGFloat, t: CGPoint) {
         self.phase = phase
         self.dx = dx
         self.dy = dy
+        self.t = t
     }
 }

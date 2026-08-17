@@ -79,11 +79,22 @@ final class BackgroundView: XView {
         self.onEvent?(.tap)
     }
 
+    var lastTranslation: CGPoint = .zero
     @objc
     func onPanGesture(_ gesture: NSPanGestureRecognizer) {
         let t = gesture.translation(in: nil)
-        self.onEvent?(.drag(.init(phase: gesture.state, dx: t.x, dy: -t.y)))
         gesture.setTranslation(.zero, in: nil)
+
+        let translation = self.lastTranslation + t
+
+        self.onEvent?(
+            .drag(.init(phase: gesture.state, dx: t.x, dy: -t.y, t: .init(x: translation.x, y: -translation.y)))
+        )
+
+        switch gesture.state {
+        case .ended, .cancelled: self.lastTranslation = .zero
+        default: self.lastTranslation = translation
+        }
     }
 
     override var isFlipped: Bool {

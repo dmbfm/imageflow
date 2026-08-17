@@ -150,6 +150,18 @@ public class CanvasContextMenuProvider {
         let zoomItem = NSMenuItem(title: "Zoom", action: nil, keyEquivalent: "")
         zoomItem.submenu = self.zoomMenuController?.makeMenu()
 
+        let snappingItem = NSMenuItem(
+            title: "Node Snapping",
+            action: #selector(Self.toggleSnapping),
+            target: self,
+            keyEquivalent: "",
+            keyEquivalentModifierMask: nil,
+            systemSymbolName: nil,
+            accessibilityDescription: nil
+        )
+        snappingItem.image = nil
+        snappingItem.state = self.coordinator.canvasNodeSnappingEnabled() ? .on : .off
+
         let pasteItem = NSMenuItem(
             title: "Paste",
             action: canPaste ? #selector(Self.paste) : nil,
@@ -174,11 +186,16 @@ public class CanvasContextMenuProvider {
             .sectionHeader(title: "Canvas"),
             addNodeItem,
             zoomItem,
+            snappingItem,
             pasteItem,
             selectAllItem,
         ]
 
         return menu
+    }
+
+    @objc func toggleSnapping() {
+        self.coordinator.perform(userAction: .setCanvasNodeSnapping(!self.coordinator.canvasNodeSnappingEnabled()))
     }
 
     @objc func selectAll() {

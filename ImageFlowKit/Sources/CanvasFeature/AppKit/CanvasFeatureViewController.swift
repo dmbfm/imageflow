@@ -59,6 +59,10 @@ public final class CanvasFeatureViewController: NSViewController {
         self.nodeViewDelegateEmitter
     }
 
+    public var nodeSnappingEnabledPublisher: CurrentValueSubject<Bool, Never> {
+        self.state.nodeSnappingPublisher
+    }
+
     /// The current interaction mode of the canvas
     var interactionMode: CanvasInteractionMode {
         get {
@@ -298,10 +302,29 @@ public final class CanvasFeatureViewController: NSViewController {
                 from: .screen,
                 to: .canvas
             )
+            let t = self.viewport.convert(
+                .init(width: gesture.t.x, height: gesture.t.y),
+                from: .screen,
+                to: .canvas
+            )
+            let snappingSize: CGFloat? =
+                if self.state.nodeSnapping.enabled {
+                    self.state.nodeSnapping.size
+                } else {
+                    nil
+                }
             if let snap = self.flow.liveMoveNodesSnapshot {
-                let next = snap.reduce(
+                let next: [UUID: CGPoint] = snap.reduce(
                     into: [:],
-                    { acc, e in acc[e.key] = e.value + delta.cgPoint }
+                    { [unowned self] (acc: inout [UUID: CGPoint], e: [UUID: CGPoint].Element) -> Void in
+                        acc[e.key] =
+                            if let snappingSize {
+                                // CGPoint.zero
+                                (self.flow.nodePositions[e.key]! + t.cgPoint).snappingToGrid(snappingSize)
+                            } else {
+                                e.value + delta.cgPoint
+                            }
+                    }
                 )
                 self.flow.liveMoveNodesUpdate(next)
             }

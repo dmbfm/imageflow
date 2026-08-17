@@ -9,6 +9,7 @@ final class CanvasTabViewModel: RxEventHandler {
     @PublishedEx var viewportValues: [Double] = [1.0, 2.0, 3.0]
     @PublishedEx var canZoomToFitContent: Bool = false
     @PublishedEx var canZoomToFitSelection: Bool = false
+    @PublishedEx var nodeSnappingEnabled: Bool = false
 
     let flow: Flow
     let context: InspectorContext
@@ -30,6 +31,7 @@ final class CanvasTabViewModel: RxEventHandler {
             )
             self.rx(coordinator.nodeCountPublisher.map({ $0 > 0 }), kp: \.canZoomToFitContent)
             self.rx(coordinator.selectionPublisher.map({ !$0.isEmpty }), kp: \.canZoomToFitSelection)
+            self.rx(coordinator.canvasNodeSnappingEnabledPublisher, kp: \.nodeSnappingEnabled)
         }
     }
 
@@ -40,6 +42,7 @@ final class CanvasTabViewModel: RxEventHandler {
         case createBookmark
         case zoomToFitContent
         case zoomToFitSelection
+        case setNodeSnappingEnabled(Bool)
     }
 
     func receive(event: Event) {
@@ -56,6 +59,8 @@ final class CanvasTabViewModel: RxEventHandler {
             self.context.coordinator?.perform(userAction: .viewport(.zoomToFitContent))
         case .zoomToFitSelection:
             self.context.coordinator?.perform(userAction: .viewport(.zoomToFitSelection))
+        case .setNodeSnappingEnabled(let value):
+            self.context.coordinator?.perform(userAction: .setCanvasNodeSnapping(value))
         }
     }
 }

@@ -221,6 +221,12 @@ extension CGPoint {
     public func clamped(toRect rect: CGRect) -> CGPoint {
         .init(x: self.x.clamped(to: rect.minX...rect.maxX), y: self.y.clamped(to: rect.minY...rect.maxY))
     }
+
+    public func snappingToGrid(_ size: CGFloat) -> Self {
+        let x = round(self.x / size) * size
+        let y = round(self.y / size) * size
+        return .init(x: x, y: y)
+    }
 }
 
 extension Array where Element == CGPoint {

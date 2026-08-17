@@ -82,6 +82,13 @@ final class CanvasTabView: XView {
         .rx(self.vm.$viewportValues.map({ $0[0] != 0 || $0[1] != 0 || $0[2] != 0 }), kp: \.hasChanges)
     }()
 
+    lazy var nodeSnappingEnabledView: PropertyControlView<BoolControl> = {
+        return .init(.init(self.vm.nodeSnappingEnabled), configuration: .compact)
+            .with(\.connected, nil)
+            .with(\.label, "Node Snapping")
+            .rx(self.vm.$nodeSnappingEnabled, kp: \.value)
+    }()
+
     lazy var addBookmarkButton: Button = {
         Button("Add Bookmark") { [weak self] in self?.vm.receive(event: .createBookmark) }
     }()
@@ -120,6 +127,7 @@ final class CanvasTabView: XView {
         self.stackView.addView(self.nodeCountView)
         self.stackView.addView(self.edgeCountView)
         self.stackView.addView(self.viewportPositionView)
+        self.stackView.addView(self.nodeSnappingEnabledView)
         self.stackView.addView(self.fitAllButton)
         self.stackView.addView(self.fitSelectionButton)
         self.stackView.addView(self.bookmarksTitleView)
@@ -131,6 +139,10 @@ final class CanvasTabView: XView {
 
         self.viewportPositionView.control.$value.sink { [weak self] v in
             self?.onControlValuesChanged(values: v)
+        }.store(in: &self.cancellables)
+
+        self.nodeSnappingEnabledView.control.$value.sink { [weak self] value in
+            self?.vm.receive(event: .setNodeSnappingEnabled(value))
         }.store(in: &self.cancellables)
 
         self.viewportPositionView.restoreButtonPublisher.map({ .viewportRestore }).sendEvents(to: self.vm)

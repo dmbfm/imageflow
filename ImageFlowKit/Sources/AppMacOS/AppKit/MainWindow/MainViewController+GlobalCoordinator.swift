@@ -22,8 +22,14 @@ extension MainViewController: GlobalCoordinatorProtocol {
         self.assetStore.assets[asset]?.originalFilename
     }
 
+    func canvasNodeSnappingEnabled() -> Bool {
+        self.detailVC.canvasVC.state.nodeSnapping.enabled
+    }
+
     func perform(userAction: SharedModels.UserAction) {
         switch userAction {
+        case .setCanvasNodeSnapping(let value):
+            self.detailVC.canvasVC.state.nodeSnapping.enabled = value
         case let .newNodeWithKind(kind, point):
             self.newNode(kind: kind, at: point)
         case let .newNode(node, point, port):

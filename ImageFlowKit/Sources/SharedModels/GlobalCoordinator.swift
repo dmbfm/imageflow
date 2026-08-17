@@ -15,12 +15,14 @@ public protocol GlobalCoordinatorProtocol: AnyObject {
     func nodeCount() -> Int
     func selectedNodeCount() -> Int
     func assetTitle(_ asset: UUID) -> String?
+    func canvasNodeSnappingEnabled() -> Bool
     var undoService: UndoService { get }
     var emitter: EventEmitter<GlobalCoordinatorEvent> { get }
     var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> { get }
     var canvasBookmarksPublisher: AnyPublisher<CanvasBookmarks, Never> { get }
     var selectionPublisher: AnyPublisher<Set<UUID>, Never> { get }
     var nodeCountPublisher: AnyPublisher<Int, Never> { get }
+    var canvasNodeSnappingEnabledPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 public enum GlobalCoordinatorEvent {
@@ -29,8 +31,16 @@ public enum GlobalCoordinatorEvent {
 
 @MainActor
 public class GlobalCoordinator: GlobalCoordinatorProtocol {
+    public func canvasNodeSnappingEnabled() -> Bool {
+        self.impl?.canvasNodeSnappingEnabled() ?? false
+    }
+
     public var undoService: UndoService {
         self.impl?.undoService ?? .init(nil)
+    }
+
+    public var canvasNodeSnappingEnabledPublisher: AnyPublisher<Bool, Never> {
+        self.impl?.canvasNodeSnappingEnabledPublisher ?? .init(PassthroughSubject())
     }
 
     public var canvasViewportPublisher: AnyPublisher<CanvasViewportModel, Never> {
@@ -120,6 +130,7 @@ public enum UserAction {
     case disconnect(InputPortLocation)
     case openFileImporter([UTType])
     case setCanvasViewPort(CanvasViewportModel)
+    case setCanvasNodeSnapping(Bool)
     case setNodeInputValue(port: InputPortLocation, newValue: Value, oldValue: Value?, undo: Bool)
     case restoreNodeInputDefaultValue(InputPortLocation)
     case createBookmark
@@ -195,6 +206,12 @@ public enum Point: Equatable {
 }
 
 public class MockGlobalCoordinator: GlobalCoordinatorProtocol {
+    public func canvasNodeSnappingEnabled() -> Bool {
+        false
+    }
+
+    public let canvasNodeSnappingEnabledPublisher: AnyPublisher<Bool, Never> = .init(PassthroughSubject())
+
     public let selectionPublisher: AnyPublisher<Set<UUID>, Never> = .init(PassthroughSubject())
 
     public let nodeCountPublisher: AnyPublisher<Int, Never> = .init(PassthroughSubject())

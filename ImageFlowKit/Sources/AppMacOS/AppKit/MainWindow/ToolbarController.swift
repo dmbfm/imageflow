@@ -11,6 +11,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
     var canvasZoomControlVM: CanvasZoomToolbarControlView.ViewModel
     var mainVC: MainViewController
     var combineCancellables: Set<AnyCancellable> = []
+    weak var nodeSnappingButton: NSButton? = nil
 
     init(mainVC: MainViewController) {
         self.mainVC = mainVC
@@ -57,6 +58,12 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             .sink(receiveValue: { [weak self] viewport in
                 self?.canvasZoomControlVM.zoom = Double(Int(viewport.scale * 100.0)) / 100.0
             }).store(in: &self.combineCancellables)
+
+        self.mainVC.canvasNodeSnappingEnabledPublisher.sink { [unowned self] value in
+            if let btn = self.nodeSnappingButton {
+                btn.state = value ? .on : .off
+            }
+        }.store(in: &self.combineCancellables)
     }
 
     func updateCanZoomToFitContent() {
@@ -80,6 +87,12 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
 
     @objc func showAssetBrowser() {
         self.mainVC.perform(userAction: .openAssetBrowser)
+    }
+
+    @objc func nodeSnappingToggle() {
+        self.mainVC.perform(
+            userAction: .setCanvasNodeSnapping(!self.mainVC.detailVC.canvasVC.state.nodeSnapping.enabled)
+        )
     }
 
     @objc func showNodeList(_ sender: NSToolbarItem) {
@@ -138,6 +151,19 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             item.action = #selector(Self.showNodeList(_:))
             item.target = self
             return item
+        case .nodeSnapping:
+            let item = NSToolbarItem(itemIdentifier: .nodeSnapping)
+            item.label = "Toggle Node Snapping"
+            item.toolTip = "Toogle Node Snapping"
+            let btn = NSButton()
+            btn.image = NSImage(systemSymbolName: "lines.measurement.horizontal", accessibilityDescription: nil)!
+            btn.setButtonType(.onOff)
+            btn.state = self.mainVC.detailVC.canvasVC.state.nodeSnapping.enabled ? .on : .off
+            btn.target = self
+            btn.action = #selector(Self.nodeSnappingToggle)
+            item.view = btn
+            self.nodeSnappingButton = btn
+            return item
         default:
             return .init(itemIdentifier: itemIdentifier)
         }
@@ -146,7 +172,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [
             .toggleSidebar, .sidebarTrackingSeparator, .flexibleSpace, .inspectorTrackingSeparator, .toggleInspector,
-            .space, .cloudSharing, .mainWindowZoom, .showAssetBrowser, .nodeList,
+            .space, .cloudSharing, .mainWindowZoom, .showAssetBrowser, .nodeList, .nodeSnapping,
         ]
     }
 
@@ -156,6 +182,7 @@ final class ToolbarController: NSObject, NSToolbarDelegate {
             .sidebarTrackingSeparator,
             .mainWindowZoom,
             .flexibleSpace,
+            .nodeSnapping,
             .nodeList,
             .inspectorTrackingSeparator,
             .flexibleSpace,
@@ -170,6 +197,7 @@ extension NSToolbarItem.Identifier {
     public static let mainWindowZoom: Self = .init(rawValue: "com.dmbfm.imageflow.toolbar.main-window-zoom")
     public static let showAssetBrowser: Self = .init("com.dmbfm.imageflow.toolbar.show-asset-browser")
     public static let nodeList: Self = .init("com.dmbfm.imageflow.toolbar.node-list")
+    public static let nodeSnapping: Self = .init("com.dmbfm.imageflow.toolbar.node-snapping")
 }
 
 #endif
