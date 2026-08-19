@@ -118,7 +118,7 @@ extension NodeKind {
         case .transform(.scaleUniform): ("affine-transforms", "scale-uniform")
         case .transform(.translate): ("affine-transforms", "translate")
         // Geometry Adjustment
-        case .coreImageFilterNode(.geometryAdjustment(.CICrop)): ("geometry-adjustment", "crop")
+        case .coreImageCustomNode(.geometry(.crop)): ("geometry-adjustment", "crop")
         case .coreImageFilterNode(.geometryAdjustment(.CILanczosScaleTransform)):
             ("geometry-adjustment", "lanczos-scale-transform")
         case .coreImageFilterNode(.geometryAdjustment(.CIMaximumScaleTransform)):
