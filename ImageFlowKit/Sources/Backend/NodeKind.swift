@@ -546,6 +546,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case palettize
         case colorMap
         case colorPosterize
+        case grayscale
+        case blackAndWhite
 
         public static var allKinds: [NodeKind] {
             ColorEffect.allCases.map { .coreImageCustomNode(.colorEffect($0)) }
@@ -565,6 +567,10 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.ColorMapNode.impl()
             case .colorPosterize:
                 Nodes.CoreImageCustom.ColorPosterizeNode.impl()
+            case .grayscale:
+                Nodes.CoreImageCustom.grayscaleNode
+            case .blackAndWhite:
+                Nodes.CoreImageCustom.blackAndWhite
             }
         }
 

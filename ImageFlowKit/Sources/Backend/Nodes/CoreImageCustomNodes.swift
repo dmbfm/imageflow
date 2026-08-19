@@ -1178,6 +1178,76 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public static var grayscaleNode: NodeImpl {
+        let schema = NodeSchema(
+            name: "Grayscale",
+            inputs: [
+                .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default)
+            ],
+            outputs: [
+                .init(name: "Output Image", type: .image)
+            ]
+        )
+
+        let data = GradientData.default
+
+        return .init(schema: schema) { node, context in
+            let grad = GradientFilter(data, p0: .init(x: 0, y: 0), p1: .init(x: 256, y: 0))
+            let gradImage = grad.outputImage!.cropped(to: .init(x: 0, y: 0, width: 256, height: 1))
+
+            let filter = CIFilter(name: "CIColorMap")!
+            filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+            filter.setValue(gradImage, forKey: "inputGradientImage")
+
+            let outputImage = filter.outputImage
+            if let outputImage, !outputImage.extent.isEmpty {
+                node.outputs[0] = .image(await context.addImage(outputImage, 0))
+            } else {
+                node.outputs[0] = .image(await context.addImage(nil, 0))
+            }
+        }
+
+    }
+
+    public static var blackAndWhite: NodeImpl {
+        let schema = NodeSchema(
+            name: "Black and White",
+            inputs: [
+                .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                .init(name: "Threshold", defaultValue: .float(0.5), semantics: .float(.range(0...1))),
+            ],
+            outputs: [
+                .init(name: "Output Image", type: .image)
+            ]
+        )
+
+        var data = GradientData.init(
+            [
+                .init(position: 0.0, color: .black),
+                .init(position: 1.0, color: .white),
+            ],
+            interpolation: .step
+        )
+
+        return .init(schema: schema) { node, context in
+            data.stops[1].position = node.inputs[1].float
+            let grad = GradientFilter(data, p0: .init(x: 0, y: 0), p1: .init(x: 256, y: 0))
+            let gradImage = grad.outputImage!.cropped(to: .init(x: 0, y: 0, width: 256, height: 1))
+
+            let filter = CIFilter(name: "CIColorMap")!
+            filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+            filter.setValue(gradImage, forKey: "inputGradientImage")
+
+            let outputImage = filter.outputImage
+            if let outputImage, !outputImage.extent.isEmpty {
+                node.outputs[0] = .image(await context.addImage(outputImage, 0))
+            } else {
+                node.outputs[0] = .image(await context.addImage(nil, 0))
+            }
+        }
+
+    }
+
     public struct LinearGradientNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(

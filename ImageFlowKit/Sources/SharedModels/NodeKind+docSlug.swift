@@ -62,6 +62,8 @@ extension NodeKind {
         // Color Effect
         case .coreImageFilterNode(.colorEffect(.CIColorInvert)): ("color-effect", "color-invert")
         case .coreImageCustomNode(.colorEffect(.colorMap)): ("color-effect", "color-map")
+        case .coreImageCustomNode(.colorEffect(.grayscale)): ("color-effect", "grayscale")
+        case .coreImageCustomNode(.colorEffect(.blackAndWhite)): ("color-effect", "black-and-white")
         case .coreImageFilterNode(.colorEffect(.CIColorMonochrome)): ("color-effect", "color-monochrome")
         case .coreImageCustomNode(.colorEffect(.colorPosterize)): ("color-effect", "color-posterize")
         case .coreImageFilterNode(.colorEffect(.CIConvertLabToRGB)): ("color-effect", "convert-lab-to-rgb")
