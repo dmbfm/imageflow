@@ -195,6 +195,7 @@ extension NodeKind {
         case .coreImageCustomNode(.convolution(.convolution3x3)): ("convolution", "convolution-3x3")
         case .coreImageCustomNode(.convolution(.convolution5x5)): ("convolution", "convolution-5x5")
         case .coreImageCustomNode(.convolution(.convolution7x7)): ("convolution", "convolution-7x7")
+        case .coreImageCustomNode(.convolution(.emboss)): ("convolution", "emboss")
         // Tile Effect
         case .tileEffect(.affineTile): ("tile-effect", "affine-tile")
         case .tileEffect(.eightfoldReflectedTile): ("tile-effect", "eightfold-reflected-tile")

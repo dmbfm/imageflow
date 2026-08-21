@@ -580,12 +580,14 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case convolution3x3
         case convolution5x5
         case convolution7x7
+        case emboss
 
         public static var allKinds: [NodeKind] {
             [
                 .coreImageCustomNode(.convolution(.convolution3x3)),
                 .coreImageCustomNode(.convolution(.convolution5x5)),
                 .coreImageCustomNode(.convolution(.convolution7x7)),
+                .coreImageCustomNode(.convolution(.emboss)),
             ]
         }
 
@@ -601,6 +603,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.CIConvolution5x5Node.impl()
             case .convolution7x7:
                 Nodes.CoreImageCustom.CIConvolution7x7Node.impl()
+            case .emboss:
+                Nodes.Convolution.embossNodeImpl
             }
         }
     }
