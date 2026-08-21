@@ -94,6 +94,6 @@ public final class GradientFilter: CIFilter {
                 p0,
                 p1,
             ]
-        )
+        )?.matchedToWorkingSpace(from: CGColorSpace(name: CGColorSpace.extendedSRGB)!)
     }
 }
