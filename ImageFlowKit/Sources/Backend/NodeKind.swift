@@ -18,6 +18,25 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case compositeOperation(CompositeOperationNodeKind)
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
+    case experimental(ExperimentalNodeKind)
+}
+
+public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case sphere
+    case edges3D
+
+    public static var allKinds: [NodeKind] {
+        ExperimentalNodeKind.allCases.map({ .experimental($0) })
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .edges3D:
+            Nodes.Experimental.edges3D
+        case .sphere:
+            Nodes.Experimental.shadedSphere
+        }
+    }
 }
 
 public enum VectorOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
@@ -750,6 +769,9 @@ extension NodeKind {
             kind.impl
         case .vectorOperation(let kind):
             kind.impl
+        case .experimental(let kind):
+            kind.impl
+
         }
     }
 

@@ -58,6 +58,8 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .mathFunction(let kind):
             kind.impl.schema.displayName
+        case .experimental(let kind):
+            kind.impl.schema.displayName
         }
     }
 
@@ -80,6 +82,8 @@ public extension NodeKind {
             .purple
         case .booleanOperation(_):
             .blue
+        case .experimental(_):
+            .red
         }
     }
 
@@ -133,6 +137,8 @@ public extension NodeKind {
             "lessthanorequalto.circle.fill"
         case .booleanOperation(_):
             "switch.2"
+        case .experimental(_):
+            "testtube.2"
         }
     }
 

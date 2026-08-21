@@ -339,7 +339,7 @@ private struct Categories {
                 .excluding(elementsOf: [
                     .CIConvolution3X3, .CIConvolution5X5, .CIConvolution7X7, .CIConvolutionRGB3X3, .CIConvolutionRGB5X5,
                     .CIConvolutionRGB7X7, .CIConvolution9Vertical, .CIConvolution9Horizontal,
-                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal, .CIHeightFieldFromMask, .CIMix,
+                    .CIConvolutionRGB9Vertical, .CIConvolutionRGB9Horizontal, .CIMix,
                     .CIBlendWithMask, .CIBlendWithRedMask, .CIBlendWithBlueMask, .CIBlendWithAlphaMask,
                 ])
                 .map { NodeKind.coreImageFilterNode(.stylize($0)) }
@@ -387,6 +387,11 @@ private struct Categories {
             items: CoreImageCustomNodeKind.Convolution.allKinds
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .convolution) }
         )
+
+    static let experimental: NodePaletteCategory = .init(
+        name: .experimental,
+        items: ExperimentalNodeKind.allKinds.map({ .init(nodeKind: $0, categoryName: .experimental) })
+    )
 }
 
 @MainActor
@@ -431,6 +436,9 @@ public class NodePaletteService {
         result.append(Categories.boolaenOperations)
         result.append(Categories.vectorOperations)
         result.append(Categories.mathFunctions)
+        #if DEBUG
+        result.append(Categories.experimental)
+        #endif
         // result.append(Categories.transition)
         // result.append(Categories.video)
 
@@ -575,6 +583,7 @@ public enum NodePaletteCategoryName: String, Sendable, Hashable, Identifiable {
     case transition = "Transition"
     case video = "Video"
     case convolution = "Convolution"
+    case experimental = "Experimental"
 
     public var id: Self { self }
 }
