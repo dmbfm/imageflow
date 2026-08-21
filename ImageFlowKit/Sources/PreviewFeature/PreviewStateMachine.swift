@@ -8,6 +8,7 @@ struct PreviewStateMachine {
 
     enum Input {
         case updatedImage(OutputPortLocation)
+        case removedImage(OutputPortLocation)
         case previewLocations(Set<PreviewLocation>)
         case imageLoaded(OutputPortLocation, CIImage)
         case toggleLock
@@ -164,7 +165,8 @@ struct PreviewStateMachine {
         }
 
         func input(_ input: Input) -> StateTransition {
-            switch input {
+            // logger.info("input: \("\(input)")")
+            return switch input {
             case .imageLoaded(let loc, let image):
                 self.imageLoaded(loc, image)
             case .previewLocations(let locs):
@@ -173,6 +175,8 @@ struct PreviewStateMachine {
                 self.toggleLock()
             case .updatedImage(let loc):
                 self.updatedImage(loc)
+            case .removedImage(let loc):
+                self.removedImage(loc)
             case .pick(let loc):
                 self.pick(loc)
             case .deleteNode(let id):
@@ -294,6 +298,15 @@ struct PreviewStateMachine {
                     ),
                     effect: .loadImage(location)
                 )
+            default:
+                return .init(newState: self)
+            }
+        }
+
+        func removedImage(_ location: OutputPortLocation) -> StateTransition {
+            switch self.contentState {
+            case .something(_, let loc, _) where loc == location:
+                return .init(newState: self.with(\.contentState, .nothing))
             default:
                 return .init(newState: self)
             }

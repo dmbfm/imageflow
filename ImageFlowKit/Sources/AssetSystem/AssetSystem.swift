@@ -9,6 +9,7 @@ public enum AssetSystemEvent: Equatable, Sendable {
 
     public enum Resource: Equatable, Sendable {
         case didAddImage(AssetIdentifier)
+        case didRemoveImage(AssetIdentifier)
     }
 }
 

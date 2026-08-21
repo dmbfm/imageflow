@@ -86,6 +86,7 @@ public final actor ResourceManager {
                 self.storage.images[id] = .notLoaded
             case .nodeOutput(_, _):
                 self.storage.images[id] = nil
+                self.emit(.didRemoveImage(id))
             }
         }
     }

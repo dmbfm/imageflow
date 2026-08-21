@@ -341,6 +341,8 @@ public class PreviewFeatureController: XViewController {
         switch event {
         case .resource(.didAddImage(.nodeOutput(let node, let port))):
             self.input(.updatedImage(.init(node: node, index: port)))
+        case .resource(.didRemoveImage(.nodeOutput(let node, let port))):
+            self.input(.removedImage(.init(node: node, index: port)))
         default:
             break
         }
