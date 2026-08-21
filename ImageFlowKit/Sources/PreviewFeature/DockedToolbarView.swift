@@ -132,7 +132,7 @@ struct DockedToolbarView: View {
     @ViewBuilder
     var toolbarContentView: some View {
         HStack(spacing: 8) {
-            btn(self.vm.locked ? "lock.fill" : "lock") {
+            btn(self.vm.locked ? .systemIconLock : .systemIconLockOpen) {
                 self.vm.dispatch?(.toggleLock)
             }
             .disabled(self.vm.image == nil)
