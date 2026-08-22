@@ -25,6 +25,7 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case sphere
     case edges3D
     case chromaticAberration
+    case orderedDither
 
     public static var allKinds: [NodeKind] {
         ExperimentalNodeKind.allCases.map({ .experimental($0) })
@@ -38,6 +39,8 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.Experimental.shadedSphere
         case .chromaticAberration:
             Nodes.Experimental.chromaticAberration
+        case .orderedDither:
+            Nodes.Experimental.ordererdDither
         }
     }
 }
