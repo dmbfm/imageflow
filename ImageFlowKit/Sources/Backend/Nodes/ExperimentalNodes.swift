@@ -9,6 +9,31 @@ import Values
 
 extension Nodes {
     struct Experimental {
+
+        static var chromaticAberration: NodeImpl {
+
+            let schema = NodeSchema(
+                name: "Chromatic Aberration",
+                inputs: [
+                    .init(name: "Image", type: .image),
+                    .init(name: "Intensity", defaultValue: .float(0.5), semantics: .float(.range(0...1))),
+                ],
+                outputs: [
+                    .init(name: "Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let filter = ChromaticAberrationFilter()
+                    filter.inputImage = await context.getImage(node.inputs[0].image)
+                    filter.intensity = Float(node.inputs[1].float)
+                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
+                }
+            )
+        }
+
         static var edges3D: NodeImpl {
             let schema = NodeSchema(
                 name: "Edges 3D",
