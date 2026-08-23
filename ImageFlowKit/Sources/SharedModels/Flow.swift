@@ -68,6 +68,7 @@ public final class Flow {
         didSet {
             self.delegate?.flow(edgesDidChange: self.edges)
             self.emitter.emit(.edgesDidChange(self.edges))
+            self.edgesDidChangePublisher.send(())
             if self.edgeCount != self.edges.count {
                 self.edgeCount = self.edges.count
             }
@@ -98,6 +99,7 @@ public final class Flow {
     }
 
     public var nodesDidChangePublisher: PassthroughSubject<(), Never> = .init()
+    public var edgesDidChangePublisher: PassthroughSubject<(), Never> = .init()
     public var selectionDidChangePublisher: CurrentValueSubject<Set<UUID>, Never>
 
     var portDraggingState: PortDraggingState = .idle
@@ -532,7 +534,7 @@ extension Flow {
         // If the port is already connected, we need to remove the old edge first
         // to replace it with a new one.
         if let edge = self.edge(incoming: edge.to) {
-            self.removeEdge(edge, undoService: undoService)
+            self.deleteEdgeAction(edge, undoService: undoService)
         }
 
         self.addEdge(edge, undoService: undoService)

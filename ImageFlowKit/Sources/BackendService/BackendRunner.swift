@@ -41,6 +41,10 @@ public final class BackendRunner {
             self?.nodesDidChange()
         }.store(in: &self.cancellables)
 
+        self.flow.edgesDidChangePublisher.sink { [weak self] _ in
+            self?.nodesDidChange()
+        }.store(in: &self.cancellables)
+
         assetStore.publisher.sink { [weak self] event in
             self?.onAssetStoreEvent(event)
         }.store(in: &self.cancellables)
