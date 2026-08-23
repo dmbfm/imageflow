@@ -9,6 +9,49 @@ import Values
 
 extension Nodes {
     struct Experimental {
+        static var simplexNoise: NodeImpl {
+            let schema = NodeSchema(
+                name: "Simplex Noise",
+                inputs: [
+                    .init(name: "Width", defaultValue: .int(256), semantics: .integer(.partialRangeFrom(1))),
+                    .init(name: "Height", defaultValue: .int(256), semantics: .integer(.partialRangeFrom(1))),
+                    .init(name: "Scale", defaultValue: .float(64.0)),
+                    .init(name: "Seed", defaultValue: .int(0), semantics: .count),
+                ],
+                outputs: [
+                    .init(name: "Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+
+                    let width = node.inputs[0].int
+                    let height = node.inputs[1].int
+                    let scale = node.inputs[2].float
+                    let seed = node.inputs[3].float
+
+                    let gm = GKMersenneTwisterRandomSource.init(seed: UInt64(seed.magnitude))
+                    let x = CGFloat(floor(gm.nextUniform() * 512))
+                    let y = CGFloat(floor(gm.nextUniform() * 512))
+
+                    let filter = SimplexNoiseFilter()
+                    filter.scale = Float(scale)
+                    node.outputs[0].image = await context.addImage(
+                        filter.outputImage?.cropped(
+                            to: .init(
+                                x: x,
+                                y: y,
+                                width: CGFloat(width),
+                                height: CGFloat(height)
+                            )
+                        ).transformed(by: .init(translationX: -x, y: -y)),
+                        0
+                    )
+                }
+            )
+        }
 
         static var ordererdDither: NodeImpl {
 
