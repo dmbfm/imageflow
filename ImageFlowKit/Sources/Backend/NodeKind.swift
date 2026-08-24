@@ -22,11 +22,9 @@ public enum NodeKind: Sendable, Hashable, Codable {
 }
 
 public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
-    case sphere
     case edges3D
     case chromaticAberration
     case orderedDither
-    case simplexNoise
     case resize
     case resizeToWidth
     case resizeToHeight
@@ -39,14 +37,10 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
         switch self {
         case .edges3D:
             Nodes.Experimental.edges3D
-        case .sphere:
-            Nodes.Experimental.shadedSphere
         case .chromaticAberration:
             Nodes.Experimental.chromaticAberration
         case .orderedDither:
             Nodes.Experimental.ordererdDither
-        case .simplexNoise:
-            Nodes.Experimental.simplexNoise
         case .resizeToWidth:
             Nodes.Experimental.resizeToWidth
         case .resizeToHeight:
@@ -706,6 +700,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case starShineGeneratorNode
         case constantColorGeneratorNode
         case textGeneratorNode
+        case shadedSphere
+        case simplexNoise
 
         public static var allKinds: [NodeKind] {
             Generator.allCases.map { .coreImageCustomNode(.generator($0)) }
@@ -737,6 +733,10 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.ConstantColorGeneratorNode.impl()
             case .textGeneratorNode:
                 Nodes.CoreImageCustom.TextNodes.textGeneratorNode
+            case .shadedSphere:
+                Nodes.Generator.shadedSphere
+            case .simplexNoise:
+                Nodes.Generator.simplexNoise
             }
         }
     }
