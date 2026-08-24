@@ -62,7 +62,6 @@ public final class OrderedDitherFilter: CIFilter {
         for row in 0..<dim {
             for col in 0..<dim {
                 let val = mat[row * dim + col]
-                print("\(row), \(col) [\(row * dim + col)] = \(val)")
                 data[4 * (row * dim + col)] = UInt8(val * 255)
                 data[4 * (row * dim + col) + 1] = UInt8(val * 255)
                 data[4 * (row * dim + col) + 2] = UInt8(val * 255)
