@@ -343,6 +343,7 @@ private struct Categories {
                     .CIBlendWithMask, .CIBlendWithRedMask, .CIBlendWithBlueMask, .CIBlendWithAlphaMask,
                 ])
                 .map { NodeKind.coreImageFilterNode(.stylize($0)) }
+                .appending(elementsOf: StylizeNodeKind.allKinds)
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .stylize) }
         )
 

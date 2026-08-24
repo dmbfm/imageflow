@@ -60,13 +60,16 @@ public extension NodeKind {
             kind.impl.schema.displayName
         case .experimental(let kind):
             kind.impl.schema.displayName
+        case .stylize(let kind):
+            kind.impl.schema.displayName
+
         }
     }
 
     var frontendNodeColor: DynamicColor {
         switch self {
         case .coreImageFilterNode(_), .coreImageCustomNode(_), .imageTransform(_), .tileEffect(_),
-            .compositeOperation(_):
+            .compositeOperation(_), .stylize(_):
             .orange
         case .valueNode(_):
             .blue
@@ -103,7 +106,7 @@ public extension NodeKind {
             "arrow.up.forward"
         case .tileEffect(_), .coreImageFilterNode(.tileEffect(_)):
             "squareshape.split.3x3"
-        case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform), .compositeOperation(_):
+        case .coreImageFilterNode(_), .imageTransform(.applyAffineTransform), .compositeOperation(_), .stylize(_):
             "camera.filters"
         case .coreImageCustomNode(_):
             "camera.filters"

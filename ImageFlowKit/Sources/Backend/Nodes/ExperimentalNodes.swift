@@ -94,51 +94,6 @@ extension Nodes {
             )
         }
 
-        static var ordererdDither: NodeImpl {
-
-            let schema = NodeSchema(
-                name: "Ordered Dither",
-                inputs: [
-                    .init(name: "Image", type: .image),
-                    .init(
-                        name: "Type",
-                        defaultValue: .int(0),
-                        semantics: .integer(
-                            .picker(
-                                OrderedDitherFilter.DitherType.allCases.enumerated().map({ e in
-                                    ValueSemantics.IntegerSemantics.PickerOption(
-                                        label: e.element.displayName,
-                                        value: e.offset
-                                    )
-                                })
-                            )
-                        )
-                    ),
-                    .init(name: "Dark Color", defaultValue: .color4(.black)),
-                    .init(name: "Light Color", defaultValue: .color4(.white)),
-                    .init(name: "Noise", defaultValue: .float(0.0), semantics: .float(.range(0...1))),
-                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .float(.range(-0.5...0.5))),
-                ],
-                outputs: [
-                    .init(name: "Image", type: .image)
-                ]
-            )
-
-            return .init(
-                schema: schema,
-                runImpl: { node, context in
-                    let filter = OrderedDitherFilter()
-                    filter.inputImage = await context.getImage(node.inputs[0].image)
-                    filter.ditherType = .init(rawValue: node.inputs[1].int) ?? .bayer2x2
-                    filter.darkColor = node.inputs[2].color4.ciColor
-                    filter.lightColor = node.inputs[3].color4.ciColor
-                    filter.noiseAmount = Float(node.inputs[4].float)
-                    filter.bias = Float(node.inputs[5].float)
-                    node.outputs[0] = .image(await context.addImage(filter.outputImage, 0))
-                }
-            )
-        }
-
         static var chromaticAberration: NodeImpl {
 
             let schema = NodeSchema(
@@ -162,51 +117,5 @@ extension Nodes {
                 }
             )
         }
-
-        static var edges3D: NodeImpl {
-            let schema = NodeSchema(
-                name: "Edges 3D",
-                inputs: [
-                    .init(name: "Image", type: .image),
-                    .init(name: "Shading Image", type: .image),
-                    .init(name: "Thickness", defaultValue: .float(3.0)),
-                    .init(name: "Spread", defaultValue: .float(1.0)),
-                ],
-                outputs: [
-                    .init(name: "Image", type: .image)
-                ]
-            )
-
-            return .init(
-                schema: schema,
-                runImpl: { node, context in
-                    let image = await context.getImage(node.inputs[0].image)
-                    let shadingImage = await context.getImage(node.inputs[1].image)
-                    let edgeRadius = node.inputs[2].float
-                    let heightIntensity = node.inputs[3].float
-
-                    if image == nil || shadingImage == nil {
-
-                        node.outputs[0] = .image(await context.addImage(nil, 0))
-                        return
-                    }
-
-                    let ew = CIFilter.edgeWork()
-                    ew.radius = Float(edgeRadius)
-                    ew.inputImage = image
-
-                    let hf = CIFilter.heightFieldFromMask()
-                    hf.radius = Float(max(1.0, heightIntensity))
-                    hf.inputImage = ew.outputImage
-
-                    let sm = CIFilter.shadedMaterial()
-                    sm.inputImage = hf.outputImage
-                    sm.shadingImage = shadingImage
-
-                    node.outputs[0] = .image(await context.addImage(sm.outputImage, 0))
-                }
-            )
-        }
-
     }
 }

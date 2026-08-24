@@ -60,6 +60,7 @@ extension NodeKind {
         case .coreImageFilterNode(.colorAdjustment(.CISRGBToneCurveToLinear)):
             ("color-adjustment", "srgb-tone-curve-to-linear")
         // Color Effect
+        case .coreImageCustomNode(.colorEffect(.orderedDither)): ("color-effect", "ordered-dither")
         case .coreImageFilterNode(.colorEffect(.CIColorInvert)): ("color-effect", "color-invert")
         case .coreImageCustomNode(.colorEffect(.colorMap)): ("color-effect", "color-map")
         case .coreImageCustomNode(.colorEffect(.grayscale)): ("color-effect", "grayscale")
@@ -128,6 +129,8 @@ extension NodeKind {
         case .coreImageCustomNode(.generator(.blurredRectangleGeneratorNode)): ("generator", "blurred-rectangle")
         case .coreImageCustomNode(.generator(.blurredRoundedRectangleGeneratorNode)):
             ("generator", "blurred-rounded-rectangle")
+        case .coreImageCustomNode(.generator(.shadedSphere)): ("generator", "shaded-sphere")
+        case .coreImageCustomNode(.generator(.simplexNoise)): ("generator", "simplex-noise")
         case .coreImageCustomNode(.generator(.checkerboardGeneratorNode)): ("generator", "checkerboard")
         case .coreImageCustomNode(.generator(.constantColorGeneratorNode)): ("generator", "constant-color")
         case .coreImageFilterNode(.generator(.CILenticularHaloGenerator)): ("generator", "lenticular-halo")
@@ -189,6 +192,7 @@ extension NodeKind {
         case .coreImageFilterNode(.stylize(.CISampleNearest)): ("stylize", "sample-nearest")
         case .coreImageFilterNode(.stylize(.CISpotColor)): ("stylize", "spot-color")
         case .coreImageFilterNode(.stylize(.CISpotLight)): ("stylize", "spot-light")
+        case .stylize(.edges3d): ("stylize", "edges-3d")
         // Segmentation
         case .coreImageCustomNode(.segmentation(.personSegmentation)): ("segmentation", "person-segmentation")
         // Convolution

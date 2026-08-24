@@ -19,12 +19,11 @@ public enum NodeKind: Sendable, Hashable, Codable {
     case coreImageFilterNode(CIFilterNodeKind)
     case coreImageCustomNode(CoreImageCustomNodeKind)
     case experimental(ExperimentalNodeKind)
+    case stylize(StylizeNodeKind)
 }
 
 public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
-    case edges3D
     case chromaticAberration
-    case orderedDither
     case resize
     case resizeToWidth
     case resizeToHeight
@@ -35,18 +34,29 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
     public var impl: NodeImpl {
         switch self {
-        case .edges3D:
-            Nodes.Experimental.edges3D
         case .chromaticAberration:
             Nodes.Experimental.chromaticAberration
-        case .orderedDither:
-            Nodes.Experimental.ordererdDither
         case .resizeToWidth:
             Nodes.Experimental.resizeToWidth
         case .resizeToHeight:
             Nodes.Experimental.resizeToHeight
         case .resize:
             Nodes.Experimental.resize
+        }
+    }
+}
+
+public enum StylizeNodeKind: Sendable, Hashable, Codable, CaseIterable {
+    case edges3d
+
+    public static var allKinds: [NodeKind] {
+        StylizeNodeKind.allCases.map({ .stylize($0) })
+    }
+
+    public var impl: NodeImpl {
+        switch self {
+        case .edges3d:
+            Nodes.Stylize.edges3D
         }
     }
 }
@@ -577,6 +587,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case palettize
         case colorMap
         case colorPosterize
+        case orderedDither
         case grayscale
         case blackAndWhite
 
@@ -602,6 +613,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.grayscaleNode
             case .blackAndWhite:
                 Nodes.CoreImageCustom.blackAndWhite
+            case .orderedDither:
+                Nodes.ColorEffect.ordererdDither
             }
         }
 
@@ -789,7 +802,8 @@ extension NodeKind {
             kind.impl
         case .experimental(let kind):
             kind.impl
-
+        case .stylize(let kind):
+            kind.impl
         }
     }
 
