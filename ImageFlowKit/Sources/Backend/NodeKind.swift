@@ -23,7 +23,6 @@ public enum NodeKind: Sendable, Hashable, Codable {
 }
 
 public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
-    case chromaticAberration
     case resize
     case resizeToWidth
     case resizeToHeight
@@ -34,8 +33,6 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
     public var impl: NodeImpl {
         switch self {
-        case .chromaticAberration:
-            Nodes.Experimental.chromaticAberration
         case .resizeToWidth:
             Nodes.Experimental.resizeToWidth
         case .resizeToHeight:
@@ -590,6 +587,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case orderedDither
         case grayscale
         case blackAndWhite
+        case chromaticAberration
 
         public static var allKinds: [NodeKind] {
             ColorEffect.allCases.map { .coreImageCustomNode(.colorEffect($0)) }
@@ -615,6 +613,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.blackAndWhite
             case .orderedDither:
                 Nodes.ColorEffect.ordererdDither
+            case .chromaticAberration:
+                Nodes.ColorEffect.chromaticAberration
             }
         }
 

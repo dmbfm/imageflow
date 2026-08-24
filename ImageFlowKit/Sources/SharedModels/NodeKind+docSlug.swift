@@ -61,6 +61,7 @@ extension NodeKind {
             ("color-adjustment", "srgb-tone-curve-to-linear")
         // Color Effect
         case .coreImageCustomNode(.colorEffect(.orderedDither)): ("color-effect", "ordered-dither")
+        case .coreImageCustomNode(.colorEffect(.chromaticAberration)): ("color-effect", "chromatic-aberration")
         case .coreImageFilterNode(.colorEffect(.CIColorInvert)): ("color-effect", "color-invert")
         case .coreImageCustomNode(.colorEffect(.colorMap)): ("color-effect", "color-map")
         case .coreImageCustomNode(.colorEffect(.grayscale)): ("color-effect", "grayscale")
