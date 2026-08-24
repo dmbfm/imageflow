@@ -23,9 +23,7 @@ public enum NodeKind: Sendable, Hashable, Codable {
 }
 
 public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
-    case resize
-    case resizeToWidth
-    case resizeToHeight
+    case dummy
 
     public static var allKinds: [NodeKind] {
         ExperimentalNodeKind.allCases.map({ .experimental($0) })
@@ -33,12 +31,8 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
 
     public var impl: NodeImpl {
         switch self {
-        case .resizeToWidth:
-            Nodes.Experimental.resizeToWidth
-        case .resizeToHeight:
-            Nodes.Experimental.resizeToHeight
-        case .resize:
-            Nodes.Experimental.resize
+        case .dummy:
+            Nodes.ValueNode.impl(.float)
         }
     }
 }
@@ -492,6 +486,9 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
 
     public enum GeometryAdjustment: Sendable, Hashable, Codable, CaseIterable {
         case crop
+        case resize
+        case resizeToWidth
+        case resizeToHeight
 
         public static var allKinds: [NodeKind] {
             GeometryAdjustment.allCases.map({ .coreImageCustomNode(.geometry($0)) })
@@ -505,6 +502,12 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
             switch self {
             case .crop:
                 Nodes.CoreImageCustom.cropNodeImpl
+            case .resize:
+                Nodes.GeometryAdjustment.resize
+            case .resizeToWidth:
+                Nodes.GeometryAdjustment.resizeToWidth
+            case .resizeToHeight:
+                Nodes.GeometryAdjustment.resizeToHeight
             }
         }
     }
