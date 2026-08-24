@@ -27,6 +27,9 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case chromaticAberration
     case orderedDither
     case simplexNoise
+    case resize
+    case resizeToWidth
+    case resizeToHeight
 
     public static var allKinds: [NodeKind] {
         ExperimentalNodeKind.allCases.map({ .experimental($0) })
@@ -44,6 +47,12 @@ public enum ExperimentalNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.Experimental.ordererdDither
         case .simplexNoise:
             Nodes.Experimental.simplexNoise
+        case .resizeToWidth:
+            Nodes.Experimental.resizeToWidth
+        case .resizeToHeight:
+            Nodes.Experimental.resizeToHeight
+        case .resize:
+            Nodes.Experimental.resize
         }
     }
 }
