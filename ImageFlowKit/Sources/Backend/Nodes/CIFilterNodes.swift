@@ -400,7 +400,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIBlurredRoundedRectangleGenerator
         case CICheckerboardGenerator
         case CIConstantColorGenerator
-        case CILenticularHaloGenerator
         case CIRandomGenerator
         case CIRoundedRectangleGenerator
         case CIRoundedRectangleStrokeGenerator
@@ -417,8 +416,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CICheckerboardGeneratorNode.impl()
             case .CIConstantColorGenerator:
                 Nodes.CIConstantColorGeneratorNode.impl()
-            case .CILenticularHaloGenerator:
-                Nodes.CILenticularHaloGeneratorNode.impl()
             case .CIRandomGenerator:
                 Nodes.CIRandomGeneratorNode.impl()
             case .CIRoundedRectangleGenerator:
@@ -5217,79 +5214,6 @@ extension Nodes {
                 filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
                 filter.setValue(node.inputs[1].float, forKey: "inputScale")
                 filter.setValue(node.inputs[2].float, forKey: "inputAspectRatio")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CILenticularHaloGeneratorNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Lenticular Halo",
-                inputs: [
-                    .init(
-                        name: "Center",
-                        defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
-                        semantics: .position2,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Color",
-                        defaultValue: .color4(.init(red: 1.0, green: 0.9, blue: 0.8, alpha: 1.0)),
-                        semantics: .color,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Halo Radius",
-                        defaultValue: .float(70.0),
-                        semantics: .distance,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Halo Width",
-                        defaultValue: .float(87.0),
-                        semantics: .distance,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Halo Overlap",
-                        defaultValue: .float(0.77),
-                        semantics: .default,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Striation Strength",
-                        defaultValue: .float(0.5),
-                        semantics: .default,
-                        editorPlacement: .default
-                    ),
-                    .init(
-                        name: "Striation Contrast",
-                        defaultValue: .float(1.0),
-                        semantics: .default,
-                        editorPlacement: .default
-                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CILenticularHaloGenerator")!
-                filter.setValue(node.inputs[0].vector2.ciVector, forKey: "inputCenter")
-                filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor")
-                filter.setValue(node.inputs[2].float, forKey: "inputHaloRadius")
-                filter.setValue(node.inputs[3].float, forKey: "inputHaloWidth")
-                filter.setValue(node.inputs[4].float, forKey: "inputHaloOverlap")
-                filter.setValue(node.inputs[5].float, forKey: "inputStriationStrength")
-                filter.setValue(node.inputs[6].float, forKey: "inputStriationContrast")
-                filter.setValue(node.inputs[7].float, forKey: "inputTime")
                 let outputImage = filter.outputImage
                 if let outputImage, !outputImage.extent.isEmpty {
                     node.outputs[0] = .image(await context.addImage(outputImage, 0))

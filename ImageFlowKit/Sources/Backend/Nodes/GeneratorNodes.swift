@@ -8,6 +8,91 @@ import XKit
 
 extension Nodes {
     public struct Generator {
+
+        static var lenticularHalo: NodeImpl {
+
+            let schema = NodeSchema(
+                name: "Lenticular Halo",
+                inputs: [
+                    .init(
+                        name: "Center",
+                        defaultValue: .vector2(.init(x: 150.0, y: 150.0)),
+                        semantics: .position2,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Color",
+                        defaultValue: .color4(.init(red: 1.0, green: 0.9, blue: 0.8, alpha: 1.0)),
+                        semantics: .color,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Halo Radius",
+                        defaultValue: .float(70.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Halo Width",
+                        defaultValue: .float(87.0),
+                        semantics: .distance,
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Halo Overlap",
+                        defaultValue: .float(0.77),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Striation Strength",
+                        defaultValue: .float(0.5),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Striation Contrast",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0.0...5.0)),
+                        editorPlacement: .default
+                    ), .init(name: "Time", defaultValue: .float(0.0), semantics: .default, editorPlacement: .default),
+                    .init(
+                        name: "Place At Origin",
+                        defaultValue: .bool(true),
+                        editorPlacement: .inspectorOption
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CILenticularHaloGenerator")!
+                filter.setValue(node.inputs[0].vector2.ciVector, forKey: "inputCenter")
+                filter.setValue(node.inputs[1].color4.ciColor, forKey: "inputColor")
+                filter.setValue(node.inputs[2].float, forKey: "inputHaloRadius")
+                filter.setValue(node.inputs[3].float, forKey: "inputHaloWidth")
+                filter.setValue(node.inputs[4].float, forKey: "inputHaloOverlap")
+                filter.setValue(node.inputs[5].float, forKey: "inputStriationStrength")
+                filter.setValue(node.inputs[6].float, forKey: "inputStriationContrast")
+                filter.setValue(node.inputs[7].float, forKey: "inputTime")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    let ext = outputImage.extent
+                    let finalImage =
+                        if node.inputs[8].bool {
+                            outputImage.transformed(by: .init(translationX: -ext.origin.x, y: -ext.origin.y))
+                        } else {
+                            outputImage
+                        }
+                    node.outputs[0] = .image(await context.addImage(finalImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+
         static var simplexNoise: NodeImpl {
             let schema = NodeSchema(
                 name: "Simplex Noise",

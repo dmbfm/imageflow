@@ -137,7 +137,8 @@ extension NodeKind {
         case .coreImageCustomNode(.generator(.simplexNoise)): ("generator", "simplex-noise")
         case .coreImageCustomNode(.generator(.checkerboardGeneratorNode)): ("generator", "checkerboard")
         case .coreImageCustomNode(.generator(.constantColorGeneratorNode)): ("generator", "constant-color")
-        case .coreImageFilterNode(.generator(.CILenticularHaloGenerator)): ("generator", "lenticular-halo")
+        case .coreImageCustomNode(.generator(.lenticularHalo)): ("generator", "lenticular-halo")
+        // case .coreImageFilterNode(.generator(.CILenticularHaloGenerator)): ("generator", "lenticular-halo")
         case .coreImageCustomNode(.generator(.randomGeneratorNode)): ("generator", "random-generator")
         case .coreImageCustomNode(.generator(.roundedRectangleGeneratorNode)): ("generator", "rounded-rectangle")
         case .coreImageCustomNode(.generator(.roundedRectangleStrokeGeneratorNode)):

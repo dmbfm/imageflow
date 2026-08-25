@@ -107,6 +107,8 @@ public struct NodeInputSchema: Sendable, Hashable {
         }
 
         public static let `default`: EditorPlacement = .init(nodeView: .visible, inspector: .inputs)
+
+        public static let inspectorOption: EditorPlacement = .init(nodeView: .hidden, inspector: .options)
     }
 
     public enum EditorVisibility: Sendable, Hashable {

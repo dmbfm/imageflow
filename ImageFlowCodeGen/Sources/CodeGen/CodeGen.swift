@@ -115,6 +115,11 @@ let semantics: [String: [String: String]] = [
         "inputNoiseLevel": ".float(.range(0.0...1.0))",
         "inputSharpness": ".float(.range(0.0...2.0))",
     ],
+    "CILenticularHaloGenerator": [
+        "inputHaloOverlap": ".float(.range(0.0...1.0))",
+        "inputStriationStrength": ".float(.range(0.0...1.0))",
+        "inputStriationContrast": ".float(.range(0.0...5.0))",
+    ],
 ]
 
 let addCropToSourceOptionFilters: [String] =
@@ -412,7 +417,7 @@ extension ValueType {
             "\(base).string"
         case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .floatArray:
             fatalError()
-        case .gradientData:
+        case .gradientData, .textStyle:
             fatalError()
         }
     }
@@ -456,7 +461,7 @@ extension Value {
             ".init(x: \(value.x), y: \(value.y), z: \(value.z), w: \(value.w))"
         case .matrix2x2, .matrix3x3, .matrix5x5, .matrix7x7, .floatArray:
             fatalError()
-        case .gradientData(_):
+        case .gradientData(_), .textStyle(_):
             fatalError()
         }
     }

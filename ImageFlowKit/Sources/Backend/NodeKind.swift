@@ -718,6 +718,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case textGeneratorNode
         case shadedSphere
         case simplexNoise
+        case lenticularHalo
 
         public static var allKinds: [NodeKind] {
             Generator.allCases.map { .coreImageCustomNode(.generator($0)) }
@@ -753,6 +754,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.Generator.shadedSphere
             case .simplexNoise:
                 Nodes.Generator.simplexNoise
+            case .lenticularHalo:
+                Nodes.Generator.lenticularHalo
             }
         }
     }
