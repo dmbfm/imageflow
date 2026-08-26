@@ -43,5 +43,6 @@ final class GradientDataControl: Control<GradientData, (), ()> {
     }
 
     func setDisabled(_ disabled: Bool) {
+        self.gradientDataEditorView.isEnabled = !disabled
     }
 }

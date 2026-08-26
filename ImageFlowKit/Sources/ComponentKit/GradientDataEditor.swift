@@ -20,6 +20,16 @@ public final class GradientDataEditor: XView, WithRef {
 
     public var onChange: ((Change) -> ())?
 
+    public var isEnabled: Bool = true {
+        didSet {
+            self.slider.isEnabled = self.isEnabled
+            self.colorPicker.view.disabled = !self.isEnabled
+            self.noiseButton.isEnabled = self.isEnabled
+            self.interpPickerView.disabled = !self.isEnabled
+            self.isEnabledPublisher.send(self.isEnabled)
+        }
+    }
+
     public struct Change {
         public var newValue: GradientData
         public var oldValue: GradientData
@@ -33,6 +43,8 @@ public final class GradientDataEditor: XView, WithRef {
     }
 
     // MARK: - Implementation
+
+    private var isEnabledPublisher: PassthroughSubject<Bool, Never> = .init()
 
     private weak var noisePopoverController: NoisePopoverController?
 
@@ -92,18 +104,21 @@ public final class GradientDataEditor: XView, WithRef {
                 }
                 .with(\.toolTip, "Add Stop")
                 .with(\.controlSize, .small),
+                // .rx(self.isEnabledPublisher, kp: \.isEnabled),
 
                 Button("", systemSymbolName: "minus") { [unowned self] in
                     self.removeStop()
                 }
                 .with(\.toolTip, "Delete Stop")
                 .with(\.controlSize, .small),
+                // .rx(self.isEnabledPublisher, kp: \.isEnabled),
 
                 Button("", systemSymbolName: "arrow.left.arrow.right") { [unowned self] in
                     self.invertStops()
                 }
                 .with(\.toolTip, "Invert")
                 .with(\.controlSize, .small),
+                // .rx(self.isEnabledPublisher, kp: \.isEnabled),
             ]),
             insets: .init(vertical: 0, horizontal: 7)
         )
@@ -297,6 +312,7 @@ fileprivate final class BaseSliderView: XView, WithRef {
     public var onChange: ((GradientDataEditor.Change) -> ())?
     public var addStopAt: ((CGFloat) -> ())?
     public var removeStop: ((Int) -> ())?
+    public var isEnabled: Bool = true
 
     fileprivate var thumbs: [ThumbView] = []
 
@@ -364,14 +380,8 @@ fileprivate final class BaseSliderView: XView, WithRef {
         self.thumbs = []
 
         var position: ThumbView.Position = .bottom
-        for (index, stop) in self.value.stops.enumerated() {
+        for stop in self.value.stops {
             let view = ThumbView(stop.color, position: position, selected: false)
-                .with(
-                    \.onClick,
-                    { [unowned self] in
-                        self.selectedThumbIndex = index
-                    }
-                )
             position.toggle()
             self.thumbs.append(view)
             self.addSubview(view)
@@ -406,6 +416,7 @@ fileprivate final class BaseSliderView: XView, WithRef {
     var thumbDragState: ThumbDragState = .idle
 
     @objc func clickGestureHandler(_ gesture: NSClickGestureRecognizer) {
+        if !self.isEnabled { return }
         let loc = self.gradientBarView.convert(gesture.location(in: nil), from: nil)
         if self.gradientBarView.bounds.contains(loc) {
             let pos = loc.x / self.gradientBarView.bounds.width
@@ -415,6 +426,7 @@ fileprivate final class BaseSliderView: XView, WithRef {
 
     @objc
     func pressGestureHandler(_ gesture: NSPressGestureRecognizer) {
+        if !self.isEnabled { return }
         if gesture.state == .began {
             if let index = self.thumbHitTest(self.convert(gesture.location(in: nil), from: nil)) {
                 self.selectedThumbIndex = index
@@ -433,6 +445,8 @@ fileprivate final class BaseSliderView: XView, WithRef {
 
     @objc
     func panGestureHandler(_ gesture: NSPanGestureRecognizer) {
+
+        if !self.isEnabled { return }
 
         let loc = self.convert(gesture.location(in: nil), from: nil)
         let t = gesture.translation(in: nil)
@@ -522,6 +536,7 @@ fileprivate final class BaseSliderView: XView, WithRef {
     }
 
     override func rightMouseDown(with event: NSEvent) {
+        if !self.isEnabled { return }
         for (index, thumb) in self.thumbs.enumerated() {
             let loc = thumb.convert(event.locationInWindow, from: nil)
             if thumb.bounds.contains(loc) {
@@ -667,8 +682,6 @@ fileprivate final class ThumbView: XView, WithRef {
             self.setNeedsDisplay()
         }
     }
-
-    var onClick: (() -> ())?
 
     enum Position {
         case top
