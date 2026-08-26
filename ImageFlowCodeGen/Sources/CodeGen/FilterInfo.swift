@@ -37,6 +37,7 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CITemperatureAndTint",
             "CIToneCurve",
             "CILenticularHaloGenerator",
+            "CIDither",
         ]
 
     static let overrides: [Override] =

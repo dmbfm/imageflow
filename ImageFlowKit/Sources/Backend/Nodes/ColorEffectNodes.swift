@@ -7,6 +7,36 @@ import Values
 
 extension Nodes {
     struct ColorEffect {
+        static var applyDitherNoise: NodeImpl {
+            let schema = NodeSchema(
+                name: "Apply Dither Noise",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Intensity",
+                        defaultValue: .float(0.1),
+                        semantics: .float(.range(0.0...1.0)),
+                        editorPlacement: .default
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let filter = CIFilter(name: "CIDither")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+
         static var chromaticAberration: NodeImpl {
             let schema = NodeSchema(
                 name: "Chromatic Aberration",

@@ -70,7 +70,7 @@ extension NodeKind {
         case .coreImageCustomNode(.colorEffect(.colorPosterize)): ("color-effect", "color-posterize")
         case .coreImageFilterNode(.colorEffect(.CIConvertLabToRGB)): ("color-effect", "convert-lab-to-rgb")
         case .coreImageFilterNode(.colorEffect(.CIConvertRGBtoLab)): ("color-effect", "convert-rgb-to-lab")
-        case .coreImageFilterNode(.colorEffect(.CIDither)): ("color-effect", "dither")
+        case .coreImageCustomNode(.colorEffect(.applyDitherNoise)): ("color-effect", "apply-dither-noise")
         case .coreImageFilterNode(.colorEffect(.CIDocumentEnhancer)): ("color-effect", "document-enhancer")
         case .coreImageFilterNode(.colorEffect(.CIFalseColor)): ("color-effect", "false-color")
         case .coreImageFilterNode(.colorEffect(.CIMaskToAlpha)): ("color-effect", "mask-to-alpha")

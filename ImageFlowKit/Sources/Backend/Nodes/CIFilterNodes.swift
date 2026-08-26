@@ -162,7 +162,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
         case CIColorPosterize
         case CIConvertLabToRGB
         case CIConvertRGBtoLab
-        case CIDither
         case CIDocumentEnhancer
         case CIFalseColor
         case CILabDeltaE
@@ -197,8 +196,6 @@ public enum CIFilterNodeKind: Sendable, Hashable, Codable {
                 Nodes.CIConvertLabToRGBNode.impl()
             case .CIConvertRGBtoLab:
                 Nodes.CIConvertRGBtoLabNode.impl()
-            case .CIDither:
-                Nodes.CIDitherNode.impl()
             case .CIDocumentEnhancer:
                 Nodes.CIDocumentEnhancerNode.impl()
             case .CIFalseColor:
@@ -3589,38 +3586,6 @@ extension Nodes {
                     } else {
                         node.outputs[0] = .image(await context.addImage(outputImage, 0))
                     }
-                } else {
-                    node.outputs[0] = .image(await context.addImage(nil, 0))
-                }
-            }
-        }
-    }
-
-    public struct CIDitherNode: NodeImplProvider {
-        public static func impl(_ param: ()) -> NodeImpl {
-            let schema = NodeSchema(
-                name: "Dither",
-                inputs: [
-                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
-                    .init(
-                        name: "Intensity",
-                        defaultValue: .float(0.1),
-                        semantics: .float(.range(0.0...1.0)),
-                        editorPlacement: .default
-                    ),
-                ],
-                outputs: [
-                    .init(name: "Output Image", type: .image)
-                ]
-            )
-
-            return .init(schema: schema) { node, context in
-                let filter = CIFilter(name: "CIDither")!
-                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
-                filter.setValue(node.inputs[1].float, forKey: "inputIntensity")
-                let outputImage = filter.outputImage
-                if let outputImage, !outputImage.extent.isEmpty {
-                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
                 } else {
                     node.outputs[0] = .image(await context.addImage(nil, 0))
                 }
