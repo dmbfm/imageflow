@@ -98,14 +98,14 @@ final class CanvasTabView: XView {
     }()
 
     lazy var fitAllButton: Button = {
-        Button("Zoom to Fit Content") {
+        Button("Zoom to Fit Content") { [unowned self] in
             self.vm.receive(event: .zoomToFitContent)
         }
         .rx(self.vm.$canZoomToFitContent, kp: \.isEnabled)
     }()
 
     lazy var fitSelectionButton: Button = {
-        Button("Zoom to Fit Selection") {
+        Button("Zoom to Fit Selection") { [unowned self] in
             self.vm.receive(event: .zoomToFitSelection)
         }
         .rx(self.vm.$canZoomToFitSelection, kp: \.isEnabled)
