@@ -58,7 +58,8 @@ final class NodeStringInput: XViewEx, NodeControl {
 
         super.init(frame: .zero)
 
-        self.textField.isEditable = isEditable
+        self.textField.isEditable = false
+        self.textField.isEnabled = isEditable
 
         self.addSubview(self.textField)
 
