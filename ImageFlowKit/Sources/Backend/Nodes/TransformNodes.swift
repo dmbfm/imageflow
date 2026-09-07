@@ -118,7 +118,7 @@ extension Nodes {
                         let s = CGAffineTransform(scaleX: scale.x, y: scale.y)
                         let r = CGAffineTransform(rotationAngle: angle)
                         let t = CGAffineTransform(translationX: tr.x, y: tr.y)
-                        let final = CGAffineTransformConcat(CGAffineTransformConcat(t, r), s)
+                        let final = CGAffineTransformConcat(CGAffineTransformConcat(s, r), t)
                         node.outputs[0] = .affineTransform(.init(cgAffineTransform: final))
                     }
                 )
