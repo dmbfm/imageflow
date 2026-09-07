@@ -24,15 +24,15 @@ public struct AffineTransform: Sendable, Codable, Hashable {
 
     public init(cgAffineTransform t: CGAffineTransform) {
         self.m11 = t.a
-        self.m12 = t.b
-        self.m21 = t.c
+        self.m12 = t.c
+        self.m21 = t.b
         self.m22 = t.d
         self.tX = t.tx
         self.tY = t.ty
     }
 
     public var cgAffineTransform: CGAffineTransform {
-        .init(self.m11, self.m12, self.m21, self.m22, self.tX, self.tY)
+        .init(self.m11, self.m21, self.m12, self.m22, self.tX, self.tY)
     }
 
     public subscript(row: Int, col: Int) -> CGFloat {
@@ -105,7 +105,7 @@ public struct AffineTransform: Sendable, Codable, Hashable {
 
     #if os(macOS)
     public var fAffineTransform: Foundation.AffineTransform {
-        .init(m11: self.m11, m12: self.m12, m21: self.m21, m22: self.m22, tX: self.tX, tY: self.tY)
+        .init(m11: self.m11, m12: self.m21, m21: self.m12, m22: self.m22, tX: self.tX, tY: self.tY)
     }
     #endif
 
