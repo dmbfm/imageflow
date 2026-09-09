@@ -215,7 +215,7 @@ public struct FlowNode: Sendable, Equatable {
     ///
     /// - Parameters:
     ///   - slot: The port slot.
-    ///   - type: The disired type.
+    ///   - type: The desired type.
     ///
     /// - Returns:
     public func variation(soThatSlot slot: PortSlot, hasType type: ValueType) -> NodeKind? {

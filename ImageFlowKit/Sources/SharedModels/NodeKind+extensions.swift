@@ -171,6 +171,12 @@ public extension NodeKind {
 
     func allowedVariations(_ inputs: [Bool], _ outputs: [Bool]) -> [NodeKind] {
         switch self {
+        case .booleanOperation(.ifNode(_)):
+            if [inputs[1], inputs[2]].contains(true) || outputs.contains(true) {
+                [self]
+            } else {
+                self.variations
+            }
         case .math, .passthroughNode, .valueNode, .booleanOperation, .vectorOperation:
             if inputs.contains(true) || outputs.contains(true) {
                 [self]
