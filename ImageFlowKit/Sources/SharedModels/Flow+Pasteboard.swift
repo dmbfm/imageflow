@@ -109,6 +109,21 @@ extension Flow {
             }
         }
 
+        // Scan the nodes for any image inputs which will be no longer connected after pasting the nodes and edges,
+        // and set the image in these input ports to nil.
+        for (id, node) in nodes {
+            for (index, input) in node.inputs.enumerated() where input.value.type == .image {
+                switch input.value.image {
+                case .nodeOutput(_, _):
+                    if edges.first(where: { e in e.to == .some(.init(node: node.id, index: index)) }) == nil {
+                        nodes[id]!.inputs[index].value = .image(nil)
+                    }
+                default:
+                    break
+                }
+            }
+        }
+
         return .init(nodes: nodes, nodePositions: nodePositions, edges: edges)
     }
 

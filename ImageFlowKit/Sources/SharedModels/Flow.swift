@@ -234,24 +234,6 @@ extension Flow {
     }
 
     @discardableResult
-    public func duplicateNode(
-        _ id: UUID,
-        undoService: UndoService? = nil
-    ) -> FlowNode? {
-        guard var node = self.nodes[id], let pos = self.nodePositions[id] else { return nil }
-
-        let id = UUID()
-        node.id = id
-
-        for i in node.inputs.indices { node.inputs[i].connected = false }
-        for i in node.outputs.indices { node.outputs[i].connected = false }
-
-        self.addNode(node, at: pos + self.duplicateOrPasteOffset, undoService: undoService)
-
-        return node
-    }
-
-    @discardableResult
     func addEdge(_ edge: Edge) -> Bool {
         if !self.edges.contains(edge) {
             self.edges.insert(edge)
