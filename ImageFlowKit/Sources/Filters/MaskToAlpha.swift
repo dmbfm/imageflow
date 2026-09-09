@@ -56,7 +56,7 @@ public final class MaskToAlphaFilter: CIFilter {
 
         guard let inputImage = self.inputImage else { return nil }
 
-        guard let maskImage = self.maskImage else { return inputImage }
+        guard let maskImage = self.maskImage?.clampedToExtent() else { return inputImage }
 
         let kernel =
             switch self.channel {
@@ -69,6 +69,6 @@ public final class MaskToAlphaFilter: CIFilter {
 
         guard let kernel else { return inputImage }
 
-        return self.apply(kernel, arguments: [inputImage, maskImage])
+        return kernel.apply(extent: inputImage.extent, roiCallback: { _, r in r }, arguments: [inputImage, maskImage])
     }
 }
