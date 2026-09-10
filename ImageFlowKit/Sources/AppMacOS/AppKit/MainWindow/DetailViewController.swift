@@ -54,21 +54,40 @@ final class DetailViewController: NSViewController {
         self.previewVC.view.autoresizingMask = [.width, .height]
         self.previewVC.view.frame = self.view.safeAreaRect
 
-        let coverView = NoClickHostingView(
-            rootView:
-                ZStack(alignment: .top) {
-                    Color.clear
+        if #available(macOS 27, *) {
+            let coverView = NoClickHostingView(
+                rootView:
+                    ZStack(alignment: .top) {
+                        Color.clear
 
-                    Rectangle()
-                        .fill(Color.white.opacity(0.0001))
-                        .frame(height: 60)
-                        .ignoresSafeArea(.all, edges: [.top])
-                        .backgroundExtensionEffect()
-                }
-        )
-        coverView.autoresizingMask = [.width, .height]
-        coverView.frame = self.view.bounds
-        self.view.addSubview(coverView)
+                        Rectangle()
+                            .fill(Color.white.opacity(0.0001))
+                            .frame(height: 60)
+                            .ignoresSafeArea(.all, edges: [.top])
+                            .backgroundExtensionEffect()
+                            .allowsHitTesting(false)
+                    }
+            )
+            coverView.autoresizingMask = [.width, .height]
+            coverView.frame = self.view.bounds
+            self.view.addSubview(coverView)
+        } else {
+            let coverView = NoClickHostingView(
+                rootView:
+                    ZStack(alignment: .top) {
+                        Color.clear
+
+                        Rectangle()
+                            .fill(Color.white.opacity(0.0001))
+                            .frame(height: 60)
+                            .ignoresSafeArea(.all, edges: [.top])
+                            .backgroundExtensionEffect()
+                    }
+            )
+            coverView.autoresizingMask = [.width, .height]
+            coverView.frame = self.view.bounds
+            self.view.addSubview(coverView)
+        }
     }
 }
 

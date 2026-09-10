@@ -116,6 +116,16 @@ public final class CanvasNSView: NSView, CanvasPlatformViewProtocol {
 
     // MARK: - NSView
 
+    public override func hitTest(_ point: NSPoint) -> NSView? {
+        if #available(macOS 27, *) {
+            guard let superview = self.superview else { return nil }
+            let localPoint = self.convert(superview.convert(point, to: nil), from: nil)
+            return self.safeAreaRect.contains(localPoint) ? super.hitTest(point) : nil
+        } else {
+            return super.hitTest(point)
+        }
+    }
+
     public override var isFlipped: Bool {
         true
     }
