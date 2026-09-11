@@ -119,6 +119,7 @@ let package = Package(
                 "CubeLutKit",
                 "Helpers",
                 "Filters",
+                "XKit",
             ],
         ),
         .target(
@@ -127,6 +128,7 @@ let package = Package(
                 "Backend",
                 "Helpers",
                 "Values",
+                "XKit",
             ]
         ),
         .target(
@@ -134,6 +136,7 @@ let package = Package(
             dependencies: [
                 "Helpers",
                 "SharedModels",
+                "XKit",
             ]
         ),
         .target(
@@ -182,6 +185,7 @@ let package = Package(
                 "Helpers",
                 "Values",
                 "SharedModels",
+                "XKit",
             ]
         ),
         .target(
@@ -192,6 +196,7 @@ let package = Package(
                 "SharedModels",
                 "SharedControllers",
                 "AssetSystem",
+                "XKit",
             ]
         ),
         .target(
@@ -239,6 +244,7 @@ let package = Package(
             dependencies: [
                 "Backend",
                 "SharedModels",
+                "XKit",
             ]
         ),
         .target(
@@ -256,6 +262,7 @@ let package = Package(
                 "Helpers",
                 "SharedModels",
                 "AssetSystem",
+                "XKit",
             ]
         ),
         .target(
@@ -275,6 +282,7 @@ let package = Package(
                 "SharedModels",
                 "Helpers",
                 "SharedControllers",
+                "XKit",
             ]
         ),
         .target(

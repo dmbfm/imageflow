@@ -143,12 +143,21 @@ extension MainViewController: GlobalCoordinatorProtocol {
         switch info.payload {
         case .data(let data):
             Task {
-                let id = try await self.assetStore.importAsset(
-                    fromData: data.data,
-                    filename: data.filename,
-                    kind: .image,
-                    undoService: self.undoService,
-                )
+                guard
+                    let id = try? await self.assetStore.importAsset(
+                        fromData: data.data,
+                        filename: data.filename,
+                        kind: .image,
+                        undoService: self.undoService,
+                    )
+                else {
+                    let alert = NSAlert()
+                    alert.messageText = "Failed to import image!"
+                    alert.alertStyle = .warning
+                    let _ = alert.addButton(withTitle: "OK")
+                    let _ = alert.runModal()
+                    return
+                }
                 if case let .canvas(maybePoint) = info.target {
                     let canvasPos =
                         maybePoint?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint
@@ -163,11 +172,20 @@ extension MainViewController: GlobalCoordinatorProtocol {
             for (idx, url) in urls.enumerated() {
                 let offset: CGFloat = 80 * Double(idx)
                 Task {
-                    let id = try await self.assetStore.importAsset(
-                        fromURL: url,
-                        kind: .image,
-                        undoService: self.undoService
-                    )
+                    guard
+                        let id = try? await self.assetStore.importAsset(
+                            fromURL: url,
+                            kind: .image,
+                            undoService: self.undoService
+                        )
+                    else {
+                        let alert = NSAlert()
+                        alert.messageText = "Failed to import image!"
+                        alert.alertStyle = .warning
+                        let _ = alert.addButton(withTitle: "OK")
+                        let _ = alert.runModal()
+                        return
+                    }
                     if case let .canvas(maybePoint) = info.target {
                         let canvasPos =
                             maybePoint?.canvas(view: self.canvasView, viewport: self.canvasView.viewport).cgPoint

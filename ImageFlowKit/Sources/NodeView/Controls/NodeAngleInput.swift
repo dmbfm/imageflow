@@ -64,7 +64,7 @@ final class NodeAngleInput: XViewEx, NodeControl {
                 Task {
                     // NOTE: Hack because `NSPopupButton` is buggy as hell
                     self.updateSize()
-                    try await Task.sleep(for: .milliseconds(10))
+                    try? await Task.sleep(for: .milliseconds(10))
                     self.updateSize()
 
                 }

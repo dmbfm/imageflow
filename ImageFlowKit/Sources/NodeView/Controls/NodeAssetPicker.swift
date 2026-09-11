@@ -14,7 +14,8 @@ import AppKit
 import UIKit
 #endif
 
-protocol AssetPickerType {
+@MainActor
+protocol AssetPickerType: Sendable {
     static func resolve(_ value: Values.Value) -> AssetIdentifier?
     static var none: Value { get }
     static var assetKind: AssetKind { get }
@@ -65,6 +66,7 @@ protocol NodeAssetPickerDelegate: AnyObject {
     var emitter: EventEmitter<NodeViewDelegateEvent> { get }
 }
 
+@MainActor
 final class NodeAssetPicker<T: AssetPickerType>: XViewEx, NodeControl {
     var context: NodeControlContext = .init()
 
