@@ -75,6 +75,7 @@ struct CanvasZoomToolbarControlView: View {
                 }
                 .disabled(!self.vm.canZoomToFitContent)
             }
+            .fixedSize()
             .menuIndicator(.hidden)
 
             Button {
