@@ -2438,31 +2438,31 @@ extension Nodes {
                         name: "Red Vector",
                         defaultValue: .vector4(.init(x: 1.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hiddenControl, inspector: .options)
                     ),
                     .init(
                         name: "Green Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 1.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hiddenControl, inspector: .options)
                     ),
                     .init(
                         name: "Blue Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 1.0, w: 0.0)),
                         semantics: .default,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hiddenControl, inspector: .options)
                     ),
                     .init(
                         name: "Alpha Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 1.0)),
                         semantics: .default,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hiddenControl, inspector: .options)
                     ),
                     .init(
                         name: "Bias Vector",
                         defaultValue: .vector4(.init(x: 0.0, y: 0.0, z: 0.0, w: 0.0)),
                         semantics: .default,
-                        editorPlacement: .default
+                        editorPlacement: .init(nodeView: .hiddenControl, inspector: .options)
                     ),
                 ],
                 outputs: [

@@ -38,6 +38,11 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
             "CIToneCurve",
             "CILenticularHaloGenerator",
             "CIDither",
+            "CICode39BarcodeGenerator",
+            "CICodabarBarcodeGenerator",
+            "CIEAN13BarcodeGenerator",
+            "CIInterleaved2of5BarcodeGenerator",
+            "CISeimensStarGenerator",
         ]
 
     static let overrides: [Override] =
@@ -73,6 +78,17 @@ public struct FilterInfoCollection: Sendable, Hashable, Codable {
                         ("inputBVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 1, w: 0)))),
                         ("inputAVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 1)))),
                         ("inputBiasVector", .defaultValue(.vector4(.init(x: 0, y: 0, z: 0, w: 0)))),
+                    ])
+            ),
+            .init(
+                name: "CIColorMatrix",
+                filterOverride: .inputs(
+                    [
+                        ("inputRVector", .editorVisibility(.hiddenControl)),
+                        ("inputGVector", .editorVisibility(.hiddenControl)),
+                        ("inputBVector", .editorVisibility(.hiddenControl)),
+                        ("inputAVector", .editorVisibility(.hiddenControl)),
+                        ("inputBiasVector", .editorVisibility(.hiddenControl)),
                     ])
             ),
             .init(
@@ -242,6 +258,7 @@ struct Override {
         case type(InputType)
         case valueType(ValueType)
         case defaultValue(Value)
+        case editorVisibility(FilterInput.EditorVisibility)
     }
 }
 
@@ -572,6 +589,7 @@ public struct FilterInput: Sendable, Hashable, Codable {
     public enum EditorVisibility: Sendable, Hashable, Codable {
         case all
         case inspectorOnly
+        case hiddenControl
     }
 
     func applying(override: Override.InputOverride) -> Self {
@@ -584,6 +602,8 @@ public struct FilterInput: Sendable, Hashable, Codable {
         case .defaultValue(let value):
             result.defaultValue = value
             result.valueType = value.type
+        case .editorVisibility(let value):
+            result.editorVisibility = value
         }
         return result
     }

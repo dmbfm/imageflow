@@ -339,6 +339,7 @@ extension FilterInput.EditorVisibility {
         switch self {
         case .all: ".default"
         case .inspectorOnly: ".init(nodeView: .hidden, inspector: .options)"
+        case .hiddenControl: ".init(nodeView: .hiddenControl, inspector: .options)"
         }
     }
 }
