@@ -1209,6 +1209,63 @@ extension Nodes.CoreImageCustom {
 
     }
 
+    public static var grayscaleV2Node: NodeImpl {
+        let schema = NodeSchema(
+            name: "Grayscale",
+            inputs: [
+                .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                .init(
+                    name: "Method",
+                    defaultValue: .int(0),
+                    semantics: .integer(
+                        .picker([
+                            .init(label: "Luminance", value: 0),
+                            .init(label: "Min", value: 1),
+                            .init(label: "Max", value: 2),
+                        ])
+                    )
+                ),
+            ],
+            outputs: [
+                .init(name: "Output Image", type: .image)
+            ]
+        )
+
+        let data = GradientData.default
+
+        return .init(schema: schema) { node, context in
+
+            let method = node.inputs[1].int
+
+            switch method {
+            case 1, 2:
+                let filter: CIFilter = method == 1 ? CIFilter.minimumComponent() : CIFilter.maximumComponent()
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            default:
+                let grad = GradientFilter(data, p0: .init(x: 0, y: 0), p1: .init(x: 256, y: 0))
+                let gradImage = grad.outputImage!.cropped(to: .init(x: 0, y: 0, width: 256, height: 1))
+
+                let filter = CIFilter(name: "CIColorMap")!
+                filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                filter.setValue(gradImage, forKey: "inputGradientImage")
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
+    }
+
     public static var blackAndWhite: NodeImpl {
         let schema = NodeSchema(
             name: "Black and White",

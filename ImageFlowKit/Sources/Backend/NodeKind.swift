@@ -589,12 +589,13 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case colorPosterize
         case orderedDither
         case grayscale
+        case grayscaleV2
         case blackAndWhite
         case chromaticAberration
         case applyDitherNoise
 
         public static var allKinds: [NodeKind] {
-            ColorEffect.allCases.map { .coreImageCustomNode(.colorEffect($0)) }
+            ColorEffect.allCases.excluding(elementsOf: [.grayscale]).map { .coreImageCustomNode(.colorEffect($0)) }
         }
 
         public var kind: NodeKind {
@@ -613,6 +614,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.ColorPosterizeNode.impl()
             case .grayscale:
                 Nodes.CoreImageCustom.grayscaleNode
+            case .grayscaleV2:
+                Nodes.CoreImageCustom.grayscaleV2Node
             case .blackAndWhite:
                 Nodes.CoreImageCustom.blackAndWhite
             case .orderedDither:
