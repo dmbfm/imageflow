@@ -211,7 +211,9 @@ private struct Categories {
             items: CIFilterNodeKind.ColoreffectNodeKind.allCases
                 .excluding(elementsOf: [
                     .CIColorMap, .CIColorPosterize, .CILabDeltaE, .CIVignetteEffect, .CIPalettize, .CIMaximumComponent,
-                    .CIMinimumComponent,
+                    .CIMinimumComponent, .CIPhotoEffectFade, .CIPhotoEffectMono, .CIPhotoEffectNoir,
+                    .CIPhotoEffectTonal, .CIPhotoEffectChrome, .CIPhotoEffectInstant, .CIPhotoEffectProcess,
+                    .CIPhotoEffectTransfer,
                 ])
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)

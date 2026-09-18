@@ -593,6 +593,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
         case blackAndWhite
         case chromaticAberration
         case applyDitherNoise
+        case photoEffect
 
         public static var allKinds: [NodeKind] {
             ColorEffect.allCases.excluding(elementsOf: [.grayscale]).map { .coreImageCustomNode(.colorEffect($0)) }
@@ -624,6 +625,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.ColorEffect.chromaticAberration
             case .applyDitherNoise:
                 Nodes.ColorEffect.applyDitherNoise
+            case .photoEffect:
+                Nodes.ColorEffect.photoEffect
             }
         }
 

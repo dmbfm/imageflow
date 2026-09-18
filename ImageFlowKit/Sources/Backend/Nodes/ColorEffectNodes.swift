@@ -103,5 +103,81 @@ extension Nodes {
                 }
             )
         }
+
+        static var photoEffect: NodeImpl {
+
+            enum Type: Int, CaseIterable, Sendable {
+                case chrome
+                case fade
+                case instant
+                case mono
+                case noir
+                case process
+                case tonal
+                case transfer
+
+                static let `default`: Self = .chrome
+
+                var displayName: String {
+                    switch self {
+                    case .chrome: "Chrome"
+                    case .fade: "Fade"
+                    case .instant: "Instant"
+                    case .mono: "Mono"
+                    case .noir: "Noir"
+                    case .process: "Process"
+                    case .tonal: "Tonal"
+                    case .transfer: "Transfer"
+                    }
+                }
+
+                var filter: CIFilter {
+                    switch self {
+
+                    case .chrome: CIFilter.photoEffectChrome()
+                    case .fade: CIFilter.photoEffectFade()
+                    case .instant: CIFilter.photoEffectInstant()
+                    case .mono: CIFilter.photoEffectMono()
+                    case .noir: CIFilter.photoEffectNoir()
+                    case .process: CIFilter.photoEffectProcess()
+                    case .tonal: CIFilter.photoEffectTonal()
+                    case .transfer: CIFilter.photoEffectTransfer()
+                    }
+                }
+            }
+
+            let schema = NodeSchema(
+                name: "Photo Effect",
+                inputs: [
+                    .init(name: "Image", type: .image),
+                    .init(
+                        name: "Type",
+                        defaultValue: .int(Type.default.rawValue),
+                        semantics: .integer(
+                            .picker(Type.allCases.map({ .init(label: $0.displayName, value: $0.rawValue) }))
+                        )
+                    ),
+                ],
+                outputs: [
+                    .init(name: "Image", type: .image)
+                ]
+            )
+
+            return .init(
+                schema: schema,
+                runImpl: { node, context in
+                    let ty: Type = .init(rawValue: node.inputs[1].int)!
+                    let filter = ty.filter
+
+                    filter.setValue(await context.getImage(node.inputs[0].image), forKey: "inputImage")
+                    let outputImage = filter.outputImage
+                    if let outputImage, !outputImage.extent.isEmpty {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(nil, 0))
+                    }
+                }
+            )
+        }
     }
 }
