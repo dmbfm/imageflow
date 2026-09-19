@@ -120,6 +120,9 @@ let semantics: [String: [String: String]] = [
         "inputStriationStrength": ".float(.range(0.0...1.0))",
         "inputStriationContrast": ".float(.range(0.0...5.0))",
     ],
+    "CISepiaTone": [
+        "inputIntensity": ".float(.range(0.0...1.0))"
+    ],
 ]
 
 let addCropToSourceOptionFilters: [String] =
