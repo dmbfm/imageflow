@@ -259,7 +259,7 @@ extension Nodes.CoreImageCustom {
                     }
 
                 let maskToAlphaFilter = MaskToAlphaFilter(inputImage, maskImage: maskImage, channel: channel)
-                guard let maskedImage = maskToAlphaFilter.outputImage?.cropped(to: inputImage.extent) else {
+                guard let maskedImage = maskToAlphaFilter.outputImage?.cropped(to: maskImage.extent) else {
                     node.outputs[0] = .image(await context.addImage(backgroundImage, 0))
                     return
                 }
