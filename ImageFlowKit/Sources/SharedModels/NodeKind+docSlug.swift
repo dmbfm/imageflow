@@ -163,13 +163,9 @@ extension NodeKind {
         case .coreImageFilterNode(.halftoneEffect(.CILineScreen)): ("halftone", "line-screen")
         // Color Reduction
         case .coreImageFilterNode(.reduction(.CIAreaAverage)): ("color-reduction", "area-average")
-        case .coreImageFilterNode(.reduction(.CIAreaAverageMaximumRed)):
-            ("color-reduction", "area-average-and-maximum-red")
-        case .coreImageFilterNode(.reduction(.CIAreaBoundsRed)): ("color-reduction", "area-bounds-red")
         case .coreImageFilterNode(.reduction(.CIAreaMaximum)): ("color-reduction", "area-maximum")
         case .coreImageFilterNode(.reduction(.CIAreaMaximumAlpha)): ("color-reduction", "area-maximum-alpha")
         case .coreImageFilterNode(.reduction(.CIAreaMinMax)): ("color-reduction", "area-min-and-max")
-        case .coreImageFilterNode(.reduction(.CIAreaMinMaxRed)): ("color-reduction", "area-min-and-max-red")
         case .coreImageFilterNode(.reduction(.CIAreaMinimum)): ("color-reduction", "area-minimum")
         case .coreImageFilterNode(.reduction(.CIAreaMinimumAlpha)): ("color-reduction", "area-minimum-alpha")
         case .coreImageFilterNode(.reduction(.CIColumnAverage)): ("color-reduction", "column-average")

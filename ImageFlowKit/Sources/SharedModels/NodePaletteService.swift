@@ -323,6 +323,9 @@ private struct Categories {
                     .CIAreaLogarithmicHistogram,
                     .CIAreaAlphaWeightedHistogram,
                     .CIHistogramDisplayFilter,
+                    .CIAreaAverageMaximumRed,
+                    .CIAreaBoundsRed,
+                    .CIAreaMinMaxRed,
                 ])
                 .map { NodeKind.coreImageFilterNode(.reduction($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.Reduction.allKinds)
