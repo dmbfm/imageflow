@@ -1510,7 +1510,12 @@ extension Nodes.CoreImageCustom {
                         return
                     }
                     node.outputs[0] = .image(
-                        await context.addImage(inputImage.settingAlphaOne(in: inputImage.extent), 0)
+                        await context.addImage(
+                            inputImage.clampedToExtent().settingAlphaOne(in: inputImage.extent).cropped(
+                                to: inputImage.extent
+                            ),
+                            0
+                        )
                     )
                 }
             )
