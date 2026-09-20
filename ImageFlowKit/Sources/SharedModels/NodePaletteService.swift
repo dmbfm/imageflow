@@ -226,13 +226,13 @@ private struct Categories {
             // items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
             //     .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
             items: CompositeOperationNodeKind.allKinds
-                .appending(elementsOf: [
-                    .coreImageFilterNode(.stylize(.CIMix))
-                    // .coreImageFilterNode(.stylize(.CIBlendWithMask)),
-                    // .coreImageFilterNode(.stylize(.CIBlendWithRedMask)),
-                    // .coreImageFilterNode(.stylize(.CIBlendWithBlueMask)),
-                    // .coreImageFilterNode(.stylize(.CIBlendWithAlphaMask)),
-                ])
+                // .appending(elementsOf: [
+                //     .coreImageFilterNode(.stylize(.CIMix))
+                //     // .coreImageFilterNode(.stylize(.CIBlendWithMask)),
+                //     // .coreImageFilterNode(.stylize(.CIBlendWithRedMask)),
+                //     // .coreImageFilterNode(.stylize(.CIBlendWithBlueMask)),
+                //     // .coreImageFilterNode(.stylize(.CIBlendWithAlphaMask)),
+                // ])
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .compositeOperation) }
         )
 

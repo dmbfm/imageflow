@@ -94,7 +94,7 @@ extension NodeKind {
         case .compositeOperation(.setAlphaToOne): ("composite-operations", "alpha-to-one")
         case .compositeOperation(.blendNode): ("composite-operations", "blend")
         case .compositeOperation(.blendMaskNode): ("composite-operations", "blend-with-mask")
-        case .coreImageFilterNode(.stylize(.CIMix)): ("composite-operations", "mix")
+        // case .coreImageFilterNode(.stylize(.CIMix)): ("composite-operations", "mix")
         // Distortion
         case .coreImageFilterNode(.distortionEffect(.CIBumpDistortion)): ("distortion", "bump-distortion")
         case .coreImageFilterNode(.distortionEffect(.CIBumpDistortionLinear)): ("distortion", "bump-distortion-linear")
