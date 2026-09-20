@@ -23,7 +23,7 @@ extension Nodes {
                             ])
                         ),
                     ),
-                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .float(.range(-1.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)

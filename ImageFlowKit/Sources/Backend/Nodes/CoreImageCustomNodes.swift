@@ -591,7 +591,7 @@ extension Nodes.CoreImageCustom {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Kernel", defaultValue: .matrix3x3(.init([0, 0, 0, 0, 1, 0, 0, 0, 0]))),
-                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .float(.range(-1.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -639,7 +639,7 @@ extension Nodes.CoreImageCustom {
                             ])
                         )
                     ),
-                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .float(.range(-1.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -689,7 +689,7 @@ extension Nodes.CoreImageCustom {
                             ])
                         )
                     ),
-                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .default),
+                    .init(name: "Bias", defaultValue: .float(0.0), semantics: .float(.range(-1.0...1.0))),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
