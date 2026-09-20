@@ -94,7 +94,6 @@ extension NodeKind {
         case .compositeOperation(.setAlphaToOne): ("composite-operations", "alpha-to-one")
         case .compositeOperation(.blendNode): ("composite-operations", "blend")
         case .compositeOperation(.blendMaskNode): ("composite-operations", "blend-with-mask")
-        // case .coreImageFilterNode(.stylize(.CIMix)): ("composite-operations", "mix")
         // Distortion
         case .coreImageFilterNode(.distortionEffect(.CIBumpDistortion)): ("distortion", "bump-distortion")
         case .coreImageFilterNode(.distortionEffect(.CIBumpDistortionLinear)): ("distortion", "bump-distortion-linear")
@@ -126,8 +125,6 @@ extension NodeKind {
         case .coreImageCustomNode(.geometry(.resizeToHeight)): ("geometry-adjustment", "resize-to-height")
         case .coreImageFilterNode(.geometryAdjustment(.CILanczosScaleTransform)):
             ("geometry-adjustment", "lanczos-scale-transform")
-        case .coreImageFilterNode(.geometryAdjustment(.CIMaximumScaleTransform)):
-            ("geometry-adjustment", "maximum-scale-transform")
         case .coreImageFilterNode(.geometryAdjustment(.CIStraightenFilter)): ("geometry-adjustment", "straighten")
         // Generator
         case .coreImageCustomNode(.generator(.blurredRectangleGeneratorNode)): ("generator", "blurred-rectangle")
@@ -145,14 +142,10 @@ extension NodeKind {
             ("generator", "rounded-rectangle-stroke")
         case .coreImageCustomNode(.generator(.starShineGeneratorNode)): ("generator", "star-shine")
         case .coreImageCustomNode(.generator(.stripesGeneratorNode)): ("generator", "stripes")
-        case .coreImageFilterNode(.generator(.CISunbeamsGenerator)): ("geometry-adjustment", "sunbeans")
+        case .coreImageFilterNode(.generator(.CISunbeamsGenerator)): ("generator", "sunbeans")
         case .coreImageCustomNode(.generator(.textGeneratorNode)): ("generator", "text-generator")
         // Gradient
-        case .coreImageCustomNode(.gradient(.distanceGradientFromRedMask)):
-            ("gradient", "distance-gradient-from-red-mask")
         case .coreImageCustomNode(.gradient(.gaussianGradient)): ("gradient", "gaussian-gradient")
-        case .coreImageCustomNode(.gradient(.signedDistanceGradientFromRedMask)):
-            ("gradient", "signed-distance-gradient-from-red-mask")
         case .coreImageCustomNode(.gradient(.linearGradient)): ("gradient", "linear-gradient")
         case .coreImageCustomNode(.gradient(.radialGradient)): ("gradient", "radial-gradient")
         // Halftone

@@ -534,6 +534,7 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
     public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
         case radialGradient
         case gaussianGradient
+        case gaussianGradientV2
         case distanceGradientFromRedMask
         case signedDistanceGradientFromRedMask
         case linearGradient
@@ -552,6 +553,8 @@ public enum CoreImageCustomNodeKind: Sendable, Hashable, Codable {
                 Nodes.CoreImageCustom.RadialGradientNode.impl()
             case .gaussianGradient:
                 Nodes.CoreImageCustom.GaussianGradientNode.impl()
+            case .gaussianGradientV2:
+                Nodes.CoreImageCustom.GaussianGradientV2Node.impl()
             case .distanceGradientFromRedMask:
                 Nodes.CoreImageCustom.DistanceGradientFromRedMaskNode.impl()
             case .signedDistanceGradientFromRedMask:

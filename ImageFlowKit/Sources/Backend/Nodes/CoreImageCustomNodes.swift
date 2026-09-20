@@ -908,6 +908,52 @@ extension Nodes.CoreImageCustom {
         }
     }
 
+    public struct GaussianGradientV2Node: NodeImplProvider {
+        public static func impl(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Gaussian Gradient",
+                inputs: [
+                    .init(name: "Radius", defaultValue: .float(300), semantics: .distance),
+                    .init(
+                        name: "Color 0",
+                        defaultValue: .color4(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)),
+                        semantics: .color
+                    ),
+                    .init(
+                        name: "Color 1",
+                        defaultValue: .color4(.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)),
+                        semantics: .color
+                    ),
+                    .init(name: "Crop To Bounds", defaultValue: .bool(true), editorPlacement: .inspectorOption),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let crop = node.inputs[3].bool
+                let radius = node.inputs[0].float
+                let filter = CIFilter.gaussianGradient()
+                filter.center = .zero
+                filter.radius = Float(radius)
+                filter.color0 = node.inputs[1].color4.ciColor
+                filter.color1 = node.inputs[2].color4.ciColor
+
+                let finalImage =
+                    if crop {
+                        filter.outputImage?.cropped(
+                            to: .init(x: -radius, y: -radius, width: 2 * radius, height: 2 * radius)
+                        )
+                    } else {
+                        filter.outputImage
+                    }
+
+                node.outputs[0] = .image(await context.addImage(finalImage, 0))
+            }
+        }
+    }
+
     public struct DistanceGradientFromRedMaskNode: NodeImplProvider {
         public static func impl(_ param: ()) -> NodeImpl {
             let schema = NodeSchema(

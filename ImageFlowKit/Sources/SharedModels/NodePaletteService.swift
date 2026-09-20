@@ -278,7 +278,7 @@ private struct Categories {
                     .CIAffineTransform, .CIBicubicScaleTransform, .CIKeystoneCorrectionCombined,
                     .CIEdgePreserveUpsampleFilter, .CIKeystoneCorrectionHorizontal, .CIPerspectiveCorrection,
                     .CIPerspectiveRotate, .CIPerspectiveTransform, .CIPerspectiveTransformWithExtent,
-                    .CIKeystoneCorrectionVertical, .CICrop,
+                    .CIKeystoneCorrectionVertical, .CICrop, .CIMaximumScaleTransform,
                 ])
                 .map { NodeKind.coreImageFilterNode(.geometryAdjustment($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.GeometryAdjustment.allKinds)
@@ -293,8 +293,6 @@ private struct Categories {
                     ![
                         CIFilterNodeKind.GradientNodeKind.CIRadialGradient,
                         CIFilterNodeKind.GradientNodeKind.CIGaussianGradient,
-                        CIFilterNodeKind.GradientNodeKind.CIDistanceGradientFromRedMask,
-                        CIFilterNodeKind.GradientNodeKind.CISignedDistanceGradientFromRedMask,
                         CIFilterNodeKind.GradientNodeKind.CILinearGradient,
                         CIFilterNodeKind.GradientNodeKind.CISmoothLinearGradient,
                         CIFilterNodeKind.GradientNodeKind.CIRadialGradient,
@@ -302,6 +300,7 @@ private struct Categories {
                 })
                 .map { NodeKind.coreImageFilterNode(.gradient($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.Gradient.allKinds)
+                .excluding(elementsOf: [.coreImageCustomNode(.gradient(.gaussianGradient))])
                 .map { NodePaletteItem(nodeKind: $0, categoryName: .gradient) }
         )
 
