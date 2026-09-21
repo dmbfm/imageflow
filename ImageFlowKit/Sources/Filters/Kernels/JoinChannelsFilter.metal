@@ -5,9 +5,9 @@ extern "C" {
     namespace coreimage {
         float4 join_rgba(sampler r, sampler g, sampler b, sampler a) {
             float cr = unpremultiply(r.sample(r.coord())).r;
-            float cg = unpremultiply(g.sample(r.coord())).g;
-            float cb = unpremultiply(b.sample(r.coord())).b;
-            float ca = unpremultiply(a.sample(r.coord())).a;
+            float cg = unpremultiply(g.sample(g.coord())).g;
+            float cb = unpremultiply(b.sample(b.coord())).b;
+            float ca = unpremultiply(a.sample(a.coord())).a;
             
             float4 result = float4(cr, cg, cb, ca);
             return premultiply(result);
