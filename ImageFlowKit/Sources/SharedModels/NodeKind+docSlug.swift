@@ -180,6 +180,8 @@ extension NodeKind {
         case .coreImageFilterNode(.stylize(.CIGloom)): ("stylize", "gloom")
         case .coreImageFilterNode(.stylize(.CIHexagonalPixellate)): ("stylize", "hexagonal-pixelate")
         case .coreImageFilterNode(.stylize(.CIHighlightShadowAdjust)): ("stylize", "highlight-and-shadow-adjust")
+        case .coreImageFilterNode(.stylize(.CIHeightFieldFromMask)): ("stylize", "height-field-from-mask")
+        case .coreImageFilterNode(.stylize(.CIShadedMaterial)): ("stylize", "shaded-material")
         case .coreImageFilterNode(.stylize(.CILineOverlay)): ("stylize", "line-overlay")
         case .coreImageFilterNode(.stylize(.CIPixellate)): ("stylize", "pixelate")
         case .coreImageFilterNode(.stylize(.CIPointillize)): ("stylize", "pointillize")
