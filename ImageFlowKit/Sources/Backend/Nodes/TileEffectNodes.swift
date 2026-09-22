@@ -401,7 +401,12 @@ extension Nodes {
                             semantics: .position2,
                             editorPlacement: .default
                         ),
-                        .init(name: "Scale", defaultValue: .float(2.8), semantics: .default, editorPlacement: .default),
+                        .init(
+                            name: "Scale",
+                            defaultValue: .float(2.8),
+                            semantics: .float(.range(0.1...10.0)),
+                            editorPlacement: .default
+                        ),
                         .init(
                             name: "Angle",
                             defaultValue: .float(0.0),
