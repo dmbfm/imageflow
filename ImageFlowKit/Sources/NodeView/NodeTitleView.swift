@@ -159,6 +159,7 @@ public final class NodeTitleView: XViewEx {
         let size = CGSize(
             width: style.iconSize + self.style.iconTitleSpacing
                 + max(subtitleSize.width, self.style.minTitleWidth),
+            // + max(subtitleSize.width, titleSize.width),
             height: max(titleSize.height + subtitleSize.height + self.style.titleSubtitleSpacing, self.style.iconSize)
         )
         return size

@@ -194,7 +194,7 @@ final class NodeAssetPicker<T: AssetPickerType>: XViewEx, NodeControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        return self.isEditable ? (self.innerView.intrinsicContentSize.clampWidth(to: 0...160)) : .zero
+        return (self.innerView.intrinsicContentSize.clampWidth(to: 0...160))
     }
 
     override func layout() {
