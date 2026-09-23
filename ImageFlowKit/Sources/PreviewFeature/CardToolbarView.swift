@@ -15,11 +15,6 @@ struct CardToolbarView: View {
     var visible: Bool
     var locked: Bool = false
 
-    @Namespace var ns
-
-    let buttonWidth: CGFloat = 4.0
-    let buttonHeight: CGFloat = 16.0
-
     func icon(_ name: CardToolbarItemName) -> String {
         switch name {
         case .copy:
@@ -42,20 +37,20 @@ struct CardToolbarView: View {
             self.handler?(name)
         } label: {
             Image(systemName: self.icon(name))
-                .frame(width: buttonWidth, height: buttonHeight)
-
+                .padding(8)
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.glass)
-        .glassEffectUnion(id: glassID, namespace: ns)
+        .buttonStyle(.plain)
     }
 
     var body: some View {
-        GlassEffectContainer(spacing: 8) {
+        GlassEffectContainer(spacing: 0) {
             if self.visible {
                 ZStack(alignment: .top) {
                     Color.clear
                     HStack(spacing: 0) {
                         self.makeButton(.lock, glassID: "left")
+                            .glassEffect(.regular.interactive(), in: .capsule)
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
@@ -64,9 +59,12 @@ struct CardToolbarView: View {
                     HStack(spacing: 0) {
                         Spacer(minLength: 22)
 
-                        self.makeButton(.dockDown, glassID: "middle")
-                        self.makeButton(.dockUp, glassID: "middle")
-                        self.makeButton(.window, glassID: "middle")
+                        HStack(spacing: 0) {
+                            self.makeButton(.dockDown, glassID: "middle")
+                            self.makeButton(.dockUp, glassID: "middle")
+                            self.makeButton(.window, glassID: "middle")
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
 
                         Spacer(minLength: 48)
                     }
@@ -75,8 +73,11 @@ struct CardToolbarView: View {
                     HStack(spacing: 0) {
                         Spacer()
 
-                        self.makeButton(.copy, glassID: "right")
-                        self.makeButton(.export, glassID: "right")
+                        HStack(spacing: 0) {
+                            self.makeButton(.copy, glassID: "right")
+                            self.makeButton(.export, glassID: "right")
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
                     }
                     .frame(maxWidth: .infinity)
                 }
