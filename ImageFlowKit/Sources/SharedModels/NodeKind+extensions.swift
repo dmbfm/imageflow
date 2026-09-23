@@ -114,7 +114,7 @@ public extension NodeKind {
             "arrow.right.circle.dotted"
         case .valueNode(let valueType):
             valueType.icon
-        case .splitValue(.imageRect), .splitValue(.imageSize), .splitValue(.imageOrigin):
+        case .splitValue(.imageRect), .splitValue(.imageSize), .splitValue(.imageOrigin), .splitValue(.imageCenter):
             "photo"
         case .splitValue(_):
             "arrow.trianglehead.branch"

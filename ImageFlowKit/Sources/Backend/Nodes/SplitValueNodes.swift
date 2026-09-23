@@ -267,6 +267,35 @@ extension Nodes {
             }
         }
 
+        struct ImageCenterNode: NodeImplProvider {
+            static func impl(_ param: ()) -> NodeImpl {
+                let schema = NodeSchema(
+                    name: "Image Center",
+                    inputs: [
+                        .init(name: "Value", type: .image),
+                        .init(name: "Offset", defaultValue: .vector2(.init(x: 0, y: 0))),
+                    ],
+                    outputs: [
+                        .init(name: "Point", type: .vector2)
+                    ]
+                )
+
+                return .init(
+                    schema: schema,
+                    runImpl: { node, context in
+                        guard let image = await context.getImage(node.inputs[0].image) else {
+                            node.outputs[0].vector2 = .zero
+                            return
+                        }
+
+                        let center = image.extent.center
+                        let offset = node.inputs[1].vector2
+                        node.outputs[0].vector2 = .init(x: center.x + offset.x, y: center.y + offset.y)
+                    }
+                )
+            }
+        }
+
         struct ImageOriginNode: NodeImplProvider {
             static func impl(_ param: ()) -> NodeImpl {
                 let schema = NodeSchema(

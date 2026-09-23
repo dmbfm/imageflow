@@ -27,6 +27,7 @@ extension NodeKind {
         case .combineValue(.imageRGBA): ("image", "combine-rgba-masks")
         case .splitValue(.imageOrigin): ("image", "image-origin")
         case .splitValue(.imageRect): ("image", "image-rect")
+        case .splitValue(.imageCenter): ("image", "image-center")
         case .splitValue(.imageSize): ("image", "image-size")
         // Blur
         case .coreImageFilterNode(.blur(.CIBokehBlur)): ("blur", "bokeh")

@@ -72,6 +72,7 @@ private struct Categories {
             .init(nodeKind: .splitValue(.imageSize), categoryName: .image),
             .init(nodeKind: .splitValue(.imageOrigin), categoryName: .image),
             .init(nodeKind: .splitValue(.imageRect), categoryName: .image),
+            .init(nodeKind: .splitValue(.imageCenter), categoryName: .image),
             .init(nodeKind: .splitValue(.imageChannels), categoryName: .image),
             .init(nodeKind: .combineValue(.imageRGB), categoryName: .image),
             .init(nodeKind: .combineValue(.imageRGBA), categoryName: .image),
@@ -147,7 +148,7 @@ private struct Categories {
         .init(
             name: .split,
             items: SplitValueNodeKind.allCases
-                .excluding(elementsOf: [.imageRect, .imageSize, .imageOrigin, .imageChannels])
+                .excluding(elementsOf: [.imageRect, .imageCenter, .imageSize, .imageOrigin, .imageChannels])
                 .map({ NodeKind.splitValue($0) })
                 .map { .init(nodeKind: $0, categoryName: .split) }
         )

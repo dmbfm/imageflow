@@ -410,6 +410,7 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case rect
     case imageSize
     case imageRect
+    case imageCenter
     case imageOrigin
     case imageChannels
 
@@ -433,6 +434,8 @@ public enum SplitValueNodeKind: Sendable, Hashable, Codable, CaseIterable {
             Nodes.SplitValueNodes.ImageChannelsNode.impl()
         case .rect:
             Nodes.SplitValueNodes.SlipRectNode.impl()
+        case .imageCenter:
+            Nodes.SplitValueNodes.ImageCenterNode.impl()
         }
     }
 }
