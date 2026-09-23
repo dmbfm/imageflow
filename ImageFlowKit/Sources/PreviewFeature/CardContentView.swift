@@ -46,11 +46,20 @@ class CardContentView: XViewEx {
         return view
     }()
 
-    lazy var messageView: ComponentKit::VStack = {
-        VStack(views: [
-            Label("Image is empty!")
-        ])
-        .with(\.isHidden, true)
+    struct MessageView: View {
+        var body: some View {
+            SwiftUI.VStack {
+                SwiftUI.Spacer()
+                ContentUnavailableView("Emtpy Image", systemImage: "photo.slash")
+                SwiftUI.Spacer()
+            }
+        }
+    }
+
+    lazy var messageView: NSHostingView<MessageView> = {
+        let view = NSHostingView(rootView: MessageView())
+        view.isHidden = true
+        return view
     }()
 
     lazy var imageView: CIImageXView = {
