@@ -197,7 +197,9 @@ private struct Categories {
         .init(
             name: .colorAdjustment,
             items: CIFilterNodeKind.ColoradjustmentNodeKind.allCases
-                .excluding(elementsOf: [.CIDisparityToDepth, .CIDepthToDisparity])
+                .excluding(elementsOf: [
+                    .CIDisparityToDepth, .CIDepthToDisparity, .CIColorPolynomial, .CIToneMapHeadroom,
+                ])
                 .map { NodeKind.coreImageFilterNode(.colorAdjustment($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorAdjustment.allKinds)
                 .map { kind in
@@ -213,7 +215,7 @@ private struct Categories {
                     .CIColorMap, .CIColorPosterize, .CILabDeltaE, .CIVignetteEffect, .CIPalettize, .CIMaximumComponent,
                     .CIMinimumComponent, .CIPhotoEffectFade, .CIPhotoEffectMono, .CIPhotoEffectNoir,
                     .CIPhotoEffectTonal, .CIPhotoEffectChrome, .CIPhotoEffectInstant, .CIPhotoEffectProcess,
-                    .CIPhotoEffectTransfer,
+                    .CIPhotoEffectTransfer, .CIConvertLabToRGB, .CIConvertRGBtoLab, .CIFalseColor,
                 ])
                 .map { NodeKind.coreImageFilterNode(.colorEffect($0)) }
                 .appending(elementsOf: CoreImageCustomNodeKind.ColorEffect.allKinds)
