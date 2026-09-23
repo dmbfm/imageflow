@@ -50,6 +50,7 @@ struct CardToolbarView: View {
                     Color.clear
                     HStack(spacing: 0) {
                         self.makeButton(.lock, glassID: "left")
+                            .help("Lock Preview")
                             .glassEffect(.regular.interactive(), in: .capsule)
                         Spacer()
                     }
@@ -61,8 +62,11 @@ struct CardToolbarView: View {
 
                         HStack(spacing: 0) {
                             self.makeButton(.dockDown, glassID: "middle")
+                                .help("Dock to Bottom")
                             self.makeButton(.dockUp, glassID: "middle")
+                                .help("Dock to Top")
                             self.makeButton(.window, glassID: "middle")
+                                .help("Open in Window")
                         }
                         .glassEffect(.regular.interactive(), in: .capsule)
 
@@ -75,7 +79,9 @@ struct CardToolbarView: View {
 
                         HStack(spacing: 0) {
                             self.makeButton(.copy, glassID: "right")
+                                .help("Copy Image")
                             self.makeButton(.export, glassID: "right")
+                                .help("Export Image")
                         }
                         .glassEffect(.regular.interactive(), in: .capsule)
                     }
