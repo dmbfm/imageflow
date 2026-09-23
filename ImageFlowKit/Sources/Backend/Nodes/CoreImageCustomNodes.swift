@@ -961,7 +961,12 @@ extension Nodes.CoreImageCustom {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                    .init(
+                        name: "Crop to Source, editorPlacement: .inspectorOption",
+                        defaultValue: .bool(true),
+                        semantics: .boolean,
+                        editorPlacement: .inspectorOption
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
@@ -1004,7 +1009,12 @@ extension Nodes.CoreImageCustom {
                 inputs: [
                     .init(name: "Image", type: .image, semantics: .image),
                     .init(name: "Maximum Distance", defaultValue: .float(10.0), semantics: .distance),
-                    .init(name: "Crop to Source", defaultValue: .bool(true), semantics: .boolean),
+                    .init(
+                        name: "Crop to Source",
+                        defaultValue: .bool(true),
+                        semantics: .boolean,
+                        editorPlacement: .inspectorOption
+                    ),
                 ],
                 outputs: [
                     .init(name: "Output Image", type: .image)
