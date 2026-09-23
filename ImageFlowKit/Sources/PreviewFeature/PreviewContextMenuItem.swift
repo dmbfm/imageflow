@@ -11,6 +11,7 @@ class PreviewContextMenuItem: NSMenuItem {
     enum ItemType {
         case anchor(CardStageAnchor)
         case dock(CardDockLocation)
+        case openWindow
         case copy
         case export
 
@@ -22,6 +23,7 @@ class PreviewContextMenuItem: NSMenuItem {
             case .anchor(.topRight): "Top Right"
             case .dock(.bottom): "Dock to Bottom"
             case .dock(.top): "Dock to Top"
+            case .openWindow: "Open Preview Window"
             case .copy: "Copy to Clipboard"
             case .export: "Export Image"
             }

@@ -594,6 +594,8 @@ extension PreviewFeatureController {
             self.copyImage()
         case .export:
             self.exportImage()
+        case .openWindow:
+            self.openWindow()
         }
     }
 
@@ -658,6 +660,13 @@ extension PreviewFeatureController {
                 checked: checked(.dock(.bottom))
             ),
             .separator(),
+            PreviewContextMenuItem(
+                .openWindow,
+                action: #selector(Self.cardContextMenuHandler(_:)),
+                target: self,
+                image: .systemIconWindowPreview,
+                enabled: self.state.image != nil,
+            ),
             PreviewContextMenuItem(
                 .copy,
                 action: #selector(Self.cardContextMenuHandler(_:)),
