@@ -98,7 +98,14 @@ final class NodeTabViewModel: RxEventHandler, WithRef {
     }
 
     func nodesDidChange() {
-        guard let node = self.currentNode, let newValue = self.flow.nodes[node.id] else { return }
+        guard let node = self.currentNode else { return }
+        guard let newValue = self.flow.nodes[node.id] else {
+            if self.locked {
+                self.currentNode = nil
+                self.locked = false
+            }
+            return
+        }
         self.setCurrentNode(newValue)
     }
 
