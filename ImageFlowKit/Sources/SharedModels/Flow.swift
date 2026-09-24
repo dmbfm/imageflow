@@ -526,6 +526,23 @@ extension Flow {
         undoService?.endUndoGrouping()
     }
 
+    func convertNode(_ id: UUID, toVariation kind: NodeKind, undoService: UndoService?) -> Bool {
+        guard var node = self.nodes[id] else { return false }
+        let oldKind = node.kind
+        let result = node.convert(toVariation: kind)
+        if !result { return false }
+        self.nodes[id] = node
+        undoService?.register(
+            withTarget: self,
+            title: nil,
+            icon: nil,
+            handler: { [weak undoService] this in
+                let _ = this.convertNode(id, toVariation: oldKind, undoService: undoService)
+            }
+        )
+        return true
+    }
+
     func newEdgeWithTypeErrorFixAction(_ edge: Edge, _ fix: TypeError.Fix, undoService: UndoService?) {
         undoService?.beginUndoGrouping()
         defer { undoService?.endUndoGrouping() }
@@ -538,7 +555,7 @@ extension Flow {
                 (edge.fromPort, kind)
             }
         {
-            let converted = self.nodes[portToFix.node]!.convert(toVariation: kind)
+            let converted = self.convertNode(portToFix.node, toVariation: kind, undoService: undoService)
             precondition(converted)
         }
 
