@@ -55,7 +55,7 @@ public final class List: XView, WithRef, Rx {
         view.allowsEmptySelection = true
 
         view.focusRingType = .none
-        view.backgroundColor = .system.quaternaryFill
+        view.backgroundColor = .system.secondaryFill
         view.withLayer({ $0.cornerRadius = 10 })
         view.intercellSpacing = .init(width: 0, height: 4)
 
