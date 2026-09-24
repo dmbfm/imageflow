@@ -99,6 +99,14 @@ final class SidebarSearchField: NSSplitViewItemAccessoryViewController, NSSearch
 
         return false
     }
+
+    func searchFieldDidStartSearching(_ sender: NSSearchField) {
+        self.delegate?.sidebarSearchTextDidChange(self.searchField.stringValue)
+    }
+
+    func searchFieldDidEndSearching(_ sender: NSSearchField) {
+        self.delegate?.sidebarSearchTextDidChange(self.searchField.stringValue)
+    }
 }
 
 #endif
