@@ -183,6 +183,8 @@ public final class CanvasFeatureViewController: NSViewController {
         case .nodePositionsDidChange, .liveMoveNodesSnapshotDidChange:
             self.updateNodePositions()
             self.upadteEdges()
+        case .edgesDidChange(_):
+            self.upadteEdges()
         case .partialEdgeDidChange:
             self.upadteEdges()
         case .selectionDidChange(_, liveSelect: true):
