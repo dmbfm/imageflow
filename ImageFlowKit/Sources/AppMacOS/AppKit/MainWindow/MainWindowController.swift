@@ -12,6 +12,10 @@ final class MainWindowController: NSWindowController {
 
     let toolbarController: ToolbarController
 
+    var mvc: MainViewController? {
+        self.contentViewController as? MainViewController
+    }
+
     init(_ flow: Flow, _ assetStore: AssetStore, _ canvasState: CanvasFeatureState, undoManager: UndoManager? = nil) {
         let mainVC = MainViewController(flow, assetStore, canvasState)
         self.toolbarController = .init(mainVC: mainVC)
@@ -57,6 +61,36 @@ final class MainWindowController: NSWindowController {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
+    }
+
+    @objc
+    override func selectAll(_ sender: Any?) {
+        if let vc = self.contentViewController as? MainViewController {
+            vc.perform(userAction: .selectAllNodes)
+        }
+    }
+
+    @objc
+    func deselectAll(_ sender: Any?) {
+        if let vc = self.mvc {
+            vc.perform(userAction: .selectNone)
+        }
+    }
+}
+
+extension MainWindowController: NSUserInterfaceValidations {
+    func validateUserInterfaceItem(_ item: any NSValidatedUserInterfaceItem) -> Bool {
+
+        let canSelectAll = (self.mvc?.flow.nodes.count ?? 0) > 0
+        let canSelectNone = !(self.mvc?.flow.selection.isEmpty ?? true)
+
+        if item.action == #selector(Self.selectAll(_:)) {
+            return canSelectAll
+        } else if item.action == #selector(Self.deselectAll(_:)) {
+            return canSelectNone
+        }
+
+        return false
     }
 }
 
