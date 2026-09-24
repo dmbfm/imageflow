@@ -92,7 +92,7 @@ extension NodeKind {
         case .coreImageFilterNode(.colorEffect(.CIXRay)): ("color-effect", "x-ray")
         // Composite Operations
         case .compositeOperation(.setAlphaToOne): ("composite-operations", "alpha-to-one")
-        case .compositeOperation(.blendNode): ("composite-operations", "blend")
+        case .compositeOperation(.blendNodeV2): ("composite-operations", "blend")
         case .compositeOperation(.blendMaskNode): ("composite-operations", "blend-with-mask")
         // Distortion
         case .coreImageFilterNode(.distortionEffect(.CIBumpDistortion)): ("distortion", "bump-distortion")

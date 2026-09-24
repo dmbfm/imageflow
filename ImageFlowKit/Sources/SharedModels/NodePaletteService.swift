@@ -228,7 +228,7 @@ private struct Categories {
             name: .compositeOperation,
             // items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
             //     .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
-            items: CompositeOperationNodeKind.allKinds
+            items: CompositeOperationNodeKind.allKinds.excluding(elementsOf: [.compositeOperation(.blendNode)])
                 // .appending(elementsOf: [
                 //     .coreImageFilterNode(.stylize(.CIMix))
                 //     // .coreImageFilterNode(.stylize(.CIBlendWithMask)),

@@ -270,6 +270,7 @@ public enum MathNodeKind: Sendable, Hashable, Codable {
 
 public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterable {
     case blendNode
+    case blendNodeV2
     case blendMaskNode
     case setAlphaToOne
 
@@ -285,6 +286,8 @@ public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterabl
         switch self {
         case .blendNode:
             Nodes.CoreImageCustom.BlendNode.impl()
+        case .blendNodeV2:
+            Nodes.CoreImageCustom.BlendNode.implV2(())
         case .blendMaskNode:
             Nodes.CoreImageCustom.BlendWithMask.impl()
         case .setAlphaToOne:
