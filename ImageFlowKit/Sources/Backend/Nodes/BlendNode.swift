@@ -362,6 +362,110 @@ extension Nodes.CoreImageCustom {
                 }
             }
         }
+
+        static func implV2(_ param: ()) -> NodeImpl {
+            let schema = NodeSchema(
+                name: "Blend With Mask",
+                inputs: [
+                    .init(name: "Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Mask Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(name: "Background Image", type: .image, semantics: .image, editorPlacement: .default),
+                    .init(
+                        name: "Blend Mode",
+                        defaultValue: .int(0),
+                        semantics: .integer(
+                            .picker(
+                                BlendNode.BlendMode.allCases.map({ .init(label: $0.displayName, value: $0.rawValue) })
+                            )
+                        ),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Mask Type",
+                        defaultValue: .int(Mask.alpha.rawValue),
+                        semantics: .integer(
+                            .picker(Mask.allCases.map({ .init(label: $0.displayName, value: $0.rawValue) }))
+                        ),
+                        editorPlacement: .default
+                    ),
+                    .init(
+                        name: "Amount",
+                        defaultValue: .float(1.0),
+                        semantics: .float(.range(0...1)),
+                        editorPlacement: .default
+                    ),
+                    .init(name: "Crop to Background", defaultValue: .bool(false), editorPlacement: .inspectorOption),
+                ],
+                outputs: [
+                    .init(name: "Output Image", type: .image)
+                ]
+            )
+
+            return .init(schema: schema) { node, context in
+                let blendMode = BlendNode.BlendMode(rawValue: node.inputs[3].int) ?? .colorBlendMode
+                let filter = blendMode.filter
+                let maskType = Mask(rawValue: node.inputs[4].int) ?? .alpha
+                let amount = node.inputs[5].float
+                let cropToBackground = node.inputs[6].bool
+
+                guard let backgroundImage = await context.getImage(node.inputs[2].image) else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                    return
+                }
+
+                guard let inputImage = await context.getImage(node.inputs[0].image) else {
+                    node.outputs[0] = .image(await context.addImage(backgroundImage, 0))
+                    return
+                }
+
+                let maskImage = await context.getImage(node.inputs[1].image) ?? .white
+
+                filter.setValue(backgroundImage, forKey: "inputBackgroundImage")
+
+                let channel: MaskToAlphaFilter.MaskChannel =
+                    switch maskType {
+                    case .red: .red
+                    case .green: .green
+                    case .blue: .blue
+                    case .alpha: .alpha
+                    case .white: .white
+                    }
+
+                let maskToAlphaFilter = MaskToAlphaFilter(inputImage, maskImage: maskImage, channel: channel)
+                guard let maskedImage = maskToAlphaFilter.outputImage?.cropped(to: maskImage.extent) else {
+                    node.outputs[0] = .image(await context.addImage(backgroundImage, 0))
+                    return
+                }
+
+                if amount == 1.0 {
+                    filter.setValue(maskedImage, forKey: "inputImage")
+                } else {
+                    let mix = CIFilter.mix()
+                    mix.inputImage = maskedImage
+                    mix.backgroundImage = clearImage
+                    mix.amount = Float(amount)
+                    if let image = mix.outputImage {
+                        filter.setValue(image.cropped(to: maskedImage.extent), forKey: "inputImage")
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(backgroundImage, 0))
+                        return
+                    }
+                }
+
+                let outputImage = filter.outputImage
+                if let outputImage, !outputImage.extent.isEmpty {
+                    if cropToBackground {
+                        node.outputs[0] = .image(
+                            await context.addImage(outputImage.cropped(to: backgroundImage.extent), 0)
+                        )
+                    } else {
+                        node.outputs[0] = .image(await context.addImage(outputImage, 0))
+                    }
+                } else {
+                    node.outputs[0] = .image(await context.addImage(nil, 0))
+                }
+            }
+        }
     }
 }
 

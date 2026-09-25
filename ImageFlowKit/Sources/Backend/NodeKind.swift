@@ -272,6 +272,7 @@ public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterabl
     case blendNode
     case blendNodeV2
     case blendMaskNode
+    case blendMaskNodeV2
     case setAlphaToOne
 
     public static var allKinds: [NodeKind] {
@@ -290,6 +291,8 @@ public enum CompositeOperationNodeKind: Sendable, Hashable, Codable, CaseIterabl
             Nodes.CoreImageCustom.BlendNode.implV2(())
         case .blendMaskNode:
             Nodes.CoreImageCustom.BlendWithMask.impl()
+        case .blendMaskNodeV2:
+            Nodes.CoreImageCustom.BlendWithMask.implV2(())
         case .setAlphaToOne:
             Nodes.CoreImageCustom.AlphaToOneNode.impl()
         }

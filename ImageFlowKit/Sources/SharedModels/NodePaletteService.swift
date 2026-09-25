@@ -228,15 +228,17 @@ private struct Categories {
             name: .compositeOperation,
             // items: CIFilterNodeKind.CompositeoperationNodeKind.allCases
             //     .map { NodeKind.coreImageFilterNode(.compositeOperation($0)) }
-            items: CompositeOperationNodeKind.allKinds.excluding(elementsOf: [.compositeOperation(.blendNode)])
-                // .appending(elementsOf: [
-                //     .coreImageFilterNode(.stylize(.CIMix))
-                //     // .coreImageFilterNode(.stylize(.CIBlendWithMask)),
-                //     // .coreImageFilterNode(.stylize(.CIBlendWithRedMask)),
-                //     // .coreImageFilterNode(.stylize(.CIBlendWithBlueMask)),
-                //     // .coreImageFilterNode(.stylize(.CIBlendWithAlphaMask)),
-                // ])
-                .map { NodePaletteItem(nodeKind: $0, categoryName: .compositeOperation) }
+            items: CompositeOperationNodeKind.allKinds.excluding(elementsOf: [
+                .compositeOperation(.blendNode), .compositeOperation(.blendMaskNode),
+            ])
+            // .appending(elementsOf: [
+            //     .coreImageFilterNode(.stylize(.CIMix))
+            //     // .coreImageFilterNode(.stylize(.CIBlendWithMask)),
+            //     // .coreImageFilterNode(.stylize(.CIBlendWithRedMask)),
+            //     // .coreImageFilterNode(.stylize(.CIBlendWithBlueMask)),
+            //     // .coreImageFilterNode(.stylize(.CIBlendWithAlphaMask)),
+            // ])
+            .map { NodePaletteItem(nodeKind: $0, categoryName: .compositeOperation) }
         )
 
     static let distortionEffect: NodePaletteCategory =
