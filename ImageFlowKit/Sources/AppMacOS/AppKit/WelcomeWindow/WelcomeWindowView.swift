@@ -15,7 +15,7 @@ public struct WelcomeWindowView: View {
     }
 
     var appName: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "ImageFlow"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "ImageFlow"
     }
 
     var appVersion: String {
