@@ -2,6 +2,8 @@
 
 import SwiftUI
 import AppKit
+import TrialFeature
+import SharedModels
 
 public struct WelcomeWindowView: View {
 
@@ -69,6 +71,10 @@ public struct WelcomeWindowView: View {
     var imageName: String {
         self.colorScheme == .dark ? "logo-dark" : "logo"
     }
+    
+    var isTrial: Bool {
+        trialVar.value
+    }
 
     @ViewBuilder
     var contentBodyView: some View {
@@ -91,19 +97,40 @@ public struct WelcomeWindowView: View {
                 .foregroundStyle(.primary)
 
             Spacer().frame(height: 4)
-
+            
             Text(self.appVersionString)
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
 
-            Spacer().frame(height: 40)
+            
+            if self.isTrial {
+                Spacer().frame(height: 10)
+            } else {
+               Spacer().frame(height: 40)
+            }
 
             self.actionButtonsView
-
-            Spacer()
+            
+            if self.isTrial {
+                Spacer().frame(height: 16)
+                self.trialPill
+            } else {
+                Spacer()
+            }
         }
         .fontDesign(.rounded)
         .frame(width: 460)
+    }
+    
+    @ViewBuilder
+    var trialPill: some View {
+        if trialVar.value {
+            TrialPillView(vm: .init(remainingDays: TrialManager.shared.daysRemaining)) {
+                NSWorkspace.shared.open(.init(string: "https://apps.apple.com/us/app/imageflow-node-image-editor/id6802113146")!)
+            }
+        } else {
+           EmptyView()
+        }
     }
 
     @ViewBuilder

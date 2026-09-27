@@ -9,4 +9,12 @@ import AppKit
 import AppMacOS
 
 @main
-extension EntryPoint {}
+extension EntryPoint {
+    public static func main() {
+        #if IMAGEFLOW_TRIAL_BUILD
+        Self.run(trialBuild: true)
+        #else
+        Self.run(trialBuild: false)
+        #endif
+    }
+}
