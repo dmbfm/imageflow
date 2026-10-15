@@ -5,9 +5,6 @@
       location = "group:ImageFlowPreviews/ImageFlowPreviews.xcodeproj">
    </FileRef>
    <FileRef
-      location = "container:ImageFlowIPad/ImageFlowIPad.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:ImageFlowMac/ImageFlowMac.xcodeproj">
    </FileRef>
    <FileRef
