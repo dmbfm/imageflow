@@ -16,7 +16,6 @@ import Combine
 import AssetSystem
 import InspectorFeature
 import SettingsFeature
-import TrialFeature
 
 final class MainViewController: NSSplitViewController {
 
@@ -152,29 +151,11 @@ final class MainViewController: NSSplitViewController {
 
         self.view.addSubview(NSHostingView(rootView: ModalContainerView(vm: self.modalContainerVM)))
         
-        self.addTrialPillView()
-
         Task {
             self.backendRunner.run()
         }
     }
     
-    func addTrialPillView() {
-         if trialVar.value {
-            let pill = NSHostingView(rootView: TrialPillView(vm: .init(remainingDays: TrialManager.shared.daysRemaining)) {
-                NSWorkspace.shared.open(.init(string: "https://apps.apple.com/us/app/imageflow-node-image-editor/id6802113146")!)
-            }.fixedSize())
-            pill.sizingOptions = .maxSize
-            pill.translatesAutoresizingMaskIntoConstraints = false
-            
-            self.view.addSubview(pill)
-            NSLayoutConstraint.activate([
-                pill.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-                pill.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -20),
-            ])
-        }
-    }
-
     #if os(macOS)
     let maxZoom: CGFloat = 4
     #else

@@ -44,7 +44,6 @@ let package = Package(
         .library(name: "ComponentKit"),
         .library(name: "Filters"),
         .library(name: "FormatKit"),
-        .library(name: "TrialFeature"),
     ],
     dependencies: [
         .package(url: "https://github.com/davecom/SwiftGraph.git", branch: "master"),
@@ -52,13 +51,6 @@ let package = Package(
     ],
     targets: [
         .executableTarget(name: "GenerateNodeIndex", dependencies: ["SharedModels"]),
-        .target(
-            name: "TrialFeature",
-            dependencies: [
-                "Helpers",
-                "SharedModels",
-            ]
-        ),
         .target(name: "FormatKit", dependencies: ["Helpers"]),
         .target(
             name: "Filters",
@@ -85,7 +77,6 @@ let package = Package(
                 "NodePaletteFeature",
                 "AssetSystem",
                 "InspectorFeature",
-                "TrialFeature",
             ]
         ),
         .target(
