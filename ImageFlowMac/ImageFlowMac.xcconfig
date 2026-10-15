@@ -1,0 +1,14 @@
+//
+//  ImageFlowMac.xcconfig
+//  ImageFlowMac
+//
+//  Created by Daniel Fortes on 15/10/26.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+//CODE_SIGN_ENTITLEMENTS=Cork/Cork.entitlements
+//CODE_SIGN_IDENTITY=-
+//CODE_SIGN_IDENTITY[sdk=macosx*]=Apple Development
+//CODE_SIGN_STYLE=Automatic
