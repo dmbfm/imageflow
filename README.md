@@ -5,7 +5,7 @@ ImageFlow is an open-source node-based image editor for macOS, built for nonline
 [![Swift](https://github.com/dmbfm/imageflow/actions/workflows/swift.yml/badge.svg)](https://github.com/dmbfm/imageflow/actions/workflows/swift.yml)
 [![NO AI](https://raw.githubusercontent.com/nuxy/no-ai-badge/master/badge.svg)](https://github.com/nuxy/no-ai-badge)
 
-![ImageFlow Screenshot](https://private-user-images.githubusercontent.com/8743306/674988414-7a3b8fa8-e252-402c-878e-c6acc4e88e1a.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3OTIwODg0ODUsIm5iZiI6MTc5MjA4ODE4NSwicGF0aCI6Ii84NzQzMzA2LzY3NDk4ODQxNC03YTNiOGZhOC1lMjUyLTQwMmMtODc4ZS1jNmFjYzRlODhlMWEucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI2MTAxNSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNjEwMTVUMTgxNjI1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9ZTM1OTIyZTVhZjBhODI2MzkyZGFkZTlkMzlhNGE4ZGVmNzQ3MTBhZDU2OWRiZDk5MjY1OTk4Mjc3MzA3YjAwNSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmcmVzcG9uc2UtY29udGVudC10eXBlPWltYWdlJTJGcG5nIn0.eJJ1-YkJqFGsmBrNUrXbvjLSa2fDr_p-D4cROWjTEGQ)
+![ImageFlow Screenshot](https://github.com/user-attachments/assets/7a3b8fa8-e252-402c-878e-c6acc4e88e1a)
 
 # AI Policy
 
