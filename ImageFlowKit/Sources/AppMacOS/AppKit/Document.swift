@@ -104,7 +104,7 @@ public final class FlowDocument: NSDocument {
             }
         }
 
-        let flow = FileWrapper(regularFileWithContents: try JSONEncoder().encode(snapshot))
+        let flow = FileWrapper(regularFileWithContents: try snapshot.encode())
         let fws: [String: FileWrapper] = ["flow.json": flow, "Assets": .init(directoryWithFileWrappers: assetsFws)]
 
         return .init(directoryWithFileWrappers: fws)
@@ -116,7 +116,7 @@ public final class FlowDocument: NSDocument {
         self.unblockUserInteraction()
 
         let result = FileWrapper(directoryWithFileWrappers: [
-            "flow.json": .init(regularFileWithContents: try JSONEncoder().encode(snapshot))
+            "flow.json": .init(regularFileWithContents: try snapshot.encode())
         ])
 
         return result
@@ -190,6 +190,12 @@ extension FlowDocument: Storable {
             public var flow: Flow.StorableData
             public var canvas: CanvasFeatureState.StorableData
             public var assets: AssetStore.StorableData
+        }
+
+        public func encode() throws -> Data {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            return try encoder.encode(self)
         }
     }
 
